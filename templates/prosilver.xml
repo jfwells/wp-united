@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns="http://www.phpbb.com/mods/xml/modx-1.0.xsd">
+  <header>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
+    <title lang="en-gb">WP-UNITED [prosilver template edits]</title>
+    <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
+    <author-notes lang="en-gb">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!</author-notes>
+    <author-group>
+      <author>
+        <realname>John Wells</realname>
+        <email>admin@wp-united.com</email>
+        <username>Jhong</username>
+        <homepage>www.wp-united.com</homepage>
+        <contributions />
+      </author>
+    </author-group>
+    <mod-version>
+      <major>0</major>
+      <minor>5</minor>
+      <revision>5</revision>
+    </mod-version>
+    <installation>
+      <level>easy</level>
+      <time>303</time>
+      <target-version>
+        <target-primary>3.0.0</target-primary>
+        <target-major allow="exact">3</target-major>
+        <target-minor allow="exact">0</target-minor>
+      </target-version>
+    </installation>
+    <meta name="generator" content="Phpbb.ModTeam.Tools (c#)" />
+  </header>
+  <action-group>
+    <open src="styles/prosilver/template/overall_header.html">
+      <edit>
+        <find><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">]]></find>
+        <action type="replace-with"><![CDATA[<!-- IF WP_DTD -->{WP_DTD}<!-- ELSE --><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><!-- ENDIF -->]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[<title>{SITENAME} &bull; <!-- IF S_IN_MCP -->{L_MCP} &bull; <!-- ELSEIF S_IN_UCP -->{L_UCP} &bull; <!-- ENDIF -->{PAGE_TITLE}</title>]]></find>
+        <action type="after-add"><![CDATA[<!-- IF PHPBB_BASE --><base href="{PHPBB_BASE}" /><!-- ENDIF -->
+]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[<script type="text/javascript">
+]]></find>
+        <action type="before-add"><![CDATA[<!-- IF WP_HEADERINFO_EARLY -->{WP_HEADERINFO_EARLY}<!-- ENDIF -->
+]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[</head>]]></find>
+        <action type="before-add"><![CDATA[<!-- IF WP_HEADERINFO_LATE -->{WP_HEADERINFO_LATE}<!-- ENDIF -->
+]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[<li class="icon-faq"><a href="{U_FAQ}" title="{L_FAQ_EXPLAIN}">{L_FAQ}</a></li>]]></find>
+		<action type="after-add"><![CDATA[<!-- IF S_BLOG --><li class="icon-members"><a href="{U_BLOG}" title="{L_BLOG}">{L_BLOG}</a></li><!-- ENDIF -->]]></action>
+	 </edit>
+	 </open>
+	  <open src="styles/prosilver/template/overall_footer.html">
+	  <edit>
+        <find><![CDATA[		<!-- IF TRANSLATION_INFO --><br />{TRANSLATION_INFO}<!-- ENDIF -->]]></find>
+        <action type="after-add"><![CDATA[		<!-- IF WP_CREDIT --><br />{WP_CREDIT}<!-- ENDIF -->		]]></action>
+      </edit>
+    </open>
+    <open src="styles/prosilver/template/memberlist_view.html">
+      <edit>
+        <find><![CDATA[			<dt>{postrow.PROFILE_FIELD1_NAME}:</dt> <dd>{postrow.PROFILE_FIELD1_VALUE}</dd>
+		<!-- ENDIF -->]]></find>
+        <action type="after-add"><![CDATA[		<!-- IF U_BLOG_LINK -->
+			<dt>{L_BLOG}:</dt> <dd><a href="{U_BLOG_LINK}" title="{L_VISIT_BLOG}" >{L_VISIT_BLOG}</a></dd>
+		<!-- ENDIF -->]]></action>
+      </edit>
+    </open>
+    <open src="styles/prosilver/template/viewtopic_body.html">
+      <edit>
+        <find><![CDATA[			<dd><strong>{postrow.PROFILE_FIELD1_NAME}:</strong> {postrow.PROFILE_FIELD1_VALUE}</dd>
+		<!-- ENDIF -->]]></find>
+        <action type="after-add"><![CDATA[		<!-- IF postrow.U_BLOG_LINK -->
+			<dd><strong>{L_BLOG}:</strong> <a href="{postrow.U_BLOG_LINK}" title="{L_VISIT_BLOG}" >{L_VISIT_BLOG}</a></dd>
+		<!-- ENDIF -->]]></action>
+      </edit>
+    </open>
+    <open src="styles/prosilver/theme/common.css">
+      <edit>
+        <find>
+h1 {
+	/* Forum name */
+</find>
+        <action type="replace-with">
+h1, #page-header h1 {
+	/* Forum name */
+	padding: 0;
+	text-align: left;	</action>
+        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
+      </edit>
+      <edit>
+        <find>#site-description {</find>
+        <action type="after-add">	text-align: left;
+</action>
+        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
+      </edit>
+    </open>
+    <diy-instructions lang="en-gb">Remember to purge the phpBB template cache, and refresh your themes after making these changes.
+    
+Please rememer to follow the DIY instructions in the main MOD install file.</diy-instructions>
+  </action-group>
+</mod>

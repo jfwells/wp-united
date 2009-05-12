@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.0.xsd">
+  <header>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
+    <title lang="en-gb">WP-UNITED [German User-Facing Translation]</title>
+    <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
+    <author-notes lang="en-gb">THIS TRANSLATION HAS BEEN KINDLY PROVIDED BY psm
+    
+    Make sure you follow the instructions in the main install.xml file!
+</author-notes>
+    <author-group>
+      <author>
+        <realname>John Wells</realname>
+        <email>admin@wp-united.com</email>
+        <username>Jhong</username>
+        <homepage>www.wp-united.com</homepage>
+        <contributions />
+      </author>
+    </author-group>
+    <mod-version>
+      <major>0</major>
+      <minor>5</minor>
+      <revision>1</revision>
+    </mod-version>
+    <installation>
+      <level>easy</level>
+      <time>60</time>
+      <target-version>
+        <target-primary>3.0.0</target-primary>
+        <target-major allow="exact">3</target-major>
+        <target-minor allow="exact">0</target-minor>
+      </target-version>
+    </installation>
+    <meta name="generator" content="Phpbb.ModTeam.Tools (c#)" />
+  </header>
+  <action-group>
+    <copy>
+      <file from="/root/language/de/mods/wp-united.php" to="/language/de/mods/wp-united.php" />
+    </copy>
+    <open src="language/en/common.php">
+      <edit>
+        <find><![CDATA[	'YOU_NO_NEW_PM'		=> 
+]]></find>
+        <action type="after-add"><![CDATA[
+	//WP-United
+	'BLOG'         =>    'WordPress Blog',
+	'VISIT_BLOG'      =>   'Benutzer\'s Blog besuchen',
+	'ACP_WP_UNITED'    =>    'WP-United',
+	'ACP_WPU_MAINPAGE'   =>   'WP-United Administration',
+	'ACP_WPU_CATMAIN'   =>    'WP-United Admin',
+	'ACP_WPU_CATSETUP'   =>   'WP-United Einstellung',
+	'ACP_WPU_CATMANAGE'   =>   'Benutzer-Integration einstellen',
+	'ACP_WPU_CATSUPPORT'   =>   'WP-United unterstützen',
+	'ACP_WPU_CATOTHER'   =>   'Diverses',
+	'ACP_WPU_MAINTITLE'   =>   'Hauptseite',
+	'ACP_WPU_DETAILED'   =>   'Alle Einstellungen auf einer Seite',
+	'ACP_WPU_WIZARD'   =>    'Setup Wizard',
+	'ACP_WPU_USERMAP'   =>    'Benutzer mit WordPress synchronisieren',
+	'ACP_WPU_PERMISSIONS'   =>    'Berechtigungen einstellen',
+	'ACP_WPU_DONATE'   =>    'Spende an WP-United',
+	'ACP_WPU_UNINSTALL'   =>    'WP-United deinstallieren',
+	'ACP_WPU_RESET'      =>    'WP-United zurücksetzen',
+	'ACP_WPU_DEBUG'		=>	'Debug Info to Post',	
+	'WP_UNINSTALLED'    =>    'WP-United deinstalliert',
+	'WP_INSTALLED'       =>    'WP-United installiert',
+]]></action>
+      </edit>
+    </open>
+  </action-group>
+</mod>

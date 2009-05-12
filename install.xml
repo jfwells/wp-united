@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.0.xsd">
+  <header>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
+    <title lang="en-gb">WP-UNITED WordPress - phpBB Integration Mod</title>
+    <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
+    <author-notes lang="en-gb">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
+Visit http://www.wp-united.com for more help or information.
+</author-notes>
+    <author-group>
+      <author>
+        <realname>John Wells</realname>
+        <email>admin@wp-united.com</email>
+        <username>Jhong</username>
+        <homepage>www.wp-united.com</homepage>
+        <contributions />
+      </author>
+    </author-group>
+    <mod-version>
+      <major>0</major>
+      <minor>5</minor>
+      <revision>5</revision>
+    </mod-version>
+    <installation>
+      <level>intermediate</level>
+      <time>912</time>
+      <target-version>
+        <target-primary>3.0.0</target-primary>
+        <target-major allow="exact">3</target-major>
+        <target-minor allow="exact">0</target-minor>
+      </target-version>
+    </installation>
+    <meta name="generator" content="Phpbb.ModTeam.Tools (c#)" />
+  </header>
+  <action-group>
+    <copy>
+      <file from="/root/blog.php" to="/blog.php" />
+      <file from="/root/adm/style/acp_wp_united.php" to="/adm/style/acp_wp_united.php" />
+      <file from="/root/includes/acp/acp_wp_united.php" to="/includes/acp/acp_wp_united.php" />
+      <file from="/root/includes/acp/info/acp_wp_united.php" to="/includes/acp/info/acp_wp_united.php" />
+      <file from="/root/language/en/mods/admin_wp-united.php" to="/language/en/mods/admin_wp-united.php" />
+      <file from="/root/language/en/mods/permissions_wp-united.php" to="/language/en/mods/permissions_wp-united.php" />
+      <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
+      <file from="/root/styles/prosilver/template/blog.html" to="/styles/prosilver/template/blog.html" />
+      <file from="/root/styles/subsilver2/template/blog.html" to="/styles/subsilver2/template/blog.html" />
+      <file from="/root/wp-united/*" to="/wp-united/*" />
+    </copy>
+	<open src="includes/functions_content.php">
+      <edit>
+        <find>function make_clickable($text, $server_url = false, $class = 'postlink')
+{
+</find>
+        <action type="before-add">if (!function_exists('make_clickable'))
+{
+</action>
+      </edit>
+      <edit>
+        <find>	if ($server_url === false)
+	{
+</find>
+        <action type="before-add">
+	global $IN_WORDPRESS;
+	if ($IN_WORDPRESS)
+	{
+		return wp_make_clickable($text); //WP version
+	} else {//phpBB version 
+</action>
+      </edit>
+      <edit>
+        <find>	return preg_replace($magic_url_match, $magic_url_replace, $text);
+}
+</find>
+        <action type="after-add">	}
+}
+</action>
+      </edit>
+</open>
+
+
+
+
+<open src="includes/functions.php">
+
+      <edit>
+        <find><![CDATA[	// Which timezone?
+	$tz = ($user->data['user_id'] != ANONYMOUS) ? strval(doubleval($user->data['user_timezone'])) : strval(doubleval($config['board_timezone']));
+]]></find>
+        <action type="after-add"><![CDATA[
+	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->do_head($template);
+]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[	$template->display('body');
+]]></find>
+        <action type="after-add"><![CDATA[	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->do_tail();
+	]]></action>
+      </edit>
+    </open>
+    <open src="memberlist.php">
+      <edit>
+        <find>		if (!empty($profile_fields['row']))
+		{</find>
+        <action type="before-add"><![CDATA[		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+		$GLOBALS['wpu_actions']->generate_profile_link($member['user_wpublog_id'], $template);]]></action>
+      </edit>
+    </open>
+    <open src="viewtopic.php">
+      <edit>
+        <find><![CDATA[}
+$db->sql_freeresult($result);
+
+// Load custom profile fields
+if ($config['load_cpf_viewtopic'])]]></find>
+        <action type="before-add"><![CDATA[	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->generate_viewtopic_link($row['user_wpublog_id'], $user_cache[$poster_id]);
+	]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[	// Dump vars into template
+	$template->assign_block_vars('postrow', $postrow);	]]></find>
+        <action type="before-add"><![CDATA[	$GLOBALS['wpu_actions']->show_viewtopic_link($user_cache[$poster_id], $postrow);
+]]></action>
+        <comment lang="en-gb">	</comment>
+      </edit>
+    </open>
+    <open src="ucp.php">
+      <edit>
+        <find><![CDATA[		$message = $message . '<br /><br />' . sprintf($user->lang['RETURN_INDEX'], '<a href="' . append_sid("{$phpbb_root_path}index.$phpEx") . '">', '</a> ');]]></find>
+        <action type="after-add"><![CDATA[		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+		$GLOBALS['wpu_actions']->do_logout();	]]></action>
+      </edit>
+    </open>
+    <open src="includes/ucp/ucp_profile.php">
+      <edit>
+        <find>						$message = 'PROFILE_UPDATED';</find>
+        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('reg_details', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></action>
+      </edit>
+      <edit>
+        <find>						// Update Custom Fields
+						if (sizeof($cp_data))</find>
+        <action type="before-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('profile_info', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></action>
+      </edit>
+    </open>
+    <open src="includes/functions_user.php">
+      <edit>
+        <find>			if (isset($sql_ary['user_avatar']))
+			{</find>
+        <action type="before-add"><![CDATA[			require_once($GLOBALS['phpbb_root_path'] . 'wp-united/wpu-actions.' . $GLOBALS['phpEx']);
+			$GLOBALS['wpu_actions']->profile_update('avatar', ($custom_userdata === false) ? $user->data['user_id'] : $custom_userdata['user_id'], ($custom_userdata === false) ? $user->data['user_wpuint_id'] : $custom_userdata['user_wpuint_id'], $sql_ary);
+						]]></action>
+      </edit>
+    </open>
+    <open src="includes/acp/acp_users.php">
+      <edit>
+        <find>						add_log('admin', 'LOG_USER_USER_UPDATE', $data['username']);	</find>
+        <action type="before-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('reg_details', $user_id, $user_row['user_wpuint_id'], $sql_ary);
+]]></action>
+      </edit>
+      <edit>
+        <find>						// Update Custom Fields
+						if (sizeof($cp_data))</find>
+        <action type="before-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('profile_info', $user_id, $user_row['user_wpuint_id'], $sql_ary);									]]></action>
+      </edit>
+    </open>
+    <open src="language/en/common.php">
+      <edit>
+        <find><![CDATA[	'YOU_NO_NEW_PM'		=> 'No new private messages are waiting for you.',]]></find>
+        <action type="after-add"><![CDATA[
+	//WP-United
+	'BLOG'			=> 	'WordPress Blog',
+	'VISIT_BLOG'		=>	'Visit User\'s Blog',
+	'ACP_WP_UNITED' 	=> 	'WP-United',
+	'ACP_WPU_MAINPAGE'	=>	'WP-United Administration',
+	'ACP_WPU_CATMAIN'	=> 	'WP-United Admin',
+	'ACP_WPU_CATSETUP'	=>	'Set Up WP-United',
+	'ACP_WPU_CATMANAGE'	=>	'Manage User Integration',
+	'ACP_WPU_CATSUPPORT'	=>	'Support WP-United',
+	'ACP_WPU_CATOTHER'	=>	'Other',
+	'ACP_WPU_MAINTITLE'	=>	'Main Page',
+	'ACP_WPU_DETAILED'	=>	'All Settings On A Page',
+	'ACP_WPU_WIZARD'	=> 	'Setup Wizard',
+	'ACP_WPU_USERMAP'	=> 	'User Integration Mapping Tool',
+	'ACP_WPU_PERMISSIONS'	=> 	'Administer permissions',		
+	'ACP_WPU_DONATE'	=> 	'Donate to WP-United',
+	'ACP_WPU_UNINSTALL'	=> 	'Uninstall WP-United',
+	'ACP_WPU_RESET'		=> 	'Reset WP-United',
+	'ACP_WPU_DEBUG'		=>	'Debug Info to Post',	
+	'WP_UNINSTALLED' 	=> 	'Uninstalled WP-United',
+	'WP_INSTALLED' 		=> 	'Installed WP-United',
+]]></action>
+      </edit>
+    </open>
+    <diy-instructions lang="en-gb">
+
+Now, install the modifications for your installed styles using the instructions provided in the /templates folder.
+
+After making all the edits, you must complete the following steps:
+
+1. Run the wpu-install.php script that you copied to your phpBB root folder, then delete it.
+
+2. Make sure you have installed WordPress. If you need help, look at the instructions on the WordPress Codex, here: http://codex.wordpress.org/Installing_WordPress
+
+3. Run the Setup Wizard, under the WP-United tab that will appear in your ACP.
+
+For more detailed instructions, please visit http://www.wp-united.com
+
+</diy-instructions>
+  </action-group>
+</mod>

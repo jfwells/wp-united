@@ -1,0 +1,325 @@
+<?php
+/** 
+*
+* WP-United Modified Core Functions
+*
+* @package WP-United
+* @version $Id: wp-united.php,v0.9.5[phpBB2]/v0.5.0[phpBB3] 2007/07/15 John Wells (Jhong) Exp $
+* @copyright (c) 2006, 2007 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+*
+*/
+
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
+//
+//
+// This file contains (in some cases) slightly modified WordPress functions, and (in other cases) WordPress functions that must be renamed due to a naming conflict with phpBB.
+// They have been changed as minimally as possible, and included in this file to facilitate the upgrading of WordPress.
+//
+
+if ( !defined('IN_PHPBB') )
+{
+	die("Hacking attempt");
+	exit;
+}
+
+
+//unchanged in WP 2.1 -- several changes in WP 2.2. unchanged in WP 2.3
+if ( !function_exists('wp_get_userdata') ) :
+function wp_get_userdata( $user_id ) {
+	global $wpdb, $wp_version;  //added wp_version
+	$user_id = (int) $user_id;
+	if ( $user_id == 0 )
+		return false;
+
+	$user = wp_cache_get($user_id, 'users');
+	
+	if ( $user )
+		return $user;
+
+	if ( !$user = $wpdb->get_row("SELECT * FROM $wpdb->users WHERE ID = '$user_id' LIMIT 1") )
+		return false;
+
+	$wpdb->hide_errors();
+	$metavalues = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->usermeta WHERE user_id = '$user_id'");
+	$wpdb->show_errors();
+
+	if ($metavalues) {
+		foreach ( $metavalues as $meta ) {
+			if ( ((float) $wp_version) < 2.2 ) {
+				@ $value = unserialize($meta->meta_value);
+				if ($value === FALSE)
+					$value = $meta->meta_value;
+			} else { //WP 2.2+ branch
+				$value = maybe_unserialize($meta->meta_value);
+			}
+			$user->{$meta->meta_key} = $value;
+
+			// We need to set user_level from meta, not row
+			if ( $wpdb->prefix . 'user_level' == $meta->meta_key )
+				$user->user_level = $meta->meta_value;
+		} // end foreach
+	} //end if
+
+	// For backwards compat.
+	if ( isset($user->first_name) )
+		$user->user_firstname = $user->first_name;
+	if ( isset($user->last_name) )
+		$user->user_lastname = $user->last_name;
+	if ( isset($user->description) )
+		$user->user_description = $user->description;
+		
+	wp_cache_add($user_id, $user, 'users');
+	if ( ((float) $wp_version) < 2.2 ) {
+		wp_cache_add($user->user_login, $user, 'userlogins');
+	} else { //WP 2.2 version
+		wp_cache_add($user->user_login, $user_id, 'userlogins');
+	}
+	
+	return $user;
+}
+endif;
+
+function get_phpbb_userdata($uid) {
+	global $IN_WORDPRESS;
+	$IN_WORDPRESS = 0;
+	$data = get_userdata($uid);
+	$IN_WORDPRESS = 1;
+	return  $data;
+}
+
+
+//Here we handle the make_clickable collision. We branch depending on whether we're in WP at the time. We also branch for phpBB3 ;-)
+if (!function_exists('make_clickable')) {
+	function make_clickable($text, $server_url = false) { //$server_url is for phpBB3 only
+		global $IN_WORDPRESS;
+		if ($IN_WORDPRESS) {
+			return wp_make_clickable($text); //WP version
+		} else { //phpBB version
+			global $wpuAbs;
+			if ('PHPBB2'== $wpuAbs->ver) {
+				$text = preg_replace('#(script|about|applet|activex|chrome):#is', "\\1&#058;", $text);
+				$ret = ' ' . $text;
+				$ret = preg_replace("#(^|[\n ])([\w]+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)#is", "\\1<a href=\"\\2\" target=\"_blank\">\\2</a>", $ret);
+				$ret = preg_replace("#(^|[\n ])((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*)#is", "\\1<a href=\"http://\\2\" target=\"_blank\">\\2</a>", $ret);
+				$ret = preg_replace("#(^|[\n ])([a-z0-9&\-_.]+?)@([\w\-]+\.([\w\-\.]+\.)*[\w]+)#i", "\\1<a href=\"mailto:\\2@\\3\">\\2@\\3</a>", $ret);
+				$ret = substr($ret, 1);
+				return($ret);
+			} else { //phpBB3 BRANCH:
+				if ($server_url === false) {
+					$server_url = generate_board_url();
+				}
+				static $magic_url_match;
+				static $magic_url_replace;
+				if (!is_array($magic_url_match)) {
+					$magic_url_match = $magic_url_replace = array();
+					$magic_url_match[] = '#(^|[\n\t (])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
+					$magic_url_replace[] = "'\$1<!-- l --><a href=\"\$2/' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '\">' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '</a><!-- l -->'";
+					$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('url_inline') . ')#ie';
+					$magic_url_replace[] = "'\$1<!-- m --><a href=\"\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- m -->'";
+					$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('www_url_inline') . ')#ie';
+					$magic_url_replace[] = "'\$1<!-- w --><a href=\"http://\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- w -->'";
+					$magic_url_match[] = '/(^|[\n\t )])(' . get_preg_expression('email') . ')/ie';
+					$magic_url_replace[] = "'\$1<!-- e --><a href=\"mailto:\$2\">' . ((strlen('\$2') > 55) ? substr('\$2', 0, 39) . ' ... ' . substr('\$2', -10) : '\$2') . '</a><!-- e -->'";
+				}
+				return preg_replace($magic_url_match, $magic_url_replace, $text);			
+			}
+		}
+	}
+}
+
+
+//the following  are from registration-functions.php ... we need our own version of wp_insert_user, and wp_update_user, so we pull the whole file here, to make it easier
+
+function username_exists( $username ) {
+	global $wpdb;
+	$username = sanitize_user( $username );
+	$user = get_userdatabylogin($username);
+	if ( $user )
+		return $user->ID;
+
+	return null;
+}
+
+//new in WP2.1
+function email_exists( $email ) {
+	global $wpdb;
+	$email = addslashes( $email );
+	return $wpdb->get_var("SELECT ID FROM $wpdb->users WHERE user_email = '$email'");
+}
+
+//TODO:: Redirect to this when needed! (was validate_username!). For now, phpBB's user validation is fine.
+function wp_validate_username( $username ) {
+	$name = sanitize_user($username, true);
+	$valid = true;
+
+	if ( $name != $username )
+		$valid = false;
+
+	return apply_filters('validate_username', $valid, $username);
+}
+
+//only slight change in WP2.1 -- s/b backwards compatible
+function wp_insert_user($userdata) {
+	global $wpdb, $wp_version;  //added wp_version;
+
+	if ((float)$wp_version >= 2.3) { //minor branch
+		extract($userdata, EXTR_SKIP);
+	} else {
+		extract($userdata);
+	}
+
+	// Are we updating or creating?
+	if ( !empty($ID) ) {
+		$ID = (int) $ID;
+		$update = true;
+	} else {
+		$update = false;
+		// Password is not hashed when creating new user.
+		//$user_pass = md5($user_pass); [WP-UNITED CHANGED]
+	}
+
+	$user_login = sanitize_user($user_login, true);
+	$user_login = apply_filters('pre_user_login', $user_login);
+
+	if ( empty($user_nicename) )
+		$user_nicename = sanitize_title( $user_login ); 
+	$user_nicename = apply_filters('pre_user_nicename', $user_nicename);
+
+	if ( empty($user_url) )
+		$user_url = '';
+	$user_url = apply_filters('pre_user_url', $user_url);
+
+	if ( empty($user_email) )
+		$user_email = '';
+	$user_email = apply_filters('pre_user_email', $user_email);
+
+	if ( empty($display_name) )
+		$display_name = $user_login;
+	$display_name = apply_filters('pre_user_display_name', $display_name);
+
+	if ( empty($nickname) )
+		$nickname = $user_login;
+	$nickname = apply_filters('pre_user_nickname', $nickname);
+
+	if ( empty($first_name) )
+		$first_name = '';
+	$first_name = apply_filters('pre_user_first_name', $first_name);
+
+	if ( empty($last_name) )
+		$last_name = '';
+	$last_name = apply_filters('pre_user_last_name', $last_name);
+
+	if ( empty($description) )
+		$description = '';
+	$description = apply_filters('pre_user_description', $description);
+
+	if ( empty($rich_editing) )
+		$rich_editing = 'true';
+
+	if ( empty($user_registered) )
+		$user_registered = gmdate('Y-m-d H:i:s');
+
+	if ( $update ) {
+		$query = "UPDATE $wpdb->users SET user_pass='$user_pass', user_email='$user_email', user_url='$user_url', user_nicename = '$user_nicename', display_name = '$display_name' WHERE ID = '$ID'";
+		$query = apply_filters('update_user_query', $query);
+		$wpdb->query( $query );
+		$user_id = (int) $ID;  //int added in wp v2.2
+	} else {
+		$query = "INSERT INTO $wpdb->users
+		(user_login, user_pass, user_email, user_url, user_registered, user_nicename, display_name)
+	VALUES
+		('$user_login', '$user_pass', '$user_email', '$user_url', '$user_registered', '$user_nicename', '$display_name')";
+		$query = apply_filters('create_user_query', $query);
+		$wpdb->query( $query );
+		$user_id = (int) $wpdb->insert_id; //int added in wp v2.2
+	}
+
+	update_usermeta( $user_id, 'first_name', $first_name);
+	update_usermeta( $user_id, 'last_name', $last_name);
+	update_usermeta( $user_id, 'nickname', $nickname );
+	update_usermeta( $user_id, 'description', $description );
+	update_usermeta( $user_id, 'jabber', $jabber );
+	update_usermeta( $user_id, 'aim', $aim );
+	update_usermeta( $user_id, 'yim', $yim );
+	update_usermeta( $user_id, 'rich_editing', $rich_editing);
+
+	if ( $update && isset($role) ) {
+		$user = new WP_User($user_id);
+		$user->set_role($role);
+	}
+
+	if ( !$update ) {
+		$user = new WP_User($user_id);
+		$user->set_role(get_option('default_role'));
+	}
+
+	wp_cache_delete($user_id, 'users');
+	wp_cache_delete($user_login, 'userlogins');
+
+	if ( $update )
+		do_action('profile_update', $user_id);
+	else
+		do_action('user_register', $user_id);
+
+	return $user_id;
+}
+
+
+function wp_update_user($userdata) {
+	global $wpdb;
+
+	$ID = (int) $userdata['ID'];
+
+	// First, get all of the original fields
+	$user = get_userdata($ID);
+
+	// Escape data pulled from DB.
+	$user = add_magic_quotes(get_object_vars($user));
+
+	// If password is changing, hash it now.
+	if ( ! empty($userdata['user_pass']) ) {
+		$plaintext_pass = $userdata['user_pass'];
+		//$userdata['user_pass'] = md5($userdata['user_pass']); //[WP-UNITED CHANGED]
+	}
+	
+	// Merge old and new fields with new fields overwriting old ones.
+	$userdata = array_merge($user, $userdata);
+	$user_id = wp_insert_user($userdata);
+
+	// Update the cookies if the password changed.
+	$current_user = wp_get_current_user();
+	if ( $current_user->id == $ID ) {
+		if ( isset($plaintext_pass) ) {
+			wp_clearcookie();
+			wp_setcookie($userdata['user_login'], $userdata['user_pass'], true, '', '', false);  // wp_setcookie($userdata['user_login'], $plaintext_pass); [WP-UNITED CHANGED]
+		}
+	}
+
+	return $user_id;
+}
+
+
+function wp_create_user($username, $password, $email = '') {
+	global $wpdb;
+
+	$user_login = $wpdb->escape($username);
+	$user_email = $wpdb->escape($email);
+	$user_pass = $password;
+
+	$userdata = compact('user_login', 'user_email', 'user_pass');
+	return wp_insert_user($userdata);
+}
+
+function create_user($username, $password, $email) {
+	return wp_create_user($username, $password, $email);
+}
+
+?>
