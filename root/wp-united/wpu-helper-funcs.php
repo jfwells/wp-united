@@ -63,7 +63,7 @@ function wpu_html_to_bbcode(&$string, $uid) {
 
     // Strip slashes ! 
 	$string = stripslashes($string); 
-	$string = strip_tags($string, '<p><a><img><br><strong><em><blockquote><b><u><i><ul><ol><li><code>');
+	$string = strip_tags($string, '<p><a><img><br /><strong><em><blockquote><b><u><i><ul><ol><li><code>');
 	$from = array( 
 		'~<i>(.*?)</i>~is', 
 		'~<span.*?font-style: italic.*?' . '>(.*?)</span>~is',

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /** 
 *
@@ -390,7 +390,7 @@ Class WPU_Integration {
 						} else {
 							// A username already exists. But it could belong to a different person 
 							$whoIsIt = get_userdatabylogin($signUpName);
-							//print_r($whoIsIt);
+							;
 							if ( $whoIsIt->phpbb_userLogin == $phpbbRawUser ) {
 								//uh-oh, we have a problem. Why has this integration come undone?
 								// This will pop up for users integrated prior to v0.8.9.2 who haven't been converted w/ the update script... bah! too much validation...

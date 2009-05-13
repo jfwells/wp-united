@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /** 
 *
 * WP-United Extra Options

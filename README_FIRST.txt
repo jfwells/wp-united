@@ -1,4 +1,4 @@
-WP-UNITED WordPress Integration Mod v0.9.5 RC1 for phpBB3
+﻿WP-UNITED WordPress Integration Mod v0.9.5 RC1 for phpBB3
 -----------------------------------------------
 Last updated: 01 Deceber 2007, by John Wells
 
@@ -10,11 +10,11 @@ Thank you for downloading WP-United! This file introduces how to get up and runn
 BEFORE YOU BEGIN
 ------------------------
 
-Make sure you have already installed phpBB and WordPress, and have verified that they are working OK. I recommend the latest versions - at this time of writing, that means phpBB3 RC2 & WordPress 2.2.1.
+Make sure you have already installed phpBB and WordPress, and have verified that they are working OK. I recommend the latest versions - at this time of writing, that means phpBB3 1.0.3 & WordPress 2.7.
 
 If these are not new installations, back up your phpBB & WordPress files and databases! WP-United is still in Beta - it could have bugs!
 
-You have two options to install this mod. -- manually, by altering code in your phpBB files, or automatically, using EasyMod.
+You have two options to install this mod. -- manually, by altering code in your phpBB files, or automatically, using AutoMod.
 
 
 
