@@ -29,6 +29,8 @@ Files with relevant changes
 		However, this complicated installation for users. We already have too many users unable to read install instructions
 		TODO 40: To try (again) overriding WP's loading of plugins instead. If not, this will impact wpu-plugin paths.
 		
+		TODO (50): To remove sequential dir seps (//) from being auto-detected in pathnames
+		
 3. To remove phpBB2 compatibility as no longer supported
 
 4. To check against about-to-be-released WP 2.8
