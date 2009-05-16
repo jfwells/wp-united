@@ -10,7 +10,6 @@
 *
 */
 
-$PATH_TO_PHPBB_INSTALL = 
 /*******************************************************************************
 	W  P  --   U N I T E D
 	ENTRY POINT TO YOUR INTEGRATED WORDPRESS INSTALL
@@ -33,7 +32,8 @@ $PATH_TO_PHPBB_INSTALL =
 
 //the path can be absolute or relative... i.e. '/home/www/phpBB2'   './phpBB2'   or  'phpBB2'   could all be correct.
 //Set the path to phpBB  below, between the quotes:
-''	// <--- set the path to your phpBB root here,  between the quotes				
+
+$PATH_TO_PHPBB_INSTALL = ''	// <--- set the path to your phpBB root here,  between the quotes				
 
 //If you change this, you MUST run the Setup Wizard again!
 

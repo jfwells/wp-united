@@ -2876,6 +2876,8 @@ class acp_wp_united {
 			$fromW = $adminFromW . "../";
 			
 			//So the path we give to WordPress to activate our WP-United Connection as a plugin is
+			// TODO: 40: WP 2.7 is ignoring plugin paths with non-canonical dir names -- to try overriding 			
+			// If we can't, then $pluginPath = "wpu-plugin." . $phpEx;
 			$pluginPath = $fromW.$toPlugin. "wpu-plugin." . $phpEx;
 			
 			$wpu_debug .= 'Final Calculated Path: ' . $pluginPath; 

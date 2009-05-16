@@ -31,7 +31,7 @@ if ( !defined('IN_PHPBB') )
 }
 
 
-//unchanged in WP 2.1 -- several changes in WP 2.2. unchanged in WP 2.3
+//unchanged in WP 2.1 -- several changes in WP 2.2. unchanged in WP 2.3 [changed in 2.7 (not checked intermediates)]
 if ( !function_exists('wp_get_userdata') ) :
 function wp_get_userdata( $user_id ) {
 	global $wpdb, $wp_version;  //added wp_version
@@ -51,36 +51,40 @@ function wp_get_userdata( $user_id ) {
 	$metavalues = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->usermeta WHERE user_id = '$user_id'");
 	$wpdb->show_errors();
 
-	if ($metavalues) {
-		foreach ( $metavalues as $meta ) {
-			if ( ((float) $wp_version) < 2.2 ) {
-				@ $value = unserialize($meta->meta_value);
-				if ($value === FALSE)
-					$value = $meta->meta_value;
-			} else { //WP 2.2+ branch
-				$value = maybe_unserialize($meta->meta_value);
-			}
-			$user->{$meta->meta_key} = $value;
+	if ( ((float) $wp_version) < 2.5 ) { // old branches
+		if ($metavalues) {
+			foreach ( $metavalues as $meta ) {
+				if ( ((float) $wp_version) < 2.2 ) {
+					@ $value = unserialize($meta->meta_value);
+					if ($value === FALSE)
+						$value = $meta->meta_value;
+				} else { //WP 2.2+ branch
+					$value = maybe_unserialize($meta->meta_value);
+				}
+				$user->{$meta->meta_key} = $value;
 
-			// We need to set user_level from meta, not row
-			if ( $wpdb->prefix . 'user_level' == $meta->meta_key )
-				$user->user_level = $meta->meta_value;
-		} // end foreach
-	} //end if
+				// We need to set user_level from meta, not row
+				if ( $wpdb->prefix . 'user_level' == $meta->meta_key )
+					$user->user_level = $meta->meta_value;
+			} // end foreach
+		} //end if
 
-	// For backwards compat.
-	if ( isset($user->first_name) )
-		$user->user_firstname = $user->first_name;
-	if ( isset($user->last_name) )
-		$user->user_lastname = $user->last_name;
-	if ( isset($user->description) )
-		$user->user_description = $user->description;
+		// For backwards compat.
+		if ( isset($user->first_name) )
+			$user->user_firstname = $user->first_name;
+		if ( isset($user->last_name) )
+			$user->user_lastname = $user->last_name;
+		if ( isset($user->description) )
+			$user->user_description = $user->description;
 		
-	wp_cache_add($user_id, $user, 'users');
-	if ( ((float) $wp_version) < 2.2 ) {
-		wp_cache_add($user->user_login, $user, 'userlogins');
-	} else { //WP 2.2 version
-		wp_cache_add($user->user_login, $user_id, 'userlogins');
+		wp_cache_add($user_id, $user, 'users');
+		if ( ((float) $wp_version) < 2.2 ) {
+			wp_cache_add($user->user_login, $user, 'userlogins');
+		} else { //WP 2.2 version
+			wp_cache_add($user->user_login, $user_id, 'userlogins');
+		}
+	} else { //WP 2.5 - 2.7 branch
+		_fill_user($user);
 	}
 	
 	return $user;
@@ -97,8 +101,10 @@ function get_phpbb_userdata($uid) {
 
 
 //Here we handle the make_clickable collision. We branch depending on whether we're in WP at the time. We also branch for phpBB3 ;-)
+// TODO: 5: Kill phpbb2 & phpbb3 old brances!
+
 if (!function_exists('make_clickable')) {
-	function make_clickable($text, $server_url = false) { //$server_url is for phpBB3 only
+	function make_clickable($text, $server_url = false, $class = 'postlink') { //$server_url is for phpBB3 only $class is for later phpBB3 only
 		global $IN_WORDPRESS;
 		if ($IN_WORDPRESS) {
 			return wp_make_clickable($text); //WP version
@@ -118,16 +124,27 @@ if (!function_exists('make_clickable')) {
 				}
 				static $magic_url_match;
 				static $magic_url_replace;
+				static $static_class;
 				if (!is_array($magic_url_match)) {
 					$magic_url_match = $magic_url_replace = array();
-					$magic_url_match[] = '#(^|[\n\t (])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
-					$magic_url_replace[] = "'\$1<!-- l --><a href=\"\$2/' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '\">' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '</a><!-- l -->'";
-					$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('url_inline') . ')#ie';
-					$magic_url_replace[] = "'\$1<!-- m --><a href=\"\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- m -->'";
-					$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('www_url_inline') . ')#ie';
-					$magic_url_replace[] = "'\$1<!-- w --><a href=\"http://\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- w -->'";
-					$magic_url_match[] = '/(^|[\n\t )])(' . get_preg_expression('email') . ')/ie';
-					$magic_url_replace[] = "'\$1<!-- e --><a href=\"mailto:\$2\">' . ((strlen('\$2') > 55) ? substr('\$2', 0, 39) . ' ... ' . substr('\$2', -10) : '\$2') . '</a><!-- e -->'";
+					if (function_exists('make_clickable_callback')) { //latest phpBB3s
+						$magic_url_match[] = '#(^|[\n\t (>.])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
+						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_LOCAL, '\$1', '\$2', '\$3', '$local_class')";
+						$magic_url_match[] = '#(^|[\n\t (>.])(' . get_preg_expression('url_inline') . ')#ie';
+						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_FULL, '\$1', '\$2', '', '$class')";
+						$magic_url_match[] = '#(^|[\n\t (>])(' . get_preg_expression('www_url_inline') . ')#ie';
+						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_WWW, '\$1', '\$2', '', '$class')";
+						$magic_url_match[] = '/(^|[\n\t (>])(' . get_preg_expression('email') . ')/ie';
+						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_EMAIL, '\$1', '\$2', '', '')";	
+					} else { // phpBB3 v1.0 
+						$magic_url_match[] = '#(^|[\n\t (])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
+						$magic_url_replace[] = "'\$1<!-- l --><a href=\"\$2/' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '\">' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '</a><!-- l -->'";
+						$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('url_inline') . ')#ie';
+						$magic_url_replace[] = "'\$1<!-- m --><a href=\"\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- m -->'";
+						$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('www_url_inline') . ')#ie';
+						$magic_url_replace[] = "'\$1<!-- w --><a href=\"http://\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- w -->'";
+						$magic_url_match[] = '/(^|[\n\t )])(' . get_preg_expression('email') . ')/ie';
+						$magic_url_replace[] = "'\$1<!-- e --><a href=\"mailto:\$2\">' . ((strlen('\$2') > 55) ? substr('\$2', 0, 39) . ' ... ' . substr('\$2', -10) : '\$2') . '</a><!-- e -->'";
 				}
 				return preg_replace($magic_url_match, $magic_url_replace, $text);			
 			}
@@ -136,37 +153,47 @@ if (!function_exists('make_clickable')) {
 }
 
 
-//the following  are from registration-functions.php ... we need our own version of wp_insert_user, and wp_update_user, so we pull the whole file here, to make it easier
+// the following  are from registration.php (used to be registration-functions.php) ... we need our own version of wp_insert_user, and wp_update_user, so we pull the whole file here, to make it easier
 
 function username_exists( $username ) {
-	global $wpdb;
-	$username = sanitize_user( $username );
-	$user = get_userdatabylogin($username);
-	if ( $user )
+	global $wp_version; //wpu added
+	if ( ((float) $wp_version) < 2.5 ) { // only needed for older WPs
+		global $wpdb;
+		$username = sanitize_user( $username );
+	} 
+	if ( $user = get_userdatabylogin($username) ) {
 		return $user->ID;
-
-	return null;
+	} else {
+		return null;
 }
 
-//new in WP2.1
+
+
+//new in WP2.1, updated after
 function email_exists( $email ) {
-	global $wpdb;
-	$email = addslashes( $email );
-	return $wpdb->get_var("SELECT ID FROM $wpdb->users WHERE user_email = '$email'");
+	global $wp_version;
+	if ( ((float) $wp_version) < 2.5 ) { // only needed for older WPs
+		global $wpdb;
+		$email = addslashes( $email );
+		return $wpdb->get_var("SELECT ID FROM $wpdb->users WHERE user_email = '$email'");
+	} else { // NEW version
+		if ( $user = get_user_by_email($email) )
+			return $user->ID;
+
+		return false;	
+	}
 }
+
 
 //TODO:: Redirect to this when needed! (was validate_username!). For now, phpBB's user validation is fine.
+// functionally no change, backwards compatible
 function wp_validate_username( $username ) {
-	$name = sanitize_user($username, true);
-	$valid = true;
-
-	if ( $name != $username )
-		$valid = false;
-
-	return apply_filters('validate_username', $valid, $username);
+	$sanitized = sanitize_user( $username, true );
+	$valid = ( $sanitized == $username );
+	return apply_filters( 'validate_username', $valid, $username );
 }
 
-//only slight change in WP2.1 -- s/b backwards compatible
+//only slight change in WP2.1 -- s/b backwards compatible -- more changed wp 2.5-2.7, branched
 function wp_insert_user($userdata) {
 	global $wpdb, $wp_version;  //added wp_version;
 
@@ -180,14 +207,35 @@ function wp_insert_user($userdata) {
 	if ( !empty($ID) ) {
 		$ID = (int) $ID;
 		$update = true;
+		$old_user_data = get_userdata($ID); //new in v2.5-2.7
 	} else {
 		$update = false;
 		// Password is not hashed when creating new user.
-		//$user_pass = md5($user_pass); [WP-UNITED CHANGED]
+		//$user_pass = wp_hash_password($user_pass); [WP-UNITED CHANGED]
 	}
 
 	$user_login = sanitize_user($user_login, true);
 	$user_login = apply_filters('pre_user_login', $user_login);
+	
+	
+	// Add by Wintermute
+	// If the sanitized user_login is blank, create a random
+	// username inside WP. The user_login begins with WPU followed
+	// by a random number (1-10) of digits between 0 & 9
+	// Also, check to make sure the user_login is unique
+	// NOTE BY JOHN WELLS -- THIS SHOULD ALREADY BE TAKEN CARE OF IN WP-INTEGRATION CLASS ||TODO: 10: TO CHECK
+	    if ( empty($user_login) ){
+			$foundFreeName = FALSE;
+			while ( !$foundFreeName ) {
+				$user_login = "WPU";
+				srand(time());
+				for ($i=0; $i < (rand()%9)+1; $i++)
+					$user_login .= (rand()%9);
+				if ( !username_exists($user_login) )
+					$foundFreeName = TRUE;
+			}
+		}
+	// End add
 
 	if ( empty($user_nicename) )
 		$user_nicename = sanitize_title( $user_login ); 
@@ -223,23 +271,61 @@ function wp_insert_user($userdata) {
 
 	if ( empty($rich_editing) )
 		$rich_editing = 'true';
+		
+	if ((float)$wp_version >= 2.5) { //new additions
+		if ( empty($comment_shortcuts) )
+			$comment_shortcuts = 'false';
 
+		if ( empty($admin_color) )
+			$admin_color = 'fresh';
+		$admin_color = preg_replace('|[^a-z0-9 _.\-@]|i', '', $admin_color);
+
+		if ( empty($use_ssl) )
+			$use_ssl = 0;
+
+		if ( empty($jabber) )
+			$jabber = '';
+
+		if ( empty($aim) )
+			$aim = '';
+
+		if ( empty($yim) )
+			$yim = '';	
+	
+		}
+	}	
+	
 	if ( empty($user_registered) )
 		$user_registered = gmdate('Y-m-d H:i:s');
 
-	if ( $update ) {
-		$query = "UPDATE $wpdb->users SET user_pass='$user_pass', user_email='$user_email', user_url='$user_url', user_nicename = '$user_nicename', display_name = '$display_name' WHERE ID = '$ID'";
-		$query = apply_filters('update_user_query', $query);
-		$wpdb->query( $query );
-		$user_id = (int) $ID;  //int added in wp v2.2
+	if ((float)$wp_version >= 2.5) { //new additions
+
+		$data = compact( 'user_pass', 'user_email', 'user_url', 'user_nicename', 'display_name', 'user_registered' );
+		$data = stripslashes_deep( $data );
+
+		if ( $update ) {
+			$wpdb->update( $wpdb->users, $data, compact( 'ID' ) );
+			$user_id = (int) $ID;
+		} else {
+			$wpdb->insert( $wpdb->users, $data + compact( 'user_login' ) );
+			$user_id = (int) $wpdb->insert_id;
+		}
 	} else {
-		$query = "INSERT INTO $wpdb->users
-		(user_login, user_pass, user_email, user_url, user_registered, user_nicename, display_name)
-	VALUES
-		('$user_login', '$user_pass', '$user_email', '$user_url', '$user_registered', '$user_nicename', '$display_name')";
-		$query = apply_filters('create_user_query', $query);
-		$wpdb->query( $query );
-		$user_id = (int) $wpdb->insert_id; //int added in wp v2.2
+
+		if ( $update ) {
+			$query = "UPDATE $wpdb->users SET user_pass='$user_pass', user_email='$user_email', user_url='$user_url', user_nicename = '$user_nicename', display_name = '$display_name' WHERE ID = '$ID'";
+			$query = apply_filters('update_user_query', $query);
+			$wpdb->query( $query );
+			$user_id = (int) $ID;  //int added in wp v2.2
+		} else {
+			$query = "INSERT INTO $wpdb->users
+			(user_login, user_pass, user_email, user_url, user_registered, user_nicename, display_name)
+			VALUES
+			('$user_login', '$user_pass', '$user_email', '$user_url', '$user_registered', '$user_nicename', '$display_name')";
+			$query = apply_filters('create_user_query', $query);
+			$wpdb->query( $query );
+			$user_id = (int) $wpdb->insert_id; //int added in wp v2.2
+		}
 	}
 
 	update_usermeta( $user_id, 'first_name', $first_name);
@@ -250,6 +336,12 @@ function wp_insert_user($userdata) {
 	update_usermeta( $user_id, 'aim', $aim );
 	update_usermeta( $user_id, 'yim', $yim );
 	update_usermeta( $user_id, 'rich_editing', $rich_editing);
+	
+	if ((float)$wp_version >= 2.5) { //new additions
+		update_usermeta( $user_id, 'comment_shortcuts', $comment_shortcuts);
+		update_usermeta( $user_id, 'admin_color', $admin_color);
+		update_usermeta( $user_id, 'use_ssl', $use_ssl);	
+	}
 
 	if ( $update && isset($role) ) {
 		$user = new WP_User($user_id);
@@ -272,9 +364,9 @@ function wp_insert_user($userdata) {
 	return $user_id;
 }
 
-
+// some changes in wp2.5+
 function wp_update_user($userdata) {
-	global $wpdb;
+	global $wpdb, $wp_version;
 
 	$ID = (int) $userdata['ID'];
 
@@ -287,22 +379,29 @@ function wp_update_user($userdata) {
 	// If password is changing, hash it now.
 	if ( ! empty($userdata['user_pass']) ) {
 		$plaintext_pass = $userdata['user_pass'];
-		//$userdata['user_pass'] = md5($userdata['user_pass']); //[WP-UNITED CHANGED]
+		// NOTE BY JOHN WELLS -- IN WINTERMUTE VERSION BELOW IS UNCOMMENTED, BUT PHPBB WILL NOT BE PROVIDING
+		// A PLAINTEXT PASSWORD HERE, SO THIS WILL NOT WORK || TODO: 20: TO CHECK HOW TO RECONCILE PASSWORDS, IF AT ALL
+		$userdata['user_pass'] = wp_hash_password($userdata['user_pass']); //[WP-UNITED CHANGED]
 	}
 	
 	// Merge old and new fields with new fields overwriting old ones.
 	$userdata = array_merge($user, $userdata);
 	$user_id = wp_insert_user($userdata);
 
+	
 	// Update the cookies if the password changed.
 	$current_user = wp_get_current_user();
 	if ( $current_user->id == $ID ) {
 		if ( isset($plaintext_pass) ) {
-			wp_clearcookie();
-			wp_setcookie($userdata['user_login'], $userdata['user_pass'], true, '', '', false);  // wp_setcookie($userdata['user_login'], $plaintext_pass); [WP-UNITED CHANGED]
+			if ((float)$wp_version >= 2.5) { //new additions
+				wp_clear_auth_cookie();
+				wp_set_auth_cookie($ID);			
+			} else { old WP
+				wp_clearcookie();
+				wp_setcookie($userdata['user_login'], $userdata['user_pass'], true, '', '', false);  // wp_setcookie($userdata['user_login'], $plaintext_pass); [WP-UNITED CHANGED]
+			}
 		}
 	}
-
 	return $user_id;
 }
 

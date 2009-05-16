@@ -390,7 +390,7 @@ Class WPU_Integration {
 						} else {
 							// A username already exists. But it could belong to a different person 
 							$whoIsIt = get_userdatabylogin($signUpName);
-							;
+							// print_r($whoIsIt);
 							if ( $whoIsIt->phpbb_userLogin == $phpbbRawUser ) {
 								//uh-oh, we have a problem. Why has this integration come undone?
 								// This will pop up for users integrated prior to v0.8.9.2 who haven't been converted w/ the update script... bah! too much validation...
@@ -440,8 +440,9 @@ Class WPU_Integration {
 					$this->lDebug('WP account detected, logging into account (ID=' . $integratedID . ',Username=' . $wpUserName . ')');
 					//see if user an log into WP (need to double-hash password)  
 					// This authentication is really unneccessary at this point.... but we need them to have a strong password in a WP cookie for Admin panel access
-					if ( wp_login($wpUserName, md5($wpuAbs->phpbb_passwd()), true) ) {
-						wp_setcookie($wpUserName, md5($wpuAbs->phpbb_passwd()), true, '', '', false);
+					// CHANGED IN 0.6.1: MD5 HASHING REMOVED. TO REPLACE WITH NEW WP HASH?? (TODO: 30:)
+					if ( wp_login($wpUserName, $wpuAbs->phpbb_passwd(), true) ) {
+						wp_setcookie($wpUserName, $wpuAbs->phpbb_passwd(), true, '', '', false);
 						do_action('wp_login', $wpUserName);
 						$loggedInUser = wp_set_current_user($wpUser->ID);
 						$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
@@ -455,8 +456,9 @@ Class WPU_Integration {
 						//It must work now....
 						$wpUser = get_userdata($integratedID);
 						$wpUserName = $wpUser->user_login;
-						if ( wp_login($wpUserName, md5($wpuAbs->phpbb_passwd()), true) ) {
-							wp_setcookie($wpUserName, md5($wpuAbs->phpbb_passwd()), true, '', '', false);
+						// CHANGED IN 0.6.1: MD5 HASHING REMOVED. TO REPLACE WITH NEW WP HASH?? (TODO: 30:)
+						if ( wp_login($wpUserName, $wpuAbs->phpbb_passwd(), true) ) {
+							wp_setcookie($wpUserName, $wpuAbs->phpbb_passwd(), true, '', '', false);
 							do_action('wp_login', $wpUserName);
 							$loggedInUser = wp_set_current_user($wpUser->ID);
 							$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
