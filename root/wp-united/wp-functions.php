@@ -145,6 +145,7 @@ if (!function_exists('make_clickable')) {
 						$magic_url_replace[] = "'\$1<!-- w --><a href=\"http://\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- w -->'";
 						$magic_url_match[] = '/(^|[\n\t )])(' . get_preg_expression('email') . ')/ie';
 						$magic_url_replace[] = "'\$1<!-- e --><a href=\"mailto:\$2\">' . ((strlen('\$2') > 55) ? substr('\$2', 0, 39) . ' ... ' . substr('\$2', -10) : '\$2') . '</a><!-- e -->'";
+					}
 				}
 				return preg_replace($magic_url_match, $magic_url_replace, $text);			
 			}
@@ -165,6 +166,7 @@ function username_exists( $username ) {
 		return $user->ID;
 	} else {
 		return null;
+	}
 }
 
 
@@ -292,8 +294,8 @@ function wp_insert_user($userdata) {
 		if ( empty($yim) )
 			$yim = '';	
 	
-		}
-	}	
+	}
+
 	
 	if ( empty($user_registered) )
 		$user_registered = gmdate('Y-m-d H:i:s');
@@ -396,7 +398,7 @@ function wp_update_user($userdata) {
 			if ((float)$wp_version >= 2.5) { //new additions
 				wp_clear_auth_cookie();
 				wp_set_auth_cookie($ID);			
-			} else { old WP
+			} else { //old WP
 				wp_clearcookie();
 				wp_setcookie($userdata['user_login'], $userdata['user_pass'], true, '', '', false);  // wp_setcookie($userdata['user_login'], $plaintext_pass); [WP-UNITED CHANGED]
 			}
