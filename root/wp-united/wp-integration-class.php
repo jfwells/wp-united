@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /** 
 *
@@ -109,6 +109,8 @@ Class WPU_Integration {
 	var $phpbb_usr_data;
 	var $phpbb_db_name;
 	
+	var $wpVersion;
+	
 	// prevents the main WordPress script from being included more than once
 	var $wpLoaded;
 	
@@ -159,6 +161,7 @@ Class WPU_Integration {
 		$this->wpLoaded = FALSE;
 		$this->cacheReady = FALSE;
 		$this->debugBuffer = '';
+		$this->wpVersion = 0;
 	}
 	
 	
@@ -269,6 +272,10 @@ Class WPU_Integration {
 		
 			$this->wpLoaded = true;
 			
+			//Which version of WordPress are we about to load?
+			require($this->wpu_settings['wpPath'] . 'wp-includes/version.php');
+			$this->wpVersion = $wp_version;
+			
 			// A few WordPress functions that we have changed - all in a separate file for easy updating.
 			require($this->phpbb_root . 'wp-united/wp-functions.' . $this->phpEx);
 			require($this->phpbb_root . 'wp-united/wpu-widgets.' . $this->phpEx);
@@ -280,6 +287,7 @@ Class WPU_Integration {
 			if (!$this->core_cache_ready()) {
 				$cConf = file_get_contents($this->wpu_settings['wpPath'] . 'wp-config.php');
 				$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
+				
 				if (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/formatting.php')) {
 					$fName='formatting.php';  //WP >= 2.1
 				} elseif (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/functions-formatting.php')) {
@@ -434,20 +442,22 @@ Class WPU_Integration {
 				
 				//SECTION TO LOG USER IN
 				if ( empty($loggedInUser->ID) ) {
+					global $error;
 					//user isn't logged in
 					$wpUser = get_userdata($integratedID);
 					$wpUserName = $wpUser->user_login;
 					$this->lDebug('WP account detected, logging into account (ID=' . $integratedID . ',Username=' . $wpUserName . ')');
-					//see if user an log into WP (need to double-hash password)  
+					//see if user can log into WP (need to double-hash password)  
 					// This authentication is really unneccessary at this point.... but we need them to have a strong password in a WP cookie for Admin panel access
-					// CHANGED IN 0.6.1: MD5 HASHING REMOVED. TO REPLACE WITH NEW WP HASH?? (TODO: 30:)
-					if ( wp_login($wpUserName, $wpuAbs->phpbb_passwd(), true) ) {
-						wp_setcookie($wpUserName, $wpuAbs->phpbb_passwd(), true, '', '', false);
-						do_action('wp_login', $wpUserName);
+					
+					// CHANGED IN 0.6.1: MD5 HASHING REMOVED. (TODO: 30: )
+					
+					define('PASSWORD_ALREADY_HASHED', TRUE);
+					if($this->wpSignIn($wpUserName, $wpuAbs->phpbb_passwd())) {					
 						$loggedInUser = wp_set_current_user($wpUser->ID);
 						$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
 					} else {
-						$this->lDebug('Could not authenticate. Synchronising password.');
+						$this->lDebug('Could not authenticate. (' . $error .') Synchronising password.');
 						// they couldn't log in... so let's just change their password
 						$wpUpdateData =	$this->check_details_consistency($wpUser, $wpuAbs->userdata()); 
 						if ( $wpUpdateData ) {
@@ -456,16 +466,16 @@ Class WPU_Integration {
 						//It must work now....
 						$wpUser = get_userdata($integratedID);
 						$wpUserName = $wpUser->user_login;
+						
+							
 						// CHANGED IN 0.6.1: MD5 HASHING REMOVED. TO REPLACE WITH NEW WP HASH?? (TODO: 30:)
-						if ( wp_login($wpUserName, $wpuAbs->phpbb_passwd(), true) ) {
-							wp_setcookie($wpUserName, $wpuAbs->phpbb_passwd(), true, '', '', false);
-							do_action('wp_login', $wpUserName);
+						if($this->wpSignIn($wpUserName, $wpuAbs->phpbb_passwd())) {
 							$loggedInUser = wp_set_current_user($wpUser->ID);
 							$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
 						} else {
 							//Unbelievable.... something is clearly wrong. Sound apologetic.
 							$this->exit_wp_integration();
-							$this->lDebug('Failed, aborting', 1);
+							$this->lDebug('Failed, aborting (' . $error .')', 1);
 							$wpuAbs->err_msg(GENERAL_ERROR, 'WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message', 'WordPress Integration Error', __LINE__, __FILE__, '');
 						}
 					}
@@ -501,9 +511,25 @@ Class WPU_Integration {
 		}
 		//$this->lDebug('',1); -- for testing purposes only without WPU connection -- to remove
 	} //end of the integration	
-
-
-
+	
+	// This handles logging in users into WordPresss -- It's a private function, designed to be called from
+	//do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
+	function wpSignIn($wpUsr, $pass) {
+						
+		if ( function_exists('wp_signon') ) {
+			if ( !is_wp_error(wp_signon(array('user_login' => $wpUsr, 'user_password' => $pass, 'remember' => false))) ) {
+				return true;
+			}
+		} else {
+			if ( wp_login($wpUsr, $pass, true) ) {
+				wp_setcookie($wpUsr, $pass, true, '', '', false);
+				do_action('wp_login', $wpUsr);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	function get_wp_page($toVarName) {
 	// 
 	// 	GENERATE THE PAGE
@@ -856,9 +882,10 @@ Class WPU_Integration {
 		if ( (!($pData['user_email'] == $wpData->user_email)) && (!empty($pData['user_email'])) ) {
 			$update['user_email'] = $pData['user_email'];
 			$doWpUpdate = true;
-		}
+		} 
+		
 		if ( (!($pData['user_password'] == $wpData->user_pass)) && (!empty($pData['user_password'])) ) {
-			$update['user_pass'] = $pData['user_password'];
+			$update['user_pass'] = $pData['user_password']; 
 			$doWpUpdate = true;
 		}
 		if ( (!($pData['user_website'] == $wpData->user_url)) && (!empty($pData['user_website'])) ) {

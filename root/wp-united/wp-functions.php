@@ -383,7 +383,7 @@ function wp_update_user($userdata) {
 		$plaintext_pass = $userdata['user_pass'];
 		// NOTE BY JOHN WELLS -- IN WINTERMUTE VERSION BELOW IS UNCOMMENTED, BUT PHPBB WILL NOT BE PROVIDING
 		// A PLAINTEXT PASSWORD HERE, SO THIS WILL NOT WORK || TODO: 20: TO CHECK HOW TO RECONCILE PASSWORDS, IF AT ALL
-		$userdata['user_pass'] = wp_hash_password($userdata['user_pass']); //[WP-UNITED CHANGED]
+		//$userdata['user_pass'] = wp_hash_password($userdata['user_pass']); //[WP-UNITED CHANGED]
 	}
 	
 	// Merge old and new fields with new fields overwriting old ones.
@@ -419,8 +419,50 @@ function wp_create_user($username, $password, $email = '') {
 	return wp_insert_user($userdata);
 }
 
-function create_user($username, $password, $email) {
-	return wp_create_user($username, $password, $email);
+ // moved to deprecated.php in later wordpress, so just left here for compatibility with old WP
+ // we need to use $this->wpVersion here as this check takes place before WP invocation
+ // others (above) need to use the global variable $wp_version instead.
+if($this->wpVersion < 2.5 && !function_exists('create_user')) {
+	function create_user($username, $password, $email) {
+		return wp_create_user($username, $password, $email);
+	}
 }
+
+
+// We need to override WordPress password hash checking, as the password we have to log into wordpress is already hashed.
+// prior to WP 2.5, we could double-hash and check that way, but no longer :-(
+
+function wp_check_password($password, $hash, $user_id = '') {
+	global $wp_hasher;
+
+	// If the hash is still md5...
+	if ( strlen($hash) <= 32 ) {
+		$check = ( $hash == md5($password) );
+		if ( $check && $user_id ) {
+			// Rehash using new hash.
+			wp_set_password($password, $user_id);
+			$hash = wp_hash_password($password);
+		}
+
+		return apply_filters('check_password', $check, $password, $hash, $user_id);
+	}
+
+	// If the stored hash is longer than an MD5, presume the
+	// new style phpass portable hash.
+	if ( empty($wp_hasher) ) {
+		require_once( ABSPATH . 'wp-includes/class-phpass.php');
+		// By default, use the portable hash from phpass
+		$wp_hasher = new PasswordHash(8, TRUE);
+	}
+
+	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
+		$check = ($password == $hash);
+	} else {
+		$check = $wp_hasher->CheckPassword($password, $hash);
+	}
+
+	return apply_filters('check_password', $check, $password, $hash, $user_id);
+}
+
 
 ?>
