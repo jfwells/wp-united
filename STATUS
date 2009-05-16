@@ -13,23 +13,21 @@ Files with relevant changes
 		-- TODO 5: (low priority) clean up branches, or check 2.4, 2.5, 2.6 for compatibility
 		-- TODO 10: s/b unnecessary to handle blank usernames, this
 			should be taking place in integration class.
-		-- TODO 20: password hash line is uncommented, but passed in password is NOT plain text here. 
-			Checked in WP-ntegration class -- password md5 hashing there is removed, so this MAY be plain text
-			now. This will result in too many WP re-authentications. To investigate. Uncommented for now.
+		-- TODO 20: We have broken ability to store passwords in native WP hash -- must use phpBB to log in. 
+			TODO is to fix that.
 	- wp-united/wp-integration-class.php. Updated.
-		-- TODO 30: See TODO 20 -- md5 hashing removed
+		-- TODO 30: See TODO 20 -- md5 hashing removed. OK for now.
 	
-	- wp-united/wpu-plugin.php . Pending review
+	- wp-united/wpu-plugin.php . Updated.
 	- wp-united/wpu-template-funcs.php . Pending review
 	- wp-united/wpu-widgets.php. Good new widgets. Pending review	
 	
 	- wp-united/blog.php. Updated. Sensible changes
 
-	- acp/acp_wp_united.php. TODO 40: Line 2879 $pluginPath: Apparently WP 2.7 not supporting ../ in pathnames.Not surprising, security risk.
-		However, this complicated installation for users. We already have too many users unable to read install instructions
-		TODO 40: To try (again) overriding WP's loading of plugins instead. If not, this will impact wpu-plugin paths.
-		
-		TODO (50): To remove sequential dir seps (//) from being auto-detected in pathnames
+	- acp/acp_wp_united.php. TODO 40: Line 2879 $pluginPath: WP is now preventing directory traversal for plugins.
+		However, this complicates installation for users. We already have too many users unable to read install instructions
+		TODO 40: We try to copy the file automatically. If it fails, we need to give a link to download the file, then tell them
+		to go to WP to upload it.
 		
 3. To remove phpBB2 compatibility as no longer supported
 

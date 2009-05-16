@@ -76,7 +76,7 @@ $lang = array_merge($lang, array(
 	'WPU_Path_Autodet' => 'Trying to automatically detect the file path... ',
 	'WPU_Autodet_Error' => 'ERROR: The path to your WordPress install could not be auto-detected. Please type it manually.<br />',
 	'WPU_Pathfind_Warning' => 'WARNING: A working WordPress install could not be found (Searching for: %s). Either the path has been typed or auto-detected incorrectly, or WordPress has not been installed. Please check the provided file path and try again.',
-	'WPU_Conn_InstallError' => 'ERROR: The WP-United Connection could not be installed. Please check that the path provided or auto-detected is corrrect, and that WordPress is installed and working.<br />',
+	'WPU_Conn_InstallError' => 'ERROR: The WP-United Plugin was not found in your wordpress plugins folder. Please copy the file wp-united/wpu-plugin.php there now, and then try again!<br />',
 	'WPU_PathIs' => "File path => ",
 	'WPU_Checking_URL' => 'Checking WordPress URL: ',
 	'WPU_Process_Settings' => 'Processing settings...',

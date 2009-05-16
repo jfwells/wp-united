@@ -93,7 +93,7 @@ function wpu_check_for_action() {
 // 	Please DO NOT remove this!
 //
 function wpu_put_powered_text() {
-	echo '<p  id="poweredby">phpbb integration &copy; 2006, 2007 <a href="http://www.wp-united.com" target="_blank">WP-United</a></p>';
+	echo '<p  id="poweredby">phpbb integration &copy; 2006-2009 <a href="http://www.wp-united.com" target="_blank">WP-United</a></p>';
 	$wpuConnSettings = get_settings('wputd_connection');
 	if ( current_user_can('publish_posts') ) {	
 		if ( $wpuConnSettings['blogs'] ) {
@@ -116,6 +116,7 @@ function wpu_put_powered_text() {
 //	Hides the messages we don't want
 // 
 function wpu_css() {
+	global $wp_version;
 
 	echo '
 	<style type="text/css">
@@ -128,8 +129,13 @@ function wpu_css() {
 	}
 	#welcome1 {
 		position: absolute;
-		top: 1.0em;
-		margin: 0; padding: 0;
+		top: 1.0em;';
+	if ($wp_version >= 2.5) {
+		echo "\n	margin: 4px 150px 0 0;\n";
+	} else {
+		echo "\n	margin: 0;\n";
+	}
+	echo	'padding: 0;
 		right: 1em;
 		color: #f1f1f1;
 	}
@@ -174,9 +180,13 @@ function wpu_adminmenu_init() {
 				}
 			} 
 			//Redirect the profile page if own blogs -- if not own blogs, it gets buffered anyway.
-			if( (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) && (!empty($wpuConnSettings['blogs'])) ) {
-				//redirect to Your Blog panel
-				wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin']);
+			if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
+				$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
+				if ( (current_user_can('publish_posts')) && ($wpuConnSettings['blogs']==1) )  {
+					wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin']);
+				} else {
+					wp_redirect($phpbb_root_path.'ucp.php');
+				}
 			}
 			//Redirect the edit users page (just in case)
 			if(preg_match('|/wp-admin/user-edit.php|', $_SERVER['REQUEST_URI'])) {
@@ -617,19 +627,15 @@ function wpu_newpost($post_ID) {
 							}
 						}
 						if ( ((float) $wp_version) >= 2.3 ) {
-							// Get tags for WP >= 2.3
-							$tags = get_the_tags($post_ID); 
-							if (sizeof($tags)) {
-								foreach ( array($tags) as $tag ) {
-									$link = get_tag_link($tag->term_id);
-									if ( is_wp_error( $link ) )
-										continue;
-									$tag_list[] = '<a href="' . $link . '" rel="tag">' . $tag->name . '</a>';
-								}
-								$tag_list = join( ', ', $tag_list );
-								$tag_list = apply_filters( 'the_tags', $tag_list );
-							}
-						}							
+
+                         // Get tags for WP >= 2.3
+
+                         $tags = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
+                         if ($tags == "") {
+                            $tags = "No tags definied.";
+                         }
+
+						}      						
 						mysql_select_db($GLOBALS['dbname']);
 						$excerpt = sprintf($wpuAbs->lang('blog_post_intro'), '[url=' . get_permalink($post_ID) . ']', '[/url]') . "\n\n" . $excerpt . "\n\n" .
 								'[b]' . $wpuAbs->lang('blog_post_tags') . '[/b]' . $tag_list . "\n" .
@@ -642,6 +648,15 @@ function wpu_newpost($post_ID) {
 							wpu_html_to_bbcode($excerpt, 0); //$uid=0, but will get removed)
 							$uid = $poll = $bitfield = $options = ''; 
 							generate_text_for_storage($excerpt, $uid, $bitfield, $options, true, true, true);
+
+						//fix phpBB SEO mod - Uncomment the following 5 lines if using phpbb_seo
+//                         global $phpbb_seo;
+//                         if (!empty($phpbb_seo) ) {
+//                            require_once($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
+//                            $phpbb_seo = new phpbb_seo();
+//                         }
+                         //fix phpBB SEO mod
+						 
 							require_once($connSettings['path_to_phpbb'] . 'includes/functions_posting.' . $phpEx);
 							$data = array(
 								'forum_id' => $forum_id,
@@ -1121,9 +1136,9 @@ function wpu_add_postboxes() {
 			$can_xpost_forumlist = wpu_forum_xpost_list();
 		}
 		wpu_exit_phpbb();
-	
+	// NOTE: TODO: 50: Changes below in Wintermute version yet to be included
 		if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
-			?>
+			?> 
 			<fieldset id="wpuxpostdiv" class="dbx-box">
 				<h3 class="dbx-handle"><?php _e('Cross-post to Forums?') ?></h3> 
 				<div class="dbx-content">
@@ -1387,7 +1402,13 @@ add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry');
 
 //Add additional boxes to write post page
-add_action('dbx_post_sidebar', 'wpu_add_postboxes');
+// ADDED IN v0.6.1
+// add_action('dbx_post_sidebar', 'wpu_add_postboxes');
+       
+    add_action('admin_menu', 'wpu_add_meta_box');
+       function wpu_add_meta_box() {
+          add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
+       }
 
 //Todo: move somewhere better!
 global $siteurl;

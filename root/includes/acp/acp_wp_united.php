@@ -2875,10 +2875,18 @@ class acp_wp_united {
 			// Plugins are activated from the <wordpress>/wp-content/plugins dir - i.e. one level deeper...
 			$fromW = $adminFromW . "../";
 			
-			//So the path we give to WordPress to activate our WP-United Connection as a plugin is
-			// TODO: 40: WP 2.7 is ignoring plugin paths with non-canonical dir names -- to try overriding 			
-			// If we can't, then $pluginPath = "wpu-plugin." . $phpEx;
-			$pluginPath = $fromW.$toPlugin. "wpu-plugin." . $phpEx;
+			//WP 2.3 and onwards doesn't allow directory traversal, so we need to ask user to copy the file instead
+			$wpPluginDir = $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))) . "wp-content/plugins/";
+			if (file_exists($wpPluginDir)) {
+				// we got the plugin directory correct, copy file over
+				if(!@copy($phpbb_root_path . "/wp-united/wpu-plugin.php", $wpPluginDir . "wpu-plugin.php")) {
+					// TODO: ASK USER TO DOWNLOAD AND MOVE FILE MANUALLY
+				}
+			}
+			$pluginPath = "wpu-plugin." . $phpEx;
+			
+			
+			//$pluginPath = $fromW.$toPlugin. "wpu-plugin." . $phpEx;
 			
 			$wpu_debug .= 'Final Calculated Path: ' . $pluginPath; 
 			
@@ -3762,6 +3770,7 @@ class acp_wp_united {
 			$theFilePath = implode($slash, $AtheFilePath).$slash.$theFileName;
 		}
 		$wpPath = $docRoot . $theFilePath;
+		$wpPath = str_replace($slash.$slash, $slash, $wpPath); // removes pointless double-slashes
 		$wpPath = $this->clean_path($wpPath); //reverses slashes for Windows servers.
 		return $wpPath;
 	}
