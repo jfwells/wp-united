@@ -197,7 +197,7 @@ Class WPU_Integration {
 				if ( $entry == 'core.wpucorecache.php' ) {
 					$entry = $cacheLocation . $entry;
 					$compareDate = filemtime($entry);
-					if ( !($compareDate < @filemtime($this->wpu_settings['wpPath'] . 'wp-config.php'))  ) {
+					if ( !($compareDate < @filemtime($this->wpu_settings['wpPath'] . 'wp-includes/version.php'))  ) {
 						$this->cacheLoc = $entry;
 						$this->cacheReady = TRUE; 
 						return TRUE;

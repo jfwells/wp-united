@@ -2840,14 +2840,19 @@ class acp_wp_united {
 			eval($wpUtdInt->exec());  
 			
 			//Figure out the filepath  to phpBB
-			$thisPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
+			//$thisPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
+			// Old (above) path did not work on symlinked WP-united installs. Below finds path instead to 
+			// adm
+			$thisPath = $this->add_trailing_slash($this->clean_path(realpath(getcwd())));
+			$wpu_debug .= 'DEBUG (to post if you need help):<br />';
+			$wpu_debug .= 'Current Path ' . $thisPath . '<br />';
+			
 			$thisPath =  explode("/", $thisPath );
-			array_pop($thisPath); array_pop($thisPath); array_pop($thisPath); 
-
+			array_pop($thisPath); array_pop($thisPath); //array_pop($thisPath); 
 			//get the filepath to WordPress
 			$wpLoc = explode ("/", $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))));
 			
-			$wpu_debug .= 'DEBUG (to post if you need help):<br />Path to WP: ' . $wpSettings['wpPath'] . ' <br />Realpath to WP: ' . $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))) . '<br />';
+			$wpu_debug .= 'Path to WP: ' . $wpSettings['wpPath'] . ' <br />Realpath to WP: ' . $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))) . '<br />';
 			
 			//ditch common parent dirs from the paths
 			$pathsComputed = FALSE;
@@ -2888,11 +2893,12 @@ class acp_wp_united {
 			
 			//$pluginPath = $fromW.$toPlugin. "wpu-plugin." . $phpEx;
 			
-			$wpu_debug .= 'Final Calculated Path: ' . $pluginPath; 
+			$wpu_debug .= 'Final Calculated Path: ' . $pluginPath . '<br />'; 
 			
 			$WPU_Connection['full_path_to_plugin'] = $pluginPath;
 			//And the path we'll use to access the phpBB root from the WordPress admin dir is:
 			$WPU_Connection['path_to_phpbb'] = $adminFromW . $toP;
+			$wpu_debug .= 'Path back to phpBB: ' . $WPU_Connection['path_to_phpbb'] . '<br />';
 			// We will also want to access our WP-United Connection as a relative URL
 			$WPU_Connection['path_to_plugin'] = $this->add_trailing_slash($board_config['script_path']) . "wp-united/wpu-plugin." . $phpEx;
 			//and...
@@ -3012,6 +3018,7 @@ class acp_wp_united {
 		}
 		$wpUtdInt->exit_wp_integration();
 		$wpUtdInt = null; unset ($wpUtdInt);
+		//echo $wpu_debug; die();
 		return $connError;
 	}
 

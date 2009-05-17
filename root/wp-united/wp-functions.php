@@ -30,12 +30,17 @@ if ( !defined('IN_PHPBB') )
 	exit;
 }
 
-
+// from pluggable.php
 //unchanged in WP 2.1 -- several changes in WP 2.2. unchanged in WP 2.3 [changed in 2.7 (not checked intermediates)]
 if ( !function_exists('wp_get_userdata') ) :
 function wp_get_userdata( $user_id ) {
 	global $wpdb, $wp_version;  //added wp_version
-	$user_id = (int) $user_id;
+	
+	if ( function_exists('absint') ) { // new WordPress
+		$user_id = absint($user_id);
+	} else { // old WordPress
+		$user_id = (int) $user_id;
+	}
 	if ( $user_id == 0 )
 		return false;
 
@@ -43,15 +48,24 @@ function wp_get_userdata( $user_id ) {
 	
 	if ( $user )
 		return $user;
+	if ( ((float) $wp_version) >= 2.3 ) { // newer versions do more sql escaping
+		if ( !$user = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->users WHERE ID = %d LIMIT 1", $user_id)) )
+			return false;
+	} else {
+		if ( !$user = $wpdb->get_row("SELECT * FROM $wpdb->users WHERE ID = '$user_id' LIMIT 1") )
+			return false;	
+	}
 
-	if ( !$user = $wpdb->get_row("SELECT * FROM $wpdb->users WHERE ID = '$user_id' LIMIT 1") )
-		return false;
+	
 
-	$wpdb->hide_errors();
-	$metavalues = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->usermeta WHERE user_id = '$user_id'");
-	$wpdb->show_errors();
-
-	if ( ((float) $wp_version) < 2.5 ) { // old branches
+	if ( ((float) $wp_version) >= 2.5 ) { // function simplified for newer WP
+		_fill_user($user);
+	} else { // old branches
+	
+		$wpdb->hide_errors();
+		$metavalues = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->usermeta WHERE user_id = '$user_id'");
+		$wpdb->show_errors();
+		
 		if ($metavalues) {
 			foreach ( $metavalues as $meta ) {
 				if ( ((float) $wp_version) < 2.2 ) {
@@ -83,9 +97,7 @@ function wp_get_userdata( $user_id ) {
 		} else { //WP 2.2 version
 			wp_cache_add($user->user_login, $user_id, 'userlogins');
 		}
-	} else { //WP 2.5 - 2.7 branch
-		_fill_user($user);
-	}
+	} 
 	
 	return $user;
 }
@@ -155,7 +167,7 @@ if (!function_exists('make_clickable')) {
 
 
 // the following  are from registration.php (used to be registration-functions.php) ... we need our own version of wp_insert_user, and wp_update_user, so we pull the whole file here, to make it easier
-
+// WP 2.8 unchanged
 function username_exists( $username ) {
 	global $wp_version; //wpu added
 	if ( ((float) $wp_version) < 2.5 ) { // only needed for older WPs
@@ -195,7 +207,7 @@ function wp_validate_username( $username ) {
 	return apply_filters( 'validate_username', $valid, $username );
 }
 
-//only slight change in WP2.1 -- s/b backwards compatible -- more changed wp 2.5-2.7, branched
+//only slight change in WP2.1 -- s/b backwards compatible -- more changed wp 2.5-2.7, branched; WP 2.8 new block
 function wp_insert_user($userdata) {
 	global $wpdb, $wp_version;  //added wp_version;
 
@@ -299,6 +311,22 @@ function wp_insert_user($userdata) {
 	
 	if ( empty($user_registered) )
 		$user_registered = gmdate('Y-m-d H:i:s');
+		
+	if ((float)$wp_version >= 2.8) { // New in WP 2.8!
+		$user_nicename_check = $wpdb->get_var( $wpdb->prepare("SELECT ID FROM $wpdb->users WHERE user_nicename = %s AND user_login != %s LIMIT 1" , $user_nicename, $user_login));
+
+		if ($user_nicename_check) {
+			$suffix = 2;
+			while ($user_nicename_check) {
+				$alt_user_nicename = $user_nicename . "-$suffix";
+				$user_nicename_check = $wpdb->get_var( $wpdb->prepare("SELECT ID FROM $wpdb->users WHERE user_nicename = %s AND user_login != %s LIMIT 1" , $alt_user_nicename, $user_login));
+				$suffix++;
+			}
+			$user_nicename = $alt_user_nicename;
+		}
+	}
+		
+		
 
 	if ((float)$wp_version >= 2.5) { //new additions
 

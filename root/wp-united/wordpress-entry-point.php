@@ -367,11 +367,12 @@ function set_wpu_cache(){
 			$wpu_cacheLoc = $cacheLocation . $entry;
 		}
 	}
-	if ($cacheFound) {
+	if ($cacheFound) { // refresh cache if it is older than theme file, or if WP has been upgraded.
 		$fileAddress = $wpSettings['wpPath'] . "wp-content/themes/$theme";
 		$compareDate = filemtime($wpu_cacheLoc);
-		if ( !(($compareDate < @filemtime("$fileAddress/header.$phpEx")) || 
-		  ($compareDate < @filemtime("$fileAddress/footer.$phpEx"))) ) {
+		if ( !( ($compareDate < @filemtime("$fileAddress/header.$phpEx")) || 
+		  ($compareDate < @filemtime("$fileAddress/footer.$phpEx")) ||
+		  ($compareDate < @filemtime($wpSettings['wpPath'] . "wp-includes/version.$phpEx")) ) ) {
 			define('WPU_USE_CACHE', TRUE); 
 		}
 	} 
