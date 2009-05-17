@@ -93,7 +93,8 @@ function wpu_check_for_action() {
 // 	Please DO NOT remove this!
 //
 function wpu_put_powered_text() {
-	echo '<p  id="poweredby">phpbb integration &copy; 2006-2009 <a href="http://www.wp-united.com" target="_blank">WP-United</a></p>';
+	global $wp_version;
+	echo '<p  id="poweredby"> phpbb integration &copy; 2006-2009 <a href="http://www.wp-united.com" target="_blank">WP-United</a></p>';
 	$wpuConnSettings = get_settings('wputd_connection');
 	if ( current_user_can('publish_posts') ) {	
 		if ( $wpuConnSettings['blogs'] ) {
@@ -117,36 +118,68 @@ function wpu_put_powered_text() {
 // 
 function wpu_css() {
 	global $wp_version;
-
-	echo '
-	<style type="text/css">
-	#user_info {
-		display: none !important;
-	}
-	#poweredby {
-	text-align: center; 
-	font-weight: bold;
-	}
-	#welcome1 {
-		position: absolute;
-		top: 1.0em;';
+	
 	if ($wp_version >= 2.5) {
-		echo "\n	margin: 4px 150px 0 0;\n";
+		echo '
+			<style type="text/css">
+			#user_info {
+				display: none !important;
+			}
+			#poweredby {
+				text-align: center;
+				font-style: italic;
+				font-size: 12px;
+				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+				background-color: #464646; 
+				margin-top: 0; 
+				padding: 0 0 8px 0; 
+				color: #999;"
+			}
+			#poweredby a {
+				color: #ccc; 
+				text-decoration: none;
+			}
+			#welcome1 {
+				position: absolute;
+				top: 1.0em;
+				margin: 4px 150px 0 0;
+				padding: 0;
+				right: 1em;
+				color: #f1f1f1;
+			}
+			</style>
+			';
 	} else {
-		echo "\n	margin: 0;\n";
+		echo '
+			<style type="text/css">
+			#user_info {
+				display: none !important;
+			}
+			#poweredby {
+				text-align: center;
+				font-weight: bold;
+			}
+			#welcome1 {
+				position: absolute;
+				top: 1.0em;
+				margin: 0;
+				padding: 0;
+				right: 1em;
+				color: #f1f1f1;
+			}
+			</style>
+			';	
+	
 	}
-	echo	'padding: 0;
-		right: 1em;
-		color: #f1f1f1;
-	}
-	</style>
-	';
+	
+
+
 }
 
 //
 // 	WPU_ADMINMENU_INIT
 //	----------------------------------
-//	Inserts the admin pages we want, and directs top the admin page requested
+//	Inserts the admin pages we want, and directs to the admin page requested
 // 
 function wpu_adminmenu_init() {
 
@@ -584,10 +617,11 @@ function wpu_newpost($post_ID) {
 	$connSettings = get_settings('wputd_connection');
 	global $user_ID, $wpdb, $wp_version;
 	$post = get_post($post_ID); 
-	if ( $post->post_status == 'publish' ) {
+	if ( $post->post_status == 'publish' ) { 
 		if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
-			update_usermeta($post->post_author, 'wpu_last_post', $post->post_author);
-		}
+			update_usermeta($post->post_author, 'wpu_last_post', $post->post_author); 
+		} 
+
 		if ( (!defined('IN_PHPBB')) && (!empty($connSettings['logins_integrated'])) ) {
 			global $db, $wpuAbs, $user, $phpEx;
 			wpu_enter_phpbb();
@@ -601,11 +635,11 @@ function wpu_newpost($post_ID) {
 				$db->sql_freeresult($result);
 			}
 		//X-Posting
-			mysql_select_db(DBNAME);
+			mysql_select_db(DBNAME); 
 			// Cross-post to forums if necessary
 			if ( isset($_POST['chk_wpuxpost']) && ($wpuAbs->user_logged_in()) && (!isset($_POST['wpu_already_xposted_post'])) ) {
 				if ( ((int)$_POST['chk_wpuxpost'] ) && ($forum_id = (int)$_POST['sel_wpuxpost']) && $connSettings['wpu_enable_xpost'] ) { 
-					$can_crosspost_list = wpu_forum_xpost_list(); 
+					$can_crosspost_list = wpu_forum_xpost_list();  
 					//Check that we have the authority to cross-post there
 					if ( in_array($forum_id, $can_crosspost_list['forum_id']) ) { 
 						require_once($connSettings['path_to_phpbb'] . 'wp-united/wpu-helper-funcs.' . $phpEx);
@@ -649,14 +683,13 @@ function wpu_newpost($post_ID) {
 							$uid = $poll = $bitfield = $options = ''; 
 							generate_text_for_storage($excerpt, $uid, $bitfield, $options, true, true, true);
 
-						//fix phpBB SEO mod - Uncomment the following 5 lines if using phpbb_seo
-//                         global $phpbb_seo;
-//                         if (!empty($phpbb_seo) ) {
-//                            require_once($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
-//                            $phpbb_seo = new phpbb_seo();
-//                         }
-                         //fix phpBB SEO mod
-						 
+							//fix phpBB SEO mod
+				                         global $phpbb_seo;
+				                         if (!empty($phpbb_seo) ) {
+				                         	require_once($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
+				                         	$phpbb_seo = new phpbb_seo();
+				                         }
+							 
 							require_once($connSettings['path_to_phpbb'] . 'includes/functions_posting.' . $phpEx);
 							$data = array(
 								'forum_id' => $forum_id,
@@ -750,7 +783,7 @@ function wpu_forum_xpost_list() {
 	} else {
 		$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
 		if ( sizeof($can_xpost_to) ) {
-			$can_xpost_to = array_keys($can_xpost_to);
+			$can_xpost_to = array_keys($can_xpost_to); 
 		}
 		//Don't return categories -- just forums!
 		if ( sizeof($can_xpost_to) ) {
@@ -762,7 +795,7 @@ function wpu_forum_xpost_list() {
 					$can_xpost_forumlist['forum_id'][] = $row['forum_id'];
 					$can_xpost_forumlist['forum_name'][] = $row['forum_name'];
 				}
-				$db->sql_freeresult($result);
+				$db->sql_freeresult($result); 
 				return $can_xpost_forumlist;
 			}
 		}
@@ -1126,49 +1159,70 @@ function wpu_clear_header_cache() {
 //	Add box to the write/(edit) post page.
 //
 function wpu_add_postboxes() {
-	
+	global $wp_version, $can_xpost_forumlist, $already_xposted;
 	$wpuConnSettings = get_settings('wputd_connection');
+	if ( $wp_version >= 2.5 ) { ?> 
+		<div id="wpuxpostdiv" class="inside">
+		<?php //_e('Cross-post to Forums?'); ?>
+	<?php } else { ?>
+		<fieldset id="wpuxpostdiv" class="dbx-box">
+		<h3 class="dbx-handle"><?php _e('Cross-post to Forums?') ?></h3> 
+		<div class="dbx-content">
+	<?php } ?>
+		
+	<?php if ($already_xposted) echo '<strong><small>' . sprintf(__('Already cross-posted (Post ID = %s)'), $already_xposted['post_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
+	<label for="wpu_chkxpost" class="selectit">
+		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1" />
+		<?php _e('Cross-post to Forums?'); ?><br />
+	</label><br />
+	<label for="wpu_selxpost">Select Forum:<br />
+		<select name="sel_wpuxpost" id="wpu_selxpost" <?php if ($already_xposted) echo 'disabled="disabled"'; ?>> 
+		<?php
+			if ($already_xposted) {
+				echo "<option value=\"{$already_xposted['forum_id']}\">{$already_xposted['forum_name']}</option>";
+			} else {
+				foreach ( $can_xpost_forumlist['forum_id'] as $key => $value ) {
+					echo "<option value=\"{$value}\" ";
+					echo ($key == 0) ? 'selected="selected"' : '';
+					echo ">{$can_xpost_forumlist['forum_name'][$key]}</option>";
+				}
+			}
+		?>
+		</select>
+	</label>
+	</div>
+	<?php if ( $wp_version < 2.5 ) echo "</fieldset>";
+
+}
+
+// Here we decide whether to display the cross-posting box, and store the permissions list in global vars for future use.
+// For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the function now.
+function wpu_add_meta_box() {
+	global $wp_version, $can_xpost_forumlist, $already_xposted;
 	
-	//Add the cross-posting box if enabled and the user has forums they can post to
-	if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) {
-		wpu_enter_phpbb();
-		if ( !($already_xposted = wpu_get_xposted_details()) ) {
-			$can_xpost_forumlist = wpu_forum_xpost_list();
-		}
-		wpu_exit_phpbb();
-	// NOTE: TODO: 50: Changes below in Wintermute version yet to be included
-		if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
-			?> 
-			<fieldset id="wpuxpostdiv" class="dbx-box">
-				<h3 class="dbx-handle"><?php _e('Cross-post to Forums?') ?></h3> 
-				<div class="dbx-content">
-					<?php if ($already_xposted) echo '<strong><small>' . sprintf(__('Already cross-posted (Post ID = %s)'), $already_xposted['post_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
-					<label for="wpu_chkxpost" class="selectit">
-						<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1" />
-						<?php _e('Cross-post to Forums?'); ?>
-					</label><br />
-					<label for="wpu_selxpost">Select Forum:<br />
-						<select name="sel_wpuxpost" id="wpu_selxpost" <?php if ($already_xposted) echo 'disabled="disabled"'; ?>> 
-							<?php
-								if ($already_xposted) {
-									echo "<option value=\"{$already_xposted['forum_id']}\">{$already_xposted['forum_name']}</option>";
-								} else {
-									foreach ( $can_xpost_forumlist['forum_id'] as $key => $value ) {
-										echo "<option value=\"{$value}\" ";
-										echo ($key == 0) ? 'selected="selected"' : '';
-										echo ">{$can_xpost_forumlist['forum_name'][$key]}</option>";
-									}
-								}
-							?>
-						</select>
-					</label>
-				</div>
-			</fieldset>
-			<?php		
+	// this function is called early
+	if (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) {
+		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
+			$wpuConnSettings = get_settings('wputd_connection');
+	
+			//Add the cross-posting box if enabled and the user has forums they can post to
+			if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) {
+				wpu_enter_phpbb();
+				if ( !($already_xposted = wpu_get_xposted_details()) ) { 
+					$can_xpost_forumlist = wpu_forum_xpost_list(); 
+				}
+				wpu_exit_phpbb();
+				if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
+					if($wp_version >= 2.5) {
+						add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
+					} else {
+						wpu_add_postboxes();
+					}
+				}
+			}
 		}
 	}
 }
-
 
 
 //
@@ -1403,12 +1457,15 @@ add_action('loop_start', 'wpu_loop_entry');
 
 //Add additional boxes to write post page
 // ADDED IN v0.6.1
-// add_action('dbx_post_sidebar', 'wpu_add_postboxes');
-       
-    add_action('admin_menu', 'wpu_add_meta_box');
-       function wpu_add_meta_box() {
-          add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
-       }
+
+
+
+
+if ( $wp_version >= 2.5 ) {       
+	add_action('admin_menu', 'wpu_add_meta_box'); // <--- this is being called too early :-(
+} else {
+	add_action('dbx_post_sidebar', 'wpu_add_meta_box');
+}
 
 //Todo: move somewhere better!
 global $siteurl;
