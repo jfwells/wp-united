@@ -68,8 +68,8 @@ class WPU_Actions {
 			$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 				if ($wpUtdInt->can_connect_to_wp()) {
 					$wpUtdInt->enter_wp_integration();
-					eval($wpUtdInt->exec()); 
 					$wpUtdInt->wp_logout();
+					eval($wpUtdInt->exec()); 
 					$wpUtdInt->exit_wp_integration();
 					$wpUtdInt = null; unset ($wpUtdInt);
 				}

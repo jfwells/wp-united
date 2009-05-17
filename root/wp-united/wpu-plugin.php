@@ -19,6 +19,7 @@ NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow php
 if ( !defined('ABSPATH') ) {
 	die('Hacking attempt!');
 }
+
 //
 // 	WPU_CHECK_FOR_ACTION
 //	----------------------------------
@@ -1201,7 +1202,7 @@ function wpu_add_meta_box() {
 	global $wp_version, $can_xpost_forumlist, $already_xposted;
 	
 	// this function is called early
-	if (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) {
+	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
 			$wpuConnSettings = get_settings('wputd_connection');
 	
@@ -1294,6 +1295,25 @@ function wpu_buffer_userspanel($panelContent) {
 	return $panelContent;
 }
 
+// disable access to wp-login.php if logins are integrated
+// We don't have $phpEx here.
+function wpu_disable_wp_login() {
+	if (preg_match('|/wp-login.php|', $_SERVER['REQUEST_URI'])) {
+		global $phpEx;
+		$wpuConnSettings = get_settings('wputd_connection');
+		if (!empty($wpuConnSettings['logins_integrated'])) {
+			if ($wpuAbs->ver == 'PHPBB2') {
+				$login = 'login.php?redirect=wp-united-blog';
+			} else {
+				$login = 'ucp.php';
+			}
+			// path back has one too many ../, so we just add on another path element
+			wp_redirect("wp-includes/".$wpuConnSettings['path_to_phpbb'].$login);	
+		}
+	}
+
+}
+
 
 //
 //*****************************************************************
@@ -1324,7 +1344,7 @@ function wpu_catlist_alter($output) {
 	return preg_replace_callback($pattern, 'wpu_cat_doctor', $output);
 }
 
-//Miaaaow
+
 //show the categories the user can post to -- if none exist, then create some!!!!
 function wpu_cat_doctor() {
 
@@ -1452,6 +1472,7 @@ add_action('upload_files_browse', 'wpu_browse_attachments');
 add_action('upload_files_browse-all', 'wpu_browse_attachments');
 add_action('template_redirect', 'wpu_must_integrate');
 add_action('plugins_loaded', 'wpu_load_extra_files');
+add_action('plugins_loaded', 'wpu_disable_wp_login');
 add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry');
 

@@ -68,7 +68,10 @@ Class WPU_Integration {
 		'posts',
 		'post_cache',
 		'table_prefix', 
-		'IN_WORDPRESS', 
+		'IN_WORDPRESS',
+		'wp_version',
+		'wp_taxonomies',
+		'wp_object_cache', 
 
 		// widgets
 		'registered_sidebars', 
@@ -76,6 +79,10 @@ Class WPU_Integration {
 		'registered_widget_controls', 
 		'registered_widget_styles', 
 		'register_widget_defaults', 
+		'wp_registered_sidebars', 
+		'wp_registered_widgets', 
+		'wp_registered_widget_controls', 
+		'wp_registered_widget_updates',
 		// comments
 		'comment', 
 		'comments', 
@@ -86,7 +93,7 @@ Class WPU_Integration {
 		'k2sbm_k2_path', 
 		'k2sbm_theme_path',
 		'wp_version',
-  		'wp_taxonomies'
+  		'wp_taxonomies', 
 		// you could add your own here
 	);
 	
@@ -97,7 +104,8 @@ Class WPU_Integration {
 		'wp_rewrite', 
 		'wp_the_query', 
 		'wp_query',
-		'wp_locale'
+		'wp_locale',
+		'wp_widget_factory'
 	);
 	
 	// We'll put phpBB's current variable state "on ice" in here.
@@ -229,6 +237,7 @@ Class WPU_Integration {
 	function exec() {
 		
 		$code = $this->wpRun; 
+		//echo $code;
 		$this->wpRun = '';
 		return $code;
 	}
@@ -258,6 +267,7 @@ Class WPU_Integration {
 		//Override site cookie path if set in options.php
 		if ( (defined('WP_ROOT_COOKIE')) && (WP_ROOT_COOKIE) ) {
 			define  ('SITECOOKIEPATH', '/');
+			define  ('ADMIN_COOKIE_PATH', '/');
 		}		
 
 
@@ -278,7 +288,10 @@ Class WPU_Integration {
 			
 			// A few WordPress functions that we have changed - all in a separate file for easy updating.
 			require($this->phpbb_root . 'wp-united/wp-functions.' . $this->phpEx);
+			
+			// Load widgets
 			require($this->phpbb_root . 'wp-united/wpu-widgets.' . $this->phpEx);
+			
 			
 			//Handle the make clickable conflict
 			global $lang, $wpuAbs;
@@ -297,10 +310,13 @@ Class WPU_Integration {
 				}
 				$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
 				$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php';
-				//foreach ( $this->globalRefs as $gloRef ) {
-				//	$cSet = str_replace('$'. $gloRef . ' ', '$GLOBALS[\'' . $gloRef . '\'] ',$cSet);
-				//	$cSet = str_replace('$'. $gloRef . ';', '$GLOBALS[\'' . $gloRef . '\'];',$cSet);
-				//}
+
+				if (!$this->wpu_compat) {
+					foreach ( $this->globalRefs as $gloRef ) {
+						$cSet = str_replace('$'. $gloRef . ' ', '$GLOBALS[\'' . $gloRef . '\'] ',$cSet);
+						$cSet = str_replace('$'. $gloRef . '->', '$GLOBALS[\'' . $gloRef . '\']->',$cSet);
+					}
+				}
 				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
 				// fix theme template functions!
 				$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($GLOBALS[\'wpUtdInt\']->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
@@ -567,7 +583,7 @@ Class WPU_Integration {
 	//	
 			// set the global vars we need
 			foreach ($this->globalVarsStore as $varName => $varValue) {
-				if ( !array_key_exists($varName, $this->globalReferences) ) {
+				if ( !array_key_exists($varName, $this->globalRefs) ) {
 					if ( !($varName == 'oldName') && !($varName == 'newName') ) {
 						global $$varName;
 						$$varName = $varValue;
@@ -603,7 +619,17 @@ Class WPU_Integration {
 	//	used by login.php 
 	//	No need to check for newly-created vars after this one, or use any globals, it's all too simple.
 	
-		wp_clearcookie();
+		if($this->wpVersion >= 2.5) {
+			wp_logout();
+			wp_clear_auth_cookie();
+			unset($_COOKIE[AUTH_COOKIE]);
+			unset($_COOKIE[SECURE_AUTH_COOKIE]);
+			unset($_COOKIE[LOGGED_IN_COOKIE]);
+			unset($_COOKIE[TEST_COOKIE]);
+			wp_set_current_user(0, 0);
+		} else {
+			wp_clearcookie();
+		}
 		do_action('wp_logout');
 		nocache_headers();
 		unset($_COOKIE[USER_COOKIE]);
