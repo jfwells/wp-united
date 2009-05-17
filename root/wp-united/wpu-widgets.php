@@ -45,71 +45,50 @@ function wpu_widgets_init() {
 	//
 	//	Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
 	/*******************************************************************************************/
-
-	function widget_readerdetails($args) {
+	function widget_wpu_login_user_info($args) {
 		
 		extract($args);
-		$options = get_option('widget_readerdetails');
+		$options = get_option('widget_wpu_login_user_info');
 		$titleLoggedIn = $options['title_logged_in'];
 		$titleLoggedOut = $options['title_logged_out'];
 		$loginForm = $options['login_form'];
 		$rankBlock = $options['rank'];
 		$newPosts = $options['new'];
+		$write = $options['write'];
+		$admin = $options['admin'];
+		$position = 'sidebar';
 		
 		//generate the widget output
 		// wpu_template_funcs.php MUST be available!
-		echo $before_widget . '<div id="loginbox">';
-		$wpu_usr = get_wpu_phpbb_username(); 
-		if ( 'Guest' != $wpu_usr ) { 
-			echo $before_title . $titleLoggedIn . $after_title;
-			echo '<p><strong>' . $wpu_usr . '</strong></p>';
-			if ( $rankBlock ) {
-				wpu_phpbb_rankblock();
-			}
-			echo '<img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" />'; 
-			if ( $newPosts ) {
-				echo '<p>'; wpu_newposts_link(); echo '</p> ';
-			}
-			echo '<p>'; wp_loginout(); echo '</p> ';
-		} else {
-			echo $before_title . $titleLoggedOut . $after_title;
-			if ( $loginForm ) {
-				global $scriptPath, $phpEx, $wpuAbs, $phpbb_sid, $wpSettings;
-				$login_link = ($wpuAbs->ver == 'PHPBB2') ? 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid : 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]);
-				echo '<form method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
-				echo '<p><label for="phpbb_username">' . $wpuAbs->lang('Username') . ': <input style="width: 90px;" type="text" name="username" id="phpbb_username"/></label></p>';
-				echo '<p><label for="phpbb_password">' . $wpuAbs->lang('Password') . ': <input style="width: 90px;" type="password" name="password" id="phpbb_password" maxlength="32" /></label></p>';
-				if ( $wpuAbs->config('allow_autologin') ) {
-					echo '<p><label for="phpbb_autologin">' . $wpuAbs->lang('Log_me_in') . ': <input type="checkbox" id="phpbb_autologin" name="autologin" /></label></p>';
-				}
-					echo '<input type="submit" name="login" value="' . $wpuAbs->lang('submit') . '" />';
-				echo '</form>';
-			} else {
-				echo '<p>'; wp_loginout(); echo '</p> ';
-			}
-		}			
-		echo '</div>' . $after_widget;
+		if ( !function_exists('wpu_login_user_info') ) return;
+		echo $before_widget;
+		wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position);
+		echo $after_widget;
 	}
 
 	//The widget control pane:	
-	function widget_readerdetails_control() {
+	function widget_wpu_login_user_info_control() {
 	
-		$options = get_option('widget_readerdetails');
+		$options = get_option('widget_wpu_login_user_info');
 		
 		if ( !is_array($options) ) {
 			$options = array('title_logged_in'=>__('You are logged in as:'), 'title_logged_out'=>__('You are not logged in.'), 'rank'=>1, 'new'=>1, 'login_form'=>1);
 		}
 		// handle form submission
-		if ( $_POST['widget_readerdetails'] ) {
-			$options['title_logged_in'] = strip_tags(stripslashes($_POST['wpu-readerinfo-titIn']));
-			$options['title_logged_out'] = strip_tags(stripslashes($_POST['wpu-readerinfo-titOut']));
-			$options['rank'] = strip_tags(stripslashes($_POST['wpu-readerinfo-rank']));
-			$options['new'] = strip_tags(stripslashes($_POST['wpu-readerinfo-new']));
-			$options['login_form'] = strip_tags(stripslashes($_POST['wpu-readerinfo-form']));
+		if ( $_POST['widget_wpu_login_user_info'] ) {
+			$options['title_logged_in'] = strip_tags(stripslashes($_POST['wpu-user-info-titIn']));
+			$options['title_logged_out'] = strip_tags(stripslashes($_POST['wpu-user-info-titOut']));
+			$options['rank'] = strip_tags(stripslashes($_POST['wpu-user-info-rank']));
+			$options['new'] = strip_tags(stripslashes($_POST['wpu-user-info-new']));
+			$options['write'] = strip_tags(stripslashes($_POST['wpu-user-info-write']));
+			$options['admin'] = strip_tags(stripslashes($_POST['wpu-user-info-admin']));
+			$options['login_form'] = strip_tags(stripslashes($_POST['wpu-user-info-form']));
 			$options['login_form'] = ($options['login_form'] == 'auto')? 1 : 0;
 			$options['rank'] = ($options['rank'] == 'rank')? 1 : 0;
 			$options['new'] = ($options['new'] == 'new')? 1 : 0;
-			update_option('widget_readerdetails', $options);
+			$options['write'] = ($options['write'] == 'write')? 1 : 0;
+			$options['admin'] = ($options['admin'] == 'admin')? 1 : 0;
+			update_option('widget_wpu_login_user_info', $options);
 		}
 
 		// set form values
@@ -118,18 +97,26 @@ function wpu_widgets_init() {
 		$loginForm = (int) $options['login_form'];
 		$rank= (int) $options['rank'];
 		$new= (int) $options['new'];
+		$write= (int) $options['write'];
+		$admin= (int) $options['admin'];
 		$cbValue = ($loginForm == 1) ? 'checked="checked"' : '';
 		$cbRankValue = ($rank == 1) ? 'checked="checked"' : '';
 		$cbNewValue = ($new == 1) ? 'checked="checked"' : '';
+		$cbWriteValue = ($write == 1) ? 'checked="checked"' : '';
+		$cbAdminValue = ($admin == 1) ? 'checked="checked"' : '';
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-readerinfo-titIn">' . __('Heading to show when reader is logged in:') . ' <input style="width: 200px;" id="wpu-readerinfo-titIn" name="wpu-readerinfo-titIn" type="text" value="'.$titleLoggedIn.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-readerinfo-titOut">' . __('Heading to show when reader is not logged in:') . ' <input style="width: 200px;" id="wpu-readerinfo-titOut" name="wpu-readerinfo-titOut" type="text" value="'.$titleLoggedOut.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-readerinfo-rank">' . __('Show rank title & image?') . ' <input  id="wpu-readerinfo-rank" name="wpu-readerinfo-rank" type="checkbox" value="rank" ' . $cbRankValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-readerinfo-new">' . __('Show new posts?') . ' <input  id="wpu-readerinfo-new" name="wpu-readerinfo-new" type="checkbox" value="new" ' . $cbNewValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-readerinfo-form">' . __('Show phpBB login form if logged out?') . ' <input  id="wpu-readerinfo-form" name="wpu-readerinfo-form" type="checkbox" value="auto" ' . $cbValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-titIn">' . __('Heading to show when reader is logged in:') . ' <input style="width: 200px;" id="wpu-user-info-titIn" name="wpu-user-info-titIn" type="text" value="'.$titleLoggedIn.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-titOut">' . __('Heading to show when reader is not logged in:') . ' <input style="width: 200px;" id="wpu-user-info-titOut" name="wpu-user-info-titOut" type="text" value="'.$titleLoggedOut.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-rank">' . __('Show rank title & image?') . ' <input  id="wpu-user-info-rank" name="wpu-user-info-rank" type="checkbox" value="rank" ' . $cbRankValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-new">' . __('Show new posts?') . ' <input  id="wpu-user-info-new" name="wpu-user-info-new" type="checkbox" value="new" ' . $cbNewValue . ' /></label></p>';
+		//
+		echo '<p style="text-align:right;"><label for="wpu-user-info-write">' . __('Show Write Post link?') . ' <input  id="wpu-user-info-write" name="wpu-user-info-write" type="checkbox" value="write" ' . $cbWriteValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-admin">' . __('Show Admin link?') . ' <input  id="wpu-user-info-admin" name="wpu-user-info-admin" type="checkbox" value="admin" ' . $cbAdminValue . ' /></label></p>';
+		//
+		echo '<p style="text-align:right;"><label for="wpu-user-info-form">' . __('Show phpBB login form if logged out?') . ' <input  id="wpu-user-info-form" name="wpu-user-info-form" type="checkbox" value="auto" ' . $cbValue . ' /></label></p>';
 
-		echo '<input type="hidden" id="widget_readerdetails" name="widget_readerdetails" value="1" />';
+		echo '<input type="hidden" id="widget_wpu_login_user_info" name="widget_wpu_login_user_info" value="1" />';
 	}
 	
 	
@@ -155,6 +142,7 @@ function wpu_widgets_init() {
 		
 		//generate the widget output
 		// wpu_template_funcs.php MUST be available!
+		if ( !function_exists('wpu_latest_blogs') ) return false;
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 		echo '<ul>';
@@ -210,6 +198,7 @@ function wpu_widgets_init() {
 		
 		//generate the widget output
 		// wpu_template_funcs.php MUST be available!
+		if ( !function_exists('wpu_latest_blogposts') ) return false;
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 		echo '<ul>';
@@ -264,6 +253,7 @@ function wpu_widgets_init() {
 		
 		//generate the widget output
 		// wpu_template_funcs.php MUST be available!
+		if ( !function_exists('wpu_latest_phpbb_topics') ) return false;
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 		echo '<ul>';
@@ -318,6 +308,7 @@ function wpu_widgets_init() {
 		
 		//generate the widget output
 		// wpu_template_funcs.php MUST be available!
+		if ( !function_exists('wpu_phpbb_stats') ) return false;
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 		echo '<ul>';
@@ -351,21 +342,94 @@ function wpu_widgets_init() {
 	
 		
 
+	/*******************************************************************************************
+	//	PHPBB LAST POST by Japgalaxy
+	//	--------------------------------------
+	/*******************************************************************************************/
+	
+	function widget_wpu_latest_phpbb_post($args) {
+
+		extract($args);
+			
+		$options = get_option('widget_wpu_latest_phpbb_post');
+		$title = $options['title'];
+		$before = $options['before'];
+		$after = $options['after'];
+		$gtm = $options['gtm'];
+		$seo = $options['seo'];
+		$limit = $options['limit'];
+		
+		if ( !function_exists('wpu_latest_phpbb_post') ) return;
+		echo $before_widget;
+		echo '<h2>'.$title.'</h2>';
+		if ( ($before=="<li>") && ($after=="</li>") ) {
+			$prev = "<ul>";
+			$next = "</ul>";
+		}
+		
+		echo $prev;
+		wpu_latest_phpbb_post($before, $after, $gtm, $limit, $seo);
+		echo $next;
+		echo $after_widget;
+	}
+
+
+	//The widget control pane:	
+	function widget_wpu_latest_phpbb_post_control() {
+	
+		$options = get_option('widget_wpu_latest_phpbb_post');
+		
+		if ( !is_array($options) ) {
+			$options = array('title'=>__('Recent Forum Posts'), 'limit'=>20, 'gtm'=>"Y-m-j", 'before'=>"<li>", 'after'=>"</li>", 'seo'=>"No");
+		}
+		// handle form submission
+		if ( $_POST['widget_wpu_rpt'] ) {
+			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
+			$options['limit'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
+			$options['before'] = $_POST['wpu-lpp-before'];
+			$options['after'] = $_POST['wpu-lpp-after'];
+			$options['gtm'] = $_POST['wpu-lpp-gtm'];
+			$options['seo'] = $_POST['wpu-lpp-seo'];
+			update_option('widget_wpu_latest_phpbb_post', $options);
+		}
+
+		// set form values
+		$title = htmlspecialchars($options['title'], ENT_QUOTES);
+		$max = htmlspecialchars($options['max'], ENT_QUOTES);
+		$before = $options['before'];
+		$after = $options['after'];
+		$gtm = $options['gtm'];
+		$seo = $options['seo'];
+		$limit = $options['limit'];
+
+		// Show form
+		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . ' <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . ' <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$limit.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-before">' . __('Before:') . ' <input style="width: 60px;" id="wpu-lpp-before" name="wpu-lpp-before" type="text" value="'.$before.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-after">' . __('After:') . ' <input style="width: 60px;" id="wpu-lpp-after" name="wpu-lpp-after" type="text" value="'.$after.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('GTM Data format:') . ' <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$gtm.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . ' <input style="width: 90px;" id="wpu-lpp-seo" name="wpu-lpp-seo" type="text" value="'.$seo.'" /></label></p>';
+
+		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
+	}	
+
 	/************************************************************************************************************************************/
 	
 	//register our widgets
-	register_sidebar_widget(array('WP-United Reader Info Block', 'widgets'), 'widget_readerdetails');
+	register_sidebar_widget(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info');
 	register_sidebar_widget(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs');
 	register_sidebar_widget(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts');
 	register_sidebar_widget(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics');
 	register_sidebar_widget(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats');
+	register_sidebar_widget(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpu_latest_phpbb_post');
 
 	// register our widget control panes, specifying size of pane
-	register_widget_control(array('WP-United Reader Info Block', 'widgets'), 'widget_readerdetails_control', 500, 180);
+	register_widget_control(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info_control', 500, 180);
 	register_widget_control(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
 	register_widget_control(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
 	register_widget_control(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics_control', 300, 100);
 	register_widget_control(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats_control', 300, 100);
+	register_widget_control(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpu_latest_phpbb_post_control', 300, 100);
 }
 
 
