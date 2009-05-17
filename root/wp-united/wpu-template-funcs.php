@@ -566,14 +566,15 @@ function get_wpu_newposts() {
 //	Example: wpu_latest_phpbb_posts('<li>','</li>','Y-m-j',20,'Yes')
 
 function wpu_latest_phpbb_post($before, $after, $gtm, $limit, $seo) {
-global $scriptPath;
+	global $scriptPath;
 
-if ($gtm==""){
-$gtm="Y-m-j";
-} 
-if ($limit=="") {
-$limit=20;
-}
+	if ($gtm==""){
+		$gtm="Y-m-j";
+	} 
+	if ($limit=="") {
+		$limit=20;
+	}
+	$GLOBALS['wpUtdInt']->switch_db('TO_P');
     $sql = "SELECT pp.post_id, pp.topic_id,pp.forum_id, post_time, topic_title, pf.forum_name, pp.poster_id, pu.username, pf.forum_id
             FROM " . POSTS_TABLE . " pp, " . TOPICS_TABLE . " pt, " . FORUMS_TABLE . " pf, " . USERS_TABLE . " pu
 			WHERE  pp.topic_id = pt.topic_id
@@ -585,7 +586,7 @@ $limit=20;
 			ORDER BY post_time DESC LIMIT 0,$limit"; 
 
     $row = mysql_query($sql) or die('Query failed: ' . mysql_error());
-
+	$GLOBALS['wpUtdInt']->switch_db('TO_W');
     if (mysql_num_rows($row) == 0) {
         echo $before."Nothing found".$after;
         exit;
