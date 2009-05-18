@@ -319,7 +319,7 @@ Class WPU_Integration {
 				}
 				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
 				// fix theme template functions!
-				$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($GLOBALS[\'wpUtdInt\']->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
+				$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
 				unset ($cFor);
 				$cSet = '?'.'>'.trim($cSet).'<'.'?php';
 				$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
@@ -532,13 +532,13 @@ Class WPU_Integration {
 	//do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
 	function wpSignIn($wpUsr, $pass) {
 						
-		if ( function_exists('wp_signon') ) {
+		if ( function_exists('wp_signon') ) { // version for newer wordpresses
 			if ( !is_wp_error(wp_signon(array('user_login' => $wpUsr, 'user_password' => $pass, 'remember' => false))) ) {
 				return true;
 			}
 		} else {
-			if ( wp_login($wpUsr, $pass, true) ) {
-				wp_setcookie($wpUsr, $pass, true, '', '', false);
+			if ( wp_login($wpUsr, $pass, true) ) { // older WP
+				wp_setcookie($wpUsr, md5($pass), true, '', '', false);
 				do_action('wp_login', $wpUsr);
 				return true;
 			}
