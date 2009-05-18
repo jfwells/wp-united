@@ -4,8 +4,8 @@
 * WP-United ACP panels
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v0.5.0[phpBB3] 2007/07/15 John Wells (Jhong) Exp $
-* @copyright (c) 2006, 2007 wp-united.com
+* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.6.5[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */

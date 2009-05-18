@@ -4,8 +4,8 @@
 * WP-United phpBB3 Install Script
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.5.0 2007/07/15 John Wells (Jhong) Exp $
-* @copyright (c) 2006, 2007 wp-united.com
+* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.6.5[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
@@ -19,6 +19,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
 //
+//	DELETE THIS FiLE AFTER USE!
 
 
 define('IN_PHPBB', true);

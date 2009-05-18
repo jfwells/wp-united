@@ -4,8 +4,8 @@
 * WP-United [English]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.6.0 2007/07/15 John Wells (Jhong) Exp $
-* @copyright (c) 2006, 2007 wp-united.com
+* @version $Id: wp-united.php,v 0.6.5 2009/05/18 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
@@ -42,7 +42,7 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'ACP_WPU_INDEX_TITLE'	=> 'WP-United',
 	    
-	'WPU_Default_Version' => 'v0.6.0-RC1',
+	'WPU_Default_Version' => 'v0.6.5-RC1',
 	'WP_Version_Text' => 'WP-United %s',
 
 	'WP_Title' => 'WP-United Settings',

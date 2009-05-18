@@ -4,8 +4,8 @@
 * WP-United Permissions [Spanish]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.5.2 2007/07/15 Raistlin (Raistlin) Exp $
-* @copyright (c) 2006, 2007 wp-united.com
+* @version $Id: wp-united.php,v 0.6.5 2009/05/18 Raistlin (Raistlin) Exp $
+* @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */

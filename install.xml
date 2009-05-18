@@ -21,11 +21,10 @@ Visit http://www.wp-united.com for more help or information.
     <mod-version>0.6.1RC1</mod-version>
     <installation>
       <level>intermediate</level>
-      <time>912</time>
+      <time>1200</time>
       <target-version>3.0.4</target-version>
     </installation>
     <link-group>
-	<link type="template" href="templates/prosilver.xml" lang="en">prosilver</link>
 	<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
 	<link type="language" href="languages/de.xml" lang="de">Deutsch</link>
 	<link type="language" href="languages/es.xml" lang="es">Espanol</link>
@@ -200,20 +199,113 @@ if ($config['load_cpf_viewtopic'])]]></find>
 ]]></action>
       </edit>
     </open>
-    <diy-instructions lang="en-gb">
+    <open src="styles/prosilver/template/overall_header.html">
+      <edit>
+        <find><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">]]></find>
+        <action type="replace-with"><![CDATA[<!-- IF WP_DTD -->{WP_DTD}<!-- ELSE --><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><!-- ENDIF -->]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[<title>{SITENAME} &bull; <!-- IF S_IN_MCP -->{L_MCP} &bull; <!-- ELSEIF S_IN_UCP -->{L_UCP} &bull; <!-- ENDIF -->{PAGE_TITLE}</title>]]></find>
+        <action type="after-add"><![CDATA[<!-- IF PHPBB_BASE --><base href="{PHPBB_BASE}" /><!-- ENDIF -->
+]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[<script type="text/javascript">
+]]></find>
+        <action type="before-add"><![CDATA[<!-- IF WP_HEADERINFO_EARLY -->{WP_HEADERINFO_EARLY}<!-- ENDIF -->
+]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[</head>]]></find>
+        <action type="before-add"><![CDATA[<!-- IF WP_HEADERINFO_LATE -->{WP_HEADERINFO_LATE}<!-- ENDIF -->
+]]></action>
+      </edit>
+      <edit>
+        <find><![CDATA[<li class="icon-faq"><a href="{U_FAQ}" title="{L_FAQ_EXPLAIN}">{L_FAQ}</a></li>]]></find>
+		<action type="after-add"><![CDATA[<!-- IF S_BLOG --><li class="icon-members"><a href="{U_BLOG}" title="{L_BLOG}">{L_BLOG}</a></li><!-- ENDIF -->]]></action>
+	 </edit>
+	 </open>
+	  <open src="styles/prosilver/template/overall_footer.html">
+	  <edit>
+        <find><![CDATA[		<!-- IF TRANSLATION_INFO --><br />{TRANSLATION_INFO}<!-- ENDIF -->]]></find>
+        <action type="after-add"><![CDATA[		<!-- IF WP_CREDIT --><br />{WP_CREDIT}<!-- ENDIF -->		]]></action>
+      </edit>
+    </open>
+    <open src="styles/prosilver/template/memberlist_view.html">
+      <edit>
+        <find><![CDATA[			<dt>{postrow.PROFILE_FIELD1_NAME}:</dt> <dd>{postrow.PROFILE_FIELD1_VALUE}</dd>
+		<!-- ENDIF -->]]></find>
+        <action type="after-add"><![CDATA[		<!-- IF U_BLOG_LINK -->
+			<dt>{L_BLOG}:</dt> <dd><a href="{U_BLOG_LINK}" title="{L_VISIT_BLOG}" >{L_VISIT_BLOG}</a></dd>
+		<!-- ENDIF -->]]></action>
+      </edit>
+    </open>
+    <open src="styles/prosilver/template/viewtopic_body.html">
+      <edit>
+        <find><![CDATA[			<dd><strong>{postrow.PROFILE_FIELD1_NAME}:</strong> {postrow.PROFILE_FIELD1_VALUE}</dd>
+		<!-- ENDIF -->]]></find>
+        <action type="after-add"><![CDATA[		<!-- IF postrow.U_BLOG_LINK -->
+			<dd><strong>{L_BLOG}:</strong> <a href="{postrow.U_BLOG_LINK}" title="{L_VISIT_BLOG}" >{L_VISIT_BLOG}</a></dd>
+		<!-- ENDIF -->]]></action>
+      </edit>
+    </open>
+    <open src="styles/prosilver/theme/common.css">
+      <edit>
+        <find>
+h1 {
+	/* Forum name */
+</find>
+        <action type="replace-with">
+h1, #page-header h1 {
+	/* Forum name */
+	padding: 0;
+	text-align: left;	</action>
+        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
+      </edit>
+      <edit>
+        <find>#site-description {</find>
+        <action type="after-add">	text-align: left;
+</action>
+        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
+      </edit>
+    </open>    
+    <diy-instructions lang="en-gb"><![CDATA[	
 
-Now, install the modifications for your installed styles using the instructions provided in the /templates folder.
+THEME CHANGES
+-------------
+If you need to install the template modifications for the subSilver2 template, use the subsilver2.xml file in the templates folder.
+
+if you are using another theme based on prosilver, make the above prosilver changes to your theme now.
+
+Remember to purge the phpBB template cache, and refresh your themes after making these changes.
+
+IMPORTANT NEXT STEPS
+--------------------
 
 After making all the edits, you must complete the following steps:
 
-1. Run the wpu-install.php script that you copied to your phpBB root folder, then delete it.
+1. Run the wpu-install.php script that you copied to your phpBB root folder, by accessing http://your-site-toot/wpu-install.php. When done, delete wpu-install.php.
 
 2. Make sure you have installed WordPress. If you need help, look at the instructions on the WordPress Codex, here: http://codex.wordpress.org/Installing_WordPress
 
-3. Run the Setup Wizard, under the WP-United tab that will appear in your ACP.
+3. IMPORTANT: Copy the file wpu-plugin.php from your phpbb-root/wp-united folder to your WordPress plugins folder (wp-includes/plugins). (This was not required in older versions of WP-United)
+
+4. Run the Setup Wizard, under the WP-United tab that will appear in your ACP.
 
 For more detailed instructions, please visit http://www.wp-united.com
 
-</diy-instructions>
+REPORTING BUGS / GETTING HELP
+-----------------------------
+
+Please remember, 95% of reported bugs are user error. If you encounter any problems, re-read the above steps carefully, and make sure you have done everything as instructed, and try installing the mod using AutoMod. 
+
+Check that your phpBB server settings (especially "script path") and WordPress settings are correct, then try re-running the WP-United install wizard (WP-United tab in the phpBB Admin Control Panel).
+
+If it still fails, please:
+(1) If you are getting blank pages, turn on PHP error reporting or look in your server log to find the underlying cause of the problem. We can't respond to any support requests referring to "blank pages" without accompanying error output.
+(2) Use "Debug Info To Post" function, located under the WP-United Admin Control Panel tab, to getrelevant debug information.
+
+Post this information, together with full details of any error, and what you did to generate the error, on http://www.wp-united.com , after performing a search for similar issues.
+]]></diy-instructions>
   </action-group>
 </mod>

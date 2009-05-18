@@ -17,7 +17,8 @@ IMPORTANT NOTES:
 2. Your web server MUST be able to write to this cache folder for the caching options to work!
 3. If you turn on the header/footer cache for WordPress, dynamic elements in your WordPress header or footer (with the exception of the title), will NOT be dynamic on a phpBB-in-WordPress (simple) page.
 
-You may delete this file -- it is simply a placeholder so that this cache folder gets created by EasyMod.
+You may delete this file -- it is simply a placeholder so that this cache folder gets created by AutoMod.
 
 John Wells
-04 June 1007
+04 June 2007
+Last Modified 18 May 2009

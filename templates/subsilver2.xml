@@ -24,7 +24,6 @@
     </installation>
   <link-group>
 	<link type="parent" href="../install.xml" lang="en">Main install file</link>
-	<link type="template" href="prosilver.xml" lang="en">prosilver</link>
 	<link type="language" href="../languages/de.xml" lang="de">Deutsch</link>
 	<link type="language" href="../languages/es.xml" lang="es">Espanol</link>
 	<link type="contrib" href="../contrib/convert_from_phpbb2/convert_from_phpbb2.xml" lang="en">Convert from phpBB2</link>

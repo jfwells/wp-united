@@ -28,7 +28,6 @@ READ THE DIY INSTRUCTIONS AT THE BOTTOM OF THE FILE FIRST!
     </installation>
   <link-group>
 	<link type="parent" href="../../install.xml" lang="en">Main install file</link>  
-	<link type="template" href="../../templates/prosilver.xml" lang="en">prosilver</link>
 	<link type="template" href="../../templates/subsilver2.xml" lang="en">subsilver2</link>
 	<link type="language" href="../../languages/de.xml" lang="de">Deutsch</link>
 	<link type="language" href="../../languages/es.xml" lang="es">Espanol</link>
