@@ -465,18 +465,7 @@ function wp_check_password($password, $hash, $user_id = '') {
 
 	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
 		$check = ($password == $hash);
-		
-		//define('IN_PHPBB', true);
-		//$phpbb_root_path = './';
-		//$phpEx = substr(strrchr(__FILE__, '.'), 1);
-		//include($phpbb_root_path . 'common.' . $phpEx);
-
-		$pw = 'aaaaaaaa';
-
-		$hsh = phpbb_hash($pw);
-
-		echo($hsh); echo "||" . $password;
-				
+			
 		return apply_filters('check_password', $check, $password, $hash, $user_id);
 	} else { 
 	
