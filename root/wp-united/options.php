@@ -81,6 +81,6 @@ define('WPU_DEBUG', FALSE);
 // This sets the WordPress cookie path to '/'.
 // Could be useful if your WordPress base install is in a path that is rewritten by Apache mod_rewrite, but most users will be fine if they leave this off.
 
-define('WP_ROOT_COOKIE', FALSE);
+define('WP_ROOT_COOKIE', TRUE);
 
 ?>

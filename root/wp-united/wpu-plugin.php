@@ -954,7 +954,8 @@ function wpu_done_head() {
 	$wpu_done_head = true;
 	
 	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
-		echo $GLOBALS['wpUtdInt']->debugBuffer . '</div><!-- /wpu-debug -->';
+		if (!$GLOBALS['wpUtdInt']->debugBufferFull) $GLOBALS['wpUtdInt']->lDebug('',1);
+		echo $GLOBALS['wpUtdInt']->debugBuffer;
 	}
 	//add the frontpage stylesheet, if needed: 
 	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {

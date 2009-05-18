@@ -463,6 +463,28 @@ if($this->wpVersion < 2.5 && !function_exists('create_user')) {
 function wp_check_password($password, $hash, $user_id = '') {
 	global $wp_hasher;
 
+	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
+		$check = ($password == $hash);
+		
+		//define('IN_PHPBB', true);
+		//$phpbb_root_path = './';
+		//$phpEx = substr(strrchr(__FILE__, '.'), 1);
+		//include($phpbb_root_path . 'common.' . $phpEx);
+
+		$pw = 'aaaaaaaa';
+
+		$hsh = phpbb_hash($pw);
+
+		echo($hsh); echo "||" . $password;
+				
+		return apply_filters('check_password', $check, $password, $hash, $user_id);
+	} else { 
+	
+
+		
+	}
+
+
 	// If the hash is still md5...
 	if ( strlen($hash) <= 32 ) {
 		$check = ( $hash == md5($password) );
@@ -483,11 +505,8 @@ function wp_check_password($password, $hash, $user_id = '') {
 		$wp_hasher = new PasswordHash(8, TRUE);
 	}
 
-	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
-		$check = ($password == $hash);
-	} else {
-		$check = $wp_hasher->CheckPassword($password, $hash);
-	}
+	$check = $wp_hasher->CheckPassword($password, $hash);
+
 
 	return apply_filters('check_password', $check, $password, $hash, $user_id);
 }

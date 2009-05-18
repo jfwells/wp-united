@@ -130,6 +130,7 @@ Class WPU_Integration {
 	var $wpu_compat;
 	
 	var $debugBuffer;
+	var $debugBufferFull;
 	
 	//
 	//	GET INSTANCE
@@ -169,6 +170,7 @@ Class WPU_Integration {
 		$this->wpLoaded = FALSE;
 		$this->cacheReady = FALSE;
 		$this->debugBuffer = '';
+		$this->debugBufferFull = FALSE;
 		$this->wpVersion = 0;
 	}
 	
@@ -267,6 +269,7 @@ Class WPU_Integration {
 		//Override site cookie path if set in options.php
 		if ( (defined('WP_ROOT_COOKIE')) && (WP_ROOT_COOKIE) ) {
 			define  ('SITECOOKIEPATH', '/');
+			define  ('COOKIEPATH', '/');
 			define  ('ADMIN_COOKIE_PATH', '/');
 		}		
 
@@ -524,21 +527,26 @@ Class WPU_Integration {
 				}
 				
 			}
+			if (!$this->debugBufferFull) $this->lDebug('',1);
 		}
-		//$this->lDebug('',1); -- for testing purposes only without WPU connection -- to remove
+		
 	} //end of the integration	
 	
+
 	// This handles logging in users into WordPresss -- It's a private function, designed to be called from
 	//do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
-	function wpSignIn($wpUsr, $pass) {
-						
-		if ( function_exists('wp_signon') ) { // version for newer wordpresses
-			if ( !is_wp_error(wp_signon(array('user_login' => $wpUsr, 'user_password' => $pass, 'remember' => false))) ) {
+
+	function wpSignIn($wpUsr, $pass) { 
+		global $error;
+		if ( function_exists('wp_signon') ) {
+			$result = wp_signon(array('user_login' => $wpUsr, 'user_password' => $pass, 'remember' => false));
+			if ( !is_wp_error($result) ) {
 				return true;
-			}
-		} else {
-			if ( wp_login($wpUsr, $pass, true) ) { // older WP
-				wp_setcookie($wpUsr, md5($pass), true, '', '', false);
+			} 
+			$error = $result->get_error_message();
+		} else { 
+			if ( wp_login($wpUsr, md5($pass), true) ) {
+				wp_setcookie($wpUsr, $pass, true, '', '', false);
 				do_action('wp_login', $wpUsr);
 				return true;
 			}
@@ -652,7 +660,9 @@ Class WPU_Integration {
 			}
 			if ($end_debug_now) {
 				echo $this->debugBuffer . '</div><!-- /wpu-debug -->';
+				$this->debugBufferFull = TRUE;				
 			}
+
 		}	
 	
 	}
