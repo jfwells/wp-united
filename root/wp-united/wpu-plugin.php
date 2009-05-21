@@ -738,6 +738,8 @@ function wpu_newpost($post_ID) {
 //
 function wpu_enter_phpbb() {
 	$connSettings = get_settings('wputd_connection');
+	
+	$cwd = getcwd(); chdir($cwd);  // useful for testing with symlinked install
 	//need board config global for abstractify.php
 	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
 	//phpBB makes this conflicting var global (in phpBB2). But we want to revert back to WP's afterwards.
@@ -748,6 +750,12 @@ function wpu_enter_phpbb() {
 	define('IN_PHPBB', 1);
 	// Guess what? Yep, this whole function is phpBB-version agnostic :-)
 	$phpbb_root_path = $connSettings['path_to_phpbb'];
+	
+	// if we're not accessing from an admin panel, we need to lop off first ../ in path name
+	if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
+		$phpbb_root_path = explode("/", $phpbb_root_path); array_shift($phpbb_root_path);$phpbb_root_path = implode("/", $phpbb_root_path);
+		$connSettings['path_to_phpbb'] = $phpbb_root_path;
+	}
 	$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	include($phpbb_root_path . 'common.' . $phpEx);
 	include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
@@ -1315,6 +1323,29 @@ function wpu_disable_wp_login() {
 
 }
 
+function wpu_check_unhashed_password($result, $incomingPass, $hash, $user_id) {
+	// Check again if WP says password is incorrect
+	if(!$result) { 
+		// if define is set, an already-hashed password was provided, and it was incorrect
+		if(!defined('PASSWORD_ALREADY_HASHED') ){
+			if(!defined('IN_PHPBB')) {
+				$wpuConnSettings = get_settings('wputd_connection');
+				//Add the cross-posting box if enabled and the user has forums they can post to
+				if ( !empty($wpuConnSettings['logins_integrated']) ) {
+					global $phpEx;
+					wpu_enter_phpbb(); 
+					include($wpConnSettings['phpbb_root_path'] . 'includes/functions_user.' . $phpEx); 
+					$result = phpbb_check_hash($incomingPass, $hash); 
+					wpu_exit_phpbb();
+				} else {
+					// do nothing -- the password should have already passed scrutiny
+				}
+			}
+		}
+	}
+	return $result;
+}
+
 
 //
 //*****************************************************************
@@ -1479,29 +1510,9 @@ add_action('loop_start', 'wpu_loop_entry');
 
 
 // Here we allow non-integrated applications (e.g. desktop blog posters) to authenticate
-if(!defined('PASSWORD_ALREADY_HASHED') && !PASSWORD_ALREADY_HASHED ) {
-	add_filter('check_password', 'wpu_check_unhashed_password');
+if(!defined('PASSWORD_ALREADY_HASHED') ) {
+	add_filter('check_password', 'wpu_check_unhashed_password', 1, 4);
 }
-
-function wpu_check_unhashed_password($result, $incomingPass, $hash, $user_id) {
-	// Check again
-	if(!defined('PASSWORD_ALREADY_HASHED') && !PASSWORD_ALREADY_HASHED) {
-	
-		if(!defined('IN_PHPBB')) {
-			// enter phpBB
-			// hash password using phpBB
-			// check again
-			
-		} else {
-			// do nothing -- the password should have already passed scrutiny
-		}
-	
-	}
-	
-	return $result;
-}
-
-
 
 
 if ( $wp_version >= 2.5 ) {       
