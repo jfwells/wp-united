@@ -35,6 +35,7 @@ class WPU_Actions {
 	function do_head(&$template) {
 		global $wpSettings, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if  ($wpSettings['installLevel'] == 10) {
 			$template->assign_vars(array(
@@ -63,13 +64,13 @@ class WPU_Actions {
 	function do_logout() { 
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {
 			require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 			$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 				if ($wpUtdInt->can_connect_to_wp()) { 
 					$wpUtdInt->enter_wp_integration();
-					$wpUtdInt->integrate_login();
 					$wpUtdInt->wp_logout();
 					eval($wpUtdInt->exec()); 
 					$wpUtdInt->exit_wp_integration();
@@ -80,6 +81,7 @@ class WPU_Actions {
 	function profile_update($mode, $phpbb_id, $integration_id, $data) {
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $db;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {	
 			
@@ -174,6 +176,7 @@ class WPU_Actions {
 	function generate_profile_link($bloglink_id, &$template) {
 		global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if  ( $wpSettings != FALSE ) {
 			if (!empty($wpSettings['buttonsProfile'])) {
@@ -195,6 +198,7 @@ class WPU_Actions {
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
 		global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if  ( $wpSettings['installLevel'] == 10 ) { 
 			if (!empty($wpSettings['buttonsPost'])) {

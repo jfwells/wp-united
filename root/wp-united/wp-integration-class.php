@@ -300,7 +300,7 @@ Class WPU_Integration {
 			global $lang, $wpuAbs;
 			define('ABSPATH',$this->wpu_settings['wpPath']);
 			
-			if (!$this->core_cache_ready()) {
+			if (!$this->core_cache_ready() || !$this->wpu_compat) {
 				$cConf = file_get_contents($this->wpu_settings['wpPath'] . 'wp-config.php');
 				$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
 				
@@ -329,7 +329,7 @@ Class WPU_Integration {
 				$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php');
 				unset ($cConf, $cSet);
 				
-				if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) ) {
+				if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) && ($this->wpu_compat) ) {
 					$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_' . floor(rand(0, 9999)) . 'wpucorecache.php';
 					$fnDest = $phpbb_root_path . 'wp-united/cache/core.wpucorecache.php';
 					$hTempFile = @fopen($fnTemp, 'w+');
@@ -494,6 +494,7 @@ Class WPU_Integration {
 							$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
 						} else {
 							//Unbelievable.... something is clearly wrong. Sound apologetic.
+							
 							$this->exit_wp_integration();
 							$this->lDebug('Failed, aborting (' . $error .')', 1);
 							$wpuAbs->err_msg(GENERAL_ERROR, 'WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message', 'WordPress Integration Error', __LINE__, __FILE__, '');
@@ -515,8 +516,7 @@ Class WPU_Integration {
 					}
 				} else {
 					//The login integration has failed. Log them out of WP just in case, and raise a stink.
-					wp_clearcookie();
-					wp_set_current_user(0);
+					$this->do_wp_logout();
 					$this->exit_wp_integration();
 					$this->lDebug('Failed, aborting2', 1);
 					$wpuAbs->err_msg(GENERAL_ERROR, 'Integration Error with your account! Please contact an administrator.', __LINE__, __FILE__, '');
@@ -630,16 +630,14 @@ Class WPU_Integration {
 	
 		if($this->wpVersion >= 2.5) {
 			wp_logout();
-			wp_clear_auth_cookie();
 			unset($_COOKIE[AUTH_COOKIE]);
 			unset($_COOKIE[SECURE_AUTH_COOKIE]);
 			unset($_COOKIE[LOGGED_IN_COOKIE]);
-			unset($_COOKIE[TEST_COOKIE]);
-			wp_set_current_user(0, 0);
 		} else {
 			wp_clearcookie();
 		}
 		do_action('wp_logout');
+		wp_set_current_user(0, 0);
 		nocache_headers();
 		unset($_COOKIE[USER_COOKIE]);
 		unset($_COOKIE[PASS_COOKIE]);
