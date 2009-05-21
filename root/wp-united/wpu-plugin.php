@@ -1477,8 +1477,29 @@ add_action('plugins_loaded', 'wpu_disable_wp_login');
 add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry');
 
-//Add additional boxes to write post page
-// ADDED IN v0.6.1
+
+// Here we allow non-integrated applications (e.g. desktop blog posters) to authenticate
+if(!defined('PASSWORD_ALREADY_HASHED') && !PASSWORD_ALREADY_HASHED ) {
+	add_filter('check_password', 'wpu_check_unhashed_password');
+}
+
+function wpu_check_unhashed_password($result, $incomingPass, $hash, $user_id) {
+	// Check again
+	if(!defined('PASSWORD_ALREADY_HASHED') && !PASSWORD_ALREADY_HASHED) {
+	
+		if(!defined('IN_PHPBB')) {
+			// enter phpBB
+			// hash password using phpBB
+			// check again
+			
+		} else {
+			// do nothing -- the password should have already passed scrutiny
+		}
+	
+	}
+	
+	return $result;
+}
 
 
 

@@ -469,8 +469,9 @@ Class WPU_Integration {
 					//see if user can log into WP (need to double-hash password)  
 					// This authentication is really unneccessary at this point.... but we need them to have a strong password in a WP cookie for Admin panel access
 					
-					// CHANGED IN 0.6.1: MD5 HASHING REMOVED. (TODO: 30: )
-					
+					// This overrides authentication in wp_check_password() [wp-functions.php]
+					// This is OK to set here, as phpBB has already dealt with integration.
+					// DO NOT define this anywhere else, ever!
 					define('PASSWORD_ALREADY_HASHED', TRUE);
 					if($this->wpSignIn($wpUserName, $wpuAbs->phpbb_passwd())) {					
 						$loggedInUser = wp_set_current_user($wpUser->ID);

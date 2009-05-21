@@ -448,8 +448,8 @@ function wp_create_user($username, $password, $email = '') {
 }
 
  // moved to deprecated.php in later wordpress, so just left here for compatibility with old WP
- // we need to use $this->wpVersion here as this check takes place before WP invocation
- // others (above) need to use the global variable $wp_version instead.
+ // we need to use $this->wpVersion here as this check takes place before WP invocation, so WP-United sets the variable, not WP.
+ // INSIDE the functions we use $wp_version instead, a global variable set by WP.
 if($this->wpVersion < 2.5 && !function_exists('create_user')) {
 	function create_user($username, $password, $email) {
 		return wp_create_user($username, $password, $email);
@@ -459,18 +459,19 @@ if($this->wpVersion < 2.5 && !function_exists('create_user')) {
 
 // We need to override WordPress password hash checking, as the password we have to log into wordpress is already hashed.
 // prior to WP 2.5, we could double-hash and check that way, but no longer :-(
-
+// Half of this is going to take place in wpu-plugin. Eventually we will move it all there.
 function wp_check_password($password, $hash, $user_id = '') {
 	global $wp_hasher;
-
+	
+	// Here phpBB has already handled authentication, so the inbound password is hashed and we just need to check it against the database.
+	// IMPORTANT -- This should not be defined anywhere other than integration-class.php, otherwise it allows an attacker
+	// who has gained access to the DB to log into wordpress without having to crack passwords.
 	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
 		$check = ($password == $hash);
-			
 		return apply_filters('check_password', $check, $password, $hash, $user_id);
 	} else { 
-	
-
-		
+		// This is not an incoming phpBB/WP-United request, so this file will not be called.
+		// Handle the request in wpu-plugin.php, in a filter.
 	}
 
 

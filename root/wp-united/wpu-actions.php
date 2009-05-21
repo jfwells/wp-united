@@ -60,14 +60,16 @@ class WPU_Actions {
 			include ($phpbb_root_path . 'wp-united/wordpress-entry-point.' . $phpEx);
 		}	
 	}
-	function do_logout() {
+	function do_logout() { 
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {	
+		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {
 			require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 			$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
-				if ($wpUtdInt->can_connect_to_wp()) {
+				if ($wpUtdInt->can_connect_to_wp()) { 
 					$wpUtdInt->enter_wp_integration();
+					$wpUtdInt->integrate_login();
 					$wpUtdInt->wp_logout();
 					eval($wpUtdInt->exec()); 
 					$wpUtdInt->exit_wp_integration();
@@ -75,7 +77,7 @@ class WPU_Actions {
 				}
 			}
 	}	
-	function profile_update($mode, $phpbb_id, $integration_id, $data) { 
+	function profile_update($mode, $phpbb_id, $integration_id, $data) {
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $db;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
@@ -158,6 +160,7 @@ class WPU_Actions {
 						if ($wpUtdInt->can_connect_to_wp()) {
 							//enter the integration
 							$wpUtdInt->enter_wp_integration();
+							$wpUtdInt->integrate_login();
 							eval($wpUtdInt->exec());  
 							$wpUtdInt->exit_wp_integration();
 							$wpUtdInt = null; unset($wpUtdInt);
