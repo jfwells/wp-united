@@ -4,11 +4,7 @@ Most tasks are now complete -- ready for release v0.6.5
 
 1. Upgrade MODX template and packaging to phpBB latest -- DONE
 
-2. validate each file against Wintermute's latest version, and against WP 2.7 code -- IN PROGRESS
-
-Files with relevant changes
----------------------------
-
+2. 
 	- install.xml -- only change is update to remove copy of wpu-plugin. See TODO 40.
 
 	- wp-united/wp-functions.php. Updated. 
