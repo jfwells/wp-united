@@ -29,6 +29,7 @@ Visit http://www.wp-united.com for more help or information.
 	<link type="template" href="../../templates/subsilver2.xml" lang="en">subsilver2</link>
 	<link type="language" href="../../languages/de.xml" lang="de">Deutsch</link>
 	<link type="language" href="../../languages/es.xml" lang="es">Espanol</link>
+	<link type="language" href="languages/it.xml" lang="it">Italiano</link>	
 	<link type="contrib" href="../convert_from_phpbb2/convert_from_phpbb2.xml" lang="en">Convert from phpBB2</link>
 	<link type="contrib" href="../upgrading_from_v0.5.0_or_v0.5.1/upgrade.xml" lang="en">Upgrading from WP-United v0.5.0 or v0.5.1</link>
   </link-group>
