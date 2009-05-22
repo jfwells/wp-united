@@ -1,5 +1,7 @@
 This document shows the status of bringing WP-United up-to-date with WP & phpBB latest versions.
 
+Most tasks are now complete -- ready for release v0.6.5
+
 1. Upgrade MODX template and packaging to phpBB latest -- DONE
 
 2. validate each file against Wintermute's latest version, and against WP 2.7 code -- IN PROGRESS
