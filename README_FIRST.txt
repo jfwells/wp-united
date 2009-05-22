@@ -72,6 +72,13 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
+
+v0.6.5 RELEASE CANDIDATE 1
+...
+
+v0.6.1 RELEASE CANDIDATE 1
+...
+
 v0.6.0 RELEASE CANDIDATE 1
 
 -- Updated to work with phpBB3 RC8 & WordPress 2.3.1
