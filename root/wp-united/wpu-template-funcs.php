@@ -715,13 +715,56 @@ function _wpu_process_args($args, $defaults='') {
 	return $r;
 }
 
+//@since WP-United 0.6.5
+// Function 'wpu_get_comment_author_link' returns the phpBB user profile link
+// John -> Japgalaxy: As this is a Template Tag, I've moved it to wpu-template-funcs.php.
+// I hope this doesn't break it. It should be OK. If not,  we can move it back.
+//
+//
+function wpu_get_comment_author_link () {
+global $comment;
+
+	if (!function_exists('get_wpu_user_id')) {
+		return $wpu_link = get_comment_author();
+	} else {
+		$id_utente = get_wpu_user_id($comment->user_id);
+		
+		if ($id_utente == '0' || $id_utente == '') { 
+			return $wpu_link = get_comment_author();
+		} else {
+				$connSettings = get_settings('wputd_connection');
+				$arr_search = array(".","/"); 
+				$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
+			if (file_exists($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.php')) {
+				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/member'.$id_utente.'.html">'.$comment->comment_author.'</a> ';
+			} else {
+				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/memberlist.php?mode=viewprofile&u='.$id_utente.'">'.$comment->comment_author.'</a> ';
+			}
+		}
+	}
+}
+
+//@since WP-United 0.6.5
+function wpu_comment_author_link () {
+	// Modified this to echo rather that return, to be consistent with other WordPress functions.
+	echo  wpu_get_comment_author_link();
+}
+
+
+
+
 //
 //	LOGIN/USER INFO
 //	---------------------
 //	Login Form/User Info by Japgalaxy
 //	Example: wpu_login_user_info('', '', 1, 1, 1, 1, 1, sidebar)
-function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position) {
 
+//
+//	John --> Japgalaxy. I think we should try to move the CSS to the header, it's not compliant to have it in the body.
+//	I suggest we can just put it in the WP-United CSS file.
+//
+function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position) {
+	
 		if ( !function_exists('get_wpu_phpbb_username') )return; 
 			//style for position sidebar/header     
 			if ($position == "sidebar") {
@@ -765,11 +808,13 @@ function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankB
 					 $l_message_new = ($user->data['user_new_privmsg'] == 1) ? $user->lang['NEW_PM'] : $user->lang['NEW_PMS'];
 					 $l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
 				 echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
-					 
+					
 					 if ((!$user->data['user_last_privmsg']) || ($user->data['user_last_privmsg'] > $user->data['session_last_visit']))
 					 {
+					 	 $GLOBALS['wpUtdInt']->switch_db('TO_P');
 						$sql = 'UPDATE ' . USERS_TABLE . ' SET user_last_privmsg = ' . $user->data['session_last_visit'] . ' WHERE user_id = ' . $user->data['user_id'];
 						$db->sql_query($sql);
+						 $GLOBALS['wpUtdInt']->switch_db('TO_W');
 		
 						$s_privmsg_new = true;
 					 }

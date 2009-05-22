@@ -1451,6 +1451,8 @@ function wpu_gen_nested_cats($categories) {
 
 //@since WP-United 0.6.5
 // Function 'is_forum' can be useful to fix some WP-United's incompatible plugin
+// Hi Japgalaxy -- can we just check if(defined('IN_PHPBB')) instead? That way you can also spot if the phpBB code has been
+// called from within WordPress.
 function is_forum(){
 	global $scriptPath;
 	
@@ -1463,41 +1465,17 @@ function is_forum(){
 	}
 }
 
-//@since WP-United 0.6.5
-// Function 'wpu_get_comment_author_link' returns the phpBB user profile link
-function wpu_get_comment_author_link () {
-global $comment;
-
-	if (!function_exists('get_wpu_user_id')) {
-		return $wpu_link = get_comment_author();
-	} else {
-		$id_utente = get_wpu_user_id($comment->user_id);
-		
-		if ($id_utente == '0' || $id_utente == '') { 
-			return $wpu_link = get_comment_author();
-		} else {
-				$connSettings = get_settings('wputd_connection');
-				$arr_search = array(".","/"); 
-				$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
-			if (file_exists($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.php')) {
-				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/member'.$id_utente.'.html">'.$comment->comment_author.'</a> ';
-			} else {
-				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/memberlist.php?mode=viewprofile&u='.$id_utente.'">'.$comment->comment_author.'</a> ';
-			}
-		}
-	}
-}
-
-//@since WP-United 0.6.5
-function wpu_comment_author_link () {
-	return $wpu_link =  wpu_get_comment_author_link ();
-}
 
 //@since WP-United 0.6.5
 if(!function_exists('get_avatar')) :
 /**
 * Function 'get_avatar()' - Retrieve the phpBB avatar of a user
 */
+
+// Hi Japgalaxy --- this is very similar to avatar_poster and avatar_commenter in wpu-templace-funcs. Do we really need another one, or can we modify them?
+// Both of those use avatar_create_image, which gets the avatar for a supplied user. I think this is redundant.
+//
+//
 function get_avatar( $id_or_email, $size = '96', $default = '' ) {
 
 if( (preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) ) {
@@ -1574,6 +1552,8 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 	if( (preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) ) {
 	// This exclude the Wordpress admin panel because it causes an error in the edit-comment page and in the Dashboard (last comments)
 	// I haven't a fix for now, have you any idea? Is it also needed there? In my opinion no...
+	// I agree, don't need in admin panel -- John
+	//
 	} else {
 		global $user;
 		static $match;
@@ -1586,10 +1566,15 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 			$match = $replace = array();
 			$connSettings = get_settings('wputd_connection');
 			$arr_search = array(".","/"); 
+			// I think this makes too mny assumptions about the path to phpBB. It could still have some ../ in it for some users.
 			$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
 	
 			// TO FIX: query works only for admin comments, while if a simple user comments, it returns an error with the constant SMILIES_TABLE
 			// I haven't a fix for now, have you any idea? 
+			//
+			// We should be using proper phpBB DB syntax here -- this won't work for most setups.
+			// I think smilies should already be pre-loaded from the phpBB side -- let me check. -- John
+			// Either way, we should do $wpuAbs->switch_db('TO_P'), then use an existing phpBB function to do this
 					$sql = 'SELECT *
 						FROM '.SMILIES_TABLE.'
 						ORDER BY smiley_id';
@@ -1642,6 +1627,10 @@ global $user;
 		$connSettings = get_settings('wputd_connection');
 		$arr_search = array(".","/"); 
 		$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
+//
+//	This isn't going to work for most users (e.g. with separate WP & phpBB databases).
+//	I can try to fix...
+//	We should be using $wpuAbs->switch_db('TO_P'), then an existing phpBB function to do this
 
 			$sql = 'SELECT *
 					FROM '.SMILIES_TABLE.'
@@ -1672,6 +1661,7 @@ $i = 0;
 //since v0.6.5
 /*
 Function 'wpu_javascript' inserts the javascript code required by smilies' function!
+John: $user isn't set here.
 */
 function wpu_javascript (){
 global $user;
@@ -1700,7 +1690,7 @@ function insert_text(text, spaces, popup)
 
 // Add hooks and filters
 	//since v0.6.5
-	add_action('login_head', 'redirect_to_phpbb_login');
+	//add_action('login_head', 'redirect_to_phpbb_login'); see wpu_disable_wp_login, above -- let's reuse that if necessary
 	add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
 	add_action('comment_author_link', 'wpu_comment_author_link');
 	add_filter('comment_text', 'wpu_censor');
