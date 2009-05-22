@@ -67,6 +67,13 @@ $lang = array_merge($lang, array(
 	// Please translate me:
 	'read_more'				=> '%1sRead the rest of this blog post blog &raquo;%3s',
 	'blog_post_cats'		=>	'Posted under: ',	
+	'write_post'			=>	'Write Post',
+	'admin_site'			=>	'Admin Site',
+	'admin_forum'			=>	'Admin Forum',
+	'newest_user'			=>	'Newest User: ',
+	'registered_users'		=>	'Registered Users: ',
+	'forum_posts'			=>	'Forum Posts: ',
+	'forum_topics'			=>	'Forum Topics: ',
 ));
 
 ?>

@@ -1449,9 +1449,262 @@ function wpu_gen_nested_cats($categories) {
 //	CATEGORY LISTING WHEN VIEWING POSTS
 
 
+//@since WP-United 0.6.5
+// Function 'is_forum' can be useful to fix some WP-United's incompatible plugin
+function is_forum(){
+	global $scriptPath;
+	
+	$simplePath = str_replace('http://'.$_SERVER['SERVER_NAME'].'/', '', $scriptPath);
+	
+	if( (preg_match('|'.$simplePath.'|', $_SERVER['REQUEST_URI'])) ) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
+//@since WP-United 0.6.5
+// Function 'wpu_get_comment_author_link' returns the phpBB user profile link
+function wpu_get_comment_author_link () {
+global $comment;
+
+	if (!function_exists('get_wpu_user_id')) {
+		return $wpu_link = get_comment_author();
+	} else {
+		$id_utente = get_wpu_user_id($comment->user_id);
+		
+		if ($id_utente == '0' || $id_utente == '') { 
+			return $wpu_link = get_comment_author();
+		} else {
+				$connSettings = get_settings('wputd_connection');
+				$arr_search = array(".","/"); 
+				$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
+			if (file_exists($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.php')) {
+				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/member'.$id_utente.'.html">'.$comment->comment_author.'</a> ';
+			} else {
+				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/memberlist.php?mode=viewprofile&u='.$id_utente.'">'.$comment->comment_author.'</a> ';
+			}
+		}
+	}
+}
+
+//@since WP-United 0.6.5
+function wpu_comment_author_link () {
+	return $wpu_link =  wpu_get_comment_author_link ();
+}
+
+//@since WP-United 0.6.5
+if(!function_exists('get_avatar')) :
+/**
+* Function 'get_avatar()' - Retrieve the phpBB avatar of a user
+*/
+function get_avatar( $id_or_email, $size = '96', $default = '' ) {
+
+if( (preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) ) {
+} else {
+   if ( ! get_option('show_avatars') )
+      return false;
+
+   if ( !is_numeric($size) )
+      $size = '96';
+
+   $email = '';
+   if ( is_numeric($id_or_email) ) {
+      $id = (int) $id_or_email;
+      $user = get_userdata($id);
+      if ( $user )
+         $email = $user->user_email;
+   } elseif ( is_object($id_or_email) ) {
+      if ( !empty($id_or_email->user_id) ) {
+         $id = (int) $id_or_email->user_id;
+         $user = get_userdata($id);
+         if ( $user)
+            $email = $user->user_email;
+      } elseif ( !empty($id_or_email->comment_author_email) ) {
+         $email = $id_or_email->comment_author_email;
+      }
+   } else {
+      $email = $id_or_email;
+   }
+   
+global $scriptPath;   //phpbb directory
+
+if( $user ) { 
+
+      if ( !empty($user) ) {
+         $image = avatar_create_image($user);
+      }
+         if ( empty($image) ) {
+            if ( $image === FALSE ) {
+               if ( empty($default) ) {
+                  $image = $scriptPath . 'wp-united/images/wpu_unregistered.gif';   //wp-united default
+               } else {
+                  $image = $default;   //wordpress default avatar
+               }
+            } else {
+               $image = $scriptPath . 'wp-united/images/wpu_no_avatar.gif';
+            }
+         }   
+         $avatar = "<img alt='' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
+
+
+} else { //unregistered user
+
+	$image = $scriptPath . 'wp-united/images/wpu_unregistered.gif';   //wp-united unregistered default avatar
+	$avatar = "<img alt='' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
+}
+
+   return apply_filters('get_avatar', $avatar, $id_or_email, $size, $default);
+
+}//end preg_match
+
+} 
+endif;
+
+
+//@since WP-United 0.6.5
+/*
+Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding smilies into comment text
+*/
+
+function wpu_smilies($postContent, $max_smilies = 0) {
+	if( (preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) ) {
+	// This exclude the Wordpress admin panel because it causes an error in the edit-comment page and in the Dashboard (last comments)
+	// I haven't a fix for now, have you any idea? Is it also needed there? In my opinion no...
+	} else {
+		global $user;
+		static $match;
+		static $replace;
+	
+		// See if the static arrays have already been filled on an earlier invocation
+		if (!is_array($match))
+		{
+	
+			$match = $replace = array();
+			$connSettings = get_settings('wputd_connection');
+			$arr_search = array(".","/"); 
+			$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
+	
+			// TO FIX: query works only for admin comments, while if a simple user comments, it returns an error with the constant SMILIES_TABLE
+			// I haven't a fix for now, have you any idea? 
+					$sql = 'SELECT *
+						FROM '.SMILIES_TABLE.'
+						ORDER BY smiley_id';
+				
+			 $query = mysql_query ($sql)or die("MySQL ERROR: ".mysql_error());
+			
+	while ($row = mysql_fetch_assoc ($query))
+			{
+				if (empty($row['code']))
+				{
+					continue;
+				}
+	
+				// (assertion)
+				$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
+				$replace[] = '<!-- s' . $row['code'] . ' --><img src="/'.$simple_phpbb_root_path.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+			}
+			
+		}
+	
+		if (sizeof($match))
+		{
+			if ($max_smilies)
+			{
+				$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
+				unset($matches);
+	
+				if ($num_matches !== false && $num_matches > $max_smilies)
+				{
+					$this->warn_msg[] = sprintf($user->lang['TOO_MANY_SMILIES'], $max_smilies);
+					return;
+				}
+			}
+	
+			// Make sure the delimiter # is added in front and at the end of every element within $match
+			$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
+		}
+	}//end if admin
+	
+	return $postContent;
+}
+
+//@since WP-United 0.6.5
+/*
+Function 'wpu_print_smilies' prints phpBB smilies into comment form
+*/
+function wpu_print_smilies(){
+global $user;
+
+		$connSettings = get_settings('wputd_connection');
+		$arr_search = array(".","/"); 
+		$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
+
+			$sql = 'SELECT *
+					FROM '.SMILIES_TABLE.'
+					ORDER BY smiley_id';
+ 			
+		 $query = mysql_query ($sql);
+$i = 0;
+	while ($row = mysql_fetch_assoc ($query)) {
+		if (empty($row['code']))
+		{
+			continue;
+		}
+		
+		if ($i == 20) {
+			echo '<span id="wpu-smiley-more" style="display:none">';
+		}
+		
+		echo '<a href="Javascript:insert_text(\''.$row['code'].'\')"><img src="/'.$simple_phpbb_root_path.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a>';
+		
+		$i++;
+	} //end while
+		echo '</span> <span id="wpu-smiley-toggle"><a href="javascript:moreSmilies()">'.$user->lang['more_smilies'].'&nbsp;&raquo;</a></span>';
+	
+}
+
+
+
+//since v0.6.5
+/*
+Function 'wpu_javascript' inserts the javascript code required by smilies' function!
+*/
+function wpu_javascript (){
+global $user;
+
+echo "
+<script language=\"javascript\">
+function insert_text(text, spaces, popup)
+{
+	text = ' ' + text + ' ';
+	document.commentform.comment.value += text; 
+
+}
+
+    function moreSmilies() {
+    	document.getElementById('wpu-smiley-more').style.display = 'inline';
+    	document.getElementById('wpu-smiley-toggle').innerHTML = '<a href=\"javascript:lessSmilies()\">&laquo;&nbsp;".$user->lang['less_smilies']."</a></span>';
+    }
+    
+    function lessSmilies() {
+    	document.getElementById('wpu-smiley-more').style.display = 'none';
+    	document.getElementById('wpu-smiley-toggle').innerHTML = '<a href=\"javascript:moreSmilies()\">".$user->lang['more_smilies']."&nbsp;&raquo;</a>';
+    }
+</script>
+";
+}
 
 // Add hooks and filters
+	//since v0.6.5
+	add_action('login_head', 'redirect_to_phpbb_login');
+	add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
+	add_action('comment_author_link', 'wpu_comment_author_link');
+	add_filter('comment_text', 'wpu_censor');
+	add_filter('comment_text', 'wpu_smilies');
+	add_action('comment_form', 'wpu_print_smilies');
+	add_action('wp_head', 'wpu_javascript');
+
 add_filter('template', 'wpu_get_template');
 add_filter('stylesheet', 'wpu_get_stylesheet');
 add_filter('loginout', 'wpu_loginoutlink');

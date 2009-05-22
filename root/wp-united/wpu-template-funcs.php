@@ -636,7 +636,48 @@ function get_wpu_latest_phpbb_topics($args = '') {
 
 
 
+//@since WP-United v0.6.5 (tnx to TechnoBuddhist)
+//
+//   RETRIEVE THE PHPBB USER ID FROM A GIVEN WP ID
+//   -----------------------------------------------------
+//      Returns the wpu user id(i.e. the phpBB userID) from a given WP id.
+//      If no id is given then the currently signed in user is used.
+//
+function wpu_user_id($wp_userID = '') {
+   echo get_wpu_user_id($wp_userID);
+}
 
+
+function get_wpu_user_id($wp_userID = '') {
+  global $db;
+
+  if (!$wp_userID ) {
+	if( $GLOBALS['wpUtdInt']->phpbb_usr_data['session_logged_in'] ) {
+	  $usrData = $GLOBALS['wpUtdInt']->phpbb_usr_data;
+	}
+
+
+  } else {
+
+	$GLOBALS['wpUtdInt']->switch_db('TO_P');
+	$sql = 'SELECT user_id
+	  FROM ' . USERS_TABLE .
+	  ' WHERE user_wpuint_id = ' . $wp_userID;
+	if(!($result = $db->sql_query($sql))) {
+	  $GLOBALS['wpuAbs']->err_msg(GENERAL_ERROR, 'Could not query phpbb database', '', __LINE__, __FILE__, $sql);
+	 }
+	 $usrData = $db->sql_fetchrow($result);
+	  
+   $GLOBALS['wpUtdInt']->switch_db('TO_W');
+  }
+
+  if( $usrData ) {
+	return $usrData['user_id'];
+  } else {
+	return '0';
+  }
+
+}
 
 
 //
