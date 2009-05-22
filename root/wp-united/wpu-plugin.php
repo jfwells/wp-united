@@ -1501,6 +1501,9 @@ if(!function_exists('get_avatar')) :
 function get_avatar( $id_or_email, $size = '96', $default = '' ) {
 
 if( (preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) ) {
+	// This exclude the Wordpress admin panel because it causes an error in the Dashboard (last comments)
+	// I haven't a fix for now, have you any idea?
+
 } else {
    if ( ! get_option('show_avatars') )
       return false;
