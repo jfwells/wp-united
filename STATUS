@@ -11,12 +11,8 @@ Files with relevant changes
 
 	- wp-united/wp-functions.php. Updated. 
 		-- TODO 5: (low priority) clean up branches, or check 2.4, 2.5, 2.6 for compatibility
-		-- TODO 10: s/b unnecessary to handle blank usernames, this
-			should be taking place in integration class.
-		-- TODO 20: We have broken ability to store passwords in native WP hash -- must use phpBB to log in. 
-			TODO is to fix that.
-	- wp-united/wp-integration-class.php. Updated.
-		-- TODO 30: See TODO 20 -- md5 hashing removed. OK for now.
+		-- TODO 10: s/b unnecessary to handle blank usernames, this is taking place in integration class.
+	-- TODO 30: See TODO 20 -- md5 hashing removed. OK for now using phpBB hashing. Need a way to restore back to WP passwords when WP-United uninstalled.
 	
 	- wp-united/wpu-plugin.php . Updated.
 	- wp-united/wpu-template-funcs.php . Pending review
