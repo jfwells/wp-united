@@ -1323,28 +1323,6 @@ function wpu_disable_wp_login() {
 
 }
 
-function wpu_check_unhashed_password($result, $incomingPass, $hash, $user_id) {
-	// Check again if WP says password is incorrect
-	if(!$result) { 
-		// if define is set, an already-hashed password was provided, and it was incorrect
-		if(!defined('PASSWORD_ALREADY_HASHED') ){
-			if(!defined('IN_PHPBB')) {
-				$wpuConnSettings = get_settings('wputd_connection');
-				//Add the cross-posting box if enabled and the user has forums they can post to
-				if ( !empty($wpuConnSettings['logins_integrated']) ) {
-					global $phpEx;
-					wpu_enter_phpbb(); 
-					include($wpConnSettings['phpbb_root_path'] . 'includes/functions_user.' . $phpEx); 
-					$result = phpbb_check_hash($incomingPass, $hash); 
-					wpu_exit_phpbb();
-				} else {
-					// do nothing -- the password should have already passed scrutiny
-				}
-			}
-		}
-	}
-	return $result;
-}
 
 
 //
@@ -1507,12 +1485,6 @@ add_action('plugins_loaded', 'wpu_load_extra_files');
 add_action('plugins_loaded', 'wpu_disable_wp_login');
 add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry');
-
-
-// Here we allow non-integrated applications (e.g. desktop blog posters) to authenticate
-if(!defined('PASSWORD_ALREADY_HASHED') ) {
-	add_filter('check_password', 'wpu_check_unhashed_password', 1, 4);
-}
 
 
 if ( $wp_version >= 2.5 ) {       

@@ -467,8 +467,12 @@ function wp_check_password($password, $hash, $user_id = '') {
 	// IMPORTANT -- This should not be defined anywhere other than integration-class.php, otherwise it allows an attacker
 	// who has gained access to the DB to log into wordpress without having to crack passwords.
 	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
-		$check = ($password == $hash);
-		return apply_filters('check_password', $check, $password, $hash, $user_id);
+		// We can convert hashes from phpBB-type to WordPress-type
+		if(substr($password, 0, 3) == '$H$') {
+			$password = substr_replace($password, '$P$', 0, 3);
+			$check = ($password == $hash);
+			return apply_filters('check_password', $check, $password, $hash, $user_id);
+		}
 	} else { 
 		// This is not an incoming phpBB/WP-United request, so this file will not be called.
 		// Handle the request in wpu-plugin.php, in a filter.

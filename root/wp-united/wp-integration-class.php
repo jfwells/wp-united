@@ -469,10 +469,7 @@ Class WPU_Integration {
 					//see if user can log into WP (need to double-hash password)  
 					// This authentication is really unneccessary at this point.... but we need them to have a strong password in a WP cookie for Admin panel access
 					
-					// This overrides authentication in wp_check_password() [wp-functions.php]
-					// This is OK to set here, as phpBB has already dealt with integration.
-					// DO NOT define this anywhere else, ever!
-					define('PASSWORD_ALREADY_HASHED', TRUE);
+
 					if($this->wpSignIn($wpUserName, $wpuAbs->phpbb_passwd())) {					
 						$loggedInUser = wp_set_current_user($wpUser->ID);
 						$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
@@ -538,6 +535,12 @@ Class WPU_Integration {
 	//do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
 
 	function wpSignIn($wpUsr, $pass) { 
+
+		// This overrides authentication in wp_check_password() [wp-functions.php]
+		// This is OK to set here, as phpBB has already dealt with integration.
+		// DO NOT define this anywhere else, ever!
+		define('PASSWORD_ALREADY_HASHED', TRUE);	
+		
 		global $error;
 		if ( function_exists('wp_signon') ) {
 			$result = wp_signon(array('user_login' => $wpUsr, 'user_password' => $pass, 'remember' => false));
@@ -918,6 +921,11 @@ Class WPU_Integration {
 			$update['user_email'] = $pData['user_email'];
 			$doWpUpdate = true;
 		} 
+		
+		// Store our password in a WordPress compatible format
+		if(substr($pData['user_password'], 0, 3) == '$H$') {
+			$pData['user_password'] = substr_replace($pData['user_password'], '$P$', 0, 3);
+		}
 		
 		if ( (!($pData['user_password'] == $wpData->user_pass)) && (!empty($pData['user_password'])) ) {
 			$update['user_pass'] = $pData['user_password']; 
