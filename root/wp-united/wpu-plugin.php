@@ -624,7 +624,7 @@ function wpu_newpost($post_ID) {
 		} 
 
 		if ( (!defined('IN_PHPBB')) && (!empty($connSettings['logins_integrated'])) ) {
-			global $db, $wpuAbs, $user, $phpEx;
+			global $db, $wpuAbs, $user, $phpEx; 
 			wpu_enter_phpbb();
 			
 			// Update blog link column
@@ -751,12 +751,12 @@ function wpu_enter_phpbb() {
 	// Guess what? Yep, this whole function is phpBB-version agnostic :-)
 	$phpbb_root_path = $connSettings['path_to_phpbb'];
 	
+	$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	// if we're not accessing from an admin panel, we need to lop off first ../ in path name
 	if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 		$phpbb_root_path = explode("/", $phpbb_root_path); array_shift($phpbb_root_path);$phpbb_root_path = implode("/", $phpbb_root_path);
 		$connSettings['path_to_phpbb'] = $phpbb_root_path;
 	}
-	$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	include($phpbb_root_path . 'common.' . $phpEx);
 	include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
 
