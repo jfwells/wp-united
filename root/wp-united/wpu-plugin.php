@@ -1530,11 +1530,7 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 			} else {
 				return $avatar;
 			}
-		} else {
-			// IN ADMIN, PHPBB IS ONLY RETURNING FILENAME!!!! 
-			echo "***" . $image . "***";
-			//$image = $path . $image;
-		}
+		} 
 	} else {
 	       $image = $path . 'wp-united/images/wpu_no_avatar.gif';
 	}

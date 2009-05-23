@@ -280,6 +280,7 @@ function avatar_create_image($user) {
 			$phpbb_root_path = $connSettings['path_to_phpbb'];
 			$phpEx = substr(strrchr(__FILE__, '.'), 1);	
 			define('IN_PHPBB', TRUE);
+			require_once($phpbb_root_path . 'includes/constants.' . $phpEx); 
 			$scriptPath = $phpbb_root_path;			
 		}			
 		if ($wpuAbs->ver == 'PHPBB2') {
