@@ -751,10 +751,12 @@ function wpu_enter_phpbb() {
 	// Guess what? Yep, this whole function is phpBB-version agnostic :-)
 	$phpbb_root_path = wpu_fix_phpbb_path($connSettings['path_to_phpbb']);
 	
-	$phpEx = substr(strrchr(__FILE__, '.'), 1);
-	
+	$phpEx = substr(strrchr(__FILE__, '.'), 1);	
+	// prevent phpBB from setting cookies or spraying warnings, etc.
+	echo " "; // this causes headers to be sent, prevent phpBB from sending any
+	ob_start(); // buffer phpBB complaints about headers being already sent
 	include($phpbb_root_path . 'common.' . $phpEx);
-	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
+	
 	include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
 	if ( 'PHPBB3' == $wpuAbs->ver ) {
 		$user->session_begin();
@@ -792,6 +794,9 @@ function wpu_exit_phpbb() {
 	
 	// just in case
 	mysql_select_db(DB_NAME);
+	
+	// dump phpBB output
+	ob_end_clean();
 }
 
 //
@@ -804,9 +809,13 @@ function wpu_forum_xpost_list() {
 	
 	$can_xpost_forumlist = array();
 	$can_xpost_to = array();
+	wpu_enter_phpbb();
 	if ( 'PHPBB2' == $wpuAbs->ver ) {
 		// TODO: PHPBB2 BRANCH!!
 	} else {
+		
+
+				
 		$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
 		if ( sizeof($can_xpost_to) ) {
 			$can_xpost_to = array_keys($can_xpost_to); 
@@ -826,6 +835,7 @@ function wpu_forum_xpost_list() {
 			}
 		}
 	}
+	wpu_exit_phpbb();
 	return array();
 }
 
@@ -1235,11 +1245,11 @@ function wpu_add_meta_box() {
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to
 			if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) {
-				wpu_enter_phpbb();
+				
 				if ( !($already_xposted = wpu_get_xposted_details()) ) { 
 					$can_xpost_forumlist = wpu_forum_xpost_list(); 
 				}
-				wpu_exit_phpbb();
+				
 				if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
 					if($wp_version >= 2.5) {
 						add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
@@ -1610,7 +1620,7 @@ function wpu_print_smilies(){
 			echo '<span id="wpu-smiley-more" style="display:none">';
 		}
 		
-		echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
+		echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="/'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
 		$i++;
 	}
 	if($i >= 20) {
