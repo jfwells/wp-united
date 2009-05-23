@@ -23,7 +23,7 @@
 //
 
 
-if ( !defined('IN_PHPBB') )
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') )
 {
 	die("Hacking attempt");
 	exit;
@@ -275,6 +275,13 @@ function avatar_create_image($user) {
 	$avatar = '';
 	if ( !empty($user->ID) ) {
 		global $wpuAbs, $scriptPath, $phpbb_root_path, $phpEx;
+		if(empty($phpbb_root_path)) {
+			$connSettings = get_settings('wputd_connection');
+			$phpbb_root_path = $connSettings['path_to_phpbb'];
+			$phpEx = substr(strrchr(__FILE__, '.'), 1);	
+			define('IN_PHPBB', TRUE);
+			$scriptPath = $phpbb_root_path;			
+		}			
 		if ($wpuAbs->ver == 'PHPBB2') {
 			$avPath = $scriptPath . $wpuAbs->config('avatar_path');
 			$gallPath = $scriptPath . $wpuAbs->config('avatar_gallery_path');
@@ -291,9 +298,9 @@ function avatar_create_image($user) {
 						break;
 				}
 			}
-		} else {
+		} else { 
 			if ($user->wpu_avatar_type && $user->wpu_avatar) {
-				require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+				require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
 				$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
 				$avatar = explode('"', $avatar);
 				$avatar = str_replace($phpbb_root_path, $scriptPath, $avatar[1]); //stops trailing slashes in URI from killing avatars
@@ -636,48 +643,62 @@ function get_wpu_latest_phpbb_topics($args = '') {
 
 
 
-//@since WP-United v0.6.5 (tnx to TechnoBuddhist)
+//@since WP-United v0.6.5
 //
 //   RETRIEVE THE PHPBB USER ID FROM A GIVEN WP ID
 //   -----------------------------------------------------
 //      Returns the wpu user id(i.e. the phpBB userID) from a given WP id.
 //      If no id is given then the currently signed in user is used.
 //
-function wpu_user_id($wp_userID = '') {
-   echo get_wpu_user_id($wp_userID);
-}
-
 
 function get_wpu_user_id($wp_userID = '') {
-  global $db;
+	global $userdata, $user_ID;
 
-  if (!$wp_userID ) {
-	if( $GLOBALS['wpUtdInt']->phpbb_usr_data['session_logged_in'] ) {
-	  $usrData = $GLOBALS['wpUtdInt']->phpbb_usr_data;
-	}
-
-
-  } else {
-
-	$GLOBALS['wpUtdInt']->switch_db('TO_P');
-	$sql = 'SELECT user_id
-	  FROM ' . USERS_TABLE .
-	  ' WHERE user_wpuint_id = ' . $wp_userID;
-	if(!($result = $db->sql_query($sql))) {
-	  $GLOBALS['wpuAbs']->err_msg(GENERAL_ERROR, 'Could not query phpbb database', '', __LINE__, __FILE__, $sql);
-	 }
-	 $usrData = $db->sql_fetchrow($result);
-	  
-   $GLOBALS['wpUtdInt']->switch_db('TO_W');
-  }
-
-  if( $usrData ) {
-	return $usrData['user_id'];
-  } else {
-	return '0';
-  }
-
+	if (!$wp_userID ) { 
+		get_currentuserinfo();
+		$uID = $userdata->phpbb_userid;	
+	} else {
+		$uID = get_usermeta($wp_userID, 'phpbb_userid');	}
+	return $uID;
 }
+
+function wpu_user_id($wp_userID = '') {
+	echo get_wpu_user_id($wp_userID);
+}
+
+//@since WP-United 0.6.5
+// Function 'wpu_get_comment_author_link' returns the phpBB user profile link
+//
+function wpu_get_comment_author_link () {
+global $comment;
+ 
+	$uID = get_wpu_user_id($comment->user_id);
+	
+	if (empty($uID)) { 
+		return $wpu_link = get_comment_author();
+	} else {
+		global $scriptPath;
+		if(empty($scriptPath)) {
+			$connSettings = get_settings('wputd_connection');
+			$phpbbPath = $connSettings['path_to_phpbb'];
+		} else { 
+			$phpbbPath = $scriptPath;
+		}
+		if (file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.php')) {
+			return $wpu_link = '<a href="' . $phpbbPath . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
+		} else {
+			return $wpu_link = '<a href="' . $phpbbPath . 'memberlist.php?mode=viewprofile&u=' . $uID  . '" rel="nofollow">' . $comment->comment_author . '</a>';
+		}
+	}
+}
+
+//@since WP-United 0.6.5
+function wpu_comment_author_link () {
+	// Modified this to echo rather that return, to be consistent with other WordPress functions.
+	echo  wpu_get_comment_author_link();
+}
+
+
 
 
 //
@@ -703,7 +724,6 @@ function _wpu_get_user_rank_info($userID = '') {
 	
 
 function _wpu_process_args($args, $defaults='') {
-
 	if ( is_array($args) ) {
 		$r = &$args;
 	} else {
@@ -713,41 +733,6 @@ function _wpu_process_args($args, $defaults='') {
 		$r = array_merge($defaults, $r);
 	}
 	return $r;
-}
-
-//@since WP-United 0.6.5
-// Function 'wpu_get_comment_author_link' returns the phpBB user profile link
-// John -> Japgalaxy: As this is a Template Tag, I've moved it to wpu-template-funcs.php.
-// I hope this doesn't break it. It should be OK. If not,  we can move it back.
-//
-//
-function wpu_get_comment_author_link () {
-global $comment;
-
-	if (!function_exists('get_wpu_user_id')) {
-		return $wpu_link = get_comment_author();
-	} else {
-		$id_utente = get_wpu_user_id($comment->user_id);
-		
-		if ($id_utente == '0' || $id_utente == '') { 
-			return $wpu_link = get_comment_author();
-		} else {
-				$connSettings = get_settings('wputd_connection');
-				$arr_search = array(".","/"); 
-				$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
-			if (file_exists($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.php')) {
-				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/member'.$id_utente.'.html">'.$comment->comment_author.'</a> ';
-			} else {
-				return $wpu_link = '<a href="/'.$simple_phpbb_root_path.'/memberlist.php?mode=viewprofile&u='.$id_utente.'">'.$comment->comment_author.'</a> ';
-			}
-		}
-	}
-}
-
-//@since WP-United 0.6.5
-function wpu_comment_author_link () {
-	// Modified this to echo rather that return, to be consistent with other WordPress functions.
-	echo  wpu_get_comment_author_link();
 }
 
 

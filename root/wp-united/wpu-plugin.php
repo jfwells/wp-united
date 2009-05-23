@@ -749,7 +749,7 @@ function wpu_enter_phpbb() {
 	$IN_WORDPRESS = 1; $IN_WP_ADMIN = 1;
 	define('IN_PHPBB', 1);
 	// Guess what? Yep, this whole function is phpBB-version agnostic :-)
-	$phpbb_root_path = $connSettings['path_to_phpbb'];
+	$phpbb_root_path = wpu_fix_phpbb_path($connSettings['path_to_phpbb']);
 	
 	$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	// if we're not accessing from an admin panel, we need to lop off first ../ in path name
@@ -761,6 +761,19 @@ function wpu_enter_phpbb() {
 	include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
 
 }
+// takes account of the fact that wpu-plugin could be called from several locations, so include paths could change
+function wpu_fix_phpbb_path($stored_path) {
+	if(!file_exists($stored_path . 'common.' . $phpEx)) {
+		$stored_path = explode("/", $stored_path); 
+		array_shift($stored_path);
+		$stored_path = implode("/", $stored_path);
+		$connSettings['path_to_phpbb'] = $stored_path;
+		return $stored_path;
+	}
+
+}
+
+
 
 //
 //	WPU_EXIT_PHPBB
@@ -1137,6 +1150,7 @@ function wpu_load_extra_files() {
 		if(preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) { // try not to let things like the mandigo theme, which invoke wordpress just to generate some CSS, load in our widgets.
 			$wpuConnSettings = get_settings('wputd_connection');
 			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/wpu-widgets.php');
+			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/wpu-template-funcs.php');
 			add_action('widgets_init', 'wpu_widgets_init');	
 		}
 	} else {
@@ -1467,80 +1481,65 @@ function is_forum(){
 
 
 //@since WP-United 0.6.5
-if(!function_exists('get_avatar')) :
 /**
 * Function 'get_avatar()' - Retrieve the phpBB avatar of a user
 */
 
-// Hi Japgalaxy --- this is very similar to avatar_poster and avatar_commenter in wpu-templace-funcs. Do we really need another one, or can we modify them?
-// Both of those use avatar_create_image, which gets the avatar for a supplied user. I think this is redundant.
-//
-//
-function get_avatar( $id_or_email, $size = '96', $default = '' ) {
+function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = 'avatar' ) { 
+	$connSettings = get_settings('wputd_connection');
+	if (empty($connSettings['logins_integrated'])) { 
+		return $avatar;
+	}
 
-if( (preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) ) {
-	// This exclude the Wordpress admin panel because it causes an error in the Dashboard (last comments)
-	// I haven't a fix for now, have you any idea?
+	if ( false === $alt)
+		$safe_alt = '';
+	else
+		$safe_alt = esc_attr( $alt );
 
-} else {
-   if ( ! get_option('show_avatars') )
-      return false;
+	if ( !is_numeric($size) )
+		$size = '96';
 
-   if ( !is_numeric($size) )
-      $size = '96';
+	if ( !is_numeric($size) )
+		$size = '96';
+	// Figure out if this is an ID or e-mail --sourced from WP's pluggables.php
+	$email = '';
+	if ( is_numeric($id_or_email) ) {
+		$id = (int) $id_or_email;
+		$user = get_userdata($id);
+		if ($user) $email = $user->user_email;
+	} elseif ( is_object($id_or_email) ) {
+		if ( !empty($id_or_email->user_id) ) {
+			$id = (int) $id_or_email->user_id;
+			$user = get_userdata($id);
+			if ($user) $email = $user->user_email;
+		} elseif ( !empty($id_or_email->comment_author_email) ) {
+			$email = $id_or_email->comment_author_email;
+		}
+	} else {
+		$email = $id_or_email;
+   	}
 
-   $email = '';
-   if ( is_numeric($id_or_email) ) {
-      $id = (int) $id_or_email;
-      $user = get_userdata($id);
-      if ( $user )
-         $email = $user->user_email;
-   } elseif ( is_object($id_or_email) ) {
-      if ( !empty($id_or_email->user_id) ) {
-         $id = (int) $id_or_email->user_id;
-         $user = get_userdata($id);
-         if ( $user)
-            $email = $user->user_email;
-      } elseif ( !empty($id_or_email->comment_author_email) ) {
-         $email = $id_or_email->comment_author_email;
-      }
-   } else {
-      $email = $id_or_email;
-   }
-   
-global $scriptPath;   //phpbb directory
-
-if( $user ) { 
-
-      if ( !empty($user) ) {
-         $image = avatar_create_image($user);
-      }
-         if ( empty($image) ) {
-            if ( $image === FALSE ) {
-               if ( empty($default) ) {
-                  $image = $scriptPath . 'wp-united/images/wpu_unregistered.gif';   //wp-united default
-               } else {
-                  $image = $default;   //wordpress default avatar
-               }
-            } else {
-               $image = $scriptPath . 'wp-united/images/wpu_no_avatar.gif';
-            }
-         }   
-         $avatar = "<img alt='' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
-
-
-} else { //unregistered user
-
-	$image = $scriptPath . 'wp-united/images/wpu_unregistered.gif';   //wp-united unregistered default avatar
-	$avatar = "<img alt='' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
-}
-
-   return apply_filters('get_avatar', $avatar, $id_or_email, $size, $default);
-
-}//end preg_match
-
+	global $scriptPath; 
+	$path = (empty($scriptPath)) ? $connSettings['path_to_phpbb'] : $scriptPath;	
+		
+	if($user) {
+		// use default WordPress or WP-United image
+		if(!$image = avatar_create_image($user)) { 
+			if(empty($default)) {
+				$image = $path . 'wp-united/images/wpu_unregistered.gif';
+			} else {
+				return $avatar;
+			}
+		} else {
+			// IN ADMIN, PHPBB IS ONLY RETURNING FILENAME!!!! 
+			echo "***" . $image . "***";
+			//$image = $path . $image;
+		}
+	} else {
+	       $image = $path . 'wp-united/images/wpu_no_avatar.gif';
+	}
+	return "<img alt='{$safe_alt}' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
 } 
-endif;
 
 
 //@since WP-United 0.6.5
@@ -1695,6 +1694,7 @@ function insert_text(text, spaces, popup)
 	add_action('comment_author_link', 'wpu_comment_author_link');
 	add_filter('comment_text', 'wpu_censor');
 	add_filter('comment_text', 'wpu_smilies');
+	add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
 	add_action('comment_form', 'wpu_print_smilies');
 	add_action('wp_head', 'wpu_javascript');
 
