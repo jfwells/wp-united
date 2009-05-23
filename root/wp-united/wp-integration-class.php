@@ -697,7 +697,7 @@ Class WPU_Integration {
 		//global $wpdb;
 		//switches the DB between WP & PHPBB as needed
 		//we originally used $wpdb->select here, but it doesn't seem to work in all circumstances
-		if ( ($this->wpLoaded) && (!$this->phpbb_db_name != DB_NAME) ) {	
+		if ( ($this->wpLoaded) && (!$this->phpbb_db_name != DB_NAME) ) {
 			switch ( $direction ) {
 				case 'TO_P':
 					mysql_select_db($this->phpbb_db_name);

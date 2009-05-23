@@ -745,39 +745,28 @@ function _wpu_process_args($args, $defaults='') {
 //	Login Form/User Info by Japgalaxy
 //	Example: wpu_login_user_info('', '', 1, 1, 1, 1, 1, sidebar)
 
-//
-//	John --> Japgalaxy. I think we should try to move the CSS to the header, it's not compliant to have it in the body.
-//	I suggest we can just put it in the WP-United CSS file.
+//	John --> Japgalaxy: CSS can only go in <head>! I've changed to inline. still need to improve this before release.
 //
 function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position) {
 	
 		if ( !function_exists('get_wpu_phpbb_username') )return; 
-			//style for position sidebar/header     
-			if ($position == "sidebar") {
-			$style_id = 'sidebarloginbox';
-				echo '
-				<style type="text/css">
-				#sidebarloginbox p {display:block; margin:0 5px;}
-				</style>';
-			} else if ($position == "header") {
-			$style_id = 'headerloginbox';
-				echo '
-				<style type="text/css">
-				#headerloginbox p {float:left; display:inline; margin:0 5px;}
-				</style>';				
-			}
-		echo '<div id="'.$style_id.'">';
+
+		//style for position sidebar/header     
+		$style = ($position == "sidebar") ? 'display:block; margin:0 5px;' : 'float:left; display:inline; margin:0 5px;';
+				
+
+		echo '<div id="wpu_uinfo">';
 		$wpu_usr = get_wpu_phpbb_username(); 
 		
 		if ( 'Guest' != $wpu_usr ) { 
 		global $scriptPath, $wpSettings;
 			echo $before_title . $titleLoggedIn . $after_title;
 			if ($position == "sidebar") {
-				echo '<p class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
-				echo '<p class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
+				echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
+				echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
 			} else {
-				echo '<p class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
-				echo '<p class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
+				echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
+				echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
 			}
 			
 			if ( $rankBlock ) {

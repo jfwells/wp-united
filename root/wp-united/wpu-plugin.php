@@ -739,7 +739,7 @@ function wpu_newpost($post_ID) {
 function wpu_enter_phpbb() {
 	$connSettings = get_settings('wputd_connection');
 	
-	$cwd = getcwd(); chdir($cwd);  // useful for testing with symlinked install
+	//$cwd = getcwd(); chdir($cwd);  // useful for testing with symlinked install
 	//need board config global for abstractify.php
 	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
 	//phpBB makes this conflicting var global (in phpBB2). But we want to revert back to WP's afterwards.
@@ -747,29 +747,32 @@ function wpu_enter_phpbb() {
 	$user_old = (isset($GLOBALS['user'])) ? $GLOBALS['user']: '';
 	$cache_old = (isset($GLOBALS['cache'])) ? $GLOBALS['cache'] : '';
 	$IN_WORDPRESS = 1; $IN_WP_ADMIN = 1;
-	define('IN_PHPBB', 1);
+	define('IN_PHPBB', TRUE);
 	// Guess what? Yep, this whole function is phpBB-version agnostic :-)
 	$phpbb_root_path = wpu_fix_phpbb_path($connSettings['path_to_phpbb']);
 	
-	$phpEx = substr(strrchr(__FILE__, '.'), 1);
-	// if we're not accessing from an admin panel, we need to lop off first ../ in path name
-	if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
-		$phpbb_root_path = explode("/", $phpbb_root_path); array_shift($phpbb_root_path);$phpbb_root_path = implode("/", $phpbb_root_path);
-		$connSettings['path_to_phpbb'] = $phpbb_root_path;
-	}
+	$phpEx = substr(strrchr(__FILE__, '.'), 1);
+	
 	include($phpbb_root_path . 'common.' . $phpEx);
+	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
 	include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
+	if ( 'PHPBB3' == $wpuAbs->ver ) {
+		$user->session_begin();
+		$auth->acl($user->data);
+		$user->setup();
+	}
 
 }
 // takes account of the fact that wpu-plugin could be called from several locations, so include paths could change
 function wpu_fix_phpbb_path($stored_path) {
+	$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	if(!file_exists($stored_path . 'common.' . $phpEx)) {
 		$stored_path = explode("/", $stored_path); 
 		array_shift($stored_path);
 		$stored_path = implode("/", $stored_path);
 		$connSettings['path_to_phpbb'] = $stored_path;
-		return $stored_path;
 	}
+	return $stored_path;
 
 }
 
@@ -798,6 +801,7 @@ function wpu_exit_phpbb() {
 //
 function wpu_forum_xpost_list() {
 	global $wpuAbs, $user, $auth, $db, $userdata, $template, $phpEx;
+	
 	$can_xpost_forumlist = array();
 	$can_xpost_to = array();
 	if ( 'PHPBB2' == $wpuAbs->ver ) {
@@ -1222,8 +1226,8 @@ function wpu_add_postboxes() {
 // Here we decide whether to display the cross-posting box, and store the permissions list in global vars for future use.
 // For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the function now.
 function wpu_add_meta_box() {
-	global $wp_version, $can_xpost_forumlist, $already_xposted;
-	
+	global $wp_version, $can_xpost_forumlist, $already_xposted, $wpuAbs, $user;
+	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
 	// this function is called early
 	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
@@ -1542,73 +1546,43 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 /*
 Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding smilies into comment text
 */
-
+//
+//
+//
 function wpu_smilies($postContent, $max_smilies = 0) {
-	if( (preg_match('|/wp-admin/|', $_SERVER['REQUEST_URI'])) ) {
-	// This exclude the Wordpress admin panel because it causes an error in the edit-comment page and in the Dashboard (last comments)
-	// I haven't a fix for now, have you any idea? Is it also needed there? In my opinion no...
-	// I agree, don't need in admin panel -- John
-	//
-	} else {
-		global $user;
-		static $match;
-		static $replace;
+
+	static $match;
+	static $replace;
+	global $scriptPath;
+
+	// See if the static arrays have already been filled on an earlier invocation
+	if (!is_array($match)) {
+		$GLOBALS['wpUtdInt']->switch_db('TO_P');
 	
-		// See if the static arrays have already been filled on an earlier invocation
-		if (!is_array($match))
-		{
-	
-			$match = $replace = array();
-			$connSettings = get_settings('wputd_connection');
-			$arr_search = array(".","/"); 
-			// I think this makes too mny assumptions about the path to phpBB. It could still have some ../ in it for some users.
-			$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
-	
-			// TO FIX: query works only for admin comments, while if a simple user comments, it returns an error with the constant SMILIES_TABLE
-			// I haven't a fix for now, have you any idea? 
-			//
-			// We should be using proper phpBB DB syntax here -- this won't work for most setups.
-			// I think smilies should already be pre-loaded from the phpBB side -- let me check. -- John
-			// Either way, we should do $wpuAbs->switch_db('TO_P'), then use an existing phpBB function to do this
-					$sql = 'SELECT *
-						FROM '.SMILIES_TABLE.'
-						ORDER BY smiley_id';
-				
-			 $query = mysql_query ($sql)or die("MySQL ERROR: ".mysql_error());
-			
-	while ($row = mysql_fetch_assoc ($query))
-			{
-				if (empty($row['code']))
-				{
-					continue;
-				}
-	
-				// (assertion)
-				$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
-				$replace[] = '<!-- s' . $row['code'] . ' --><img src="/'.$simple_phpbb_root_path.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+		$sql = 'SELECT *
+			FROM '.SMILIES_TABLE.'
+			ORDER BY smiley_id';
+		
+		$query = mysql_query ($sql)or die("MySQL ERROR: ".mysql_error());
+		$GLOBALS['wpUtdInt']->switch_db('TO_W');
+		while ($row = mysql_fetch_assoc ($query)) {
+			if (empty($row['code'])) {
+				continue;
 			}
+			// (assertion)
+			$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
+			$replace[] = '<!-- s' . $row['code'] . ' --><img src="/'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+		}
 			
+	}
+	if (sizeof($match)) {
+		if ($max_smilies) {
+			$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
+			unset($matches);
 		}
-	
-		if (sizeof($match))
-		{
-			if ($max_smilies)
-			{
-				$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
-				unset($matches);
-	
-				if ($num_matches !== false && $num_matches > $max_smilies)
-				{
-					$this->warn_msg[] = sprintf($user->lang['TOO_MANY_SMILIES'], $max_smilies);
-					return;
-				}
-			}
-	
-			// Make sure the delimiter # is added in front and at the end of every element within $match
-			$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
-		}
-	}//end if admin
-	
+		// Make sure the delimiter # is added in front and at the end of every element within $match
+		$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
+	}
 	return $postContent;
 }
 
@@ -1617,38 +1591,34 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 Function 'wpu_print_smilies' prints phpBB smilies into comment form
 */
 function wpu_print_smilies(){
-global $user;
 
-		$connSettings = get_settings('wputd_connection');
-		$arr_search = array(".","/"); 
-		$simple_phpbb_root_path = str_replace ($arr_search, '', $connSettings['path_to_phpbb']);
-//
-//	This isn't going to work for most users (e.g. with separate WP & phpBB databases).
-//	I can try to fix...
-//	We should be using $wpuAbs->switch_db('TO_P'), then an existing phpBB function to do this
+	global $scriptPath;
 
-			$sql = 'SELECT *
-					FROM '.SMILIES_TABLE.'
-					ORDER BY smiley_id';
- 			
-		 $query = mysql_query ($sql);
-$i = 0;
+	$GLOBALS['wpUtdInt']->switch_db('TO_P');
+	$sql = 'SELECT *
+		FROM '.SMILIES_TABLE.'
+		ORDER BY smiley_id';
+
+	$query = mysql_query ($sql);
+	$GLOBALS['wpUtdInt']->switch_db('TO_W');
+	$i = 0;
 	while ($row = mysql_fetch_assoc ($query)) {
-		if (empty($row['code']))
-		{
+		if (empty($row['code'])) {
 			continue;
 		}
-		
 		if ($i == 20) {
 			echo '<span id="wpu-smiley-more" style="display:none">';
 		}
 		
-		echo '<a href="Javascript:insert_text(\''.$row['code'].'\')"><img src="/'.$simple_phpbb_root_path.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a>';
-		
+		echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
 		$i++;
-	} //end while
-		echo '</span> <span id="wpu-smiley-toggle"><a href="javascript:moreSmilies()">'.$user->lang['more_smilies'].'&nbsp;&raquo;</a></span>';
-	
+	}
+	if($i >= 20) {
+		echo '</span>';
+		if($i>20) {
+			echo '<a id="wpu-smiley-toggle" href="#" onclick="return moreSmilies();">' . __("More smilies") . '&nbsp;&raquo;</a></span>';
+		}
+	}
 }
 
 
@@ -1656,29 +1626,36 @@ $i = 0;
 //since v0.6.5
 /*
 Function 'wpu_javascript' inserts the javascript code required by smilies' function!
-John: $user isn't set here.
+
 */
 function wpu_javascript (){
-global $user;
+	global $wpuAbs;
 
 echo "
 <script language=\"javascript\">
-function insert_text(text, spaces, popup)
-{
-	text = ' ' + text + ' ';
-	document.commentform.comment.value += text; 
+	//<![CDATA[
+	function insert_text(text, spaces, popup) {
+		text = ' ' + text + ' ';
+		document.getElementById('comment').value += text; // just adds at end, not very nice.
+		return false;
+	}
 
-}
-
-    function moreSmilies() {
-    	document.getElementById('wpu-smiley-more').style.display = 'inline';
-    	document.getElementById('wpu-smiley-toggle').innerHTML = '<a href=\"javascript:lessSmilies()\">&laquo;&nbsp;".$user->lang['less_smilies']."</a></span>';
-    }
+	function moreSmilies() {
+		document.getElementById('wpu-smiley-more').style.display = 'inline';
+		var toggle = document.getElementById('wpu-smiley-toggle');
+		toggle.setAttribute(\"onclick\", \"return lessSmilies();\");
+		toggle.firstChild.nodeValue =\"\\u00AB\\u00A0" . __("Less smilies") . "\"
+		return false;
+	}
     
-    function lessSmilies() {
-    	document.getElementById('wpu-smiley-more').style.display = 'none';
-    	document.getElementById('wpu-smiley-toggle').innerHTML = '<a href=\"javascript:moreSmilies()\">".$user->lang['more_smilies']."&nbsp;&raquo;</a>';
-    }
+	function lessSmilies() {
+		document.getElementById('wpu-smiley-more').style.display = 'none';
+		var toggle = document.getElementById('wpu-smiley-toggle');
+		toggle.setAttribute(\"onclick\", \"return moreSmilies();\");
+		toggle.firstChild.nodeValue =\"" . __("More smilies") . "\\u00A0\\u00BB\";
+		return false;
+	}
+	// ]]>
 </script>
 ";
 }
