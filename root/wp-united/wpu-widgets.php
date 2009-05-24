@@ -334,7 +334,7 @@ function wpu_widgets_init() {
 		$title = htmlspecialchars($options['title'], ENT_QUOTES);
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-stats-title">' . __('Heading:') . ' <input style="width: 200px;" id="wpu-stats-title" name="wpu-stats-title" type="text" value="'.$title.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-stats-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-stats-title" name="wpu-stats-title" type="text" value="'.$title.'" /></p>';
 	
 		
 		echo '<input type="hidden" id="widget_wpu_stats" name="widget_wpu_stats" value="1" />';
@@ -343,23 +343,24 @@ function wpu_widgets_init() {
 		
 
 	/*******************************************************************************************
-	//	PHPBB LAST POST by Japgalaxy
+	//	PHPBB LATEST POSTS by Japgalaxy
 	//	--------------------------------------
 	/*******************************************************************************************/
 	
-	function widget_wpu_latest_phpbb_post($args) {
+	function widget_wpulatestphpbbposts($args) {
 
 		extract($args);
 			
-		$options = get_option('widget_wpu_latest_phpbb_post');
+		$options = get_option('widget_wpulatestphpbbposts');
 		$title = $options['title'];
+		
 		$before = $options['before'];
 		$after = $options['after'];
 		$gtm = $options['gtm'];
 		$seo = $options['seo'];
 		$limit = $options['limit'];
 		
-		if ( !function_exists('wpu_latest_phpbb_post') ) return;
+		if ( !function_exists('wpu_latest_phpbb_posts') ) return;
 		echo $before_widget;
 		echo '<h2>'.$title.'</h2>';
 		if ( ($before=="<li>") && ($after=="</li>") ) {
@@ -368,29 +369,29 @@ function wpu_widgets_init() {
 		}
 		
 		echo $prev;
-		wpu_latest_phpbb_post($before, $after, $gtm, $limit, $seo);
+		wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo);
 		echo $next;
 		echo $after_widget;
 	}
 
 
 	//The widget control pane:	
-	function widget_wpu_latest_phpbb_post_control() {
+	function widget_wpulatestphpbbposts_control() {
 	
-		$options = get_option('widget_wpu_latest_phpbb_post');
+		$options = get_option('widget_wpulatestphpbbposts');
 		
 		if ( !is_array($options) ) {
 			$options = array('title'=>__('Recent Forum Posts'), 'limit'=>20, 'gtm'=>"Y-m-j", 'before'=>"<li>", 'after'=>"</li>", 'seo'=>"No");
 		}
 		// handle form submission
-		if ( $_POST['widget_wpu_rpt'] ) {
+		if ( $_POST['widget_wpu_lpp'] ) {
 			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
 			$options['limit'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
 			$options['before'] = $_POST['wpu-lpp-before'];
 			$options['after'] = $_POST['wpu-lpp-after'];
 			$options['gtm'] = $_POST['wpu-lpp-gtm'];
 			$options['seo'] = $_POST['wpu-lpp-seo'];
-			update_option('widget_wpu_latest_phpbb_post', $options);
+			update_option('widget_wpulatestphpbbposts', $options);
 		}
 
 		// set form values
@@ -403,12 +404,12 @@ function wpu_widgets_init() {
 		$limit = $options['limit'];
 
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . ' <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . ' <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$limit.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-before">' . __('Before:') . ' <input style="width: 60px;" id="wpu-lpp-before" name="wpu-lpp-before" type="text" value="'.$before.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-after">' . __('After:') . ' <input style="width: 60px;" id="wpu-lpp-after" name="wpu-lpp-after" type="text" value="'.$after.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('GTM Data format:') . ' <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$gtm.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . ' <input style="width: 90px;" id="wpu-lpp-seo" name="wpu-lpp-seo" type="text" value="'.$seo.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$limit.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-before">' . __('Before:') . '</label> <input style="width: 60px;" id="wpu-lpp-before" name="wpu-lpp-before" type="text" value="'.$before.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-after">' . __('After:') . '</label> <input style="width: 60px;" id="wpu-lpp-after" name="wpu-lpp-after" type="text" value="'.$after.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('GTM Data format:') . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$gtm.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . '</label> <input style="width: 90px;" id="wpu-lpp-seo" name="wpu-lpp-seo" type="text" value="'.$seo.'" /></p>';
 
 		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
 	}	
@@ -421,7 +422,7 @@ function wpu_widgets_init() {
 	register_sidebar_widget(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts');
 	register_sidebar_widget(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics');
 	register_sidebar_widget(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats');
-	register_sidebar_widget(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpu_latest_phpbb_post');
+	register_sidebar_widget(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts');
 
 	// register our widget control panes, specifying size of pane
 	register_widget_control(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info_control', 500, 180);
@@ -429,7 +430,7 @@ function wpu_widgets_init() {
 	register_widget_control(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
 	register_widget_control(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics_control', 300, 100);
 	register_widget_control(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats_control', 300, 100);
-	register_widget_control(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpu_latest_phpbb_post_control', 300, 100);
+	register_widget_control(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts_control', 300, 100);
 }
 
 

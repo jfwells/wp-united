@@ -573,8 +573,13 @@ function get_wpu_newposts() {
 //	Nice list of latest forum posts by Japgalaxy
 //	Example: wpu_latest_phpbb_posts('<li>','</li>','Y-m-j',20,'Yes')
 
-function wpu_latest_phpbb_post($before, $after, $gtm, $limit, $seo) {
-	global $scriptPath;
+function wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo) {
+	global $scriptPath, $wpuAbs, $db;
+	
+	if ($wpuAbs->ver == 'PHPBB2') {
+		echo "Not phpBB2 compatible."; return false;
+	}
+	
 
 	if ($gtm==""){
 		$gtm="Y-m-j";
@@ -582,31 +587,36 @@ function wpu_latest_phpbb_post($before, $after, $gtm, $limit, $seo) {
 	if ($limit=="") {
 		$limit=20;
 	}
-	$GLOBALS['wpUtdInt']->switch_db('TO_P');
-    $sql = "SELECT pp.post_id, pp.topic_id,pp.forum_id, post_time, topic_title, pf.forum_name, pp.poster_id, pu.username, pf.forum_id
-            FROM " . POSTS_TABLE . " pp, " . TOPICS_TABLE . " pt, " . FORUMS_TABLE . " pf, " . USERS_TABLE . " pu
+	
+    	$sql = "SELECT pp.post_id, pp.topic_id,pp.forum_id, post_time, topic_title, pf.forum_name, pp.poster_id, pu.username, pf.forum_id
+            	FROM " . POSTS_TABLE . " pp, " . TOPICS_TABLE . " pt, " . FORUMS_TABLE . " pf, " . USERS_TABLE . " pu
 			WHERE  pp.topic_id = pt.topic_id
 			AND pu.user_id = pp.poster_id
 			AND pf.forum_id = pp.forum_id
 			AND pp.forum_id = pt.forum_id
 			AND pp.post_id = pt.topic_last_post_id
 			GROUP BY pp.topic_id
-			ORDER BY post_time DESC LIMIT 0,$limit"; 
+			ORDER BY post_time DESC"; 
+	if(!($result = $db->sql_query_limit($sql, $limit, 0))) { 
+		__e("Could not retrieve phpBB data");
+	}
+				
 
-    $row = mysql_query($sql) or die('Query failed: ' . mysql_error());
-	$GLOBALS['wpUtdInt']->switch_db('TO_W');
-    if (mysql_num_rows($row) == 0) {
-        echo $before."Nothing found".$after;
-        exit;
-    } else {
-		while ($dati = mysql_fetch_assoc($row)) {
+	if (!sizeof($result)) {
+		echo $before.__("Nothing found").$after;
+		return;
+	} else {
+		while ($row = $db->sql_fetchrow($result)) {
 			if ($seo=="Yes") {
-				echo $before."<a href=\"" . add_trailing_slash($scriptPath) . "post$dati[post_id].html#p$dati[post_id]\" title=\"$dati[topic_title]\">$dati[topic_title]</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "member" . $dati[poster_id] . ".html\">" . $dati[username] ."</a> - at: " . date($gtm, $dati[post_time]) .$after;
+				echo $before."<a href=\"" . add_trailing_slash($scriptPath) . "post{$row['post_id']}.html#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "member" . $row['poster_id'] . ".html\">" . $row['username'] ."</a> - at: " . date($gtm, $row['post_time']) .$after;
 			} else {
-				echo $before."<a href=\"" . add_trailing_slash($scriptPath) . "viewtopic.php?f=$dati[forum_id]&t=$dati[topic_id]&p=$dati[post_id]#p$dati[post_id]\" title=\"$dati[topic_title]\">$dati[topic_title]</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "memberlist.php?mode=viewprofile&u=" . $dati[poster_id] . "\">" . $dati[username] ."</a> - at: " . date($gtm, $dati[post_time]) .$after;
+				echo $before."<a href=\"" . add_trailing_slash($scriptPath) . "viewtopic.php?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "memberlist.php?mode=viewprofile&u=" . $row['poster_id'] . "\">" . $row['username'] ."</a> - at: " . date($gtm, $row[post_time]) .$after;
 			}
 		}
+		
 	}
+	$db->sql_freeresult($result);
+	$GLOBALS['wpUtdInt']->switch_db('TO_W');
 }
 
 
@@ -745,105 +755,87 @@ function _wpu_process_args($args, $defaults='') {
 //	Login Form/User Info by Japgalaxy
 //	Example: wpu_login_user_info('', '', 1, 1, 1, 1, 1, sidebar)
 
-//	John --> Japgalaxy: CSS can only go in <head>! I've changed to inline. still need to improve this before release.
-//
 function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position) {
+	global $user, $db, $scriptPath, $wpSettings, $auth, $wpuAbs, $phpbb_sid, $wpSettings, $phpEx;
 	
-		if ( !function_exists('get_wpu_phpbb_username') )return; 
+	if ($wpuAbs->ver == 'PHPBB2') {
+		echo "Not phpBB2 compatible."; return false;
+	}
 
+
+	echo '<div id="wpu_uinfo">';
+	$wpu_usr = get_wpu_phpbb_username(); 
+
+	if ( !empty($user->data['is_registered']) ) { 
+		echo $before_title . $titleLoggedIn . $after_title;
+		
 		//style for position sidebar/header     
 		$style = ($position == "sidebar") ? 'display:block; margin:0 5px;' : 'float:left; display:inline; margin:0 5px;';
-				
-
-		echo '<div id="wpu_uinfo">';
-		$wpu_usr = get_wpu_phpbb_username(); 
 		
-		if ( 'Guest' != $wpu_usr ) { 
-		global $scriptPath, $wpSettings;
-			echo $before_title . $titleLoggedIn . $after_title;
-			if ($position == "sidebar") {
-				echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
-				echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
-			} else {
-				echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
-				echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
-			}
-			
-			if ( $rankBlock ) {
-				wpu_phpbb_rankblock();
-			}
-			
-			if ( $newPosts ) {
-				echo '<p class="wpu_newposts">'; wpu_newposts_link(); echo '</p> ';
-			}
-
-			//new PM???
-			global $user, $db;
-				if ($user->data['user_new_privmsg']) {
-					 $l_message_new = ($user->data['user_new_privmsg'] == 1) ? $user->lang['NEW_PM'] : $user->lang['NEW_PMS'];
-					 $l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
-				 echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
-					
-					 if ((!$user->data['user_last_privmsg']) || ($user->data['user_last_privmsg'] > $user->data['session_last_visit']))
-					 {
-					 	 $GLOBALS['wpUtdInt']->switch_db('TO_P');
-						$sql = 'UPDATE ' . USERS_TABLE . ' SET user_last_privmsg = ' . $user->data['session_last_visit'] . ' WHERE user_id = ' . $user->data['user_id'];
-						$db->sql_query($sql);
-						 $GLOBALS['wpUtdInt']->switch_db('TO_W');
-		
-						$s_privmsg_new = true;
-					 }
-					 else
-					 {
-						$s_privmsg_new = false;
-					 }
-		
-				} else {
-					 $l_privmsgs_text = $user->lang['NO_NEW_PM'];
-					 $s_privmsg_new = false;
-		echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
-				}
-			//END OF new PM???
-			
-
-			if ( $write ) {
-				if (current_user_can('publish_posts')) {
-					echo '<p class="wpu_write"><a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="Write a Post">Write a Post</a></p> ';
-				}
-			}
-			if ( $admin ) {
-			global $phpbb_sid;
-			$connSettings = get_settings('wputd_connection');
-			$phpbb_root_path = $connSettings['path_to_phpbb'];
-				echo '<p class="wpu_siteadmin"><a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">Admin Site</a></p> ';
-				echo '<p class="wpu_forumadmin"><a href="'.$phpbb_root_path.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">Admin Forum</a></p> ';
-			}
-			echo '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
+		if ($position == "sidebar") {
+			echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
+			echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
 		} else {
-			echo $before_title . $titleLoggedOut . $after_title;
-			if ( $loginForm ) {
-				global $scriptPath, $phpEx, $wpuAbs, $phpbb_sid, $wpSettings;
-				
-				$login_link = ($wpuAbs->ver == 'PHPBB2') ? 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid : 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
-				echo '<form method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
-				echo '<p class="wpu_user"><label for="phpbb_username">' . $wpuAbs->lang('Username') . ': <input style="width: 90px;" type="text" name="username" id="phpbb_username"/></label></p>';
-				echo '<p class="wpu_password"><label for="phpbb_password">' . $wpuAbs->lang('Password') . ': <input style="width: 90px;" type="password" name="password" id="phpbb_password" maxlength="32" /></label></p>';
-				if ( $wpuAbs->config('allow_autologin') ) {
-					echo '<p class="wpu_remember"><label for="phpbb_autologin">' . $wpuAbs->lang('Log_me_in') . ': <input type="checkbox" id="phpbb_autologin" name="autologin" /></label></p>';
-				}
-					echo '<p class="wpu_login"><input type="submit" name="login" value="' . $wpuAbs->lang('submit') . '" /></p>';
-					
-				echo '<p class="wpu_signup"><input name="signup" type="button" id="sign" onclick="window.open(\''.append_sid(add_trailing_slash($scriptPath)."ucp.php", 'mode=register').'\')" value="Sign Up" /></p>';
-				echo '<p class="wpu_rempassword"><a href="'.add_trailing_slash($scriptPath).'ucp.php?mode=sendpassword">Remember Password</a></p>';
-				echo '</form>';
-			} else {
-				echo '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
-			}
-		}			
-		echo '</div>';
-		if ($position=="header"){
-			echo '<p style="clear:both;"></p>';
+			echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
+			echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
 		}
+
+		if ( $rankBlock ) {
+			wpu_phpbb_rankblock();
+		}
+
+		if ( $newPosts ) {
+			echo '<p class="wpu_newposts">'; wpu_newposts_link(); echo '</p> ';
+		}
+
+		// Handle new PMs
+		if ($user->data['user_new_privmsg']) {
+			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $wpuAbs->lang['NEW_PM'] : $wpuAbs->lang['NEW_PMS'];
+			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
+			echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
+		} else {
+			$l_privmsgs_text = $wpuAbs->lang['NO_NEW_PM'];
+			$s_privmsg_new = false;
+			echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
+		}	
+
+		if ($write) {
+			if (current_user_can('publish_posts')) {
+				echo '<p class="wpu_write"><a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="Write a Post">' . __('Write a Post') . '</a></p> ';
+			}
+		}
+		if ($admin) {
+			$connSettings = get_settings('wputd_connection');
+			if (current_user_can('publish_posts')) {
+				echo '<p class="wpu_siteadmin"><a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a></p> ';
+			}
+			if($auth->acl_get('a_')) {
+				echo '<p class="wpu_forumadmin"><a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $wpuAbs->lang('ACP') . '</a></p>';
+			}
+		}
+		echo '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
+	} else {
+		echo $before_title . $titleLoggedOut . $after_title;
+		if ( $loginForm ) {
+			$login_link = ($wpuAbs->ver == 'PHPBB2') ? 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid : 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
+			echo '<form method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
+			echo '<p class="wpu_user"><label for="phpbb_username">' . $wpuAbs->lang('USERNAME') . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/></p>';
+			echo '<p class="wpu_password"><label for="phpbb_password">' . $wpuAbs->lang('PASSWORD') . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" /></p>';
+			if ( $wpuAbs->config('allow_autologin') ) {
+				echo '<p class="wpu_remember"><input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $wpuAbs->lang('LOG_ME_IN') . '</label> </p>';
+			}
+			echo '<p class="wpu_login"><input type="submit" name="login" class="button1" value="' . $wpuAbs->lang('LOGIN') . '" /></p>';
+			echo '<p class="wpu_signup"><a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $wpuAbs->lang('REGISTER') . '</a></p>';
+			echo '<p class="wpu_rempassword"><a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $wpuAbs->lang('FORGOT_PASS') . '</a></p>';
+			echo '</form>';
+		} else {
+			echo '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
+		}
+	}			
+	echo '</div>';
+	if ($position=="header"){
+		echo '<p style="clear:both;"></p>';
+	}
 }
 
 ?>
