@@ -73,7 +73,10 @@ function get_db_schema() {
 		'phpbbPadding' => 'pPadding',
 		'mustLogin' => 'mustLogin',
 		'upgradeRun' => 'ugRun',
-		'xposting' => 'xposting'
+		'xposting' => 'xposting',
+		// Added in v0.6.5
+		'integSmilies' => 'integSmilies',
+		'fixHeader' => 'fixHeader'
 	);
 	
 	return $dbSchema;
@@ -115,6 +118,9 @@ function set_default($setting_key) {
 		'mustLogin' => 0,
 		'upgradeRun' => 0,
 		'xposting' => 0,
+		// Added in 0.6.5
+		'integSmilies' => 0,
+		'fixHeader' => 1
 	);
 	
 	return $defaults[$setting_key];

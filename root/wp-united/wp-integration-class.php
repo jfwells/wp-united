@@ -71,7 +71,7 @@ Class WPU_Integration {
 		'IN_WORDPRESS',
 		'wp_version',
 		'wp_taxonomies',
-		'wp_object_cache', 
+		'wp_object_cache',
 
 		// widgets
 		'registered_sidebars', 
@@ -203,8 +203,9 @@ Class WPU_Integration {
 			@$dir = opendir($cacheLocation);
 			$cacheLoc = '';
 			$cacheFound = FALSE;
+			$compat = ($this->wpu_compat) ? "_fast" : "_slow";
 			while( $entry = @readdir($dir) ) {
-				if ( $entry == 'core.wpucorecache.php' ) {
+				if ( $entry == "core.wpucorecache$compat.php" ) {
 					$entry = $cacheLocation . $entry;
 					$compareDate = filemtime($entry);
 					if ( !($compareDate < @filemtime($this->wpu_settings['wpPath'] . 'wp-includes/version.php'))  ) {
@@ -300,7 +301,7 @@ Class WPU_Integration {
 			global $lang, $wpuAbs;
 			define('ABSPATH',$this->wpu_settings['wpPath']);
 			
-			if (!$this->core_cache_ready() || !$this->wpu_compat) {
+			if (!$this->core_cache_ready()) { 
 				$cConf = file_get_contents($this->wpu_settings['wpPath'] . 'wp-config.php');
 				$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
 				
@@ -318,6 +319,7 @@ Class WPU_Integration {
 					foreach ( $this->globalRefs as $gloRef ) {
 						$cSet = str_replace('$'. $gloRef . ' ', '$GLOBALS[\'' . $gloRef . '\'] ',$cSet);
 						$cSet = str_replace('$'. $gloRef . '->', '$GLOBALS[\'' . $gloRef . '\']->',$cSet);
+						$cSet = str_replace('=& $'. $gloRef . ';', '=& $GLOBALS[\'' . $gloRef . '\'];',$cSet);
 					}
 				}
 				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
@@ -328,10 +330,11 @@ Class WPU_Integration {
 				$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
 				$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php');
 				unset ($cConf, $cSet);
-				
-				if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) && ($this->wpu_compat) ) {
-					$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_' . floor(rand(0, 9999)) . 'wpucorecache.php';
-					$fnDest = $phpbb_root_path . 'wp-united/cache/core.wpucorecache.php';
+
+				if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) ) {
+					$compat = ($this->wpu_compat) ? "_fast" : "_slow";
+					$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_' . floor(rand(0, 9999)) . 'wpucorecache' . $compat . '.php';
+					$fnDest = $phpbb_root_path . "wp-united/cache/core.wpucorecache$compat.php";
 					$hTempFile = @fopen($fnTemp, 'w+');
 					@fwrite($hTempFile, '<' ."?php\n\n if(!defined('IN_PHPBB')){die('Hacking attempt');exit();}\n\n$content\n\n?" . '>');
 					@fclose($hTempFile);
@@ -354,6 +357,7 @@ Class WPU_Integration {
 			$this->prepare('$wpUtdInt->switch_db(\'TO_W\');');
 			return FALSE;
 		}
+		
 	}
 	
 	function integrate_login() {
