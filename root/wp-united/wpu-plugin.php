@@ -1559,16 +1559,16 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 			wpu_enter_phpbb();
 		} else {
 			$GLOBALS['wpUtdInt']->switch_db('TO_P');
-		}
+		} 
 		$result = $db->sql_query('SELECT * FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
 
 		while ($row = $db->sql_fetchrow($result)) {
 			if (empty($row['code'])) {
-				continue;
-			}
+				continue; 
+			} 
 			// (assertion)
 			$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
-			$replace[] = '<!-- s' . $row['code'] . ' --><img src="/'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+			$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $scriptPath . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
 		}
 		$db->sql_freeresult($result);
 		if(is_admin()) {
@@ -1595,7 +1595,7 @@ Function 'wpu_print_smilies' prints phpBB smilies into comment form
 */
 function wpu_print_smilies(){
 
-	global $scriptPath;
+	global $scriptPath, $db;
 
 	if(is_admin()) {
 		wpu_enter_phpbb();
@@ -1614,7 +1614,7 @@ function wpu_print_smilies(){
 			echo '<span id="wpu-smiley-more" style="display:none">';
 		}
 		
-		echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="/'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
+		echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
 		$i++;
 	}
 	$db->sql_freeresult($result);
@@ -1648,8 +1648,16 @@ echo "
 <script language=\"javascript\">
 	//<![CDATA[
 	function insert_text(text, spaces, popup) {
-		text = ' ' + text + ' ';
-		document.getElementById('comment').value += text; // just adds at end, not very nice.
+		var tb = document.getElementById('comment');
+		if (document.selection) { // IE
+			tb.focus();
+			sel = document.selection.createRange();
+			sel.text = ' ' + text + ' ';
+		} else if (tb.selectionStart || tb.selectionStart == 0) { //compliant browsers
+			tb.value = tb.value.substring(0, tb.selectionStart) + ' ' + text + ' ' + tb.value.substring(tb.selectionEnd,tb.value.length);
+		} else { //fallback
+		 tb.value += ' ' + text + ' ';
+		}
 		return false;
 	}
 
