@@ -453,6 +453,16 @@ class acp_wp_united {
 			$simpleHeadNo = 'checked="checked"';
 		}	
 		
+		//Set "Remove phpBB header" radio buttons to initial state
+		if ( $wpSettings['fixHeader'] ) {
+			$fixHeaderYes = 'checked="checked"';
+			$fixHeaderNo = '';
+		} else {
+			$fixHeaderYes = '';
+			$fixHeaderNo = 'checked="checked"';
+		}
+		
+		
 		//set "users have their own blogs" radio buttons to initial state
 		if ( $wpSettings['usersOwnBlogs'] ) {
 			$ownEnable = 'checked="checked"';
@@ -629,6 +639,17 @@ class acp_wp_united {
 			'L_WPSIMPLE_EXPLAIN3' => $wpuAbs->lang('WPWiz_WPSimple_Explain3'),		
 			'S_WPSIMPLE_YES' => $simpleHeadYes,
 			'S_WPSIMPLE_NO' => $simpleHeadNo,
+
+			// New in v0.7.0
+			'L_WPFIX_HEADER_TITLE' => $wpuAbs->lang('WPWiz_Fix_Header_Title'),
+			'L_WPFIX_HEADER_EXPLAIN1' => $wpuAbs->lang('WPWiz_Fix_Header_Explain1'),
+			'L_WPFIX_HEADER_EXPLAIN2' => $wpuAbs->lang('WPWiz_Fix_Header_Explain2'),
+			'L_WP_FIX'		=> $wpuAbs->lang('WPWiz_Fix'),
+			'L_WP_NOFIX'		=> $wpuAbs->lang('WPWiz_No_Fix'),
+			'S_HDR_FIX_ENABLE'	=> $fixHeaderYes,
+			'S_HDR_FIX_DISABLE'	=> $fixHeaderNo,						
+			
+			
 			'L_WP_SIMPLE' => $wpuAbs->lang('WPWiz_Simple_Yes'),
 			'L_WP_FULLPAGE' => $wpuAbs->lang('WPWiz_Simple_No'),
 			'L_WP_PADTITLE' => $wpuAbs->lang('WPWiz_Padding_Title'),
@@ -1112,7 +1133,20 @@ class acp_wp_united {
 		} else {
 			$simpleHeadYes = '';
 			$simpleHeadNo = 'checked="checked"';
-		}	
+		}
+		
+		
+		//Set "Remove phpBB header" radio buttons to initial state
+		if ( $wpSettings['fixHeader'] ) {
+			$fixHeaderYes = 'checked="checked"';
+			$fixHeaderNo = '';
+		} else {
+			$fixHeaderYes = '';
+			$fixHeaderNo = 'checked="checked"';
+		}
+		
+		
+		
 		
 		//set Word Censor radio buttons to initial state
 		if ( $wpSettings['phpbbCensor'] ) {
@@ -1196,6 +1230,15 @@ class acp_wp_united {
 			'S_WPSIMPLE_NO' => $simpleHeadNo,
 			'L_WP_SIMPLE' => $wpuAbs->lang('WPWiz_Simple_Yes'),
 			'L_WP_FULLPAGE' => $wpuAbs->lang('WPWiz_Simple_No'),
+			
+			// New in v0.7.0
+			'L_WPFIX_HEADER_TITLE' => $wpuAbs->lang('WPWiz_Fix_Header_Title'),
+			'L_WPFIX_HEADER_EXPLAIN1' => $wpuAbs->lang('WPWiz_Fix_Header_Explain1'),
+			'L_WPFIX_HEADER_EXPLAIN2' => $wpuAbs->lang('WPWiz_Fix_Header_Explain2'),
+			'L_WP_FIX'		=> $wpuAbs->lang('WPWiz_Fix'),
+			'L_WP_NOFIX'		=> $wpuAbs->lang('WPWiz_No_Fix'),
+			'S_HDR_FIX_ENABLE'	=> $fixHeaderYes,
+			'S_HDR_FIX_DISABLE'	=> $fixHeaderNo,	
 			
 			'L_WP_PADTITLE' => $wpuAbs->lang('WPWiz_Padding_Title'),
 			'L_WP_PADEXPLAIN1' => $wpuAbs->lang('WPWiz_Padding_Explain1'),
@@ -1720,6 +1763,7 @@ class acp_wp_united {
 		
 		$data['dtdSwitch'] = (int) request_var('rad_DTD', 0);
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
+		$data['fixHeader'] = (int) request_var('rad_fixhdr', 1);
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 0);
 		$data['wpPageName'] = request_var('txt_wpPage', '');
 		$data['cssFirst'] = (int) request_var('rad_pFirst', 0);
@@ -1870,6 +1914,7 @@ class acp_wp_united {
 		$data['blogsUri'] = $this->clean_path(request_var('txt_BlogsUri', ''));	
 		$data['dtdSwitch'] = (int) request_var('rad_DTD', 0);
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
+		$data['fixHeader'] = (int) request_var('rad_fixhdr', 1);
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 1);
 		$data['cssFirst'] = (int) request_var('rad_pFirst', 1);	
 		$data['phpbbCensor'] = (int) request_var('rad_Censor', 1);
@@ -1931,6 +1976,8 @@ class acp_wp_united {
 		} else {
 			$data['wpuVersion'] = ($data['wpuVersion'] == $wpuAbs->lang('WPU_Not_Installed')) ? $wpuAbs->lang('WPU_Default_Version') : $data['wpuVersion'];
 		}
+		
+		
 		
 		$radWpLogin = (int) request_var('rad_Login', 0);
 		

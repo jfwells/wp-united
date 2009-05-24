@@ -71,6 +71,18 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			get_header();
 			$hdrContent = ob_get_contents();
 			ob_end_clean();
+			
+			if ( !empty($wpSettings['fixHeader']) ) {
+				if ( ($pHeadRemSuccess) && (!empty($srchBox)) ) {
+					// User can add tag to their template if they like
+					$hdrContent = preg_replace('/<!--PHPBB_SEARCH-->/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $hdrContent, 1, $addedSrch);
+					// If no tag we try ourselves.
+					if(empty($addedSrch)) {
+						$hdrContent = preg_replace('/<\/div>[\s]*?<\/div>[\s]*?<hr \/>/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $hdrContent, 1);
+					}
+				}
+			}
+			
 			if ( $wpSettings['cssFirst'] == 'P' ) {
 				$hdrContent = str_replace('</title>', '</title>' . "\n\n" . '[--PHPBB*HEAD--]', $hdrContent);
 			}
@@ -106,23 +118,45 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		//
 		query_posts('showposts=1');
 		define('PHPBB_CONTENT_ONLY', TRUE);
-		// TODO: User can choose template here!! (typed)
-		if ( $wpSettings['cssFirst'] == 'P' ) {
-			ob_start();
-		}
+
+		
+		ob_start();
+		
+		
 		$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpSettings['wpPageName']);
 		if ( !file_exists($wpTemplateFile) ) {
 			$wpTemplateFile = TEMPLATEPATH . "/page.php";
+			// Fall back to index.php for Classic template
+			if(!file_exists($wpTemplateFile)) {
+				$wpTemplateFile = TEMPLATEPATH . "/index.php";
+			}
 		}
 		include($wpTemplateFile);
-
-		if ( $wpSettings['cssFirst'] == 'P' ) {
-			$wContent = ob_get_contents();
+		
+		$wContent = ob_get_contents();
+		ob_end_clean();
+		
+		if ( ($wpSettings['cssFirst'] == 'P') ) {
 			$wContent = str_replace('</title>', '</title>' . "\n\n" . $pfHead, $wContent);
-			ob_end_clean();
-			echo $wContent; unset($wContent, $pfCpntent);
 		}
+			
+		if (!empty($wpSettings['fixHeader']))  {
+			if ( ($pHeadRemSuccess) && (!empty($srchBox)) ) {
+				// User can add tag to their template if they like
+				$wContent = preg_replace('/<!--PHPBB_SEARCH-->/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $wContent, 1, $addedSrch);
+				// If no tag we try ourselves.
+				if(empty($addedSrch)) {
+					$wContent = preg_replace('/<\/div>[\s]*?<\/div>[\s]*?<hr \/>/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $wContent, 1);
+				}
+				
+			}
+		}
+		
+		$wContent = str_replace('[--PHPBB*HEAD--]',$pfHead, $wContent);
+			
+		echo $wContent; unset($wContent, $pfContent);
 	}
+
 } else {
 
 if ( ((float) $wp_version) >= 2.1 ) {

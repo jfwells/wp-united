@@ -130,6 +130,7 @@
 		if (enhanced) {
 
 			document.getElementById("revHead").style.display = 'none';
+			document.getElementById("fixHdr").style.display = 'none';
 			document.getElementById("wpSimple").style.display = 'none';
 			document.getElementById("pPadding").style.display = 'none';
 			hidePageRows();
@@ -143,7 +144,8 @@
 	}
 	function showRevRows() {
 		if (enhanced) {
-			document.getElementById("revHead").style.display = '';		
+			document.getElementById("revHead").style.display = '';
+			document.getElementById("fixHdr").style.display = '';		
 			document.getElementById("wpSimple").style.display = '';
 			document.getElementById("pPadding").style.display = '';
 			if (document.getElementById("wpComplex").checked == true) {
@@ -394,6 +396,12 @@
 				<dd><input type="radio" id="dtdYes" name="rad_DTD" value="1" {S_WPDTD_ENABLE}/>{L_WP_YES}<br /><input type="radio" name="rad_DTD" value="0" {S_WPDTD_DISABLE} />{L_WP_NO}</dd>
 			</dl>			
 			<h3 id="revHead" style="margin-bottom: 20px;">{L_WPWIZARD_PINW_TITLE}</h3>
+
+			<dl id="fixHdr">
+				<dt><label for="rad_fixhdr">{L_WPFIX_HEADER_TITLE}</label><br /><span>{L_WPFIX_HEADER_EXPLAIN1}<br /><br />{L_WPFIX_HEADER_EXPLAIN2}</span></dt>
+				<dd><input type="radio" id="rad_fixhdr" name="rad_fixhdr" value="1"  {S_HDR_FIX_ENABLE}/>{L_WP_FIX}<br /><input type="radio"  name="rad_fixhdr" value="0" {S_HDR_FIX_DISABLE} />{L_WP_NOFIX}</dd>
+			</dl>	
+			
 			<dl id="pPadding">
 				<dt><label for="txt_padT">{L_WP_PADTITLE}</label><br /><span>{L_WP_PADEXPLAIN1}<br /><br />{L_WP_PADEXPLAIN2}<br /><br />{L_WP_PADEXPLAIN3}</span></dt>
 				<dd>
@@ -405,6 +413,7 @@
 					</dl>
 				</dd>
 			</dl>
+			
 			<dl id="wpSimple">
 				<dt><label for="rad_simple">{L_WPSIMPLE_TITLE}</label><br /><span>{L_WPSIMPLE_EXPLAIN1}<br /><br />{L_WPSIMPLE_EXPLAIN2}<br /><br />{L_WPSIMPLE_EXPLAIN3}</span></dt>
 				<dd><input type="radio" id="rad_Simple" onclick="rowState()" name="rad_Simple" value="1"  {S_WPSIMPLE_YES}/>{L_WP_SIMPLE}<br /><input type="radio"  onclick="rowState()" name="rad_Simple" id="wpComplex" value="0" {S_WPSIMPLE_NO} />{L_WP_FULLPAGE}</dd>

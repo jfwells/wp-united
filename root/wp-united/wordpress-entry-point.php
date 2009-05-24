@@ -128,6 +128,18 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			set_wpu_cache();
 		}
 	}
+	
+	//Remove the phpBB header if required, preserving the search box
+	if ( !empty($wpSettings['fixHeader']) ) {
+		global $pHeadRepSuccess, $srchBox;
+		if(preg_match('/<div id="search-box">[\s\S]*?<\/div>/', $pfContent, $srchBox)) {
+			$srchBox = $srchBox[0];
+		}
+		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';
+		$pfContent = preg_replace($token, '<br /><div class="navbar">' , $pfContent, 1, $pHeadRemSuccess);	
+	}
+	
+	
 }
 
 
@@ -212,8 +224,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	$retWpInc = preg_replace($token, "<title>{$GLOBALS['page_title']}</title>", $retWpInc);
 }
 
-
-
+	
 //optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
 if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) ) {
 	$search = array('/\>[^\S ]+/s',	'/[^\S ]+\</s','/(\s)+/s');
@@ -338,7 +349,6 @@ function process_body($retWpInc, $killTags = FALSE) {
 	//cut out any </body> and </html> tags
 	$retWpInc = str_replace("</body>", "", $retWpInc);
 	$retWpInc = str_replace("</html>", "", $retWpInc);
-
 	
 	return $retWpInc;
 	

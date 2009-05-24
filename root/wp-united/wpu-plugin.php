@@ -1037,6 +1037,23 @@ function wpu_content_parse_check($postContent) {
 	return $postContent;
 }
 
+
+// 	WPU_CHECK_IF_REV_PAGE
+// 	-------------------------------------------
+// 	suppresses the post title if we are showing a phpBB forum on a full page
+//
+
+function wpu_check_if_rev_page($postTitle) {
+	if (defined('PHPBB_CONTENT_ONLY') ) {
+		return '';
+	}
+	return $postTitle;
+
+}
+
+
+
+
 //	 WPU_CENSOR
 // 	----------------------------------
 //	Handles parsing of posts through the phpBB word censor.
@@ -1690,6 +1707,7 @@ add_filter('comment_text', 'wpu_smilies');
 add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
 add_action('comment_form', 'wpu_print_smilies');
 add_action('wp_head', 'wpu_javascript');
+add_action('the_title', 'wpu_check_if_rev_page');
 
 add_filter('template', 'wpu_get_template');
 add_filter('stylesheet', 'wpu_get_stylesheet');
