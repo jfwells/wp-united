@@ -1559,45 +1559,48 @@ Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding s
 //
 //
 function wpu_smilies($postContent, $max_smilies = 0) {
-
-	static $match;
-	static $replace;
-	global $scriptPath, $db;
-	
-
-	// See if the static arrays have already been filled on an earlier invocation
-	if (!is_array($match)) {
+global $wpSettings;
+	//Now user can chose if using or not phpBBsmilies in Wordpress.
+	if ( !empty($wpSettings['phpbbSmilies']) || ($wpSettings['phpbbSmilies'] == 1) ) { 
+		static $match;
+		static $replace;
+		global $scriptPath, $db;
 		
-		if(is_admin()) {
-			wpu_enter_phpbb();
-		} else {
-			$GLOBALS['wpUtdInt']->switch_db('TO_P');
-		} 
-		$result = $db->sql_query('SELECT * FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
-
-		while ($row = $db->sql_fetchrow($result)) {
-			if (empty($row['code'])) {
-				continue; 
-			} 
-			// (assertion)
-			$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
-			$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $scriptPath . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
-		}
-		$db->sql_freeresult($result);
-		if(is_admin()) {
-			wpu_exit_phpbb();
-		} else {
-			$GLOBALS['wpUtdInt']->switch_db('TO_W');
-		}
+	
+		// See if the static arrays have already been filled on an earlier invocation
+		if (!is_array($match)) {
 			
-	}
-	if (sizeof($match)) {
-		if ($max_smilies) {
-			$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
-			unset($matches);
+			if(is_admin()) {
+				wpu_enter_phpbb();
+			} else {
+				$GLOBALS['wpUtdInt']->switch_db('TO_P');
+			} 
+			$result = $db->sql_query('SELECT * FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
+	
+			while ($row = $db->sql_fetchrow($result)) {
+				if (empty($row['code'])) {
+					continue; 
+				} 
+				// (assertion)
+				$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
+				$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $scriptPath . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+			}
+			$db->sql_freeresult($result);
+			if(is_admin()) {
+				wpu_exit_phpbb();
+			} else {
+				$GLOBALS['wpUtdInt']->switch_db('TO_W');
+			}
+				
 		}
-		// Make sure the delimiter # is added in front and at the end of every element within $match
-		$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
+		if (sizeof($match)) {
+			if ($max_smilies) {
+				$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
+				unset($matches);
+			}
+			// Make sure the delimiter # is added in front and at the end of every element within $match
+			$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
+		}
 	}
 	return $postContent;
 }
@@ -1607,42 +1610,45 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 Function 'wpu_print_smilies' prints phpBB smilies into comment form
 */
 function wpu_print_smilies(){
-
-	global $scriptPath, $db;
-
-	if(is_admin()) {
-		wpu_enter_phpbb();
-	} else {
-		$GLOBALS['wpUtdInt']->switch_db('TO_P');
-	}
+global $wpSettings;
+	//Now user can chose if using or not phpBBsmilies in Wordpress.
+	if ( !empty($wpSettings['phpbbSmilies']) || ($wpSettings['phpbbSmilies'] == 1) ) { 
+		global $scriptPath, $db;
 	
-	$result = $db->sql_query('SELECT * FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
-
-	$i = 0;
-	while ($row = $db->sql_fetchrow($result)) {
-		if (empty($row['code'])) {
-			continue;
-		}
-		if ($i == 20) {
-			echo '<span id="wpu-smiley-more" style="display:none">';
+		if(is_admin()) {
+			wpu_enter_phpbb();
+		} else {
+			$GLOBALS['wpUtdInt']->switch_db('TO_P');
 		}
 		
-		echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
-		$i++;
-	}
-	$db->sql_freeresult($result);
+		$result = $db->sql_query('SELECT * FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
 	
-	if(is_admin()) {
-		wpu_exit_phpbb();
-	} else {
-		$GLOBALS['wpUtdInt']->switch_db('TO_W');
-	}
-	
-	
-	if($i >= 20) {
-		echo '</span>';
-		if($i>20) {
-			echo '<a id="wpu-smiley-toggle" href="#" onclick="return moreSmilies();">' . __("More smilies") . '&nbsp;&raquo;</a></span>';
+		$i = 0;
+		while ($row = $db->sql_fetchrow($result)) {
+			if (empty($row['code'])) {
+				continue;
+			}
+			if ($i == 20) {
+				echo '<span id="wpu-smiley-more" style="display:none">';
+			}
+			
+			echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
+			$i++;
+		}
+		$db->sql_freeresult($result);
+		
+		if(is_admin()) {
+			wpu_exit_phpbb();
+		} else {
+			$GLOBALS['wpUtdInt']->switch_db('TO_W');
+		}
+		
+		
+		if($i >= 20) {
+			echo '</span>';
+			if($i>20) {
+				echo '<a id="wpu-smiley-toggle" href="#" onclick="return moreSmilies();">' . __("More smilies") . '&nbsp;&raquo;</a></span>';
+			}
 		}
 	}
 }
@@ -1655,43 +1661,47 @@ Function 'wpu_javascript' inserts the javascript code required by smilies' funct
 
 */
 function wpu_javascript (){
-	global $wpuAbs;
-
-echo "
-<script language=\"javascript\">
-	//<![CDATA[
-	function insert_text(text, spaces, popup) {
-		var tb = document.getElementById('comment');
-		if (document.selection) { // IE
-			tb.focus();
-			sel = document.selection.createRange();
-			sel.text = ' ' + text + ' ';
-		} else if (tb.selectionStart || tb.selectionStart == 0) { //compliant browsers
-			tb.value = tb.value.substring(0, tb.selectionStart) + ' ' + text + ' ' + tb.value.substring(tb.selectionEnd,tb.value.length);
-		} else { //fallback
-		 tb.value += ' ' + text + ' ';
-		}
-		return false;
+global $wpSettings;
+	//Now user can chose if using or not phpBBsmilies in Wordpress.
+	if ( !empty($wpSettings['phpbbSmilies']) || ($wpSettings['phpbbSmilies'] == 1) ) { 
+			global $wpuAbs;
+		
+		echo "
+		<script language=\"javascript\">
+			//<![CDATA[
+			function insert_text(text, spaces, popup) {
+				var tb = document.getElementById('comment');
+				if (document.selection) { // IE
+					tb.focus();
+					sel = document.selection.createRange();
+					sel.text = ' ' + text + ' ';
+				} else if (tb.selectionStart || tb.selectionStart == 0) { //compliant browsers
+					tb.value = tb.value.substring(0, tb.selectionStart) + ' ' + text + ' ' + tb.value.substring(tb.selectionEnd,tb.value.length);
+				} else { //fallback
+				 tb.value += ' ' + text + ' ';
+				}
+				return false;
+			}
+		
+			function moreSmilies() {
+				document.getElementById('wpu-smiley-more').style.display = 'inline';
+				var toggle = document.getElementById('wpu-smiley-toggle');
+				toggle.setAttribute(\"onclick\", \"return lessSmilies();\");
+				toggle.firstChild.nodeValue =\"\\u00AB\\u00A0" . __("Less smilies") . "\"
+				return false;
+			}
+			
+			function lessSmilies() {
+				document.getElementById('wpu-smiley-more').style.display = 'none';
+				var toggle = document.getElementById('wpu-smiley-toggle');
+				toggle.setAttribute(\"onclick\", \"return moreSmilies();\");
+				toggle.firstChild.nodeValue =\"" . __("More smilies") . "\\u00A0\\u00BB\";
+				return false;
+			}
+			// ]]>
+		</script>
+		";
 	}
-
-	function moreSmilies() {
-		document.getElementById('wpu-smiley-more').style.display = 'inline';
-		var toggle = document.getElementById('wpu-smiley-toggle');
-		toggle.setAttribute(\"onclick\", \"return lessSmilies();\");
-		toggle.firstChild.nodeValue =\"\\u00AB\\u00A0" . __("Less smilies") . "\"
-		return false;
-	}
-    
-	function lessSmilies() {
-		document.getElementById('wpu-smiley-more').style.display = 'none';
-		var toggle = document.getElementById('wpu-smiley-toggle');
-		toggle.setAttribute(\"onclick\", \"return moreSmilies();\");
-		toggle.firstChild.nodeValue =\"" . __("More smilies") . "\\u00A0\\u00BB\";
-		return false;
-	}
-	// ]]>
-</script>
-";
 }
 
 // Add hooks and filters

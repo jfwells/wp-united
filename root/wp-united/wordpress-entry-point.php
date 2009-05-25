@@ -136,7 +136,10 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			$srchBox = $srchBox[0];
 		}
 		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';
-		$pfContent = preg_replace($token, '<br /><div class="navbar">' , $pfContent, 1, $pHeadRemSuccess);	
+		//$pfContent = preg_replace($token, '<br /><div class="navbar">', $pfContent, 1, $pHeadRemSuccess);	
+		// in this mode it causes, everywhere in the forum, this error: Wrong parameter count for preg_replace()
+		
+		$pfContent = preg_replace($token, '<br /><div class="navbar">', $pfContent);
 	}
 	
 	

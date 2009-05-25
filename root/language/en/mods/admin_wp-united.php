@@ -266,8 +266,6 @@ $lang = array_merge($lang, array(
 	'WPWiz_Censor_Title' => 'Use phpBB Word Censor?',
 	'WPWiz_Censor_Explain' => 'Turn this option on if you want WordPress posts to be passed through the phpBB word censor.',
 
-	'phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
-	'phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',
 
 	'WPWiz_Private_Title' => 'Make Blogs Private?',
 	'WPWiz_Private_Explain' => 'If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility',
@@ -476,6 +474,9 @@ $lang = array_merge($lang, array(
 	'WPWiz_Page_Explain2' => 'Just type in the name of the template (e.g. \'index.php\', \'single.php\' or \'archive.php\') here. If the file can\'t be found WP-United will default to using page.php (for the default WordPress theme) or index.php (for Classic-style themes).',
 	'WPWiz_WPSimple_Explain3' => 'However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slow, and will require a few modifications to phpBB styles to work. It works best with full-page WordPress themes, such as the Classic theme.',	
 	
+	//New in v0.7.0
+	'phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
+	'phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',
 	
 	
 ));

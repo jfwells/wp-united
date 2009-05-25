@@ -501,11 +501,11 @@ class acp_wp_united {
 		
 		//set phpBB Smilies radio buttons to initial state
 		if ( $wpSettings['phpbbSmilies'] ) {
-			$useSmiliesEnable = 'checked="checked"';
-			$useSmiliesDisable = '';
+			$SmiliesEnable = 'checked="checked"';
+			$SmiliesDisable = '';
 		} else {
-			$useSmiliesEnable = '';
-			$useSmiliesDisable = 'checked="checked"';
+			$SmiliesEnable = '';
+			$SmiliesDisable = 'checked="checked"';
 		}	
 
 		//set Word Censor radio buttons to initial state
@@ -729,10 +729,13 @@ class acp_wp_united {
 			'L_WPCENSOR_EXPLAIN' => $wpuAbs->lang('WPWiz_Censor_Explain'),
 			'S_WPCENSOR_ENABLE' => $useCensorEnable,
 			'S_WPCENSOR_DISABLE' => $useCensorDisable,
+			
+			// New in v0.7.0
 			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('phpBB_Smilies_Title'),
 			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('phpBB_Smilies_Explain'),
-			'S_PHPBBSMILIES_ENABLE' => $useSmiliesEnable,
-			'S_PHPBBSMILIES_DISABLE' => $useSmiliesDisable,
+			'S_PHPBBSMILIES_ENABLE' => $SmiliesEnable,
+			'S_PHPBBSMILIES_DISABLE' => $SmiliesDisable,
+			
 			'L_WPPRIVATE_TITLE' => $wpuAbs->lang('WPWiz_Private_Title'),
 			'L_WPPRIVATE_EXPLAIN' => $wpuAbs->lang('WPWiz_Private_Explain'),
 			'S_WPPRIVATE_ENABLE' => $makePrivateEnable,
@@ -1160,11 +1163,11 @@ class acp_wp_united {
 		
 		//set phpBB Smilies radio buttons to initial state
 		if ( $wpSettings['phpbbSmilies'] ) {
-			$useSmiliesEnable = 'checked="checked"';
-			$useSmiliesDisable = '';
+			$SmiliesEnable = 'checked="checked"';
+			$SmiliesDisable = '';
 		} else {
-			$useSmiliesEnable = '';
-			$useSmiliesDisable = 'checked="checked"';
+			$SmiliesEnable = '';
+			$SmiliesDisable = 'checked="checked"';
 		}			
 		
 		
@@ -1301,10 +1304,13 @@ class acp_wp_united {
 			'L_WPCENSOR_EXPLAIN' => $wpuAbs->lang('WPWiz_Censor_Explain'),
 			'S_WPCENSOR_ENABLE' => $useCensorEnable,
 			'S_WPCENSOR_DISABLE' => $useCensorDisable,
+			
+			// New in v0.7.0
 			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('phpBB_Smilies_Title'),
 			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('phpBB_Smilies_Explain'),
-			'S_PHPBBSMILIES_ENABLE' => $useSmiliesEnable,
-			'S_PHPBBSMILIES_DISABLE' => $useSmiliesDisable,
+			'S_PHPBBSMILIES_ENABLE' => $SmiliesEnable,
+			'S_PHPBBSMILIES_DISABLE' => $SmiliesDisable,
+			
 			'L_WPPRIVATE_TITLE' => $wpuAbs->lang('WPWiz_Private_Title'),
 			'L_WPPRIVATE_EXPLAIN' => $wpuAbs->lang('WPWiz_Private_Explain'),
 			'S_WPPRIVATE_ENABLE' => $makePrivateEnable,
