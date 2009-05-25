@@ -135,9 +135,9 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		if(preg_match('/<div id="search-box">[\s\S]*?<\/div>/', $pfContent, $srchBox)) {
 			$srchBox = $srchBox[0];
 		}
-		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';
-		$pfContent2 = preg_replace($token, '<br /><div class="navbar">', $pfContent, 1);
+		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';		$pfContent2 = preg_replace($token, '<br /><div class="navbar">', $pfContent, 1);
 		$pHeadRemSuccess = ($pfContent2 == $pfContent); // count paramater to preg_replace only available in php5 :-(
+		$pfContent = $pfContent2; unset($pfContent2);
 	}
 	
 	

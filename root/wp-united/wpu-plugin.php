@@ -1,4 +1,3 @@
-<<<<<<< .mine
 <?php
 /*
 Plugin Name: WP-United Connection 
@@ -3526,4 +3525,3 @@ $siteurl = get_option('siteurl');
 
 
 ?>
->>>>>>> .r62

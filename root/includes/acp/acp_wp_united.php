@@ -501,11 +501,11 @@ class acp_wp_united {
 		
 		//set phpBB Smilies radio buttons to initial state
 		if ( $wpSettings['phpbbSmilies'] ) {
-			$SmiliesEnable = 'checked="checked"';
-			$SmiliesDisable = '';
+			$useSmiliesEnable = 'checked="checked"';
+			$useSmiliesDisable = '';
 		} else {
-			$SmiliesEnable = '';
-			$SmiliesDisable = 'checked="checked"';
+			$useSmiliesEnable = '';
+			$useSmiliesDisable = 'checked="checked"';
 		}	
 
 		//set Word Censor radio buttons to initial state
@@ -733,8 +733,8 @@ class acp_wp_united {
 			// New in v0.7.0
 			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Title'),
 			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Explain'),
-			'S_PHPBBSMILIES_ENABLE' => $SmiliesEnable,
-			'S_PHPBBSMILIES_DISABLE' => $SmiliesDisable,
+			'S_PHPBBSMILIES_ENABLE' => $useSmiliesEnable,
+			'S_PHPBBSMILIES_DISABLE' => $useSmiliesDisable,
 			
 			'L_WPPRIVATE_TITLE' => $wpuAbs->lang('WPWiz_Private_Title'),
 			'L_WPPRIVATE_EXPLAIN' => $wpuAbs->lang('WPWiz_Private_Explain'),
@@ -1163,11 +1163,11 @@ class acp_wp_united {
 		
 		//set phpBB Smilies radio buttons to initial state
 		if ( $wpSettings['phpbbSmilies'] ) {
-			$SmiliesEnable = 'checked="checked"';
-			$SmiliesDisable = '';
+			$useSmiliesEnable = 'checked="checked"';
+			$useSmiliesDisable = '';
 		} else {
-			$SmiliesEnable = '';
-			$SmiliesDisable = 'checked="checked"';
+			$useSmiliesEnable = '';
+			$useSmiliesDisable = 'checked="checked"';
 		}			
 		
 		
@@ -1308,8 +1308,8 @@ class acp_wp_united {
 			// New in v0.7.0
 			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Title'),
 			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Explain'),
-			'S_PHPBBSMILIES_ENABLE' => $SmiliesEnable,
-			'S_PHPBBSMILIES_DISABLE' => $SmiliesDisable,
+			'S_PHPBBSMILIES_ENABLE' => $useSmiliesEnable,
+			'S_PHPBBSMILIES_DISABLE' => $useSmiliesDisable,
 			
 			'L_WPPRIVATE_TITLE' => $wpuAbs->lang('WPWiz_Private_Title'),
 			'L_WPPRIVATE_EXPLAIN' => $wpuAbs->lang('WPWiz_Private_Explain'),
