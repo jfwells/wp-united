@@ -2916,8 +2916,9 @@ class acp_wp_united {
 		if ($wpUtdInt->can_connect_to_wp()) {
 			//Enter Integration
 			$wpUtdInt->enter_wp_integration();
+			ob_start(); //ignore phpBB notices about WP code
 			eval($wpUtdInt->exec());  
-			
+			ob_end_clean();
 			//Figure out the filepath  to phpBB
 			//$thisPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
 			// Old (above) path did not work on symlinked WP-united installs. Below finds path instead to 
@@ -3023,7 +3024,7 @@ class acp_wp_united {
 						post_parent = '0',
 						menu_order = '0'
 						WHERE ID = $post_ID"
-					);			
+					);
 				} else {
 					$wpdb->query(
 					"INSERT IGNORE INTO $wpdb->posts

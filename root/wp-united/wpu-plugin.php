@@ -99,7 +99,11 @@ function wpu_put_powered_text() {
 	$wpuConnSettings = get_settings('wputd_connection');
 	if ( current_user_can('publish_posts') ) {	
 		if ( $wpuConnSettings['blogs'] ) {
-			echo '<p  id="welcome1">' . __('Welcome to WP-United. Click <strong>Write</strong> to add to your blog');
+			if($wp_version < 2.5) {
+				echo '<p  id="welcome1">' . __('Welcome to WP-United. Click <strong>Write</strong> to add to your blog');
+			} else {
+				echo '<p  id="welcome1">' . __('Welcome to WP-United. Click <strong>Posts</strong> &rarr; <strong>Add New</strong> to add to your blog');
+			}
 			if ( $wpuConnSettings['styles'] ) {	
 				echo '<br />' . __('You can set how it looks under the <strong>Your Blog</strong> tab!');
 			}
@@ -191,26 +195,47 @@ function wpu_adminmenu_init() {
 		wpu_check_for_action();
 		exit();
 	}
-	global $menu;
+	global $menu, $wp_version;
 
 	$fullFilePath = $wpuConnSettings['path_to_plugin'];
 	
 	if (!empty($wpuConnSettings['logins_integrated'])) {
 		if (function_exists('add_submenu_page')) {
 			if (current_user_can('publish_posts'))  {
-				if ( !empty($wpuConnSettings['blogs']) ) {
-					add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'], 'wpu_menuTopLevel');
-				} 
-				if ( isset($_GET['page']) ) { // add submenus if we're under the blog main page
-				$wpuPage = ( $_GET['page'] == $wpuConnSettings['full_path_to_plugin'] ) ? TRUE : FALSE;
-					if ( $wpuPage ) {
-						global $parent_file;
-						$parent_file = 'wpu';
-						add_submenu_page('wpu', __('Your Blog Settings'), __('Your Blog Settings'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=bset', 'wpu_menuTopLevel');
-						if ( !empty($wpuConnSettings['styles']) ) {
-							add_submenu_page('wpu', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=themes', 'wp_united_display_theme_menu');
+				if($wp_version < 2.7) {
+					if ( !empty($wpuConnSettings['blogs']) ) {
+						add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'], 'wpu_menuTopLevel');
+					} 
+					if ( isset($_GET['page']) ) { // add submenus if we're under the blog main page
+					$wpuPage = ( $_GET['page'] == $wpuConnSettings['full_path_to_plugin'] ) ? TRUE : FALSE;
+						if ( $wpuPage ) {
+							global $parent_file;
+							$parent_file = 'wpu';
+							add_submenu_page('wpu', __('Your Blog Settings'), __('Your Blog Settings'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=bset', 'wpu_menuTopLevel');
+							if ( !empty($wpuConnSettings['styles']) ) {
+								add_submenu_page('wpu', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=themes', 'wp_united_display_theme_menu');
+							}
 						}
 					}
+				} else {
+				//
+				//	WP 2.7 ADMIN PANEL PAGE FoR OWN BLOGS -- IN PROGRESS
+				//
+				//
+				
+					if ( !empty($wpuConnSettings['blogs']) ) {
+						$top = add_menu_page(__('Your Blog Settings'), __('Your Blog'), 'publish_posts', __FILE__, 'wpu_menuTopLevel', $wpuConnSettings['path_to_phpbb'] . 'wp-united/images/tiny.gif' );
+						//$parent_file = 'wpu';
+						//add_submenu_page(__FILE__, __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin' , 'wpu_menuTopLevel');						
+						if ( !empty($wpuConnSettings['styles']) ) {
+							add_submenu_page(__FILE__, __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts', __FILE__, 'wp_united_display_theme_menu');
+						}
+					} 
+		
+				//
+				//
+				//
+				//
 				}
 			} 
 			//Redirect the profile page if own blogs -- if not own blogs, it gets buffered anyway.
@@ -495,7 +520,7 @@ function wpu_get_template($default) {
 	if ( !empty($wpSettings['allowStyleSwitch']) ) {
 		//The first time this is called, wp_query, wp_rewrite, haven't been set up, so we can't see what kind of page it's gonna be
 		// so set them up now
-		if ( !defined('TEMPLATEPATH') ) {
+		if ( !defined('TEMPLATEPATH') && !isset($GLOBALS['wp_the_query']) ) {
 			$GLOBALS['wp_the_query'] =& new WP_Query();
 			$GLOBALS['wp_query']     =& $GLOBALS['wp_the_query']; 
 			$GLOBALS['wp_rewrite']   =& new WP_Rewrite();
@@ -505,13 +530,13 @@ function wpu_get_template($default) {
 			$GLOBALS['wp']->query_posts(); 
 		}
 
-		if ( $authorID = wpu_get_author() ) {
+		if ( $authorID = wpu_get_author() ) { 
 			$wpu_templatedir = get_usermeta($authorID, 'WPU_MyTemplate');
 			$wpu_theme_path = get_theme_root() . "/$wpu_templatedir";
 			if ( (file_exists($wpu_theme_path)) && (!empty($wpu_templatedir)) )	{
 				return $wpu_templatedir;
 			}
-		}
+		} 
 	}
 	return $default;
 }
@@ -524,14 +549,14 @@ function wpu_get_template($default) {
 function wpu_get_stylesheet($default) {
 	global $wp_query, $wpSettings;
 	if ( !empty($wpSettings['allowStyleSwitch']) ) {
-		if ( $authorID = wpu_get_author() ) {
+		if ( $authorID = wpu_get_author() ) { 
 			$wpu_stylesheetdir = get_usermeta($authorID, 'WPU_MyStylesheet');
 			$wpu_theme_path = get_theme_root() . "/$wpu_stylesheetdir";
 			if ( (file_exists($wpu_theme_path)) && (!empty($wpu_stylesheetdir)) )	{
 				return $wpu_stylesheetdir;
 			}
 		}
-	}
+	} 
 	return $default;
 }
 

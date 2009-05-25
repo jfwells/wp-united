@@ -323,8 +323,10 @@ Class WPU_Integration {
 					}
 				}
 				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
-				// fix theme template functions!
-				$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
+				if (!$this->wpu_compat) {
+					// fix theme template functions!
+					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
+				}
 				unset ($cFor);
 				$cSet = '?'.'>'.trim($cSet).'<'.'?php';
 				$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
