@@ -37,7 +37,7 @@ require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 //
 //	GET DATABASE SCHEMA
 //	-----------------------------------
-//	Returns a map of the structure of our database against the variables we use int he integration mod.
+//	Returns a map of the structure of our database against the variables we use in the integration mod.
 //
 //
 

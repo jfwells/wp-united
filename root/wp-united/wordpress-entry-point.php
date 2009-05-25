@@ -131,15 +131,13 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	
 	//Remove the phpBB header if required, preserving the search box
 	if ( !empty($wpSettings['fixHeader']) ) {
-		global $pHeadRepSuccess, $srchBox;
+		global $pHeadRemSuccess, $srchBox;
 		if(preg_match('/<div id="search-box">[\s\S]*?<\/div>/', $pfContent, $srchBox)) {
 			$srchBox = $srchBox[0];
 		}
 		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';
-		//$pfContent = preg_replace($token, '<br /><div class="navbar">', $pfContent, 1, $pHeadRemSuccess);	
-		// in this mode it causes, everywhere in the forum, this error: Wrong parameter count for preg_replace()
-		
-		$pfContent = preg_replace($token, '<br /><div class="navbar">', $pfContent);
+		$pfContent2 = preg_replace($token, '<br /><div class="navbar">', $pfContent, 1);
+		$pHeadRemSuccess = ($pfContent2 == $pfContent); // count paramater to preg_replace only available in php5 :-(
 	}
 	
 	

@@ -266,7 +266,10 @@ $lang = array_merge($lang, array(
 	'WPWiz_Censor_Title' => 'Use phpBB Word Censor?',
 	'WPWiz_Censor_Explain' => 'Turn this option on if you want WordPress posts to be passed through the phpBB word censor.',
 
+<<<<<<< .mine
+=======
 
+>>>>>>> .r62
 	'WPWiz_Private_Title' => 'Make Blogs Private?',
 	'WPWiz_Private_Explain' => 'If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility',
 
@@ -465,7 +468,7 @@ $lang = array_merge($lang, array(
 	'WP_XPost_Explain' => 'If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the cross-posting permission for the users/groups you wish.',
 	'WP_XPost_OptTitle' => 'You can set the following option if you integrate logins',
 	
-	//New in v0.7.0
+	//New in v0.7.0 (put here to make it easier for translators) -- please use the WPWiz prefix, phpbb_smilies is too common and will collide with other mods
 	'WPWiz_Fix_Header_Title' => 'Remove phpBB header?',
 	'WPWiz_Fix_Header_Explain1' => 'If you turn this option on, the phpBB header will be removed from the integrated page. It will work with the Prosilver & subSilver2 themes and most derivatives. If you use a very customised template, or want to edit the templates yourself, you can leave this option off. Otherwise, leave it on for a quick-and-easy no-hassle integration of phpBB into WordPress.',
 	'WPWiz_Fix_Header_Explain2' => 'WP-United will try to automatically position the phpBB Quick Search box in the WordPress header. If it does not appear, or you want to put it somewhere else, add the tag &lt;!--PHPBB_SEARCH--&gt; to your WordPress template, and it will automatically appear there.',
@@ -473,10 +476,10 @@ $lang = array_merge($lang, array(
 	'WPWiz_No_Fix' => 'Don\'t alter',
 	'WPWiz_Page_Explain2' => 'Just type in the name of the template (e.g. \'index.php\', \'single.php\' or \'archive.php\') here. If the file can\'t be found WP-United will default to using page.php (for the default WordPress theme) or index.php (for Classic-style themes).',
 	'WPWiz_WPSimple_Explain3' => 'However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slow, and will require a few modifications to phpBB styles to work. It works best with full-page WordPress themes, such as the Classic theme.',	
-	
-	//New in v0.7.0
-	'phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
-	'phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',
+	'WPWiz_phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
+	'WPWiz_phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',	
+	'WPWiz_phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
+	'WPWiz_phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',
 	
 	
 ));

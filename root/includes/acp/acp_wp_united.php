@@ -731,8 +731,8 @@ class acp_wp_united {
 			'S_WPCENSOR_DISABLE' => $useCensorDisable,
 			
 			// New in v0.7.0
-			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('phpBB_Smilies_Title'),
-			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('phpBB_Smilies_Explain'),
+			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Title'),
+			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Explain'),
 			'S_PHPBBSMILIES_ENABLE' => $SmiliesEnable,
 			'S_PHPBBSMILIES_DISABLE' => $SmiliesDisable,
 			
@@ -1306,8 +1306,8 @@ class acp_wp_united {
 			'S_WPCENSOR_DISABLE' => $useCensorDisable,
 			
 			// New in v0.7.0
-			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('phpBB_Smilies_Title'),
-			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('phpBB_Smilies_Explain'),
+			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Title'),
+			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('WPWiz_phpBB_Smilies_Explain'),
 			'S_PHPBBSMILIES_ENABLE' => $SmiliesEnable,
 			'S_PHPBBSMILIES_DISABLE' => $SmiliesDisable,
 			

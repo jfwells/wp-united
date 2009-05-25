@@ -465,16 +465,14 @@ $lang = array_merge($lang, array(
 	'WP_XPost_Explain' => 'Se attivi questa opzione, gli utenti a cui sar&agrave; permesso di avere un proprio blog potranno copiare il post che stanno postando sul loro blog nel forum con pochi click. Per impostare in quali forum gli utenti potranno effettuare un "cross-post", visita il pannello dei permessi di phpBB, e abilita il permesso al cross-posting per gli utenti e/o per i gruppi che desideri.',
 	'WP_XPost_OptTitle' => '&Egrave; possibile impostare la seguente opzione se hai scelto di integrare i login',
 	
-	//New in v0.7.0
+	//New in v0.7.0 -- please use the WPWiz prefix, phpbb_smilies is too common and will collide with other mods
 	'WPWiz_Fix_Header_Title' => 'Rimuovi l\'header di phpBB?',
 	'WPWiz_Fix_Header_Explain1' => 'Se attivi questa opzione l\'header di phpBB sarà rimosso. Questa opzione funzioner&agrave; con i temi Prosilver, subSilver2 e derivati. Se vuoi usare un tema personalizzato o vuoi editare il tema tu stesso, disattiva questa opzione. Altrimenti lasciala attiva per una facile integrazione di phpBB in WordPress.',
 	'WPWiz_Fix_Header_Explain2' => 'WP-United will try to automatically position the phpBB Quick Search box in the WordPress header. If it does not appear, or you want to put it somewhere else, add the tag &lt;!--PHPBB_SEARCH--&gt; to your WordPress template, and it will automatically appear there.',
 	'WPWiz_Fix' => 'Rimuovi',
 	'WPWiz_No_Fix' => 'Non rimuovere',
-	
-	//New in v0.7.0
-	'phpBB_Smilies_Title' => 'Vuoi usare gli smilies di phpBB in Wordpress?',
-	'phpBB_Smilies_Explain' => 'Attiva questa opzione se vuoi usare gli smilies di phpBB nei commenti e nei post di WordPress.',
+	'WPWiz_phpBB_Smilies_Title' => 'Vuoi usare gli smilies di phpBB in Wordpress?',
+	'WPWiz_phpBB_Smilies_Explain' => 'Attiva questa opzione se vuoi usare gli smilies di phpBB nei commenti e nei post di WordPress.',
 
 	
 ));
