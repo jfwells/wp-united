@@ -266,6 +266,8 @@ $lang = array_merge($lang, array(
 	'WPWiz_Censor_Title' => 'Use phpBB Word Censor?',
 	'WPWiz_Censor_Explain' => 'Turn this option on if you want WordPress posts to be passed through the phpBB word censor.',
 
+	'phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
+	'phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',
 
 	'WPWiz_Private_Title' => 'Make Blogs Private?',
 	'WPWiz_Private_Explain' => 'If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility',

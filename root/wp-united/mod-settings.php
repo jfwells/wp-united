@@ -75,7 +75,7 @@ function get_db_schema() {
 		'upgradeRun' => 'ugRun',
 		'xposting' => 'xposting',
 		// Added in v0.6.5
-		'integSmilies' => 'integSmilies',
+		'phpbbSmilies' => 'phpbbSmilies',
 		'fixHeader' => 'fixHeader'
 	);
 	
@@ -119,7 +119,7 @@ function set_default($setting_key) {
 		'upgradeRun' => 0,
 		'xposting' => 0,
 		// Added in 0.6.5
-		'integSmilies' => 0,
+		'phpbbSmilies' => 0,
 		'fixHeader' => 1
 	);
 	

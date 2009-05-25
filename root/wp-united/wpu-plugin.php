@@ -751,7 +751,8 @@ function wpu_enter_phpbb() {
 
 		$phpbb_root_path = wpu_fix_phpbb_path($connSettings['path_to_phpbb']);
 	
-		$phpEx = substr(strrchr(__FILE__, '.'), 1);	
+		$phpEx = substr(strrchr(__FILE__, '.'), 1);
+	
 		// prevent phpBB from setting cookies or spraying warnings, etc.
 		nocache_headers();
 		echo " "; // this causes headers to be sent, prevent phpBB from sending any
@@ -1343,21 +1344,25 @@ function wpu_buffer_profile($output) {
 //	--------------------------------
 //	Removes edit links, etc. from users.php
 //
+// to Jhong -- FIXED the error: Parse error: syntax error, unexpected '}' in /membri/japgalaxy/wordpress/wp-content/plugins/wpu-plugin.php on line 1371
+// that I tell you in a PM, it was only a missing comma in the array $token and $replace.
 function wpu_buffer_userspanel($panelContent) {
 
 	$token = array(
 		"/<td><a(.*)[^<>]>" . __('Edit') . "<\/a><\/td>/",
-		'/' . __('User List by Role') . "<\/h2>/"
+		'/' . __('User List by Role') . "<\/h2>/",
 	);
 	$replace = array(
 		'',
-		__('User List by Role') . "</h2>\n<p>" . __('NOTE: User profile information can be edited in phpBB') . "</p>\n"
+		__('User List by Role') . "</h2>\n<p>" . __('NOTE: User profile information can be edited in phpBB') . "</p>\n",
 	);
-	$panelContent= preg_replace($token, $replace, $panelContent);
+	$panelContent = preg_replace($token, $replace, $panelContent);
 	return $panelContent;
 }
 
-// disable access to wp-login.php if logins are integratedfunction wpu_disable_wp_login() {	global $phpEx;
+// disable access to wp-login.php if logins are integrated
+function wpu_disable_wp_login() {
+	//global $phpEx; --- this isn't used...
 	$wpuConnSettings = get_settings('wputd_connection');
 	if (!empty($wpuConnSettings['logins_integrated'])) {
 		if ($wpuAbs->ver == 'PHPBB2') {
@@ -1699,7 +1704,8 @@ echo "
 }
 
 // Add hooks and filters
-//since v0.6.5
+//since v0.6.5
+
 add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
 add_action('comment_author_link', 'wpu_comment_author_link');
 add_filter('comment_text', 'wpu_censor');

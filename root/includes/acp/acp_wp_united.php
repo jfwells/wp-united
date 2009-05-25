@@ -498,6 +498,15 @@ class acp_wp_united {
 			$styleSwitchEnable = '';
 			$styleSwitchDisable = 'checked="checked"';
 		}
+		
+		//set phpBB Smilies radio buttons to initial state
+		if ( $wpSettings['phpbbSmilies'] ) {
+			$useSmiliesEnable = 'checked="checked"';
+			$useSmiliesDisable = '';
+		} else {
+			$useSmiliesEnable = '';
+			$useSmiliesDisable = 'checked="checked"';
+		}	
 
 		//set Word Censor radio buttons to initial state
 		if ( $wpSettings['phpbbCensor'] ) {
@@ -720,6 +729,10 @@ class acp_wp_united {
 			'L_WPCENSOR_EXPLAIN' => $wpuAbs->lang('WPWiz_Censor_Explain'),
 			'S_WPCENSOR_ENABLE' => $useCensorEnable,
 			'S_WPCENSOR_DISABLE' => $useCensorDisable,
+			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('phpBB_Smilies_Title'),
+			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('phpBB_Smilies_Explain'),
+			'S_PHPBBSMILIES_ENABLE' => $useSmiliesEnable,
+			'S_PHPBBSMILIES_DISABLE' => $useSmiliesDisable,
 			'L_WPPRIVATE_TITLE' => $wpuAbs->lang('WPWiz_Private_Title'),
 			'L_WPPRIVATE_EXPLAIN' => $wpuAbs->lang('WPWiz_Private_Explain'),
 			'S_WPPRIVATE_ENABLE' => $makePrivateEnable,
@@ -1145,7 +1158,14 @@ class acp_wp_united {
 			$fixHeaderNo = 'checked="checked"';
 		}
 		
-		
+		//set phpBB Smilies radio buttons to initial state
+		if ( $wpSettings['phpbbSmilies'] ) {
+			$useSmiliesEnable = 'checked="checked"';
+			$useSmiliesDisable = '';
+		} else {
+			$useSmiliesEnable = '';
+			$useSmiliesDisable = 'checked="checked"';
+		}			
 		
 		
 		//set Word Censor radio buttons to initial state
@@ -1281,6 +1301,10 @@ class acp_wp_united {
 			'L_WPCENSOR_EXPLAIN' => $wpuAbs->lang('WPWiz_Censor_Explain'),
 			'S_WPCENSOR_ENABLE' => $useCensorEnable,
 			'S_WPCENSOR_DISABLE' => $useCensorDisable,
+			'L_PHPBBSMILIES_TITLE' => $wpuAbs->lang('phpBB_Smilies_Title'),
+			'L_PHPBBSMILIES_EXPLAIN' => $wpuAbs->lang('phpBB_Smilies_Explain'),
+			'S_PHPBBSMILIES_ENABLE' => $useSmiliesEnable,
+			'S_PHPBBSMILIES_DISABLE' => $useSmiliesDisable,
 			'L_WPPRIVATE_TITLE' => $wpuAbs->lang('WPWiz_Private_Title'),
 			'L_WPPRIVATE_EXPLAIN' => $wpuAbs->lang('WPWiz_Private_Explain'),
 			'S_WPPRIVATE_ENABLE' => $makePrivateEnable,
@@ -1768,6 +1792,7 @@ class acp_wp_united {
 		$data['wpPageName'] = request_var('txt_wpPage', '');
 		$data['cssFirst'] = (int) request_var('rad_pFirst', 0);
 		$data['phpbbCensor'] = (int) request_var('rad_Censor', 0);
+		$data['phpbbSmilies'] = (int) request_var('rad_Smilies', 0);
 		$data['mustLogin'] = (int) request_var('rad_Private', 0);
 		$data['charEncoding'] =  request_var('rad_CharEnc', '');
 		
@@ -1918,6 +1943,7 @@ class acp_wp_united {
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 1);
 		$data['cssFirst'] = (int) request_var('rad_pFirst', 1);	
 		$data['phpbbCensor'] = (int) request_var('rad_Censor', 1);
+		$data['phpbbSmilies'] = (int) request_var('rad_Smilies', 1);
 		$data['mustLogin'] = (int) request_var('rad_Private', 0);
 		$data['charEncoding'] =  request_var('rad_CharEnc', '');
 		$permsList = $value = str_replace("\'", "''", (request_var('rolesOutput', '')));
