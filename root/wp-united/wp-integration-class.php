@@ -454,12 +454,14 @@ Class WPU_Integration {
 											
 				$loggedInUser = wp_get_current_user();
 				
+				
 				// Check that they're not already logged into the wrong account (weird stuff happens)
-				if ($loggedInUser->ID !== $integratedID) {
-					$this->lDebug('You are logged into the wrong account! Logging out!');
+				if ($loggedInUser->ID !== $integratedID && ($loggedInUser->ID)) {
+					$this->lDebug('You are logged into the wrong account! (WP ID = ' . $loggedInUser->ID . ', integrated ID = ' . $integratedID . '). Logging out!');
 					$this->do_wp_logout();
 					wp_set_current_user(0, 0);
 					$loggedInUser = wp_get_current_user();
+					
 				}
 				
 				

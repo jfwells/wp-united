@@ -625,6 +625,7 @@ function wpu_newpost($post_ID) {
 
 		if ( (!defined('IN_PHPBB')) && (!empty($connSettings['logins_integrated'])) ) {
 			global $db, $wpuAbs, $user, $phpEx; 
+			
 			wpu_enter_phpbb();
 			
 			// Update blog link column
@@ -740,11 +741,14 @@ function wpu_enter_phpbb() {
 	$connSettings = get_settings('wputd_connection');
 
 	//need board config global for abstractify.php
-	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
+	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, \
+	$phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, \
+	$config, $template, $dbname, $SID, $_SID;
 	//phpBB makes this conflicting var global (in phpBB2). But we want to revert back to WP's afterwards.
 	$wp_table_prefix = $table_prefix;
 	$user_old = (isset($GLOBALS['user'])) ? $GLOBALS['user']: '';
 	$cache_old = (isset($GLOBALS['cache'])) ? $GLOBALS['cache'] : '';
+	
 	$IN_WORDPRESS = 1; $IN_WP_ADMIN = 1;
 	if(!defined('IN_PHPBB')) {
 		define('IN_PHPBB', TRUE);
@@ -753,17 +757,16 @@ function wpu_enter_phpbb() {
 	
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	
-		// prevent phpBB from setting cookies or spraying warnings, etc.
-		nocache_headers();
-		echo " "; // this causes headers to be sent, prevent phpBB from sending any
-		ob_start(); // buffer phpBB complaints about headers being already sent
+		// WordPress removes $_COOKIE from $_REQUEST, which is the source of much wailing and gnashing of teeth
+		$_REQUEST = array_merge($_COOKIE, $_REQUEST);
+		
 		include($phpbb_root_path . 'common.' . $phpEx);
 	
 		include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
 		if ( 'PHPBB3' == $wpuAbs->ver ) {
-			$user->session_begin(0,0);
+			$user->session_begin();
 			$auth->acl($user->data);
-			$user->setup();
+			$user->setup(0,0);
 		}
 	} else {
 		$cache = $phpbb_cache_old;
@@ -803,8 +806,8 @@ function wpu_exit_phpbb() {
 	// just in case
 	mysql_select_db(DB_NAME);
 	
-	// dump phpBB output
-	ob_end_clean();
+	//set back
+	$_REQUEST = array_merge($_GET, $_POST);
 }
 
 //
@@ -821,13 +824,10 @@ function wpu_forum_xpost_list() {
 	if ( 'PHPBB2' == $wpuAbs->ver ) {
 		// TODO: PHPBB2 BRANCH!!
 	} else {
-		
-
-				
-		$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
-		if ( sizeof($can_xpost_to) ) {
+		$can_xpost_to = $GLOBALS['auth']->acl_getf('f_wpu_xpost');
+		if ( sizeof($can_xpost_to) ) { 
 			$can_xpost_to = array_keys($can_xpost_to); 
-		}
+		} 
 		//Don't return categories -- just forums!
 		if ( sizeof($can_xpost_to) ) {
 			$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
@@ -1261,7 +1261,7 @@ function wpu_add_postboxes() {
 // Here we decide whether to display the cross-posting box, and store the permissions list in global vars for future use.
 // For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the function now.
 function wpu_add_meta_box() {
-	global $wp_version, $can_xpost_forumlist, $already_xposted, $wpuAbs, $user;
+	global $wp_version, $can_xpost_forumlist, $already_xposted, $wpuAbs, $user, $auth;
 	//global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
 	// this function is called early
 	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
@@ -1269,15 +1269,15 @@ function wpu_add_meta_box() {
 			$wpuConnSettings = get_settings('wputd_connection');
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to
-			if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) {
-				wpu_enter_phpbb();
+			if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) { 
+				wpu_enter_phpbb(); 
 				if ( !($already_xposted = wpu_get_xposted_details()) ) { 
 					$can_xpost_forumlist = wpu_forum_xpost_list(); 
 				}
 				wpu_exit_phpbb();
 				
 				if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
-					if($wp_version >= 2.5) {
+					if($wp_version >= 2.5) { 
 						add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
 					} else {
 						wpu_add_postboxes();
@@ -1344,25 +1344,16 @@ function wpu_buffer_profile($output) {
 //	--------------------------------
 //	Removes edit links, etc. from users.php
 //
-// to Jhong -- FIXED the error: Parse error: syntax error, unexpected '}' in /membri/japgalaxy/wordpress/wp-content/plugins/wpu-plugin.php on line 1371
-// that I tell you in a PM, it was only a missing comma in the array $token and $replace.
 function wpu_buffer_userspanel($panelContent) {
 
-	$token = array(
-		"/<td><a(.*)[^<>]>" . __('Edit') . "<\/a><\/td>/",
-		'/' . __('User List by Role') . "<\/h2>/",
-	);
-	$replace = array(
-		'',
-		__('User List by Role') . "</h2>\n<p>" . __('NOTE: User profile information can be edited in phpBB') . "</p>\n",
-	);
-	$panelContent = preg_replace($token, $replace, $panelContent);
+	$token = array("/<td><a(.*)[^<>]>" . __('Edit') . "<\/a><\/td>/", '/' . __('User List by Role') . "<\/h2>/");
+	$replace = array('', __('User List by Role') . "</h2>\n<p>" . __('NOTE: User profile information can be edited in phpBB') . "</p>\n");
+	$panelContent= preg_replace($token, $replace, $panelContent);
 	return $panelContent;
 }
 
 // disable access to wp-login.php if logins are integrated
 function wpu_disable_wp_login() {
-	//global $phpEx; --- this isn't used...
 	$wpuConnSettings = get_settings('wputd_connection');
 	if (!empty($wpuConnSettings['logins_integrated'])) {
 		if ($wpuAbs->ver == 'PHPBB2') {
