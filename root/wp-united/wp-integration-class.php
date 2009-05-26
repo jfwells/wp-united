@@ -697,6 +697,9 @@ Class WPU_Integration {
 				}
 		}
 		
+		// WordPress removes $_COOKIE from $_REQUEST, which is the source of much wailing and gnashing of teeth
+		$_REQUEST = array_merge($_COOKIE, $_REQUEST);
+		
 		$GLOBALS['IN_WORDPRESS'] = 0; //just in case
 		$this->wpRun = '';
 	}
