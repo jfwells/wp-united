@@ -219,16 +219,16 @@ function wpu_adminmenu_init() {
 					}
 				} else {
 				//
-				//	WP 2.7 ADMIN PANEL PAGE FoR OWN BLOGS -- IN PROGRESS
+				//	WP 2.7 ADMIN PANEL PAGE FOR OWN BLOGS -- IN PROGRESS
 				//
 				//
 				
 					if ( !empty($wpuConnSettings['blogs']) ) {
-						$top = add_menu_page(__('Your Blog Settings'), __('Your Blog'), 'publish_posts', __FILE__, 'wpu_menuTopLevel', $wpuConnSettings['path_to_phpbb'] . 'wp-united/images/tiny.gif' );
-						//$parent_file = 'wpu';
-						//add_submenu_page(__FILE__, __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin' , 'wpu_menuTopLevel');						
+						$top = add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', 'wpu-plugin.php', 'wpu_menuTopLevel', $wpuConnSettings['path_to_phpbb'] . 'wp-united/images/tiny.gif' );
+						
+						add_submenu_page('wpu-plugin.php', __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin.php' , 'wpu_menuSettings');						
 						if ( !empty($wpuConnSettings['styles']) ) {
-							add_submenu_page(__FILE__, __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts', __FILE__, 'wp_united_display_theme_menu');
+							add_submenu_page('wpu-plugin.php', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts','wpu-plugin.php?wputab=themes', 'wp_united_display_theme_menu');
 						}
 					} 
 		
@@ -261,139 +261,141 @@ function wpu_adminmenu_init() {
 //	----------------------------------
 //	Displays the top-leel menu for WP-United, "Your Blog".
 // 
-function wpu_menuTopLevel($existing_content = '') {
-
+function wpu_menuTopLevel() {
 	if ( isset($_GET['wputab']) ) {
 		$tab = ($_GET['wputab'] == 'themes') ? 'THEMES' : 'SETTINGS';
 	}
 	if ( 'THEMES' != $tab) {
-
-		global $user_ID, $wp_roles;
-		$profileuser = get_user_to_edit($user_ID);
-		$bookmarklet_height= 440;
-		$wpuConnSettings = get_settings('wputd_connection');
-		$page_output = '';
-		if ( isset($_GET['updated']) ) { 
-			$page_output .= '<div id="message" class="updated fade">
-			<p><strong>' . __('Settings updated.') . '</strong></p>
-			</div>';
-		}
-
-		$page_output .= '<div class="wrap">
-		<h2>';
-		if ( !empty($wpuConnSettings['blogs']) ) {
-			$page_output .= __('Your Blog Details');
-		} else {
-			$page_output .= __('Your Profile');
-		}
-		$page_output .= '</h2>
-		<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;wpu_action=update-blog-profile" method="post">' . "\n";
-		// have to use this, because wp_nonce_field echos. //wp_nonce_field('update-blog-profile_' . $user_ID);
-		// beginning of nonce fields
-		$page_output .= '<input type="hidden" name="' . attribute_escape('_wpnonce') . '" value="' . wp_create_nonce('update-blog-profile_'.$user_ID) . '" />';
-		$ref = attribute_escape($_SERVER['REQUEST_URI']);
-		$page_output .= '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
-		if ( wp_get_original_referer() ) {
-			$original_ref = attribute_escape(stripslashes(wp_get_original_referer()));
-			$page_output .= '<input type="hidden" name="_wp_original_http_referer" value="'. $original_ref . '" />';
-		}
-		// End of nonce fields
-		$page_output .= '<p>
-			<!--<input type="hidden" name="page" value="' . $wpuConnSettings['full_path_to_plugin'] . '" /> -->
-			<!--<input type="hidden" name="action" value="update-blog-profile" />-->
-			<!--<input type="hidden" name="from" value="blog_settings" /> -->
-			<input type="hidden" name="checkuser_id" value="' . 'echo $user_ID' . '" />
-		</p>	
-		<fieldset>
-		<legend>' . __('Name') . '</legend>
-
-		<input type="hidden" name="user_login" value="' . $profileuser->user_login . '"  />
-
-
-		<p><label>' . __('First name:') . '<br />
-		<input type="text" name="first_name" value="' . $profileuser->first_name . '" /></label></p>
-
-		<p><label>' . ('Last name:') . '<br />
-		<input type="text" name="last_name"  value="' . $profileuser->last_name . '" /></label></p>
-
-		<p><label>' . __('Nickname:') . '<br />
-		<input type="text" name="nickname" value="' . $profileuser->nickname . '" /></label></p>
-
-		<p><label>' . __('Display name publicly as:') . '<br />
-		<select name="display_name">
-		<option value="' . $profileuser->display_name . '">' . $profileuser->display_name . '</option>
-		<option value="' . $profileuser->nickname . '">' . $profileuser->nickname . '</option>
-		<option value="' . $profileuser->user_login . '">' . $profileuser->user_login . '</option>';
-		if ( !empty( $profileuser->first_name ) ) {
-			$page_output .= '<option value="' . $profileuser->first_name . '">' . $profileuser->first_name . '</option>';
-		}
-		if ( !empty( $profileuser->last_name ) ) {
-			$page_output .= '<option value="' . $profileuser->last_name . '">' . $profileuser->last_name . '</option>';
-		}
-		if ( !empty( $profileuser->first_name ) && !empty( $profileuser->last_name ) ) {
-			$page_output .= '<option value="' . $profileuser->first_name . ' ' . $profileuser->last_name . '">' . $profileuser->first_name . ' ' . $profileuser->last_name . '</option>
-			<option value="' . $profileuser->last_name . ' ' . $profileuser->first_name . '">' . $profileuser->last_name . ' ' . $profileuser->first_name . '</option>';
-		}
-		$page_output .= '</select></label></p>
-		</fieldset>';
-		if ( !empty($wpuConnSettings['blogs']) ) {
-			$page_output .= '<fieldset>
-			<legend>' . __('About Your Blog') . '</legend>
-			<input type="hidden" name="email" value="' . $profileuser->user_email . '" />';
-			// Retrieve blog options
-			$blog_title = get_usermeta($user_ID, 'blog_title');
-			$blog_tagline = get_usermeta($user_ID, 'blog_tagline');
-			$page_output .= '<p><label>' . __('The Title of Your Blog:') . '<br />
-			<input type="text" name="blog_title" value="' . $blog_title . '" /></label></p>
-			<p><label>' . __('Blog Tagline') . '<br />
-			<input type="text" name="blog_tagline" value="' . $blog_tagline . '"</label></p>
-			</fieldset>';
-		}
-		$page_output .= '<br clear="all" />
-		<fieldset> 
-		<legend>' . __('About yourself') . '</legend>
-		<p class="desc">' . __('Share a little biographical information to fill out your profile. This may be shown publicly.') . '</p>
-		<p><textarea name="description" rows="5" cols="30">' . $profileuser->description . '</textarea></p>
-		</fieldset>';
-		do_action('show_user_profile'); 
-		$page_output .= '<br clear="all" />	
-		<h3>' . __('Personal Options') . '</h3>
-		<p><label for="rich_editing"><input name="rich_editing" type="checkbox" id="rich_editing" value="true"' . checked('true', get_user_option('rich_editing')) . '/>' .
-		__('Use the visual rich editor when writing') . '</label></p>';
-		do_action('profile_personal_options');
-		$page_output .= '<table width="99%"  border="0" cellspacing="2" cellpadding="3" class="editform">';
-		if(count($profileuser->caps) > count($profileuser->roles)) {
-		    $page_output .= '<tr>
-		    <th scope="row">' . __('Additional Capabilities:') . '</th>
-		    <td>';
-			$output = '';
-			foreach($profileuser->caps as $cap => $value) {
-				if(!$wp_roles->is_role($cap)) {
-					if($output != '') $output .= ', ';
-					$output .= $value ? $cap : "Denied: {$cap}";
-				}
-			}
-			$page_output .= $output . '
-			</td>
-		    </tr>';
-	    }
-		$page_output .= '</table>
-		<p class="submit">
-		<input type="submit" value="' . __('Update Profile &raquo;') . '" name="submit" />
-		</p>
-		</form>
-			
-		</div>';
-		//What to do with this page we've just made?
-		if (defined('WPU_ALTER_PROFILE')) {
-			//replace profile page with it
-			return $page_output  . '<div id="footer">';
-		} else {
-			// display the page
-			echo $page_output;
-		}
+		wpu_menuSettings();
 	} else {
-	wp_united_display_theme_menu();
+		wp_united_display_theme_menu();
+	}
+}
+
+function wpu_menuSettings() { 
+	global $user_ID, $wp_roles;
+	$profileuser = get_user_to_edit($user_ID);
+	$bookmarklet_height= 440;
+	$wpuConnSettings = get_settings('wputd_connection');
+	$page_output = '';
+	if ( isset($_GET['updated']) ) { 
+		$page_output .= '<div id="message" class="updated fade">
+		<p><strong>' . __('Settings updated.') . '</strong></p>
+		</div>';
+	}
+
+	$page_output .= '<div class="wrap">
+	<h2>';
+	if ( !empty($wpuConnSettings['blogs']) ) {
+		$page_output .= __('Your Blog Details');
+	} else {
+		$page_output .= __('Your Profile');
+	}
+	$page_output .= '</h2>
+	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;wpu_action=update-blog-profile" method="post">' . "\n";
+	// have to use this, because wp_nonce_field echos. //wp_nonce_field('update-blog-profile_' . $user_ID);
+	// beginning of nonce fields
+	$page_output .= '<input type="hidden" name="' . attribute_escape('_wpnonce') . '" value="' . wp_create_nonce('update-blog-profile_'.$user_ID) . '" />';
+	$ref = attribute_escape($_SERVER['REQUEST_URI']);
+	$page_output .= '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
+	if ( wp_get_original_referer() ) {
+		$original_ref = attribute_escape(stripslashes(wp_get_original_referer()));
+		$page_output .= '<input type="hidden" name="_wp_original_http_referer" value="'. $original_ref . '" />';
+	}
+	// End of nonce fields
+	$page_output .= '<p>
+		<!--<input type="hidden" name="page" value="' . $wpuConnSettings['full_path_to_plugin'] . '" /> -->
+		<!--<input type="hidden" name="action" value="update-blog-profile" />-->
+		<!--<input type="hidden" name="from" value="blog_settings" /> -->
+		<input type="hidden" name="checkuser_id" value="' . 'echo $user_ID' . '" />
+	</p>	
+	<fieldset>
+	<legend>' . __('Name') . '</legend>
+
+	<input type="hidden" name="user_login" value="' . $profileuser->user_login . '"  />
+
+
+	<p><label>' . __('First name:') . '<br />
+	<input type="text" name="first_name" value="' . $profileuser->first_name . '" /></label></p>
+
+	<p><label>' . ('Last name:') . '<br />
+	<input type="text" name="last_name"  value="' . $profileuser->last_name . '" /></label></p>
+
+	<p><label>' . __('Nickname:') . '<br />
+	<input type="text" name="nickname" value="' . $profileuser->nickname . '" /></label></p>
+
+	<p><label>' . __('Display name publicly as:') . '<br />
+	<select name="display_name">
+	<option value="' . $profileuser->display_name . '">' . $profileuser->display_name . '</option>
+	<option value="' . $profileuser->nickname . '">' . $profileuser->nickname . '</option>
+	<option value="' . $profileuser->user_login . '">' . $profileuser->user_login . '</option>';
+	if ( !empty( $profileuser->first_name ) ) {
+		$page_output .= '<option value="' . $profileuser->first_name . '">' . $profileuser->first_name . '</option>';
+	}
+	if ( !empty( $profileuser->last_name ) ) {
+		$page_output .= '<option value="' . $profileuser->last_name . '">' . $profileuser->last_name . '</option>';
+	}
+	if ( !empty( $profileuser->first_name ) && !empty( $profileuser->last_name ) ) {
+		$page_output .= '<option value="' . $profileuser->first_name . ' ' . $profileuser->last_name . '">' . $profileuser->first_name . ' ' . $profileuser->last_name . '</option>
+		<option value="' . $profileuser->last_name . ' ' . $profileuser->first_name . '">' . $profileuser->last_name . ' ' . $profileuser->first_name . '</option>';
+	}
+	$page_output .= '</select></label></p>
+	</fieldset>';
+	if ( !empty($wpuConnSettings['blogs']) ) {
+		$page_output .= '<fieldset>
+		<legend>' . __('About Your Blog') . '</legend>
+		<input type="hidden" name="email" value="' . $profileuser->user_email . '" />';
+		// Retrieve blog options
+		$blog_title = get_usermeta($user_ID, 'blog_title');
+		$blog_tagline = get_usermeta($user_ID, 'blog_tagline');
+		$page_output .= '<p><label>' . __('The Title of Your Blog:') . '<br />
+		<input type="text" name="blog_title" value="' . $blog_title . '" /></label></p>
+		<p><label>' . __('Blog Tagline') . '<br />
+		<input type="text" name="blog_tagline" value="' . $blog_tagline . '"</label></p>
+		</fieldset>';
+	}
+	$page_output .= '<br clear="all" />
+	<fieldset> 
+	<legend>' . __('About yourself') . '</legend>
+	<p class="desc">' . __('Share a little biographical information to fill out your profile. This may be shown publicly.') . '</p>
+	<p><textarea name="description" rows="5" cols="30">' . $profileuser->description . '</textarea></p>
+	</fieldset>';
+	do_action('show_user_profile'); 
+	$page_output .= '<br clear="all" />	
+	<h3>' . __('Personal Options') . '</h3>
+	<p><label for="rich_editing"><input name="rich_editing" type="checkbox" id="rich_editing" value="true"' . checked('true', get_user_option('rich_editing')) . '/>' .
+	__('Use the visual rich editor when writing') . '</label></p>';
+	do_action('profile_personal_options');
+	$page_output .= '<table width="99%"  border="0" cellspacing="2" cellpadding="3" class="editform">';
+	if(count($profileuser->caps) > count($profileuser->roles)) {
+	    $page_output .= '<tr>
+	    <th scope="row">' . __('Additional Capabilities:') . '</th>
+	    <td>';
+		$output = '';
+		foreach($profileuser->caps as $cap => $value) {
+			if(!$wp_roles->is_role($cap)) {
+				if($output != '') $output .= ', ';
+				$output .= $value ? $cap : "Denied: {$cap}";
+			}
+		}
+		$page_output .= $output . '
+		</td>
+	    </tr>';
+    }
+	$page_output .= '</table>
+	<p class="submit">
+	<input type="submit" value="' . __('Update Profile &raquo;') . '" name="submit" />
+	</p>
+	</form>
+		
+	</div>';
+	//What to do with this page we've just made?
+	if (defined('WPU_ALTER_PROFILE')) {
+		//replace profile page with it
+		return $page_output  . '<div id="footer">';
+	} else {
+		// display the page
+		echo $page_output;
 	}
 
 }
