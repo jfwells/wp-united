@@ -766,9 +766,8 @@ function wpu_enter_phpbb() {
 	$connSettings = get_settings('wputd_connection');
 
 	//need board config global for abstractify.php
-	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, \
-	$phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, \
-	$config, $template, $dbname, $SID, $_SID;
+	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path;
+	global $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 	//phpBB makes this conflicting var global (in phpBB2). But we want to revert back to WP's afterwards.
 	$wp_table_prefix = $table_prefix;
 	$user_old = (isset($GLOBALS['user'])) ? $GLOBALS['user']: '';
