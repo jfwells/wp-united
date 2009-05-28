@@ -226,9 +226,9 @@ function wpu_adminmenu_init() {
 					if ( !empty($wpuConnSettings['blogs']) ) {
 						$top = add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', 'wpu-plugin.php', 'wpu_menuTopLevel', $wpuConnSettings['path_to_phpbb'] . 'wp-united/images/tiny.gif' );
 						
-						add_submenu_page('wpu-plugin.php', __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin.php' , 'wpu_menuSettings');						
+						add_submenu_page('wpu-plugin.php', __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin.php' , 'wpu_menuTopLevel');						
 						if ( !empty($wpuConnSettings['styles']) ) {
-							add_submenu_page('wpu-plugin.php', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts','wpu-plugin.php?wputab=themes', 'wp_united_display_theme_menu');
+							add_submenu_page('wpu-plugin.php', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts','wpu-plugin.php&wputab=themes', 'wpu_menuTopLevel');
 						}
 					} 
 		
@@ -265,9 +265,9 @@ function wpu_menuTopLevel() {
 	if ( isset($_GET['wputab']) ) {
 		$tab = ($_GET['wputab'] == 'themes') ? 'THEMES' : 'SETTINGS';
 	}
-	if ( 'THEMES' != $tab) {
+	if ( 'THEMES' != $tab) { 
 		wpu_menuSettings();
-	} else {
+	} else { 
 		wp_united_display_theme_menu();
 	}
 }
@@ -283,7 +283,6 @@ function wpu_menuSettings() {
 		<p><strong>' . __('Settings updated.') . '</strong></p>
 		</div>';
 	}
-
 	$page_output .= '<div class="wrap">
 	<h2>';
 	if ( !empty($wpuConnSettings['blogs']) ) {
@@ -359,18 +358,19 @@ function wpu_menuSettings() {
 	<legend>' . __('About yourself') . '</legend>
 	<p class="desc">' . __('Share a little biographical information to fill out your profile. This may be shown publicly.') . '</p>
 	<p><textarea name="description" rows="5" cols="30">' . $profileuser->description . '</textarea></p>
-	</fieldset>';
-	do_action('show_user_profile'); 
+	</fieldset>'; 
+	do_action('show_user_profile');
+	$richEditing = (get_user_option('rich_editing')) ? "checked='checked'" : "";
 	$page_output .= '<br clear="all" />	
 	<h3>' . __('Personal Options') . '</h3>
-	<p><label for="rich_editing"><input name="rich_editing" type="checkbox" id="rich_editing" value="true"' . checked('true', get_user_option('rich_editing')) . '/>' .
+	<p><label for="rich_editing"><input name="rich_editing" type="checkbox" id="rich_editing" value="true" ' . $richEditing .' />' .
 	__('Use the visual rich editor when writing') . '</label></p>';
 	do_action('profile_personal_options');
 	$page_output .= '<table width="99%"  border="0" cellspacing="2" cellpadding="3" class="editform">';
 	if(count($profileuser->caps) > count($profileuser->roles)) {
 	    $page_output .= '<tr>
 	    <th scope="row">' . __('Additional Capabilities:') . '</th>
-	    <td>';
+	    <td>'; 
 		$output = '';
 		foreach($profileuser->caps as $cap => $value) {
 			if(!$wp_roles->is_role($cap)) {
@@ -388,7 +388,7 @@ function wpu_menuSettings() {
 	</p>
 	</form>
 		
-	</div>';
+	</div>'; 
 	//What to do with this page we've just made?
 	if (defined('WPU_ALTER_PROFILE')) {
 		//replace profile page with it
