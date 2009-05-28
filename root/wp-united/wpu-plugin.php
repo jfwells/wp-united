@@ -283,15 +283,17 @@ function wpu_menuSettings() {
 		<p><strong>' . __('Settings updated.') . '</strong></p>
 		</div>';
 	}
-	$page_output .= '<div class="wrap">
-	<h2>';
 	if ( !empty($wpuConnSettings['blogs']) ) {
-		$page_output .= __('Your Blog Details');
+		$pageTitle .= __('Your Blog Details');
 	} else {
-		$page_output .= __('Your Profile');
+		$pageTitle .= __('Your Profile');
 	}
-	$page_output .= '</h2>
-	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;wpu_action=update-blog-profile" method="post">' . "\n";
+	$page_output .= '<div class="wrap">';
+	echo $page_output;
+	screen_icon();
+	$page_output = '<h2>' . wp_specialchars($pageTitle) . '</h2>';
+
+	$page_output .= '<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;wpu_action=update-blog-profile" method="post">' . "\n";
 	// have to use this, because wp_nonce_field echos. //wp_nonce_field('update-blog-profile_' . $user_ID);
 	// beginning of nonce fields
 	$page_output .= '<input type="hidden" name="' . attribute_escape('_wpnonce') . '" value="' . wp_create_nonce('update-blog-profile_'.$user_ID) . '" />';
@@ -410,26 +412,31 @@ function wpu_menuSettings() {
 // 
 function wp_united_display_theme_menu() {
 
-	global $user_ID;
-	global $title, $parent_file;
-		$wpuConnSettings = get_settings('wputd_connection');
-
-	if ( ! validate_current_theme() ) : ?>
+	global $user_ID, $title, $parent_file, $wp_version;
+	$wpuConnSettings = get_settings('wputd_connection');
+	
+	if ( ! validate_current_theme() ) { ?>
 	<div id="message1" class="updated fade"><p><?php _e('The active theme is broken.  Reverting to the default theme.'); ?></p></div>
-	<?php elseif ( isset($_GET['activated']) ) : ?>
-	<div id="message2" class="updated fade"><p><?php printf(__('New theme activated. <a href="%s">View site &raquo;</a>'), get_bloginfo('home') . '/'); ?></p></div>
-	<?php endif; ?>
+	<?php } elseif ( isset($_GET['activated']) ) { ?>
+	<div id="message2" class="updated fade"><p><?php printf(__('New theme activated. <a href="%s">View your blog &raquo;</a>'), wpu_homelink('wpu-activate-theme') . '/'); ?></p></div>
+	<?php }
+	
 
-	<?php
 	$themes = get_themes();
-		$theme_names = array_keys($themes);
+
+
+	$theme_names = array_keys($themes);
 	$user_theme = 'WordPress Default';
 
-	$user_template = get_usermeta($user_ID, 'WPU_MyTemplate');
+	$user_template = get_usermeta($user_ID, 'WPU_MyTemplate'); 
 	$user_stylesheet = get_usermeta($user_ID, 'WPU_MyStylesheet');
 
-	$current_theme = 'WordPress Default';
+	$site_theme = current_theme_info();
 
+	$user_theme = $site_theme->title; // if user hasn't set a theme yet, it is the same as site default
+
+	
+	// get current user theme
 	if ( $themes ) {
 		foreach ($theme_names as $theme_name) {
 			if ( $themes[$theme_name]['Stylesheet'] == $user_stylesheet &&
@@ -448,65 +455,209 @@ function wp_united_display_theme_menu() {
 	$author = $themes[$user_theme]['Author'];
 	$screenshot = $themes[$user_theme]['Screenshot'];
 	$stylesheet_dir = $themes[$user_theme]['Stylesheet Dir'];
+	$tags = $themes[$user_theme]['Tags'];	
+
+	if ($wp_version > 2.50) {
 	
-	?>
+		// paginate if necessary
+		ksort( $themes );
+		$theme_total = count( $themes );
+		$per_page = 15;
 
-	<div class="wrap">
-	<h2><?php _e('Your Current Theme'); ?></h2>
-	<div id="currenttheme" style="margin-bottom: 190px;" >
-	<?php if ( $screenshot ) : ?>
-	<img src="<?php echo get_option('siteurl') . '/' . $stylesheet_dir . '/' . $screenshot; ?>" alt="<?php _e('Current theme preview'); ?>" />
-	<?php endif; ?>
-	<h3><?php printf(__('%1$s %2$s by %3$s'), $title, $version, $author) ; ?></h3>
-	<p><?php echo $description; ?></p>
+		if ( isset( $_GET['pagenum'] ) )
+			$page = absint( $_GET['pagenum'] );
 
-	</div>
+		if ( empty($page) )
+			$page = 1;
 
-	<h2><?php _e('Available Themes'); ?></h2>
-	<?php if ( 1 < count($themes) ) { ?>
+		$start = $offset = ( $page - 1 ) * $per_page;
 
-	<?php
-	$style = '';
+		$page_links = paginate_links( array(
+			'base' => add_query_arg( 'pagenum', '%#%' ) . '#themenav',
+			'format' => '',
+			'prev_text' => __('&laquo;'),
+			'next_text' => __('&raquo;'),
+			'total' => ceil($theme_total / $per_page),
+			'current' => $page
+		));
 
-	$theme_names = array_keys($themes);
-	natcasesort($theme_names);
-
-	foreach ($theme_names as $theme_name) {
-		if ( $theme_name == $user_theme )
-			continue;
-		$template = $themes[$theme_name]['Template'];
-		$stylesheet = $themes[$theme_name]['Stylesheet'];
-		$title = $themes[$theme_name]['Title'];
-		$version = $themes[$theme_name]['Version'];
-		$description = $themes[$theme_name]['Description'];
-		$author = $themes[$theme_name]['Author'];
-		$screenshot = $themes[$theme_name]['Screenshot'];
-		$stylesheet_dir = $themes[$theme_name]['Stylesheet Dir'];
-		$activate_link = wp_nonce_url('admin.php?page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
-	?>
-	<div class="available-theme">
-	<h3><a href="<?php echo $activate_link; ?>"><?php echo "$title $version"; ?></a></h3>
-
-	<a href="<?php echo $activate_link; ?>" class="screenshot">
-	<?php if ( $screenshot ) : ?>
-	<img src="<?php echo get_option('siteurl') . '/' . $stylesheet_dir . '/' . $screenshot; ?>" alt="" />
-	<?php endif; ?>
-	</a>
-
-	<p><?php echo $description; ?></p>
-	</div>
-	<?php } // end foreach theme_names ?>
-
-	<?php } ?>
-
+		$themes = array_slice( $themes, $start, $per_page );
 	
+		$pageTitle = __('Set Your Blog Theme');
+		$parent_file = 'wpu-plugin.php&wputab=themes'; ?>
+		
+		<div class="wrap">
+			<?php screen_icon(); ?>
+			<h2><?php echo wp_specialchars( $pageTitle ); ?></h2>
+		<?php /* CURRENT THEME */ ?>
+			<h3><?php _e('Current Theme'); ?></h3>
+			<div id="current-theme">
+				<?php if ( $screenshot ) : ?>
+				<img src="<?php echo WP_CONTENT_URL . $stylesheet_dir . '/' . $screenshot; ?>" alt="<?php _e('Current theme preview'); ?>" />
+				<?php endif; ?>
+				<h4><?php printf(_c('%1$s %2$s by %3$s|1: theme title, 2: theme version, 3: theme author'), $title, $version, $author) ; ?></h4>
+				<p class="description"><?php echo $description; ?></p>
+				<?php if ( $tags ) : ?>
+					<p><?php _e('Tags:'); ?> <?php echo join(', ', $tags); ?></p>
+				<?php endif; ?>
+			</div>
+			
+			<div class="clear"></div>
+			<h3><?php _e('Available Themes'); ?></h3>
+			<div class="clear"></div>
+			
+			<?php /* PAGINATION */ ?>
+			<?php if ( $page_links ) : ?>
+			<div class="tablenav">
+			<div class="tablenav-pages"><?php $page_links_text = sprintf( '<span class="displaying-num">' . __( 'Displaying %s&#8211;%s of %s' ) . '</span>%s',
+				number_format_i18n( $start + 1 ),
+				number_format_i18n( min( $page * $per_page, $theme_total ) ),
+				number_format_i18n( $theme_total ),
+				$page_links
+			); echo $page_links_text; ?></div>
+			</div>
+			<?php endif; ?>
+		
+		
+			<?php /* OTHER THEMES */ ?>
+			
+			<?php if ( 1 < $theme_total ) { ?>
+			<table id="availablethemes" cellspacing="0" cellpadding="0">
+			<?php
+			$style = '';
 
-	<h2><?php _e('Want More Themes?'); ?></h2>
-	<p><?php _e('If you have found another WordPress theme that you would like to use, please inform an administrator.'); ?></p>
+			$theme_names = array_keys($themes);
+			natcasesort($theme_names);
 
+			$rows = ceil(count($theme_names) / 3);
+			for ( $row = 1; $row <= $rows; $row++ )
+				for ( $col = 1; $col <= 3; $col++ )
+					$table[$row][$col] = array_shift($theme_names);
+
+			foreach ( $table as $row => $cols ) {
+			?>
+			<tr>
+			<?php
+			foreach ( $cols as $col => $theme_name ) {
+				if ($theme_name != $user_theme) {
+					$class = array('available-theme');
+					if ( $row == 1 ) $class[] = 'top';
+					if ( $col == 1 ) $class[] = 'left';
+					if ( $row == $rows ) $class[] = 'bottom';
+					if ( $col == 3 ) $class[] = 'right';?>
+					<td class="<?php echo join(' ', $class); ?>">
+					<?php if ( !empty($theme_name) ) {
+						$template = $themes[$theme_name]['Template'];
+						$stylesheet = $themes[$theme_name]['Stylesheet'];
+						$title = $themes[$theme_name]['Title'];
+						$version = $themes[$theme_name]['Version'];
+						$description = $themes[$theme_name]['Description'];
+						$author = $themes[$theme_name]['Author'];
+						$screenshot = $themes[$theme_name]['Screenshot'];
+						$stylesheet_dir = $themes[$theme_name]['Stylesheet Dir'];
+						$preview_link = clean_url( get_option('home') . '/');
+						$preview_link = htmlspecialchars( add_query_arg( array('preview' => 1, 'template' => $template, 'stylesheet' => $stylesheet, 'TB_iframe' => 'true', 'width' => 600, 'height' => 400 ), $preview_link ) );
+						$preview_text = attribute_escape( sprintf( __('Preview of "%s"'), $title ) );
+						$tags = $themes[$theme_name]['Tags'];
+						$thickbox_class = 'thickbox';
+						$activate_link = wp_nonce_url('admin.php?page=wpu-plugin.php&amp;wputab=themes&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
+						$activate_text = attribute_escape( sprintf( __('Activate "%s"'), $title ) );
+						?>
+						<?php if ( $screenshot ) { ?>
+							<a href="<?php echo $preview_link; ?>" title="<?php echo $preview_text; ?>" class="<?php echo $thickbox_class; ?> screenshot">
+								<img src="<?php echo WP_CONTENT_URL . $stylesheet_dir . '/' . $screenshot; ?>" alt="" />
+							</a>
+						<?php } ?>
+						<h3><a class="<?php echo $thickbox_class; ?>" href="<?php echo $activate_link; ?>"><?php echo $title; ?></a></h3>
+						<p><?php echo $description; ?></p>
+						<?php if ( $tags ) { ?>
+							<p><?php _e('Tags:'); ?> <?php echo join(', ', $tags); ?></p>
+						<?php } ?>
+						<span class="action-links"><a href="<?php echo $preview_link; ?>" class="<?php echo $thickbox_class; ?>" title="<?php echo $preview_text; ?>"><?php _e('Preview'); ?></a> <a href="<?php echo $activate_link; ?>" title="<?php echo $activate_text; ?>"><?php _e('Activate'); ?></a></span>
+	
+					<?php }
+				} ?>
+				</td>
+			<?php } // end foreach $cols ?>
+			</tr>
+			<?php } // end foreach $table ?>
+			</table>
+		<?php } ?>
+
+		<br class="clear" />
+
+		<?php if ( $page_links ) { ?>
+			<div class="tablenav">
+			<?php echo "<div class='tablenav-pages'>$page_links_text</div>"; ?>
+			<br class="clear" />
+			</div>
+		<?php } ?>
+		<br class="clear" />
 	</div>
-
+			
+			
 <?php
+		
+		
+		
+	} else { // old WordPress (temporary -- to remove in WP-United v0.8)
+	?>
+		<div class="wrap">
+		<h2><?php _e('Your Current Theme'); ?></h2>
+		<div id="currenttheme" style="margin-bottom: 190px;" >
+		<?php if ( $screenshot ) : ?>
+		<img src="<?php echo get_option('siteurl') . '/' . $stylesheet_dir . '/' . $screenshot; ?>" alt="<?php _e('Current theme preview'); ?>" />
+		<?php endif; ?>
+		<h3><?php printf(__('%1$s %2$s by %3$s'), $title, $version, $author) ; ?></h3>
+		<p><?php echo $description; ?></p>
+
+		</div>
+
+		<h2><?php _e('Available Themes'); ?></h2>
+		<?php if ( 1 < count($themes) ) { ?>
+
+		<?php
+		$style = '';
+
+		$theme_names = array_keys($themes);
+		natcasesort($theme_names);
+
+		foreach ($theme_names as $theme_name) {
+			if ( $theme_name == $user_theme )
+				continue;
+			$template = $themes[$theme_name]['Template'];
+			$stylesheet = $themes[$theme_name]['Stylesheet'];
+			$title = $themes[$theme_name]['Title'];
+			$version = $themes[$theme_name]['Version'];
+			$description = $themes[$theme_name]['Description'];
+			$author = $themes[$theme_name]['Author'];
+			$screenshot = $themes[$theme_name]['Screenshot'];
+			$stylesheet_dir = $themes[$theme_name]['Stylesheet Dir'];
+			$activate_link = wp_nonce_url('admin.php?page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
+		?>
+		<div class="available-theme">
+		<h3><a href="<?php echo $activate_link; ?>"><?php echo "$title $version"; ?></a></h3>
+
+		<a href="<?php echo $activate_link; ?>" class="screenshot">
+		<?php if ( $screenshot ) : ?>
+		<img src="<?php echo get_option('siteurl') . '/' . $stylesheet_dir . '/' . $screenshot; ?>" alt="" />
+		<?php endif; ?>
+		</a>
+
+		<p><?php echo $description; ?></p>
+		</div>
+		<?php } // end foreach theme_names ?>
+
+		<?php } ?>
+
+	
+
+		<h2><?php _e('Want More Themes?'); ?></h2>
+		<p><?php _e('If you have found another WordPress theme that you would like to use, please inform an administrator.'); ?></p>
+
+		</div>
+	<?php }
+
 }
 
 
@@ -957,11 +1108,13 @@ function wpu_blogdesc($default) {
 //	Returns the URL of the current user's blog
 //
 function wpu_homelink($default) {
-	global $wpSettings, $user_ID, $wpu_done_head, $altered_link, $wp_version;
-	if ( ($wpu_done_head) && (!$altered_link) ) {
+	global $wpSettings, $user_ID, $wpu_done_head, $altered_link, $wp_version, $wputab_altered_link; 
+	if ( ($wpu_done_head && !$altered_link) || ($default=="wpu-activate-theme")  ) {
 		$wpuConnSettings = get_settings('wputd_connection');
 		if ( !empty($wpuConnSettings['blogs']) ) {
-			$altered_link = TRUE; // prevents this from becoming recursive -- we only wantto do it once anyway
+
+			$altered_link = TRUE; // prevents this from becoming recursive -- we only want to do it once anyway
+
 			if ( !is_admin() ) {
 				$authorID = wpu_get_author();
 			} else {
@@ -1379,19 +1532,31 @@ function wpu_buffer_userspanel($panelContent) {
 }
 
 // disable access to wp-login.php if logins are integrated
-function wpu_disable_wp_login() {
-	$wpuConnSettings = get_settings('wputd_connection');
-	if (!empty($wpuConnSettings['logins_integrated'])) {
-		if ($wpuAbs->ver == 'PHPBB2') {
-			$login = 'login.php?redirect=wp-united-blog';
-		} else {
-			$login = 'ucp.php';
+function wpu_disable_wp_login() { 
+	if (preg_match('|/wp-login.php|', $_SERVER['REQUEST_URI'])) {	
+		$wpuConnSettings = get_settings('wputd_connection');
+		if (!empty($wpuConnSettings['logins_integrated'])) {
+			if ($wpuAbs->ver == 'PHPBB2') {
+				$login = 'login.php?redirect=wp-united-blog';
+			} else {
+				$login = 'ucp.php';
+			}
+			// path back has one too many ../, so we just add on another path element
+			wp_redirect("wp-includes/".$wpuConnSettings['path_to_phpbb'].$login);
 		}
-		// path back has one too many ../, so we just add on another path element
-		wp_redirect("wp-includes/".$wpuConnSettings['path_to_phpbb'].$login);	
 	}
 }
 
+function wpu_prepare_admin_pages() {
+	// add script to our user blog theme page
+	if ( isset($_GET['wputab']) ) {
+		if ($_GET['wputab'] == 'themes') {
+			add_thickbox();
+			wp_enqueue_script( 'theme-preview' );
+			
+		}
+	}
+}
 
 
 //
@@ -1727,8 +1892,8 @@ function wpu_javascript () {
 }
 
 // Add hooks and filters
-//since v0.6.5
 
+//since v0.6.5
 add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
 add_action('comment_author_link', 'wpu_comment_author_link');
 add_filter('comment_text', 'wpu_censor');
@@ -1737,6 +1902,14 @@ add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
 add_action('comment_form', 'wpu_print_smilies');
 add_action('wp_head', 'wpu_javascript');
 add_action('the_title', 'wpu_check_if_rev_page');
+if ( isset($_GET['wputab']) ) {
+	if ($_GET['wputab'] == 'themes') {
+		add_action('admin_init', 'wpu_prepare_admin_pages');
+	}
+}
+if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
+	add_action('init', 'wpu_disable_wp_login');
+}
 
 add_filter('template', 'wpu_get_template');
 add_filter('stylesheet', 'wpu_get_stylesheet');
@@ -1753,6 +1926,7 @@ add_filter('get_next_post_where', 'wpu_prev_next_post');
 add_filter('upload_dir', 'wpu_user_upload_dir');
 add_filter('feed_link', 'wpu_feed_link');
 
+
 //per-user cats in progress
 //add_filter('wpu_cat_presave', 'category_save_pre');
 
@@ -1768,7 +1942,6 @@ add_action('upload_files_browse', 'wpu_browse_attachments');
 add_action('upload_files_browse-all', 'wpu_browse_attachments');
 add_action('template_redirect', 'wpu_must_integrate');
 add_action('plugins_loaded', 'wpu_load_extra_files');
-add_action('login_head', 'wpu_disable_wp_login');
 add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry');
 
