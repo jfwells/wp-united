@@ -198,6 +198,7 @@ Class WPU_Integration {
 		if ( $this->cacheReady && !empty($this->cacheLoc) ) {
 			return TRUE;
 		}
+		global $wpuAbs;
 		if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) ) {
 			$cacheLocation = $this->phpbb_root .  'wp-united/cache/';
 			@$dir = opendir($cacheLocation);
@@ -205,12 +206,12 @@ Class WPU_Integration {
 			$cacheFound = FALSE;
 			$compat = ($this->wpu_compat) ? "_fast" : "_slow";
 			while( $entry = @readdir($dir) ) {
-				if ( $entry == "core.wpucorecache$compat.php" ) {
+				if ( $entry == "core.wpucorecache-{$this->wpVersion}-{$wpuAbs->wpu_ver}{$compat}.php") {
 					$entry = $cacheLocation . $entry;
 					$compareDate = filemtime($entry);
 					if ( !($compareDate < @filemtime($this->wpu_settings['wpPath'] . 'wp-includes/version.php'))  ) {
 						$this->cacheLoc = $entry;
-						$this->cacheReady = TRUE; 
+						$this->cacheReady = TRUE;
 						return TRUE;
 					}
 				}
@@ -335,8 +336,8 @@ Class WPU_Integration {
 
 				if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) ) {
 					$compat = ($this->wpu_compat) ? "_fast" : "_slow";
-					$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_' . floor(rand(0, 9999)) . 'wpucorecache' . $compat . '.php';
-					$fnDest = $phpbb_root_path . "wp-united/cache/core.wpucorecache$compat.php";
+					$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_' . floor(rand(0, 9999)) . 'wpucorecache-' . $this->wpVersion . '-' . $wpuAbs->wpu_ver . $compat . '.php';
+					$fnDest = $phpbb_root_path . "wp-united/cache/core.wpucorecache-{$this->wpVersion}-{$wpuAbs->wpu_ver}{$compat}.php";
 					$hTempFile = @fopen($fnTemp, 'w+');
 					@fwrite($hTempFile, '<' ."?php\n\n if(!defined('IN_PHPBB')){die('Hacking attempt');exit();}\n\n$content\n\n?" . '>');
 					@fclose($hTempFile);

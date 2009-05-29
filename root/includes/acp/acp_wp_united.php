@@ -214,7 +214,7 @@ class acp_wp_united {
 	}
 	
 	function mainPage_show() {
-		global $wpuAbs, $phpEx, $ignorePrompt;
+		global $wpuAbs, $phpEx, $ignorePrompt, $phpbb_root_path;
 		$this->page_title = 'ACP_WPU_INDEX_TITLE';
 		$this->tpl_name = 'acp_wp_united';
 		
@@ -253,15 +253,16 @@ class acp_wp_united {
 		
 		//If this is an upgrade, and that upgrade requires an install script, throw up a message
 		if ($wpSettings['wpuVersion'] != $wpuAbs->lang('WPU_Default_Version')) {
+			//clear the phpBB cache
+			global $cache;
+			$cache->purge();
+				
 			$ver = $wpuAbs->lang('WPU_Not_Installed');
-			if ( ($wpSettings['upgradeRun'] == 1) && ($wpSettings['installLevel'] == 5) && (!$ignorePrompt) ) {
-				$passBlockVars = array(
-				'switch_main_page' => array(),
-				'switch_main_page.upgrade_warning' => array(
+			if ( ($wpSettings['upgradeRun'] == 1) && ($wpSettings['installLevel'] >= 5) && (!$ignorePrompt) ) {
+				$passBlockVars['switch_main_page.switch_upgrade_warning'] = array(
 				'L_WP_UPGRADE_TITLE' => $wpuAbs->lang('WPU_Must_Upgrade_Title'),
 				'L_WP_UPGRADE_EXPLAIN1' => sprintf($wpuAbs->lang('WPU_Must_Upgrade_Explain1'), '<a href="'. append_sid('wpu_usermap.' .$phpEx) .'" title="upgrade script" style="color: #fff;">', '</a>'),
 				'L_WP_UPGRADE_EXPLAIN2' => sprintf($wpuAbs->lang('WPU_Must_Upgrade_Explain2'), '<a href="'. append_sid('admin_wordpress.' .$phpEx .'?ignore=1') .'" title="ignore this prompt" style="color: #fff;">', '</a>')
-				)
 				);
 			}
 		} else {
@@ -290,7 +291,7 @@ class acp_wp_united {
 		);
 
 
-		//show non-integrated login link, if package is handling WP logins
+		//show user mapping link, if package is handling WP logins
 		if ( (!empty($wpSettings['integrateLogin'])) && (!empty($wpSettings['wpUri'])) ) {
 			$mapLink = append_sid('wpu_usermap.' .$phpEx);
 			$passBlockVars['switch_main_page.switch_show_wpmap'] = array(
@@ -300,6 +301,22 @@ class acp_wp_united {
 				'L_MAPLINK' => $wpuAbs->lang('WP_MapLink')
 			);
 		}
+		
+		//Check that wp-united/cache is writable
+		if(!is_writable(add_trailing_slash($phpbb_root_path) . "wp-united/cache/")) {
+			$passBlockVars['switch_main_page.switch_cache_unwritable'] = array(
+				'L_CACHE_UNWRITABLE' => $wpuAbs->lang('WPU_Cache_Unwritable')
+			);
+		}
+		
+		//Check that wpu-install has been deleted
+		if(file_exists(add_trailing_slash($phpbb_root_path) . "wpu-install." . $phpEx)) { 
+			$passBlockVars['switch_main_page.switch_install_file_exists'] = array(
+				'L_INSTALL_EXISTS' => $wpuAbs->lang('WPU_Install_Exists')
+			);
+		}
+				
+		
 		//show the page
 		$this->showPage($passVars, $passBlockVars);
 
