@@ -277,7 +277,7 @@ $lang = array_merge($lang, array(
 	'WP_Wizard_Connection_Explain1' => 'La Connessione di WP-United &egrave; il bridge tra WordPress e phpBB. Essa controlla come si comporta Wordpress quando &egrave; integrato.',
 	'WP_Wizard_Connection_Explain2' => 'L\'Installazione Guidata tenter&agrave; ora di installare la Connessione di WP-United...',
 	'WP_Wizard_Connection_Success' => 'Installazione avvenuta con successo! La Connessione di WP-United &egrave; stata installata.',
-	'WP_Wizard_Connection_Fail' => 'Errore! La Connessione di WP-United non pu&ograve; essere installata. Ci&ograve; &egrave; probabilmente dovuto ad uno dei seguenti motivi: (a) il percorso di Wordpress inserito non &egrave; valido, (b), il percorso dello script impostato in phpBB non &egrave; valido. Correggilo e prova di nuovo.',
+	
 
 
 
@@ -473,6 +473,7 @@ $lang = array_merge($lang, array(
 	'WPWiz_No_Fix' => 'Non rimuovere',
 	'WPWiz_phpBB_Smilies_Title' => 'Vuoi usare gli smilies di phpBB in Wordpress?',
 	'WPWiz_phpBB_Smilies_Explain' => 'Attiva questa opzione se vuoi usare gli smilies di phpBB nei commenti e nei post di WordPress.',
+
 	'WP_Wizard_Connection_Fail' => 'Errore durante l\'installazione di WP-United Connection!',
 	'WPWizard_Connection_Fail_Explain1' => 'WP-United Connection non pu&ograve; essere installata. Ci&ograve; &egrave; probabilmente dovuto ad uno dei seguenti essere impostati in modo errato: (a) percorso di Wordpress non valido, (b)percorso dello script impostato per phpBB nelle configurazioni della board non valido. Si prega di correggere questi e riprovare.',
 	'WPWizard_Connection_Fail_Explain2' => 'Il file [phpbb]/wp-united/wpu-plugin.php non pu&ograve; essere copiato nella cartella dei plugins di WordPress. Per favore copialo manualmente, o rendi scrivibile la cartella dei plugins di WordPress. Dopo la copia, si dovrebbe avere una copia del file wpu-plugin.php in [phpbb]/wp-united e una copia nella tua cartella dei plugins di WordPress. Quando ci&ograve; &egrave;  stato fatto, aggiorni questa pagina per rieseguire la procedura guidata.',
@@ -480,6 +481,12 @@ $lang = array_merge($lang, array(
 	'WPU_Cache_Unwritable' => 'ATTENZIONE: La cartella [phpbb]/wp-united/cache non &egrave; scrivibile. Per ottenere prestazioni migliori, dovresti rendere questa cartella scrivibile prima di procedere.',
 	'WPU_Install_Exists' => 'ATTENZIONE: Il file wpu-install.php si trova ancora nella root di phpBB. Dopo aver eseguito questo file, DEVI cancellarlo prima di continuare.',
 
+	'Map_Items_PerPage' => 'Items to show per page',
+	'Map_Change_PerPage' => 'Change',
+	'Map_Quick_Actions' => 'Quick select',
+	'Map_Delete_All_Unintegrated' => 'Delete all unintegrated',
+	'Map_Break_All' => 'Break all integrations',
+	'Map_Reset_Default' => 'Reset selections',
 	
 ));
 
