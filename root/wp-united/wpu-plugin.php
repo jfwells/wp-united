@@ -1691,7 +1691,7 @@ function wpu_gen_nested_cats($categories) {
 
 
 
-//@since WP-United 0.6.5
+//@since WP-United 0.7.0
 /**
 * Function 'get_avatar()' - Retrieve the phpBB avatar of a user
 */
@@ -1749,7 +1749,7 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 } 
 
 
-//@since WP-United 0.6.5
+//@since WP-United 0.7.0
 /*
 Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding smilies into comment text
 */
@@ -1802,7 +1802,7 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 	return $postContent;
 }
 
-//@since WP-United 0.6.5
+//@since WP-United 0.7.0
 /*
 Function 'wpu_print_smilies' prints phpBB smilies into comment form
 */
@@ -1851,7 +1851,7 @@ function wpu_print_smilies() {
 
 
 
-//since v0.6.5
+//since v0.7.0
 /*
 Function 'wpu_javascript' inserts the javascript code required by smilies' function!
 
@@ -1900,7 +1900,7 @@ function wpu_javascript () {
 
 // Add hooks and filters
 
-//since v0.6.5
+//since v0.7.0
 add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
 add_action('comment_author_link', 'wpu_comment_author_link');
 add_filter('comment_text', 'wpu_censor');

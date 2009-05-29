@@ -74,7 +74,7 @@ function get_db_schema() {
 		'mustLogin' => 'mustLogin',
 		'upgradeRun' => 'ugRun',
 		'xposting' => 'xposting',
-		// Added in v0.6.5
+		// Added in v0.7.0
 		'phpbbSmilies' => 'phpbbSmilies',
 		'fixHeader' => 'fixHeader'
 	);
@@ -118,7 +118,7 @@ function set_default($setting_key) {
 		'mustLogin' => 0,
 		'upgradeRun' => 0,
 		'xposting' => 0,
-		// Added in 0.6.5
+		// Added in 0.7.0
 		'phpbbSmilies' => 0,
 		'fixHeader' => 1
 	);

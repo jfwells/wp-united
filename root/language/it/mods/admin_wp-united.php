@@ -1,10 +1,10 @@
 <?php
 /** 
 *
-* WP-United [English]
+* WP-United [Italian]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.6.2 japgalaxy (japgalaxy.altervista.org) 04/2009
+* @version $Id: wp-united.php,v 0.7.0 japgalaxy (japgalaxy.altervista.org) 2009/05/18
 * @copyright (c) 2006, 2007 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
@@ -42,7 +42,7 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'ACP_WPU_INDEX_TITLE'	=> 'WP-United',
 	    
-	'WPU_Default_Version' => 'v0.6.2',
+	'WPU_Default_Version' => 'v0.7.0',
 	'WP_Version_Text' => 'WP-United %s',
 
 	'WP_Title' => 'Impostazioni di WP-United',
@@ -122,7 +122,7 @@ $lang = array_merge($lang, array(
 	'WP_Role_Administrator' => 'Amministratore',
 
 	//Main Page
-	'WP_Main_Title' => 'Benvenuto in WP-United v0.6.1',
+	'WP_Main_Title' => 'Benvenuto in WP-United v0.7.0',
 	'WP_Main_Intro' => 'Da qui &egrave; possibile impostare WP-United, e scegliere le impostazioni necessarie per farla funzionare nel modo desiderato.',
 	'WP_Main_IntroFirst' => 'Non hai ancora installato la mod. Ti consigliamo di eseguire l\'Installazione Guidata che puoi trovare qui di seguito.',
 	'WP_Main_IntroAdd' => 'Hai gi&agrave; installato la mod. &Egrave; possibile cambiare le opzioni cliccando sul pulsante "Impostazioni", qui di seguito.',
@@ -473,6 +473,12 @@ $lang = array_merge($lang, array(
 	'WPWiz_No_Fix' => 'Non rimuovere',
 	'WPWiz_phpBB_Smilies_Title' => 'Vuoi usare gli smilies di phpBB in Wordpress?',
 	'WPWiz_phpBB_Smilies_Explain' => 'Attiva questa opzione se vuoi usare gli smilies di phpBB nei commenti e nei post di WordPress.',
+	'WP_Wizard_Connection_Fail' => 'Errore durante l\'installazione di WP-United Connection!',
+	'WPWizard_Connection_Fail_Explain1' => 'WP-United Connection non pu&ograve; essere installata. Ci&ograve; &egrave; probabilmente dovuto ad uno dei seguenti essere impostati in modo errato: (a) percorso di Wordpress non valido, (b)percorso dello script impostato per phpBB nelle configurazioni della board non valido. Si prega di correggere questi e riprovare.',
+	'WPWizard_Connection_Fail_Explain2' => 'Il file [phpbb]/wp-united/wpu-plugin.php non pu&ograve; essere copiato nella cartella dei plugins di WordPress. Per favore copiarPlease copy it there now, or make your WordPress plugins folder writeable. After copying, you should have a copy of wpu-plugin.php in [phpbb]/wp-united and in your WordPress plugins folder. When done, refresh this page or run the Wizard again.',
+	'WPU_Conn_InstallError' => 'ERROR: The WP-United Plugin was not found in your wordpress plugins folder. Please copy the file wp-united/wpu-plugin.php there now, and then try again!<br />',
+	'WPU_Cache_Unwritable' => 'WARNING: The folder [phpbb]/wp-united/cache is unwritable. For best performance, you should make this folder writable before proceeding',
+	'WPU_Install_Exists' => 'WARNING: The file wpu-install.php exists in your phpBB root folder. After running this file, you MUST delete it in order to continue.',
 
 	
 ));

@@ -654,7 +654,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
 
 
 
-//@since WP-United v0.6.5
+//@since WP-United v0.7.0
 //
 //   RETRIEVE THE PHPBB USER ID FROM A GIVEN WP ID
 //   -----------------------------------------------------
@@ -669,7 +669,8 @@ function get_wpu_user_id($wp_userID = '') {
 		get_currentuserinfo();
 		$uID = $userdata->phpbb_userid;	
 	} else {
-		$uID = get_usermeta($wp_userID, 'phpbb_userid');	}
+		$uID = get_usermeta($wp_userID, 'phpbb_userid');
+	}
 	return $uID;
 }
 
@@ -677,7 +678,7 @@ function wpu_user_id($wp_userID = '') {
 	echo get_wpu_user_id($wp_userID);
 }
 
-//@since WP-United 0.6.5
+//@since WP-United 0.7.0
 // Function 'wpu_get_comment_author_link' returns the phpBB user profile link
 //
 function wpu_get_comment_author_link () {
@@ -703,7 +704,7 @@ global $comment;
 	}
 }
 
-//@since WP-United 0.6.5
+//@since WP-United 0.7.0
 function wpu_comment_author_link () {
 	// Modified this to echo rather that return, to be consistent with other WordPress functions.
 	echo  wpu_get_comment_author_link();

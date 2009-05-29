@@ -31,7 +31,7 @@ class acp_wp_united_info
 		return array(
 			'filename'	=> 'acp_wp_united',
 			'title'		=> 'ACP_WP_UNITED',
-			'version'	=> '0.6.5',
+			'version'	=> '0.7.0',
 			'modes'		=> array(
 				'index'		=> array('title' => 'ACP_WPU_MAINPAGE', 'auth' => 'acl_a_wpu_manage', 'cat' => array('ACP_WP_UNITED')),
 				'wizard'	=> array('title' => 'ACP_WPU_WIZARD', 'auth' => 'acl_a_wpu_manage', 'cat' => array('ACP_WP_UNITED')),

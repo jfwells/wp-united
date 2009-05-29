@@ -4,7 +4,7 @@
 * WP-United [Italiano]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.6.2 japgalaxy (japgalaxy.altervista.org) 04/2009
+* @version $Id: wp-united.php,v 0.7.0 japgalaxy (japgalaxy.altervista.org) 2009/05/18
 * @copyright (c) 2006, 2007 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
