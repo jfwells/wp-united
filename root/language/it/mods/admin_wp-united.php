@@ -475,10 +475,10 @@ $lang = array_merge($lang, array(
 	'WPWiz_phpBB_Smilies_Explain' => 'Attiva questa opzione se vuoi usare gli smilies di phpBB nei commenti e nei post di WordPress.',
 	'WP_Wizard_Connection_Fail' => 'Errore durante l\'installazione di WP-United Connection!',
 	'WPWizard_Connection_Fail_Explain1' => 'WP-United Connection non pu&ograve; essere installata. Ci&ograve; &egrave; probabilmente dovuto ad uno dei seguenti essere impostati in modo errato: (a) percorso di Wordpress non valido, (b)percorso dello script impostato per phpBB nelle configurazioni della board non valido. Si prega di correggere questi e riprovare.',
-	'WPWizard_Connection_Fail_Explain2' => 'Il file [phpbb]/wp-united/wpu-plugin.php non pu&ograve; essere copiato nella cartella dei plugins di WordPress. Per favore copiarPlease copy it there now, or make your WordPress plugins folder writeable. After copying, you should have a copy of wpu-plugin.php in [phpbb]/wp-united and in your WordPress plugins folder. When done, refresh this page or run the Wizard again.',
-	'WPU_Conn_InstallError' => 'ERROR: The WP-United Plugin was not found in your wordpress plugins folder. Please copy the file wp-united/wpu-plugin.php there now, and then try again!<br />',
-	'WPU_Cache_Unwritable' => 'WARNING: The folder [phpbb]/wp-united/cache is unwritable. For best performance, you should make this folder writable before proceeding',
-	'WPU_Install_Exists' => 'WARNING: The file wpu-install.php exists in your phpBB root folder. After running this file, you MUST delete it in order to continue.',
+	'WPWizard_Connection_Fail_Explain2' => 'Il file [phpbb]/wp-united/wpu-plugin.php non pu&ograve; essere copiato nella cartella dei plugins di WordPress. Per favore copialo manualmente, o rendi scrivibile la cartella dei plugins di WordPress. Dopo la copia, si dovrebbe avere una copia del file wpu-plugin.php in [phpbb]/wp-united e una copia nella tua cartella dei plugins di WordPress. Quando ci&ograve; &egrave;  stato fatto, aggiorni questa pagina per rieseguire la procedura guidata.',
+	'WPU_Conn_InstallError' => 'ERRORE: WP-United Plugin non &egrave; stato trovato nella cartella dei plugins di Wordpress. Per favore copia il file wp-united/wpu-plugin.php l&igrave; ora, e riprova!<br />',
+	'WPU_Cache_Unwritable' => 'ATTENZIONE: La cartella [phpbb]/wp-united/cache non &egrave; scrivibile. Per ottenere prestazioni migliori, dovresti rendere questa cartella scrivibile prima di procedere.',
+	'WPU_Install_Exists' => 'ATTENZIONE: Il file wpu-install.php si trova ancora nella root di phpBB. Dopo aver eseguito questo file, DEVI cancellarlo prima di continuare.',
 
 	
 ));

@@ -474,6 +474,12 @@ $lang = array_merge($lang, array(
 	'WPWiz_WPSimple_Explain3' => 'However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slow, and will require a few modifications to phpBB styles to work. It works best with full-page WordPress themes, such as the Classic theme.',	
 	'WPWiz_phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
 	'WPWiz_phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',
+	'WP_Wizard_Connection_Fail' => 'Error installing WP-United Connection!',
+	'WPWizard_Connection_Fail_Explain1' => 'The WP-United Connection could not be installed. This is probably due to one of the following being set incorrectly: (a) invalid path to WordPress, (b) invalid script path set for phpBB in board config. Please correct these and try again.',
+	'WPWizard_Connection_Fail_Explain2' => 'The file [phpbb]/wp-united/wpu-plugin.php could not be copied to your WordPress plugins folder. Please copy it there now, or make your WordPress plugins folder writeable. After copying, you should have a copy of wpu-plugin.php in [phpbb]/wp-united and in your WordPress plugins folder. When done, refresh this page or run the Wizard again.',
+	'WPU_Conn_InstallError' => 'ERROR: The WP-United Plugin was not found in your wordpress plugins folder. Please copy the file wp-united/wpu-plugin.php there now, and then try again!<br />',
+	'WPU_Cache_Unwritable' => 'WARNING: The folder [phpbb]/wp-united/cache is unwritable. For best performance, you should make this folder writable before proceeding',
+	'WPU_Install_Exists' => 'WARNING: The file wpu-install.php exists in your phpBB root folder. After running this file, you MUST delete it in order to continue.',
 
 ));
 
