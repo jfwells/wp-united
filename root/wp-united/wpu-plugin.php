@@ -13,12 +13,16 @@ NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow php
 	- different templating system
 	- WordPress hard-codes php extensions, so so do we
 
+DO NOT MODIFY THE BELOW LINE:
+||WPU-PLUGIN-VERSION=700||
 */ 
 
 // this file will also be called in wp admin panel, when phpBB is not loaded. ABSPATH should *always* be set though!
 if ( !defined('ABSPATH') ) {
 	die('Hacking attempt!');
 }
+
+
 
 //
 // 	WPU_CHECK_FOR_ACTION

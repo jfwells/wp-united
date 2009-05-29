@@ -2921,6 +2921,7 @@ class acp_wp_united {
 			ob_end_clean();
 			//Figure out the filepath  to phpBB
 			//$thisPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
+			
 			// Old (above) path did not work on symlinked WP-united installs. Below finds path instead to 
 			// adm
 			$thisPath = $this->add_trailing_slash($this->clean_path(realpath(getcwd())));
@@ -2965,9 +2966,34 @@ class acp_wp_united {
 			if (file_exists($wpPluginDir)) {
 				// we got the plugin directory correct, copy file over
 				if(!@copy($phpbb_root_path . "/wp-united/wpu-plugin.php", $wpPluginDir . "wpu-plugin.php")) {
-					// TODO: ASK USER TO DOWNLOAD AND MOVE FILE MANUALLY
+					// Copy failed
+				} 
+				
+				// Check to see that WPU-Plugin is the correct version
+				$copySuccess = false;
+				$correctVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.php");
+				$found = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $correctVerFile,  $correctVer);
+				unset($correctVerFile);
+				if ($found) {
+					$testVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.php");
+					$test = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $testVerFile,  $testVer);
+					unset($testVerFile);
+					if ($test) {
+						if ( ($testVer[0] == $correctVer[0]) && (!empty($testVer[0])) ) {
+							$copySuccess = true;
+						}
+					}
 				}
+		
+				
 			}
+			
+			if($copySuccess) {
+				// CORRECT WPU-PLUGIN IS NOT IN PLUGIN DIRECTORY -- FAIL
+				// TODO: NOTIFY USER
+				die('Plugin not copied'); // temp
+			}
+			
 			$pluginPath = "wpu-plugin." . $phpEx;
 			
 			
