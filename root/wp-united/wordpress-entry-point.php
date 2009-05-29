@@ -40,10 +40,9 @@ if ( !defined('WPU_BLOG_PAGE') ) {
 require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 
 
+
+global $wpSettings, $user, $userdata, $wpuNoHead, $retWpInc, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title;
 
-//if ( defined('WPU_REVERSE_INTEGRATION') && ( 'PHPBB3' == $wpuAbs->ver) ) { //whatever - we always need these in the global scope
-	global $wpSettings, $user, $userdata, $wpuNoHead, $retWpInc, $wpUtdInt, $scriptPath, $template, $latest;
-//}
 // integration class will test for this in the global scope.
 $amIGlobal = TRUE;
 
@@ -113,7 +112,7 @@ global $pfContent, $pfHead, $retWpInc; // for when not in global scope
 
 
 //If this is a reverse interation, prepare the phpBB page first
-$noIntLogin = FALSE;
+$noIntLogin = FALSE; 
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
 
 	$pfHead = process_head($pfContent);
@@ -141,8 +140,8 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	}
 	
 	
+	
 }
-
 
 if ( !defined('WPU_USE_CACHE') ) {
 	require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
@@ -188,8 +187,8 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	if ( 'PHPBB2' == $wpuAbs->ver ) {
 		include($phpbb_root_path . 'includes/page_header.'.$phpEx); 
 	} else {
-		global $page_title;
-		page_header($page_title);
+		global $wpu_page_title;
+		page_header($wpu_page_title);
 	}
 	//free memory
 	unset($wpHdrInfo);
@@ -219,11 +218,7 @@ if ($wpuAbs->ver == 'PHPBB2') {
 $retWpInc = str_replace(".$phpEx/?",  ".$phpEx?", $retWpInc);
 $retWpInc = str_replace(".$phpEx/\"",  ".$phpEx\"", $retWpInc);
 
-//Fix <title> on reverse-integrated page!
-if ( defined('WPU_REVERSE_INTEGRATION') ) {
-	$token = "/<title>(.*)[^<>]<\/title>/";
-	$retWpInc = preg_replace($token, "<title>{$GLOBALS['page_title']}</title>", $retWpInc);
-}
+
 
 	
 //optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
@@ -276,7 +271,7 @@ function process_head(&$retWpInc) {
 	$wpTitleStr = substr($wpHead, $begTitleLoc +7, $titleLen - 7);
 
 	// set page title 
-	$GLOBALS['page_title'] = trim($wpTitleStr); 
+	$GLOBALS['wpu_page_title'] = trim($wpTitleStr); 
 
 	//get anything inportant from the WP or phpBB <head> and integrate it into our phpBB page...
 	$header_info = '';

@@ -90,6 +90,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 				@fwrite($hTempFile, $hdrContent . '[--PHPBB*CONTENT--]');
 			}
 			
+			$hdrContent= preg_replace("/<title>(.*)[^<>]<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
 			echo str_replace('[--PHPBB*HEAD--]', $pfHead, $hdrContent);
 			unset ($hdrContent, $pfHead);
 			echo $pfContent; unset ($pfContent);
@@ -151,7 +152,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 				
 			}
 		}
-		
+		$wContent= preg_replace("/<title>(.*)[^<>]<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $wContent);
 		$wContent = str_replace('[--PHPBB*HEAD--]',$pfHead, $wContent);
 			
 		echo $wContent; unset($wContent, $pfContent);
