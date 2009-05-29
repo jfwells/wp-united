@@ -1,22 +1,4 @@
 This document shows the status of bringing WP-United up-to-date with WP & phpBB latest versions.
 
-Most tasks are now complete -- ready for release v0.6.5
+Ready for release v0.7.0
 
-1. Upgrade MODX template and packaging to phpBB latest -- DONE
-
-2. outstanding issues:
-	- wp-united/wp-functions.php. 
-		-- TODO 10: s/b unnecessary to handle blank usernames, this is taking place in integration class. DONE -- OK - Double-byte usernames after cleaning are blank
-	
-	-- TODO /20/30: password compatibility between wp/php DONE, TESTED
-
-	- acp/acp_wp_united.php. TODO 40: Line 2879 $pluginPath: WP is now preventing directory traversal for plugins.
-		However, this complicates installation for users. We already have too many users unable to read install instructions
-		TODO 40: We try to copy the file automatically. If it fails, we need to give a link to download the file, then tell them
-		to go to WP to upload it.
-		
-3. To remove phpBB2 compatibility as no longer supported (DEFERRED)
-
-4.  WP 2.8 compatibility DONE 
-
-5. Logout problems (FIXED)

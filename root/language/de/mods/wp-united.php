@@ -4,7 +4,7 @@
 * WP-United [German]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.6.5 2009/05/18 psm (psm) Exp $
+* @version $Id: wp-united.php,v 0.7.0 2009/05/18 psm (psm) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *

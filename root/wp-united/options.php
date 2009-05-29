@@ -4,7 +4,7 @@
 * WP-United Extra Options
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.6.5[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.0[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
