@@ -123,7 +123,9 @@ function wpu_put_powered_text() {
 // 
 function wpu_css() {
 	global $wp_version;
-	
+	$wpuConnSettings = get_settings('wputd_connection');
+	$top = ( $wpuConnSettings['blogs'] && $wpuConnSettings['styles'] ) ? "0.3" : "1";
+		
 	if ($wp_version >= 2.5) {
 		echo '
 			<style type="text/css">
@@ -145,8 +147,9 @@ function wpu_css() {
 				text-decoration: none;
 			}
 			#welcome1 {
+				position: relative; /* ie6 bug */
 				position: absolute;
-				top: 1.0em;
+				top: ' . $top . 'em;
 				margin: 4px 150px 0 0;
 				padding: 0;
 				right: 1em;
@@ -166,7 +169,7 @@ function wpu_css() {
 			}
 			#welcome1 {
 				position: absolute;
-				top: 1.0em;
+				top: ' . $top . 'em;
 				margin: 0;
 				padding: 0;
 				right: 1em;
