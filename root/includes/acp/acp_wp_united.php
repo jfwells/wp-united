@@ -163,6 +163,7 @@ class acp_wp_united {
 			case $wpuAbs->lang('L_MAP_BEGIN'):
 			case $wpuAbs->lang('L_MAP_NEXTPAGE'):      
 			case $wpuAbs->lang('L_MAP_SKIPNEXT'):
+			case $wpuAbs->lang('Map_Change_PerPage'):
 				$this->usermap_main();
 				break;
 			case $wpuAbs->lang('L_MAP_PROCESS'):
@@ -3197,7 +3198,8 @@ class acp_wp_united {
 	function usermap_main() {	
 		global $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
 		// NUMBER OF RESULTS PER PAGE -- COULD ADJUST THIS FOR LARGE USERBASES
-		define('RESULTS_PER_PAGE',30);
+		
+		$numPerPage = $numResults = (int)request_var('wpumapperpage', 50);
 		
 		//Get integration settings
 		$wpSettings = get_integration_settings();
@@ -3212,8 +3214,13 @@ class acp_wp_united {
 		$template->assign_block_vars('switch_usermap_main', array());        
 
 		// Eventually this will be in a dropdown.
-		$wpStart = (int)request_var('start', 0);
-		$numResults = ( defined('RESULTS_PER_PAGE') && (RESULTS_PER_PAGE > 0) ) ? RESULTS_PER_PAGE : 30;
+		$action = request_var('mapaction', '');
+		if($action == $wpuAbs->lang('Map_Change_PerPage')) {
+			$wpStart = (int)request_var('oldstart', 0);
+		} else {
+			$wpStart = (int)request_var('start', 0);
+		}
+		
 		$thisEnd = $nextStart = $wpStart + $numResults;
 		
 		// Enter WordPress and pull user data
@@ -3232,7 +3239,7 @@ class acp_wp_united {
 			$countEntries = $wpdb->get_results($sql);
 			$numWpResults = $countEntries[0]->total;
 			//$thisEnd = ($thisEnd > $numWpResults) ? $numWpResults : $thisEnd
-			$numPages = ceil($numWpResults / RESULTS_PER_PAGE);
+			$numPages = ceil($numWpResults / $numResults);
 			$curPage = ceil(($wpStart/$numResults) + 1);
 			$sql = "SELECT ID, user_login, user_nicename 
 				FROM {$wpdb->users}
@@ -3252,7 +3259,7 @@ class acp_wp_united {
 				foreach ((array) $results as $result) {
 					$optCre = '';
 					$posts = get_usernumposts($result->ID);
-					//TODO: comments!!!
+					//TODO: show number of comments
 					if ( empty($result->ID) ) {
 						$wpuAbs->err_msg(GENERAL_ERROR, 'No WordPress ID!', 'No ID error!', __LINE__, __FILE__, $sql);
 					}
@@ -3263,6 +3270,7 @@ class acp_wp_united {
 					$wpUtdInt->switch_db('TO_P');
 					$pUsername = '';
 					$pID = '';
+					$class = '';
 					$pStatus = $wpuAbs->lang('L_MAP_NOT_INTEGRATED');
 					$intText = $wpuAbs->lang('L_MAP_INTEGRATE');
 					$selInt = ''; $selBrk = ''; $selDel = '';
@@ -3288,13 +3296,15 @@ class acp_wp_united {
 								$breakOrLeave = $wpuAbs->lang('L_MAP_BRK_MULTI');
 								$selBrk = 'selected="selected"';
 								$mustBrk = 'TRUE';
+								$class = "mustbrk";
 							} else {
 								$pStatus = $wpuAbs->lang('L_MAP_ALREADYINT'); 
 								$breakOrLeave = $wpuAbs->lang('L_MAP_BRK');
 								$selInt = 'selected="selected"';
 								$intText = $wpuAbs->lang('L_MAP_LEAVE_INT');
 								$alreadyID = $pRes['user_id'];
-								$alreadyUN = $pRes['username'];							
+								$alreadyUN = $pRes['username'];
+								$class = "alreadyint";			
 							}
 						} else {
 							//No Integration ID... so let's search for a match
@@ -3318,11 +3328,13 @@ class acp_wp_united {
 											$breakOrLeave = $wpuAbs->lang('L_MAP_LEAVE_UNINT');
 											$pStatus = $wpuAbs->lang('L_MAP_UNINT_FOUND');
 											$selInt = 'selected="selected"';
+											$class = 'unintfound';
 										}
 									} else {
 										$breakOrLeave = $wpuAbs->lang('L_MAP_LEAVE_UNINT');
 										$selBrk = 'selected="selected"';
 										$pStatus = sprintf($wpuAbs->lang('L_MAP_UNINT_FOUNDBUT'), $pResults['username'], $pResults['username'], $pResults['user_wpuint_id']);
+										$class = 'unintfoundbut';
 									}	
 								} else {
 									// Offer to create the user
@@ -3330,6 +3342,7 @@ class acp_wp_united {
 									$pStatus = $wpuAbs->lang('L_MAP_UNINT_NOTFOUND'); 										
 									$pUsername = $phpBBMappedName;
 									$breakOrLeave = $wpuAbs->lang('L_MAP_LEAVE_UNINT');
+									$class = 'unintnotfound';
 									/*
 									$breakOrLeave = $wpuAbs->lang('L_MAP_LEAVE_UNINT');
 									$selBrk = 'selected="selected"';
@@ -3344,12 +3357,14 @@ class acp_wp_united {
 						$breakOrLeave = $wpuAbs->lang('L_MAP_LEAVE_UNINT');
 						$selDel = 'selected="selected"';
 						$pStatus = $wpuAbs->lang('L_MAP_ERROR_BLANK');
+						$class = "maperror";
 					}
 					$wpUtdInt->switch_db('TO_W');
 					$bg = ($mustBrk == 'FALSE' ) ? 'none' : 'red';		
 					$x = ( $x == 1 ) ? 2 : 1;
 
 					$template->assign_block_vars('switch_usermap_main.maplist_row', array(
+						'CLASS' => $class,
 						'EVERY_OTHER' => $x,				
 						'BGCOLOUR' => $bg,
 						'ROW_NUM' => $itn,
@@ -3383,18 +3398,18 @@ class acp_wp_united {
 
 			} else {
 				$template->assign_block_vars('switch_usermap_main.switch_no_results', array(
-					'L_MAP_NOUSERS' => 'L_MAP_NOUSERS',
+					'L_MAP_NOUSERS' => $wpuAbs('L_MAP_NOUSERS'),
 				));
 			}
 		} else {
 			die($wpuAbs->lang('L_MAP_CANT_CONNECT'));
 		}
 		
-
 		$passVars = array(	
 			'L_MAP_TITLE'  =>	$wpuAbs->lang('L_MAP_TITLE'),
 			'S_WPMAP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'S_NEXTSTART' => $nextStart,
+			'S_OLDSTART' => $wpStart,
 			'S_TOTAL_ITN' => $itn - 1,
 			'L_MAP_PROCESS' => $wpuAbs->lang('L_MAP_PROCESS'),
 			'L_MAPMAIN_1' => $wpuAbs->lang('L_MAPMAIN_1'),
@@ -3410,8 +3425,21 @@ class acp_wp_united {
 			'L_MAP_STATUS' => $wpuAbs->lang('L_MAP_STATUS'),
 			'L_MAP_ACTION' => $wpuAbs->lang('L_MAP_ACTION'),
 			'L_MAPMAIN_MULTI' => $wpuAbs->lang('L_MAPMAIN_MULTI'),
+			
+			'L_MAP_ITEMS_PERPAGE' => $wpuAbs->lang('Map_Items_PerPage'),
+			'L_MAP_CHANGE_PERPAGE' => $wpuAbs->lang('Map_Change_PerPage'),
+			'L_MAP_QUICK_ACTIONS' => $wpuAbs->lang('Map_Quick_Actions'),
+			'L_MAP_DELETE_ALL_UNINTEGRATED' => $wpuAbs->lang('Map_Delete_All_Unintegrated'),
+			'L_MAP_BREAK_ALL' => $wpuAbs->lang('Map_Break_All'),
+			'L_MAP_RESET_DEFAULT' => $wpuAbs->lang('Map_Reset_Default'),
+			
 
 		);
+		
+		for($i=50;$i<=500;$i=$i+50) {
+			$passVars['S_NUMPERPAGE_' . $i] = ($i == $numPerPage) ? 'selected = "selected"' : '';
+		}
+		
 		$this->showPage($passVars, 0);
 		
 	}
@@ -3433,6 +3461,7 @@ class acp_wp_united {
 
 		$lastRow =  (int) request_var('numrows', 0);
 		$nextStart = (int) request_var('start', 0);
+		$numPerPage = (int)request_var('wpumapperpage', 50);
 		$paged = (int) request_var('paged', 0);
 		
 		for ( $procRow = 0; $procRow <= $lastRow; $procRow++ ) { 
@@ -3615,6 +3644,7 @@ class acp_wp_united {
 			'L_MAP_ACTINTRO' => $intro_para,
 			'L_MAP_ACT_CLOSEPARA' => $close_para,
 			'S_NEXTSTART' => $nextStart,
+			'S_NUMPERPAGE' => $numPerPage,
 		);
 		$this->showPage($passVars,0);	
 	}
@@ -3641,6 +3671,7 @@ class acp_wp_united {
 		
 		$lastAction= (int) request_var('numrows', 0);
 		$nextStart = (int) request_var('start', 0);
+		$numPerPage = (int)request_var('wpumapperpage', 50);
 		$paged = (int) request_var('paged', 0);
 
 		// Enter WordPress and pull user data
@@ -3779,6 +3810,7 @@ class acp_wp_united {
 			'S_WPMAP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'L_MAP_PERFORM_INTRO' => $wpuAbs->lang('L_MAP_PERFORM_INTRO'),
 			'S_NEXTSTART' => $nextStart,
+			'S_NUMPERPAGE' => $numPerPage,
 		);		
 		$this->showPage($passVars, 0);			
 	}

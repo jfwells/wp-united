@@ -22,7 +22,8 @@
 /*	WP-UNITED -- LATEST WORDPRESS POSTS ON PORTAL PAGE
 *
 *	Just include this file to generate the page content for the previous x posts
-*	lib_curl is required. It is enabled by default on most shared hosts. If you're on Windows, you'll proabaly have to enable the specified module in apache or php.ini
+*	lib_curl is required. It is enabled by default on most shared hosts. 
+* 	If you're unfortunate enough to be on Windows, you'll proabaly have to enable the specified module in apache or php.ini
 *
 *
 *

@@ -198,7 +198,10 @@ Class WPU_Integration {
 		if ( $this->cacheReady && !empty($this->cacheLoc) ) {
 			return TRUE;
 		}
-		global $wpuAbs;
+		global $wpuAbs, $latest;
+		if($latest) {
+			return FALSE;
+		}
 		if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) ) {
 			$cacheLocation = $this->phpbb_root .  'wp-united/cache/';
 			@$dir = opendir($cacheLocation);

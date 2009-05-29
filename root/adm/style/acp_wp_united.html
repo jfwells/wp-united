@@ -1397,6 +1397,64 @@
 <!-- --------------------------------------------- 	-->
 <!-- 		USER MAPPING TOOL MAIN PAGE		-->
 <!-- --------------------------------------------- 	-->
+	<script type="text/javascript">
+	// <[CDATA[
+		document.getElementsByClassName = function(clsName){
+			var retVal = new Array();
+			var elements = document.getElementsByTagName("*");
+			for(var i = 0;i < elements.length;i++){
+				if(elements[i].className.indexOf(" ") >= 0){
+					var classes = elements[i].className.split(" ");
+					for(var j = 0;j < classes.length;j++){
+						if(classes[j] == clsName) retVal.push(elements[i]);
+					}
+				}
+			else if(elements[i].className == clsName)
+			    retVal.push(elements[i]);
+			}
+			return retVal;
+		}
+	
+	
+	
+		function delAll() {
+			var selTypes = Array('unintfound', 'unintfoundbut', 'unintnotfound');
+			for(var i=0; i<selTypes.length; i++) {
+				var sels = document.getElementsByClassName(selTypes[i]);
+				for(var j=0; j<sels.length;j++) {
+					sels[j].value='Del';
+				}				
+			}
+			return false;
+		}
+		
+		function breakAll() {
+			var selTypes = Array('alreadyint', 'mustbrk', 'maperror');
+			for(var i=0; i<=selTypes.length; i++) {
+				var sels = document.getElementsByClassName(selTypes[i]);
+				for(var j=0; j<sels.length;j++) {
+					sels[j].value='Brk';
+				}
+			}
+			return false;	
+		}
+		
+		function resetAll() {
+			var selTypes = Array('mustbrk', 'unintfoundbut', 'alreadyint', 'unintfound', 'unintnotfound', 'maperror');
+			var actions = Array('Brk', 'Brk', 'Int', 'Int', 'Cre', 'Del');
+			for(var i=0; i<=selTypes.length; i++) {
+				var sels = document.getElementsByClassName(selTypes[i]);
+				for(var j=0; j<sels.length;j++) {
+					sels[j].value=actions[i];
+				}
+			}		
+			return false;
+		}
+	// ]]>
+	</script>
+
+
+
 	<img src="../wp-united/images/wp-united-logo.gif" alt="wp-united" style="float: right;"/>
 	<h1>{L_MAP_TITLE}</h1><br /><br />
 	
@@ -1407,6 +1465,24 @@
 	<!-- END switch_multipage -->
 		<br /><br />
 	<form method="post" action="{S_WPMAP_ACTION}">
+		<div style="float: right;">
+			<label for="perpage">{L_MAP_ITEMS_PERPAGE}:</label>
+			<select name="wpumapperpage" id="perpage">
+				<option value="50" {S_NUMPERPAGE_50}>50</option>
+				<option value="100" {S_NUMPERPAGE_100}>100</option>
+				<option value="150" {S_NUMPERPAGE_150}>150</option>
+				<option value="200" {S_NUMPERPAGE_200}>200</option>			
+				<option value="250" {S_NUMPERPAGE_250}>250</option>
+				<option value="300" {S_NUMPERPAGE_300}>300</option>									
+				<option value="350" {S_NUMPERPAGE_350}>350</option>									
+				<option value="400" {S_NUMPERPAGE_400}>400</option>									
+				<option value="450" {S_NUMPERPAGE_450}>450</option>									
+				<option value="500" {S_NUMPERPAGE_500}>500</option>																																	
+			</select>
+			<input type="submit" name="mapaction" value="{L_MAP_CHANGE_PERPAGE}" class="button2" />
+		</div><br /><br />
+	
+		<input type="hidden" name="start" value="{S_OLDSTART}" />
 		<input type="hidden" name="start" value="{S_NEXTSTART}" />	
 		
 		
@@ -1443,7 +1519,7 @@
 				<td class="row{switch_usermap_main.maplist_row.EVERY_OTHER}" style="text-align: center; background-color: {switch_usermap_main.maplist_row.BGCOLOUR};"><input type="hidden" name="alreadyID{switch_usermap_main.maplist_row.ROW_NUM}" value="{switch_usermap_main.maplist_row.ALREADY_ID}" />{switch_usermap_main.maplist_row.P_ID}</td>
 				<td class="row{switch_usermap_main.maplist_row.EVERY_OTHER}" style="text-align: center; border-left: 2px solid #000000; background-color: {switch_usermap_main.maplist_row.BGCOLOUR};">{switch_usermap_main.maplist_row.P_STATUS}</td>
 				<td class="row{switch_usermap_main.maplist_row.EVERY_OTHER}" style="text-align: center; background-color: {switch_usermap_main.maplist_row.BGCOLOUR};">
-					<select name="selAction{switch_usermap_main.maplist_row.ROW_NUM}" style="width: 130px;">
+					<select class="{switch_usermap_main.maplist_row.CLASS}" name="selAction{switch_usermap_main.maplist_row.ROW_NUM}" style="width: 130px;">
 						<option value="Int" {switch_usermap_main.maplist_row.S_INTEGRATED_SELECTED}>{switch_usermap_main.maplist_row.L_SEL_INTEGRATE}</option>
 						<option value="Brk" {switch_usermap_main.maplist_row.S_BREAK_SELECTED}>{switch_usermap_main.maplist_row.L_SEL_BREAK_OR_LEAVE}</option>{switch_usermap_main.maplist_row.S_OPT_CREATE}
 						<option value="Del" {switch_usermap_main.maplist_row.S_DEL_SELECTED}>{switch_usermap_main.maplist_row.L_MAP_DEL_FROM_WP}</option>
@@ -1453,7 +1529,11 @@
 			</tr>
 			<!-- END maplist_row -->			
 			</tbody>
-		</table>
+		</table><br />
+		
+		<div style="float: right;">
+		<p class="small"><strong>{L_MAP_QUICK_ACTIONS}:</strong> <a href="#" onclick="return delAll();">{L_MAP_DELETE_ALL_UNINTEGRATED}</a> &bull; <a href="#" onclick="return breakAll();">{L_MAP_BREAK_ALL}</a> &bull; <a href="#" onclick="return resetAll();">{L_MAP_RESET_DEFAULT}</a></p>
+		</div><br /><br />
 		
 		<input type="hidden" name="numrows" value="{S_TOTAL_ITN}" />
 		<input style="float: right;" type="submit" name="mapaction" value="{L_MAP_PROCESS}" class="button1" />		
@@ -1477,6 +1557,7 @@
 	<p>{L_MAP_ACTINTRO}</p><br />
 	<form method="post" action="{S_WPMAP_ACTION}">
 		<input type="hidden" name="start" value="{S_NEXTSTART}" />
+		<input type="hidden" name="wpumapperpage" value="{S_NUMPERPAGE}" />
 		<ul>
 			<!-- BEGIN actionlist_row -->
 				<li style="color: {switch_usermap_process.actionlist_row.S_ACTION_COLOUR}">WordPress user: <strong>{switch_usermap_process.actionlist_row.ACTION_USERNAME}: </strong> {switch_usermap_process.actionlist_row.ACTION_DESC}<strong>{switch_usermap_process.actionlist_row.ERROR_TEXT}</strong></li>
@@ -1514,6 +1595,7 @@
 	<form method="post" action="{S_WPMAP_ACTION}">
 		<!-- BEGIN switch_paged -->
 			<input type="hidden" name="start" value="{S_NEXTSTART}" />
+			<input type="hidden" name="wpumapperpage" value="{S_NUMPERPAGE}" />
 			<input style="float: right;"  type="submit" name="mapaction" value="{switch_usermap_perform.switch_paged.L_MAP_NEXTPAGE}" class="button1" />
 		<!-- END switch_paged -->
 		<!-- BEGIN switch_unpaged -->
