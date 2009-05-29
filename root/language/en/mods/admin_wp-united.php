@@ -76,7 +76,7 @@ $lang = array_merge($lang, array(
 	'WPU_Path_Autodet' => 'Trying to automatically detect the file path... ',
 	'WPU_Autodet_Error' => 'ERROR: The path to your WordPress install could not be auto-detected. Please type it manually.<br />',
 	'WPU_Pathfind_Warning' => 'WARNING: A working WordPress install could not be found (Searching for: %s). Either the path has been typed or auto-detected incorrectly, or WordPress has not been installed. Please check the provided file path and try again.',
-	'WPU_Conn_InstallError' => 'ERROR: The WP-United Plugin was not found in your wordpress plugins folder. Please copy the file wp-united/wpu-plugin.php there now, and then try again!<br />',
+	
 	'WPU_PathIs' => "File path => ",
 	'WPU_Checking_URL' => 'Checking WordPress URL: ',
 	'WPU_Process_Settings' => 'Processing settings...',
@@ -275,7 +275,7 @@ $lang = array_merge($lang, array(
 	'WP_Wizard_Connection_Explain1' => 'The WP-United Connection is the bridge between WordPress and phpBB. It controls how WordPress behaves when it is integrated.',
 	'WP_Wizard_Connection_Explain2' => 'The Setup Wizard will now try to install the WP-United connection...',
 	'WP_Wizard_Connection_Success' => 'Success! The WP-United Connection has been installed.',
-	'WP_Wizard_Connection_Fail' => 'Error! The WP-United Connection could not be installed. This is probably due to one of the following being set incorrectly: (a) invalid path to WordPress, (b) invalid script path set for phpBB in board config. Please correct these and try again.',
+
 
 
 
@@ -463,7 +463,7 @@ $lang = array_merge($lang, array(
 	'WP_XPost_Explain' => 'If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the cross-posting permission for the users/groups you wish.',
 	'WP_XPost_OptTitle' => 'You can set the following option if you integrate logins',
 	
-	//New in v0.7.0 (put here to make it easier for translators) -- please use the WPWiz prefix, phpbb_smilies is too common and will collide with other mods
+	//New in v0.7.0 
 	'WPWiz_Fix_Header_Title' => 'Remove phpBB header?',
 	'WPWiz_Fix_Header_Explain1' => 'If you turn this option on, the phpBB header will be removed from the integrated page. It will work with the Prosilver & subSilver2 themes and most derivatives. If you use a very customised template, or want to edit the templates yourself, you can leave this option off. Otherwise, leave it on for a quick-and-easy no-hassle integration of phpBB into WordPress.',
 	'WPWiz_Fix_Header_Explain2' => 'WP-United will try to automatically position the phpBB Quick Search box in the WordPress header. If it does not appear, or you want to put it somewhere else, add the tag &lt;!--PHPBB_SEARCH--&gt; to your WordPress template, and it will automatically appear there.',
@@ -475,8 +475,10 @@ $lang = array_merge($lang, array(
 	'WPWiz_phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',	
 	'WPWiz_phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
 	'WPWiz_phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',
-	
-	
+	'WP_Wizard_Connection_Fail' => 'Error installing WP-United Connection!',
+	'WPWizard_Connection_Fail_Explain1' => 'The WP-United Connection could not be installed. This is probably due to one of the following being set incorrectly: (a) invalid path to WordPress, (b) invalid script path set for phpBB in board config. Please correct these and try again.',
+	'WPWizard_Connection_Fail_Explain2' => 'The file [phpbb]/wp-united/wpu-plugin.php could not be copied to your WordPress plugins folder. Please copy it there now, or make your WordPress plugins folder writeable. After copying, you should have a copy of wpu-plugin.php in [phpbb]/wp-united and in your WordPress plugins folder. When done, refresh this page or run the Wizard again.',
+	'WPU_Conn_InstallError' => 'ERROR: The WP-United Plugin was not found in your wordpress plugins folder. Please copy the file wp-united/wpu-plugin.php there now, and then try again!<br />',
 ));
 
 ?>

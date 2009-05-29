@@ -1934,7 +1934,7 @@ class acp_wp_united {
 
 	function settings_process() {
 		
-		global $wpuAbs, $phpEx;
+		global $wpuAbs, $phpEx, $wpu_debug;
 		$this->page_title = 'ACP_WPU_INDEX_TITLE';
 		$this->tpl_name = 'acp_wp_united';
 		
@@ -2196,7 +2196,8 @@ class acp_wp_united {
 				$connError = $this->install_wpuConnection();
 				if ( $connError ) {
 					$procError = TRUE;
-					$msgError .= $wpuAbs->lang('WPU_Conn_InstallError');
+					$msgError .= $wpuAbs->lang('WP_Wizard_Connection_Fail');
+					$msgError .= $wpu_debug;
 				} else {
 					$allOK = TRUE;
 					$wpConnColour = "green";
@@ -2965,22 +2966,24 @@ class acp_wp_united {
 			$wpPluginDir = $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))) . "wp-content/plugins/";
 			if (file_exists($wpPluginDir)) {
 				// we got the plugin directory correct, copy file over
+				$copySuccess = false;
 				if(!@copy($phpbb_root_path . "/wp-united/wpu-plugin.php", $wpPluginDir . "wpu-plugin.php")) {
 					// Copy failed
 				} 
-				
-				// Check to see that WPU-Plugin is the correct version
-				$copySuccess = false;
-				$correctVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.php");
-				$found = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $correctVerFile,  $correctVer);
-				unset($correctVerFile);
-				if ($found) {
-					$testVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.php");
-					$test = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $testVerFile,  $testVer);
-					unset($testVerFile);
-					if ($test) {
-						if ( ($testVer[0] == $correctVer[0]) && (!empty($testVer[0])) ) {
-							$copySuccess = true;
+				if (file_exists($wpPluginDir . "wpu-plugin.php")) {
+					// Check to see that WPU-Plugin is the correct version
+					
+					$correctVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.php");
+					$found = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $correctVerFile,  $correctVer);
+					unset($correctVerFile);
+					if ($found) {
+						$testVerFile = file_get_contents($wpPluginDir . "wpu-plugin.php");
+						$test = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $testVerFile,  $testVer);
+						unset($testVerFile);
+						if ($test) {
+							if ( ($testVer[0] == $correctVer[0]) && (!empty($testVer[0])) ) {
+								$copySuccess = true;
+							}
 						}
 					}
 				}
@@ -2988,143 +2991,146 @@ class acp_wp_united {
 				
 			}
 			
-			if($copySuccess) {
+			if(!$copySuccess) { 
 				// CORRECT WPU-PLUGIN IS NOT IN PLUGIN DIRECTORY -- FAIL
-				// TODO: NOTIFY USER
-				die('Plugin not copied'); // temp
-			}
-			
-			$pluginPath = "wpu-plugin." . $phpEx;
-			
-			
-			//$pluginPath = $fromW.$toPlugin. "wpu-plugin." . $phpEx;
-			
-			$wpu_debug .= 'Final Calculated Path: ' . $pluginPath . '<br />'; 
-			
-			$WPU_Connection['full_path_to_plugin'] = $pluginPath;
-			//And the path we'll use to access the phpBB root from the WordPress admin dir is:
-			$WPU_Connection['path_to_phpbb'] = $adminFromW . $toP;
-			$wpu_debug .= 'Path back to phpBB: ' . $WPU_Connection['path_to_phpbb'] . '<br />';
-			// We will also want to access our WP-United Connection as a relative URL
-			$WPU_Connection['path_to_plugin'] = $this->add_trailing_slash($board_config['script_path']) . "wp-united/wpu-plugin." . $phpEx;
-			//and...
-			$WPU_Connection['path_to_wp'] = $wpSettings['wpPath'];
-			$WPU_Connection['logins_integrated'] = $wpSettings['integrateLogin'];
-			$WPU_Connection['styles'] = $wpSettings['allowStyleSwitch'];
-			$WPU_Connection['blogs'] = $wpSettings['usersOwnBlogs'];
-			$WPU_Connection['wpu_enable_xpost'] = $wpSettings['xposting'];
-			
-			//Set Connection settings
-			update_option('wputd_connection', $WPU_Connection);
-			$server = $this->add_http($this->add_trailing_slash($wpuAbs->config('server_name')));
-			$scriptPath = $this->add_trailing_slash($wpuAbs->config('script_path'));
-			$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
-			$blogUri = $wpSettings['blogsUri']; 
-			
-			//Set up WordPress the way we want
-			update_option('home', $blogUri);
-			global $wpdb;
-			//Set up the blog front page
-			$post_ID = get_option('wpu_set_frontpage');
-			if ( $wpSettings['useBlogHome'] ) {
-				if ( !empty($post_ID) ) {
-					$wpdb->query(
-					"UPDATE IGNORE $wpdb->posts SET
-						post_author = '0',
-						post_date = '".current_time('mysql')."',
-						post_date_gmt = '".current_time('mysql',1)."',
-						post_content = '<!--wp-united-home-->',
-						post_content_filtered = '',
-						post_title = '{$wpSettings['blogListHead']}',
-						post_excerpt = '',
-						post_status = 'publish',
-						post_type = 'page',
-						comment_status = 'closed',
-						ping_status = 'closed',
-						post_password = '',
-						post_name = 'blogs-home',
-						to_ping = '',
-						pinged = '',
-						post_modified = '".current_time('mysql')."',
-						post_modified_gmt = '".current_time('mysql',1)."',
-						post_parent = '0',
-						menu_order = '0'
-						WHERE ID = $post_ID"
-					);
-				} else {
-					$wpdb->query(
-					"INSERT IGNORE INTO $wpdb->posts
-							(post_author, post_date, post_date_gmt, post_content, post_content_filtered, post_title, post_excerpt,  post_status, post_type, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_parent, menu_order, post_mime_type)
-						VALUES
-							('0', '".current_time('mysql')."', '".current_time('mysql',1)."', '<!--wp-united-home-->', '', '{$wpSettings['blogListHead']}', '', 'publish', 'page', 'closed', 'closed', '', 'blogs-home', '', '', '".current_time('mysql')."', '".current_time('mysql',1)."', '0', '0', '')"
-					);
-					$post_ID = $wpdb->insert_id;		
-				}
 				
-				update_option('wpu_set_frontpage', $post_ID);
-				update_option('page_on_front', $post_ID);
-				update_option('posts_on_front', ''); 
-				update_option('show_on_front', 'page');
+				$connError = TRUE;
+				$wpu_debug = "<br />" . $wpuAbs->lang('WPWizard_Connection_Fail_Explain2');
+				
 			} else {
-				if ( !empty($post_ID) ) {
-					update_option('wpu_set_frontpage', '');
-					update_option('page_on_front', '');
-					update_option('posts_on_front', ''); 
-					update_option('show_on_front', 'posts');
-					wp_delete_post($post_ID);
-				}
-			}	
-			if ($wpuAbs->ver == 'PHPBB2') {
-				//Set up character encoding
-				//If we change WP encoding, back it up so it can be restored later.
-				$backup = get_option('wpu_blog_charset_backup');
-				if ( $wpSettings['charEncoding'] == 'MATCH_PHPBB' ) {
-					if ( empty($backup) ) {
-						update_option('wpu_blog_charset_backup', get_option('blog_charset'));
-					}
-					update_option('blog_charset', $wpuAbs->lang('ENCODING'));
-				} else {
-					if ( !empty($backup) ) {
-						update_option('blog_charset', $backup);
-						update_option('wpu_blog_charset_backup', '');
-					}
-				}
-			}
 			
-			//Activate the Connection
-			if ( file_exists(ABSPATH . 'wp-content/plugins/' . $pluginPath) ) {
-				$current = get_settings('active_plugins'); 
-				//remove any existing entries to prevent duplicates
-				$arrPlugins = array();
-				if ( is_array($current) ) {
-					foreach ($current as $wpPlugin) {
-						$isWPUConn = strpos($wpPlugin, 'wpu-plugin');
-						if ( $isWPUConn === FALSE ) {
-							$arrPlugins[] = $wpPlugin;
+				$pluginPath = "wpu-plugin." . $phpEx;
+			
+			
+				//$pluginPath = $fromW.$toPlugin. "wpu-plugin." . $phpEx;
+			
+				$wpu_debug .= 'Final Calculated Path: ' . $pluginPath . '<br />'; 
+			
+				$WPU_Connection['full_path_to_plugin'] = $pluginPath;
+				//And the path we'll use to access the phpBB root from the WordPress admin dir is:
+				$WPU_Connection['path_to_phpbb'] = $adminFromW . $toP;
+				$wpu_debug .= 'Path back to phpBB: ' . $WPU_Connection['path_to_phpbb'] . '<br />';
+				// We will also want to access our WP-United Connection as a relative URL
+				$WPU_Connection['path_to_plugin'] = $this->add_trailing_slash($board_config['script_path']) . "wp-united/wpu-plugin." . $phpEx;
+				//and...
+				$WPU_Connection['path_to_wp'] = $wpSettings['wpPath'];
+				$WPU_Connection['logins_integrated'] = $wpSettings['integrateLogin'];
+				$WPU_Connection['styles'] = $wpSettings['allowStyleSwitch'];
+				$WPU_Connection['blogs'] = $wpSettings['usersOwnBlogs'];
+				$WPU_Connection['wpu_enable_xpost'] = $wpSettings['xposting'];
+			
+				//Set Connection settings
+				update_option('wputd_connection', $WPU_Connection);
+				$server = $this->add_http($this->add_trailing_slash($wpuAbs->config('server_name')));
+				$scriptPath = $this->add_trailing_slash($wpuAbs->config('script_path'));
+				$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
+				$blogUri = $wpSettings['blogsUri']; 
+			
+				//Set up WordPress the way we want
+				update_option('home', $blogUri);
+				global $wpdb;
+				//Set up the blog front page
+				$post_ID = get_option('wpu_set_frontpage');
+				if ( $wpSettings['useBlogHome'] ) {
+					if ( !empty($post_ID) ) {
+						$wpdb->query(
+						"UPDATE IGNORE $wpdb->posts SET
+							post_author = '0',
+							post_date = '".current_time('mysql')."',
+							post_date_gmt = '".current_time('mysql',1)."',
+							post_content = '<!--wp-united-home-->',
+							post_content_filtered = '',
+							post_title = '{$wpSettings['blogListHead']}',
+							post_excerpt = '',
+							post_status = 'publish',
+							post_type = 'page',
+							comment_status = 'closed',
+							ping_status = 'closed',
+							post_password = '',
+							post_name = 'blogs-home',
+							to_ping = '',
+							pinged = '',
+							post_modified = '".current_time('mysql')."',
+							post_modified_gmt = '".current_time('mysql',1)."',
+							post_parent = '0',
+							menu_order = '0'
+							WHERE ID = $post_ID"
+						);
+					} else {
+						$wpdb->query(
+						"INSERT IGNORE INTO $wpdb->posts
+								(post_author, post_date, post_date_gmt, post_content, post_content_filtered, post_title, post_excerpt,  post_status, post_type, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_parent, menu_order, post_mime_type)
+							VALUES
+								('0', '".current_time('mysql')."', '".current_time('mysql',1)."', '<!--wp-united-home-->', '', '{$wpSettings['blogListHead']}', '', 'publish', 'page', 'closed', 'closed', '', 'blogs-home', '', '', '".current_time('mysql')."', '".current_time('mysql',1)."', '0', '0', '')"
+						);
+						$post_ID = $wpdb->insert_id;		
+					}
+				
+					update_option('wpu_set_frontpage', $post_ID);
+					update_option('page_on_front', $post_ID);
+					update_option('posts_on_front', ''); 
+					update_option('show_on_front', 'page');
+				} else {
+					if ( !empty($post_ID) ) {
+						update_option('wpu_set_frontpage', '');
+						update_option('page_on_front', '');
+						update_option('posts_on_front', ''); 
+						update_option('show_on_front', 'posts');
+						wp_delete_post($post_ID);
+					}
+				}	
+				if ($wpuAbs->ver == 'PHPBB2') {
+					//Set up character encoding
+					//If we change WP encoding, back it up so it can be restored later.
+					$backup = get_option('wpu_blog_charset_backup');
+					if ( $wpSettings['charEncoding'] == 'MATCH_PHPBB' ) {
+						if ( empty($backup) ) {
+							update_option('wpu_blog_charset_backup', get_option('blog_charset'));
+						}
+						update_option('blog_charset', $wpuAbs->lang('ENCODING'));
+					} else {
+						if ( !empty($backup) ) {
+							update_option('blog_charset', $backup);
+							update_option('wpu_blog_charset_backup', '');
 						}
 					}
-				} elseif ( !empty($current) ) {
-					$arrPlugins[] = $current;
 				}
-				$arrPlugins[] = $pluginPath;
-				sort($arrPlugins);
-				update_option('active_plugins', $arrPlugins);
-			} else {
-				$connError = TRUE; 
-			}
-			// TODO: Test if Connection installed successfully
-			//$current = get_settings('active_plugins');
 			
-		} else {
+				//Activate the Connection
+				if ( file_exists(ABSPATH . 'wp-content/plugins/' . $pluginPath) ) {
+					$current = get_settings('active_plugins'); 
+					//remove any existing entries to prevent duplicates
+					$arrPlugins = array();
+					if ( is_array($current) ) {
+						foreach ($current as $wpPlugin) {
+							$isWPUConn = strpos($wpPlugin, 'wpu-plugin');
+							if ( $isWPUConn === FALSE ) {
+								$arrPlugins[] = $wpPlugin;
+							}
+						}
+					} elseif ( !empty($current) ) {
+						$arrPlugins[] = $current;
+					}
+					$arrPlugins[] = $pluginPath;
+					sort($arrPlugins);
+					update_option('active_plugins', $arrPlugins);
+				} else {
+					$connError = TRUE; 
+					$wpu_debug = "<br />" . $wpuAbs->lang('WPWizard_Connection_Fail_Explain2');
+				}
+			} // end if copy success
+			
+		} else { // can't connect to WP
 			$connError = TRUE;
 			$debugPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
+			$wpu_debug .= "<br />Can't connect to WordPress<br />";
+			$wpu_debug .= $wpuAbs->lang('WPWizard_Connection_Fail_Explain1');
 			$wpu_debug .=  'DEBUG (to post if you need help):<br />Current Path: ' . $debugPath . ' <br />';
 			$wpu_debug .= 'Path To WP: ' . $wpSettings['wpPath'] . '<br />';
 			
 		}
 		$wpUtdInt->exit_wp_integration();
 		$wpUtdInt = null; unset ($wpUtdInt);
-		//echo $wpu_debug; die();
 		return $connError;
 	}
 
