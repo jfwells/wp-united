@@ -1,6 +1,6 @@
 ﻿WP-UNITED WordPress Integration Mod v0.9.5 RC1 for phpBB3
 -----------------------------------------------
-Last updated: 01 Deceber 2007, by John Wells
+Last updated: 30 May 2009, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -12,7 +12,7 @@ BEFORE YOU BEGIN
 
 Make sure you have already installed phpBB and WordPress, and have verified that they are working OK. I recommend the latest versions - at this time of writing, that means phpBB3 1.0.3 & WordPress 2.7.
 
-If these are not new installations, back up your phpBB & WordPress files and databases! WP-United is still in Beta - it could have bugs!
+If these are not new installations, back up your phpBB & WordPress files and databases!
 
 You have two options to install this mod. -- manually, by altering code in your phpBB files, or automatically, using AutoMod.
 
@@ -25,20 +25,25 @@ An install.xml file has been included. To read this properly, unpack the archive
 
 The  file will tell you which files to upload to your forum and where they should go, and will give instructions on which files to modify and how. 
 
-Once you have completed those edite, look in the /templates folder, and apply the changes necessary for your installed themes. Some additional translations of user-facing strings have been provided in the /languages folder -- open up the .xml file for your language to install them.
+install.xml includes instructions for the prosilver template. If you are using the subSilver2 template, or other templates, you must also apply the mod to those. Instructions for subSilver2 are included in the contrib folder. For other templates, use the prosilver or subSilver2 directions as necessary.
+
+Some additional translations have been provided in the /languages folder -- open up the .xml file for your language to install them.
 
 If you need further help on what the directives mean, take a look at the phpBB forums -- http://www.phpbb.com/community/viewtopic.php?f=16&t=61611 . Make sure you back up your files before making any changes!
 
-Once you have installed the mod, run the wpu-install.php file that you uploaded, and then delete it from your webspace. 
+Once you have installed the mod, you should visit http://your-forum-address/wpu-install.php . That will auo-install everything else you need. When done, delete the file wpu-install.php from your forum folder.
 
 You should then be able to run the WP-United Setup Wizard, located under the WP-United tab in the phpBB Admin Control Panel.
 
+The Setup Wizard will try to install a plugin into your WordPress wp-content/plugins folder. That folder is usually writable, but if it is not, please copy the file wpu-plugin from [phpbb]/wp-united there yourself (please remember to *copy* it, NOT move it!)
 
 
 UPGRADES
 -------------
 
-if possible, I will try to provide upgrade instructions for newer versions of WP-United. However, it is still in Beta and this cannot be guaranteed. Keep a copy of the install file for your records in case you need to refer to it in the future.
+Instructions on converting from previous versions of WP-United, and all the way from phpBB2, are included in the contrib folder.
+
+Remember, whenever upgrading WordPress or WP-United, to clear on the wp-united/cache folder, run the WP-United setup Wizard again.
 
 
 
@@ -73,11 +78,35 @@ WP-United :: Public Releases
 **** phpBB3 releases: ****
 
 
-v0.6.5 RELEASE CANDIDATE 1
-...
+v0.7.0 RELEASE CANDIDATE 1
+-- NEW: Updated to work reliably with WordPress 2.7 & 2.8
+-- UPDATED: Login integration updated to work properly with new phpBB & WordPress password schemes. Third-party apps can still access WordPress
+-- UPDATED: Cache mechanism upgraded -- all methods of integration are now cached properly, and the cache is automatically updated when Wp-United or WordPress is upgraded. This fixes 99% of reported eval'd code errors
+-- NEW: phpBB avatars automatically used in WordPress templates (thanks to Japgalaxy)
+-- NEW: phpBB smilies can be used in WordPress posts and comments (Japgalaxy again)
+-- NEW: phpBB header is automatically removed on phpBB-in-wordpress pages, with the phpBB searchbox automatically spliced into the WordPress header
+-- NEW: Improved user mapping tool now allows selection of items per page, and includes several useful quick links for bulk administration
+-- NEW: Italian translation (thanks to Japgalaxy)
+-- NEW: Install wizard tries to auto-copy wpu-plugin.php, and tells the user exactly what to do if it can't
+-- NEW: WP-United ACP area now checks for wp-united cache writability, and checks that wpu-install has been deleted
+-- UPDATED: ProPress theme updated for WP 2.7+
+-- UPDATED: Improved one-click debugging information for posting to forums in support requests.
+-- UPDATED: Install files and Setup Wizard contain more useful install instructions
+-- FIXED: Users were not being logged out of WordPress until they visited the blog again
+-- FIXED: Various cookie problems caused users to be logged out of phpBB when in wp-admin
+-- FIXED: Install Wizard sometimes crashed when users are given own blogs
+-- FIXED: WordPress admin panels for users own blogs improved
+-- FiXED: When users are integrated, access to wp-login.php is disabled
+-- FIXED: Various third-party provided widgets were not compatible with all setups
+-- FIXED: Only show cross-posting box when user has ability to cross-post
+-- FIXED: Non-simple reverse integration option now behaves a little better. 'Simple' is still recommended.
+-- MOD repackaged in accordance with MODX 1.2.1 format guidelines
+-- Any many other minor fixes and clean-ups
+
 
 v0.6.1 RELEASE CANDIDATE 1
-...
+This was an unofficial release by the community. For changelog, please see here:
+http://www.nitemarecafe.com/2009/02/20/wp-united-061-rc-1-released/
 
 v0.6.0 RELEASE CANDIDATE 1
 
