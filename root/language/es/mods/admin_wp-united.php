@@ -276,7 +276,7 @@ $lang = array_merge($lang, array(
     'WP_Wizard_Connection_Title2' => 'Installing WP-United Connection...',
     'WP_Wizard_Connection_Explain1' => 'The WP-United Connection is the bridge between WordPress and phpBB. It controls how WordPress behaves when it is integrated.',
     'WP_Wizard_Connection_Explain2' => 'The Setup Wizard will now try to install the WP-United connection...',
-    'WP_Wizard_Connection_Success' => 'Success! The WP-United Connection has been installed.',
+    'WP_Wizard_Connection_Success' => 'Success! The WP-United Connection has been installed.',
 
 
 

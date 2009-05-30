@@ -40,7 +40,7 @@ if ( !defined('WPU_BLOG_PAGE') ) {
 require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 
 
-
+
 global $wpSettings, $user, $userdata, $wpuNoHead, $retWpInc, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title;
 
 // integration class will test for this in the global scope.
