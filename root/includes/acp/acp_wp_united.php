@@ -3413,7 +3413,7 @@ class acp_wp_united {
 
 			} else {
 				$template->assign_block_vars('switch_usermap_main.switch_no_results', array(
-					'L_MAP_NOUSERS' => $wpuAbs('L_MAP_NOUSERS'),
+					'L_MAP_NOUSERS' => $wpuAbs->lang('L_MAP_NOUSERS'),
 				));
 			}
 		} else {
