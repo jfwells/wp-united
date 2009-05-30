@@ -878,6 +878,7 @@
 	function hideRevRows() {
 		if (enhanced) {
 			document.getElementById("revHead").style.display = 'none';
+			document.getElementById("fixHdr").style.display = 'none';
 			document.getElementById("wpSimple").style.display = 'none';
 			document.getElementById("pPadding").style.display = 'none';
 		}
@@ -896,7 +897,8 @@
 	}
 	function showRevRows() {
 		if (enhanced) {
-			document.getElementById("revHead").style.display = '';		
+			document.getElementById("revHead").style.display = '';	
+			document.getElementById("fixHdr").style.display = '';	
 			document.getElementById("wpSimple").style.display = '';
 			document.getElementById("pPadding").style.display = '';
 		}
@@ -959,6 +961,10 @@
 				<dt><label for="">{L_WPSIMPLE_TITLE}</label><br /><span>{L_WPSIMPLE_EXPLAIN1}<br /><br />{L_WPSIMPLE_EXPLAIN2}<br /><br />{L_WPSIMPLE_EXPLAIN3}</span></dt>
 				<dd><input type="radio" onClick="rowState()" id="rad_Simple" name="rad_Simple" value="1"  {S_WPSIMPLE_YES}/>{L_WP_SIMPLE}<br /><input type="radio" id="wpComplex" onClick="rowState()" name="rad_Simple" value="0" {S_WPSIMPLE_NO} />{L_WP_FULLPAGE}</dd>
 			</dl>
+			<dl id="fixHdr">
+				<dt><label for="rad_fixhdr">{L_WPFIX_HEADER_TITLE}</label><br /><span>{L_WPFIX_HEADER_EXPLAIN1}<br /><br />{L_WPFIX_HEADER_EXPLAIN2}</span></dt>
+				<dd><input type="radio" id="rad_fixhdr" name="rad_fixhdr" value="1"  {S_HDR_FIX_ENABLE}/>{L_WP_FIX}<br /><input type="radio"  name="rad_fixhdr" value="0" {S_HDR_FIX_DISABLE} />{L_WP_NOFIX}</dd>
+			</dl>	
 			<dl id="pPadding">
 				<dt><label for="txt_padT">{L_WP_PADTITLE}</label><br /><span>{L_WP_PADEXPLAIN1}<br /><br />{L_WP_PADEXPLAIN2}<br /><br />{L_WP_PADEXPLAIN3}</span></dt>
 				<dd>
