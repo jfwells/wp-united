@@ -1127,14 +1127,16 @@ function wpu_homelink($default) {
 			} else {
 				$authorID = $user_ID;
 			}
-			if ( !empty($authorID) ) {
-				if ( ((float) $wp_version) >= 2.1 ) {
-					//WP >= 2.1 branch
-					$blog_url = get_author_posts_url($authorID); 
-				} else {
-					$blog_url = get_author_link(false, $authorID, ''); 
+			if ( !empty($authorID) ) { 
+				if(get_usernumposts($authorID)) { // only change URL if author has posts
+					if ( ((float) $wp_version) >= 2.1 ) {
+						//WP >= 2.1 branch
+						$blog_url = get_author_posts_url($authorID); 
+					} else {
+						$blog_url = get_author_link(false, $authorID, ''); 
+					}
+					$blog_url = ( $blog_url[strlen($blog_url)-1] == "/" ) ? substr($blog_url, 0, -1) : $blog_url; //kill trailing slash
 				}
-				$blog_url = ( $blog_url[strlen($blog_url)-1] == "/" ) ? substr($blog_url, 0, -1) : $blog_url; //kill trailing slash
 				if ( empty($blog_url) ) {
 					$blog_url = $default; 
 				}

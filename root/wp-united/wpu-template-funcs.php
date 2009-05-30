@@ -156,7 +156,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 				$blogList .=  "<h2 class=\"wpublsubject\" ><a href=\"$blogPath\">$blogTitle</a>, " . __('by') . ' <a href="' . $path_to_profile . '">' . $name . "</a></h2>\n\n";
 				$blogList .=  '<p class="wpubldesc">' . $blogDesc . "</p>\n\n";
 				$blogList .=  '<small class="wpublnumposts">' . __('Total Entries:') . ' ' . $posts . "</small><br />\n\n";
-				$blogList .=  '<small class="wpublastpost">' . __('Last Entry:') . ' <a href="' . $lastPostURL . '">' . $lastPostTitle . '</a>, posted on '. "$time</small><br />\n\n";
+				$blogList .=  '<small class="wpublastpost">' . __('Last Entry:') . ' <a href="' . $lastPostURL . '">' . $lastPostTitle . '</a>, ' . __('posted on') . " $time</small><br />\n\n";
 				if ( !empty($rssLink) ) {
 					$blogList .=  '<small class="wpublrss">' . __('RSS Feed:') . ' <a href="' . $rssLink . '">' . __('Subscribe') . "</a></small><br />\n\n";
 				}
@@ -791,18 +791,18 @@ function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankB
 
 		// Handle new PMs
 		if ($user->data['user_new_privmsg']) {
-			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $wpuAbs->lang['NEW_PM'] : $wpuAbs->lang['NEW_PMS'];
+			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $wpuAbs->lang('NEW_PM') : $wpuAbs->lang('NEW_PMS');
 			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
 			echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
 		} else {
-			$l_privmsgs_text = $wpuAbs->lang['NO_NEW_PM'];
+			$l_privmsgs_text = $wpuAbs->lang('NO_NEW_PM');
 			$s_privmsg_new = false;
 			echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
 		}	
 
 		if ($write) {
 			if (current_user_can('publish_posts')) {
-				echo '<p class="wpu_write"><a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="Write a Post">' . __('Write a Post') . '</a></p> ';
+				echo '<p class="wpu_write"><a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="' . __('Write a Post') . '">' . __('Write a Post') . '</a></p> ';
 			}
 		}
 		if ($admin) {
