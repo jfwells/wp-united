@@ -487,6 +487,7 @@ $lang = array_merge($lang, array(
 	'Map_Delete_All_Unintegrated' => 'Delete all unintegrated',
 	'Map_Break_All' => 'Break all integrations',
 	'Map_Reset_Default' => 'Reset selections',
+	'DEBUG_SERVER_SETTINGS' => 'Server settings:',
 	
 
 ));

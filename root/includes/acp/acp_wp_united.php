@@ -2498,14 +2498,24 @@ class acp_wp_united {
 	//	Resets WP-United back to freshly installed state
 	//
 	function debug_show() {
-		global $phpbb_root_path, $phpEx, $wpuAbs, $phpEx;
+		global $phpbb_root_path, $phpEx, $wpuAbs, $phpEx, $db;
 		$this->page_title = 'ACP_WPU_INDEX_TITLE';
 		$this->tpl_name = 'acp_wp_united';	
+		
+		$result = $db->sql_query("select version() as ve");
+		if ($res = $db->sql_fetchrow($result)) {
+			$myVersion = $res['ve'];
+		} else {
+			$myVersion = "Unable to detect. Not mySql?";
+		}
+		
+		$curl_exists = (function_exists('curl_exec')) ? "Yes" : "No";
+		
 		
 		$wpSettings = get_integration_settings(TRUE);
 		$debug_info = '<strong style="text-decoration: underline;">[b][u]' . $wpuAbs->lang('DEBUG_SETTINGS_SECTION') . '[/u][/b]</strong><br /><br />';
 		foreach ($wpSettings as $setting_name => $setting_value) {
-			$debug_info .= '[b]<strong>' . $setting_name . ':</strong>[/b] ' . $setting_value . "<br />\n";
+			$debug_info .= '[b]<strong>: ' . $setting_name . ':</strong>[/b] ' . $setting_value . "<br />\n";
 		}
 		
 		$debug_info .= '<br /><strong style="text-decoration: underline;">[b][u]' . $wpuAbs->lang('DEBUG_PHPBB_SECTION') . '[/u][/b]</strong><br /><br />';
@@ -2513,6 +2523,11 @@ class acp_wp_united {
 		foreach ($phpbb_info as $config_name) {
 			$debug_info .= '[b]<strong>' . $config_name . ':</strong>[/b] ' . $wpuAbs->config($config_name) . "<br />\n";
 		}
+		
+		$debug_info .= '<br /><strong style="text-decoration: underline;">[b][u]' . $wpuAbs->lang('DEBUG_SERVER_SETTINGS') .  '[/u][/b]</strong><br /><br />';
+		$debug_info .= '[b]<strong>PHP version:</strong>[/b] ' . phpversion() . "<br />\n";
+		$debug_info .= '[b]<strong>MySQL version:</strong>[/b] ' . $myVersion . "<br />\n";
+		$debug_info .= '[b]<strong>cURL available:</strong>[/b] ' . $curl_exists . "<br />\n";
 		
 		// pass strings	
 		$passVars = array(

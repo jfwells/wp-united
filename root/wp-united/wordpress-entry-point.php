@@ -46,6 +46,7 @@ global $wpSettings, $user, $userdata, $wpuNoHead, $retWpInc, $wpUtdInt, $scriptP
 // integration class will test for this in the global scope.
 $amIGlobal = TRUE;
 
+
 //Check that Mod Settings have been loaded
 if  ( $wpSettings == FALSE ) {
 	$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Gen'), 'WordPress Integration Error','','',''); 

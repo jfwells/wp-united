@@ -463,7 +463,7 @@ $lang = array_merge($lang, array(
 	'WP_XPost_Explain' => 'If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the cross-posting permission for the users/groups you wish.',
 	'WP_XPost_OptTitle' => 'You can set the following option if you integrate logins',	
 
-	//New in v0.7.0 -- please use the WPWiz prefix, phpbb_smilies is too common and will collide with other mods
+	//New in v0.7.0
 	'WPWiz_Fix_Header_Title' => 'Remove phpBB header?',
 	'WPWiz_Fix_Header_Explain1' => 'If you turn this option on, the phpBB header will be removed from the integrated page. It will work with the Prosilver & subSilver2 themes and most derivatives. If you use a very customised template, or want to edit the templates yourself, you can leave this option off. Otherwise, leave it on for a quick-and-easy no-hassle integration of phpBB into WordPress.',
 	'WPWiz_Fix_Header_Explain2' => 'WP-United will try to automatically position the phpBB Quick Search box in the WordPress header. If it does not appear, or you want to put it somewhere else, add the tag &lt;!--PHPBB_SEARCH--&gt; to your WordPress template, and it will automatically appear there.',
@@ -486,6 +486,7 @@ $lang = array_merge($lang, array(
 	'Map_Delete_All_Unintegrated' => 'Delete all unintegrated',
 	'Map_Break_All' => 'Break all integrations',
 	'Map_Reset_Default' => 'Reset selections',
+	'DEBUG_SERVER_SETTINGS' => 'Server settings:',
 
 ));
 
