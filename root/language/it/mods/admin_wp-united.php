@@ -481,12 +481,12 @@ $lang = array_merge($lang, array(
 	'WPU_Cache_Unwritable' => 'ATTENZIONE: La cartella [phpbb]/wp-united/cache non &egrave; scrivibile. Per ottenere prestazioni migliori, dovresti rendere questa cartella scrivibile prima di procedere.',
 	'WPU_Install_Exists' => 'ATTENZIONE: Il file wpu-install.php si trova ancora nella root di phpBB. Dopo aver eseguito questo file, DEVI cancellarlo prima di continuare.',
 
-	'Map_Items_PerPage' => 'Items to show per page',
-	'Map_Change_PerPage' => 'Change',
-	'Map_Quick_Actions' => 'Quick select',
-	'Map_Delete_All_Unintegrated' => 'Delete all unintegrated',
-	'Map_Break_All' => 'Break all integrations',
-	'Map_Reset_Default' => 'Reset selections',
+	'Map_Items_PerPage' => 'Oggetti da mostrare per ogni pagina',
+	'Map_Change_PerPage' => 'Modifica',
+	'Map_Quick_Actions' => 'Selezione rapida',
+	'Map_Delete_All_Unintegrated' => 'Cancella tutti i non integrati',
+	'Map_Break_All' => 'Rimuovi tutte le integrazioni',
+	'Map_Reset_Default' => 'Resetta selezionati',
 	'DEBUG_SERVER_SETTINGS' => 'Server:',
 ));
 
