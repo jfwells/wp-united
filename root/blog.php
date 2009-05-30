@@ -83,7 +83,7 @@ if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 		</style></head><body>
 		<p style=\"color: #ffffff; font-size: 22px; background-color: navy; padding: 5px; margin: 0px;\">Error!</p>
 		<p style=\"background-color: #ffffff; margin: 0px; padding: 20px;\">The path is incorrect.
-		Please check the path to phpBB you provided and then run the WP-United Setup Wizard again.</p>
+		If you have moved blog.php from its standard location, you need to open it and provide the path back to phpBB where indicated. Please do this now and then run the WP-United Setup Wizard again.</p>
 		</body></html>";
 }
 
