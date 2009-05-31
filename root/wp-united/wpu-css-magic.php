@@ -43,7 +43,10 @@
 	// $success will return 1 or true on success, or 0 or false on failure.
 	
 	//Now, make all the CSS we have read in apply only to children of a particular DIV with ID = $id
-	$cssMagic->makeSpecific($id);
+	$cssMagic->makeSpecificById($id);
+	
+	// Or, we could use $cssMagic->makeSpecificByClass($class) 
+	// Or, both :-) $cssMagic->makeSpecificByIdThenClass($classAndId) 
 	
 	// Now get the modified CSS. The output is fairly nicely compressed too.
 	$fixedCSS = $cssMagic->getCSS();
@@ -52,7 +55,7 @@
 	$cssMagic->sendCSS();
 	
 	// When you're finished,
-	$cssmagic->clear();
+	$cssMagic->clear();
 	
 	// Note: CSS Magic doesn't try to validate the CSS coming in. If the inbound CSS in invalid or garbage, 
 	// you'll get garbage coming out -- perhaps even worse than before.
@@ -61,7 +64,7 @@
 	
 */
 
-if ( !defined('IN_PHPBB') && !defined('ABSPATH') )
+if ( !defined('IN_PHPBB') )
 {
 	die("Hacking attempt");
 	exit;
@@ -105,7 +108,7 @@ class CSS_Magic {
 	//	Parses raw CSS, storing the keys and CSS code. We don't separate or process the keys, we don't need to.
 	//	
 	function parseString($str) {
-		$this->Clear();
+		
 		// Remove comments
 		$str = preg_replace("/\/\*(.*)?\*\//Usi", "", $str);
 	
@@ -128,11 +131,11 @@ class CSS_Magic {
 	//	------------------------------
 	//	Opens and parses the CSS file.
 	//	  
-	function parseFile($filename, $clear = false;) {
+	function parseFile($filename, $clear = false) {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
 		if(file_exists($filename)) {
-			parseString(file_get_contents($filename));
+			return $this->parseString(file_get_contents($filename), $clear);
 		} else {
 			return false;
 		}
@@ -151,18 +154,31 @@ class CSS_Magic {
 			$this->css[$keys] = str_replace(';;', ';', $this->css[$keys] . ';' . $cssCode);
 		}
 	}
+	
+	function makeSpecificById($id, $removeBody = false) {
+		$this->_makeSpecific("#{$id}", $removeBody);
+	}
+	function makeSpecificByClass($class, $removeBody = false) {
+		$this->_makeSpecific(".{$class}", $removeBody);
+	}
+	function makeSpecificByIdThenClass($classAndId, $removeBody = false) { 
+		$this->_makeSpecific("#{$classAndId} .{$classAndId}", $removeBody);
+	}	
+	
+	
 	// 
 	// 	MAKE SPECIFIC
 	//	------------------------------
-	//	Makes all stored CSS specific to a particular parent ID
+	//	Makes all stored CSS specific to a particular parent ID or class
 	//
-	function makeSpecific($id) {
+	//	@param $removeBody: set to true to remove 
+	function _makeSpecific($prefix, $removeBody = false) {
 		$fixed = array();
 		// things that could be delimiting a "body" selector at the beginning of our string.
 		$seps = array(' ', '>', '<', '.', '#');
 		foreach($this->css as $keyString => $cssCode) {
 			$fixedKeys = array();
-			$keys = explode(',' $keyString);
+			$keys = explode(',', $keyString);
 			foreach($keys as $key) {
 				$fixedKey = trim($key);
 				$foundBody = false;
@@ -170,24 +186,37 @@ class CSS_Magic {
 				foreach($seps as $sep) {
 					$keyElements = explode($sep, $fixedKey);
 					if(strtolower($keyElements[0]) == "body") {
-						$keyElements[0] = "#{$id}";
-						$fixedKey = implode($sep, $keyElements);
+						$keyElements[0] = $prefix;
+						if(!$removeBody) {
+							if(sizeof($keyElements) > 1) { 
+								$fixedKey = implode($sep, $keyElements);
+							} else {
+								$fixedKey = $keyElements[0] . $sep;
+							}
+							
+						} 
 						$foundBody = true;
+						$fixedKey = '';
 					}
 				}
 				// add #id selector before each selector
 				if(!$foundBody) {
-					$fixedKey = "#{$id} " . $fixedKey;
+					$fixedKey = "{$prefix} " . $fixedKey;
+					
 				}
-				$fixedkeys[] = $fixedkey;
+				if(!empty($fixedKey)) {
+					$fixedKeys[] = $fixedKey;
+				}
 			}
 			// recreate the fixed key
-			$fixedKeyString = implode(', ', $fixedkeys);
+			if(sizeof($fixedKeys)) {
+				$fixedKeyString = implode(', ', $fixedKeys);
 						
-			if(!isset($this->fixed[$fixedKeyString])) {
-				$this->fixed[$fixedKeyString] = $cssCode;
-			} else {
-				$this->fixed[$fixedKeyString] = str_replace(';;', ';', $this->fixed[$fixedKeyString] . ';' . $cssCode);
+				if(!isset($this->fixed[$fixedKeyString])) {
+					$this->fixed[$fixedKeyString] = $cssCode;
+				} else {
+					$this->fixed[$fixedKeyString] = str_replace(';;', ';', $this->fixed[$fixedKeyString] . ';' . $cssCode);
+				}
 			}
 		}
 		// done

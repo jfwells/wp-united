@@ -78,7 +78,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 					$hdrContent = preg_replace('/<!--PHPBB_SEARCH-->/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $hdrContent, 1, $addedSrch);
 					// If no tag we try ourselves.
 					if(empty($addedSrch)) {
-						$hdrContent = preg_replace('/<\/div>[\s]*?<\/div>[\s]*?<hr \/>/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $hdrContent, 1);
+						$hdrContent = preg_replace('/<\/div>[\s]*?<\/div>[\s]*?<hr \/>/', "<div class=\"wpucssmagic\" style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $hdrContent, 1);
 					}
 				}
 			}
@@ -86,14 +86,41 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			if ( $wpSettings['cssFirst'] == 'P' ) {
 				$hdrContent = str_replace('</title>', '</title>' . "\n\n" . '[--PHPBB*HEAD--]', $hdrContent);
 			}
+			
 			if ( $doCache ) {
 				@fwrite($hTempFile, $hdrContent . '[--PHPBB*CONTENT--]');
 			}
 			
 			$hdrContent= preg_replace("/<title>(.*)[^<>]<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
+			
+			 // NEW -- CSS MAGIC
+			if(defined('CSS_MAGIC')) { //temp
+				preg_match_all('/<link rel=.*?\.css.*?\/>/', $pfHead, $matches);
+			
+				if(is_array($matches[0])) {
+					foreach($matches[0] as $match) {
+						// extract css location
+						$cssLoc = '';
+						$els = explode('"', $match);
+						foreach($els as $el) {
+							if(stristr($el, ".css") !== false) {
+								$cssLoc = $el;
+							}
+						}
+						if($cssLoc) {
+							// TODO: translate the URL to a local path :-)
+							if( file_exists($cssLoc) && (stristr($cssLoc, "http:") === false) ) {
+								$newLoc = "wp-united/wpu-style-fixer.php?style=" . urlencode(htmlentities($cssLoc));
+								$pfHead = str_replace($cssLoc, $newLoc, $pfHead);
+							}
+						}
+					}
+				}
+			}
+			 
 			echo str_replace('[--PHPBB*HEAD--]', $pfHead, $hdrContent);
 			unset ($hdrContent, $pfHead);
-			echo $pfContent; unset ($pfContent);
+			echo '<div id="wpucssmagic"><div class="wpucssmagic">' . $pfContent . '</div></div>'; unset ($pfContent);
 			ob_start();
 			get_footer();
 			if ( $doCache ) {
@@ -110,7 +137,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			global $wpu_cacheLoc;
 			$page_content = @file_get_contents($wpu_cacheLoc);
 			$page_content = str_replace('[--PHPBB*HEAD--]',$pfHead, $page_content);
-			$retWpInc = str_replace('[--PHPBB*CONTENT--]',$pfContent, $page_content);
+			$retWpInc = str_replace('[--PHPBB*CONTENT--]','<div id="wpucssmagic"><div class="wpucssmagic">' . $pfContent . '</div></div>', $page_content);
 			unset($page_content, $pfContent);
 		}
 	} else {
@@ -144,7 +171,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		if (!empty($wpSettings['fixHeader']))  {
 			if ( ($pHeadRemSuccess) && (!empty($srchBox)) ) {
 				// User can add tag to their template if they like
-				$wContent = preg_replace('/<!--PHPBB_SEARCH-->/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $wContent, 1, $addedSrch);
+				$wContent = preg_replace('/<!--PHPBB_SEARCH-->/', "<div class=\"wpucssmagic\" style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $wContent, 1, $addedSrch);
 				// If no tag we try ourselves.
 				if(empty($addedSrch)) {
 					$wContent = preg_replace('/<\/div>[\s]*?<\/div>[\s]*?<hr \/>/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $wContent, 1);

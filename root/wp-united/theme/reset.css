@@ -1,0 +1,15 @@
+#wpucssmagic, #wpucssmagic * {color: #000; height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static;}
+#wpucssmagic {font-size-adjust: none;letter-spacing: normal;font-size: 100%; background-color: #000; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
+.wpucssmagic * {height: auto; }
+.wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt { font-weight: normal;}
+.wpucssmagic b, .wpucssmagic h1, .wpucssmagic h2, .wpucssmagic h3, .wpucssmagic strong {font-weight: none;}
+#wpucssmagic u, #wpucssmagic a {text-decoration: underline;}
+#wpucssmagic  { line-height: 1;}
+#wpucssmagic ol, #wpucssmagic ul {height: auto; list-style: none; display: list-item;list-style-position: outside;}
+
+#wpucssmagic blockquote, q {quotes: none;}
+#wpucssmagic blockquote:before, #wpucssmagic blockquote:after, #wpucssmagic q:before, #wpucssmagic q:after {content: '';content: none;}
+#wpucssmagic :focus {outline: 0;}
+#wpucssmagic ins {text-decoration: none;}
+#wpucssmagic del {text-decoration: line-through;}
+#wpucssmagic table {border-collapse: collapse;border-spacing: 0;

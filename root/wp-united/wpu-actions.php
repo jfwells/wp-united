@@ -223,6 +223,23 @@ class WPU_Actions {
 	
 	}
 	
+	function css_magic($css) {
+		if(defined('CSS_MAGIC')) { //temp
+			global $phpbb_root_path, $phpEx;
+			include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
+			$cssMagic = CSS_Magic::getInstance();
+			if($cssMagic->parseString($css)) {
+				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', true);
+				$css = $cssMagic->getCSS();
+				$cssMagic->clear();
+			}
+			$reset = file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
+			return $reset . $css;
+		} else {
+			return $css;
+		}
+	}
+	
 }
 
 global $wpu_actions;
