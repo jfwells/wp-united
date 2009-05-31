@@ -173,6 +173,13 @@ if ($config['load_cpf_viewtopic'])]]></find>
 						$GLOBALS['wpu_actions']->profile_update('profile_info', $user_id, $user_row['user_wpuint_id'], $sql_ary);									]]></action>
       </edit>
     </open>
+    <open src="style.php">
+      <edit>
+        <find><![CDATA[	echo $theme['theme_data']; ]]></find>
+        <action type="before-add"><![CDATA[ 	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$theme['theme_data'] = $GLOBALS['wpu_actions']->css_magic($theme['theme_data']); ]]></action>
+      </edit>
+    </open>
     <open src="language/en/common.php">
       <edit>
         <find><![CDATA[	'YOU_NO_NEW_PM'		=> 'No new private messages are waiting for you.',]]></find>
