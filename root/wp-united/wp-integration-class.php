@@ -562,7 +562,7 @@ Class WPU_Integration {
 			$error = $result->get_error_message();
 		} else { 
 			if ( wp_login($wpUsr, md5($pass), true) ) {
-				wp_setcookie($wpUsr, $pass, true, '', '', false);
+				wp_setcookie($wpUsr, md5($pass), true, '', '', false);
 				do_action('wp_login', $wpUsr);
 				return true;
 			}
