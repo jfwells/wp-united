@@ -496,8 +496,6 @@ Class WPU_Integration {
 						$wpUser = get_userdata($integratedID);
 						$wpUserName = $wpUser->user_login;
 						
-							
-						// CHANGED IN 0.6.1: MD5 HASHING REMOVED. TO REPLACE WITH NEW WP HASH?? (TODO: 30:)
 						if($this->wpSignIn($wpUserName, $wpuAbs->phpbb_passwd())) {
 							$loggedInUser = wp_set_current_user($wpUser->ID);
 							$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
