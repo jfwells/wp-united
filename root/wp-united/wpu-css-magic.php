@@ -111,7 +111,7 @@ class CSS_Magic {
 		
 		// Remove comments
 		$str = preg_replace("/\/\*(.*)?\*\//Usi", "", $str);
-	
+		$str = str_replace("\t", "", $str);
 		$parts = explode("}",$str);
 		if(count($parts) > 0) {
 			foreach($parts as $part) {
@@ -119,6 +119,7 @@ class CSS_Magic {
 				// store full selector
 				if(strlen($keys) > 0) {
 					$keys = str_replace("\n", "", $keys);
+					$keys = str_replace("\r", "", $keys);
 					$keys = str_replace("\\", "", $keys);
 					$this->addSelector($keys, trim($cssCode));
 				}
@@ -161,7 +162,7 @@ class CSS_Magic {
 	function makeSpecificByClass($class, $removeBody = false) {
 		$this->_makeSpecific(".{$class}", $removeBody);
 	}
-	function makeSpecificByIdThenClass($classAndId, $removeBody = false) { 
+	function makeSpecificByIdThenClass($classAndId, $removeBody = false) {
 		$this->_makeSpecific("#{$classAndId} .{$classAndId}", $removeBody);
 	}	
 	
@@ -201,7 +202,9 @@ class CSS_Magic {
 				}
 				// add #id selector before each selector
 				if(!$foundBody) {
-					$fixedKey = "{$prefix} " . $fixedKey;
+					if($fixedKey[0] != "@") {
+						$fixedKey = "{$prefix} " . $fixedKey;
+					}
 					
 				}
 				if(!empty($fixedKey)) {

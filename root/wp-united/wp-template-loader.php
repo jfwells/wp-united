@@ -39,11 +39,17 @@ $wpuNoHead = false;
 //
 
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
-	global $pfHead, $pfContent, $wpSettings, $phpEx;
+	global $pfHead, $pfContent, $wpSettings, $phpEx, $phpbb_preString, $phpbb_postString;
 	$padding = '';
 	if ($wpSettings['phpbbPadding'] != 'NOT_SET') {
 		$pad = explode('-', $wpSettings['phpbbPadding']);
 		$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
+	}
+	$phpbb_preString = '';
+	$phpbb_postString = '';
+	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+		$phpbb_preString = '<div id="wpucssmagic" style="background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE . ';"><div class="wpucssmagic">';
+		$phpbb_postString = '</div></div>';
 	}
 
 	$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2007 www.wp-united.com \n-->\n\n";
@@ -93,34 +99,14 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			
 			$hdrContent= preg_replace("/<title>(.*)[^<>]<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
 			
-			 // NEW -- CSS MAGIC
-			if(defined('CSS_MAGIC')) { //temp
-				preg_match_all('/<link rel=.*?\.css.*?\/>/', $pfHead, $matches);
-			
-				if(is_array($matches[0])) {
-					foreach($matches[0] as $match) {
-						// extract css location
-						$cssLoc = '';
-						$els = explode('"', $match);
-						foreach($els as $el) {
-							if(stristr($el, ".css") !== false) {
-								$cssLoc = $el;
-							}
-						}
-						if($cssLoc) {
-							// TODO: translate the URL to a local path :-)
-							if( file_exists($cssLoc) && (stristr($cssLoc, "http:") === false) ) {
-								$newLoc = "wp-united/wpu-style-fixer.php?style=" . urlencode(htmlentities($cssLoc));
-								$pfHead = str_replace($cssLoc, $newLoc, $pfHead);
-							}
-						}
-					}
-				}
+			//Modify stylesheets to use CSS Magic
+			if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+				$pfHead = wpu_modify_stylesheet_links($pfHead);
 			}
-			 
+	 
 			echo str_replace('[--PHPBB*HEAD--]', $pfHead, $hdrContent);
 			unset ($hdrContent, $pfHead);
-			echo '<div id="wpucssmagic"><div class="wpucssmagic">' . $pfContent . '</div></div>'; unset ($pfContent);
+			echo $phpbb_preString . $pfContent . $phpbb_postString; unset ($pfContent);
 			ob_start();
 			get_footer();
 			if ( $doCache ) {
@@ -137,7 +123,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			global $wpu_cacheLoc;
 			$page_content = @file_get_contents($wpu_cacheLoc);
 			$page_content = str_replace('[--PHPBB*HEAD--]',$pfHead, $page_content);
-			$retWpInc = str_replace('[--PHPBB*CONTENT--]','<div id="wpucssmagic"><div class="wpucssmagic">' . $pfContent . '</div></div>', $page_content);
+			$retWpInc = str_replace('[--PHPBB*CONTENT--]', $phpbb_preString . $pfContent . $phpbb_postString, $page_content);
 			unset($page_content, $pfContent);
 		}
 	} else {
@@ -312,6 +298,35 @@ if ( ((float) $wp_version) >= 2.1 ) {
 
 
 
+}
+
+//
+// Modify links in header to stylesheets to use CSS Magic instead
+//
+function wpu_modify_stylesheet_links($headerInfo) {
+
+	preg_match_all('/<link rel=.*?\.css.*?\/>/', $headerInfo, $matches);
+
+	if(is_array($matches[0])) {
+		foreach($matches[0] as $match) {
+			// extract css location
+			$cssLoc = '';
+			$els = explode('"', $match);
+			foreach($els as $el) {
+				if(stristr($el, ".css") !== false) {
+					$cssLoc = $el;
+				}
+			}
+			if($cssLoc) {
+				// TODO: translate the URL to a local path :-)
+				if( file_exists($cssLoc) && (stristr($cssLoc, "http:") === false) ) {
+					$newLoc = "wp-united/wpu-style-fixer.php?style=" . urlencode(htmlentities($cssLoc));
+					$headerInfo = str_replace($cssLoc, $newLoc, $headerInfo);
+				}
+			}
+		}
+	}
+	return $headerInfo;
 }
  
 ?>
