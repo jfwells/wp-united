@@ -1,5 +1,8 @@
 <?php
 
+// DO NOT PLACE THIS ON A SITE OPEN TO THE INTERNET!!! 
+// -- iT *IS* SUBJECT TO PATH TRAVERSAL HACKING. UNDER DEVELOPMENT
+
 $phpbb_root_path = "../";
 define('IN_PHPBB', 1);
 
