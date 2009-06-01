@@ -45,15 +45,34 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		$pad = explode('-', $wpSettings['phpbbPadding']);
 		$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
 	}
-	$phpbb_preString = '';
-	$phpbb_postString = '';
-	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-		$phpbb_preString = '<div id="wpucssmagic" style="background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE . ';"><div class="wpucssmagic">';
-		$phpbb_postString = '</div></div>';
-	}
 
+	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+		$phpbb_preString = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic">';
+		$phpbb_postString = '</div></div>';
+		
+		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+			$phpbb_postString .= '<script type="text/javascript">
+				// <[CDATA[
+			
+				var vdDiv = document.getElementById("wpucssmagic");
+				var vdDivChildren = vdDiv.getElementsByTagName("*");
+				for(var i=0;i<vdDivChildren.length;i++) { 
+					if(vdDivChildren[i].id != "") {
+						vdDivChildren[i].id = "wpu" + vdDivChildren[i].id;
+					
+					}
+					if((vdDivChildren[i].className != "") && (vdDivChildren[i].className != "wpucssmagic"))  {
+						vdDivChildren[i].className = "wpu" + vdDivChildren[i].className;
+					}		
+				}
+				// ]]>
+			</script>';
+		}
+	} else {
+		$phpbb_preString = '<div style="'. $padding .' margin: 0px;">';
+		$phpbb_postString = '</div>';
+	}
 	$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2007 www.wp-united.com \n-->\n\n";
-	$pfContent = $copy . '<div style="'. $padding .' margin: 0px;">' . $pfContent . "\n</div>";
 	
 	if ( !empty($wpSettings['wpSimpleHdr']) ) {
 		//
@@ -78,7 +97,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			$hdrContent = ob_get_contents();
 			ob_end_clean();
 			
-			if ( !empty($wpSettings['fixHeader']) ) {
+			if ( !empty($wpSettings['fixHeader']) && !DISABLE_HEADER_FIX ) {
 				if ( ($pHeadRemSuccess) && (!empty($srchBox)) ) {
 					// User can add tag to their template if they like
 					$hdrContent = preg_replace('/<!--PHPBB_SEARCH-->/', "<div style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $hdrContent, 1, $addedSrch);
@@ -154,7 +173,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			$wContent = str_replace('</title>', '</title>' . "\n\n" . $pfHead, $wContent);
 		}
 			
-		if (!empty($wpSettings['fixHeader']))  {
+		if ( !empty($wpSettings['fixHeader']) && !DISABLE_HEADER_FIX ) {
 			if ( ($pHeadRemSuccess) && (!empty($srchBox)) ) {
 				// User can add tag to their template if they like
 				$wContent = preg_replace('/<!--PHPBB_SEARCH-->/', "<div class=\"wpucssmagic\" style=\"padding:0 20px 0 0\" >$srchBox</div></div></div><hr />", $wContent, 1, $addedSrch);

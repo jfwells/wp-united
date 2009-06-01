@@ -90,9 +90,13 @@ define('WP_ROOT_COOKIE', FALSE);
 // Eventually CSS Magic settings will apply on a per-template. For now, they are global options.
 // These are for development purposes only
 //
-define('USE_CSS_MAGIC', TRUE);
-define('CSS_MAGIC_FONTSIZE', '85%');
-define('CSS_MAGIC_BGCOLOUR', '#ffffff');
+define('USE_CSS_MAGIC', TRUE); // modifies stylesheets to behave better
+define('USE_TEMPLATE_VOODOO', TRUE); // modifies document IDs and classnames so they don't conflict. Note: This is not yet finished. It WILL KILL javascript (e.g. smilies) that look for element IDs.
+define('CSS_MAGIC_FONTSIZE', '85%'); 
+define('CSS_MAGIC_BGCOLOUR', '#000');
+// The "Remove header" option in the ACP kills too many templates. Rather than having to keep going back there
+// while developing, we can just force it off here
+define('DISABLE_HEADER_FIX', TRUE);
 
 
 

@@ -227,11 +227,14 @@ class WPU_Actions {
 		global $phpbb_root_path, $phpEx;
 		include($phpbb_root_path . 'wp-united/options.' . $phpEx); // temp -- this is called from style.php
 		if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) { //temp
-			
 			include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 			$cssMagic = CSS_Magic::getInstance();
 			if($cssMagic->parseString($css)) {
-				$cssMagic->makeSpecificById('wpucssmagic', true);
+				if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+					$cssMagic->renameIds("wpu");
+					$cssMagic->renameClasses("wpu");
+				}
+				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 				$css = $cssMagic->getCSS();
 				$cssMagic->clear();
 			}

@@ -130,7 +130,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	}
 	
 	//Remove the phpBB header if required, preserving the search box
-	if ( !empty($wpSettings['fixHeader']) ) {
+	if ( !empty($wpSettings['fixHeader']) && !DISABLE_HEADER_FIX ) {
 		global $pHeadRemSuccess, $srchBox;
 		if(preg_match('/<div id="search-box">[\s\S]*?<\/div>/', $pfContent, $srchBox)) {
 			$srchBox = $srchBox[0];

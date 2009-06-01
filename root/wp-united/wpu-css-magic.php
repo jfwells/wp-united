@@ -164,6 +164,24 @@ class CSS_Magic {
 	}
 	function makeSpecificByIdThenClass($classAndId, $removeBody = false) {
 		$this->_makeSpecific("#{$classAndId} .{$classAndId}", $removeBody);
+	}
+	
+	function renameIds($prefix) {
+		$fixed = array();
+		foreach($this->css as $keyString => $cssCode) {
+			$fixed[str_replace("#", "#{$prefix}", $keyString)] = $cssCode;
+		}
+		$this->css = $fixed;
+		unset($fixed);
+	}
+	
+	function renameClasses($prefix) {
+		$fixed = array();
+		foreach($this->css as $keyString => $cssCode) {
+			$fixed[str_replace(".", ".{$prefix}", $keyString)] = $cssCode;
+		}
+		$this->css = $fixed;
+		unset($fixed);
 	}	
 	
 	
@@ -186,7 +204,7 @@ class CSS_Magic {
 				// remove references to 'body'
 				foreach($seps as $sep) {
 					$keyElements = explode($sep, $fixedKey);
-					if(strtolower($keyElements[0]) == "body") {
+					if((strtolower($keyElements[0]) == "body") || (strtolower($keyElements[0]) == "body") ) {
 						$keyElements[0] = $prefix;
 						if(!$removeBody) {
 							if(sizeof($keyElements) > 1) { 
@@ -215,16 +233,16 @@ class CSS_Magic {
 			if(sizeof($fixedKeys)) {
 				$fixedKeyString = implode(', ', $fixedKeys);
 						
-				if(!isset($this->fixed[$fixedKeyString])) {
-					$this->fixed[$fixedKeyString] = $cssCode;
+				if(!isset($fixed[$fixedKeyString])) {
+					$fixed[$fixedKeyString] = $cssCode;
 				} else {
-					$this->fixed[$fixedKeyString] = str_replace(';;', ';', $this->fixed[$fixedKeyString] . ';' . $cssCode);
+					$fixed[$fixedKeyString] = str_replace(';;', ';', $fixed[$fixedKeyString] . ';' . $cssCode);
 				}
 			}
 		}
 		// done
-		$this->css = $this->fixed;
-		unset($this->fixed);
+		$this->css = $fixed;
+		unset($fixed);
 
 	}
 
