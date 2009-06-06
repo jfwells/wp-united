@@ -53,7 +53,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 			$phpbb_postString .= '<script type="text/javascript">
 				// <[CDATA[
-			
+				var clses, cls;
 				var vdDiv = document.getElementById("wpucssmagic");
 				var vdDivChildren = vdDiv.getElementsByTagName("*");
 				for(var i=0;i<vdDivChildren.length;i++) { 
@@ -62,7 +62,11 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 					
 					}
 					if((vdDivChildren[i].className != "") && (vdDivChildren[i].className != "wpucssmagic"))  {
-						vdDivChildren[i].className = "wpu" + vdDivChildren[i].className;
+						clses= vdDivChildren[i].className.split(" ");
+						for(cls in clses) {
+							clses[cls] = "wpu" + clses[cls]
+						}
+						vdDivChildren[i].className = clses.join(" ");
 					}		
 				}
 				// ]]>

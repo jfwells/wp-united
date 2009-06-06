@@ -91,9 +91,9 @@ define('WP_ROOT_COOKIE', FALSE);
 // These are for development purposes only
 //
 define('USE_CSS_MAGIC', TRUE); // modifies stylesheets to behave better
-define('USE_TEMPLATE_VOODOO', TRUE); // modifies document IDs and classnames so they don't conflict. Note: This is not yet finished. It WILL KILL javascript (e.g. smilies) that look for element IDs.
+define('USE_TEMPLATE_VOODOO', true); // modifies document IDs and classnames so they don't conflict. Note: This is not yet finished. It WILL KILL javascript (e.g. smilies) that look for element IDs.
 define('CSS_MAGIC_FONTSIZE', '85%'); 
-define('CSS_MAGIC_BGCOLOUR', '#000');
+define('CSS_MAGIC_BGCOLOUR', '#fff');
 // The "Remove header" option in the ACP kills too many templates. Rather than having to keep going back there
 // while developing, we can just force it off here
 define('DISABLE_HEADER_FIX', TRUE);
