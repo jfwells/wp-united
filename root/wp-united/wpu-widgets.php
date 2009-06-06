@@ -46,7 +46,10 @@ function wpu_widgets_init() {
 	//	Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
 	/*******************************************************************************************/
 	function widget_wpu_login_user_info($args) {
-		if(!is_admin()) {
+		// these switches should not be necessary, but users are reporting wp-admin errors, 
+		// which can be traced back to widgets. Our widgets are not intended to be run from wp-admin.
+		// Therefore we need to do is_admin() checking for each widget.
+		if(!is_admin()) { 
 			extract($args);
 			$options = get_option('widget_wpu_login_user_info');
 			$titleLoggedIn = $options['title_logged_in'];
