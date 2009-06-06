@@ -46,24 +46,25 @@ function wpu_widgets_init() {
 	//	Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
 	/*******************************************************************************************/
 	function widget_wpu_login_user_info($args) {
+		if(!is_admin()) {
+			extract($args);
+			$options = get_option('widget_wpu_login_user_info');
+			$titleLoggedIn = $options['title_logged_in'];
+			$titleLoggedOut = $options['title_logged_out'];
+			$loginForm = $options['login_form'];
+			$rankBlock = $options['rank'];
+			$newPosts = $options['new'];
+			$write = $options['write'];
+			$admin = $options['admin'];
+			$position = 'sidebar';
 		
-		extract($args);
-		$options = get_option('widget_wpu_login_user_info');
-		$titleLoggedIn = $options['title_logged_in'];
-		$titleLoggedOut = $options['title_logged_out'];
-		$loginForm = $options['login_form'];
-		$rankBlock = $options['rank'];
-		$newPosts = $options['new'];
-		$write = $options['write'];
-		$admin = $options['admin'];
-		$position = 'sidebar';
-		
-		//generate the widget output
-		// wpu_template_funcs.php MUST be available!
-		if ( !function_exists('wpu_login_user_info') ) return;
-		echo $before_widget;
-		wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position);
-		echo $after_widget;
+			//generate the widget output
+			// wpu_template_funcs.php MUST be available!
+			if ( !function_exists('wpu_login_user_info') ) return;
+			echo $before_widget;
+			wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title);
+			echo $after_widget;
+		}
 	}
 
 	//The widget control pane:	
@@ -132,22 +133,23 @@ function wpu_widgets_init() {
 	/*******************************************************************************************/
 	
 	function widget_wpulatestblogs($args) {
-		
-		extract($args);
+		if(!is_admin()) {		
+			extract($args);
 
-		$options = get_option('widget_wpulatestblogs');
-		$title = $options['title'];
-		$maxEntries = $options['max'];
+			$options = get_option('widget_wpulatestblogs');
+			$title = $options['title'];
+			$maxEntries = $options['max'];
 		
 		
-		//generate the widget output
-		// wpu_template_funcs.php MUST be available!
-		if ( !function_exists('wpu_latest_blogs') ) return false;
-		echo $before_widget;
-		echo $before_title . $title . $after_title;
-		echo '<ul>';
-		wpu_latest_blogs('limit='.$maxEntries);
-		echo '</ul>' . $after_widget;
+			//generate the widget output
+			// wpu_template_funcs.php MUST be available!
+			if ( !function_exists('wpu_latest_blogs') ) return false;
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
+			echo '<ul>';
+			wpu_latest_blogs('limit='.$maxEntries);
+			echo '</ul>' . $after_widget;
+		}
 	}
 	
 	//The widget control pane:	
@@ -188,22 +190,23 @@ function wpu_widgets_init() {
 	/*******************************************************************************************/
 	
 	function widget_wpulatestblogposts($args) {
-		
-		extract($args);
+		if(!is_admin()) {		
+			extract($args);
 
-		$options = get_option('widget_wpulatestblogposts');
-		$title = $options['title'];
-		$maxEntries = $options['max'];
+			$options = get_option('widget_wpulatestblogposts');
+			$title = $options['title'];
+			$maxEntries = $options['max'];
 		
 		
-		//generate the widget output
-		// wpu_template_funcs.php MUST be available!
-		if ( !function_exists('wpu_latest_blogposts') ) return false;
-		echo $before_widget;
-		echo $before_title . $title . $after_title;
-		echo '<ul>';
-		wpu_latest_blogposts('limit='.$maxEntries);
-		echo '</ul>' . $after_widget;
+			//generate the widget output
+			// wpu_template_funcs.php MUST be available!
+			if ( !function_exists('wpu_latest_blogposts') ) return false;
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
+			echo '<ul>';
+			wpu_latest_blogposts('limit='.$maxEntries);
+			echo '</ul>' . $after_widget;
+		}
 	}
 	
 	//The widget control pane:	
@@ -243,22 +246,23 @@ function wpu_widgets_init() {
 	/*******************************************************************************************/
 	
 	function widget_wpulatestphpbbtopics($args) {
-		
-		extract($args);
+		if(!is_admin()) {		
+			extract($args);
 
-		$options = get_option('widget_wpulatestphpbbtopics');
-		$title = $options['title'];
-		$maxEntries = $options['max'];
+			$options = get_option('widget_wpulatestphpbbtopics');
+			$title = $options['title'];
+			$maxEntries = $options['max'];
 		
 		
-		//generate the widget output
-		// wpu_template_funcs.php MUST be available!
-		if ( !function_exists('wpu_latest_phpbb_topics') ) return false;
-		echo $before_widget;
-		echo $before_title . $title . $after_title;
-		echo '<ul>';
-		wpu_latest_phpbb_topics('limit='.$maxEntries);
-		echo '</ul>' . $after_widget;
+			//generate the widget output
+			// wpu_template_funcs.php MUST be available!
+			if ( !function_exists('wpu_latest_phpbb_topics') ) return false;
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
+			echo '<ul>';
+			wpu_latest_phpbb_topics('limit='.$maxEntries);
+			echo '</ul>' . $after_widget;
+		}
 	}
 	
 	//The widget control pane:	
@@ -299,21 +303,22 @@ function wpu_widgets_init() {
 	/*******************************************************************************************/
 	
 	function widget_wpustats($args) {
-		
-		extract($args);
+		if(!is_admin()) {		
+			extract($args);
 
-		$options = get_option('widget_wpustats');
-		$title = $options['title'];
+			$options = get_option('widget_wpustats');
+			$title = $options['title'];
 		
 		
-		//generate the widget output
-		// wpu_template_funcs.php MUST be available!
-		if ( !function_exists('wpu_phpbb_stats') ) return false;
-		echo $before_widget;
-		echo $before_title . $title . $after_title;
-		echo '<ul>';
-		wpu_phpbb_stats();
-		echo '</ul>' . $after_widget;
+			//generate the widget output
+			// wpu_template_funcs.php MUST be available!
+			if ( !function_exists('wpu_phpbb_stats') ) return false;
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
+			echo '<ul>';
+			wpu_phpbb_stats();
+			echo '</ul>' . $after_widget;
+		}
 	}
 	
 	//The widget control pane:	
@@ -348,30 +353,31 @@ function wpu_widgets_init() {
 	/*******************************************************************************************/
 	
 	function widget_wpulatestphpbbposts($args) {
-
-		extract($args);
+		if(!is_admin()) {
+			extract($args);
 			
-		$options = get_option('widget_wpulatestphpbbposts');
-		$title = $options['title'];
+			$options = get_option('widget_wpulatestphpbbposts');
+			$title = $options['title'];
 		
-		$before = $options['before'];
-		$after = $options['after'];
-		$gtm = $options['gtm'];
-		$seo = $options['seo'];
-		$limit = $options['limit'];
+			$before = $options['before'];
+			$after = $options['after'];
+			$gtm = $options['gtm'];
+			$seo = $options['seo'];
+			$limit = $options['limit'];
 		
-		if ( !function_exists('wpu_latest_phpbb_posts') ) return;
-		echo $before_widget;
-		echo '<h2>'.$title.'</h2>';
-		if ( ($before=="<li>") && ($after=="</li>") ) {
-			$prev = "<ul>";
-			$next = "</ul>";
+			if ( !function_exists('wpu_latest_phpbb_posts') ) return;
+			echo $before_widget;
+			echo '<h2>'.$title.'</h2>';
+			if ( ($before=="<li>") && ($after=="</li>") ) {
+				$prev = "<ul>";
+				$next = "</ul>";
+			}
+		
+			echo $prev;
+			wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo);
+			echo $next;
+			echo $after_widget;
 		}
-		
-		echo $prev;
-		wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo);
-		echo $next;
-		echo $after_widget;
 	}
 
 

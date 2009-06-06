@@ -754,9 +754,9 @@ function _wpu_process_args($args, $defaults='') {
 //	LOGIN/USER INFO
 //	---------------------
 //	Login Form/User Info by Japgalaxy
-//	Example: wpu_login_user_info('', '', 1, 1, 1, 1, 1, sidebar)
+//	Example: wpu_login_user_info('', '', 1, 1, 1, 1, 1, 'sidebar', '<h2>', '</h2>')
 
-function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position) {
+function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title) {
 	global $user, $db, $scriptPath, $wpSettings, $auth, $wpuAbs, $phpbb_sid, $wpSettings, $phpEx;
 	
 	if ($wpuAbs->ver == 'PHPBB2') {
@@ -764,7 +764,6 @@ function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankB
 	}
 
 
-	echo '<div id="wpu_uinfo">';
 	$wpu_usr = get_wpu_phpbb_username(); 
 
 	if ( !empty($user->data['is_registered']) ) { 
@@ -833,7 +832,6 @@ function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankB
 			echo '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
 		}
 	}			
-	echo '</div>';
 	if ($position=="header"){
 		echo '<p style="clear:both;"></p>';
 	}

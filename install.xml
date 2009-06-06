@@ -46,7 +46,7 @@ Visit http://www.wp-united.com for more help or information.
       <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
       <file from="/root/styles/prosilver/template/blog.html" to="/styles/prosilver/template/blog.html" />
       <file from="/root/styles/subsilver2/template/blog.html" to="/styles/subsilver2/template/blog.html" />
-      <file from="/root/wp-united/*" to="/wp-united/*" />
+      <file from="/root/wp-united" to="/wp-united" />
     </copy>
 	<open src="includes/functions_content.php">
       <edit>
