@@ -70,14 +70,6 @@ if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 
 	require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);	
 	
-	
-	if ( 'PHPBB3' == $wpuAbs->ver ) {
-			$user->session_begin();
-			$auth->acl($user->data);
-			$user->setup();
-	}
-	
-
 	define('WPU_BLOG_PAGE', 1);
 
 	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
