@@ -51,6 +51,22 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		$phpbb_postString = '</div></div>';
 		
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+			/*  NON-JavaScript Implementation of Template Voodoo
+			     This is to eventually replace the JavaScript, below. It is IN PROGRESS
+			
+			Here we detect all classes and IDs in the phpBB document, and store 
+			   their names and occurrences. Later, we compare and rename them if they also exist in WordPress,
+			   and then store that info so that the stylesheet fixer part of template voodoo can modify the 
+			   appropriate CSS 
+			   
+			  IN PROGRESS */
+			include("wpu-template-voodoo.php");
+			$tVoodoo = Template_Voodoo::getInstance();
+			$tVoodoo->loadTemplate($pfContent);
+		
+			
+			
+			// THis is the original, Javascript implementation that renames ALL IDs and classes as a proof of concept
 			$phpbb_postString .= '<script type="text/javascript">
 				// <[CDATA[
 				var clses, cls;
@@ -101,6 +117,10 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			$hdrContent = ob_get_contents();
 			ob_end_clean();
 			
+			if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+				$tVoodoo->checkTemplate($hdrContent);
+			}
+			
 			if ( !empty($wpSettings['fixHeader']) && !DISABLE_HEADER_FIX ) {
 				if ( ($pHeadRemSuccess) && (!empty($srchBox)) ) {
 					// User can add tag to their template if they like
@@ -132,13 +152,21 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			echo $phpbb_preString . $pfContent . $phpbb_postString; unset ($pfContent);
 			ob_start();
 			get_footer();
+			$ftrContent = ob_get_contents();
+			ob_flush();
+			
+			if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+				$tVoodoo->checkTemplate($ftrContent);
+			}
+			
 			if ( $doCache ) {
-				@fwrite($hTempFile, ob_get_contents());
+				@fwrite($hTempFile, $ftrContent);
 				@fclose($hTempFile);
 				@copy($fnTemp, $fnDest);
 				@unlink($fnTemp);
 			} 
-			ob_flush();
+			unset($ftrContent);
+			
 		} else {
 			//
 			// Just pull the header and footer from the cache
@@ -172,6 +200,13 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		
 		$wContent = ob_get_contents();
 		ob_end_clean();
+		
+		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+			$tVoodoo->checkTemplate($wContent);
+		}		
+		
+		
+		
 		
 		if ( ($wpSettings['cssFirst'] == 'P') ) {
 			$wContent = str_replace('</title>', '</title>' . "\n\n" . $pfHead, $wContent);
