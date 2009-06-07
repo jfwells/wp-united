@@ -248,12 +248,12 @@ $lang = array_merge($lang, array(
 	'WPWiz_PStyles_Early_Explain4' => 'Se hai intenzione di mettere tutti i tuoi fogli di stile, compreso quello di phpBB, in un unico foglio di stile, puoi disattivare l\'integrazione del foglio di stile di phpBB scegliendo \'Non includere il foglio di stile di phpBB\'.',
 
 	'WPWiz_WPSimple_Title' => 'Integrazione semplice (Header e footer) o vuoi usare una pagina del Template?',
-	'WPWiz_WPSimple_Explain1' => 'Vuoi che phpBB appaia semplicemente tra l\'header e il footert del tuo WordPress, o vuoi che venga visualizzato usando una pagina del template di WordPress?',
-	'WPWiz_WPSimple_Explain2' => 'L\'Integrazione semplice (Header e footer) funzioner&agrave; meglio per la maggior parte dei temi di Wordpress richiedendo meno modifiche ai fogli di stile. <br/>(BY Japgalaxy & Wintermute) NOTA BENE: A causa di un bug se si sceglier&agrave; l\'Integrazione semplice, il meta tag title (molto importante per l\'ottimizzazione per i motori di ricerca) non verr&agrave; aggiornato correttamente quando si navigher&agrave; sulle pagine del forum se integrato in Wordpress. In attesa di un fix ti consigliamo di integrarli \'Usando una pagina del Template\'',
+	'WPWiz_WPSimple_Explain1' => 'Vuoi che phpBB appaia semplicemente tra l\'header e il footer del tuo WordPress, o vuoi che venga visualizzato usando una pagina del template di WordPress?',
+	'WPWiz_WPSimple_Explain2' => 'L\'Integrazione semplice (Header e footer) funzioner&agrave; meglio per la maggior parte dei temi di Wordpress richiedendo meno modifiche ai fogli di stile.',
 	'WPWiz_WPSimple_Explain3' => 'Inoltre, usando una pagina del Template di WordPress per l\'integrazione, potrai far apparire la sidebar, o qualsiasi altra feature di WordPress.',
 
-	'WPWiz_Simple_Yes' => 'Semplice',
-	'WPWiz_Simple_No' => 'Usando una pagina del Template (consigliato)',
+	'WPWiz_Simple_Yes' => 'Semplice (consigliato)',
+	'WPWiz_Simple_No' => 'Usando una pagina del Template',
 
 
 	'WP_Yes_Recommend' => 'Si (consigliato)',
@@ -467,7 +467,7 @@ $lang = array_merge($lang, array(
 	
 	//New in v0.7.0 -- please use the WPWiz prefix, phpbb_smilies is too common and will collide with other mods
 	'WPWiz_Fix_Header_Title' => 'Rimuovi l\'header di phpBB?',
-	'WPWiz_Fix_Header_Explain1' => 'Se attivi questa opzione l\'header di phpBB sarà rimosso. Questa opzione funzioner&agrave; con i temi Prosilver, subSilver2 e derivati. Se vuoi usare un tema personalizzato o vuoi editare il tema tu stesso, disattiva questa opzione. Altrimenti lasciala attiva per una facile integrazione di phpBB in WordPress.',
+	'WPWiz_Fix_Header_Explain1' => 'Se attivi questa opzione l\'header di phpBB sar&agrave; rimosso. Questa opzione funzioner&agrave; con i temi Prosilver, subSilver2 e derivati. Se vuoi usare un tema personalizzato o vuoi editare il tema tu stesso, disattiva questa opzione. Altrimenti lasciala attiva per una facile integrazione di phpBB in WordPress.',
 	'WPWiz_Fix_Header_Explain2' => 'WP-United will try to automatically position the phpBB Quick Search box in the WordPress header. If it does not appear, or you want to put it somewhere else, add the tag &lt;!--PHPBB_SEARCH--&gt; to your WordPress template, and it will automatically appear there.',
 	'WPWiz_Fix' => 'Rimuovi',
 	'WPWiz_No_Fix' => 'Non rimuovere',

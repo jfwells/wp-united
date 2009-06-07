@@ -76,7 +76,9 @@ function get_db_schema() {
 		'xposting' => 'xposting',
 		// Added in v0.7.0
 		'phpbbSmilies' => 'phpbbSmilies',
-		'fixHeader' => 'fixHeader'
+		'fixHeader' => 'fixHeader',
+		// Added in 0.8.0
+		'wpuAutolinkingXpost' => 'wpuAutolinkingXpost'
 	);
 	
 	return $dbSchema;
@@ -120,7 +122,9 @@ function set_default($setting_key) {
 		'xposting' => 0,
 		// Added in 0.7.0
 		'phpbbSmilies' => 0,
-		'fixHeader' => 1
+		'fixHeader' => 1,
+		// Added in 0.8.0
+		'wpuAutolinkingXpost' => 0
 	);
 	
 	return $defaults[$setting_key];

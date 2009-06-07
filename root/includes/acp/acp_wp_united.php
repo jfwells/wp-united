@@ -594,7 +594,15 @@ class acp_wp_united {
 		} else {
 			$xPostEnable = '';
 			$xPostDisable = 'checked="checked"';
-		}		
+		}	
+			
+		if ( $wpSettings['wpuAutolinkingXpost'] ) {
+			$xAlEnable = 'checked="checked"';
+			$xAlDisable = '';
+		} else {
+			$xAlEnable = '';
+			$xAlDisable = 'checked="checked"';
+		}
 		
 		
 		$passVars = array(
@@ -635,7 +643,11 @@ class acp_wp_united {
 			'L_WPXPOST_EXPLAIN' => $wpuAbs->lang('WP_XPost_Explain'),
 			'L_WPXPOST_OPTTITLE' => $wpuAbs->lang('WP_XPost_OptTitle'),			
 			'S_WPXPOST_ENABLE' => $xPostEnable,
-			'S_WPXPOST_DISABLE' => $xPostDisable,				
+			'S_WPXPOST_DISABLE' => $xPostDisable,	
+			// 0.8
+			'S_WPXAL_ENABLE' => $xAlEnable,
+			'S_WPXAL_DISABLE' => $xAlDisable,				
+			//			
 			'L_WPUSER_TITLE' => $wpuAbs->lang('WP_User_Title'),
 			'L_WPMOD_TITLE' => $wpuAbs->lang('WP_Mod_Title'),
 			'L_WPADMIN_TITLE' => $wpuAbs->lang('WP_Admin_Title'),
@@ -964,6 +976,14 @@ class acp_wp_united {
 			$xPostEnable = '';
 			$xPostDisable = 'checked="checked"';
 		}		
+					
+		if ( $wpSettings['wpuAutolinkingXpost'] ) {
+			$xAlEnable = 'checked="checked"';
+			$xAlDisable = '';
+		} else {
+			$xAlEnable = '';
+			$xAlDisable = 'checked="checked"';
+		}
 
 
 		if ( $wpuAbs->ver == 'PHPBB2' ) {
@@ -1067,7 +1087,11 @@ class acp_wp_united {
 			'L_WPXPOST_EXPLAIN' => $wpuAbs->lang('WP_XPost_Explain'),
 			'L_WPXPOST_OPTTITLE' => $wpuAbs->lang('WP_XPost_OptTitle'),
 			'S_WPXPOST_ENABLE' => $xPostEnable,
-			'S_WPXPOST_DISABLE' => $xPostDisable,					
+			'S_WPXPOST_DISABLE' => $xPostDisable,	
+			// 0.8
+			'S_WPXAL_ENABLE' => $xAlEnable,
+			'S_WPXAL_DISABLE' => $xAlDisable,				
+			//
 			'L_WPU_GROUPLIST' => $groupList,
 			'L_WPU_GROUPLIST_SUBS' => $listSubs,
 			'L_WPU_GROUPLIST_CONTS' => $listConts,
@@ -1696,6 +1720,7 @@ class acp_wp_united {
 		if ( $radWpLogin ) {
 		
 			$data['xposting'] = (int) request_var('rad_xPost', '');
+			$data['wpuAutolinkingXpost'] = (int) request_var('al_rad_xPost', '');
 		
 			$data['integrateLogin'] = 1;
 			if ($wpuAbs->ver == 'PHPBB2') {				
@@ -1772,6 +1797,7 @@ class acp_wp_united {
 				}	
 			}
 			$data['xposting'] = 0;
+			$data['wpuAutolinkingXpost'] = 0;
 			$data['integrateLogin'] = 0;
 			$data['permList'] = '';
 			
@@ -2047,6 +2073,8 @@ class acp_wp_united {
 		if ( $radWpLogin ) {
 			$data['integrateLogin'] = 1;
 			$data['xposting'] = (int) request_var('rad_xPost', '');
+			$data['wpuAutolinkingXpost'] = (int) request_var('al_rad_xPost', '');
+			
 			if ($wpuAbs->ver == 'PHPBB2') {
 				//process permissions list
 				if ( (!(strstr($permsList, '[--**WPU-ROLELIST**--]' === FALSE))) && (!(strstr($permsList, '[--**--]' === FALSE))) ) {
@@ -2111,6 +2139,7 @@ class acp_wp_united {
 			$data['buttonsPost'] =  0;
 			$data['allowStyleSwitch'] = 0;
 			$data['xposting'] = 0;
+			$data['wpuAutolinkingXpost'] = 0;
 
 			if ($wpuAbs->ver == 'PHPBB3') {
 				// remove module

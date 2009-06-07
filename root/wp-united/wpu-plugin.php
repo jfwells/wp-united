@@ -907,6 +907,20 @@ function wpu_newpost($post_ID) {
 								}
 								$db->sql_freeresult($result);
 							}
+							
+							
+							//experiment autolinking v0.8
+							if (!empty($connSettings['wpuAutolinkingXpost'])) {
+							  $my_post = array();
+							  $my_post['ID'] = $post_ID;
+							  $my_post['comment_status'] = 'closed';
+							  $my_post['post_content'] = $post->post_content . '<p>Click <a href="'.$topic_url.'" title="Comment this entry on forum">here</a> to comment this on forum.</p>';
+							
+							// Update the post into the database v0.8
+							  wp_update_post( $my_post );
+							}
+							//experiment autolinking
+							
 						} //end if phpBB3
 					} //end have authority to x-post
 				}

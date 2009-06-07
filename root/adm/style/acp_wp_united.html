@@ -217,6 +217,7 @@
 		if (enhanced) {
 			//document.getElementById("wpRowH").style.display = 'none';
 			document.getElementById("xpostRow").style.display = 'none';
+			document.getElementById("xpostRow2").style.display = 'none';
 			document.getElementById("xPostHead").style.display = 'none';			
 			//document.getElementById("wpRow1").style.display = 'none';
 			//document.getElementById("wpRow3").style.display = 'none';
@@ -235,6 +236,7 @@
 		if (enhanced) {
 			//document.getElementById("wpRowH").style.display = '';
 			document.getElementById("xpostRow").style.display = '';
+			document.getElementById("xpostRow2").style.display = '';
 			document.getElementById("xPostHead").style.display = '';
 			//document.getElementById("wpRow1").style.display = '';
 			//document.getElementById("wpRow3").style.display = '';
@@ -389,7 +391,11 @@
 				<dt><label for="xpostYes">{L_WPXPOST_TITLE}</label><br /><span>{L_WPXPOST_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="xpostYes" name="rad_xPost" value="1" {S_WPXPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xPost" value="0" {S_WPXPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
 			</dl>			
-			
+			<dl id="xpostRow2">
+				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>
+				<dd><input type="radio" id="al_xpostYes" name="al_rad_xPost" value="1" {S_WP_AL_XPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="al_rad_xPost" value="0" {S_WP_AL_XPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
+			</dl>			
+
 		</fieldset>
 
 		<fieldset>
@@ -780,12 +786,18 @@
 			} else {
 				hideRows(); 
 			}
+			if (document.getElementById("xpostYes").checked == true) {
+				showRows();
+			} else {
+				hideRows(); 
+			}
 		}
 	}
 	function hideRows() {
 		if (enhanced) {
 			document.getElementById("xpostRow").style.display = 'none';
-			document.getElementById("xPostHead").style.display = 'none';			
+			document.getElementById("xPostHead").style.display = 'none';
+			document.getElementById("xpostRow2").style.display = 'none';
 		}
 	}
 
@@ -793,6 +805,8 @@
 		if (enhanced) {
 			document.getElementById("xpostRow").style.display = '';
 			document.getElementById("xPostHead").style.display = '';
+			document.getElementById("xpostRow2").style.display = '';
+
 		}
 	}
 	function enhancePage() {
@@ -832,7 +846,11 @@
 			<dl id="xpostRow">
 				<dt><label for="xpostYes">{L_WPXPOST_TITLE}</label><br /><span>{L_WPXPOST_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="xpostYes" name="rad_xPost" value="1" {S_WPXPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xPost" value="0" {S_WPXPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
-			</dl>				
+			</dl>	
+            <dl id="xpostRow2">
+				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>
+				<dd><input type="radio" id="al_xpostYes" name="al_rad_xPost" value="1" {S_WPXAL_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="al_rad_xPost" value="0" {S_WPXAL_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
+			</dl>			
 		</fieldset>
 		<input type="hidden" name="mode" value="wizard" />
 		<input type="submit" name="Next" value="{L_WPNEXT}" style="float: right;" class="button1" />	
