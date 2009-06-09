@@ -909,6 +909,7 @@ function wpu_newpost($post_ID) {
 							}
 							
 							
+							
 							//experiment autolinking v0.8
 							if (!empty($connSettings['wpuAutolinkingXpost'])) {
 							  $my_post = array();
@@ -920,6 +921,9 @@ function wpu_newpost($post_ID) {
 							  wp_update_post( $my_post );
 							}
 							//experiment autolinking
+							
+							
+							
 							
 						} //end if phpBB3
 					} //end have authority to x-post
@@ -962,9 +966,9 @@ function wpu_enter_phpbb() {
 	
 		include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
 		if ( 'PHPBB3' == $wpuAbs->ver ) {
-			$user->session_begin();
-			$auth->acl($user->data);
-			$user->setup(0,0);
+			//$user->session_begin();
+			//$auth->acl($user->data);
+			//$user->setup(0,0);
 		}
 	} else {
 		$cache = $phpbb_cache_old;
@@ -1021,8 +1025,9 @@ function wpu_forum_xpost_list() {
 	
 	if ( 'PHPBB2' == $wpuAbs->ver ) {
 		// TODO: PHPBB2 BRANCH!!
-	} else {
-		$can_xpost_to = $GLOBALS['auth']->acl_getf('f_wpu_xpost');
+	} else { 
+		$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
+		
 		if ( sizeof($can_xpost_to) ) { 
 			$can_xpost_to = array_keys($can_xpost_to); 
 		} 
@@ -1036,7 +1041,7 @@ function wpu_forum_xpost_list() {
 					$can_xpost_forumlist['forum_id'][] = $row['forum_id'];
 					$can_xpost_forumlist['forum_name'][] = $row['forum_name'];
 				}
-				$db->sql_freeresult($result); 
+				$db->sql_freeresult($result);
 				return $can_xpost_forumlist;
 			}
 		}
@@ -1581,132 +1586,6 @@ function wpu_prepare_admin_pages() {
 	}
 }
 
-
-//
-//*****************************************************************
-//
-//		P E R  --  U S E R   C A T E G R O R I E S   (experimental, in progress)
-//
-//*****************************************************************
-//
-
-
-// this is called before a post or attachment is saved.
-// The first time this is called, we can make sure they have entered their own category -- otherwise
-// we create a base for them and insert a new category under there.
-function wpu_cat_presave($catArray) {
-	//$userCatId = wpu_get_or_create_usercat(FALSE);
-
-}
-
-//
-//	CATEGORY LISTING ON THE WRITE POST PAGE [AFFECTS LISTING ONLY]
-//
-
-// Here we buffer the categories box on the post page.
-function wpu_catlist_alter($output) {
-	
-	// for WP < 2.1, this was div id=categorychecklist....!
-	$pattern = '/<p id="jaxcat">.*?<\/div>/si';
-	return preg_replace_callback($pattern, 'wpu_cat_doctor', $output);
-}
-
-
-//show the categories the user can post to -- if none exist, then create some!!!!
-function wpu_cat_doctor() {
-
-	//For WP < 2.1, this should be div id=categorychecklist!!!
-	//$output = '<div class="dbx-content">';
-	$output .= "<p id=\"jaxcat\"></p>\n";
-	$output .= "<ul id=\"categorychecklist\">\n";
-	
-	$userCatId = wpu_get_or_create_usercat(TRUE);
-
-	//Generate the category list we really want
-	$categories = get_nested_categories(0, $userCatId);
-	$output .= wpu_gen_nested_cats($categories);
-	$output .= "</ul></div>\n";
-	return $output;
-
-}
-
-function wpu_get_or_create_usercat($addDefaultCat=TRUE) {
-	if ( !($baseCatId = wpu_category_exists(__('User Categories'), 0)) ) { 
-		$baseCatId = wp_insert_category(array(
-			'cat_name' => __('User Categories'),
-			'category_parent' => 0,
-			'category_description' => __('User Categories'))
-		);
-	}
-	
-	global $user_ID;
-	$currUser = get_userdata($user_ID);
-	$addCat = FALSE;
-	if ( !isset($currUser->wpu_my_cats) )  {
-		$addCat = TRUE;;
-	} else {
-		if ( !wpu_cat_id_exists($currUser->wpu_my_cats, $baseCatId) ) {
-			$addCat = TRUE;
-		}
-	}
-	
-	if ($addCat) {
-		$catName = sanitize_title($currUser->user_login);
-		$output .= $catName;
-		$userCatId = wp_insert_category(array(
-			'cat_name' => $catName,
-			'category_parent' => $baseCatId,
-			'category_description' => sprintf(__('%s\'s Personal Categories'), $currUser->user_nicename))
-		);
-		update_usermeta($user_ID, 'wpu_my_cats',  $userCatId);
-	} else {
-		$userCatId = $currUser->wpu_my_cats;
-	}
-	
-	//We now have a user category. Check that there is at least one subcat... if not, create 'uncategorized'
-	if ( (!return_categories_list($userCatId)) && ($addDefaultCat) ) {
-		$uncatCat = wp_insert_category(array(
-			'cat_name' => __('Uncategorized'),
-			'category_parent' => $userCatId,
-			'category_description' => __('Uncategorized'))
-		);
-	}
-	return $userCatId;
-}
-
-function wpu_category_exists($title, $parent=0) {
-	global $wpdb;
-	return $wpdb->get_var("SELECT cat_ID FROM $wpdb->categories WHERE cat_name = '$title' AND category_parent = $parent");
-}
-
-function wpu_cat_id_exists($id, $parent=0) {
-	global $wpdb;
-	$results = $wpdb->get_results("SELECT cat_name FROM $wpdb->categories WHERE cat_ID = $id AND category_parent = $parent");
-	if ( count($results) > 0 ) {
-		return TRUE;
-	} 
-	return FALSE;
-}
-
-function wpu_gen_nested_cats($categories) {
-	foreach ( $categories as $category ) {
-		$catList .= '<li id="category-' . $category['cat_ID'] . '"><label for="in-category-' . $category['cat_ID'] . '" class="selectit"><input value="' . $category['cat_ID'] . '" type="checkbox" name="post_category[]" id="in-category-' . $category['cat_ID'] . '"' . ($category['checked'] ? ' checked="checked"' : "" ) . '/> ' . wp_specialchars( $category['cat_name'] ) . "</label></li>";
-
-		if ( $category['children'] ) {
-			$catList .= "<ul>\n";
-			$catList .= wpu_gen_nested_cats($category['children']);
-			$catList .= "</ul>\n";
-		}
-	}
-	return $catList;
-}
-// ???
-//	CATEGORY CREATION ON WRITE POST PAGE
-//	CATEGORY LISTING & CREATION ON MANAGE CATEGORIES PAGE
-//	CATEGORY LISTING WHEN VIEWING POSTS
-
-
-
 //@since WP-United 0.7.0
 /**
 * Function 'get_avatar()' - Retrieve the phpBB avatar of a user
@@ -1914,7 +1793,70 @@ function wpu_javascript () {
 	}
 }
 
+//@since WP-United 0.7.1
+/**
+* Function 'wpu_fix_blank_username()' - Generates a username in WP when the sanitized username is blank,
+ as phpbb is more liberal in user naming 
+*/
+// Originally by Wintermute
+// If the sanitized user_login is blank, create a random
+// username inside WP. The user_login begins with WPU followed
+// by a random number (1-10) of digits between 0 & 9
+// Also, check to make sure the user_login is unique
+function wpu_fix_blank_username($user_login) {
+	$connSettings = get_settings('wputd_connection');
+	if (!empty($connSettings['logins_integrated'])) { 
+	    if ( empty($user_login) ){
+			$foundFreeName = FALSE;
+			while ( !$foundFreeName ) {
+				$user_login = "WPU";
+				srand(time());
+				for ($i=0; $i < (rand()%9)+1; $i++)
+					$user_login .= (rand()%9);
+				if ( !username_exists($user_login) )
+					$foundFreeName = TRUE;
+			}
+		}
+	}
+	return $user_login;
+}
+
+//@since WP-United 0.7.1
+/**
+* Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
+in WP & phpBB. This is only really a problem in integrated pages when naughty WordPress plugins pull in
+registration.php. 
+
+These functions should NOT collide in usage -- only in namespace. If user integration is turned on, we don't need
+WP's validate_user. 
+
+Furthermore, if phpbb_validate_username is defined, then we know we most likely need to use the phpBB version.
+
+We unfortunately cannot control their
+usage -- phpbb expects 2 arguments, whereas WordPress only expects one.
+
+Therefore here we just try to avoid namespace errors. If they are actually invoked while renamed, the result is undefined
+
+*/ /*
+function wpu_validate_username_conflict($wpValdUser, $username) {
+	global $IN_WORDPRESS;
+	$connSettings = get_settings('wputd_connection');
+	if(function_exists('phpbb_validate_username')) { // we are probably expecting a phpBB response
+		if (!empty($connSettings['logins_integrated']) || (!$IN_WORDPRESS) ) { 
+			// We unfortunately can't get to the second phpBB argument
+			return phpbb_validate_username($username, false);
+		
+		} 
+	}
+	return $wpValdUser;
+}
+*/
+
 // Add hooks and filters
+
+//since v0.7.1
+add_filter('pre_user_login', 'wpu_fix_blank_username');
+//add_filter('validate_username', 'wpu_validate_username_conflict');
 
 //since v0.7.0
 add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
