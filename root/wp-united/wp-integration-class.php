@@ -301,14 +301,16 @@ Class WPU_Integration {
 			require($this->phpbb_root . 'wp-united/wpu-widgets.' . $this->phpEx);
 			
 			
-			//Handle the make clickable conflict
+			
 			global $lang, $wpuAbs;
 			define('ABSPATH',$this->wpu_settings['wpPath']);
 			
+
 			if (!$this->core_cache_ready()) { 
+				
 				$cConf = file_get_contents($this->wpu_settings['wpPath'] . 'wp-config.php');
 				$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
-				
+				//Handle the make clickable conflict
 				if (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/formatting.php')) {
 					$fName='formatting.php';  //WP >= 2.1
 				} elseif (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/functions-formatting.php')) {
@@ -318,7 +320,13 @@ Class WPU_Integration {
 				}
 				$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
 				$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php';
-
+				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
+				if (!$this->wpu_compat) {
+					// fix theme template functions!
+					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
+				}
+				
+				//here we handle references to objects that need to be available in the global scope when we're not.
 				if (!$this->wpu_compat) {
 					foreach ( $this->globalRefs as $gloRef ) {
 						$cSet = str_replace('$'. $gloRef . ' ', '$GLOBALS[\'' . $gloRef . '\'] ',$cSet);
@@ -326,11 +334,10 @@ Class WPU_Integration {
 						$cSet = str_replace('=& $'. $gloRef . ';', '=& $GLOBALS[\'' . $gloRef . '\'];',$cSet);
 					}
 				}
-				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
-				if (!$this->wpu_compat) {
-					// fix theme template functions!
-					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
-				}
+				// Here we take a cursory look into plugins to fix common compatibility problems.
+				// We need to eval because plugins should be in the global scope
+				$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', 'eval($wpUtdInt->make_compatible(WP_PLUGIN_DIR . \'/\' . $plugin));', $cSet);
+				
 				unset ($cFor);
 				$cSet = '?'.'>'.trim($cSet).'<'.'?php';
 				$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
@@ -364,6 +371,14 @@ Class WPU_Integration {
 			return FALSE;
 		}
 		
+	}
+	//	MAKE_COMPATIBLE
+	// 	This is where we try to fix common compatibility problems in plugins
+	//	We return the result as a string for wp-settings to execute
+	//	TODO: Cache any changes we make
+	function make_compatible($pluginLoc) {
+	// Under construction -- for now, just include the plugin
+		return 'include_once("' . $pluginLoc . '");';
 	}
 	
 	function integrate_login() {

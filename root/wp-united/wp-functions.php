@@ -231,26 +231,6 @@ function wp_insert_user($userdata) {
 	$user_login = sanitize_user($user_login, true);
 	$user_login = apply_filters('pre_user_login', $user_login);
 	
-	
-	// Add by Wintermute
-	// If the sanitized user_login is blank, create a random
-	// username inside WP. The user_login begins with WPU followed
-	// by a random number (1-10) of digits between 0 & 9
-	// Also, check to make sure the user_login is unique
-	// NOTE BY JOHN WELLS -- THIS SHOULD ALREADY BE TAKEN CARE OF IN WP-INTEGRATION CLASS ||TODO: 10: TO CHECK
-	    if ( empty($user_login) ){
-			$foundFreeName = FALSE;
-			while ( !$foundFreeName ) {
-				$user_login = "WPU";
-				srand(time());
-				for ($i=0; $i < (rand()%9)+1; $i++)
-					$user_login .= (rand()%9);
-				if ( !username_exists($user_login) )
-					$foundFreeName = TRUE;
-			}
-		}
-	// End add
-
 	if ( empty($user_nicename) )
 		$user_nicename = sanitize_title( $user_login ); 
 	$user_nicename = apply_filters('pre_user_nicename', $user_nicename);
