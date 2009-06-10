@@ -798,11 +798,10 @@ function wpu_justediting() {
 //	Called whenever a new post is published.
 //	Updates the phpBB user table with the latest author ID, to facilitate direct linkage via blog buttons
 //
-function wpu_newpost($post_ID) {
+function wpu_newpost($post_ID, $post) {
 
 	$connSettings = get_settings('wputd_connection');
 	global $user_ID, $wpdb, $wp_version;
-	$post = get_post($post_ID); 
 	if ( $post->post_status == 'publish' ) { 
 		if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
 			update_usermeta($post->post_author, 'wpu_last_post', $post->post_author); 
@@ -848,14 +847,11 @@ function wpu_newpost($post_ID) {
 							}
 						}
 						if ( ((float) $wp_version) >= 2.3 ) {
-
-                         // Get tags for WP >= 2.3
-
-                         $tags = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
-                         if ($tags == "") {
-                            $tags = "No tags definied.";
-                         }
-
+							 // Get tags for WP >= 2.3
+							 $tags = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
+							 if ($tags == "") {
+							    $tags = "No tags definied.";
+							 }
 						}      						
 						mysql_select_db($GLOBALS['dbname']);
 						$excerpt = sprintf($wpuAbs->lang('blog_post_intro'), '[url=' . get_permalink($post_ID) . ']', '[/url]') . "\n\n" . $excerpt . "\n\n" .
@@ -906,21 +902,20 @@ function wpu_newpost($post_ID) {
 									$wpuAbs->err_msg(CRITICAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), __LINE__, __FILE__, $sql);
 								}
 								$db->sql_freeresult($result);
+								
+								if(0==1) { //disabled for release -- not working yet
+								//autolinking
+								//if (!empty($connSettings['wpuAutolinkingXpost']) {
+							  		$thePost = array(
+								  		'ID' 			=> 	$post_ID,
+								  		'comment_status' 	=> 	'closed',
+								  		'post_content'		=>	$post->post_content . "TEST" //"<p><a href=\"$topic_url\" title=\"" . __('Comments') . ">" . __('Comment on this post in our forums') . "</a></p>"
+							  		);
+								}
+								
+								
 							}
 							
-							
-							
-							//experiment autolinking v0.8
-							if (!empty($connSettings['wpuAutolinkingXpost'])) {
-							  $my_post = array();
-							  $my_post['ID'] = $post_ID;
-							  $my_post['comment_status'] = 'closed';
-							  $my_post['post_content'] = $post->post_content . '<p>Click <a href="'.$topic_url.'" title="Comment this entry on forum">here</a> to comment this on forum.</p>';
-							
-							// Update the post into the database v0.8
-							  wp_update_post( $my_post );
-							}
-							//experiment autolinking
 							
 							
 							
@@ -930,6 +925,8 @@ function wpu_newpost($post_ID) {
 				}
 			} //end isset & user_logged_in
 			wpu_exit_phpbb();
+			
+			define('suppress_newpost_action', TRUE);
 		} //end ? logins integrated
 	} //post status: publish
 
@@ -1898,7 +1895,7 @@ add_filter('feed_link', 'wpu_feed_link');
 
 
 add_action('edit_post', 'wpu_justediting');
-add_action('wp_insert_post', 'wpu_newpost');
+add_action('wp_insert_post', 'wpu_newpost', 10, 2);
 add_action('admin_menu', 'wpu_adminmenu_init');
 add_action('admin_footer', 'wpu_put_powered_text');
 add_action('admin_head', 'wpu_admin_init');
