@@ -910,7 +910,8 @@ function wpu_newpost($post_ID, $post) {
 								  		'ID' 			=> 	$post_ID,
 								  		'comment_status' 	=> 	'closed',
 								  		'post_content'		=>	$post->post_content . "TEST" //"<p><a href=\"$topic_url\" title=\"" . __('Comments') . ">" . __('Comment on this post in our forums') . "</a></p>"
-							  		);
+							  		); 
+							  		wp_update_post($thePost);
 								}
 								
 								
