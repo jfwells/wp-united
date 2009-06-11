@@ -596,7 +596,7 @@ class acp_wp_united {
 			$xPostDisable = 'checked="checked"';
 		}	
 			
-		if ( $wpSettings['wpuAutolinkingXpost'] ) {
+		if ( $wpSettings['xpostautolink'] ) {
 			$xAlEnable = 'checked="checked"';
 			$xAlDisable = '';
 		} else {
@@ -644,9 +644,12 @@ class acp_wp_united {
 			'L_WPXPOST_OPTTITLE' => $wpuAbs->lang('WP_XPost_OptTitle'),			
 			'S_WPXPOST_ENABLE' => $xPostEnable,
 			'S_WPXPOST_DISABLE' => $xPostDisable,	
-			// 0.8
+			// 0.7.1
 			'S_WPXAL_ENABLE' => $xAlEnable,
-			'S_WPXAL_DISABLE' => $xAlDisable,				
+			'S_WPXAL_DISABLE' => $xAlDisable,
+			'L_WPXPOST_AUTOLINKING_TITLE' => $wpuAbs->lang('WPWiz_XPost_Autolink_Title'),				
+			'L_WPXPOST_AUTOLINKING_EXPLAIN' => $wpuAbs->lang('WPWiz_XPost_Autolink_Explain'),
+			'L_WPXPOSTAL_OPTTITLE' => $wpuAbs->lang('WPWiz_Autolink_Sectitle'),			
 			//			
 			'L_WPUSER_TITLE' => $wpuAbs->lang('WP_User_Title'),
 			'L_WPMOD_TITLE' => $wpuAbs->lang('WP_Mod_Title'),
@@ -977,7 +980,7 @@ class acp_wp_united {
 			$xPostDisable = 'checked="checked"';
 		}		
 					
-		if ( $wpSettings['wpuAutolinkingXpost'] ) {
+		if ( $wpSettings['xpostautolink'] ) {
 			$xAlEnable = 'checked="checked"';
 			$xAlDisable = '';
 		} else {
@@ -1088,9 +1091,12 @@ class acp_wp_united {
 			'L_WPXPOST_OPTTITLE' => $wpuAbs->lang('WP_XPost_OptTitle'),
 			'S_WPXPOST_ENABLE' => $xPostEnable,
 			'S_WPXPOST_DISABLE' => $xPostDisable,	
-			// 0.8
+			// 0.71
 			'S_WPXAL_ENABLE' => $xAlEnable,
-			'S_WPXAL_DISABLE' => $xAlDisable,				
+			'S_WPXAL_DISABLE' => $xAlDisable,
+			'L_WPXPOST_AUTOLINKING_TITLE' => $wpuAbs->lang('WPWiz_XPost_Autolink_Title'),				
+			'L_WPXPOST_AUTOLINKING_EXPLAIN' => $wpuAbs->lang('WPWiz_XPost_Autolink_Explain'),						
+			'L_WPXPOSTAL_OPTTITLE' => $wpuAbs->lang('WPWiz_Autolink_Sectitle'),
 			//
 			'L_WPU_GROUPLIST' => $groupList,
 			'L_WPU_GROUPLIST_SUBS' => $listSubs,
@@ -1720,7 +1726,7 @@ class acp_wp_united {
 		if ( $radWpLogin ) {
 		
 			$data['xposting'] = (int) request_var('rad_xPost', '');
-			$data['wpuAutolinkingXpost'] = (int) request_var('al_rad_xPost', '');
+			$data['xpostautolink'] = (int) request_var('rad_xpost_al', '');
 		
 			$data['integrateLogin'] = 1;
 			if ($wpuAbs->ver == 'PHPBB2') {				
@@ -1797,7 +1803,7 @@ class acp_wp_united {
 				}	
 			}
 			$data['xposting'] = 0;
-			$data['wpuAutolinkingXpost'] = 0;
+			$data['xpostautolink'] = 0;
 			$data['integrateLogin'] = 0;
 			$data['permList'] = '';
 			
@@ -2073,7 +2079,7 @@ class acp_wp_united {
 		if ( $radWpLogin ) {
 			$data['integrateLogin'] = 1;
 			$data['xposting'] = (int) request_var('rad_xPost', '');
-			$data['wpuAutolinkingXpost'] = (int) request_var('al_rad_xPost', '');
+			$data['xpostautolink'] = (int) request_var('rad_xpost_al', '');
 			
 			if ($wpuAbs->ver == 'PHPBB2') {
 				//process permissions list
@@ -2139,7 +2145,7 @@ class acp_wp_united {
 			$data['buttonsPost'] =  0;
 			$data['allowStyleSwitch'] = 0;
 			$data['xposting'] = 0;
-			$data['wpuAutolinkingXpost'] = 0;
+			$data['xpostautolink'] = 0;
 
 			if ($wpuAbs->ver == 'PHPBB3') {
 				// remove module
@@ -3061,6 +3067,7 @@ class acp_wp_united {
 				
 			} else {
 			
+				// We build up the connection settings for WordPress
 				$pluginPath = "wpu-plugin." . $phpEx;
 			
 			
@@ -3080,7 +3087,7 @@ class acp_wp_united {
 				$WPU_Connection['styles'] = $wpSettings['allowStyleSwitch'];
 				$WPU_Connection['blogs'] = $wpSettings['usersOwnBlogs'];
 				$WPU_Connection['wpu_enable_xpost'] = $wpSettings['xposting'];
-			
+				$WPU_Connection['autolink_xpost'] = $wpSettings['xpostautolink'];
 				//Set Connection settings
 				update_option('wputd_connection', $WPU_Connection);
 				$server = $this->add_http($this->add_trailing_slash($wpuAbs->config('server_name')));

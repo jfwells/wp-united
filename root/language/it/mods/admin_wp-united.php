@@ -488,6 +488,11 @@ $lang = array_merge($lang, array(
 	'Map_Break_All' => 'Rimuovi tutte le integrazioni',
 	'Map_Reset_Default' => 'Resetta selezionati',
 	'DEBUG_SERVER_SETTINGS' => 'Server:',
+	
+	//New in v0.7.1
+	'WPWiz_Autolink_Sectitle' => 'You can set the following option if you allow cross-posting',
+	'WPWiz_XPost_Autolink_Title' => 'Autolink comments for cross-posted posts',
+	'WPWiz_XPost_Autolink_Explain' => 'Choose this option to automatically disable WordPress comments for cross-posted posts, and display a link to the post on the forum instead.',	
 ));
 
 ?>

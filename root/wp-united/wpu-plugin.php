@@ -802,6 +802,7 @@ function wpu_newpost($post_ID, $post) {
 
 	$connSettings = get_settings('wputd_connection');
 	global $user_ID, $wpdb, $wp_version;
+	$did_xPost = false;
 	if ( $post->post_status == 'publish' ) { 
 		if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
 			update_usermeta($post->post_author, 'wpu_last_post', $post->post_author); 
@@ -903,30 +904,25 @@ function wpu_newpost($post_ID, $post) {
 								}
 								$db->sql_freeresult($result);
 								
-								if(0==1) { //disabled for release -- not working yet
-								//autolinking
-								//if (!empty($connSettings['wpuAutolinkingXpost']) {
-							  		$thePost = array(
-								  		'ID' 			=> 	$post_ID,
-								  		'comment_status' 	=> 	'closed',
-								  		'post_content'		=>	$post->post_content . "TEST" //"<p><a href=\"$topic_url\" title=\"" . __('Comments') . ">" . __('Comment on this post in our forums') . "</a></p>"
-							  		); 
-							  		wp_update_post($thePost);
-								}
-								
-								
+								$did_xPost = true;
 							}
-							
-							
-							
-							
-							
 						} //end if phpBB3
 					} //end have authority to x-post
 				}
 			} //end isset & user_logged_in
 			wpu_exit_phpbb();
-			
+
+			if($did_xPost) { //Need to do this after we exit phpBB code
+				if (!empty($connSettings['autolink_xpost'])) {
+			  		$thePost = array(
+				  		'ID' 			=> 	$post_ID,
+				  		'comment_status' 	=> 	'closed',
+				  		'post_content'		=>	$post->post_content . "<p><a href=\"$topic_url\" title=\"" . __('Comments') . "\">" . __('Comment on this post in our forums') . "</a></p>"
+			  		); 
+			  		wp_update_post($thePost);
+				}
+			}
+
 			define('suppress_newpost_action', TRUE);
 		} //end ? logins integrated
 	} //post status: publish
@@ -1471,7 +1467,7 @@ function wpu_add_meta_box() {
 	// this function is called early
 	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
-			$wpuConnSettings = get_settings('wputd_connection');
+			$wpuConnSettings = get_settings('wputd_connection'); 
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to
 			if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) { 

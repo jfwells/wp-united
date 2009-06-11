@@ -77,8 +77,8 @@ function get_db_schema() {
 		// Added in v0.7.0
 		'phpbbSmilies' => 'phpbbSmilies',
 		'fixHeader' => 'fixHeader',
-		// Added in 0.8.0
-		'wpuAutolinkingXpost' => 'wpuAutolinkingXpost'
+		// Added in 0.7.1
+		'xpostautolink' => 'xpostautolink'
 	);
 	
 	return $dbSchema;

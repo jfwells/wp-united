@@ -126,7 +126,7 @@
 				hideBlogRows();
 			}
 			if (document.getElementById("integrateYes").checked == true) {
-				showRows();
+				hideRows(); showRows();
 			} else {
 				hideRows(); hideListingRows()
 			}
@@ -217,7 +217,8 @@
 		if (enhanced) {
 			//document.getElementById("wpRowH").style.display = 'none';
 			document.getElementById("xpostRow").style.display = 'none';
-			document.getElementById("xpostRow2").style.display = 'none';
+			document.getElementById("xpostal").style.display = 'none';
+			document.getElementById("xpostalhead").style.display = 'none';
 			document.getElementById("xPostHead").style.display = 'none';			
 			//document.getElementById("wpRow1").style.display = 'none';
 			//document.getElementById("wpRow3").style.display = 'none';
@@ -236,7 +237,10 @@
 		if (enhanced) {
 			//document.getElementById("wpRowH").style.display = '';
 			document.getElementById("xpostRow").style.display = '';
-			document.getElementById("xpostRow2").style.display = '';
+			if (document.getElementById("xpostYes").checked == true) {
+				document.getElementById("xpostal").style.display = '';
+				document.getElementById("xpostalhead").style.display = '';
+			}
 			document.getElementById("xPostHead").style.display = '';
 			//document.getElementById("wpRow1").style.display = '';
 			//document.getElementById("wpRow3").style.display = '';
@@ -390,11 +394,13 @@
 			<dl id="xpostRow">
 				<dt><label for="xpostYes">{L_WPXPOST_TITLE}</label><br /><span>{L_WPXPOST_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="xpostYes" name="rad_xPost" value="1" {S_WPXPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xPost" value="0" {S_WPXPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
-			</dl>			
-			<dl id="xpostRow2">
+			</dl>
+			<h3 id="xpostalhead" style="margin-bottom: 20px;">{L_WPXPOSTAL_OPTTITLE}</h3>		
+			<dl id="xpostal">
 				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>
-				<dd><input type="radio" id="al_xpostYes" name="al_rad_xPost" value="1" {S_WP_AL_XPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="al_rad_xPost" value="0" {S_WP_AL_XPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
-			</dl>			
+				<dd><input type="radio" id="al_xpostYes" name="rad_xpost_al" value="1" {S_WPXAL_ENABLE} />{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xpost_al" value="0" {S_WPXAL_DISABLE} />{L_WP_NO}</dd>
+			</dl>
+		</fieldset>		
 
 		</fieldset>
 
@@ -782,12 +788,7 @@
 	function rowState() {
 		if (enhanced) {
 			if (document.getElementById("integrateYes").checked == true) {
-				showRows();
-			} else {
-				hideRows(); 
-			}
-			if (document.getElementById("xpostYes").checked == true) {
-				showRows();
+				hideRows(); showRows();
 			} else {
 				hideRows(); 
 			}
@@ -797,7 +798,8 @@
 		if (enhanced) {
 			document.getElementById("xpostRow").style.display = 'none';
 			document.getElementById("xPostHead").style.display = 'none';
-			document.getElementById("xpostRow2").style.display = 'none';
+			document.getElementById("xpostal").style.display = 'none';
+			document.getElementById("xpostalhead").style.display = 'none';
 		}
 	}
 
@@ -805,7 +807,10 @@
 		if (enhanced) {
 			document.getElementById("xpostRow").style.display = '';
 			document.getElementById("xPostHead").style.display = '';
-			document.getElementById("xpostRow2").style.display = '';
+			if (document.getElementById("xpostYes").checked == true) {
+				document.getElementById("xpostal").style.display = '';
+				document.getElementById("xpostalhead").style.display = '';
+			}
 
 		}
 	}
@@ -847,10 +852,11 @@
 				<dt><label for="xpostYes">{L_WPXPOST_TITLE}</label><br /><span>{L_WPXPOST_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="xpostYes" name="rad_xPost" value="1" {S_WPXPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xPost" value="0" {S_WPXPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
 			</dl>	
-            <dl id="xpostRow2">
+			<h3 id="xpostalhead" style="margin-bottom: 20px;">{L_WPXPOSTAL_OPTTITLE}</h3>		
+			<dl id="xpostal">
 				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>
-				<dd><input type="radio" id="al_xpostYes" name="al_rad_xPost" value="1" {S_WPXAL_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="al_rad_xPost" value="0" {S_WPXAL_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
-			</dl>			
+				<dd><input type="radio" id="al_xpostYes" name="rad_xpost_al" value="1" {S_WPXAL_ENABLE} />{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xpost_al" value="0" {S_WPXAL_DISABLE} />{L_WP_NO}</dd>
+			</dl>		
 		</fieldset>
 		<input type="hidden" name="mode" value="wizard" />
 		<input type="submit" name="Next" value="{L_WPNEXT}" style="float: right;" class="button1" />	
