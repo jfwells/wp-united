@@ -913,11 +913,16 @@ function wpu_newpost($post_ID, $post) {
 			wpu_exit_phpbb();
 
 			if($did_xPost) { //Need to do this after we exit phpBB code
+				$topic_url = explode("/", $topic_url); 
+				array_shift($topic_url);
+				$topic_url = implode("/", $topic_url);
+			
+			
 				if (!empty($connSettings['autolink_xpost'])) {
 			  		$thePost = array(
 				  		'ID' 			=> 	$post_ID,
 				  		'comment_status' 	=> 	'closed',
-				  		'post_content'		=>	$post->post_content . "<p><a href=\"$topic_url\" title=\"" . __('Comments') . "\">" . __('Comment on this post in our forums') . "</a></p>"
+				  		'post_content'		=>	$post->post_content . "<br /><br /><a href=\"$topic_url\" title=\"" . __('Comments') . "\">" . __('Comment on this post in our forums') . "</a>"
 			  		); 
 			  		wp_update_post($thePost);
 				}
@@ -1888,7 +1893,7 @@ add_filter('feed_link', 'wpu_feed_link');
 
 
 add_action('edit_post', 'wpu_justediting');
-add_action('wp_insert_post', 'wpu_newpost', 10, 2);
+add_action('publish_post', 'wpu_newpost', 10, 2); //updated 
 add_action('admin_menu', 'wpu_adminmenu_init');
 add_action('admin_footer', 'wpu_put_powered_text');
 add_action('admin_head', 'wpu_admin_init');
