@@ -212,8 +212,8 @@ $lang = array_merge($lang, array(
 	'WPWiz_Template_Forward' => 'Integra WordPress nel template di phpBB',
 	'WPWiz_Template_Reverse' => 'Integra phpBB nel template di WordPress',
 	'WPWiz_Template_None' => 'Non voglio integrare i loro template',
-	'WPWiz_Inside_Explain1' => "WP-United pu&ograve; integrare i template di phpBB e di WordPress.",
-	'WPWiz_Inside_Explain2' => "Puoi scegliere di visualizzare WordPress tra l\'header e il footer di phpBB, o visualizzare phpBB tra l\'header e il footer di WordPress, oppure ancora non scegliere nessuna integrazione grafica tra i due. Le opzioni qui di seguito possono variare a seconda del tipo di integrazione che si sceglie.",
+	'WPWiz_Inside_Explain1' => 'WP-United pu&ograve; integrare i template di phpBB e di WordPress.',
+	'WPWiz_Inside_Explain2' => 'Puoi scegliere di visualizzare WordPress tra l\'header e il footer di phpBB, o visualizzare phpBB tra l\'header e il footer di WordPress, oppure ancora non scegliere nessuna integrazione grafica tra i due. Le opzioni qui di seguito possono variare a seconda del tipo di integrazione che si sceglie.',
 	'WPWiz_Template_Forward_Title' => 'Le seguenti opzioni devono essere impostate se scegli di visualizzare WordPress all\'interno di phpBB...',
 	'WPWiz_Template_Reverse_Title' => 'Le seguenti opzioni devono essere impostate se scegli di visualizzare phpBB all\'interno di WordPress...',
 
@@ -490,9 +490,9 @@ $lang = array_merge($lang, array(
 	'DEBUG_SERVER_SETTINGS' => 'Server:',
 	
 	//New in v0.7.1
-	'WPWiz_Autolink_Sectitle' => 'You can set the following option if you allow cross-posting',
-	'WPWiz_XPost_Autolink_Title' => 'Autolink comments for cross-posted posts',
-	'WPWiz_XPost_Autolink_Explain' => 'Choose this option to automatically disable WordPress comments for cross-posted posts, and display a link to the post on the forum instead.',	
+	'WPWiz_Autolink_Sectitle' => 'Puoi impostare l\'opzione seguente se permetti il cross-posting dei post di Wordpress',
+	'WPWiz_XPost_Autolink_Title' => 'Autolink comments per i cross-posted posts',
+	'WPWiz_XPost_Autolink_Explain' => 'Scegli questa opzione per disabilitare automaticamente i commenti di Wordpress quando effettui il cross-posting. Verr&agrave; inserito automaticamente anche il link al corrispondente post nel forum.',	
 ));
 
 ?>

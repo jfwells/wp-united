@@ -66,8 +66,8 @@
 	'ACP_WPU_UNINSTALL'   =>    'Disinstalla WP-United',
 	'ACP_WPU_RESET'      =>    'Resetta WP-United',
 	'ACP_WPU_DEBUG'		=>	'Informazioni per il Debug',	
-	'WP_UNINSTALLED' => 'WP-United è stato disinstallato',
-	'WP_INSTALLED' => 'WP-United è stato installato',
+	'WP_UNINSTALLED' => 'WP-United &egrave; stato disinstallato',
+	'WP_INSTALLED' => 'WP-United &egrave; stato installato',
 ]]></action>
       </edit>
     </open>
