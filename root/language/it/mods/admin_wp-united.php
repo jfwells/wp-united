@@ -47,7 +47,7 @@ $lang = array_merge($lang, array(
 
 	'WP_Title' => 'Impostazioni di WP-United',
 	'WP_Intro1' => 'Benvenuto in WP-United.',
-	'WP_Intro2' => 'Le seguenti impostazioni devono essere impostate correttamente per far s&icirc; che la Mod funzioni correttamente.',
+	'WP_Intro2' => 'Le seguenti impostazioni devono essere impostate correttamente per far s&igrave; che la Mod funzioni correttamente.',
 	'WP_Settings' => 'Impostazioni base',
 	'WP_UriTitle' => 'URL base di WordPress',
 	'WP_UriExplain' => 'Questo &egrave; l\'URL completo in cui Wordpress &egrave; installato. Devi inserire l\'URL che Wordpress avrebbe se non fosse integrato in phpBB. Ad esempio: http://www.example.com/wordpress/ se Wordpress si trova nella cartella "wordpress" o http://www.example.com/ se Wordpress si trova nella root.',
