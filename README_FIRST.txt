@@ -1,6 +1,6 @@
-﻿WP-UNITED WordPress Integration Mod v0.9.5 RC1 for phpBB3
+﻿WP-UNITED WordPress Integration Mod v0.7.0 RC1 for phpBB3
 -----------------------------------------------
-Last updated: 30 May 2009, by John Wells
+Last updated: 12 June 2009, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -35,15 +35,24 @@ Once you have installed the mod, you should visit http://your-forum-address/wpu-
 
 You should then be able to run the WP-United Setup Wizard, located under the WP-United tab in the phpBB Admin Control Panel.
 
-The Setup Wizard will try to install a plugin into your WordPress wp-content/plugins folder. That folder is usually writable, but if it is not, please copy the file wpu-plugin from [phpbb]/wp-united there yourself (please remember to *copy* it, NOT move it!)
+The Setup Wizard will try to install a plugin into your WordPress wp-content/plugins folder. That folder is usually writable, but if it is not, please copy the file wpu-plugin from [phpbb]/wp-united there yourself (please remember to *copy* it, NOT move it!), and then continue or run the WP-United Setup Wizard again.
 
+
+PERMISSIONS & INTEGRATING USERS
+-------------------------------
+
+If you elect to integrate users, you need to visit your phpBB ACP permissions tab and choose which users / groups can integrate, and what level in WordPress they get.
+
+If you already have WordPress users set up, you can import them into phpBB using the included mapping tool, available under the WP-United ACP tab.
 
 UPGRADES
 -------------
 
 Instructions on converting from previous versions of WP-United, and all the way from phpBB2, are included in the contrib folder.
 
-Remember, whenever upgrading WordPress or WP-United, to clear on the wp-united/cache folder, run the WP-United setup Wizard again.
+If your version is more recent that any of the upgrade files, just copy over all the files from /root, and then clear your phpBB cache and the WP-United/cache folder.
+
+Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/cache folder, run the WP-United setup Wizard again.
 
 
 
@@ -76,6 +85,14 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+v0.7.1 (STILL RELEASE CANDIDATE 1!)
+-- NEW: Auto-linking of cross-posted posts' comments to the forum.
+-- FIXED: (regression) List of forums with cross-posting permissions not correct in wp-admin
+-- FIXED: posts not cross-posting if post is first saved as a draft
+-- FIXED: Couple of mistakes in install.xml causing errors in AutoMod
+-- FIXED: Regression in session invocation was causing autologin to stop workig with some setups
+-- FIXED: Some plugins caused widgets to be executed in wp-admin, where wp-united widgets aren't designed to run, causing errors.
 
 
 v0.7.0 RELEASE CANDIDATE 1
