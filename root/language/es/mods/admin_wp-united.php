@@ -4,7 +4,7 @@
 * WP-United [Spanish]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.7.0 2009/05/18 Raistlin (Raistlin) Exp $
+* @version $Id: wp-united.php,v 0.7.1 2009/05/18 Raistlin (Raistlin) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -42,7 +42,7 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
     'ACP_WPU_INDEX_TITLE'   => 'WP-United',
         
-    'WPU_Default_Version' => 'v0.7.0-RC1',
+    'WPU_Default_Version' => 'v0.7.1-RC1',
     'WP_Version_Text' => 'WP-United %s',
 
     'WP_Title' => 'WP-United Opciones',
