@@ -122,7 +122,7 @@ $lang = array_merge($lang, array(
 	'WP_Role_Administrator' => 'Amministratore',
 
 	//Main Page
-	'WP_Main_Title' => 'Benvenuto in WP-United v0.7.0',
+	'WP_Main_Title' => 'Benvenuto in WP-United v0.7.1',
 	'WP_Main_Intro' => 'Da qui &egrave; possibile impostare WP-United, e scegliere le impostazioni necessarie per farla funzionare nel modo desiderato.',
 	'WP_Main_IntroFirst' => 'Non hai ancora installato la mod. Ti consigliamo di eseguire l\'Installazione Guidata che puoi trovare qui di seguito.',
 	'WP_Main_IntroAdd' => 'Hai gi&agrave; installato la mod. &Egrave; possibile cambiare le opzioni cliccando sul pulsante "Impostazioni", qui di seguito.',
