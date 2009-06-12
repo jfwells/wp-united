@@ -83,6 +83,7 @@ Class WPU_Integration {
 		'wp_registered_widgets', 
 		'wp_registered_widget_controls', 
 		'wp_registered_widget_updates',
+		'_wp_deprecated_widgets_callbacks',
 		// comments
 		'comment', 
 		'comments', 

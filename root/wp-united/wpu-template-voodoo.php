@@ -165,5 +165,16 @@ class Template_Voodoo {
 	}
 	
 	
-}	
+}
+//str_ireplace for PHP4
+if(!function_exists('str_ireplace') {
+	function str_ireplace($Needle, $Replacement, $Haystack){
+	   $i = 0;
+	   while($Pos = strpos(strtolower($Haystack), $Needle, $i)){
+	       $Haystack = substr($Haystack, 0, $Pos).$Replacement.substr($Haystack, $Pos+strlen($Needle));
+	       $i = $Pos+strlen($Replacement);
+	   }
+	   return $Haystack;
+	}
+}
 

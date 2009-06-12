@@ -4,7 +4,7 @@ Plugin Name: WP-United Connection
 Plugin URI: http://www.wp-united.com
 Description: THis is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
-Version: 0.9.5-Beta (phpBB2) / v0.7.0 Beta (phpBB3)
+Version: 0.9.5-Beta (phpBB2) / v0.7.1 Beta (phpBB3)
 Last Updated: 18 May 2009
 Author URI: http://www.wp-united.com
 
@@ -14,7 +14,7 @@ NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow php
 	- WordPress hard-codes php extensions, so so do we
 
 DO NOT MODIFY THE BELOW LINE:
-||WPU-PLUGIN-VERSION=700||
+||WPU-PLUGIN-VERSION=701||
 */ 
 
 // this file will also be called in wp admin panel, when phpBB is not loaded. ABSPATH should *always* be set though!
@@ -959,11 +959,7 @@ function wpu_enter_phpbb() {
 		include($phpbb_root_path . 'common.' . $phpEx);
 	
 		include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
-		if ( 'PHPBB3' == $wpuAbs->ver ) {
-			//$user->session_begin();
-			//$auth->acl($user->data);
-			//$user->setup(0,0);
-		}
+
 	} else {
 		$cache = $phpbb_cache_old;
 		$user = $phpbb_user_old;
@@ -1815,7 +1811,7 @@ function wpu_fix_blank_username($user_login) {
 	return $user_login;
 }
 
-//@since WP-United 0.7.1
+//@since WP-United 0.7.?future
 /**
 * Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
 in WP & phpBB. This is only really a problem in integrated pages when naughty WordPress plugins pull in
