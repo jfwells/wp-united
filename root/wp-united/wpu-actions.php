@@ -51,16 +51,7 @@ class WPU_Actions {
 			}
 		} 	
 	}
-		
-	function do_tail() {
-		global $pfContent, $phpbb_root_path, $phpEx;
-		if (defined('WPU_REVERSE_INTEGRATION')) {
-			$pfContent = ob_get_contents();
-			ob_end_clean();
-			//insert phpBB into a wordpress page
-			include ($phpbb_root_path . 'wp-united/wordpress-entry-point.' . $phpEx);
-		}	
-	}
+
 	function do_logout() { 
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);

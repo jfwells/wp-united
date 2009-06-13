@@ -3081,6 +3081,13 @@ class acp_wp_united {
 				$wpu_debug .= 'Path back to phpBB: ' . $WPU_Connection['path_to_phpbb'] . '<br />';
 				// We will also want to access our WP-United Connection as a relative URL
 				$WPU_Connection['path_to_plugin'] = $this->add_trailing_slash($board_config['script_path']) . "wp-united/wpu-plugin." . $phpEx;
+				// We'll also want to have the full scriptPath in wp-admin for playing with URLs
+				$server = $wpuAbs->config('server_protocol') . $this->add_trailing_slash($wpuAbs->config('server_name'));
+				$scriptPath = $this->add_trailing_slash($wpuAbs->config('script_path'));
+				$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
+				$scriptPath = $server . $scriptPath;
+				$WPU_Connection['phpbb_url'] = $scriptPath;
+				
 				//and...
 				$WPU_Connection['path_to_wp'] = $wpSettings['wpPath'];
 				$WPU_Connection['logins_integrated'] = $wpSettings['integrateLogin'];

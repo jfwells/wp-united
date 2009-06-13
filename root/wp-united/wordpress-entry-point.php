@@ -85,7 +85,7 @@ if ( isset($HTTP_GET_VARS['numposts']) ) {
 
 
 // These will be useful later on
-$server = add_http(add_trailing_slash($wpuAbs->config('server_name')));
+$server = $wpuAbs->config('server_protocol') . add_trailing_slash($wpuAbs->config('server_name'));
 $scriptPath = add_trailing_slash($wpuAbs->config('script_path'));
 $scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 $scriptPath = $server . $scriptPath;

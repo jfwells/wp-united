@@ -913,12 +913,12 @@ function wpu_newpost($post_ID, $post) {
 			wpu_exit_phpbb();
 
 			if($did_xPost) { //Need to do this after we exit phpBB code
-				$topic_url = explode("/", $topic_url); 
-				array_shift($topic_url);
-				$topic_url = implode("/", $topic_url);
+				$topic_url = str_replace($connSettings['path_to_phpbb'], "", $topic_url);
+				$topic_url = $connSettings['phpbb_url'] . $topic_url;
 			
 			
 				if (!empty($connSettings['autolink_xpost'])) {
+				
 			  		$thePost = array(
 				  		'ID' 			=> 	$post_ID,
 				  		'comment_status' 	=> 	'closed',
