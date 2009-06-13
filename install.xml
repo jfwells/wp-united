@@ -18,7 +18,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.7.1RC1</mod-version>
+    <mod-version>0.8.0RC2</mod-version>
     <installation>
       <level>intermediate</level>
       <time>1200</time>
@@ -39,6 +39,7 @@ Visit http://www.wp-united.com for more help or information.
     <copy>
       <file from="/root/blog.php" to="/blog.php" />
       <file from="/root/adm/style/acp_wp_united.html" to="/adm/style/acp_wp_united.html" />
+      <file from="/root/includes/hooks/hook_wp-united.php" to="/includes/hooks/hook_wp-united.php" />
       <file from="/root/includes/acp/acp_wp_united.php" to="/includes/acp/acp_wp_united.php" />
       <file from="/root/includes/acp/info/acp_wp_united.php" to="/includes/acp/info/acp_wp_united.php" />
       <file from="/root/language/en/mods/admin_wp-united.php" to="/language/en/mods/admin_wp-united.php" />
@@ -46,7 +47,7 @@ Visit http://www.wp-united.com for more help or information.
       <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
       <file from="/root/styles/prosilver/template/blog.html" to="/styles/prosilver/template/blog.html" />
       <file from="/root/styles/subsilver2/template/blog.html" to="/styles/subsilver2/template/blog.html" />
-      <file from="/root/wp-united" to="/wp-united" />
+      <file from="/root/wp-united/" to="/wp-united/" />
     </copy>
 	<open src="includes/functions_content.php">
       <edit>
@@ -93,13 +94,6 @@ Visit http://www.wp-united.com for more help or information.
 	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 	$GLOBALS['wpu_actions']->do_head($template);
 ]]></action>
-      </edit>
-      <edit>
-        <find><![CDATA[	$template->display('body');
-]]></find>
-        <action type="after-add"><![CDATA[	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-	$GLOBALS['wpu_actions']->do_tail();
-	]]></action>
       </edit>
     </open>
     <open src="memberlist.php">
