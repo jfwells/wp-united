@@ -166,21 +166,41 @@ class CSS_Magic {
 		$this->_makeSpecific("#{$classAndId} .{$classAndId}", $removeBody);
 	}
 	
-	function renameIds($prefix) {
+	function renameIds($prefix, $IDs) {
 		$fixed = array();
-		foreach($this->css as $keyString => $cssCode) {
-			$fixed[str_replace("#", "#{$prefix}", $keyString)] = $cssCode;
+		$searchStrings = array();
+		$replStrings = array();
+		if(sizeof($IDs)) {
+			foreach($IDs as $ID) {
+				foreach(array(' ', '{', '.', '#', ':') as $suffix) {
+					$searchStrings[] = "#{$ID}{$suffix}";
+					$replStrings[] = "#{$prefix}{$ID}{$suffix}";
+				}
+			}
+			foreach($this->css as $keyString => $cssCode) {
+				$fixed[str_replace($searchStrings, $replStrings, $keyString)] = $cssCode;
+			}
+			$this->css = $fixed;
 		}
-		$this->css = $fixed;
 		unset($fixed);
 	}
 	
-	function renameClasses($prefix) {
+	function renameClasses($prefix, $classes) {
 		$fixed = array();
-		foreach($this->css as $keyString => $cssCode) {
-			$fixed[str_replace(".", ".{$prefix}", $keyString)] = $cssCode;
-		}
-		$this->css = $fixed;
+		$searchStrings = array();
+		$replStrings = array();
+		if(sizeof($classes)) {
+			foreach($classes as $class) {
+				foreach(array(' ', '{', '.', '#', ':') as $suffix) {
+					$searchStrings[] = '#' . $class . $suffix;
+					$replStrings[] = "#{$prefix}{$class}";
+				}
+			}
+			foreach($this->css as $keyString => $cssCode) {
+				$fixed[str_replace($searchStrings, $replStrings, $keyString)] = $cssCode;
+			}
+			$this->css = $fixed;
+		}		
 		unset($fixed);
 	}	
 	

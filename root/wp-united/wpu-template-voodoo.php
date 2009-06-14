@@ -106,7 +106,7 @@ class Template_Voodoo {
 	function checkTemplate($content) {
 		if($this->loaded) {
 			// Detect all IDs
-			preg_match_all("/(id\s*=\s*\"[^\s]*\")|(id\s*=\s*\'[^\s]*\')/i", $content, $vdIDs);
+			preg_match_all("/(id\s*=\s*\"\s*[^\s]+\s*\")|(id\s*=\s*\'\s*[^\s]+\s*\')/i", $content, $vdIDs);
 			$dupes = array();
 			foreach ($vdIDs[0] as $vdID) {
 				$idName = strtolower(trim(str_ireplace(array("id", "=", "'", '"', " "), "", $vdID)));
@@ -119,17 +119,17 @@ class Template_Voodoo {
 				}
 			}
 			// Detect all classes
-			preg_match_all("/(class\s*=\s*\"[^\"]*\")|(class\s*=\s*\'[^\']*\')/i", $content, $vdClasses);
+			preg_match_all("/(class\s*=\s*\"\s*[^\"]+\s*\")|(class\s*=\s*\'\s*[^\']+\s*\')/i", $content, $vdClasses);
 			foreach ($vdClasses[0] as $vdClass) {
 				$classNames = strtolower(trim(str_ireplace(array("class", "=", "'", '"'), "", $vdClass)));
 				$className = explode(" ", $classNames);
 				foreach($className as $cN) {
 					if(!empty($cN)) {
-						$cName = trim($cName);
+						$cName = trim($cN);
 						foreach($this->classNames as $key => $val) {
-							if($cName == $key) {
-								if(!in_array($cName, $this->classDupes)) {
-									$this->classDupes[] = $cName;
+							if($cN == $key) {
+								if(!in_array($cN, $this->classDupes)) {
+									$this->classDupes[] = $cN;
 								}
 							}
 						}					
@@ -141,17 +141,20 @@ class Template_Voodoo {
 		return false;		
 	}
 	
-	function storeResult() {
+	function storeResult($wpTemplate, $phpbbTemplate) {
 		if($this->loaded) {
-			// To store in the form:
-			/* Array:
-			phpBB template name => array:
-				WordPress template name => array:
-					ID Duplicates
-					Class Duplicates
-			*/
-		
-			return true;
+			global $phpbb_root_path, $wpuAbs;
+			$vdData = serialize(array($this->idDupes, $this->classDupes));
+			$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_tvoodoo' . floor(round(0, 9999)) . 'cache';
+			// Get template & theme name here & check age
+			$fileHash = base64_encode("{$wpuAbs->wpu_ver}-$wpTemplate-$phpbbTemplate");
+			$fnDest = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $fileHash . ".tv";
+			$hTempFile = fopen($fnTemp, 'w+');		
+			@fwrite($hTempFile, $vdData);
+			@fclose($hTempFile);
+			@copy($fnTemp, $fnDest);
+			@unlink($fnTemp);			
+			return (file_exists($fnDest)) ? $fileHash : false;
 		}
 		return false;
 	}
@@ -164,10 +167,29 @@ class Template_Voodoo {
 	
 	}
 	
+	function fixTemplate($content) {
+		if($this->loaded) {
+			if(sizeof($this->idDupes)) {
+				foreach($this->idDupes as $idName) {
+					//Have to use preg_replace, as we're not sure of the pattern for IDs
+					$content = preg_replace("/(id\s*=\s*\"\s*{$idName}\s*\")|(id\s*=\s*\'\s*{$idName}\s*\')/i", "id=\"wpu{$idName}\"", $content);
+				}
+			}
+			if(sizeof($this->classDupes)) {
+				foreach($this->classDupes as $className) {
+					// TODO: COMPLETE CLASS FIXING
+					$matches = preg_match_all("/(class\s*=\s*\"[^\"]*?{$className}[^\"]*\")|(class\s*=\s*\'[^']*?{$className}[^']*?\')/i", $content);
+					
+				}
+			}			
+		}
+		return $content;		
+	}
+	
 	
 }
 //str_ireplace for PHP4
-if(!function_exists('str_ireplace') {
+if(!function_exists('str_ireplace')) {
 	function str_ireplace($Needle, $Replacement, $Haystack){
 	   $i = 0;
 	   while($Pos = strpos(strtolower($Haystack), $Needle, $i)){

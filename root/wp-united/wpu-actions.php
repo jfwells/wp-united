@@ -215,6 +215,7 @@ class WPU_Actions {
 	}
 	
 	function css_magic($css) {
+		
 		global $phpbb_root_path, $phpEx;
 		include($phpbb_root_path . 'wp-united/options.' . $phpEx); // temp -- this is called from style.php
 		if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) { //temp
@@ -222,8 +223,20 @@ class WPU_Actions {
 			$cssMagic = CSS_Magic::getInstance();
 			if($cssMagic->parseString($css)) {
 				if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
-					$cssMagic->renameIds("wpu");
-					$cssMagic->renameClasses("wpu");
+					if(isset($_GET['tv'])) {
+						$tvFile = (string) $_GET['tv'];
+						$tvFile = urldecode($tvFile);
+						$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
+						if(file_exists($tvFile)) {
+							$tvFc = file_get_contents($tvFile);
+							$tvFc = unserialize($tvFc);
+							$tvIds = $tvFc[0];
+							$tvClasses = $tvFc[1];
+							$cssMagic->renameIds("wpu", $tvIds);
+							$cssMagic->renameClasses("wpu", $tvClasses);
+					
+						}
+					}
 				}
 				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 				$css = $cssMagic->getCSS();

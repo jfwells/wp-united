@@ -51,42 +51,13 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		$phpbb_postString = '</div></div>';
 		
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
-			/*  NON-JavaScript Implementation of Template Voodoo
-			     This is to eventually replace the JavaScript, below. It is IN PROGRESS
-			
-			Here we detect all classes and IDs in the phpBB document, and store 
+			/*  Here we detect all classes and IDs in the phpBB document, and store 
 			   their names and occurrences. Later, we compare and rename them if they also exist in WordPress,
 			   and then store that info so that the stylesheet fixer part of template voodoo can modify the 
-			   appropriate CSS 
-			   
-			  IN PROGRESS */
+			   appropriate CSS  */
 			include("wpu-template-voodoo.php");
 			$tVoodoo = Template_Voodoo::getInstance();
 			$tVoodoo->loadTemplate($pfContent);
-		
-			
-			
-			// THis is the original, Javascript implementation that renames ALL IDs and classes as a proof of concept
-			$phpbb_postString .= '<script type="text/javascript">
-				// <[CDATA[
-				var clses, cls;
-				var vdDiv = document.getElementById("wpucssmagic");
-				var vdDivChildren = vdDiv.getElementsByTagName("*");
-				for(var i=0;i<vdDivChildren.length;i++) { 
-					if(vdDivChildren[i].id != "") {
-						vdDivChildren[i].id = "wpu" + vdDivChildren[i].id;
-					
-					}
-					if((vdDivChildren[i].className != "") && (vdDivChildren[i].className != "wpucssmagic"))  {
-						clses= vdDivChildren[i].className.split(" ");
-						for(cls in clses) {
-							clses[cls] = "wpu" + clses[cls]
-						}
-						vdDivChildren[i].className = clses.join(" ");
-					}		
-				}
-				// ]]>
-			</script>';
 		}
 	} else {
 		$phpbb_preString = '<div style="'. $padding .' margin: 0px;">';
@@ -105,13 +76,17 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			//Uncomment the below line to see if your cache is working or being rebuilt every time
 			//echo "DEBUG: Cache Build";
 			$doCache = FALSE;
+			$theme = array_pop(explode('/', TEMPLATEPATH)); 
 			if ( (defined('WPU_CACHE_ENABLED')) && (WPU_CACHE_ENABLED) ) {
 				$doCache = TRUE;
 				$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_' . floor(round(0, 9999)) . 'cache';
-				$theme = array_pop(explode('/', TEMPLATEPATH)); 
 				$fnDest = $phpbb_root_path . "wp-united/cache/$theme.wpucache";
 				$hTempFile = @fopen($fnTemp, 'w+');
 			}
+			
+			//prevent WP 404 error
+			query_posts('showposts=1');
+			
 			ob_start();
 			get_header();
 			$hdrContent = ob_get_contents();
@@ -142,22 +117,32 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			
 			$hdrContent= preg_replace("/<title>(.*)[^<>]<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
 			
-			//Modify stylesheets to use CSS Magic
-			if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-				$pfHead = wpu_modify_stylesheet_links($pfHead);
-			}
-	 
-			echo str_replace('[--PHPBB*HEAD--]', $pfHead, $hdrContent);
-			unset ($hdrContent, $pfHead);
-			echo $phpbb_preString . $pfContent . $phpbb_postString; unset ($pfContent);
+			
 			ob_start();
 			get_footer();
 			$ftrContent = ob_get_contents();
-			ob_flush();
+			ob_end_clean();
 			
+			$tvFileHash = false;
 			if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 				$tVoodoo->checkTemplate($ftrContent);
+				$tvFileHash = $tVoodoo->storeResult($theme, $user->theme['theme_name']);
+				$pfContent = $tVoodoo->fixTemplate($pfContent);
 			}
+			
+			//Modify stylesheets to use CSS Magic
+			if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+				$pfHead = wpu_modify_stylesheet_links($pfHead, $tvFileHash);
+			}
+			
+			
+			echo str_replace('[--PHPBB*HEAD--]', $pfHead, $hdrContent);
+			unset ($hdrContent, $pfHead);
+			
+			
+			echo $phpbb_preString . $pfContent . $phpbb_postString; unset ($pfContent);
+			echo $ftrContent;
+			
 			
 			if ( $doCache ) {
 				@fwrite($hTempFile, $ftrContent);
@@ -201,8 +186,15 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		$wContent = ob_get_contents();
 		ob_end_clean();
 		
+		$tvFileHash = false;
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 			$tVoodoo->checkTemplate($wContent);
+			$tvFileHash = $tVoodoo->storeResult($theme, $user->theme['theme_name']);
+			$pfContent = $tVoodoo->fixTemplate($pfContent);
+		}
+		//Modify stylesheets to use CSS Magic
+		if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+			$pfHead = wpu_modify_stylesheet_links($pfHead, $tvFileHash);
 		}		
 		
 		
@@ -361,26 +353,38 @@ if ( ((float) $wp_version) >= 2.1 ) {
 //
 // Modify links in header to stylesheets to use CSS Magic instead
 //
-function wpu_modify_stylesheet_links($headerInfo) {
+function wpu_modify_stylesheet_links($headerInfo, $tvFileHash) {
 
-	preg_match_all('/<link rel=.*?\.css.*?\/>/', $headerInfo, $matches);
+	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
 
 	if(is_array($matches[0])) {
+		$tVoodooString = ($tvFileHash) ? "&amp;tv=" . urlencode($tvFileHash) : '';
 		foreach($matches[0] as $match) {
 			// extract css location
 			$cssLoc = '';
-			$els = explode('"', $match);
-			foreach($els as $el) {
-				if(stristr($el, ".css") !== false) {
-					$cssLoc = $el;
-				}
+			$stylePhpLoc = '';
+			$els = explode("href", $match);
+			//an '=' could be in the stylesheet name, so rather than replace, we explode around the first =.
+			$els = explode('=', $els[1]);
+			array_shift($els);
+			$els = implode("=", $els);
+
+			$els = explode('"', $els);
+			$el = str_replace(array(" ", "'", '"'), "", $els[1]);
+			if(stristr($el, ".css") !== false) {
+				$cssLoc = $el;
+			} elseif(stristr($el, "style.php?") !== false) {
+					$stylePhpLoc = $el;
 			}
-			if($cssLoc) {
+			if($cssLoc) { // Redirect stylesheet
 				// TODO: translate the URL to a local path :-)
 				if( file_exists($cssLoc) && (stristr($cssLoc, "http:") === false) ) {
-					$newLoc = "wp-united/wpu-style-fixer.php?style=" . urlencode(htmlentities($cssLoc));
+					$newLoc = "wp-united/wpu-style-fixer.php?style=" . urlencode(base64_encode(htmlentities($cssLoc))) . $tVoodooString;
 					$headerInfo = str_replace($cssLoc, $newLoc, $headerInfo);
 				}
+			}
+			if($stylePhpLoc) { // Add TemplateVoodoo to style.php
+				$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . $tVoodooString , $headerInfo);
 			}
 		}
 	}

@@ -5,11 +5,12 @@
 
 $phpbb_root_path = "../";
 define('IN_PHPBB', 1);
+$phpEx = substr(strrchr(__FILE__, '.'), 1);
 
 if(!isset($_GET['style'])) exit;
 
 $cssFileToFix = (string) $_GET['style'];
-$cssFileToFix = urldecode($cssFileToFix);
+$cssFileToFix = base64_decode(urldecode($cssFileToFix));
 $cssFileToFix = html_entity_decode($cssFileToFix);
 // Some rudimentary security, but we really need to be reading in WP-United options, getting the path to WordPress
 // and phpBB templates, and then ensuring the passed file corresponds to them.
@@ -21,13 +22,27 @@ $cssFileToFix = str_replace(".php", "", $cssFileToFix);
 $cssFileToFix = str_replace("../../", "", $cssFileToFix); // temporary -- will kill some setups where wordpress is somewhere else
 
 if(file_exists($phpbb_root_path . $cssFileToFix)) {
-	include($phpbb_root_path . 'wp-united/options.php');
-	include($phpbb_root_path . 'wp-united/wpu-css-magic.php');
+	//include($phpbb_root_path . 'common.' . $phpEx);
+	include($phpbb_root_path . 'wp-united/options.' . $phpEx);
+	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 	$cssMagic = CSS_Magic::getInstance();
 	if($cssMagic->parseFile($phpbb_root_path . $cssFileToFix)) {
+		
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
-			$cssMagic->renameIds("wpu");
-			$cssMagic->renameClasses("wpu");
+			if(isset($_GET['tv'])) {
+				$tvFile = (string) $_GET['tv'];
+				$tvFile = urldecode($tvFile);
+				$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
+				if(file_exists($tvFile)) {
+					$tvFc = file_get_contents($tvFile);
+					$tvFc = unserialize($tvFc);
+					$tvIds = $tvFc[0];
+					$tvClasses = $tvFc[1];
+					$cssMagic->renameIds("wpu", $tvIds);
+					$cssMagic->renameClasses("wpu", $tvClasses);
+					
+				}
+			}
 		}
 		$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 		$css = $cssMagic->getCSS();
