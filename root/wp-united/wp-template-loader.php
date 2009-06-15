@@ -47,8 +47,8 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	}
 
 	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-		$phpbb_preString = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic ' . $bodyClass . '"' . $bodyDetails . '>';
-		$phpbb_postString = '</div></div>';
+		$phpbb_preString = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
+		$phpbb_postString = '</div></div></div>';
 		
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 			/*  Here we detect all classes and IDs in the phpBB document, and store 
