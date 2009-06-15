@@ -230,12 +230,11 @@ class CSS_Magic {
 							if(sizeof($keyElements) > 1) { 
 								$fixedKey = implode($sep, $keyElements);
 							} else {
-								$fixedKey = $keyElements[0] . $sep;
+								$fixedKey = $keyElements[0]; 
 							}
 							
 						} 
 						$foundBody = true;
-						$fixedKey = '';
 					}
 				}
 				// add #id selector before each selector

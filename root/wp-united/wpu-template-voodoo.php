@@ -99,7 +99,6 @@ class Template_Voodoo {
 			}	
 		}
 		$this->loaded = true;
-		//print_r($this->classNames); print_r($this->idNames);	
 	}
 	/* Checks a portion of the containing template to see if it already defines some of our classes / IDs
 	This can be called multiple times -- it continues to fill idDupes and classDupes each time */
@@ -177,9 +176,10 @@ class Template_Voodoo {
 			}
 			if(sizeof($this->classDupes)) {
 				foreach($this->classDupes as $className) {
-					// TODO: COMPLETE CLASS FIXING
-					$matches = preg_match_all("/(class\s*=\s*\"[^\"]*?{$className}[^\"]*\")|(class\s*=\s*\'[^']*?{$className}[^']*?\')/i", $content);
-					
+					foreach($this->classNames[$className] as $docString) {
+						$replStr = str_replace($className, "wpu{$className}", $docString);
+						$content = str_replace($docString, $replStr, $content);
+					}
 				}
 			}			
 		}

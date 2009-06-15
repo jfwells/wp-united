@@ -47,7 +47,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	}
 
 	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-		$phpbb_preString = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic">';
+		$phpbb_preString = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic ' . $bodyClass . '"' . $bodyDetails . '>';
 		$phpbb_postString = '</div></div>';
 		
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
@@ -60,10 +60,10 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			$tVoodoo->loadTemplate($pfContent);
 		}
 	} else {
-		$phpbb_preString = '<div style="'. $padding .' margin: 0px;">';
+		$phpbb_preString = '<div style="'. $padding .' margin: 0px;" class="' . $bodyClass . '" ' . $bodyDetails . '>';
 		$phpbb_postString = '</div>';
 	}
-	$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2007 www.wp-united.com \n-->\n\n";
+	$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2009 www.wp-united.com \n-->\n\n";
 	
 	if ( !empty($wpSettings['wpSimpleHdr']) ) {
 		//
@@ -115,7 +115,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 				@fwrite($hTempFile, $hdrContent . '[--PHPBB*CONTENT--]');
 			}
 			
-			$hdrContent= preg_replace("/<title>(.*)[^<>]<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
+			$hdrContent= preg_replace("/<title>[^<]+?<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
 			
 			
 			ob_start();

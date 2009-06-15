@@ -116,7 +116,19 @@ global $pfContent, $pfHead, $retWpInc; // for when not in global scope
 $noIntLogin = FALSE; 
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
 
+	//Get ltr, rtl & bgcolor, etc, from the body tag
+	preg_match('/<body[^>]+>/i', $pfContent, $pfBodyMatches);
+	if($pfBodyMatches[0]) {
+		$bodyDetails = trim(str_replace(array("<body", ">"), "", $pfBodyMatches[0]));
+		preg_match('/class\s*=\s*"[^"]+"/', $bodyDetails, $bodyClass);
+		if($bodyClass[0]) {
+			$bodyDetails = str_replace($bodyClass[0], "", $bodyDetails);
+			$bodyClass=trim(str_replace(array("class", "=", " ", '"'), "", $bodyClass[0]));
+		}
+	}
+	
 	$pfHead = process_head($pfContent);
+	
 	$pfContent = process_body($pfContent);
 	
 	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
@@ -139,7 +151,6 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		$pHeadRemSuccess = ($pfContent2 != $pfContent); // count paramater to preg_replace only available in php5 :-(
 		$pfContent = $pfContent2; unset($pfContent2);
 	}
-	
 	
 	
 }
