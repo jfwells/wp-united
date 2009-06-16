@@ -116,7 +116,7 @@ function set_default($setting_key) {
 		'phpbbCensor' => 1,
 		'wpuVersion' => $wpuAbs->lang('WPU_Not_Installed'),
 		'wpPageName' => 'page.php',
-		'phpbbPadding' => ($wpuAbs->ver == 'PHPBB3') ? '0-0-0-0' : '20-20-20-20',
+		'phpbbPadding' => ($wpuAbs->ver == 'PHPBB3') ? '6-12-6-12' : '20-20-20-20',
 		'mustLogin' => 0,
 		'upgradeRun' => 0,
 		'xposting' => 0,

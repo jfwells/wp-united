@@ -1,5 +1,5 @@
 #wpucssmagic, #wpucssmagic * { height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static;}
-#wpucssmagic {color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal;font-size: 100%; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
+#wpucssmagic {color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
 .wpucssmagic * {text-align: inherit; color: inherit;}
 .wpucssmagic * {height: auto; }
 .wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt { font-weight: normal;}
@@ -24,7 +24,8 @@
 #wpucssmagic ol, #wpucssmagic p, #wpucssmagic ul, #wpucssmagic center,
 #wpucssmagic dir, #wpucssmagic hr, #wpucssmagic menu, #wpucssmagic pre   { display: block }
 #wpucssmagic li              { display: list-item }
-#wpucssmagic table           { display: table }
+#wpucssmagic table           { display: table; border-width: 0; }
+#wpucssmagic table *	{ border-width: 0;}
 #wpucssmagic tr              { display: table-row }
 #wpucssmagic thead           { display: table-header-group }
 #wpucssmagic tbody           { display: table-row-group }
