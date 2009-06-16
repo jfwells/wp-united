@@ -7,6 +7,7 @@ $phpbb_root_path = "../";
 define('IN_PHPBB', 1);
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 
+if(!isset($_GET['usecssm'])) exit;
 if(!isset($_GET['style'])) exit;
 
 $cssFileToFix = (string) $_GET['style'];
@@ -21,13 +22,16 @@ $cssFileToFix = str_replace("@", "", $cssFileToFix);
 $cssFileToFix = str_replace(".php", "", $cssFileToFix);
 $cssFileToFix = str_replace("../../", "", $cssFileToFix); // temporary -- will kill some setups where wordpress is somewhere else
 
-if(file_exists($phpbb_root_path . $cssFileToFix)) {
+if(!file_exists($cssFileToFix)) $cssFileToFix = $phpbb_root_path . $cssFileToFix;
+
+if(file_exists($cssFileToFix)) {
 	//include($phpbb_root_path . 'common.' . $phpEx);
 	include($phpbb_root_path . 'wp-united/options.' . $phpEx);
+	include($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 	$cssMagic = CSS_Magic::getInstance();
-	if($cssMagic->parseFile($phpbb_root_path . $cssFileToFix)) {
-		
+	if($cssMagic->parseFile($cssFileToFix)) {
+	
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 			if(isset($_GET['tv'])) {
 				$tvFile = (string) $_GET['tv'];
@@ -40,14 +44,40 @@ if(file_exists($phpbb_root_path . $cssFileToFix)) {
 					$tvClasses = $tvFc[1];
 					$cssMagic->renameIds("wpu", $tvIds);
 					$cssMagic->renameClasses("wpu", $tvClasses);
-					
+				
 				}
 			}
 		}
 		$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 		$css = $cssMagic->getCSS();
 		$cssMagic->clear();
+	
 		//clean up relative urls
+	
+		//We need to find the absolute URL to the image dir. We can infer it by comparing the
+		// current path (wp-united/wpu-style-fixer) against the provided one.
+	
+		$absCssLoc = clean_path(realpath($cssFileToFix));
+		$absCurrLoc = add_trailing_slash(clean_path(realpath(getcwd())));
+	
+	
+		$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
+		$absCssLoc = explode($pathSep, $absCssLoc);
+		$absCurrLoc = explode($pathSep, $absCurrLoc);
+	
+		array_pop($absCssLoc);
+	
+		while($absCurrLoc[0]==$absCssLoc[0]) { 
+			array_shift($absCurrLoc);
+			array_shift($absCssLoc);
+		}
+		$pathsBack = array(".");
+		for($i=0;$i<(sizeof($absCurrLoc)-1);$i++) {
+			$pathsBack[] = "..";
+		}
+		$relPath = add_trailing_slash(implode("/", $pathsBack)) . add_trailing_slash(implode("/", $absCssLoc));
+	
+	
 		preg_match_all('/url\(.*?\)/', $css, $urls);
 		if(is_array($urls[0])) {
 			foreach($urls[0] as $url) {
@@ -57,24 +87,24 @@ if(file_exists($phpbb_root_path . $cssFileToFix)) {
 					$out = str_replace(")", "", $out);
 					$out = str_replace("'", "", $out);
 					if ($out[0] != "/") {
-						$out = $phpbb_root_path . dirname($cssFileToFix) . "/" . $out;
+						//$out = $phpbb_root_path . dirname($cssFileToFix) . "/" . $out;
 						$replace = true;
 					}
 				}
 				if ($replace) {
-					$css = str_replace($url, "url('{$out}')", $css);
+					$css = str_replace($url, "url('{$relPath}{$out}')", $css);
 				}
 			}
-		
+	
 		}
-		
-		
+	
+	
 		/*$css = str_replace("#header", "#wpuheader", $css);
 		$css = str_replace("#tab", "#wputab", $css);
 		$css = str_replace("#footer", "#wpufooter", $css);
 		$css = str_replace("#copyright", "#wpucopyright", $css);*/
 	}
-	
+
 	$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
 
 

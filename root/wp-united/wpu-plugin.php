@@ -1233,8 +1233,8 @@ function wpu_content_parse_check($postContent) {
 			$postContent = wpu_censor($postContent);
 		}
 	} else {
-		global $pfContent, $phpbb_preString, $phpbb_postString;;
-		$postContent = $phpbb_preString . $pfContent . $phpbb_postString;
+		global $pfContent, $wpuOutputPreStr, $wpuOutputPostStr;
+		$postContent = $wpuOutputPreStr . $pfContent . $wpuOutputPostStr;
 		$GLOBALS['pfContent'] = null;
 	}
 	return $postContent;

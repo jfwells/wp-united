@@ -218,38 +218,39 @@ class WPU_Actions {
 		
 		global $phpbb_root_path, $phpEx;
 		include($phpbb_root_path . 'wp-united/options.' . $phpEx); // temp -- this is called from style.php
-		if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) { //temp
-			include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
-			$cssMagic = CSS_Magic::getInstance();
-			if($cssMagic->parseString($css)) {
-				if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
-					if(isset($_GET['tv'])) {
-						$tvFile = (string) $_GET['tv'];
-						$tvFile = urldecode($tvFile);
-						$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
-						if(file_exists($tvFile)) {
-							$tvFc = file_get_contents($tvFile);
-							$tvFc = unserialize($tvFc);
-							$tvIds = $tvFc[0];
-							$tvClasses = $tvFc[1];
-							$cssMagic->renameIds("wpu", $tvIds);
-							$cssMagic->renameClasses("wpu", $tvClasses);
+		if(isset($_GET['usecssm'])) {
+			if(request_var("usecssm", 0)) {
+				include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
+				$cssMagic = CSS_Magic::getInstance();
+				if($cssMagic->parseString($css)) {
+					if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+						if(isset($_GET['tv'])) {
+							$tvFile = (string) request_var('tv', '');
+							$tvFile = urldecode($tvFile);
+							$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
+							if(file_exists($tvFile)) {
+								$tvFc = file_get_contents($tvFile);
+								$tvFc = unserialize($tvFc);
+								$tvIds = $tvFc[0];
+								$tvClasses = $tvFc[1];
+								$cssMagic->renameIds("wpu", $tvIds);
+								$cssMagic->renameClasses("wpu", $tvClasses);
 					
+							}
 						}
 					}
+					$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
+					$css = $cssMagic->getCSS();
+					$cssMagic->clear();
 				}
-				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
-				$css = $cssMagic->getCSS();
-				$cssMagic->clear();
-			}
 			
-			if(file_exists($phpbb_root_path . "wp-united/theme/reset.css")) {
-				$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
+				if(file_exists($phpbb_root_path . "wp-united/theme/reset.css")) {
+					$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
+				}
+				return $reset . $css;
 			}
-			return $reset . $css;
-		} else {
-			return $css;
 		}
+		return $css;
 	}
 	
 }

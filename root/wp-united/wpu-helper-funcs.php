@@ -219,6 +219,13 @@ function wpu_safe_post($string) {
 	return $tmpString; 
 } 
 
+function clean_path($value) {
+	$value = trim($value);
+	$value = str_replace('\\', '/', $value);
+	$value = (get_magic_quotes_gpc()) ? stripslashes($value) : $value;
+	return $value;
+}
+
 
 
 

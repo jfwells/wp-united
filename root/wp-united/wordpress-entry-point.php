@@ -180,28 +180,65 @@ if ( !defined('WPU_USE_CACHE') ) {
 	require($phpbb_root_path . 'wp-united/wp-template-loader.' . $phpEx);
 }
 
+
+//Some login/logout links are hard-coded into the WP templates. We fix them here:
+if ( !empty($wpSettings['integrateLogin']) ) {
+
+	if ($wpuAbs->ver == 'PHPBB2') {
+		$login_link = 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid . '&amp;d=';
+	} else {
+		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=';
+	}
+
+	// only phpBB3 can redirect properly	
+	$retWpInc = str_replace("$siteurl/wp-login.php?redirect_to=", $scriptPath . $login_link, $retWpInc);
+	$retWpInc = str_replace("$siteurl/wp-login.php?redirect_to=", $scriptPath . $login_link, $retWpInc);
+	$retWpInc = str_replace("$siteurl/wp-login.php?action=logout", $scriptPath . $logout_link, $retWpInc);
+}
+
+
+if ( (!defined('WPU_REVERSE_INTEGRATION')) && (empty($wpuNoHead)) ) { 
+
+	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+		$wpuOutputPreStr = '<div id="wpucssmagic"><div class="wpucssmagic">';
+		$wpuOutputPostStr = '</div></div>';
+		$tvFileHash = false;
+		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+			/*  Here we detect all classes and IDs in the phpBB document, and store 
+			   their names and occurrences. Later, we compare and rename them if they also exist in WordPress,
+			   and then store that info so that the stylesheet fixer part of template voodoo can modify the 
+			   appropriate CSS  */
+			include("wpu-template-voodoo.php");
+			$tVoodoo = Template_Voodoo::getInstance();
+			$tVoodoo->loadTemplate($retWpInc);
+			$theme = array_pop(explode('/', TEMPLATEPATH)); 
+			$tvFileHash = $tVoodoo->storeResult($theme, $user->theme['theme_name']);
+			
+			$retWpInc = $tVoodoo->fixTemplate($retWpInc);
+		}
+		
+	}
+}
+
 //If we want to show the page inside phpBB header/footer, we need to process it first
 if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REVERSE_INTEGRATION')) ) {
 	$wpHdrInfo = process_head($retWpInc);
 	
-	//export styles to template - before or after phpBB depending on selection.
+	//Modify stylesheets to use CSS Magic
+	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+		$wpHdrInfo = wpu_modify_stylesheet_links($wpHdrInfo, $tvFileHash);
+	}
+	
+	//export header styles to template - before or after phpBB depending on selection.
 	$header_info_loc = ( $wpSettings['cssFirst'] == 'P' ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
 	$template->assign_vars(array($header_info_loc => $wpHdrInfo));
 	// We need to set the base HREF correctly, so that images and links in the phpBB header and footer work properly
 	$wpuAbs->add_template_switch('PHPBB_BASE', $scriptPath);
 
-	//Char Encoding
-	if ( 'PHPBB2' == $wpuAbs->ver ) {
-		if ( $wpSettings['charEncoding'] == 'MATCH_WP' ) {
-			$lang['ENCODING'] = get_option('blog_charset');
-		}
-	}
-	if ( 'PHPBB2' == $wpuAbs->ver ) {
-		include($phpbb_root_path . 'includes/page_header.'.$phpEx); 
-	} else {
-		global $wpu_page_title;
-		page_header($wpu_page_title);
-	}
+	global $wpu_page_title;
+	page_header($wpu_page_title);
+
+
 	//free memory
 	unset($wpHdrInfo);
 	
@@ -209,21 +246,6 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 		
 	// include page structure for phpBB
 	$wpuAbs->add_template_switch('S_SHOW_HDR_FTR', TRUE);
-}
-
-//Some login/logout links are hard-coded into the WP templates. We fix them here:
-if ( !empty($wpSettings['integrateLogin']) ) {
-
-if ($wpuAbs->ver == 'PHPBB2') {
-	$login_link = 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid . '&amp;d=';
-} else {
-	$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=';
-}
-
-	// only phpBB3 can redirect properly	
-	$retWpInc = str_replace("$siteurl/wp-login.php?redirect_to=", $scriptPath . $login_link, $retWpInc);
-	$retWpInc = str_replace("$siteurl/wp-login.php?redirect_to=", $scriptPath . $login_link, $retWpInc);
-	$retWpInc = str_replace("$siteurl/wp-login.php?action=logout", $scriptPath . $logout_link, $retWpInc);
 }
 
 // Some trailing slashes are hard-coded into the WP templates. We don't want 'em.
@@ -242,15 +264,19 @@ if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) ) {
 
 
 
+
+
 // Finally -- show the page!
 if ( (!defined('WPU_REVERSE_INTEGRATION')) && (empty($wpuNoHead)) ) { 
+
+
 	$template->assign_vars(array(
-		'WORDPRESS_BODY' => $retWpInc,
+		'WORDPRESS_BODY' => $wpuOutputPreStr . $retWpInc . $wpuOutputPostStr,
 		'WP_CREDIT' => sprintf($wpuAbs->lang('WPU_Credit'), '<a href="http://www.wp-united.com" target="_blank">', '</a>'))
 	); 
 	//free memory
 	unset($retWpInc);
-
+	
 	$wpuAbs->show_body('blog');	
 
 	// Show the standard page footer if it's wanted.
@@ -394,5 +420,57 @@ function set_wpu_cache(){
 			define('WPU_USE_CACHE', TRUE); 
 		}
 	} 
+}
+
+
+//
+// Modify links in header to stylesheets to use CSS Magic instead
+//
+function wpu_modify_stylesheet_links($headerInfo, $tvFileHash) {
+	global $scriptPath, $wpSettings, $phpbb_root_path;
+	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
+
+	if(is_array($matches[0])) {
+		$tVoodooString = ($tvFileHash) ? "&amp;tv=" . urlencode($tvFileHash) : '';
+		foreach($matches[0] as $match) {
+			// extract css location
+			$cssLoc = '';
+			$stylePhpLoc = '';
+			$els = explode("href", $match);
+			//an '=' could be in the stylesheet name, so rather than replace, we explode around the first =.
+			$els = explode('=', $els[1]);
+			array_shift($els);
+			$els = implode("=", $els);
+
+			$els = explode('"', $els);
+			$el = str_replace(array(" ", "'", '"'), "", $els[1]);
+			if(stristr($el, ".css") !== false) { 
+				$cssLoc = $el;
+			} elseif(stristr($el, "style.php?") !== false) {
+					$stylePhpLoc = $el;
+			}
+			if($cssLoc) { // Redirect stylesheet
+				$findLoc = $cssLoc;
+				// We try to translate the URL to a local path
+				// type 1: Absolute path to CSS, in phpBB
+				if(stristr($findLoc, $scriptPath) !== false) {
+					$findLoc = str_replace($scriptPath, "", $findLoc);
+				//type 2: Absolute path to CSS, in WordPress
+				} elseif(stristr($findLoc, $wpSettings['wpUri']) !== false) {
+					$findLoc = str_replace($wpSettings['wpUri'], $wpSettings['wpPath'], $findLoc);
+				}
+				// else: relative path
+				$findLoc = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\") : $findLoc;
+				if( file_exists($findLoc) && (stristr($findLoc, "http:") === false) ) { 
+					$newLoc = "wp-united/wpu-style-fixer.php?usecssm=1&amp;style=" . urlencode(base64_encode(htmlentities($findLoc))) . $tVoodooString;
+					$headerInfo = str_replace($cssLoc, $newLoc, $headerInfo);
+				}
+			}
+			if($stylePhpLoc) { // Add TemplateVoodoo to style.php
+				$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . "&amp;usecssm=1" . $tVoodooString , $headerInfo);
+			}
+		}
+	}
+	return $headerInfo;
 }
 ?>

@@ -39,7 +39,7 @@ $wpuNoHead = false;
 //
 
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
-	global $pfHead, $pfContent, $wpSettings, $phpEx, $phpbb_preString, $phpbb_postString;
+	global $pfHead, $pfContent, $wpSettings, $phpEx, $wpuOutputPreStr, $wpuOutputPostStr;
 	$padding = '';
 	if ($wpSettings['phpbbPadding'] != 'NOT_SET') {
 		$pad = explode('-', $wpSettings['phpbbPadding']);
@@ -47,8 +47,8 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	}
 
 	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-		$phpbb_preString = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
-		$phpbb_postString = '</div></div></div>';
+		$wpuOutputPreStr = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
+		$wpuOutputPostStr = '</div></div></div>';
 		
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 			/*  Here we detect all classes and IDs in the phpBB document, and store 
@@ -60,8 +60,8 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			$tVoodoo->loadTemplate($pfContent);
 		}
 	} else {
-		$phpbb_preString = '<div style="'. $padding .' margin: 0px;" class="' . $bodyClass . '" ' . $bodyDetails . '>';
-		$phpbb_postString = '</div>';
+		$wpuOutputPreStr = '<div style="'. $padding .' margin: 0px;" class="' . $bodyClass . '" ' . $bodyDetails . '>';
+		$wpuOutputPostStr = '</div>';
 	}
 	$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2009 www.wp-united.com \n-->\n\n";
 	
@@ -140,7 +140,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			unset ($hdrContent, $pfHead);
 			
 			
-			echo $phpbb_preString . $pfContent . $phpbb_postString; unset ($pfContent);
+			echo $wpuOutputPreStr . $pfContent . $wpuOutputPostStr; unset ($pfContent);
 			echo $ftrContent;
 			
 			
@@ -159,7 +159,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 			global $wpu_cacheLoc;
 			$page_content = @file_get_contents($wpu_cacheLoc);
 			$page_content = str_replace('[--PHPBB*HEAD--]',$pfHead, $page_content);
-			$retWpInc = str_replace('[--PHPBB*CONTENT--]', $phpbb_preString . $pfContent . $phpbb_postString, $page_content);
+			$retWpInc = str_replace('[--PHPBB*CONTENT--]', $wpuOutputPreStr . $pfContent . $wpuOutputPostStr, $page_content);
 			unset($page_content, $pfContent);
 		}
 	} else {
@@ -350,45 +350,6 @@ if ( ((float) $wp_version) >= 2.1 ) {
 
 }
 
-//
-// Modify links in header to stylesheets to use CSS Magic instead
-//
-function wpu_modify_stylesheet_links($headerInfo, $tvFileHash) {
 
-	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
-
-	if(is_array($matches[0])) {
-		$tVoodooString = ($tvFileHash) ? "&amp;tv=" . urlencode($tvFileHash) : '';
-		foreach($matches[0] as $match) {
-			// extract css location
-			$cssLoc = '';
-			$stylePhpLoc = '';
-			$els = explode("href", $match);
-			//an '=' could be in the stylesheet name, so rather than replace, we explode around the first =.
-			$els = explode('=', $els[1]);
-			array_shift($els);
-			$els = implode("=", $els);
-
-			$els = explode('"', $els);
-			$el = str_replace(array(" ", "'", '"'), "", $els[1]);
-			if(stristr($el, ".css") !== false) {
-				$cssLoc = $el;
-			} elseif(stristr($el, "style.php?") !== false) {
-					$stylePhpLoc = $el;
-			}
-			if($cssLoc) { // Redirect stylesheet
-				// TODO: translate the URL to a local path :-)
-				if( file_exists($cssLoc) && (stristr($cssLoc, "http:") === false) ) {
-					$newLoc = "wp-united/wpu-style-fixer.php?style=" . urlencode(base64_encode(htmlentities($cssLoc))) . $tVoodooString;
-					$headerInfo = str_replace($cssLoc, $newLoc, $headerInfo);
-				}
-			}
-			if($stylePhpLoc) { // Add TemplateVoodoo to style.php
-				$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . $tVoodooString , $headerInfo);
-			}
-		}
-	}
-	return $headerInfo;
-}
  
 ?>
