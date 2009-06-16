@@ -115,7 +115,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 				@fwrite($hTempFile, $hdrContent . '[--PHPBB*CONTENT--]');
 			}
 			
-			$hdrContent= preg_replace("/<title>[^<]+?<\/title>/", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
+			$hdrContent= preg_replace("/<title>[^<]+<\/title>/i", "<title>{$GLOBALS['wpu_page_title']}</title>", $hdrContent);
 			
 			
 			ob_start();
