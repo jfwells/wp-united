@@ -22,7 +22,8 @@
 #wpucssmagic h1, #wpucssmagic h2, h3, h4,
 #wpucssmagic h5, #wpucssmagic h6, 
 #wpucssmagic ol, #wpucssmagic p, #wpucssmagic ul, #wpucssmagic center,
-#wpucssmagic dir, #wpucssmagic hr, #wpucssmagic menu, #wpucssmagic pre   { display: block }
+#wpucssmagic dir, #wpucssmagic menu, #wpucssmagic pre   { display: block; border: 0;}
+#wpucssmafic hr {display: block;}
 #wpucssmagic li              { display: list-item }
 #wpucssmagic table           { display: table; border-width: 0; }
 #wpucssmagic table *	{ border-width: 0;}

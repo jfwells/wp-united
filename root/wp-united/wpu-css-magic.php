@@ -251,6 +251,12 @@ class CSS_Magic {
 			// recreate the fixed key
 			if(sizeof($fixedKeys)) {
 				$fixedKeyString = implode(', ', $fixedKeys);
+				
+				
+				//filter out font-sizes from the body tag 
+				if($foundBody) {
+					$cssCode = preg_replace('/font-size[^;]+?;/i', "", $cssCode);
+				}
 						
 				if(!isset($fixed[$fixedKeyString])) {
 					$fixed[$fixedKeyString] = $cssCode;

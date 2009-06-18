@@ -201,7 +201,23 @@ if ( (!defined('WPU_REVERSE_INTEGRATION')) && (empty($wpuNoHead)) ) {
 
 	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 		$wpuOutputPreStr = '<div id="wpucssmagic"><div class="wpucssmagic">';
-		$wpuOutputPostStr = '</div></div>';
+		$wpuOutputPostStr = '</div></div><script type="text/javascript">
+		/*function emSize(pa){
+			//pa= pa || document.body;
+			var who= document.createElement("div");
+			var atts= {fontSize:"1em",padding:"0",position:"absolute",lineHeight:"1",visibility:"hidden"};
+			for(var p in atts){
+				who.style[p]= atts[p];
+			}
+			who.appendChild(document.createTextNode("M"));
+			pa.appendChild(who);
+			var fs= [who.offsetWidth,who.offsetHeight];
+			pa.removeChild(who);
+		return fs;
+	}
+	alert(emSize(document.body));
+	alert(emSize(document.getElementById("wpucssmagic").firstChild));*/	
+	</script>';
 		$tvFileHash = false;
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 			/*  Here we detect all classes and IDs in the phpBB document, and store 
