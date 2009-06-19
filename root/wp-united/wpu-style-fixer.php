@@ -12,7 +12,7 @@ if(!isset($_GET['style'])) exit;
 
 $cssFileToFix = (string) $_GET['style'];
 $cssFileToFix = base64_decode(urldecode($cssFileToFix));
-$cssFileToFix = html_entity_decode($cssFileToFix);
+$cssFileToFix = html_entity_decode($cssFileToFix); 
 // Some rudimentary security, but we really need to be reading in WP-United options, getting the path to WordPress
 // and phpBB templates, and then ensuring the passed file corresponds to them.
 // Don't rely on the below to protect your server

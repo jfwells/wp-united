@@ -201,37 +201,21 @@ if ( (!defined('WPU_REVERSE_INTEGRATION')) && (empty($wpuNoHead)) ) {
 
 	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 		$wpuOutputPreStr = '<div id="wpucssmagic"><div class="wpucssmagic">';
-		$wpuOutputPostStr = '</div></div><script type="text/javascript">
-		/*function emSize(pa){
-			//pa= pa || document.body;
-			var who= document.createElement("div");
-			var atts= {fontSize:"1em",padding:"0",position:"absolute",lineHeight:"1",visibility:"hidden"};
-			for(var p in atts){
-				who.style[p]= atts[p];
-			}
-			who.appendChild(document.createTextNode("M"));
-			pa.appendChild(who);
-			var fs= [who.offsetWidth,who.offsetHeight];
-			pa.removeChild(who);
-		return fs;
-	}
-	alert(emSize(document.body));
-	alert(emSize(document.getElementById("wpucssmagic").firstChild));*/	
-	</script>';
+		$wpuOutputPostStr = '</div></div>';
 		$tvFileHash = false;
-		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+		/*if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 			/*  Here we detect all classes and IDs in the phpBB document, and store 
 			   their names and occurrences. Later, we compare and rename them if they also exist in WordPress,
 			   and then store that info so that the stylesheet fixer part of template voodoo can modify the 
 			   appropriate CSS  */
-			include("wpu-template-voodoo.php");
+			/*include("wpu-template-voodoo.php");
 			$tVoodoo = Template_Voodoo::getInstance();
 			$tVoodoo->loadTemplate($retWpInc);
 			$theme = array_pop(explode('/', TEMPLATEPATH)); 
 			$tvFileHash = $tVoodoo->storeResult($theme, $user->theme['theme_name']);
 			
-			$retWpInc = $tVoodoo->fixTemplate($retWpInc);
-		}
+			$retWpInc = $tVoodoo->fixTemplate($retWpInc); 
+		}*/
 		
 	}
 }
@@ -445,21 +429,33 @@ function set_wpu_cache(){
 function wpu_modify_stylesheet_links($headerInfo, $tvFileHash) {
 	global $scriptPath, $wpSettings, $phpbb_root_path;
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
-
-	if(is_array($matches[0])) {
-		$tVoodooString = ($tvFileHash) ? "&amp;tv=" . urlencode($tvFileHash) : '';
-		foreach($matches[0] as $match) {
+	preg_match_all('/@import url\([^\)]+?\)/i', $headerInfo, $matches2);
+	preg_match_all('/@import "[^"]+?"/i', $headerInfo, $matches3);
+	$matches = array_merge($matches[0], $matches2[0], $matches3[0]);
+	if(is_array($matches)) {
+		$tVoodooString = ($tvFileHash) ? "tv=" . urlencode($tvFileHash) : '';
+		foreach($matches as $match) {
 			// extract css location
-			$cssLoc = '';
-			$stylePhpLoc = '';
-			$els = explode("href", $match);
-			//an '=' could be in the stylesheet name, so rather than replace, we explode around the first =.
-			$els = explode('=', $els[1]);
-			array_shift($els);
-			$els = implode("=", $els);
+			if(stristr($match, "@import url") !== false) {
+				$el = str_replace(array("@import", "(", "url",  ")", " ", "'", '"'), "", $match);
+				$and = "&";
+			} elseif(stristr($match, "@import") !== false) {
+				$el = str_replace(array("@import", "(",  ")", " ", "'", '"'), "", $match);
+				$and = "&";
+			
+			} else {
+				$cssLoc = '';
+				$stylePhpLoc = '';
+				$els = explode("href", $match);
+				//an '=' could be in the stylesheet name, so rather than replace, we explode around the first =.
+				$els = explode('=', $els[1]);
+				array_shift($els);
+				$els = implode("=", $els);
 
-			$els = explode('"', $els);
-			$el = str_replace(array(" ", "'", '"'), "", $els[1]);
+				$els = explode('"', $els);
+				$el = str_replace(array(" ", "'", '"'), "", $els[1]);
+				$and = "&amp;";
+			}
 			if(stristr($el, ".css") !== false) { 
 				$cssLoc = $el;
 			} elseif(stristr($el, "style.php?") !== false) {
@@ -478,7 +474,7 @@ function wpu_modify_stylesheet_links($headerInfo, $tvFileHash) {
 				// else: relative path
 				$findLoc = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\") : $findLoc;
 				if( file_exists($findLoc) && (stristr($findLoc, "http:") === false) ) { 
-					$newLoc = "wp-united/wpu-style-fixer.php?usecssm=1&amp;style=" . urlencode(base64_encode(htmlentities($findLoc))) . $tVoodooString;
+					$newLoc = "wp-united/wpu-style-fixer.php?usecssm=1{$and}style=" . urlencode(base64_encode(htmlentities($findLoc))) . $and . 'tv=' . $tVoodooString;
 					$headerInfo = str_replace($cssLoc, $newLoc, $headerInfo);
 				}
 			}

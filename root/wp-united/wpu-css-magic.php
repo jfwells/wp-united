@@ -253,10 +253,10 @@ class CSS_Magic {
 				$fixedKeyString = implode(', ', $fixedKeys);
 				
 				
-				//filter out font-sizes from the body tag 
-				if($foundBody) {
+				//filter out font-sizes from the body tag -- not needed, instead just set the containing element to 16px, and font-sizes stay coherent.
+				/*if($foundBody) {
 					$cssCode = preg_replace('/font-size[^;]+?;/i', "", $cssCode);
-				}
+				}*/
 						
 				if(!isset($fixed[$fixedKeyString])) {
 					$fixed[$fixedKeyString] = $cssCode;

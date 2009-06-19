@@ -139,7 +139,7 @@ class Template_Voodoo {
 		}
 		return false;		
 	}
-	
+	// Stores only duplicated IDs / Classes
 	function storeResult($wpTemplate, $phpbbTemplate) {
 		if($this->loaded) {
 			global $phpbb_root_path, $wpuAbs;
@@ -157,7 +157,24 @@ class Template_Voodoo {
 		}
 		return false;
 	}
-	
+	// Stores all IDs / Classes
+	function storeAll($wpTemplate, $phpbbTemplate) {
+		if($this->loaded) {
+			global $phpbb_root_path, $wpuAbs;
+			$vdData = serialize(array(array_keys($this->idNames), array_keys($this->classNames)));
+			$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_tvoodoo' . floor(round(0, 9999)) . 'cache';
+			// Get template & theme name here & check age
+			$fileHash = base64_encode("{$wpuAbs->wpu_ver}-$wpTemplate-$phpbbTemplate-all");
+			$fnDest = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $fileHash . ".tv";
+			$hTempFile = fopen($fnTemp, 'w+');		
+			@fwrite($hTempFile, $vdData);
+			@fclose($hTempFile);
+			@copy($fnTemp, $fnDest);
+			@unlink($fnTemp);			
+			return (file_exists($fnDest)) ? $fileHash : false;
+		}
+		return false;
+	}	
 	function getStoredResult() {
 		if($this->loaded) {
 			return true;

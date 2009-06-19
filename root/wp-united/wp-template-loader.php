@@ -47,7 +47,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	}
 
 	if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-		$wpuOutputPreStr = '<div id="wpucssmagic" style="' . $padding . 'margin: 0; background-color: ' . CSS_MAGIC_BGCOLOUR . '; font-size: ' . CSS_MAGIC_FONTSIZE .';"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
+		$wpuOutputPreStr = '<div id="wpucssmagic" style="' . $padding . 'margin: 0;"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
 		$wpuOutputPostStr = '</div></div></div>';
 		
 		if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {

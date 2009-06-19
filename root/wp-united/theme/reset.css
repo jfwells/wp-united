@@ -1,5 +1,5 @@
-#wpucssmagic, #wpucssmagic * { height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static;}
-#wpucssmagic {color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
+#wpucssmagic, #wpucssmagic * {height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static;}
+#wpucssmagic {font-size: 16px;  color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
 .wpucssmagic * {text-align: inherit; color: inherit;}
 .wpucssmagic * {height: auto; }
 .wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt { font-weight: normal;}
