@@ -164,12 +164,18 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 	$wpuOutputPostStr = '</div>';
 }
 
+// Add lDebug if requested
+if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
+	$wpuOutputPreStr = $lDebug . $wpuOutputPreStr;
+}
 
 
 // Substitute in content
 if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') ) {
 	$outerContent = str_replace("<!--[**HEAD_MARKER**]-->", $innerHeadInfo, $outerContent); unset($innerHeadInfo);
 	$outerContent = str_replace("<!--[**INNER_CONTENT**]-->", $wpuOutputPreStr . $innerContent . $wpuOutputPostStr, $outerContent); unset($innerContent);
+	
+	
 	wpu_output_page($outerContent); unset($outerContent);
 }
 

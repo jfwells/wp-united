@@ -50,12 +50,13 @@ if ( !defined('WPU_BLOG_PAGE') ) {
 
 // More required files
 require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
-
+require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);
 
 // There are several variables we need to have around in the global scope. We only need to
 // do this if we are being called from a function, but for convenience, we just do it anyway
-global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version;
+global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
+$lDebug = '';
 
 // This is another way for WP-United or WordPress elements to test if they are running in the global scope.
 // They can test for $GLOBALS['amIGlobal']
@@ -79,6 +80,20 @@ $server = $wpuAbs->config('server_protocol') . add_trailing_slash($wpuAbs->confi
 $scriptPath = add_trailing_slash($wpuAbs->config('script_path'));
 $scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 $scriptPath = $server . $scriptPath;
+
+
+// set some vars for wpu-plugin to use. 
+global $phpbb_logged_in, $phpbb_username, $phpbb_sid, $login_link, $logout_link;
+$phpbb_logged_in = $wpuAbs->user_logged_in();
+$phpbb_username = $wpuAbs->phpbb_username();
+$phpbb_sid = $wpuAbs->phpbb_sid();
+
+// redirect to login if not logged in and blogs are private
+if ( (!$wpuAbs->user_logged_in()) && ($wpSettings['must_login'])  && (!defined('WPU_REVERSE_INTEGRATION')) ) {
+   redirect($login_link, true);
+}
+
+
 
 // set some strings for the WordPress page
 if ( $phpbb_logged_in ) {
@@ -106,6 +121,13 @@ if ( isset($HTTP_GET_VARS['latest']) ) {
 	$latest = true; // run in latest posts mode, for showing latest posts on portal page, etc.
 	$wpuNoHead = true;
 }
+// number of posts to show on portal page in latest posts mode
+if ( isset($HTTP_GET_VARS['numposts']) ) {
+	$postsToShow = (int) $HTTP_GET_VARS['numposts'];
+	$postsToShow = ($postsToShow > 10) ? 10 : $postsToShow;
+	$postsToShow = ($postsToShow < 1) ? 3 : $postsToShow;
+}
+
 
 
 
@@ -156,7 +178,6 @@ if ( !defined('WPU_USE_CACHE') ) {
 
 		// finally do the integration, execute all the prepared code.	
 		eval($wpUtdInt->exec());  
-
 
 		/****** If phpBB-in-wordpress, we need to generate the WP header/footer ****/
 		if ( defined('WPU_REVERSE_INTEGRATION') ) {

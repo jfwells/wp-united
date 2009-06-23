@@ -729,13 +729,8 @@ function wpu_get_stylesheet($default) {
 function wpu_loginoutlink($loginLink) {
 	global $wpSettings, $phpbb_logged_in, $phpbb_username, $phpbb_sid, $wpuAbs, $phpEx, $scriptPath;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		if ($wpuAbs->ver == 'PHPBB2') {
-			$logout_link = 'login.'.$phpEx.'?logout=true&amp;redirect=wp-united-blog&amp;sid=' . $phpbb_sid;
-			$login_link = 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid;
-		} else {
-			$logout_link = 'ucp.'.$phpEx.'?mode=logout&amp;sid=' . $phpbb_sid;
-			$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]);		
-		}
+		$logout_link = 'ucp.'.$phpEx.'?mode=logout&amp;sid=' . $phpbb_sid;
+		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]);		
 		if ( $phpbb_logged_in ) {
 			$u_login_logout = add_trailing_slash($scriptPath) . $logout_link;
 			$l_login_logout = $wpuAbs->lang('Logout') . ' [ ' . $phpbb_username . ' ]';
@@ -1197,11 +1192,7 @@ function wpu_get_author() {
 function wpu_done_head() {
 	global $wpu_done_head, $wpSettings, $scriptPath, $wp_the_query;
 	$wpu_done_head = true;
-	
-	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
-		if (!$GLOBALS['wpUtdInt']->debugBufferFull) $GLOBALS['wpUtdInt']->lDebug('',1);
-		echo $GLOBALS['wpUtdInt']->debugBuffer;
-	}
+
 	//add the frontpage stylesheet, if needed: 
 	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {
 		echo '<link rel="stylesheet" href="' . add_trailing_slash($scriptPath) . 'wp-united/theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';

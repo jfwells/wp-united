@@ -689,7 +689,8 @@ Class WPU_Integration {
 				$this->debugBuffer .= $add_to_debug . '<br />';
 			}
 			if ($end_debug_now) {
-				echo $this->debugBuffer . '</div><!-- /wpu-debug -->';
+				global $lDebug;
+				$lDebug = $this->debugBuffer . '</div><!-- /wpu-debug -->';
 				$this->debugBufferFull = TRUE;				
 			}
 
