@@ -75,7 +75,7 @@ if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 	$wpSettings = get_integration_settings();
 
-	include ($phpbb_root_path . 'wp-united/wordpress-entry-point.php');
+	include ($phpbb_root_path . 'wp-united/integrator.php');
 } else {
 	//When this warning appears, we cannot find phpBB - hence we do not use the template engine or $lang array. 'Cos we can't, alright?
 	echo "<html><head>

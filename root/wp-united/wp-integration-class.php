@@ -603,7 +603,9 @@ Class WPU_Integration {
 			$wp_did_header = true;   
 			wp();
 			if ( !$latest ) {
-				include(\'' . $this->phpbb_root . 'wp-united/wp-template-loader.' . $this->phpEx . '\');
+				if ( !defined(\'WPU_REVERSE_INTEGRATION\') ) {
+					include(\'' . $this->phpbb_root . 'wp-united/wp-template-loader.' . $this->phpEx . '\');
+				}
 			} else {
 				include(\'' . $this->phpbb_root . 'wp-united/wpu-latest-posts.' . $this->phpEx . '\');	
 			}

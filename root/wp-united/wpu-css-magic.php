@@ -78,7 +78,7 @@ class CSS_Magic {
 	//
 	//	GET INSTANCE
 	//	----------------------
-	//	Makes class a Singleton.
+	//	If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
 	//	
 	function getInstance () {
 		static $instance;

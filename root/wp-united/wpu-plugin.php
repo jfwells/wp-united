@@ -1233,9 +1233,8 @@ function wpu_content_parse_check($postContent) {
 			$postContent = wpu_censor($postContent);
 		}
 	} else {
-		global $pfContent, $wpuOutputPreStr, $wpuOutputPostStr;
-		$postContent = $wpuOutputPreStr . $pfContent . $wpuOutputPostStr;
-		$GLOBALS['pfContent'] = null;
+		global $innerContent, $wpuOutputPreStr, $wpuOutputPostStr;
+		$postContent = "<!--[**INNER_CONTENT**]-->";
 	}
 	return $postContent;
 }
