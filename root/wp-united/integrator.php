@@ -51,6 +51,11 @@ if ( !defined('WPU_BLOG_PAGE') ) {
 // More required files
 require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);
+require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+
+//Initialise the cache
+global $wpuCache;
+$wpuCache = WPU_Cache::getInstance();
 
 // There are several variables we need to have around in the global scope. We only need to
 // do this if we are being called from a function, but for convenience, we just do it anyway
@@ -137,11 +142,9 @@ $noIntLogin = false;
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
 	if ( !empty($wpSettings['wpSimpleHdr']) ) {
-		if ( (defined('WPU_CACHE_ENABLED')) && (WPU_CACHE_ENABLED) && (!defined('WPU_PERFORM_ACTIONS')) ) {
+		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) {
 			$noIntLogin = true;
-			global $wpu_cacheLoc;
-			$wpu_cacheLoc = '';
-			set_wpu_cache();
+			$wpuCache->use_template_cache();
 		}
 	}
 }
@@ -155,8 +158,8 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 
 $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerContent';
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
-
-if ( !defined('WPU_USE_CACHE') ) {
+$connectSuccess = false;
+if ( !$wpuCache->use_template_cache() ) {
 	require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 	$wpUtdInt = WPU_Integration::getInstance();
 
@@ -177,78 +180,88 @@ if ( !defined('WPU_USE_CACHE') ) {
 		$wpUtdInt->get_wp_page($wpContentVar);
 
 		// finally do the integration, execute all the prepared code.	
-		eval($wpUtdInt->exec());  
-
-		/****** If phpBB-in-wordpress, we need to generate the WP header/footer ****/
-		if ( defined('WPU_REVERSE_INTEGRATION') ) {
-
-			//prevent WP 404 error
-			query_posts('showposts=1');
-	
-			if ( !empty($wpSettings['wpSimpleHdr']) ) {
-				//
-				//	Simple header and footer
-				//
-				if ( !defined('WPU_USE_CACHE') ) {
-					//
-					// Need to rebuld the cache
-					//
-			
-					ob_start();
-					get_header();
-					$outerContent = ob_get_contents();
-					ob_end_clean();
-			
+		eval($wpUtdInt->exec()); 
+		$connectSuccess = true;
 		
-					$outerContent .= "<!--[**INNER_CONTENT**]-->";
-					
-					ob_start();
-					get_footer();
-					$outerContent .= ob_get_contents();
-					ob_end_clean();
-				} else {
-					//
-					// TODO: Just pull the header and footer from the cache
-					//
-
-				}
-			} else {
-				//
-				//	Full WP page
-				//
-				define('PHPBB_CONTENT_ONLY', TRUE);
-		
-				ob_start();
-		
-				$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpSettings['wpPageName']);
-				if ( !file_exists($wpTemplateFile) ) {
-					$wpTemplateFile = TEMPLATEPATH . "/page.php";
-					// Fall back to index.php for Classic template
-					if(!file_exists($wpTemplateFile)) {
-						$wpTemplateFile = TEMPLATEPATH . "/index.php";
-					}
-				}
-				include($wpTemplateFile);
-		
-				$outerContent = ob_get_contents();
-				ob_end_clean();
-
-			}
-			wp_reset_query();
-			if ( $wpSettings['cssFirst'] == 'P' ) {
-				$outerContent = str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $outerContent);
-			}
-
-		}
-
-
-		// clean up, go back to normal :-)
-		$wpUtdInt->exit_wp_integration();
-		$wpUtdInt = null; unset ($wpUtdInt);
-	
 	} else {
 		$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_Not_Installed_Yet'), '','','');
 	}
+}
+
+if ( $wpuCache->use_template_cache() || $connectSuccess ) {
+
+	/****** If phpBB-in-wordpress, we need to generate the WP header/footer ****/
+	if ( defined('WPU_REVERSE_INTEGRATION') ) {
+
+		//prevent WP 404 error
+		query_posts('showposts=1');
+
+		if ( !empty($wpSettings['wpSimpleHdr']) ) {
+			//
+			//	Simple header and footer
+			//
+			if ( !$wpuCache->use_template_cache() ) {
+				//
+				// Need to rebuld the cache
+				//
+		
+				ob_start();
+				get_header();
+				$outerContent = ob_get_contents();
+				ob_end_clean();
+		
+	
+				$outerContent .= "<!--[**INNER_CONTENT**]-->";
+				
+				ob_start();
+				get_footer();
+				$outerContent .= ob_get_contents();
+				ob_end_clean();
+				
+				if ( $wpuCache->template_cache_enabled() ) {
+					$wpuCache->save_to_template_cache($outerContent);
+				}
+				
+			} else {
+				//
+				// Just pull the header and footer from the cache
+				//
+				$outerContent = $wpuCache->get_from_template_cache();
+
+			}
+		} else {
+			//
+			//	Full WP page
+			//
+			define('PHPBB_CONTENT_ONLY', TRUE);
+	
+			ob_start();
+	
+			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpSettings['wpPageName']);
+			if ( !file_exists($wpTemplateFile) ) {
+				$wpTemplateFile = TEMPLATEPATH . "/page.php";
+				// Fall back to index.php for Classic template
+				if(!file_exists($wpTemplateFile)) {
+					$wpTemplateFile = TEMPLATEPATH . "/index.php";
+				}
+			}
+			include($wpTemplateFile);
+	
+			$outerContent = ob_get_contents();
+			ob_end_clean();
+
+		}
+		wp_reset_query();
+		if ( $wpSettings['cssFirst'] == 'P' ) {
+			$outerContent = str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $outerContent);
+		}
+
+	}
+
+
+	// clean up, go back to normal :-)
+	$wpUtdInt->exit_wp_integration();
+	$wpUtdInt = null; unset ($wpUtdInt);
 
 }
 

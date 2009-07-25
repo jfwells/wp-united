@@ -30,10 +30,7 @@
 
 ******************************************************************************/
 
-if ( !defined('IN_PHPBB') ) {
-	die("Hacking attempt");
-	exit;
-}
+if ( !defined('IN_PHPBB') ) exit;
 
 Class WPU_Integration {
  
@@ -143,8 +140,8 @@ Class WPU_Integration {
 		if (!isset($instance)) {
 			$instance = new WPU_Integration($varsToSave);
         } 
-        return $instance;
-    }
+        	return $instance;
+    	}
 
 
 	function WPU_Integration($varsToSave) {
