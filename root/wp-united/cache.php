@@ -81,6 +81,9 @@ class WPU_Cache {
 		if ( !defined('WPU_REVERSE_INTEGRATION') ) {
 			return false;
 		}
+		if(!$this->template_cache_enabled()) {
+			return false;
+		}
 
 		switch($this->_useTemplateCache) {
 			case "USE":
@@ -170,7 +173,7 @@ class WPU_Cache {
 	//	----------------------
 	//	Saves template header/footer to disk
 	//	
-	function save_to_template_cache($wpuVer, $wpVer, $compat) {
+	function save_to_template_cache($content) {
 		
 		if ( $this->template_cache_enabled() ) {
 			$theme = array_pop(explode('/', TEMPLATEPATH)); 

@@ -142,8 +142,8 @@ $useCache = false;
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
 	if ( !empty($wpSettings['wpSimpleHdr']) ) {
-		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) {
-			$useCache = true;
+		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) { 
+			$useCache = true; 
 			$wpuCache->use_template_cache();
 		}
 	}
@@ -159,7 +159,8 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerContent';
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
-if ( (!$wpuCache->use_template_cache()) && $useCache ) {
+
+if ( !$wpuCache->use_template_cache() ) { 
 	require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 	$wpUtdInt = WPU_Integration::getInstance();
 
@@ -188,7 +189,7 @@ if ( (!$wpuCache->use_template_cache()) && $useCache ) {
 	}
 }
 
-if ( $wpuCache->use_template_cache() || $connectSuccess ) {
+if ( $useCache || $connectSuccess ) { 
 
 	/****** If phpBB-in-wordpress, we need to generate the WP header/footer ****/
 	if ( defined('WPU_REVERSE_INTEGRATION') ) {
