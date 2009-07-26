@@ -39,7 +39,7 @@ if ( !defined('IN_PHPBB') )
 //	However, if you have dynamic elements in your header or footer, then you will want to keep this option off.
 //	To turn it on, change FALSE to TRUE.
 
-define('WPU_CACHE_ENABLED', TRUE);
+define('WPU_CACHE_ENABLED', FALSE);
 
 
 

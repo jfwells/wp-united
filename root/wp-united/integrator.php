@@ -138,12 +138,12 @@ if ( isset($HTTP_GET_VARS['numposts']) ) {
 
 /********************** Initialise cache ***********************/
 //TODO: integrate different cache types
-$noIntLogin = false; 
+$useCache = false;
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
 	if ( !empty($wpSettings['wpSimpleHdr']) ) {
 		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) {
-			$noIntLogin = true;
+			$useCache = true;
 			$wpuCache->use_template_cache();
 		}
 	}
@@ -159,7 +159,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerContent';
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
-if ( !$wpuCache->use_template_cache() ) {
+if ( (!$wpuCache->use_template_cache()) && $useCache ) {
 	require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 	$wpUtdInt = WPU_Integration::getInstance();
 
@@ -172,7 +172,7 @@ if ( !$wpuCache->use_template_cache() ) {
 				
 		// This generates the code for integrating logins, synchronising user profiles, and managing WordPress permissions.
 		// integrate_login handles whether logins should be integrated or not, so we can just call it without checking.
-		if ( (!$latest) && (!$noIntLogin) ) {
+		if (!$latest) {
 			$wpUtdInt->integrate_login();
 		} 
 		
