@@ -40,6 +40,7 @@ class WPU_Cache {
     		global $phpbb_root_path, $wpSettings, $phpEx;
     		
     		$this->_useTemplateCache = 'UNKNOWN';
+    		$this->_useCoreCache = 'UNKNOWN';
     		$this->baseCacheLoc = $phpbb_root_path . 'wp-united/cache/';
     		$this->themePath = $wpSettings['wpPath'] . 'wp-content/themes/';
     		$this->wpVersionLoc = $wpSettings['wpPath'] . "wp-includes/version.$phpEx";
@@ -55,7 +56,19 @@ class WPU_Cache {
     			return true;
     		}
     		return false;
-    	}	
+    	}
+    	
+	//
+	//	CORE CACHE ENABlED
+	//	----------------------
+	//	Returns whether the template cache should be used
+	//    	
+    	function core_cache_enabled() {
+    		if (defined('WPU_CORE_CACHE_ENABLED') && WPU_CORE_CACHE_ENABLED) {
+    			return true;
+    		}
+    		return false;
+    	}    		
 
 
 	//
@@ -65,6 +78,9 @@ class WPU_Cache {
 	//
 
 	function use_template_cache() {
+		if ( !defined('WPU_REVERSE_INTEGRATION') ) {
+			return false;
+		}
 
 		switch($this->_useTemplateCache) {
 			case "USE":
@@ -76,19 +92,19 @@ class WPU_Cache {
 			default:
 				
 				@$dir = opendir($this->baseCacheLoc);
-				$cacheLoc = '';
-				$cacheFound = FALSE;
+				$cacheFound = false;
 				while( $entry = @readdir($dir) ) {
 					if ( strpos($entry, '.wpucache') ) {
-						$cacheFound = TRUE;
+						$cacheFound = true;
 						$theme = explode('.', $entry);
 						$theme = $theme[0];
 						$this->templateCacheLoc = $this->baseCacheLoc . $entry;
 					}
 				}
 				if ($cacheFound) { // refresh cache if it is older than theme file, or if WP has been upgraded.
+					
 					$fileAddress = $this->themePath . $theme;
-					$compareDate = filemtime($wpu_cacheLoc);
+					$compareDate = filemtime($this->templateCacheLoc);
 					if ( !( ($compareDate < @filemtime("$fileAddress/header.$phpEx")) || 
 					  ($compareDate < @filemtime("$fileAddress/footer.$phpEx")) ||
 					  ($compareDate < @filemtime($this->wpVersionLoc)) ) ) {
@@ -106,16 +122,60 @@ class WPU_Cache {
 	}
 	
 	//
+	//	USE CORE CACHE
+	//	----------------------
+	//	Decides whether to use, or recreate the core cache
+	//
+	function use_core_cache($wpuVer, $wpVer, $compat) {
+		global $latest;
+		
+		if($latest) {
+			return false;
+		}
+		
+		switch($this->_useCoreCache) {
+			case "USE":
+				return true;
+				break;
+			case "REFRESH":
+				return false;
+				break;
+			default:
+				
+				@$dir = opendir($this->baseCacheLoc);
+				$compat = ($compat) ? "_fast" : "_slow";
+				while( $entry = @readdir($dir) ) {
+					if ( $entry == "core.wpucorecache-{$wpVer}-{$wpuVer}{$compat}.php") {
+						$entry = $this->baseCacheLoc . $entry;
+						$compareDate = filemtime($entry);
+						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) {
+							$this->coreCacheLoc = $entry;
+							$this->_useCoreCache = "USE";
+							return true;
+						}
+					}
+				}
+				$this->_useCoreCache = "REFRESH";
+				return false;
+		}	
+				
+				
+		
+			
+	
+	}
+	
+	//
 	//	SAVE TO TEMPLATE CACHE
 	//	----------------------
 	//	Saves template header/footer to disk
 	//	
-	function save_to_template_cache($content) {
+	function save_to_template_cache($wpuVer, $wpVer, $compat) {
 		
 		if ( $this->template_cache_enabled() ) {
 			$theme = array_pop(explode('/', TEMPLATEPATH)); 
 			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(round(0, 9999)) . 'cache';
-			$fnDest = $this->baseCacheLoc . $theme.wpucache;
+			$fnDest = $this->baseCacheLoc . $theme. ".wpucache";
 			$hTempFile = @fopen($fnTemp, 'w+');
 			
 			@fwrite($hTempFile, $content);
@@ -129,6 +189,30 @@ class WPU_Cache {
 		return false;
 
 	}
+	
+	//
+	//	SAVE TO CORE CACHE
+	//	----------------------
+	//	Saves WordPress core to disk
+	//	
+	function save_to_core_cache($content, $wpuVer, $wpVer, $compat) {
+		
+		if ( $this->core_cache_enabled() ) {
+			$compat = ($compat) ? "_fast" : "_slow";
+			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 9999)) . 'wpucorecache-' . $this->wpVersion . '-' . $wpuAbs->wpu_ver . $compat . '.php';
+			$fnDest = $phpbb_root_path . "wp-united/cache/core.wpucorecache-{$wpVer}-{$wpuVer}{$compat}.php";
+			$hTempFile = @fopen($fnTemp, 'w+');
+			@fwrite($hTempFile, '<' ."?php\n\n if(!defined('IN_PHPBB')){die('Hacking attempt');exit();}\n\n$content\n\n?" . '>');
+			@fclose($hTempFile);
+			@copy($fnTemp, $fnDest);
+			@unlink($fnTemp); 			
+		
+			return true;
+		}
+
+		return false;
+
+	}	
 
 	//
 	//	GET FROM TEMPLATE CACHE

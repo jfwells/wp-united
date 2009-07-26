@@ -120,9 +120,6 @@ Class WPU_Integration {
 	// prevents the main WordPress script from being included more than once
 	var $wpLoaded;
 	
-	// Core cache
-	var $cacheReady;
-	var $cacheLoc;
 
 	// Compatibility mode?
 	var $wpu_compat;
@@ -166,7 +163,6 @@ Class WPU_Integration {
 		}
 		$this->sleepingVars = $varsToSave;
 		$this->wpLoaded = FALSE;
-		$this->cacheReady = FALSE;
 		$this->debugBuffer = '';
 		$this->debugBufferFull = FALSE;
 		$this->wpVersion = 0;
@@ -193,33 +189,16 @@ Class WPU_Integration {
 	//	pull code from cache if we can
 	//	
 	function core_cache_ready() {
-		if ( $this->cacheReady && !empty($this->cacheLoc) ) {
-			return TRUE;
+		global $wpuCache, $wpuAbs;
+	
+		if ( !$wpuCache->core_cache_enabled() ){
+			return false;
 		}
-		global $wpuAbs, $latest;
-		if($latest) {
-			return FALSE;
+
+		if ($wpuCache->use_core_cache($wpuAbs->wpu_ver, $this->wpVersion, $this->wpu_compat)) {
+			return true;
 		}
-		if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) ) {
-			$cacheLocation = $this->phpbb_root .  'wp-united/cache/';
-			@$dir = opendir($cacheLocation);
-			$cacheLoc = '';
-			$cacheFound = FALSE;
-			$compat = ($this->wpu_compat) ? "_fast" : "_slow";
-			while( $entry = @readdir($dir) ) {
-				if ( $entry == "core.wpucorecache-{$this->wpVersion}-{$wpuAbs->wpu_ver}{$compat}.php") {
-					$entry = $cacheLocation . $entry;
-					$compareDate = filemtime($entry);
-					if ( !($compareDate < @filemtime($this->wpu_settings['wpPath'] . 'wp-includes/version.php'))  ) {
-						$this->cacheLoc = $entry;
-						$this->cacheReady = TRUE;
-						return TRUE;
-					}
-				}
-			}
-		}
-		$this->cacheReady = FALSE;
-		return FALSE;
+		return false;
 	} 
 		
 
@@ -254,7 +233,7 @@ Class WPU_Integration {
 	//	------------------------------
 	//	Loads up the WordPress install, to just before the point that the template would be shown
 	//	
-		
+		global $wpuCache;
 		//Tell phpBB that we're in WordPress. This controls the branching of the duplicate functions get_userdata and make_clickable
 		$GLOBALS['IN_WORDPRESS'] = 1;
 		
@@ -342,18 +321,11 @@ Class WPU_Integration {
 				$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php');
 				unset ($cConf, $cSet);
 
-				if ( (defined('WPU_CORE_CACHE_ENABLED')) && (WPU_CORE_CACHE_ENABLED) ) {
-					$compat = ($this->wpu_compat) ? "_fast" : "_slow";
-					$fnTemp = $phpbb_root_path . 'wp-united/cache/temp_' . floor(rand(0, 9999)) . 'wpucorecache-' . $this->wpVersion . '-' . $wpuAbs->wpu_ver . $compat . '.php';
-					$fnDest = $phpbb_root_path . "wp-united/cache/core.wpucorecache-{$this->wpVersion}-{$wpuAbs->wpu_ver}{$compat}.php";
-					$hTempFile = @fopen($fnTemp, 'w+');
-					@fwrite($hTempFile, '<' ."?php\n\n if(!defined('IN_PHPBB')){die('Hacking attempt');exit();}\n\n$content\n\n?" . '>');
-					@fclose($hTempFile);
-					@copy($fnTemp, $fnDest);
-					@unlink($fnTemp); 
+				if ( $wpuCache->core_cache_enabled()) {
+					$wpuCache->save_to_core_cache($content, $wpuAbs->wpu_ver, $this->wpVersion, $this->wpu_compat);
 				}
 			} else {
-				$this->prepare('require_once(\'' . $this->cacheLoc . '\');');
+				$this->prepare('require_once(\'' . $wpuCache->coreCacheLoc . '\');');
 			}
 			if ( defined('WPU_PERFORM_ACTIONS') ) {
 				$this->prepare($GLOBALS['wpu_add_actions']);

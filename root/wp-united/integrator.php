@@ -194,7 +194,9 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 	if ( defined('WPU_REVERSE_INTEGRATION') ) {
 
 		//prevent WP 404 error
-		query_posts('showposts=1');
+		if ( !$wpuCache->use_template_cache() ) {
+			query_posts('showposts=1');
+		}
 
 		if ( !empty($wpSettings['wpSimpleHdr']) ) {
 			//
@@ -212,6 +214,9 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 		
 	
 				$outerContent .= "<!--[**INNER_CONTENT**]-->";
+				if ( $wpuCache->template_cache_enabled() ) {
+					$outerContent .= "<!--cached-->";
+				}				
 				
 				ob_start();
 				get_footer();
@@ -251,7 +256,11 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 			ob_end_clean();
 
 		}
-		wp_reset_query();
+		
+		if ( !$wpuCache->use_template_cache() ) {
+			wp_reset_query();
+		}
+		
 		if ( $wpSettings['cssFirst'] == 'P' ) {
 			$outerContent = str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $outerContent);
 		}
@@ -260,8 +269,10 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 
 
 	// clean up, go back to normal :-)
-	$wpUtdInt->exit_wp_integration();
-	$wpUtdInt = null; unset ($wpUtdInt);
+	if ( !$wpuCache->use_template_cache() ) {
+		$wpUtdInt->exit_wp_integration();
+		$wpUtdInt = null; unset ($wpUtdInt);
+	}
 
 }
 
