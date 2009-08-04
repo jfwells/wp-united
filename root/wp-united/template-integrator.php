@@ -287,6 +287,10 @@ function wpu_output_page(&$content) {
 		$replace = array('>', '<', '\\1');
 		$content = preg_replace($search, $replace, $content);
 	}
+
+//Add title back
+	global $wpu_page_title;
+	$content = str_replace("[**PAGE_TITLE**]", $wpu_page_title, $content);
 	
 	echo $content;
 }

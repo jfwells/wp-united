@@ -2408,7 +2408,10 @@ class acp_wp_united {
 
 				if (count($wp_id_list)) {				
 					//Set up the WordPress Integration
-					global $wpUtdInt;
+					global $wpUtdInt, $wpuCache;
+					require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+					$wpuCache = WPU_Cache::getInstance();
+
 					require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 					$wpUtdInt = WPU_Integration::getInstance();
 					$connError = FALSE;
@@ -2976,9 +2979,11 @@ class acp_wp_united {
 	//
 	function install_wpuConnection() {
 		define ('WPU_SET', 1);
-		global $wpuAbs, $wpSettings, $phpEx, $phpbb_root_path, $board_config, $wpu_debug, $wpUtdInt;
+		global $wpuAbs, $wpuCache, $wpSettings, $phpEx, $phpbb_root_path, $board_config, $wpu_debug, $wpUtdInt;
+		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);		
+		$wpuCache = WPU_Cache::getInstance();
+
 		//Set up the WordPress Integration
-		
 		require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 		$wpUtdInt = WPU_Integration::getInstance();
 		$connError = FALSE;
@@ -3282,7 +3287,9 @@ class acp_wp_united {
 		$thisEnd = $nextStart = $wpStart + $numResults;
 		
 		// Enter WordPress and pull user data
-		global $wpdb, $wpUtdInt;
+		global $wpdb, $wpUtdInt, $wpuCache;
+		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+		$wpuCache = WPU_Cache::getInstance();
 		require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 		$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 		define('USE_THEMES', FALSE);
@@ -3733,7 +3740,9 @@ class acp_wp_united {
 		$paged = (int) request_var('paged', 0);
 
 		// Enter WordPress and pull user data
-		global $wpdb, $wpUtdInt;
+		global $wpdb, $wpUtdInt, $wpuCache;
+		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+		$wpuCache = WPU_Cache::getInstance();
 		require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 		$wpUtdInt = WPU_Integration::getInstance();
 		define('USE_THEMES', FALSE);
