@@ -102,7 +102,7 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
 // less efective. This way, there is only one version.
 
 // NEW VERSION -- TEMPORARILY DISABLED
-if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC && (1==0)) {
+if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC && (1==1)) {
 
 	// check cache age
 	
@@ -110,8 +110,20 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC && (1==0)) {
 	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 
 	// We try to discover all the stylesheet links, and then find them on the server disk
-	$outerStylesheets = get_stylesheet_files($outerContent);
-	$innerStylesheets = get_stylesheet_files($innerHeadInfo);
+	//$outerStylesheets = get_stylesheet_files($outerContent);
+	//$innerStylesheets = get_stylesheet_files($innerHeadInfo);
+	$innerHeadInfo = wpu_modify_stylesheet_links($innerHeadInfo, "inner");
+//echo $outerContent;	
+$outerContent = wpu_modify_stylesheet_links($outerContent, "outer");
+	
+	// 1 modify stylesheet links as before
+	// 2 CSS magic, when generating stylesheets, stores a cache of css content and css keywords
+	// 3 here we look for the stored content. See if we have generated a tv cache yet
+	// 4 if no tv cache, we load in the css keywords and create it
+	// 5 modify the output files and the cached css based on the css keywords
+
+	// so -- on first pass, the page will have fixed css, but template conflicts
+	// on subsequent passes, template conflicts will be fixed.
 	
 	// TODO: NOW WE CAN OUTPUT MODIFIED HEADER, TO SAVE MEMORY
 	
@@ -119,7 +131,7 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC && (1==0)) {
 	
 	// TODO: style.php and other .php stylesheets will still need to go through style-fixer
 	
-	$outerCSS = new CSS_Magic();
+	/*$outerCSS = new CSS_Magic();
 	foreach($outerStylesheets as $ss) {
 		$outerCSS->parseFile($ss);
 	}
@@ -127,7 +139,7 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC && (1==0)) {
 	$innerCSS = new CSS_Magic();
 	foreach($innerStylesheets as $ss) {
 		$innerCSS->parseFile($ss);
-	}
+	}*/
 	
 	// Detect ID duplicates
 	
@@ -143,7 +155,8 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC && (1==0)) {
 }
 // OLD VERSION -- TEMP
 if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-	$innerHeadInfo = wpu_modify_stylesheet_links($innerHeadInfo, false);
+	//$innerHeadInfo = wpu_modify_stylesheet_links($innerHeadInfo, "inner");
+	
 }
 
 
@@ -288,7 +301,7 @@ function wpu_output_page(&$content) {
 		$content = preg_replace($search, $replace, $content);
 	}
 
-//Add title back
+	//Add title back
 	global $wpu_page_title;
 	$content = str_replace("[**PAGE_TITLE**]", $wpu_page_title, $content);
 	
@@ -298,14 +311,14 @@ function wpu_output_page(&$content) {
 //
 // Modify links in header to stylesheets to use CSS Magic instead
 //
-function wpu_modify_stylesheet_links($headerInfo, $tvFileHash) {
+function wpu_modify_stylesheet_links($headerInfo, $position="outer") {
 	global $scriptPath, $wpSettings, $phpbb_root_path;
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
 	preg_match_all('/@import url\([^\)]+?\)/i', $headerInfo, $matches2);
 	preg_match_all('/@import "[^"]+?"/i', $headerInfo, $matches3);
 	$matches = array_merge($matches[0], $matches2[0], $matches3[0]);
 	if(is_array($matches)) {
-		$tVoodooString = ($tvFileHash) ? "tv=" . urlencode($tvFileHash) : '';
+		$pos = "pos=" . $position;
 		foreach($matches as $match) {
 			// extract css location
 			if(stristr($match, "@import url") !== false) {
@@ -346,17 +359,18 @@ function wpu_modify_stylesheet_links($headerInfo, $tvFileHash) {
 				// else: relative path
 				$findLoc = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\") : $findLoc;
 				if( file_exists($findLoc) && (stristr($findLoc, "http:") === false) ) { 
-					$newLoc = "wp-united/wpu-style-fixer.php?usecssm=1{$and}style=" . urlencode(base64_encode(htmlentities($findLoc))) . $and . 'tv=' . $tVoodooString;
+					$newLoc = "wp-united/wpu-style-fixer.php?usecssm=1{$and}style=" . urlencode(base64_encode(htmlentities($findLoc))) . $and . $pos;
 					$headerInfo = str_replace($cssLoc, $newLoc, $headerInfo);
 				}
 			}
-			if($stylePhpLoc) { // Add TemplateVoodoo to style.php
-				$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . "&amp;usecssm=1" . $tVoodooString , $headerInfo);
+			if($stylePhpLoc) { //  style.php
+				$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . "&amp;usecssm=1&amp;".$pos , $headerInfo);
 			}
 		}
 	}
 	return $headerInfo;
 }
+
 
 
 ?>

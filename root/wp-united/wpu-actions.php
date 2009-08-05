@@ -219,11 +219,14 @@ class WPU_Actions {
 		global $phpbb_root_path, $phpEx;
 		include($phpbb_root_path . 'wp-united/options.' . $phpEx); // temp -- this is called from style.php
 		if(isset($_GET['usecssm'])) {
-			if(request_var("usecssm", 0)) {
+			if(isset($_GET['pos'])) {
+				$pos = ($_GET['pos'] == 'inner') ? 'inner' : 'outer';
+			}
+			if(request_var("usecssm", 0) && ($pos == 'inner')) {
 				include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 				$cssMagic = CSS_Magic::getInstance();
 				if($cssMagic->parseString($css)) {
-					if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+				/*	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 						if(isset($_GET['tv'])) {
 							$tvFile = (string) request_var('tv', '');
 							$tvFile = urldecode($tvFile);
@@ -238,7 +241,7 @@ class WPU_Actions {
 					
 							}
 						}
-					}
+					}*/
 					$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 					$css = $cssMagic->getCSS();
 					$cssMagic->clear();
