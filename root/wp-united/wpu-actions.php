@@ -218,38 +218,61 @@ class WPU_Actions {
 		
 		global $phpbb_root_path, $phpEx;
 		include($phpbb_root_path . 'wp-united/options.' . $phpEx); // temp -- this is called from style.php
+		$pos = "outer";	
 		if(isset($_GET['usecssm'])) {
 			if(isset($_GET['pos'])) {
 				$pos = ($_GET['pos'] == 'inner') ? 'inner' : 'outer';
 			}
-			if(request_var("usecssm", 0) && ($pos == 'inner')) {
-				include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
-				$cssMagic = CSS_Magic::getInstance();
-				if($cssMagic->parseString($css)) {
-				/*	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
-						if(isset($_GET['tv'])) {
-							$tvFile = (string) request_var('tv', '');
-							$tvFile = urldecode($tvFile);
-							$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
-							if(file_exists($tvFile)) {
-								$tvFc = file_get_contents($tvFile);
-								$tvFc = unserialize($tvFc);
-								$tvIds = $tvFc[0];
-								$tvClasses = $tvFc[1];
-								$cssMagic->renameIds("wpu", $tvIds);
-								$cssMagic->renameClasses("wpu", $tvClasses);
+			$cacheLocation = '';
+			if(isset($_GET['cloc'])) {
+				$cacheLocation = urlencode(request_var('cloc', ''));
+			}
+			// First check cache (TODO: port to cache class)
+			if(file_exists($phpbb_root_path . "wp-united/cache/$cacheLocation-{$pos}.cssm")) {
+				$css = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm");
+			} else {
+				if(request_var("usecssm", 0) && ($pos == 'inner')) {
+					include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
+					$cssMagic = CSS_Magic::getInstance();
+					if($cssMagic->parseString($css)) {
+					/*	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+							if(isset($_GET['tv'])) {
+								$tvFile = (string) request_var('tv', '');
+								$tvFile = urldecode($tvFile);
+								$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
+								if(file_exists($tvFile)) {
+									$tvFc = file_get_contents($tvFile);
+									$tvFc = unserialize($tvFc);
+									$tvIds = $tvFc[0];
+									$tvClasses = $tvFc[1];
+									$cssMagic->renameIds("wpu", $tvIds);
+									$cssMagic->renameClasses("wpu", $tvClasses);
 					
+								}
 							}
-						}
-					}*/
-					$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
-					$css = $cssMagic->getCSS();
-					$cssMagic->clear();
+						}*/
+						$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
+						$css = $cssMagic->getCSS();
+						$cssMagic->clear();
+					}
 				}
-			
-				if(file_exists($phpbb_root_path . "wp-united/theme/reset.css")) {
+
+				// cache result here
+				$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmcache';
+				$fnDest = $phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm";
+				$hTempFile = @fopen($fnTemp, 'w+');
+
+				@fwrite($hTempFile, $css);
+				@fclose($hTempFile);
+				@copy($fnTemp, $fnDest);
+				@unlink($fnTemp);
+
+
+				$reset = '';
+				if($pos == 'inner') {
 					$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
-				}
+				}			
+
 				return $reset . $css;
 			}
 		}

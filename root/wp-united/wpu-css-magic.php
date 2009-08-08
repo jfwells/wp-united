@@ -270,6 +270,54 @@ class CSS_Magic {
 		unset($fixed);
 
 	}
+	
+	//
+	// REMOVE COMMON ELEMENTS FROM KEYS
+	// ---------------------------------
+	// Removes common elements from CSS selectors
+	// For example, this can be used to undo CSS magic additions
+	function removeCommonKeyEl($txt) {
+		$newCSS = array();
+		foreach($this->css as $keyString => $cssCode) {
+			$newKey = trim(str_replace($txt, '', $keyString));
+			if(!empty($newKey)) {
+				$newCSS[$newKey] = $cssCode;
+			}
+		}
+		$this->css = $newCSS;
+		unset($newCSS);
+	}
+	
+	//
+	// GET ALL KEY Classes and IDs
+	// --------------------
+	// Returns all key classes and IDs
+	//
+	function getKeyClassesAndIDs() {
+		$classes = array();
+		$ids = array();
+		foreach($this->css as $keyString => $cssCode) {
+			preg_match_all('/\..[^\s^#^>^<^\.^,^:]*/', $keyString, $cls);
+			preg_match_all('/#.[^\s^#^>^<^\.^,^:]*/', $keyString, $id);
+			
+			if(sizeof($cls[0])) {
+				$classes = array_merge($classes, $cls[0]);
+			}
+			if(sizeof($id[0])) {
+				$ids = array_merge($ids, $id[0]);
+			}			
+			
+			
+		}
+		if(sizeof($classes)) {
+			$classes = array_unique($classes);
+		}
+		if(sizeof($ids)) {
+			$ids = array_unique($ids);
+		}		
+		return array('ids' => $ids, 'classes' => $classes);
+	}
+	
 
 	// 
 	// 	GET CSS

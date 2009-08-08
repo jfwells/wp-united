@@ -268,6 +268,7 @@ Class WPU_Integration {
 			$this->wpLoaded = true;
 			
 			//Which version of WordPress are we about to load?
+			global $wp_version;
 			require($this->wpu_settings['wpPath'] . 'wp-includes/version.php');
 			$this->wpVersion = $wp_version;
 			

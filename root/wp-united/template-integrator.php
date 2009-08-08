@@ -93,74 +93,122 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
 
 // Now we have our outer page in $outerContent, and our inner page in $innerContent.
 
-// We now use CSS Magic to parse all the related stylesheets. CSS Magic also modifies CSS files when they are requested
-// by the browser. This means it can also deal with PHP-created stylesheets. However, looking at them
-// now, we can compare all the different selectors and look for conflicts.
+// We now identify all the stylesheets and redirect them to CSS Magic.
+// We don't parse them now, as style.php is used for phpBB styles.
 //
-// This is *very* resource intensive, but should only take place *once*, and then be cached
-// The alternative is to inspect the HTML for conflicting classes/IDs, but every page is different, and so caching is
-// less efective. This way, there is only one version.
+// Once they have been parsed by CSS Magic, on subsequent run-throughs here, 
+// we can read CSS Magic's cache and look at the stylesheets for conflicting 
+// classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
+// to make additional changes to the CSS the next time around.
 
 // NEW VERSION -- TEMPORARILY DISABLED
-if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC && (1==1)) {
+if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 
-	// check cache age
+	 
 	
 	
 	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 
-	// We try to discover all the stylesheet links, and then find them on the server disk
-	//$outerStylesheets = get_stylesheet_files($outerContent);
-	//$innerStylesheets = get_stylesheet_files($innerHeadInfo);
-	$innerHeadInfo = wpu_modify_stylesheet_links($innerHeadInfo, "inner");
-//echo $outerContent;	
-$outerContent = wpu_modify_stylesheet_links($outerContent, "outer");
+	// Get all links to stylesheets, see if they have been cached yet
+	$innerSSLinks = wpu_get_stylesheet_links($innerHeadInfo, "inner");
+	$outerSSLinks = wpu_get_stylesheet_links($outerContent, "outer");
 	
-	// 1 modify stylesheet links as before
-	// 2 CSS magic, when generating stylesheets, stores a cache of css content and css keywords
-	// 3 here we look for the stored content. See if we have generated a tv cache yet
-	// 4 if no tv cache, we load in the css keywords and create it
-	// 5 modify the output files and the cached css based on the css keywords
+	// TEMPLATE VOODOO
+	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+	
+		// check cache
+		$theme = array_pop(explode('/', TEMPLATEPATH));
+		$linkHash = md5(implode('.', $innerSSLinks['caches']) . implode('.', $outerSSLinks['caches']));
 
-	// so -- on first pass, the page will have fixed css, but template conflicts
-	// on subsequent passes, template conflicts will be fixed.
+		$tvCacheLoc = $phpbb_root_path . "wp-united/cache/{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd";
+		$passTvCacheLoc = urlencode("{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd");
+
+		foreach ($innerSSLinks['caches'] as $index => $cached) {
+			$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-inner.cssm";
+			if(file_exists($cssFile)) {
+				$innerSSLinks['replacements'][$index] .=  $passTvCacheLoc;
+			} else {
+				$innerSSLinks['replacements'][$index] .=  "0";
+			}
+		}
+
+
+		$classDupes = array();
+		$idDupes = array();	
 	
-	// TODO: NOW WE CAN OUTPUT MODIFIED HEADER, TO SAVE MEMORY
+		if(file_exists($tvCacheLoc)) {
+			$templateVoodoo = @file_get_contents($tvCacheLoc);
+			$templateVoodoo = @unserialize($templateVoodoo);
+
+			if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
+				$classDupes = $templateVoodoo['classes'];
+				$idDupes = $templateVoodoo['ids'];
+			}
+		} else {
 	
-	// (TODO: -- not necessary) Modify CSS Magic to be aware of several templates, with the ability to (merge ?) and separate them
+			// Do Template Voodoo
+			$outerCSS = new CSS_Magic();
+			$innerCSS = new CSS_Magic();
+		
+			foreach ($innerSSLinks['caches'] as $index => $cached) {
+				$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-inner.cssm";
+				$innerCSS->parseFile($cssFile);
+			}
+			foreach ($outerSSLinks['caches'] as $index => $cached) {
+				$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-outer.cssm";
+				$outerCSS->parseFile($cssFile);
+			}
+
+			$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');
+			$innerKeys = $innerCSS->getKeyClassesAndIDs();
+			$outerKeys = $outerCSS->getKeyClassesAndIDs();
+
+
+			$innerCSS->clear();
+			$outerCSS->clear();
+			unset($innerCSS, $outerCSS);
 	
-	// TODO: style.php and other .php stylesheets will still need to go through style-fixer
+			$classDupes = array_intersect($innerKeys['classes'], $outerKeys['classes']);
+			$idDupes = array_intersect($innerKeys['ids'], $outerKeys['ids']);
 	
-	/*$outerCSS = new CSS_Magic();
-	foreach($outerStylesheets as $ss) {
-		$outerCSS->parseFile($ss);
+			unset($innerKeys, $outerKeys);
+
+			// save to cache
+			$templateVoodoo = serialize(array('classes' => $classDupes, 'ids' => $idDupes));
+			$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'tvd';
+	
+	
+	
+			$hTempFile = @fopen($fnTemp, 'w+');
+	
+			@fwrite($hTempFile, $templateVoodoo);
+			@fclose($hTempFile);
+			@copy($fnTemp, $tvCacheLoc);
+			@unlink($fnTemp);
+		}
+	
+		// FINALLY: Modify the templates, remove duplicates
+		foreach($classDupes as $dupe) {
+			//remove leading .
+			$findClass = substr($dupe, 1);
+			$innerContent = preg_replace('/(class=["\']([^\s^\'^"]*\s+)*)'.$findClass.'([\s\'"])/', '\\1wpu'.$findClass.'\\3', $innerContent);
+		}
+		foreach($idDupes as $dupe) {
+			//remove leading .
+			$findId = substr($dupe, 1);
+			$innerContent = preg_replace('/(id=["\']\s*)'.$findId.'([\s\'"])/', '\\1wpu'.$findId.'\\2', $innerContent);
+		}
 	}
+
+
+	//write out the modified stylesheet links
+	$innerHeadInfo = str_replace($innerSSLinks['links'], $innerSSLinks['replacements'], $innerHeadInfo);
+	$outerContent = str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $outerContent);
 	
-	$innerCSS = new CSS_Magic();
-	foreach($innerStylesheets as $ss) {
-		$innerCSS->parseFile($ss);
-	}*/
-	
-	// Detect ID duplicates
-	
-	// Detect Class duplicates
-	
-	// modify $innerContent using templateVoodoo
-	
-	// Save class/ID duplicates in templateVoodoo cache
-	
-	// Replace stylesheet links with our modified ones -- but don't modify CSS until it is output. That way we
-	// can still handle PHP stylesheets.
 
 }
-// OLD VERSION -- TEMP
-if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
-	//$innerHeadInfo = wpu_modify_stylesheet_links($innerHeadInfo, "inner");
-	
-}
 
 
-// Now all is done
 
 
 //Wrap $innerContent in CSS Magic, padding, etc.
@@ -311,22 +359,28 @@ function wpu_output_page(&$content) {
 //
 // Modify links in header to stylesheets to use CSS Magic instead
 //
-function wpu_modify_stylesheet_links($headerInfo, $position="outer") {
+function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 	global $scriptPath, $wpSettings, $phpbb_root_path;
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
 	preg_match_all('/@import url\([^\)]+?\)/i', $headerInfo, $matches2);
 	preg_match_all('/@import "[^"]+?"/i', $headerInfo, $matches3);
 	$matches = array_merge($matches[0], $matches2[0], $matches3[0]);
+	$links = array();
+	$repl = array();
+	$cacheLinks = array();
 	if(is_array($matches)) {
 		$pos = "pos=" . $position;
+		
 		foreach($matches as $match) {
 			// extract css location
 			if(stristr($match, "@import url") !== false) {
 				$el = str_replace(array("@import", "(", "url",  ")", " ", "'", '"'), "", $match);
 				$and = "&";
+				$tv = ($position == 'inner') ? '&tv=' : '';
 			} elseif(stristr($match, "@import") !== false) {
 				$el = str_replace(array("@import", "(",  ")", " ", "'", '"'), "", $match);
 				$and = "&";
+				$tv = ($position == 'inner') ? '&tv=' : '';
 			
 			} else {
 				$cssLoc = '';
@@ -340,11 +394,12 @@ function wpu_modify_stylesheet_links($headerInfo, $position="outer") {
 				$els = explode('"', $els);
 				$el = str_replace(array(" ", "'", '"'), "", $els[1]);
 				$and = "&amp;";
+				$tv = ($position == 'inner') ? '&amp;tv=' : '';
 			}
 			if(stristr($el, ".css") !== false) { 
 				$cssLoc = $el;
 			} elseif(stristr($el, "style.php?") !== false) {
-					$stylePhpLoc = $el;
+				$stylePhpLoc = $el;
 			}
 			if($cssLoc) { // Redirect stylesheet
 				$findLoc = $cssLoc;
@@ -359,16 +414,28 @@ function wpu_modify_stylesheet_links($headerInfo, $position="outer") {
 				// else: relative path
 				$findLoc = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\") : $findLoc;
 				if( file_exists($findLoc) && (stristr($findLoc, "http:") === false) ) { 
-					$newLoc = "wp-united/wpu-style-fixer.php?usecssm=1{$and}style=" . urlencode(base64_encode(htmlentities($findLoc))) . $and . $pos;
-					$headerInfo = str_replace($cssLoc, $newLoc, $headerInfo);
+					$theLoc = urlencode(base64_encode(htmlentities($findLoc)));
+					$links[] = $cssLoc;
+					$repl[] = "wp-united/wpu-style-fixer.php?usecssm=1{$and}style=" . $theLoc . $and . $pos . $tv;
+					// remove get vars from cached file
+					$cacheLoc = explode('?', $findLoc);
+					$cacheLinks[] = urlencode(base64_encode(htmlentities($cacheLoc[0])));
+					//$headerInfo = str_replace(if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm")) {$cssLoc, $newLoc, $headerInfo);
 				}
 			}
 			if($stylePhpLoc) { //  style.php
-				$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . "&amp;usecssm=1&amp;".$pos , $headerInfo);
+				// remove SID from URL
+				$cLoc = preg_replace('/sid=[^&]*?&amp;/', '', $stylePhpLoc);
+				$cLoc = urlencode(base64_encode(htmlentities($cLoc)));
+				//$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . "&amp;usecssm=1&amp;".$pos . "&amp;cloc=". $cLoc, $headerInfo);
+				$links[] = $stylePhpLoc;				
+				$cacheLinks[] = $cLoc;
+				$tv = ($position == 'inner') ? '&amp;tv=' : '';
+				$repl[] = $stylePhpLoc . "&amp;usecssm=1&amp;".$pos . "&amp;cloc=". $cLoc . $tv;
 			}
 		}
 	}
-	return $headerInfo;
+	return array('links' => $links, 'replacements' => $repl, 'caches' => $cacheLinks);
 }
 
 

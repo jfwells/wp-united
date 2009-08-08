@@ -177,7 +177,7 @@ class WPU_Cache {
 		
 		if ( $this->template_cache_enabled() ) {
 			$theme = array_pop(explode('/', TEMPLATEPATH)); 
-			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(round(0, 9999)) . 'cache';
+			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 9999)) . 'cache';
 			$fnDest = $this->baseCacheLoc . $theme. ".wpucache";
 			$hTempFile = @fopen($fnTemp, 'w+');
 			
