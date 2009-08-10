@@ -318,6 +318,32 @@ class CSS_Magic {
 		return array('ids' => $ids, 'classes' => $classes);
 	}
 	
+	
+	//
+	// MODIFY KEYS
+	// -----------
+	// Takes in two arrays -- one with key elements to find, and one with replacements.
+	// Searches and modifies all occurrences in CSS keys. Useful for modifying specific
+	// classes and IDs
+	function modifyKeys($finds, $replacements) {
+		$theFinds = array();
+		$theRepl = array();
+		// First prepare the find/replace strings
+		foreach($finds as $findString) {
+			$theFinds[] = '/' . str_replace('.', '\.', $findString) . '([\s#\.<>:]){0,1}/';
+		}
+		foreach($replacements as $replString) {
+			$theRepl[] = $replString . '\\1';
+		}
+
+		$keys = array_keys($this->css);
+		$values = array_values($this->css);
+		
+		$keys = preg_replace($theFinds, $theRepl, $keys);
+		$this->css = array_combine($keys, $values);
+		
+	}
+	
 
 	// 
 	// 	GET CSS

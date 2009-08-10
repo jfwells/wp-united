@@ -69,6 +69,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
 	// $innerContent is passed by reference -- the <head> is removed during the process, leaving us with an insertable body (hehe).
 	$innerHeadInfo = process_head($innerContent);
 	
+	
 	process_body($innerContent);
 } 
 
@@ -83,6 +84,9 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
 		$pHeadRemSuccess = ($innerContent2 != $innerContent); // count paramater to preg_replace only available in php5 :-(
 		$innerContent = $innerContent2; unset($innerContent2);
 	}
+	
+	// replace outer title with phpBB title
+	$outerContent = preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $outerContent);
 }
 
 
@@ -116,87 +120,103 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 	// TEMPLATE VOODOO
 	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
 	
-		// check cache
-		$theme = array_pop(explode('/', TEMPLATEPATH));
-		$linkHash = md5(implode('.', $innerSSLinks['caches']) . implode('.', $outerSSLinks['caches']));
-
-		$tvCacheLoc = $phpbb_root_path . "wp-united/cache/{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd";
-		$passTvCacheLoc = urlencode("{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd");
-
+		
+		// First check if the files exist, and insert placeholders for TV cache location if they do
+		$foundInner = array();
+		$foundOuter = array();
 		foreach ($innerSSLinks['caches'] as $index => $cached) {
 			$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-inner.cssm";
 			if(file_exists($cssFile)) {
-				$innerSSLinks['replacements'][$index] .=  $passTvCacheLoc;
+				$foundInner[] = $cached;
+				$innerSSLinks['replacements'][$index] .=  "[*FOUND*]";
 			} else {
 				$innerSSLinks['replacements'][$index] .=  "0";
 			}
 		}
-
-
-		$classDupes = array();
-		$idDupes = array();	
-	
-		if(file_exists($tvCacheLoc)) {
-			$templateVoodoo = @file_get_contents($tvCacheLoc);
-			$templateVoodoo = @unserialize($templateVoodoo);
-
-			if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
-				$classDupes = $templateVoodoo['classes'];
-				$idDupes = $templateVoodoo['ids'];
+		foreach ($outerSSLinks['caches'] as $index => $cached) {
+			$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-outer.cssm";
+			if(file_exists($cssFile)) {
+				$foundOuter[] = $cached;
 			}
-		} else {
-	
-			// Do Template Voodoo
-			$outerCSS = new CSS_Magic();
-			$innerCSS = new CSS_Magic();
+			$outerSSLinks['replacements'][$index] .=  "0";
+		}
 		
-			foreach ($innerSSLinks['caches'] as $index => $cached) {
-				$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-inner.cssm";
-				$innerCSS->parseFile($cssFile);
+		// set Template Voodoo cache name based on a hash of existing files
+		$theme = array_pop(explode('/', TEMPLATEPATH));
+		$linkHash = md5(implode('.', $foundInner) . implode('.', $foundOuter));
+		
+		//die($wp_version);
+		$tvCacheLoc = $phpbb_root_path . "wp-united/cache/{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd";
+		$passTvCacheLoc = urlencode("{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd");
+
+		$innerSSLinks['replacements'] = str_replace('[*FOUND*]', $passTvCacheLoc, $innerSSLinks['replacements']);
+		
+
+		if(sizeof($foundInner) && sizeof($foundOuter)) {
+			$classDupes = array();
+			$idDupes = array();			
+			if(file_exists($tvCacheLoc)) {
+				$templateVoodoo = @file_get_contents($tvCacheLoc);
+				$templateVoodoo = @unserialize($templateVoodoo);
+
+				if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
+					$classDupes = $templateVoodoo['classes'];
+					$idDupes = $templateVoodoo['ids'];
+				}
+			} else {
+	
+				// Do Template Voodoo
+				$outerCSS = new CSS_Magic();
+				$innerCSS = new CSS_Magic();
+		
+				foreach ($innerSSLinks['caches'] as $index => $cached) {
+					$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-inner.cssm";
+					$innerCSS->parseFile($cssFile);
+				}
+				foreach ($outerSSLinks['caches'] as $index => $cached) {
+					$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-outer.cssm";
+					$outerCSS->parseFile($cssFile);
+				}
+
+				$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');
+				$innerKeys = $innerCSS->getKeyClassesAndIDs();
+				$outerKeys = $outerCSS->getKeyClassesAndIDs();
+
+
+				$innerCSS->clear();
+				$outerCSS->clear();
+				unset($innerCSS, $outerCSS);
+	
+				$classDupes = array_intersect($innerKeys['classes'], $outerKeys['classes']);
+				$idDupes = array_intersect($innerKeys['ids'], $outerKeys['ids']);
+	
+				unset($innerKeys, $outerKeys);
+
+				// save to cache
+				$templateVoodoo = serialize(array('classes' => $classDupes, 'ids' => $idDupes));
+				$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'tvd';
+	
+	
+	
+				$hTempFile = @fopen($fnTemp, 'w+');
+	
+				@fwrite($hTempFile, $templateVoodoo);
+				@fclose($hTempFile);
+				@copy($fnTemp, $tvCacheLoc);
+				@unlink($fnTemp);
 			}
-			foreach ($outerSSLinks['caches'] as $index => $cached) {
-				$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-outer.cssm";
-				$outerCSS->parseFile($cssFile);
+	
+			// FINALLY: Modify the templates, remove duplicates
+			foreach($classDupes as $dupe) {
+				//remove leading .
+				$findClass = substr($dupe, 1);
+				$innerContent = preg_replace('/(class=["\']([^\s^\'^"]*\s+)*)'.$findClass.'([\s\'"])/', '\\1wpu'.$findClass.'\\3', $innerContent);
 			}
-
-			$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');
-			$innerKeys = $innerCSS->getKeyClassesAndIDs();
-			$outerKeys = $outerCSS->getKeyClassesAndIDs();
-
-
-			$innerCSS->clear();
-			$outerCSS->clear();
-			unset($innerCSS, $outerCSS);
-	
-			$classDupes = array_intersect($innerKeys['classes'], $outerKeys['classes']);
-			$idDupes = array_intersect($innerKeys['ids'], $outerKeys['ids']);
-	
-			unset($innerKeys, $outerKeys);
-
-			// save to cache
-			$templateVoodoo = serialize(array('classes' => $classDupes, 'ids' => $idDupes));
-			$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'tvd';
-	
-	
-	
-			$hTempFile = @fopen($fnTemp, 'w+');
-	
-			@fwrite($hTempFile, $templateVoodoo);
-			@fclose($hTempFile);
-			@copy($fnTemp, $tvCacheLoc);
-			@unlink($fnTemp);
-		}
-	
-		// FINALLY: Modify the templates, remove duplicates
-		foreach($classDupes as $dupe) {
-			//remove leading .
-			$findClass = substr($dupe, 1);
-			$innerContent = preg_replace('/(class=["\']([^\s^\'^"]*\s+)*)'.$findClass.'([\s\'"])/', '\\1wpu'.$findClass.'\\3', $innerContent);
-		}
-		foreach($idDupes as $dupe) {
-			//remove leading .
-			$findId = substr($dupe, 1);
-			$innerContent = preg_replace('/(id=["\']\s*)'.$findId.'([\s\'"])/', '\\1wpu'.$findId.'\\2', $innerContent);
+			foreach($idDupes as $dupe) {
+				//remove leading .
+				$findId = substr($dupe, 1);
+				$innerContent = preg_replace('/(id=["\']\s*)'.$findId.'([\s\'"])/', '\\1wpu'.$findId.'\\2', $innerContent);
+			}
 		}
 	}
 
@@ -261,6 +281,7 @@ function process_head(&$retWpInc) {
 
 	// set page title 
 	$GLOBALS['wpu_page_title'] = trim($wpTitleStr); 
+	
 
 	//get anything inportant from the WP or phpBB <head> and integrate it into our phpBB page...
 	$header_info = '';
@@ -335,6 +356,7 @@ function process_body(&$pageContent) {
 	$pageContent = str_replace("</body>", "", $pageContent);
 	$pageContent = str_replace("</html>", "", $pageContent);
 	
+	
 	return $pageContent;
 	
 // End of processing of integrated page. 
@@ -343,15 +365,28 @@ function process_body(&$pageContent) {
 function wpu_output_page(&$content) {
 //optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
 // It is unnecessary for gzipped setups, and might be liable to kill some JS or CSS, so it is hidden in options.php
-	if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) ) {
-		$search = array('/\>[^\S ]+/s',	'/[^\S ]+\</s','/(\s)+/s');
-		$replace = array('>', '<', '\\1');
-		$content = preg_replace($search, $replace, $content);
-	}
 
 	//Add title back
 	global $wpu_page_title;
 	$content = str_replace("[**PAGE_TITLE**]", $wpu_page_title, $content);
+	
+	if(defined('WPU_SHOW_STATS') && WPU_SHOW_STATS) {
+		global $wpuScriptTime;
+		$endTime = explode(' ', microtime());
+		$endTime = $endTime[1] + $endTime[0];
+		$pageLoad = round($endTime - $wpuScriptTime, 4) . " seconds";
+	
+		$memUsage = (function_exists('memory_get_peak_usage')) ? round(memory_get_peak_usage()/1024, 0) . "kB" : (function_exists('memory_get_usage')) ? round(memory_get_usage() / 1024, 0) . "kB" : "[Not supported on your server]";
+		$stats = "<p style='background-color: #999999;color: #ffffff !important;display: block;'><strong style='text-decoration: underline;'>WP-United Statistics </strong><br />Script Time: " . $pageLoad . "<br />Memory usage: " . $memUsage . "</p>";
+		$content = str_replace('</html>', $stats, $content);
+	
+	}
+	
+	if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) ) {
+		$search = array('/\>[^\S ]+/s',	'/[^\S ]+\</s','/(\s)+/s');
+		$replace = array('>', '<', '\\1');
+		$content = preg_replace($search, $replace, $content);
+	}	
 	
 	echo $content;
 }

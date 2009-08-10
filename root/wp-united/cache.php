@@ -96,12 +96,16 @@ class WPU_Cache {
 				
 				@$dir = opendir($this->baseCacheLoc);
 				$cacheFound = false;
+				global $wpuAbs;
 				while( $entry = @readdir($dir) ) {
 					if ( strpos($entry, '.wpucache') ) {
-						$cacheFound = true;
-						$theme = explode('.', $entry);
-						$theme = $theme[0];
-						$this->templateCacheLoc = $this->baseCacheLoc . $entry;
+						$parts = str_replace('.wpucache', '', $entry);
+						$parts = explode('-', $parts);
+						if ($parts[2] == $wpuAbs->wpu_ver) {
+							$cacheFound = true;
+							$theme = $parts[0];
+							$this->templateCacheLoc = $this->baseCacheLoc . $entry;
+						}
 					}
 				}
 				if ($cacheFound) { // refresh cache if it is older than theme file, or if WP has been upgraded.
@@ -112,6 +116,12 @@ class WPU_Cache {
 					  ($compareDate < @filemtime("$fileAddress/footer.$phpEx")) ||
 					  ($compareDate < @filemtime($this->wpVersionLoc)) ) ) {
 						$this->_useTemplateCache = "USE";
+						// Since the cache isn't being used, WordPress won't run. We can
+						// set some useful global variables and defines from the filename
+						// They shouldn't be relied upon, but they're useful for various things
+						define('TEMPLATEPATH', $fileAddress);
+						global $wp_version;
+						$wp_version = $parts[1];
 						return true;
 					}
 				} 
@@ -173,12 +183,12 @@ class WPU_Cache {
 	//	----------------------
 	//	Saves template header/footer to disk
 	//	
-	function save_to_template_cache($content) {
+	function save_to_template_cache($wpuVer, $wpVer, $content) {
 		
 		if ( $this->template_cache_enabled() ) {
 			$theme = array_pop(explode('/', TEMPLATEPATH)); 
 			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 9999)) . 'cache';
-			$fnDest = $this->baseCacheLoc . $theme. ".wpucache";
+			$fnDest = $this->baseCacheLoc . $theme. "-{$wpVer}-{$wpuVer}.wpucache";
 			$hTempFile = @fopen($fnTemp, 'w+');
 			
 			@fwrite($hTempFile, $content);

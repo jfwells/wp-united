@@ -219,6 +219,9 @@ class WPU_Actions {
 		global $phpbb_root_path, $phpEx;
 		include($phpbb_root_path . 'wp-united/options.' . $phpEx); // temp -- this is called from style.php
 		$pos = "outer";	
+		
+		
+		
 		if(isset($_GET['usecssm'])) {
 			if(isset($_GET['pos'])) {
 				$pos = ($_GET['pos'] == 'inner') ? 'inner' : 'outer';
@@ -227,45 +230,93 @@ class WPU_Actions {
 			if(isset($_GET['cloc'])) {
 				$cacheLocation = urlencode(request_var('cloc', ''));
 			}
-			// First check cache (TODO: port to cache class)
-			if(file_exists($phpbb_root_path . "wp-united/cache/$cacheLocation-{$pos}.cssm")) {
-				$css = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm");
-			} else {
-				if(request_var("usecssm", 0) && ($pos == 'inner')) {
+			
+			
+			$useTV = '';
+			if(isset($_GET['tv']) && $pos == 'inner') { 
+				$useTV = $_GET['tv'];
+				//prevent path traversal
+				$useTV = str_replace(array('/', '\\', '..', ';', ':'), '', $useTV);
+			}			
+			
+			if(request_var("usecssm", 0) && ($pos == 'inner')) {
+				$cssCache = '';
+				// first check caches (TODO: port to cache class):
+				if(!empty($useTV)) {
+					// template voodoo-modified CSS already cached?
+					if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv")) {
+						$cssCache = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv");
+					}
+				} else {
+					// No template voodoo needed -- check for plain cache
+					if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm")) {
+						$cssCache = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm");
+					}
+				}			
+			
+				if(!empty($cssCache)) {
+					$css = $cssCache;
+				} else {
+				
 					include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 					$cssMagic = CSS_Magic::getInstance();
 					if($cssMagic->parseString($css)) {
-					/*	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
-							if(isset($_GET['tv'])) {
-								$tvFile = (string) request_var('tv', '');
-								$tvFile = urldecode($tvFile);
-								$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
-								if(file_exists($tvFile)) {
-									$tvFc = file_get_contents($tvFile);
-									$tvFc = unserialize($tvFc);
-									$tvIds = $tvFc[0];
-									$tvClasses = $tvFc[1];
-									$cssMagic->renameIds("wpu", $tvIds);
-									$cssMagic->renameClasses("wpu", $tvClasses);
 					
+					// Apply Template Voodoo
+					if(!empty($useTV)) {
+					
+						$tvCacheLoc = $phpbb_root_path . "wp-united/cache/" . $useTV;
+						
+						if(file_exists($tvCacheLoc)) { 
+							$templateVoodoo = @file_get_contents($tvCacheLoc);
+							$templateVoodoo = @unserialize($templateVoodoo);
+
+							if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
+							
+								$classDupes = $templateVoodoo['classes'];
+								$idDupes = $templateVoodoo['ids'];
+								$finds = array();
+								$repl = array();
+								foreach($classDupes as $classDupe) {
+									$finds[] = $classDupe;
+									$repl[] = ".wpu" . substr($classDupe, 1);
 								}
+								foreach($idDupes as $idDupe) {
+									$finds[] = $idDupe;
+									$repl[] = "#wpu" . substr($idDupe, 1);
+								}	
+
+								$cssMagic->modifyKeys($finds, $repl);
 							}
-						}*/
+						}
+				
+					}					
+					
+					
+					
+					
 						$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 						$css = $cssMagic->getCSS();
 						$cssMagic->clear();
 					}
+				
+					// cache result here
+					$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmcache';
+					
+					$lastPart = (!empty($useTV)) ? "{$useTV}.cssmtv" : "{$pos}.cssm";
+		
+					$fnDest = $phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$lastPart}";
+					
+					$hTempFile = @fopen($fnTemp, 'w+');
+
+					@fwrite($hTempFile, $css);
+					@fclose($hTempFile);
+					@copy($fnTemp, $fnDest);
+					@unlink($fnTemp);				
+				
+				
+				
 				}
-
-				// cache result here
-				$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmcache';
-				$fnDest = $phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm";
-				$hTempFile = @fopen($fnTemp, 'w+');
-
-				@fwrite($hTempFile, $css);
-				@fclose($hTempFile);
-				@copy($fnTemp, $fnDest);
-				@unlink($fnTemp);
 
 
 				$reset = '';

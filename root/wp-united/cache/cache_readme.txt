@@ -6,8 +6,11 @@ What is in this folder?
 In a bid to speed up reverse integrations, and to reduce memory load on your server, WP-United has introduced two basic caching methods.
 
 This folder holds the cache for:
-(a) the WordPress core execution cache; and 
+(a) the WordPress core execution cache; 
 (b) the WordPress header and footer cache for when phpBB is inside WordPress (in 'simple' mode).
+(c) Cached CSS for when CSS Magic is enabled
+(d) Cached template Voodoo instructions
+(e) Cached plugin modifications
 
 More information about these options, and the switches to turn them on or off can be found in your wp-united/options.php file.
 

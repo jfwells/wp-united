@@ -39,6 +39,15 @@ if ( !defined('IN_PHPBB') ) exit;
 // It is also another way to test that things are running OK from the WordPress side.
 define('WP_UNITED_ENTRY', 1);
 
+// Start measuring script execution time
+global $wpuScriptTime;
+if(isset($GLOBALS['starttime'])) {
+	$wpuScriptTime = $GLOBALS['starttime'];
+} else {
+	$wpuScriptTime = explode(' ', microtime());
+	$wpuScriptTime = $starttime[1] + $starttime[0];
+}
+
 
 // All accesses via blog.php will already have some required files included. If we're being called from elsewhere
 // or via a callback, we need to include them
@@ -225,7 +234,7 @@ if ( $useCache || $connectSuccess ) {
 				ob_end_clean();
 				
 				if ( $wpuCache->template_cache_enabled() ) {
-					$wpuCache->save_to_template_cache($outerContent);
+					$wpuCache->save_to_template_cache($wpuAbs->wpu_ver, $wp_version, $outerContent);
 				}
 				
 			} else {

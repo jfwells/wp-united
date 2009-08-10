@@ -38,38 +38,70 @@ if(!file_exists($cssFileToFix)) $cssFileToFix = $phpbb_root_path . $cssFileToFix
 
 
 
-
 if(file_exists($cssFileToFix)) {
 
-	// First check cache (TODO: port to cache class)
-	if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm")) {
-		$css = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm");
 
+	$useTV = '';
+	if(isset($_GET['tv']) && $pos == 'inner') { 
+		$useTV = $_GET['tv'];
+		//prevent path traversal
+		$useTV = str_replace(array('/', '\\', '..', ';', ':'), '', $useTV);
+	}
+	$css = '';
+	// first check caches (TODO: port to cache class):
+	if(!empty($useTV)) {
+		// template voodoo-modified CSS already cached?
+		if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv")) {
+			$css = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv");
+		}
 	} else {
+		// No template voodoo needed -- check for plain cache
+		if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm")) {
+			$css = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm");
+		}
+	}
+
+	if(empty($css)) {
 		//include($phpbb_root_path . 'common.' . $phpEx);
 		include($phpbb_root_path . 'wp-united/options.' . $phpEx);
 		include($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 		include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 		$cssMagic = CSS_Magic::getInstance();
 		if($cssMagic->parseFile($cssFileToFix)) {
-	
-		/*	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
-				if(isset($_GET['tv'])) {
-					$tvFile = (string) $_GET['tv'];
-					$tvFile = urldecode($tvFile);
-					$tvFile = $phpbb_root_path . "wp-united/cache/tvoodoo-" . $tvFile . ".tv";
-					if(file_exists($tvFile)) {
-						$tvFc = file_get_contents($tvFile);
-						$tvFc = unserialize($tvFc);
-						$tvIds = $tvFc[0];
-						$tvClasses = $tvFc[1];
-						$cssMagic->renameIds("wpu", $tvIds);
-						$cssMagic->renameClasses("wpu", $tvClasses);
-				
-					}
-				}
-			}*/
+
 			if($pos=='inner') {
+				
+				// Apply Template Voodoo
+				if(!empty($useTV)) {
+					
+					$tvCacheLoc = $phpbb_root_path . "wp-united/cache/" . $useTV;
+						
+					if(file_exists($tvCacheLoc)) { 
+						$templateVoodoo = @file_get_contents($tvCacheLoc);
+						$templateVoodoo = @unserialize($templateVoodoo);
+
+						if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
+							
+							$classDupes = $templateVoodoo['classes'];
+							$idDupes = $templateVoodoo['ids'];
+							$finds = array();
+							$repl = array();
+							foreach($classDupes as $classDupe) {
+								$finds[] = $classDupe;
+								$repl[] = ".wpu" . substr($classDupe, 1);
+							}
+							foreach($idDupes as $idDupe) {
+								$finds[] = $idDupe;
+								$repl[] = "#wpu" . substr($idDupe, 1);
+							}	
+				
+							$cssMagic->modifyKeys($finds, $repl);
+						}
+					}
+				
+				}				
+				
+				// Apply CSS Magic
 				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 			}
 			$css = $cssMagic->getCSS();
@@ -120,23 +152,21 @@ if(file_exists($cssFileToFix)) {
 				}
 	
 			}
-	
-	
-			/*$css = str_replace("#header", "#wpuheader", $css);
-			$css = str_replace("#tab", "#wputab", $css);
-			$css = str_replace("#footer", "#wpufooter", $css);
-			$css = str_replace("#copyright", "#wpucopyright", $css);*/
+
 		}
 			
-			//cache fixed CSS
-			$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmcache';
-			$fnDest = $phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm";
-			$hTempFile = @fopen($fnTemp, 'w+');
-			
-			@fwrite($hTempFile, $css);
-			@fclose($hTempFile);
-			@copy($fnTemp, $fnDest);
-			@unlink($fnTemp);	
+		//cache fixed CSS
+		$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmcache';
+		
+		$lastPart = (!empty($useTV)) ? "{$useTV}.cssmtv" : "{$pos}.cssm";
+		
+		$fnDest = $phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$lastPart}";
+		$hTempFile = @fopen($fnTemp, 'w+');
+		
+		@fwrite($hTempFile, $css);
+		@fclose($hTempFile);
+		@copy($fnTemp, $fnDest);
+		@unlink($fnTemp);	
 
 
 	}
