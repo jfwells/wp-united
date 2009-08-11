@@ -216,6 +216,10 @@ if ( $useCache || $connectSuccess ) {
 				//
 				// Need to rebuld the cache
 				//
+				
+				// some theme/plugin options and workarounds for reverse integration
+				// inove -- no sidebar on simple page
+				$GLOBALS['inove_nosidebar'] = true;
 		
 				ob_start();
 				get_header();

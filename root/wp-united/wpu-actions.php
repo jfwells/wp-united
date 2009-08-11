@@ -262,39 +262,38 @@ class WPU_Actions {
 					$cssMagic = CSS_Magic::getInstance();
 					if($cssMagic->parseString($css)) {
 					
-					// Apply Template Voodoo
-					if(!empty($useTV)) {
+						// Apply Template Voodoo
+						if(!empty($useTV)) {
 					
-						$tvCacheLoc = $phpbb_root_path . "wp-united/cache/" . $useTV;
+							$tvCacheLoc = $phpbb_root_path . "wp-united/cache/" . $useTV;
 						
-						if(file_exists($tvCacheLoc)) { 
-							$templateVoodoo = @file_get_contents($tvCacheLoc);
-							$templateVoodoo = @unserialize($templateVoodoo);
+							if(file_exists($tvCacheLoc)) { 
+								$templateVoodoo = @file_get_contents($tvCacheLoc);
+								$templateVoodoo = @unserialize($templateVoodoo);
 
-							if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
+								if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
 							
-								$classDupes = $templateVoodoo['classes'];
-								$idDupes = $templateVoodoo['ids'];
-								$finds = array();
-								$repl = array();
-								foreach($classDupes as $classDupe) {
-									$finds[] = $classDupe;
-									$repl[] = ".wpu" . substr($classDupe, 1);
-								}
-								foreach($idDupes as $idDupe) {
-									$finds[] = $idDupe;
-									$repl[] = "#wpu" . substr($idDupe, 1);
-								}	
+									$classDupes = $templateVoodoo['classes'];
+									$idDupes = $templateVoodoo['ids'];
+									$finds = array();
+									$repl = array();
+									foreach($classDupes as $classDupe) {
+										$finds[] = $classDupe;
+										$repl[] = ".wpu" . substr($classDupe, 1);
+									}
+									foreach($idDupes as $idDupe) {
+										$finds[] = $idDupe;
+										$repl[] = "#wpu" . substr($idDupe, 1);
+									}	
 
-								$cssMagic->modifyKeys($finds, $repl);
+									$cssMagic->modifyKeys($finds, $repl);
+								}
 							}
-						}
 				
-					}					
+						}					
 					
-					
-					
-					
+
+						
 						$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 						$css = $cssMagic->getCSS();
 						$cssMagic->clear();

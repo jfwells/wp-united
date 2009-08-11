@@ -74,6 +74,7 @@ if ( !defined('IN_PHPBB') )
 class CSS_Magic {
 	var $css;
 	var $filename;
+	var $nestedItems;
 	
 	//
 	//	GET INSTANCE
@@ -96,10 +97,12 @@ class CSS_Magic {
 	function CSS_Magic() {
 		$this->clear();
 		$this->filename = '';
+		$this->nestedItems = array();
 	}
 	
 	function clear() {
-		$this->css = array();	
+		$this->css = array();
+		$this->nestedItems = array();
 	}
 
 	// 
@@ -108,10 +111,21 @@ class CSS_Magic {
 	//	Parses raw CSS, storing the keys and CSS code. We don't separate or process the keys, we don't need to.
 	//	
 	function parseString($str) {
-		
+		$Instr = $str;
 		// Remove comments
 		$str = preg_replace("/\/\*(.*)?\*\//Usi", "", $str);
 		$str = str_replace("\t", "", $str);
+		$str = str_replace("}\\", '[TANTEK]', $str);
+		// for now we just leave all nested stylesheets untouched
+		preg_match_all('/\@[^\{]*\{[^\{^\}]*(\{[^\{^\}]*\}[^\{^\}]*)*?\}/', $str, $nested);
+		$nestIndex = sizeof($this->nestedItems);
+		foreach($nested[0] as $nest) {
+			if(!empty($nest)) {
+				$this->nestedItems[$nestIndex] = $nest;
+				$str = str_replace($nest, '[WPU_NESTED] {' . $nestIndex . '}', $str);
+				$nestIndex++;
+			}
+		}
 		$parts = explode("}",$str);
 		if(count($parts) > 0) {
 			foreach($parts as $part) {
@@ -144,16 +158,18 @@ class CSS_Magic {
 	// 
 	// 	ADD SELECTOR
 	//	------------------------------
-	//	Stores a full CSS selector in our class. Combines identical selectors together
-	//	if CSS is passed in in the order it should appear on the page, this shouldn't affect specicifity	
+	//	Stores a full CSS selector in our class. 
+	
 	function addSelector($keys, $cssCode) {
 		$keys = trim($keys);
 		$cssCode = trim($cssCode);
-		if(!isset($this->css[$keys])) {
-			$this->css[$keys] = $cssCode;
-		} else {
-			$this->css[$keys] = str_replace(';;', ';', $this->css[$keys] . ';' . $cssCode);
+		
+		while(array_key_exists($keys, $this->css)) {
+			$keys = "__ " . $keys;
 		}
+		
+			$this->css[$keys] = $cssCode;
+
 	}
 	
 	function makeSpecificById($id, $removeBody = false) {
@@ -214,57 +230,68 @@ class CSS_Magic {
 	function _makeSpecific($prefix, $removeBody = false) {
 		$fixed = array();
 		// things that could be delimiting a "body" selector at the beginning of our string.
-		$seps = array(' ', '>', '<', '.', '#');
+		$seps = array(' ', '>', '<', '.', '#', ':', '+', '*', '[', ']', '?');
+		$index = 0;
 		foreach($this->css as $keyString => $cssCode) {
+			$keyString = str_replace('__ ', '', $keyString);
+			$index++;
 			$fixedKeys = array();
-			$keys = explode(',', $keyString);
-			foreach($keys as $key) {
-				$fixedKey = trim($key);
-				$foundBody = false;
-				// remove references to 'body'
-				foreach($seps as $sep) {
-					$keyElements = explode($sep, $fixedKey);
-					if((strtolower($keyElements[0]) == "body") || (strtolower($keyElements[0]) == "body") ) {
-						$keyElements[0] = $prefix;
-						if(!$removeBody) {
-							if(sizeof($keyElements) > 1) { 
-								$fixedKey = implode($sep, $keyElements);
+			if($keyString != '[WPU_NESTED]') {
+				$keys = explode(',', $keyString);
+				foreach($keys as $key) {
+					$fixedKey = trim($key);
+					$foundBody = false;
+					// remove references to 'body'
+					//$keyElements = preg_split('/[\s<>\.#\:\+\*\[\]\?]/');
+					foreach($seps as $sep) {
+						$keyElements = explode($sep, $fixedKey);
+						$bodyPos = array_search("body", $keyElements);
+						if($bodyPos !== false) {
+							$keyElements[$bodyPos] = $prefix;
+							if(!$removeBody) {
+								if(sizeof($keyElements) > 1) { 
+									$fixedKey = implode($sep, $keyElements);
+								} else {
+									$fixedKey = $keyElements[$bodyPos]; 
+								}
+							
+							} 
+							$foundBody = true;
+						}
+					}
+					// add prefix selector before each selector
+					if(!$foundBody) {
+						if($fixedKey[0] != "@") {
+							if((strpos($fixedKey, '* html') !== false)) {
+								$fixedKey = str_replace('* html', '* html ' . $prefix . ' ', $fixedKey);
 							} else {
-								$fixedKey = $keyElements[0]; 
+								$fixedKey = "{$prefix} " . $fixedKey;
 							}
 							
-						} 
-						$foundBody = true;
-					}
-				}
-				// add #id selector before each selector
-				if(!$foundBody) {
-					if($fixedKey[0] != "@") {
-						$fixedKey = "{$prefix} " . $fixedKey;
-					}
+						}
 					
+					}
+					if(!empty($fixedKey)) {
+						$fixedKeys[] = $fixedKey;
+					}
 				}
-				if(!empty($fixedKey)) {
-					$fixedKeys[] = $fixedKey;
-				}
+				
+			} else { // nested
+				$fixedKeys = array('[WPU_NESTED]');
 			}
+			
 			// recreate the fixed key
 			if(sizeof($fixedKeys)) {
 				$fixedKeyString = implode(', ', $fixedKeys);
-				
-				
-				//filter out font-sizes from the body tag -- not needed, instead just set the containing element to 16px, and font-sizes stay coherent.
-				/*if($foundBody) {
-					$cssCode = preg_replace('/font-size[^;]+?;/i', "", $cssCode);
-				}*/
-						
-				if(!isset($fixed[$fixedKeyString])) {
-					$fixed[$fixedKeyString] = $cssCode;
-				} else {
-					$fixed[$fixedKeyString] = str_replace(';;', ';', $fixed[$fixedKeyString] . ';' . $cssCode);
-				}
+			
+				while(array_key_exists($fixedKeyString, $fixed)) {
+					$fixedKeyString = "__ " . $fixedKeyString;
+				}	
+				$fixed[$fixedKeyString] = $cssCode;
+
 			}
 		}
+
 		// done
 		$this->css = $fixed;
 		unset($fixed);
@@ -297,6 +324,7 @@ class CSS_Magic {
 		$classes = array();
 		$ids = array();
 		foreach($this->css as $keyString => $cssCode) {
+			$keyString = str_replace('__ ', '', $keyString);
 			preg_match_all('/\..[^\s^#^>^<^\.^,^:]*/', $keyString, $cls);
 			preg_match_all('/#.[^\s^#^>^<^\.^,^:]*/', $keyString, $id);
 			
@@ -330,7 +358,7 @@ class CSS_Magic {
 		$theRepl = array();
 		// First prepare the find/replace strings
 		foreach($finds as $findString) {
-			$theFinds[] = '/' . str_replace('.', '\.', $findString) . '([\s#\.<>:]){0,1}/';
+			$theFinds[] = '/' . str_replace('.', '\.', $findString) . '([\s#\.<>:]|$)/';
 		}
 		foreach($replacements as $replString) {
 			$theRepl[] = $replString . '\\1';
@@ -353,7 +381,13 @@ class CSS_Magic {
 	function getCSS() {
 		$response = '';
 		foreach($this->css as $keyString => $cssCode) {
-			$response .= $keyString . '{' . $cssCode . '}';
+			$keyString = str_replace('__ ', '', $keyString);
+			$cssCode = str_replace("}\\", '[TANTEK]', $cssCode);
+			if($keyString == '[WPU_NESTED]') {
+				$response .= $this->nestedItems[(int)$cssCode];
+			} else {
+				$response .= $keyString . '{' . $cssCode . "}\n\n";
+			}
 		}
 		return $response;
 	}

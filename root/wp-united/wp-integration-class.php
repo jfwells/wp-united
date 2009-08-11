@@ -69,6 +69,7 @@ Class WPU_Integration {
 		'wp_version',
 		'wp_taxonomies',
 		'wp_object_cache',
+		'options',
 
 		// widgets
 		'registered_sidebars', 
@@ -92,6 +93,8 @@ Class WPU_Integration {
 		'k2sbm_theme_path',
 		'wp_version',
   		'wp_taxonomies', 
+  		// inove
+  		'inove_nosidebar',
 		// you could add your own here
 	);
 	

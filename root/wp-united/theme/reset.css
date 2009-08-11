@@ -1,9 +1,10 @@
 #wpucssmagic, #wpucssmagic * {height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static;}
 #wpucssmagic {font-size: 16px;  color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
-.wpucssmagic * {text-align: inherit; color: inherit;}
+.wpucssmagic {text-align: inherit;}
+.wpucssmagic * {color: inherit;}
 .wpucssmagic * {height: auto; }
-.wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt { font-weight: normal;}
-.wpucssmagic b, .wpucssmagic h1, .wpucssmagic h2, .wpucssmagic h3, .wpucssmagic strong {font-weight: bold;}
+.wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt, #wpucssmagic a  { font-weight: normal;}
+.wpucssmagic b, .wpucssmagic h1, .wpucssmagic h2, .wpucssmagic h3, .wpucssmagic strong, #wpucssmagic strong a, #wpucssmagic strong p {font-weight: bold;}
 #wpucssmagic u, #wpucssmagic a {text-decoration: underline;}
 #wpucssmagic  { line-height: 1;}
 #wpucssmagic ol, #wpucssmagic ul {height: auto; list-style: none; display: list-item;list-style-position: outside;}
@@ -19,7 +20,7 @@
 #wpucssmagic blockquote,
 #wpucssmagic body, #wpucssmagic dd, #wpucssmagic div,
 #wpucssmagic dl, #wpucssmagic dt, #wpucssmagic fieldset, #wpucssmagic form,
-#wpucssmagic h1, #wpucssmagic h2, h3, h4,
+#wpucssmagic h1, #wpucssmagic h2, #wpucssmagic h3, #wpucssmagic h4,
 #wpucssmagic h5, #wpucssmagic h6, 
 #wpucssmagic ol, #wpucssmagic p, #wpucssmagic ul, #wpucssmagic center,
 #wpucssmagic dir, #wpucssmagic menu, #wpucssmagic pre   { display: block; border: 0;}

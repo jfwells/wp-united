@@ -105,7 +105,6 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
 // classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
 // to make additional changes to the CSS the next time around.
 
-// NEW VERSION -- TEMPORARILY DISABLED
 if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 
 	 
@@ -116,6 +115,15 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 	// Get all links to stylesheets, see if they have been cached yet
 	$innerSSLinks = wpu_get_stylesheet_links($innerHeadInfo, "inner");
 	$outerSSLinks = wpu_get_stylesheet_links($outerContent, "outer");
+	
+	
+	// also grep all inline css out of headers
+	$inCSSInner = wpu_extract_css($innerHeadInfo);
+	$inCSSOuter = wpu_extract_css($outerContent);
+	$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
+	
+
+	
 	
 	// TEMPLATE VOODOO
 	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
@@ -143,20 +151,21 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 		
 		// set Template Voodoo cache name based on a hash of existing files
 		$theme = array_pop(explode('/', TEMPLATEPATH));
-		$linkHash = md5(implode('.', $foundInner) . implode('.', $foundOuter));
 		
-		//die($wp_version);
+		$linkHash = md5(implode('.', $foundInner) . implode('.', $foundOuter) . implode('.', (array)$inCSSInner['caches']) . implode('.', (array)$inCSSOuter['caches']));
+		
 		$tvCacheLoc = $phpbb_root_path . "wp-united/cache/{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd";
 		$passTvCacheLoc = urlencode("{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd");
 
 		$innerSSLinks['replacements'] = str_replace('[*FOUND*]', $passTvCacheLoc, $innerSSLinks['replacements']);
 		
 
-		if(sizeof($foundInner) && sizeof($foundOuter)) {
+		if((sizeof($foundInner) || $inCSSInner['caches'] ) && (sizeof($foundOuter) || $inCSSOuter['caches'])) {
 			$classDupes = array();
 			$idDupes = array();			
 			if(file_exists($tvCacheLoc)) {
 				$templateVoodoo = @file_get_contents($tvCacheLoc);
+				
 				$templateVoodoo = @unserialize($templateVoodoo);
 
 				if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
@@ -177,6 +186,12 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 					$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-outer.cssm";
 					$outerCSS->parseFile($cssFile);
 				}
+				foreach($inCSSInner['css'] as $index => $cached) {
+					$innerCSS->parseString($cached);
+				}
+				foreach($inCSSOuter['css'] as $index => $cached) {
+					$innerCSS->parseString($cached);
+				}				
 
 				$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');
 				$innerKeys = $innerCSS->getKeyClassesAndIDs();
@@ -219,6 +234,63 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 			}
 		}
 	}
+	
+		
+	// apply CSS Magic for inline CSS
+	$suffix = (defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) ? '-inline-cssmtv' : '-inline-cssm';
+	foreach($inCSSInner['css'] as $index => $innerCSSItem) {
+		$inlineCache = $phpbb_root_path . "wp-united/cache/" .$inCSSInner['caches'][$index] . $suffix;
+		if(file_exists($inlineCache)) {
+			$result = @file_get_contents($inlineCache);
+		} else {
+			$cssM = new CSS_Magic();
+			$cssM->parseString($innerCSSItem);
+			
+			if (defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+				if(isset($classDupes) && isset($idDupes)) {
+					$finds = array();
+					$repl = array();
+					foreach($classDupes as $classDupe) {
+						$finds[] = $classDupe;
+						$repl[] = ".wpu" . substr($classDupe, 1);
+					}
+					foreach($idDupes as $idDupe) {
+						$finds[] = $idDupe;
+						$repl[] = "#wpu" . substr($idDupe, 1);
+					}	
+
+					$cssM->modifyKeys($finds, $repl);
+				}
+			}
+			
+			
+			$cssM->makeSpecificByIdThenClass('wpucssmagic', false);
+			$result = $cssM->getCSS();
+		
+			// save to cache
+			$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmi';
+
+			$hTempFile = @fopen($fnTemp, 'w+');
+
+			@fwrite($hTempFile, $result);
+			@fclose($hTempFile);
+			@copy($fnTemp, $inlineCache);
+			@unlink($fnTemp);
+		
+		}
+	
+		if(!empty($result)) {
+			$result = '<style type="text/css">' . $reset . $result . '</style>';
+			$innerHeadInfo = str_replace($inCSSInner['orig'][$index], $result, $innerHeadInfo);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
 
 
 	//write out the modified stylesheet links
@@ -471,6 +543,21 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 		}
 	}
 	return array('links' => $links, 'replacements' => $repl, 'caches' => $cacheLinks);
+}
+
+// Extract inline CSS
+function wpu_extract_css($content) {
+	$css = array('css' => array(), 'caches' => array(), 'orig' => array());
+	preg_match_all('/<style type=\"text\/css\">(.*?)<\/style>/', $content, $cssStr);
+	foreach($cssStr[1] as $index => $c) {
+		$cssFixed = str_replace(array('<!--', '-->'), '', $c);
+		if(!empty($cssFixed)) {
+			$css['css'][] = $cssFixed;
+			$css['caches'][] = md5($cssStr[0][$index]);
+			$css['orig'][] = $cssStr[0][$index];
+		}
+	}
+	return $css;
 }
 
 

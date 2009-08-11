@@ -72,7 +72,7 @@ class WPU_Cache {
 
 
 	//
-	//	USE TEMPlATE CACHE
+	//	USE TEMPLATE CACHE
 	//	----------------------
 	//	Decides whether to use, or recreate the template cache
 	//
@@ -103,7 +103,7 @@ class WPU_Cache {
 						$parts = explode('-', $parts);
 						if ($parts[2] == $wpuAbs->wpu_ver) {
 							$cacheFound = true;
-							$theme = $parts[0];
+							$theme = str_replace('__sep__', '-', $parts[0]);
 							$this->templateCacheLoc = $this->baseCacheLoc . $entry;
 						}
 					}
@@ -186,7 +186,7 @@ class WPU_Cache {
 	function save_to_template_cache($wpuVer, $wpVer, $content) {
 		
 		if ( $this->template_cache_enabled() ) {
-			$theme = array_pop(explode('/', TEMPLATEPATH)); 
+			$theme = str_replace('-', '__sep__', array_pop(explode('/', TEMPLATEPATH))); 
 			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 9999)) . 'cache';
 			$fnDest = $this->baseCacheLoc . $theme. "-{$wpVer}-{$wpuVer}.wpucache";
 			$hTempFile = @fopen($fnTemp, 'w+');

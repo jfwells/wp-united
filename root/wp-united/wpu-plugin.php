@@ -1806,6 +1806,8 @@ function wpu_fix_blank_username($user_login) {
 	return $user_login;
 }
 
+
+
 //@since WP-United 0.7.?future
 /**
 * Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
