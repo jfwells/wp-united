@@ -14,6 +14,46 @@ In addition:
 
 */
 
+/*************************** Get phpBB header/footer *****************************************/
+
+if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REVERSE_INTEGRATION')) ) {
+
+	//export header styles to template - before or after phpBB's CSS depending on wpSettings.
+	// Since we might want to do operations on the head info, 
+	//we just insert a marker, which we will substitute out later
+	$wpStyleLoc = ( $wpSettings['cssFirst'] == 'P' ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
+	$template->assign_vars(array($wpStyleLoc => "<!--[**HEAD_MARKER**]-->"));
+	
+	$wpuAbs->add_template_switch('S_SHOW_HDR_FTR', TRUE);
+	// We need to set the base HREF correctly, so that images and links in the phpBB header and footer work properly
+	$wpuAbs->add_template_switch('PHPBB_BASE', $scriptPath);
+	
+	
+	// If the user wants CSS magic, we will need to inspect the phpBB Head, so we buffer the output 
+	ob_start();
+	page_header("[**PAGE_TITLE**]");
+	
+	
+	$template->assign_vars(array(
+		'WORDPRESS_BODY' => "<!--[**INNER_CONTENT**]-->",
+		'WP_CREDIT' => sprintf($wpuAbs->lang('WPU_Credit'), '<a href="http://www.wp-united.com" target="_blank">', '</a>'))
+	); 
+	
+	//Stop phpBB from exiting
+	define('PHPBB_EXIT_DISABLED', true);
+	
+	$wpuAbs->show_body('blog');
+	
+	$outerContent = ob_get_contents();
+	
+	ob_end_clean();
+}
+
+// Now, $innerContent and $outerContent are populated. We can now modify them and interleave them as necessary
+// All template modifications take place in template-integrator.php
+
+
+
 
 //$sizeUsed = (strlen($outerContent) + strlen($innerContent)) / 1024;
 
@@ -209,16 +249,7 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 
 				// save to cache
 				$templateVoodoo = serialize(array('classes' => $classDupes, 'ids' => $idDupes));
-				$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'tvd';
-	
-	
-	
-				$hTempFile = @fopen($fnTemp, 'w+');
-	
-				@fwrite($hTempFile, $templateVoodoo);
-				@fclose($hTempFile);
-				@copy($fnTemp, $tvCacheLoc);
-				@unlink($fnTemp);
+				$wpuCache->save($templateVoodoo, $tvCacheLoc);
 			}
 	
 			// FINALLY: Modify the templates, remove duplicates
@@ -268,14 +299,7 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 			$result = $cssM->getCSS();
 		
 			// save to cache
-			$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmi';
-
-			$hTempFile = @fopen($fnTemp, 'w+');
-
-			@fwrite($hTempFile, $result);
-			@fclose($hTempFile);
-			@copy($fnTemp, $inlineCache);
-			@unlink($fnTemp);
+			$wpuCache->save($result, $inlineCache);
 		
 		}
 	
@@ -461,6 +485,8 @@ function wpu_output_page(&$content) {
 	}	
 	
 	echo $content;
+	// Finally -- clean up
+	(empty($config['gzip_compress'])) ? @flush() : @ob_flush();
 }
 
 //

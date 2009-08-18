@@ -88,25 +88,7 @@
 ]]></action>
       </edit>
     </open>
-    <open src="styles/subsilver2/theme/stylesheet.css">
-      <edit>
-        <find>#menubar {</find>
-        <action type="after-add">	text-align: left;</action>
-        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
-      </edit>
-      <edit>
-        <find>#datebar {</find>
-        <action type="after-add">	text-align: left;</action>
-        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
-      </edit>
-      <edit>
-        <find>
-h1 {	</find>
-        <action type="replace-with">h1, #logodesc h1 {
-					</action>
-        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
-      </edit>
-    </open>
+
      <diy-instructions lang="en-gb">Remember to purge the phpBB template cache, and refresh your themes after making these changes.
     
 Please rememer to follow the DIY instructions in the main MOD install file.</diy-instructions>

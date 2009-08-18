@@ -31,7 +31,7 @@ global $wpuNoHead, $wpSettings, $wp_version;
 
 if ( ((float) $wp_version) >= 2.1 ) {
 
-	//WP 2.1 && 2.2 BRANCH
+	//WP 2.1+ BRANCH
 	if ( defined('WP_USE_THEMES') && constant('WP_USE_THEMES') ) {
 		do_action('template_redirect');
 		if ( is_robots() ) {

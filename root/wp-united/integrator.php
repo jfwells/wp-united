@@ -198,6 +198,7 @@ if ( !$wpuCache->use_template_cache() ) {
 	}
 }
 
+
 if ( $useCache || $connectSuccess ) { 
 
 	/****** If phpBB-in-wordpress, we need to generate the WP header/footer ****/
@@ -290,66 +291,32 @@ if ( $useCache || $connectSuccess ) {
 
 }
 
+require($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
 
+/***************************************************
+	work-around for plugins that force exit.
+	Some plugins include an exit() command after outputting content.
+	
+	In the Integration Class, we can try to detect these, and insert a wpu_complete()
+	prior to the exit(). 
+	
+	This function tries to complete the remaining tasks as best possile so that
+	WordPress still appears inside the phpBB header/footer in these circumstances.
 
-/*************************** Get phpBB header/footer *****************************************/
-
-if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REVERSE_INTEGRATION')) ) {
+****************************************************/
+function wpu_complete() {
+	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
+	global $innerHeadInfo, $innerContent;
+	global $wpContentVar, $lDebug, $outerContent, $wpuAbs, $phpbb_root_path, $phpEx, $wpuCache;
 	
-	//export header styles to template - before or after phpBB's CSS depending on wpSettings.
-	// Since we might want to do operations on the head info, 
-	//we just insert a marker, which we will substitute out later
-	$wpStyleLoc = ( $wpSettings['cssFirst'] == 'P' ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
-	$template->assign_vars(array($wpStyleLoc => "<!--[**HEAD_MARKER**]-->"));
-	
-	$wpuAbs->add_template_switch('S_SHOW_HDR_FTR', TRUE);
-	// We need to set the base HREF correctly, so that images and links in the phpBB header and footer work properly
-	$wpuAbs->add_template_switch('PHPBB_BASE', $scriptPath);
-	
-	
-	// If the user wants CSS magic, we will need to inspect the phpBB Head, so we buffer the output 
-	ob_start();
-	page_header("[**PAGE_TITLE**]");
-	
-	
-	$template->assign_vars(array(
-		'WORDPRESS_BODY' => "<!--[**INNER_CONTENT**]-->",
-		'WP_CREDIT' => sprintf($wpuAbs->lang('WPU_Credit'), '<a href="http://www.wp-united.com" target="_blank">', '</a>'))
-	); 
-	
-	//Stop phpBB from exiting
-	define('PHPBB_EXIT_DISABLED', true);
-	
-	$wpuAbs->show_body('blog');
-	
-	$outerContent = ob_get_contents();
-	
+	$$wpContentVar = ob_get_contents();
 	ob_end_clean();
+	// clean up, go back to normal :-)
+	if ( !$wpuCache->use_template_cache() ) {
+		$wpUtdInt->exit_wp_integration();
+		$wpUtdInt = null; unset ($wpUtdInt);
+	}
+
+	require($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
 }
-
-// Now, $innerContent and $outerContent are populated. We can now modify them and interleave them as necessary
-// All template modifications take place in template-integrator.php
-
-require_once($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
-
-
-
-
-
-/*
-echo "------------ OUTER CONTENT: --------------<br />";
-echo $outerContent . "<br />";
-echo "------------ INNER CONTENT: --------------<br />";
-echo $innerContent . "<br />";
-*/
-
-// Finally -- clean up
-(empty($config['gzip_compress'])) ? @flush() : @ob_flush();
-
-
-
-
-
-
-
 	?>

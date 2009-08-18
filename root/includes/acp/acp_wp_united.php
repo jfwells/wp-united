@@ -2990,9 +2990,9 @@ class acp_wp_united {
 		if ($wpUtdInt->can_connect_to_wp()) {
 			//Enter Integration
 			$wpUtdInt->enter_wp_integration();
-			ob_start(); //ignore phpBB notices about WP code
+			//ob_start(); //ignore phpBB notices about WP code
 			eval($wpUtdInt->exec());  
-			ob_end_clean();
+			//ob_end_clean();
 			//Figure out the filepath  to phpBB
 			//$thisPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
 			
@@ -3796,11 +3796,15 @@ class acp_wp_united {
 								}
 								$data = $db->sql_fetchrow($pUserData);
 								$db->sql_freeresult($pUserData);
+								$password = $data['user_password'];
+								if(substr($password, 0, 3) == '$H$') {
+									$password = substr_replace($password, '$P$', 0, 3);
+								}
 								$wpu_newDetails = array(
 									'user_id' 		=>  	$pID,
 									'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
 									'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
-									'user_password' 	=> 	(isset($data['user_password'])) ? $data['user_password'] : '',
+									'user_password' 	=> 	(isset($password)) ? $password : '',
 									'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
 									'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
 									'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
@@ -3838,7 +3842,11 @@ class acp_wp_united {
 								$wpUtdInt->switch_db('TO_W');
 								$wpUsr = get_userdata($wpID);
 								$wpUtdInt->switch_db('TO_P');
-								if ($wpuAbs->insert_user($typedName, $wpUsr->user_pass, $wpUsr->user_email , $wpID)) {
+								$password = $wpUsr->user_pass;
+								if(substr($password, 0, 3) == '$P$') {
+									$password = substr_replace($password, '$H$', 0, 3);
+								}								
+								if ($wpuAbs->insert_user($typedName, $password, $wpUsr->user_email , $wpID)) {
 									$status_text = '<li>'. sprintf($wpuAbs->lang('L_MAP_CREATEP_SUCCESS'), $typedName) . '</li>';
 								} else {
 									$status_text = '<li>' . $wpuAbs->lang('L_MAP_CANNOT_CREATEP_NAME') . '</li>';

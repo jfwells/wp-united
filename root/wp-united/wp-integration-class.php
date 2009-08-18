@@ -95,6 +95,19 @@ Class WPU_Integration {
   		'wp_taxonomies', 
   		// inove
   		'inove_nosidebar',
+  		// plugins
+  		// awpcp
+  		'awpcp_db_version',
+  		'isclassifiedpage',
+  		'hasregionsmodule',
+  		'hascaticonsmodule',
+  		'message',
+  		'user_identity',
+  		'imagesurl',
+  		'haspoweredbyremovalmodule',
+  		'clearform',
+  		'hascaticonsmodule',
+
 		// you could add your own here
 	);
 	
@@ -284,8 +297,11 @@ Class WPU_Integration {
 			
 			
 			global $lang, $wpuAbs;
-			define('ABSPATH',$this->wpu_settings['wpPath']);
-			
+			// Added realpath to account for symlinks -- 
+			//otherwise it is inconsistent with __FILE__ in WP, which causes plugin inconsistencies.
+			$realAbsPath = realpath($this->wpu_settings['wpPath']);
+			$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
+			define('ABSPATH',$realAbsPath);
 
 			if (!$this->core_cache_ready()) { 
 				
@@ -300,7 +316,7 @@ Class WPU_Integration {
 					$wpuAbs->err_msg(GENERAL_ERROR, $lang['Function_Duplicate'], 'WordPress Integration Error' . WPU_SET,'','','');
 				}
 				$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
-				$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php';
+				$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php ';
 				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
 				if (!$this->wpu_compat) {
 					// fix theme template functions!
@@ -320,9 +336,9 @@ Class WPU_Integration {
 				$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', 'eval($wpUtdInt->make_compatible(WP_PLUGIN_DIR . \'/\' . $plugin));', $cSet);
 				
 				unset ($cFor);
-				$cSet = '?'.'>'.trim($cSet).'<'.'?php';
+				$cSet = '?'.'>'.trim($cSet).'<'.'?php ';
 				$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
-				$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php');
+				$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php ');
 				unset ($cConf, $cSet);
 
 				if ( $wpuCache->core_cache_enabled()) {
@@ -351,7 +367,28 @@ Class WPU_Integration {
 	//	We return the result as a string for wp-settings to execute
 	//	TODO: Cache any changes we make
 	function make_compatible($pluginLoc) {
+		global $pluginContent;
 	// Under construction -- for now, just include the plugin
+		if(file_exists($pluginLoc) && (stripos($pluginLoc, 'wpu-plugin') === false)) {
+			$pluginContent = @file_get_contents($pluginLoc);
+			$pluginContent = str_replace(array('exit;', 'exit('), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
+			
+			$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\)]*registration\.php)/', "\n if(!function_exists('wp_insert_user')) $1", $pluginContent);
+			$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\(]*(\([\s]*__FILE__[\s]*\))?[^\)]*wp-config\.php)/', "\n if(!defined('ABSPATH')) $1", $pluginContent);
+			
+			$pluginContent = str_replace('__FILE__', "'" . $pluginLoc . "'", $pluginContent);
+			
+			$startToken = (preg_match('/^[\s]*<\?php/', $pluginContent)) ? '?'.'>' : '';
+			$endToken = (preg_match('/\?' . '>[\s]*$/', $pluginContent)) ? '<'.'?php ' : ''; 
+			
+			$pluginContent = $startToken. trim($pluginContent) . $endToken;
+			
+			global $wpuCache;
+			$wpuCache->save($pluginContent, $this->phpbb_root . "wp-united/cache/" . basename($pluginLoc));
+			
+			return $pluginContent; 
+		}
+		
 		return 'include_once("' . $pluginLoc . '");';
 	}
 	

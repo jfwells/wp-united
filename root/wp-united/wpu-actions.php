@@ -53,11 +53,13 @@ class WPU_Actions {
 	}
 
 	function do_logout() { 
-		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt;
+		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {
+			require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+			$wpuCache = WPU_Cache::getInstance();
 			require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 			$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 				if ($wpUtdInt->can_connect_to_wp()) { 
@@ -333,114 +335,4 @@ class WPU_Actions {
 
 global $wpu_actions;
 $wpu_actions = new WPU_Actions;
-
-
-//phpBB2 version -- for refactoring into the above (TODO)!
-if ($GLOBALS['wpuAbs']->ver == 'PHPBB2') {
-	switch ($wpuAction) {
-		case 'PROFILE UPDATE':
-			require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-			$wpSettings = get_integration_settings();
-			if ( ($wpSettings == FALSE)	|| ($wpSettings['wpPath'] == "") ) {
-				message_die(GENERAL_ERROR, $lang['WP_DBErr_Gen'], __LINE__, __FILE__, $sql);
-			}
-			if ( !empty($wpSettings['integrateLogin']) ) {	
-				$wpID = $userdata['user_wpuint_id'];
-				if (!empty($wpID)) {
-					$pass = $avImg = $avType = '';
-					if ( !empty($avatar_sql) ) {
-						$avDetails = explode(',', $avatar_sql);
-						$avImg = explode('\'', $avDetails[1]);
-						$avType = explode('=', $avDetails[2]);
-						$avImg = $avImg[1];
-						$avType = (int)trim($avType[1]);
-					}
-					if ( !empty($passwd_sql) ) {
-						$pass = explode('\'', $passwd_sql);
-						$pass=$pass[1];
-					}
-					$GLOBALS['wpu_newDetails'] = array(
-						'username' => $username,
-						'user_email' => $email,
-						'user_password' => $pass,
-						'user_website' => $website,
-						'user_aim' => $aim,
-						'user_yim' => $yim,
-						'user_avatar_type' => $avType,
-						'user_allow_avatar' => $userdata['user_allow_avatar'],
-						'user_avatar' => $avImg
-					);
-					$GLOBALS['wpu_add_actions'] = '
-						$wpUsrData = get_userdata($wpID);
-						$wpUpdateData =	$wpUtdInt->check_details_consistency($wpUsrData, $GLOBALS[\'newDetails\']);
-						if ( $wpUpdateData ) {
-							wp_update_user($wpUpdateData);
-						}
-					';
-					define('WPU_PERFORM_ACTIONS', TRUE);
-					if ( $wpSettings['showHdrFtr'] != 'REV' ) {
-						//enter the integration
-						require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
-						require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
-						$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
-						if ( !$wpUtdInt->can_connect_to_wp() ) {
-							message_die(GENERAL_ERROR, $lang['WP_Not_Installed_Yet'],'','','');
-						}			
-						$wpUtdInt->enter_wp_integration();
-						eval($wpUtdInt->exec());  
-						$wpUtdInt->exit_wp_integration();
-						$wpUtdInt = null; unset($wpUtdInt);	
-					}
-				}
-			}
-		break;
-		case 'GENERATE PROFILE LINK':
-			global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
-			require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
-			if  ( $wpSettings != FALSE ) {
-				if (!empty($wpSettings['buttonsProfile'])) {
-					$bloglink_id = ($wpuAbs->ver == 'PHPBB2') ? $profiledata['user_wpublog_id'] : $member['user_wpublog_id'];
-					if ( !empty($bloglink_id) ) {
-						$blog_uri = append_sid($wpSettings['blogsUri'] . "?author=" . $bloglink_id);
-						$blog_img = '';   //TODO: SET FOR SUBSILVER!!
-						if ($wpuAbs->ver == 'PHPBB3') {
-							$template->assign_vars(array(
-								'BLOG_IMG' 			=> $blog_img,
-								'U_BLOG_LINK'		=> $blog_uri,
-							));
-						}
-					} else {
-						$blog_img = "";
-					}
-				}
-			}
-		break;
-		case 'GENERATE VIEWTOPIC LINK':
-			global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
-			require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);	
-			if  ( $wpSettings != FALSE ) {
-				if (!empty($wpSettings['buttonsPost'])) {
-					if ($wpuAbs->ver == 'PHPBB3') {			
-						if ((!isset($user_cache[$poster_id])) && !empty($row['user_wpublog_id'])) {
-							if ($poster_id == ANONYMOUS) {
-								$user_cache[$poster_id]['blog_img'] = '';
-								$user_cache[$poster_id]['blog_link'] = '';
-							} else {
-								$user_cache[$poster_id]['blog_img'] = '';   //TODO: SET FOR SUBSILVER!!
-								$user_cache[$poster_id]['blog_link'] = append_sid($wpSettings['blogsUri'] . "?author=" . $row['user_wpublog_id']);			
-							}
-						}
-					}
-				}
-			}
-		break;
-		case 'SHOW VIEWTOPIC LINK':
-			if (($wpuAbs->ver == 'PHPBB3') && (isset($user_cache[$poster_id]['blog_link']))) {
-				$postrow['BLOG_IMG'] = $user_cache[$poster_id]['blog_img'];
-				$postrow['U_BLOG_LINK'] = $user_cache[$poster_id]['blog_link'];
-			}
-		break;
-	}
-}
-
 ?>

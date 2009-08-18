@@ -187,14 +187,8 @@ class WPU_Cache {
 		
 		if ( $this->template_cache_enabled() ) {
 			$theme = str_replace('-', '__sep__', array_pop(explode('/', TEMPLATEPATH))); 
-			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 9999)) . 'cache';
 			$fnDest = $this->baseCacheLoc . $theme. "-{$wpVer}-{$wpuVer}.wpucache";
-			$hTempFile = @fopen($fnTemp, 'w+');
-			
-			@fwrite($hTempFile, $content);
-			@fclose($hTempFile);
-			@copy($fnTemp, $fnDest);
-			@unlink($fnTemp);				
+			$this->save($content, $fnDest);			
 		
 			return true;
 		}
@@ -212,13 +206,9 @@ class WPU_Cache {
 		
 		if ( $this->core_cache_enabled() ) {
 			$compat = ($compat) ? "_fast" : "_slow";
-			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 9999)) . 'wpucorecache-' . $this->wpVersion . '-' . $wpuAbs->wpu_ver . $compat . '.php';
 			$fnDest = $phpbb_root_path . "wp-united/cache/core.wpucorecache-{$wpVer}-{$wpuVer}{$compat}.php";
-			$hTempFile = @fopen($fnTemp, 'w+');
-			@fwrite($hTempFile, '<' ."?php\n\n if(!defined('IN_PHPBB')){die('Hacking attempt');exit();}\n\n$content\n\n?" . '>');
-			@fclose($hTempFile);
-			@copy($fnTemp, $fnDest);
-			@unlink($fnTemp); 			
+			$content = '<' ."?php\n\n if(!defined('IN_PHPBB')){die('Hacking attempt');exit();}\n\n$content\n\n?" . '>';
+			$this->save($content, $fnDest);
 		
 			return true;
 		}
@@ -238,6 +228,22 @@ class WPU_Cache {
 		}
 	}
 
+
+	//
+	//	SAVE
+	//	----
+	// A general cache save function. Can be called publicly for cache types not defined here
+	//
+	function save($content, $fileName) {
+			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 999999)) . '-temp';
+			$hTempFile = @fopen($fnTemp, 'w+');
+			@fwrite($hTempFile, $content);
+			@fclose($hTempFile);
+			@copy($fnTemp, $fileName);
+			@unlink($fnTemp); 
+			return true;
+	}
+	
 
 
 }
