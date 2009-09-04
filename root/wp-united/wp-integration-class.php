@@ -373,6 +373,10 @@ Class WPU_Integration {
 			$pluginContent = @file_get_contents($pluginLoc);
 			$pluginContent = str_replace(array('exit;', 'exit('), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
 			
+			// identify all global vars
+			if (!$this->wpu_compat) {
+				preg_match_all('/\n[\s]*global[\s]*([^\n^\r^;^:]*(;|:|\r|\n)/', $pluginContent, $glVars);
+			}
 			$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\)]*registration\.php)/', "\n if(!function_exists('wp_insert_user')) $1", $pluginContent);
 			$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\(]*(\([\s]*__FILE__[\s]*\))?[^\)]*wp-config\.php)/', "\n if(!defined('ABSPATH')) $1", $pluginContent);
 			
