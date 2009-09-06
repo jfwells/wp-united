@@ -78,7 +78,10 @@ function get_db_schema() {
 		'phpbbSmilies' => 'phpbbSmilies',
 		'fixHeader' => 'fixHeader',
 		// Added in 0.7.1
-		'xpostautolink' => 'xpostautolink'
+		'xpostautolink' => 'xpostautolink',
+		// Added in 0.8.0
+		'cssMagic' => 'cssmagic',
+		'templateVoodoo' => 'tempvoodoo'
 	);
 	
 	return $dbSchema;

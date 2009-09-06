@@ -114,11 +114,11 @@
 				hideListingRows();
 			}
 			if (document.getElementById("insideFWD").checked == true) {
-				hideRevRows(); showFwdRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideRevRows(); showFwdRows(); document.getElementById("pStyleFirst").style.display = '';
 			} else if (document.getElementById("insideREV").checked == true) {
-				hideFwdRows(); showRevRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideFwdRows(); showRevRows(); document.getElementById("pStyleFirst").style.display = '';
 			} else {
-				hideFwdRows(); hideRevRows(); document.getElementById("pStyleFirst").style.display = 'none';			
+				hideAutoRows(); hideFwdRows(); hideRevRows(); document.getElementById("pStyleFirst").style.display = 'none';			
 			}
 			if (document.getElementById("ownBlogsYes").checked == true) {
 				showBlogRows();
@@ -269,6 +269,27 @@
 		}
 	}
 	
+	function hideAutoRows() {
+		if (enhanced) {
+			document.getElementById("cssm").style.display = 'none';
+			document.getElementById("tvhead").style.display = 'none';
+			document.getElementById("tv").style.display = 'none';
+		}
+	}
+	
+	function showAutoRows() {
+		if (enhanced) {
+			document.getElementById("cssm").style.display = '';
+			if (document.getElementById("rad_cssm").checked == true) {
+				document.getElementById("tvhead").style.display = '';
+				document.getElementById("tv").style.display = '';
+			} else {
+				document.getElementById("tvhead").style.display = 'none';
+				document.getElementById("tv").style.display = 'none';			
+			}	
+		}
+	}	
+	
 	function enhancePage() {
 		// Enhance the page  if JS features are available
 		if(document.getElementById){
@@ -410,6 +431,15 @@
 				<dt><label for="insideFWD">{L_WPINSIDE_TITLE}</label><br /><span>{L_WPINSIDE_EXPLAIN1}<br /><br />{L_WPINSIDE_EXPLAIN2}</span></dt>
 				<dd><input type="radio" id="insideFWD" name="rad_Inside" value="FWD" onclick="rowState()" {S_WPINP}/>{L_WPINP}<br /><input type="radio" name="rad_Inside" id="insideREV" value="REV" onclick="rowState()" {S_PINWP}/>{L_PINWP}<br /><input type="radio" name="rad_Inside" value="NONE" onclick="rowState()" {S_PW_NONE} />{L_PW_NONE}</dd>
 			</dl>
+			<dl id="cssm">
+				<dt><label for="rad_cssm">{L_CSSM_TITLE}</label><br /><span>{L_CSSM_EXPLAIN1}<br /><br />{L_CSSM_EXPLAIN2}</span></dt>
+				<dd><input type="radio" id="rad_cssm" name="rad_cssm" value="1" onClick="rowState()" {S_CSSM_ON}/>{L_WP_YESREC}<br /><input type="radio" name="rad_cssm" value="0" onClick="rowState()" {S_CSSM_OFF}/>{L_WP_NO}</dd>			
+			</dl>
+			<h3 id="tvhead" style="margin-bottom: 20px;">{L_TV_SECTITLE}</h3>
+			<dl id="tv">
+				<dt><label for="rad_tv">{L_TV_TITLE}</label><br /><span>{L_TV_EXPLAIN1}<br /><br />{L_TV_EXPLAIN2}</span></dt>
+				<dd><input type="radio" id="rad_tv" name="rad_tv" value="1" {S_TV_ON}/>{L_WP_YESREC}<br /><input type="radio" name="rad_tv" value="0" {S_TV_OFF}/>{L_WP_NO}</dd>			
+			</dl>			
 			<dl id="pStyleFirst">
 				<dt><label for="rad_pFirst">{L_PSTYLES_FIRST_TITLE}</label><br /><span>{L_PSTYLES_FIRST_EXPLAIN1}<br /><br />{L_PSTYLES_FIRST_EXPLAIN2}<br /><br />{L_PSTYLES_FIRST_EXPLAIN3}<br /><br />{L_PSTYLES_FIRST_EXPLAIN4}</span></dt>
 				<dd><input type="radio" id="rad_pFirst" name="rad_pFirst" value="1" onclick="rowState()" {S_PS_FIRST}/>{L_WP_YESREC}<br /><input type="radio" name="rad_pFirst" value="2" onclick="rowState()" {S_PS_NOTFIRST}/>{L_WP_NO}<br /><input type="radio" name="rad_pFirst" value="0" onclick="rowState()" {S_PS_NONE} />{L_PS_NONE}</dd>
@@ -879,16 +909,16 @@
 	function rowState() {
 		if (enhanced) {
 			if (document.getElementById("insideFWD").checked == true) {
-				hideRevRows(); showFwdRows(); hidePageRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideRevRows(); showFwdRows(); hidePageRows(); document.getElementById("pStyleFirst").style.display = '';
 			} else if (document.getElementById("insideREV").checked == true) {
-				hideFwdRows(); showRevRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideFwdRows(); showRevRows(); document.getElementById("pStyleFirst").style.display = '';
 				if (document.getElementById("wpComplex").checked == true) {
 					showPageRows(); 
 				} else {
 					hidePageRows();
 				}
 			} else {
-				hideFwdRows(); hideRevRows(); hidePageRows(); document.getElementById("pStyleFirst").style.display = 'none';		
+				hideAutoRows(); hideFwdRows(); hideRevRows(); hidePageRows(); document.getElementById("pStyleFirst").style.display = 'none';		
 			}
 		}
 	}
@@ -932,7 +962,28 @@
 			document.getElementById("onPageHead").style.display = '';
 			document.getElementById("wpOnPage").style.display = '';
 		}
-	}	
+	}
+	
+	function hideAutoRows() {
+		if (enhanced) {
+			document.getElementById("cssm").style.display = 'none';
+			document.getElementById("tvhead").style.display = 'none';
+			document.getElementById("tv").style.display = 'none';
+		}
+	}
+	
+	function showAutoRows() {
+		if (enhanced) {
+			document.getElementById("cssm").style.display = '';
+			if (document.getElementById("rad_cssm").checked == true) {
+				document.getElementById("tvhead").style.display = '';
+				document.getElementById("tv").style.display = '';
+			} else {
+				document.getElementById("tvhead").style.display = 'none';
+				document.getElementById("tv").style.display = 'none';			
+			}	
+		}
+	}
 
 	function enhancePage() {
 		// Enhance the page  if JS features are available
@@ -971,6 +1022,15 @@
 				<dt><label for="insideFWD">{L_WPINSIDE_TITLE}</label><br /><span>{L_WPINSIDE_EXPLAIN1}<br /><br />{L_WPINSIDE_EXPLAIN2}</span></dt>
 				<dd><input type="radio" id="insideFWD" name="rad_Inside" value="FWD" onClick="rowState()" {S_WPINP}/>{L_WPINP}<br /><input type="radio" name="rad_Inside" id="insideREV" value="REV" onClick="rowState()" {S_PINWP}/>{L_PINWP}<br /><input type="radio" name="rad_Inside" value="NONE" onClick="rowState()" {S_PW_NONE} />{L_PW_NONE}</dd>
 			</dl>
+			<dl id="cssm">
+				<dt><label for="rad_cssm">{L_CSSM_TITLE}</label><br /><span>{L_CSSM_EXPLAIN1}<br /><br />{L_CSSM_EXPLAIN2}</span></dt>
+				<dd><input type="radio" id="rad_cssm" name="rad_cssm" value="1" onClick="rowState()" {S_CSSM_ON}/>{L_WP_YESREC}<br /><input type="radio" name="rad_cssm" value="0" onClick="rowState()" {S_CSSM_OFF}/>{L_WP_NO}</dd>			
+			</dl>
+			<h3 id="tvhead" style="margin-bottom: 20px;">{L_TV_SECTITLE}</h3>
+			<dl id="tv">
+				<dt><label for="rad_tv">{L_TV_TITLE}</label><br /><span>{L_TV_EXPLAIN1}<br /><br />{L_TV_EXPLAIN2}</span></dt>
+				<dd><input type="radio" id="rad_tv" name="rad_tv" value="1" {S_TV_ON}/>{L_WP_YESREC}<br /><input type="radio" name="rad_tv" value="0" {S_TV_OFF}/>{L_WP_NO}</dd>			
+			</dl>		
 			<dl id="pStyleFirst">
 				<dt><label for="rad_pFirst">{L_PSTYLES_FIRST_TITLE}</label><br /><span>{L_PSTYLES_FIRST_EXPLAIN1}<br /><br />{L_PSTYLES_FIRST_EXPLAIN2}<br /><br />{L_PSTYLES_FIRST_EXPLAIN3}<br /><br />{L_PSTYLES_FIRST_EXPLAIN4}</span></dt>
 				<dd><input type="radio" id="rad_pFirst" name="rad_pFirst" value="1" onClick="rowState()" {S_PS_FIRST}/>{L_WP_YESREC}<br /><input type="radio" name="rad_pFirst" value="2" onClick="rowState()" {S_PS_NOTFIRST}/>{L_WP_NO}<br /><input type="radio" name="rad_pFirst" value="0" onClick="rowState()" {S_PS_NONE} />{L_PS_NONE}</dd>

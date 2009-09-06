@@ -442,6 +442,23 @@ class acp_wp_united {
 			$pwNone = 'checked="checked"';		
 			break;
 		}	
+		
+		// set CSS Magic and Template Voodoo to initial states
+		if($wpSettings['cssMagic']) {
+			$cssMOn = 'checked="checked"';
+			$cssMOff = '';
+		} else {
+			$cssMOn = '';
+			$cssMOff = 'checked="checked"';
+		}
+		if($wpSettings['templateVoodoo']) {
+			$tvOn = 'checked="checked"';
+			$tvOff = '';
+		} else {
+			$tvOn = '';
+			$tvOff = 'checked="checked"';
+		}				
+		
 		//set phpbb css early/late radio buttons
 		switch($wpSettings['cssFirst']) {
 		case 'P':
@@ -666,6 +683,20 @@ class acp_wp_united {
 			'S_WPINP' => $wInP,
 			'S_PINWP' => $pInW,
 			'S_PW_NONE' => $pwNone,
+			
+			'L_CSSM_TITLE' => $wpuAbs->lang('WPWiz_CSS_Magic_Title'),
+			'L_CSSM_EXPLAIN1' => $wpuAbs->lang('WPWiz_CSS_Magic_Explain1'),
+			'L_CSSM_EXPLAIN2' => $wpuAbs->lang('WPWiz_CSS_Magic_Explain2'),
+			'S_CSSM_ON' => $cssMOn,
+			'S_CSSM_OFF' => $cssMOff,	
+			'L_TV_SECTITLE' => $wpuAbs->lang('WPWiz_TemplateVoodoo_SecTitle'),		
+			'S_TV_ON' => $tvOn,
+			'S_TV_OFF' => $tvOff,
+			'L_TV_TITLE' => $wpuAbs->lang('WPWiz_Template_Voodoo_Title'),
+			'L_TV_EXPLAIN1' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain1'),
+			'L_TV_EXPLAIN2' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain2'),			
+			
+			
 			'L_PSTYLES_FIRST_TITLE' => $wpuAbs->lang('WPWiz_PStyles_Early_Title'),
 			'L_PSTYLES_FIRST_EXPLAIN1' => $wpuAbs->lang('WPWiz_PStyles_Early_Explain1'),
 			'L_PSTYLES_FIRST_EXPLAIN2' => $wpuAbs->lang('WPWiz_PStyles_Early_Explain2'),
@@ -1170,6 +1201,22 @@ class acp_wp_united {
 			break;
 		}
 		
+		// set CSS Magic and Template Voodoo to initial states
+		if($wpSettings['cssMagic']) {
+			$cssMOn = 'checked="checked"';
+			$cssMOff = '';
+		} else {
+			$cssMOn = '';
+			$cssMOff = 'checked="checked"';
+		}
+		if($wpSettings['templateVoodoo']) {
+			$tvOn = 'checked="checked"';
+			$tvOff = '';
+		} else {
+			$tvOn = '';
+			$tvOff = 'checked="checked"';
+		}		
+		
 		//set phpbb css early/late radio buttons
 		switch($wpSettings['cssFirst']) {
 		case 'P':
@@ -1284,6 +1331,19 @@ class acp_wp_united {
 			'S_WPINP' => $wInP,
 			'S_PINWP' => $pInW,
 			'S_PW_NONE' => $pwNone,
+			
+			'L_CSSM_TITLE' => $wpuAbs->lang('WPWiz_CSS_Magic_Title'),
+			'L_CSSM_EXPLAIN1' => $wpuAbs->lang('WPWiz_CSS_Magic_Explain1'),
+			'L_CSSM_EXPLAIN2' => $wpuAbs->lang('WPWiz_CSS_Magic_Explain2'),
+			'S_CSSM_ON' => $cssMOn,
+			'S_CSSM_OFF' => $cssMOff,	
+			'L_TV_SECTITLE' => $wpuAbs->lang('WPWiz_TemplateVoodoo_SecTitle'),		
+			'S_TV_ON' => $tvOn,
+			'S_TV_OFF' => $tvOff,
+			'L_TV_TITLE' => $wpuAbs->lang('WPWiz_Template_Voodoo_Title'),
+			'L_TV_EXPLAIN1' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain1'),
+			'L_TV_EXPLAIN2' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain2'),
+			
 			'L_PSTYLES_FIRST_TITLE' => $wpuAbs->lang('WPWiz_PStyles_Early_Title'),
 			'L_PSTYLES_FIRST_EXPLAIN1' => $wpuAbs->lang('WPWiz_PStyles_Early_Explain1'),
 			'L_PSTYLES_FIRST_EXPLAIN2' => $wpuAbs->lang('WPWiz_PStyles_Early_Explain2'),

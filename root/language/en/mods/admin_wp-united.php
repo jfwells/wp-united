@@ -494,6 +494,15 @@ $lang = array_merge($lang, array(
 	'WPWiz_XPost_Autolink_Title' => 'Autolink comments for cross-posted posts',
 	'WPWiz_XPost_Autolink_Explain' => 'Choose this option to automatically disable WordPress comments for cross-posted posts, and display a link to the post on the forum instead.',	
 	
+	//New in v0.8.0
+	'WPWiz_CSS_Magic_Title' => 'Use CSS Magic?',
+	'WPWiz_CSS_Magic_Explain1' => 'CSS Magic automatically fixes conflicts between your phpBB and WordPress styles, by automatically comparing and modifying the CSS stylesheets as they are requested by the browser. This ensures that they display correctly.',
+	'WPWiz_CSS_Magic_Explain2' => 'It is recommended to turn this option on, unless you tweak your phpBB and WordPress stylesheets manually to ensure they do not conflict.',
+	'WPWiz_TemplateVoodoo_SecTitle' => 'You can set the following option if you enable CSS Magic',
+	'WPWiz_Template_Voodoo_Title' => 'Use Template Voodoo?',
+	'WPWiz_Template_Voodoo_Explain1' => 'Template Voodoo is an additional step in automatic template integration. It modifies the names of HTML IDs and classes to ensure they are not duplicated between phpBB and WordPress. Together with CSS Magic, this ensures your page displays correctly.',
+	'WPWiz_Template_Voodoo_Explain2' => 'It is recommend to start with this option turned on. However, in rare cases, it may break some JavaScript which relies on certain classnames or IDs being present. If you experience problems with page scripts, you can try turning this off.',
+	
 
 ));
 
