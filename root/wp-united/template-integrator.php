@@ -145,11 +145,9 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
 // classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
 // to make additional changes to the CSS the next time around.
 
-if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+if ($wpSettings['cssMagic']) {
 
-	 
-	
-	
+
 	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 
 	// Get all links to stylesheets, see if they have been cached yet
@@ -166,7 +164,7 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 	
 	
 	// TEMPLATE VOODOO
-	if(defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+	if ($wpSettings['templateVoodoo']) {
 	
 		
 		// First check if the files exist, and insert placeholders for TV cache location if they do
@@ -268,7 +266,7 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 	
 		
 	// apply CSS Magic for inline CSS
-	$suffix = (defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) ? '-inline-cssmtv' : '-inline-cssm';
+	$suffix = ($wpSettings['templateVoodoo']) ? '-inline-cssmtv' : '-inline-cssm';
 	foreach($inCSSInner['css'] as $index => $innerCSSItem) {
 		$inlineCache = $phpbb_root_path . "wp-united/cache/" .$inCSSInner['caches'][$index] . $suffix;
 		if(file_exists($inlineCache)) {
@@ -277,7 +275,7 @@ if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
 			$cssM = new CSS_Magic();
 			$cssM->parseString($innerCSSItem);
 			
-			if (defined('USE_TEMPLATE_VOODOO') && USE_TEMPLATE_VOODOO) {
+			if ($wpSettings['templateVoodoo']) {
 				if(isset($classDupes) && isset($idDupes)) {
 					$finds = array();
 					$repl = array();
@@ -333,7 +331,7 @@ if ($wpSettings['phpbbPadding'] != 'NOT_SET') {
 	$pad = explode('-', $wpSettings['phpbbPadding']);
 	$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
 }
-if(defined('USE_CSS_MAGIC') && USE_CSS_MAGIC) {
+if ($wpSettings['cssMagic']) {
 	$wpuOutputPreStr = '<div id="wpucssmagic" style="' . $padding . 'margin: 0;"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
 	$wpuOutputPostStr = '</div></div></div>';
 } else {

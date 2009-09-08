@@ -127,7 +127,10 @@ function set_default($setting_key) {
 		'phpbbSmilies' => 0,
 		'fixHeader' => 1,
 		// Added in 0.8.0
-		'wpuAutolinkingXpost' => 0
+		'xpostautolink' => 0,
+		'cssMagic' => 1,
+		'templateVoodoo' => 1	
+		
 	);
 	
 	return $defaults[$setting_key];

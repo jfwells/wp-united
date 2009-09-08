@@ -1903,6 +1903,8 @@ class acp_wp_united {
 		
 		$data['dtdSwitch'] = (int) request_var('rad_DTD', 0);
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
+		$data['cssMagic'] = (int) request_var('rad_cssm', 1);
+		$data['templateVoodoo'] = (int) request_var('rad_tv', 1);
 		$data['fixHeader'] = (int) request_var('rad_fixhdr', 1);
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 0);
 		$data['wpPageName'] = request_var('txt_wpPage', '');
@@ -1946,7 +1948,12 @@ class acp_wp_united {
 		case 'N';
 			default;
 			$data['showHdrFtr'] = 'NONE';
+			$data['cssMagic'] = 0;
+			$data['templateVoodoo'] = 0;
 			break;
+		}
+		if(!$data['cssMagic']) {
+			$data['templateVoodoo'] = 0;
 		}
 
 		switch ( $data['cssFirst'] ) {
@@ -2055,6 +2062,8 @@ class acp_wp_united {
 		$data['blogsUri'] = $this->clean_path(request_var('txt_BlogsUri', ''));	
 		$data['dtdSwitch'] = (int) request_var('rad_DTD', 0);
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
+		$data['cssMagic'] = (int) request_var('rad_cssm', 1);
+		$data['templateVoodoo'] = (int) request_var('rad_tv', 1);
 		$data['fixHeader'] = (int) request_var('rad_fixhdr', 1);
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 1);
 		$data['cssFirst'] = (int) request_var('rad_pFirst', 1);	
@@ -2085,8 +2094,14 @@ class acp_wp_united {
 		case 'N';
 			default;
 			$data['showHdrFtr'] = 'NONE';
+			$data['cssMagic'] = 0;
+			$data['templateVoodoo'] = 0;
 			break;
 		}
+		if(!$data['cssMagic']) {
+			$data['templateVoodoo'] = 0;
+		}
+
 		switch ( $data['cssFirst'] ) {
 		case '1':
 			$data['cssFirst'] = 'P';

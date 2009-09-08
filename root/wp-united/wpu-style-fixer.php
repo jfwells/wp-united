@@ -63,7 +63,6 @@ if(file_exists($cssFileToFix)) {
 
 	if(empty($css)) {
 		//include($phpbb_root_path . 'common.' . $phpEx);
-		include($phpbb_root_path . 'wp-united/options.' . $phpEx);
 		include($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 		include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 		$cssMagic = CSS_Magic::getInstance();

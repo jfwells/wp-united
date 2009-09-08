@@ -219,7 +219,6 @@ class WPU_Actions {
 	function css_magic($css) {
 		
 		global $phpbb_root_path, $phpEx;
-		include($phpbb_root_path . 'wp-united/options.' . $phpEx); // temp -- this is called from style.php
 		$pos = "outer";	
 		
 		

@@ -101,17 +101,9 @@ define('WPU_SHOW_STATS', TRUE);
 //
 //
 
-
-//
-//
-// CSS MAGIC & TEMPLATE VOODOO (PRE-ALPHA)
-// These settings are for development purposes only. On v0.7.1, they MUST be left disabled.
-//
-define('USE_CSS_MAGIC', TRUE); // modifies stylesheets to behave better
-define('USE_TEMPLATE_VOODOO', TRUE); // modifies document IDs and classnames so they don't conflict. Note: This is not yet finished. It WILL KILL javascript (e.g. smilies) that look for element IDs.
 // The "Remove header" option in the ACP kills too many templates. Rather than having to keep going back there
 // while developing, we can just force it off here
-define('DISABLE_HEADER_FIX', TRUE);
+define('DISABLE_HEADER_FIX', FALSE);
 
 
 
