@@ -502,6 +502,9 @@ $lang = array_merge($lang, array(
 	'WPWiz_Template_Voodoo_Title' => 'Use Template Voodoo?',
 	'WPWiz_Template_Voodoo_Explain1' => 'Template Voodoo is an additional step in automatic template integration. It modifies the names of HTML IDs and classes to ensure they are not duplicated between phpBB and WordPress. Together with CSS Magic, this ensures your page displays correctly.',
 	'WPWiz_Template_Voodoo_Explain2' => 'It is recommend to start with this option turned on. However, in rare cases, it may break some JavaScript which relies on certain classnames or IDs being present. If you experience problems with page scripts, you can try turning this off.',
+	'WPWiz_Plugin_Fixes_Title' => 'Work around plugin errors?',
+	'WPWiz_Plugin_Fixes_Explain1' => 'A few WordPress plugins are not compatible with WP-United. If you turn this option on, WP-United will try to automatically detect and work around common problems with WordPress plugins.',
+	'WPWiz_Plugin_Fixes_Explain2' => 'You should leave this option OFF unless you are experiencing errors installing or runing WP-United. If you encounter such problems, and disabling your plugins makes the problems go away, then try re-enabling the offending plugins, and turning this option on.'
 	
 
 ));

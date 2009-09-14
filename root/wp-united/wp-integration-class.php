@@ -365,34 +365,34 @@ Class WPU_Integration {
 	//	MAKE_COMPATIBLE
 	// 	This is where we try to fix common compatibility problems in plugins
 	//	We return the result as a string for wp-settings to execute
-	//	TODO: Cache any changes we make
 	function make_compatible($pluginLoc) {
 		global $pluginContent;
-	// Under construction -- for now, just include the plugin
-		if(file_exists($pluginLoc) && (stripos($pluginLoc, 'wpu-plugin') === false)) {
-			$pluginContent = @file_get_contents($pluginLoc);
-			$pluginContent = str_replace(array('exit;', 'exit('), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
+		if(!empty($this->wpu_settings['pluginFixes'])) {
+			if(file_exists($pluginLoc) && (stripos($pluginLoc, 'wpu-plugin') === false)) {
+				// TODO: READ FILE FROM CACHE
+				$pluginContent = @file_get_contents($pluginLoc);
+				$pluginContent = str_replace(array('exit;', 'exit('), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
 			
-			// identify all global vars
-			if (!$this->wpu_compat) {
-				preg_match_all('/\n[\s]*global[\s]*([^\n^\r^;^:]*(;|:|\r|\n)/', $pluginContent, $glVars);
+				// identify all global vars
+				if (!$this->wpu_compat) {
+					preg_match_all('/\n[\s]*global[\s]*[^\n^\r^;^:]*(;|:|\r|\n)/', $pluginContent, $glVars);
+				}
+				$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\)]*registration\.php)/', "\n if(!function_exists('wp_insert_user')) $1", $pluginContent);
+				$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\(]*(\([\s]*__FILE__[\s]*\))?[^\)]*wp-config\.php)/', "\n if(!defined('ABSPATH')) $1", $pluginContent);
+			
+				$pluginContent = str_replace('__FILE__', "'" . $pluginLoc . "'", $pluginContent);
+			
+				$startToken = (preg_match('/^[\s]*<\?php/', $pluginContent)) ? '?'.'>' : '';
+				$endToken = (preg_match('/\?' . '>[\s]*$/', $pluginContent)) ? '<'.'?php ' : ''; 
+			
+				$pluginContent = $startToken. trim($pluginContent) . $endToken;
+			
+				global $wpuCache;
+				$wpuCache->save($pluginContent, $this->phpbb_root . "wp-united/cache/pluginfix" . basename($pluginLoc) . '.wpuplg');
+			
+				return $pluginContent; 
 			}
-			$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\)]*registration\.php)/', "\n if(!function_exists('wp_insert_user')) $1", $pluginContent);
-			$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\(]*(\([\s]*__FILE__[\s]*\))?[^\)]*wp-config\.php)/', "\n if(!defined('ABSPATH')) $1", $pluginContent);
-			
-			$pluginContent = str_replace('__FILE__', "'" . $pluginLoc . "'", $pluginContent);
-			
-			$startToken = (preg_match('/^[\s]*<\?php/', $pluginContent)) ? '?'.'>' : '';
-			$endToken = (preg_match('/\?' . '>[\s]*$/', $pluginContent)) ? '<'.'?php ' : ''; 
-			
-			$pluginContent = $startToken. trim($pluginContent) . $endToken;
-			
-			global $wpuCache;
-			$wpuCache->save($pluginContent, $this->phpbb_root . "wp-united/cache/" . basename($pluginLoc));
-			
-			return $pluginContent; 
 		}
-		
 		return 'include_once("' . $pluginLoc . '");';
 	}
 	

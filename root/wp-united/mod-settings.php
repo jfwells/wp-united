@@ -81,7 +81,8 @@ function get_db_schema() {
 		'xpostautolink' => 'xpostautolink',
 		// Added in 0.8.0
 		'cssMagic' => 'cssmagic',
-		'templateVoodoo' => 'tempvoodoo'
+		'templateVoodoo' => 'tempvoodoo',
+		'pluginFixes' => 'pluginfixes'
 	);
 	
 	return $dbSchema;
@@ -129,7 +130,8 @@ function set_default($setting_key) {
 		// Added in 0.8.0
 		'xpostautolink' => 0,
 		'cssMagic' => 1,
-		'templateVoodoo' => 1	
+		'templateVoodoo' => 1,
+		'pluginFixes' => 0	
 		
 	);
 	

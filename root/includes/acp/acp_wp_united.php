@@ -457,7 +457,15 @@ class acp_wp_united {
 		} else {
 			$tvOn = '';
 			$tvOff = 'checked="checked"';
-		}				
+		}
+		// set plugin fixes to initial state
+		if($wpSettings['pluginFixes']) {
+			$pluginFixesOn = 'checked="checked"';
+			$pluginFixesOff = '';
+		} else {
+			$pluginFixesOn = '';
+			$pluginFixesOff = 'checked="checked"';
+		}		
 		
 		//set phpbb css early/late radio buttons
 		switch($wpSettings['cssFirst']) {
@@ -695,7 +703,13 @@ class acp_wp_united {
 			'L_TV_TITLE' => $wpuAbs->lang('WPWiz_Template_Voodoo_Title'),
 			'L_TV_EXPLAIN1' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain1'),
 			'L_TV_EXPLAIN2' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain2'),			
+
 			
+			'L_PLUGIN_FIXES_TITLE' => $wpuAbs->lang('WPWiz_Plugin_Fixes_Title'),
+			'L_PLUGIN_FIXES_EXPLAIN1' => $wpuAbs->lang('WPWiz_Plugin_Fixes_Explain1'),
+			'L_PLUGIN_FIXES_EXPLAIN2' => $wpuAbs->lang('WPWiz_Plugin_Fixes_Explain2'),
+			'S_PLUGIN_FIXES_YES' => $pluginFixesOn,
+			'S_PLUGIN_FIXES_NO' => $pluginFixesOff,			
 			
 			'L_PSTYLES_FIRST_TITLE' => $wpuAbs->lang('WPWiz_PStyles_Early_Title'),
 			'L_PSTYLES_FIRST_EXPLAIN1' => $wpuAbs->lang('WPWiz_PStyles_Early_Explain1'),
@@ -874,7 +888,7 @@ class acp_wp_united {
 			'L_WPWIZARD_S1_TITLE' => $wpuAbs->lang('WP_Wizard_Step1_Title'),
 			'L_WPWIZARD_S1_EXPLAIN1' => $wpuAbs->lang('WP_Wizard_Step1_Explain1'),
 			'L_WPWIZARD_S1_EXPLAIN2' => $wpuAbs->lang('WP_Wizard_Step1_Explain2'),
-			'L_WPWIZARD_S1_EXPLAIN2b' => $wpuAbs->lang('WP_Wizard_Step1_Explain2b'),
+			'L_WPWIZARD_S1_EXPLAIN2B' => $wpuAbs->lang('WP_Wizard_Step1_Explain2b'),
 			'L_WPWIZARD_S1_EXPLAIN3' => $wpuAbs->lang('WP_Wizard_Step1_Explain3'),
 			'L_WPWIZARD_S1_EXPLAIN4' => $wpuAbs->lang('WP_Wizard_Step1_Explain4'),
 			'L_WPWIZARD_S1_EXPLAIN5' => $wpuAbs->lang('WP_Wizard_Step1_Explain5'),
@@ -1215,7 +1229,15 @@ class acp_wp_united {
 		} else {
 			$tvOn = '';
 			$tvOff = 'checked="checked"';
-		}		
+		}
+		// set plugin fixes to initial state
+		if($wpSettings['pluginFixes']) {
+			$pluginFixesOn = 'checked="checked"';
+			$pluginFixesOff = '';
+		} else {
+			$pluginFixesOn = '';
+			$pluginFixesOff = 'checked="checked"';
+		}	
 		
 		//set phpbb css early/late radio buttons
 		switch($wpSettings['cssFirst']) {
@@ -1344,6 +1366,12 @@ class acp_wp_united {
 			'L_TV_EXPLAIN1' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain1'),
 			'L_TV_EXPLAIN2' => $wpuAbs->lang('WPWiz_Template_Voodoo_Explain2'),
 			
+			'L_PLUGIN_FIXES_TITLE' => $wpuAbs->lang('WPWiz_Plugin_Fixes_Title'),
+			'L_PLUGIN_FIXES_EXPLAIN1' => $wpuAbs->lang('WPWiz_Plugin_Fixes_Explain1'),
+			'L_PLUGIN_FIXES_EXPLAIN2' => $wpuAbs->lang('WPWiz_Plugin_Fixes_Explain2'),
+			'S_PLUGIN_FIXES_YES' => $pluginFixesOn,
+			'S_PLUGIN_FIXES_NO' => $pluginFixesOff,			
+
 			'L_PSTYLES_FIRST_TITLE' => $wpuAbs->lang('WPWiz_PStyles_Early_Title'),
 			'L_PSTYLES_FIRST_EXPLAIN1' => $wpuAbs->lang('WPWiz_PStyles_Early_Explain1'),
 			'L_PSTYLES_FIRST_EXPLAIN2' => $wpuAbs->lang('WPWiz_PStyles_Early_Explain2'),
@@ -1910,6 +1938,7 @@ class acp_wp_united {
 		$data['wpPageName'] = request_var('txt_wpPage', '');
 		$data['cssFirst'] = (int) request_var('rad_pFirst', 0);
 		$data['phpbbCensor'] = (int) request_var('rad_Censor', 0);
+		$data['pluginFixes'] = (int) request_var('rad_Plugins', 0);
 		$data['phpbbSmilies'] = (int) request_var('rad_Smilies', 0);
 		$data['mustLogin'] = (int) request_var('rad_Private', 0);
 		$data['charEncoding'] =  request_var('rad_CharEnc', '');
@@ -2068,6 +2097,7 @@ class acp_wp_united {
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 1);
 		$data['cssFirst'] = (int) request_var('rad_pFirst', 1);	
 		$data['phpbbCensor'] = (int) request_var('rad_Censor', 1);
+		$data['pluginFixes'] = (int) request_var('rad_Plugins', 0);
 		$data['phpbbSmilies'] = (int) request_var('rad_Smilies', 1);
 		$data['mustLogin'] = (int) request_var('rad_Private', 0);
 		$data['charEncoding'] =  request_var('rad_CharEnc', '');

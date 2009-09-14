@@ -1192,13 +1192,12 @@ function wpu_get_author() {
 function wpu_done_head() {
 	global $wpu_done_head, $wpSettings, $scriptPath, $wp_the_query;
 	$wpu_done_head = true;
-
 	//add the frontpage stylesheet, if needed: 
 	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {
 		echo '<link rel="stylesheet" href="' . add_trailing_slash($scriptPath) . 'wp-united/theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
 	if ( (defined('WPU_REVERSE_INTEGRATION')) && ($wpSettings['cssFirst'] == 'W') ) {
-		echo '[--PHPBB*HEAD--]';
+		echo '<!--[**HEAD_MARKER**]-->';
 	}
 	
 	
