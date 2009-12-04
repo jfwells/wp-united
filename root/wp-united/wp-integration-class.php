@@ -193,6 +193,10 @@ Class WPU_Integration {
 	//	
 		$test = str_replace('http://', '', $this->wpu_settings['wpPath']); // urls sometimes return true on php 5.. this makes sure they don't.
 		if ( !file_exists( $test . 'wp-config.php') ) {
+			// Now wp-config can be moved one level up, so we try that as well:
+			if ( file_exists( $test . '../wp-config.php') ) {
+				return TRUE;
+			}
 			return FALSE;
 		} else {
 			return TRUE;
@@ -305,7 +309,10 @@ Class WPU_Integration {
 
 			if (!$this->core_cache_ready()) { 
 				
-				$cConf = file_get_contents($this->wpu_settings['wpPath'] . 'wp-config.php');
+				// Now wp-config can be moved one level up, so we try that as well:
+				$wpConfigLoc = (!file_exists($this->wpu_settings['wpPath'] . 'wp-config.php')) ? $this->wpu_settings['wpPath'] . '../wp-config.php' : $this->wpu_settings['wpPath'] . 'wp-config.php';
+
+				$cConf = file_get_contents($wpConfigLoc);
 				$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
 				//Handle the make clickable conflict
 				if (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/formatting.php')) {
