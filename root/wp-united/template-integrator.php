@@ -543,7 +543,7 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 					$findLoc = str_replace($wpSettings['wpUri'], $wpSettings['wpPath'], $findLoc);
 				}
 				// else: relative path
-				$findLoc = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\") : $findLoc;
+				$findLoc = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $findLoc) : $findLoc;
 				if( file_exists($findLoc) && (stristr($findLoc, "http:") === false) ) { 
 					$theLoc = urlencode(base64_encode(htmlentities($findLoc)));
 					$links[] = $cssLoc;
