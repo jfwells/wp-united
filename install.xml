@@ -137,8 +137,7 @@ if ($config['load_cpf_viewtopic'])]]></find>
 						$GLOBALS['wpu_actions']->profile_update('reg_details', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></action>
       </edit>
       <edit>
-        <find>						// Update Custom Fields
-						if (sizeof($cp_data))</find>
+        <find><![CDATA[						// Update Custom Fields]]></find>
         <action type="before-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 						$GLOBALS['wpu_actions']->profile_update('profile_info', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></action>
       </edit>
@@ -161,8 +160,7 @@ if ($config['load_cpf_viewtopic'])]]></find>
 ]]></action>
       </edit>
       <edit>
-        <find>						// Update Custom Fields
-						if (sizeof($cp_data))</find>
+        <find><![CDATA[						// Update Custom Fields]]></find>
         <action type="before-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 						$GLOBALS['wpu_actions']->profile_update('profile_info', $user_id, $user_row['user_wpuint_id'], $sql_ary);									]]></action>
       </edit>
