@@ -4149,9 +4149,9 @@ class acp_wp_united {
 		$this->tpl_name = 'acp_wp_united';
 		// set the test title attribute of the main xml tag
 		$template->assign_vars(array(
-		'L_WP_XML_TESTNAME' => $title,
-		'L_WP_XML_DECL' => '<?xml version="1.0" standalone="yes"?>')
-		);
+			'L_WP_XML_TESTNAME' => $title,
+			'L_WP_XML_DECL' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+		));
 		
 		// set the section of the template and put the XML data in a loop
 		$template->assign_block_vars('switch_xml_response', array());
@@ -4159,8 +4159,9 @@ class acp_wp_united {
 		//write out the XML data to be parsed in a loop
 		foreach ($xmlData as $tagName => $tagValue) {
 			$template->assign_block_vars('switch_xml_response.xml_data', array(
-			'WP_XML_TAGNAME' => $tagName,
-			'WP_XML_TAGVALUE' => $tagValue));
+				'WP_XML_TAGNAME' => $tagName,
+				'WP_XML_TAGVALUE' => $tagValue
+			));
 		}
 		
 		//use xml doctye defined in template

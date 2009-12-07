@@ -105,7 +105,7 @@
 <!-- --------------------------------------------- 	-->
 
 	<script type="text/javascript">
-	<!--
+	// <![CDATA[
 	function rowState() {
 		if (enhanced) {
 			if (document.getElementById("useBlogList").checked == true) {
@@ -369,7 +369,7 @@
 	}
 	
 	
-	//-->
+	// ]]>
 	</script>
 
 	<img src="../wp-united/images/wp-united-logo.gif" alt="wp-united" style="float: right;"/>
@@ -601,14 +601,15 @@
 <!-- --------------------------------------------- 	-->
 
 	<script type="text/javascript">
-	<!--
-
+	// <![CDATA[
+	
+	var serverRequest;
 	function getXmlHttpObject() {
 		//Initialise the XMLHttpRequest object.
-		var serverRequest = false;
+		
 
 	    // branch for native XMLHttpRequest object
-	    if(window.XMLHttpRequest && !(window.ActiveXObject)) {
+	    if(window.XMLHttpRequest) {
 	    	try {
 				request = new XMLHttpRequest();
 	        } catch(e) {
@@ -692,17 +693,12 @@
 		}
 		return !useAjax;
 	}
-	
+	// process ajax response
 	function stateChange() {
-	    // only if request shows "loaded"
 	    if (serverRequest.readyState == 4) {
-	        // only if "OK"
 	        if (serverRequest.status == 200) {
-			
-				//Process result
 	            var xmlPage = serverRequest.responseXML;
-				processResult(xmlPage);
-					
+				processResult(xmlPage);		
 	        } else {
 	            alert('{WP_AJAX_TIMEOUT}\n\n' + serverRequest.statusText);
 	        }
@@ -715,7 +711,7 @@
 	}
 	
 	function processResult(xmlDoc) { 
-		if (xmlDoc.getElementsByTagName('result')) {
+			if (xmlDoc.getElementsByTagName('result')) {
 			// parse the test results
 			var testSuccess = xmlDoc.getElementsByTagName('result').item(0).firstChild.data;
 			var testMsg = xmlDoc.getElementsByTagName('message').item(0).firstChild.data;
@@ -760,7 +756,7 @@
 		var logo;
 		window.onload = init;
 	
-	//-->
+	// ]]>
 	</script>
 	<img src="../wp-united/images/wp-united-logo.gif" alt="wp-united" style="float: right;" id="wpu-logo" />
 	<h1>{L_WPWIZARD_H1} &ndash; {L_WPWIZARD_STEP}</h1>
@@ -818,7 +814,7 @@
 <!-- 		WIZARD PAGE 2							-->
 <!-- --------------------------------------------- 	-->
 	<script type="text/javascript">
-	<!--
+	// <![CDATA[
 	function rowState() {
 		if (enhanced) {
 			if (document.getElementById("integrateYes").checked == true) {
@@ -861,7 +857,7 @@
 		}
 	}	
 	
-	//-->
+	// ]]>
 	</script>
 	<img src="../wp-united/images/wp-united-logo.gif" alt="wp-united" style="float: right;"/>
 	<h1>{L_WPWIZARD_H1} &ndash; {L_WPWIZARD_STEP}</h1>
@@ -908,7 +904,7 @@
 <!-- 		WIZARD PAGE 3							-->
 <!-- --------------------------------------------- 	-->
 	<script type="text/javascript">
-	<!--
+	// <![CDATA[
 	
 	function rowState() {
 		if (enhanced) {
@@ -1002,7 +998,7 @@
 		}
 	}
 	
-	//-->
+	// ]]>
 	</script>
 
 
@@ -1108,7 +1104,7 @@
 	
 
 <script type="text/javascript">
-	<!--
+	// <![CDATA[
 	
 	function rowState() {
 		if (enhanced) {
@@ -1183,7 +1179,7 @@
 	//var enhanced = enhancePage();
 	//window.onload = rowState;	
 	
-	//-->
+	// ]]>
 	</script>
 
 
@@ -1496,7 +1492,7 @@
 <!-- 		USER MAPPING TOOL MAIN PAGE		-->
 <!-- --------------------------------------------- 	-->
 	<script type="text/javascript">
-	// <[CDATA[
+	// <![CDATA[
 		document.getElementsByClassName = function(clsName){
 			var retVal = new Array();
 			var elements = document.getElementsByTagName("*");
@@ -1702,8 +1698,7 @@
 	</form>
 	
 <!-- END switch_usermap_perform -->
-<!-- BEGIN switch_xml_response -->
-{L_WP_XML_DECL}
+<!-- BEGIN switch_xml_response -->{L_WP_XML_DECL}
 <wpdata testname="{L_WP_XML_TESTNAME}">
 	<!-- BEGIN xml_data -->
 		<{switch_xml_response.xml_data.WP_XML_TAGNAME}>{switch_xml_response.xml_data.WP_XML_TAGVALUE}</{switch_xml_response.xml_data.WP_XML_TAGNAME}>
