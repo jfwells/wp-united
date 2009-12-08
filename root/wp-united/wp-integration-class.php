@@ -35,7 +35,7 @@ if ( !defined('IN_PHPBB') ) exit;
 Class WPU_Integration {
  
 	
-	// The instructions we build in order to eecute WordPress
+	// The instructions we build in order to execute WordPress
 	var $wpRun;
 	
 	// This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated. 
@@ -266,7 +266,6 @@ Class WPU_Integration {
 		//Determine if WordPress will be running in the global scope -- in rare ocasions, such as in message_die, it won't be. 
 		// This is fine - even preferable, but many third-party plugins are not prepared for this and we must hold their hands
 		$this->wpu_compat = ( isset($GLOBALS['amIGlobal']) ) ? TRUE : FALSE;
-		
 		
 		//Override site cookie path if set in options.php
 		if ( (defined('WP_ROOT_COOKIE')) && (WP_ROOT_COOKIE) ) {
@@ -784,18 +783,19 @@ Class WPU_Integration {
 	
 	//Updates the Integration ID stored in phpBB profile
 	function update_int_ID($pID, $intID) {
-		global $db;
+		global $db, $wpuAbs, $cache;
+
 		//Do we need to update the integration ID?
-		if ( !empty($intID) ) {
+		if ( !empty($intID) ) { 
 			//Switch back to the phpBB DB:
 			$this->switch_db('TO_P');
 			$updated = FALSE;
-			if ( !empty($pID) ) {
+			if ( !empty($pID) ) { 
 				$sql = 'UPDATE ' . USERS_TABLE . " 
 					SET user_wpuint_id = $intID 
 					WHERE user_id = '$pID'";
-				if (!$result = $db->sql_query($sql)) {
-					$wpuAbs->err_msg(CRITICAL_ERROR, 'WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.', 'Database access error', __LINE__, __FILE__, $sql);
+				if(!$result = $db->sql_query($sql)) {
+					$wpuAbs->err_msg(CRITICAL_ERROR, $sql . ' WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.', 'Database access error', __LINE__, __FILE__, $sql);
 				} else {
 					$updated = TRUE;
 				}

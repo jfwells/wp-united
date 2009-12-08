@@ -18,7 +18,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.0RC1</mod-version>
+    <mod-version>0.8.0RC2</mod-version>
     <installation>
       <level>intermediate</level>
       <time>912</time>
@@ -59,6 +59,14 @@ Visit http://www.wp-united.com for more help or information.
         <action type="replace-with"></action>
         <comment lang="en-gb">Delete the lines you added for a previous version of WP-United.</comment>
       </edit>
+      <edit>
+        <find><![CDATA[
+	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->do_head($template);
+]]></find>
+        <action type="replace-with"></action>
+        <comment lang="en-gb">Delete the lines you added for a previous version of WP-United.</comment>
+      </edit>      
     </open>
     
     

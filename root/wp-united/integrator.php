@@ -70,6 +70,7 @@ $wpuCache = WPU_Cache::getInstance();
 // do this if we are being called from a function, but for convenience, we just do it anyway
 global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
+global $db, $config;
 $lDebug = '';
 
 // This is another way for WP-United or WordPress elements to test if they are running in the global scope.

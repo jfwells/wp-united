@@ -34,6 +34,7 @@ if ( !defined('IN_PHPBB') )
 class WPU_Actions {
 	function do_head(&$template) {
 		global $wpSettings, $phpbb_root_path, $phpEx;
+		
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 

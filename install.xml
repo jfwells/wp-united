@@ -83,19 +83,6 @@ Visit http://www.wp-united.com for more help or information.
 
 
 
-<open src="includes/functions.php">
-
-
-      <edit>
-        <find><![CDATA[	// Which timezone?
-	$tz = ($user->data['user_id'] != ANONYMOUS) ? strval(doubleval($user->data['user_timezone'])) : strval(doubleval($config['board_timezone']));
-]]></find>
-        <action type="after-add"><![CDATA[
-	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-	$GLOBALS['wpu_actions']->do_head($template);
-]]></action>
-      </edit>
-    </open>
     <open src="memberlist.php">
       <edit>
         <find>		if (!empty($profile_fields['row']))

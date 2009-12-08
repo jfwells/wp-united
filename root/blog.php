@@ -68,10 +68,10 @@ $phpEx = substr(strrchr(__FILE__, '.'), 1);
 if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 	include($phpbb_root_path . 'common.' . $phpEx);
 
-	require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);	
+	
 	
 	define('WPU_BLOG_PAGE', 1);
-
+	// abstractify is now called from phpBB hook
 	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 	$wpSettings = get_integration_settings();
 
