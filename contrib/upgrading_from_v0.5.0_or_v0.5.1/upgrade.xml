@@ -88,11 +88,12 @@ Visit http://www.wp-united.com for more help or information.
 	'ACP_WPU_PERMISSIONS'	=> 	'Administer permissions',		
 	'ACP_WPU_DONATE'	=> 	'Donate to WP-United',
 	'ACP_WPU_UNINSTALL'	=> 	'Uninstall WP-United',
-	'ACP_WPU_RESET'		=> 	'Reset WP-United',]]></action>
+	'ACP_WPU_RESET'		=> 	'Reset WP-United',]]>
+		</find>
       </edit>
       <action type="replace-with"></action>
         <comment lang="en-gb">Delete any lines you added for a previous version of WP-United.</comment>
-		</edit>    
+		   
     </open>
 
      <diy-instructions lang="en-gb"><![CDATA[	
@@ -131,7 +132,8 @@ If it still fails, please:
 (1) If you are getting blank pages, turn on PHP error reporting or look in your server log to find the underlying cause of the problem. We can't respond to any support requests referring to "blank pages" without accompanying error output.
 (2) Use "Debug Info To Post" function, located under the WP-United Admin Control Panel tab, to getrelevant debug information.
 
-Post this information, together with full details of any error, and what you did to generate the error, on http://www.wp-united.com , after performing a search for similar issues.
+Post this information, together with full details of any error, and what you did to generate the error, on http://www.wp-united.com , after performing a search for similar issues.
+
 ]]></diy-instructions>
   </action-group>
 </mod>
