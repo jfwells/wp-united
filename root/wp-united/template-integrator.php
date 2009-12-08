@@ -41,9 +41,9 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	
 	//Stop phpBB from exiting
 	define('PHPBB_EXIT_DISABLED', true);
-	
+
 	$wpuAbs->show_body('blog');
-	
+
 	$outerContent = ob_get_contents();
 	
 	ob_end_clean();
@@ -51,8 +51,7 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 
 // Now, $innerContent and $outerContent are populated. We can now modify them and interleave them as necessary
 // All template modifications take place in template-integrator.php
-
-
+	
 
 
 //$sizeUsed = (strlen($outerContent) + strlen($innerContent)) / 1024;
@@ -472,7 +471,7 @@ function wpu_output_page(&$content) {
 	
 		$memUsage = (function_exists('memory_get_peak_usage')) ? round(memory_get_peak_usage()/1024, 0) . "kB" : (function_exists('memory_get_usage')) ? round(memory_get_usage() / 1024, 0) . "kB" : "[Not supported on your server]";
 		$stats = "<p style='background-color: #999999;color: #ffffff !important;display: block;'><strong style='text-decoration: underline;'>WP-United Statistics </strong><br />Script Time: " . $pageLoad . "<br />Memory usage: " . $memUsage . "</p>";
-		$content = str_replace('</html>', $stats, $content);
+		$content = str_replace('</body>', $stats . '</body>', $content);
 	
 	}
 	
@@ -484,7 +483,9 @@ function wpu_output_page(&$content) {
 	
 	echo $content;
 	// Finally -- clean up
-	(empty($config['gzip_compress'])) ? @flush() : @ob_flush();
+	define('WPU_FINISHED', true);
+	garbage_collection();
+	exit_handler();
 }
 
 //
