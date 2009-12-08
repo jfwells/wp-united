@@ -104,7 +104,7 @@ $phpbb_username = $wpuAbs->phpbb_username();
 $phpbb_sid = $wpuAbs->phpbb_sid();
 
 // redirect to login if not logged in and blogs are private
-if ( (!$wpuAbs->user_logged_in()) && ($wpSettings['must_login'])  && (!defined('WPU_REVERSE_INTEGRATION')) ) {
+if ( (!$wpuAbs->user_logged_in()) && ($wpSettings['mustLogin'])  && (!defined('WPU_REVERSE_INTEGRATION')) ) {
    redirect($login_link, true);
 }
 
