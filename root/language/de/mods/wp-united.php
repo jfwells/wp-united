@@ -41,7 +41,31 @@ if (empty($lang) || !is_array($lang))
 // in a url you again do not need to specify an order e.g., 'Click %sHERE%s' is fine
 
 $lang = array_merge($lang, array(
-   'WP_DBErr_Gen'          =>   'Die Datenbanktabelle der WordPress-Integration konnte wurde nicht gefunden. Bitte stelle sicher, dass Du das mitgeliferte SQL-query beim installieren ausgeführt und das Mod über das Administrationsmenü korrekt konfiguriert hast.',
+
+	//Moved out from install.xml
+	'BLOG'         =>    'WordPress Blog',
+	'VISIT_BLOG'      =>   'Benutzer\'s Blog besuchen',
+	'ACP_WP_UNITED'    =>    'WP-United',
+	'ACP_WPU_MAINPAGE'   =>   'WP-United Administration',
+	'ACP_WPU_CATMAIN'   =>    'WP-United Admin',
+	'ACP_WPU_CATSETUP'   =>   'WP-United Einstellung',
+	'ACP_WPU_CATMANAGE'   =>   'Benutzer-Integration einstellen',
+	'ACP_WPU_CATSUPPORT'   =>   'WP-United unterstützen',
+	'ACP_WPU_CATOTHER'   =>   'Diverses',
+	'ACP_WPU_MAINTITLE'   =>   'Hauptseite',
+	'ACP_WPU_DETAILED'   =>   'Alle Einstellungen auf einer Seite',
+	'ACP_WPU_WIZARD'   =>    'Setup Wizard',
+	'ACP_WPU_USERMAP'   =>    'Benutzer mit WordPress synchronisieren',
+	'ACP_WPU_PERMISSIONS'   =>    'Berechtigungen einstellen',
+	'ACP_WPU_DONATE'   =>    'Spende an WP-United',
+	'ACP_WPU_UNINSTALL'   =>    'WP-United deinstallieren',
+	'ACP_WPU_RESET'      =>    'WP-United zurücksetzen',
+	'ACP_WPU_DEBUG'		=>	'Debug Info to Post',	
+	'WP_UNINSTALLED'    =>    'WP-United deinstalliert',
+	'WP_INSTALLED'       =>    'WP-United installiert',
+
+
+    'WP_DBErr_Gen'          =>   'Die Datenbanktabelle der WordPress-Integration konnte wurde nicht gefunden. Bitte stelle sicher, dass Du das mitgeliferte SQL-query beim installieren ausgeführt und das Mod über das Administrationsmenü korrekt konfiguriert hast.',
     'WP_No_Login_Details'    =>   'Fehler: Es konnte kein WordPress für Dich erstellt werden. Bitte wende Dich an einen Administrator.',
     'Function_Duplicate'    =>   'Der Name einer PHP-Funktion scheint doppelt vorhanden zu sein. Dies könnte unter anderem daran liegen, dass ein stark moddifiziertes Forum benutzt wird. Bitte melde diesen Fehler auf www.wp-united.com.',
     'WP_Not_Installed_Yet'    =>   'Das WP-United WordPress Integration Mod wurde nicht korrekt eingrichtet. Bitte benutze den Setup-Wizard. Diesen findest Du im Reiter "WP-United" im phpBB-Administrationsbereich.',

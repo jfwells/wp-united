@@ -41,7 +41,29 @@ if (empty($lang) || !is_array($lang))
 // in a url you again do not need to specify an order e.g., 'Click %sHERE%s' is fine
 
 $lang = array_merge($lang, array(
-	'Blog'                =>   'WordPress Blog',
+	// Moved out from istall.xml
+	'BLOG'         =>    'WordPress Blog',
+	'VISIT_BLOG'      =>   'Visitar el Blog del Usuario',
+	'ACP_WP_UNITED'    =>    'WP-United',
+	'ACP_WPU_MAINPAGE'   =>   'AdministraciÃ³n de WP-United',
+	'ACP_WPU_CATMAIN'   =>    'AdministraciÃ³n WP-United',
+	'ACP_WPU_CATSETUP'   =>   'Ajustar WP-United',
+	'ACP_WPU_CATMANAGE'   =>   'Administrar la integraciÃ³n de usuarios',
+	'ACP_WPU_CATSUPPORT'   =>   'Apoyar WP-United',
+	'ACP_WPU_CATOTHER'   =>   'Otro',
+	'ACP_WPU_MAINTITLE'   =>   'PÃ¡gina Principal',
+	'ACP_WPU_DETAILED'   =>   'Todos los ajustes en una pÃ¡gina',
+	'ACP_WPU_WIZARD'   =>    'Instalador',
+	'ACP_WPU_USERMAP'   =>    'Utilidad de IntegraciÃ³n de Usuarios',
+	'ACP_WPU_PERMISSIONS'   =>    'Administrar Permisos',      
+	'ACP_WPU_DONATE'   =>    'Donar a WP-United',
+	'ACP_WPU_UNINSTALL'   =>    'Desinstalar WP-United',
+	'ACP_WPU_RESET'      =>    'Reiniciar WP-United',
+	'ACP_WPU_DEBUG'		=>	'Debug Info to Post',	
+	'WP_UNINSTALLED' => 'Desinstalado WP-United',
+	'WP_INSTALLED' => 'Instalado WP-United',
+
+
 	'WP_DBErr_Gen'          =>   'No se ha podido acceder a la tabla de configuración de Wordpress en la base de datos. Por favor,asegurate de que usaste la consulta SQL incluida cuando instalaste el mod,y luego lo configuraste en el panel de administración.',
 	'WP_No_Login_Details'    =>   'Error: No se ha podido crear una cuenta de Wordpress para ti. Por favor,contacta al administrador.',
 	'WP_DTD'             =>   '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',

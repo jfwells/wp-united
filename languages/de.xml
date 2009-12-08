@@ -41,34 +41,5 @@
     <copy>
       <file from="/root/language/de/mods/wp-united.php" to="/language/de/mods/wp-united.php" />
     </copy>
-    <open src="language/en/common.php">
-      <edit>
-        <find><![CDATA[	'YOU_NO_NEW_PM'		=> 
-]]></find>
-        <action type="after-add"><![CDATA[
-	//WP-United
-	'BLOG'         =>    'WordPress Blog',
-	'VISIT_BLOG'      =>   'Benutzer\'s Blog besuchen',
-	'ACP_WP_UNITED'    =>    'WP-United',
-	'ACP_WPU_MAINPAGE'   =>   'WP-United Administration',
-	'ACP_WPU_CATMAIN'   =>    'WP-United Admin',
-	'ACP_WPU_CATSETUP'   =>   'WP-United Einstellung',
-	'ACP_WPU_CATMANAGE'   =>   'Benutzer-Integration einstellen',
-	'ACP_WPU_CATSUPPORT'   =>   'WP-United unterstützen',
-	'ACP_WPU_CATOTHER'   =>   'Diverses',
-	'ACP_WPU_MAINTITLE'   =>   'Hauptseite',
-	'ACP_WPU_DETAILED'   =>   'Alle Einstellungen auf einer Seite',
-	'ACP_WPU_WIZARD'   =>    'Setup Wizard',
-	'ACP_WPU_USERMAP'   =>    'Benutzer mit WordPress synchronisieren',
-	'ACP_WPU_PERMISSIONS'   =>    'Berechtigungen einstellen',
-	'ACP_WPU_DONATE'   =>    'Spende an WP-United',
-	'ACP_WPU_UNINSTALL'   =>    'WP-United deinstallieren',
-	'ACP_WPU_RESET'      =>    'WP-United zurücksetzen',
-	'ACP_WPU_DEBUG'		=>	'Debug Info to Post',	
-	'WP_UNINSTALLED'    =>    'WP-United deinstalliert',
-	'WP_INSTALLED'       =>    'WP-United installiert',
-]]></action>
-      </edit>
-    </open>
   </action-group>
 </mod>

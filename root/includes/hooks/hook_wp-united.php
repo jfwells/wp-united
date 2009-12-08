@@ -1,7 +1,6 @@
 <?php
-
+require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);	
 if(!defined('ADMIN_START')) {
-	require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);	
 	$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
 	$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
 	//$phpbb_hook->register('exit_handler', 'wpu_disable_phpbb_exit');

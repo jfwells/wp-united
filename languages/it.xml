@@ -42,34 +42,5 @@
       <file from="/root/language/it/mods/permissions_wp-united.php" to="/language/it/mods/permissions_wp-united.php" />
       <file from="/root/language/it/mods/admin_wp-united.php" to="/language/it/mods/admin_wp-united.php" />
     </copy>
-    <open src="language/it/common.php">
-      <edit>
-        <find><![CDATA[	'YOU_NO_NEW_PM'		=> 
-]]></find>
-        <action type="after-add"><![CDATA[
-	//WP-United
-	'BLOG'         =>    'WordPress Blog',
-	'VISIT_BLOG'      =>   'Visita il Blog dell\'Utente',
-	'ACP_WP_UNITED'    =>    'WP-United',
-	'ACP_WPU_MAINPAGE'   =>   'Amministrazione di WP-United',
-	'ACP_WPU_CATMAIN'   =>    'Amministratore WP-United',
-	'ACP_WPU_CATSETUP'   =>   'Configura WP-United',
-	'ACP_WPU_CATMANAGE'   =>   'Amministra l\'Integrazione degli Utenti',
-	'ACP_WPU_CATSUPPORT'   =>   'Aiuta WP-United',
-	'ACP_WPU_CATOTHER'   =>   'Altro',
-	'ACP_WPU_MAINTITLE'   =>   'Pagina Principale',
-	'ACP_WPU_DETAILED'   =>   'Impostazioni',
-	'ACP_WPU_WIZARD'   =>    'Installazione Guidata',
-	'ACP_WPU_USERMAP'   =>    'Tool per l\'Integrazione degli Utenti',
-	'ACP_WPU_PERMISSIONS'   =>    'Amministra i permessi',      
-	'ACP_WPU_DONATE'   =>    'Donare a WP-United',
-	'ACP_WPU_UNINSTALL'   =>    'Disinstalla WP-United',
-	'ACP_WPU_RESET'      =>    'Resetta WP-United',
-	'ACP_WPU_DEBUG'		=>	'Informazioni per il Debug',	
-	'WP_UNINSTALLED' => 'WP-United &egrave; stato disinstallato',
-	'WP_INSTALLED' => 'WP-United &egrave; stato installato',
-]]></action>
-      </edit>
-    </open>
   </action-group>
 </mod>

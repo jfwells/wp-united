@@ -68,7 +68,34 @@ Visit http://www.wp-united.com for more help or information.
         <comment lang="en-gb">Delete the lines you added for a previous version of WP-United.</comment>
       </edit>      
     </open>
-    
+        <open src="language/en/common.php">
+      <edit>
+        <find><![CDATA[//WP-United
+	'BLOG'			=> 	'WordPress Blog',
+	'VISIT_BLOG'		=>	'Visit User\'s Blog',
+	'ACP_WP_UNITED' 	=> 	'WP-United',
+	'ACP_WPU_MAINPAGE'	=>	'WP-United Administration',
+	'ACP_WPU_CATMAIN'	=> 	'WP-United Admin',
+	'ACP_WPU_CATSETUP'	=>	'Set Up WP-United',
+	'ACP_WPU_CATMANAGE'	=>	'Manage User Integration',
+	'ACP_WPU_CATSUPPORT'	=>	'Support WP-United',
+	'ACP_WPU_CATOTHER'	=>	'Other',
+	'ACP_WPU_MAINTITLE'	=>	'Main Page',
+	'ACP_WPU_DETAILED'	=>	'All Settings On A Page',
+	'ACP_WPU_WIZARD'	=> 	'Setup Wizard',
+	'ACP_WPU_USERMAP'	=> 	'User Integration Mapping Tool',
+	'ACP_WPU_PERMISSIONS'	=> 	'Administer permissions',		
+	'ACP_WPU_DONATE'	=> 	'Donate to WP-United',
+	'ACP_WPU_UNINSTALL'	=> 	'Uninstall WP-United',
+	'ACP_WPU_RESET'		=> 	'Reset WP-United',
+	'ACP_WPU_DEBUG'		=>	'Debug Info to Post',	
+	'WP_UNINSTALLED' 	=> 	'Uninstalled WP-United',
+	'WP_INSTALLED' 		=> 	'Installed WP-United',]]></action>
+      </edit>
+      <action type="replace-with"></action>
+        <comment lang="en-gb">Delete any lines you added for a previous version of WP-United.</comment>
+		</edit>    
+    </open>
     
     <open src="style.php">
       <edit>
