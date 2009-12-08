@@ -844,9 +844,9 @@ function wpu_newpost($post_ID, $post) {
 						}
 						if ( ((float) $wp_version) >= 2.3 ) {
 							 // Get tags for WP >= 2.3
-							 $tags = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
-							 if ($tags == "") {
-							    $tags = "No tags definied.";
+							 $tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
+							 if ($tag_list == "") {
+							    $tag_list = "No tags definied.";
 							 }
 						}      						
 						mysql_select_db($GLOBALS['dbname']);
