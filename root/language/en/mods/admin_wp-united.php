@@ -269,12 +269,7 @@ $lang = array_merge($lang, array(
 	'WPWiz_Private_Explain' => 'If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility',
 
 
-	//Wizard Step 5
-	'WP_Wizard_Connection_Title' => 'WP-United Connection',
-	'WP_Wizard_Connection_Title2' => 'Installing WP-United Connection...',
-	'WP_Wizard_Connection_Explain1' => 'The WP-United Connection is the bridge between WordPress and phpBB. It controls how WordPress behaves when it is integrated.',
-	'WP_Wizard_Connection_Explain2' => 'The Setup Wizard will now try to install the WP-United connection...',
-	'WP_Wizard_Connection_Success' => 'Success! The WP-United Connection has been installed.',
+	
 
 
 
@@ -475,9 +470,7 @@ $lang = array_merge($lang, array(
 	'WPWiz_phpBB_Smilies_Title' => 'Use phpBB smilies in Wordpress?',
 	'WPWiz_phpBB_Smilies_Explain' => 'Turn this option on if you want to use phpBB smilies in WordPress comments and posts.',	
 	
-	'WP_Wizard_Connection_Fail' => 'Error installing WP-United Connection!',
-	'WPWizard_Connection_Fail_Explain1' => 'The WP-United Connection could not be installed. This is probably due to one of the following being set incorrectly: (a) invalid path to WordPress, (b) invalid script path set for phpBB in board config. Please correct these and try again.',
-	'WPWizard_Connection_Fail_Explain2' => 'The file [phpbb]/wp-united/wpu-plugin.php could not be copied to your WordPress plugins folder. Please copy it there now, or make your WordPress plugins folder writeable. After copying, you should have a copy of wpu-plugin.php in [phpbb]/wp-united and in your WordPress plugins folder. When done, refresh this page or run the Wizard again.',
+
 	'WPU_Conn_InstallError' => 'ERROR: The WP-United Plugin was not found in your wordpress plugins folder. Please copy the file wp-united/wpu-plugin.php there now, and then try again!<br />',
 	'WPU_Cache_Unwritable' => 'WARNING: The folder [phpbb]/wp-united/cache is unwritable. For best performance, you should make this folder writable before proceeding',
 	'WPU_Install_Exists' => 'WARNING: The file wpu-install.php exists in your phpBB root folder. After running this file, you MUST delete it in order to continue.',
@@ -504,8 +497,29 @@ $lang = array_merge($lang, array(
 	'WPWiz_Template_Voodoo_Explain2' => 'It is recommend to start with this option turned on. However, in rare cases, it may break some JavaScript which relies on certain classnames or IDs being present. If you experience problems with page scripts, you can try turning this off.',
 	'WPWiz_Plugin_Fixes_Title' => 'Work around plugin errors?',
 	'WPWiz_Plugin_Fixes_Explain1' => 'A few WordPress plugins are not compatible with WP-United. If you turn this option on, WP-United will try to automatically detect and work around common problems with WordPress plugins.',
-	'WPWiz_Plugin_Fixes_Explain2' => 'You should leave this option OFF unless you are experiencing errors installing or runing WP-United. If you encounter such problems, and disabling your plugins makes the problems go away, then try re-enabling the offending plugins, and turning this option on.'
+	'WPWiz_Plugin_Fixes_Explain2' => 'You should leave this option OFF unless you are experiencing errors installing or runing WP-United. If you encounter such problems, and disabling your plugins makes the problems go away, then try re-enabling the offending plugins, and turning this option on.',
 	
+	//New in v0.8 -- not using WPUAbs Any more
+	'WPWIZ_COMMWINDOW' => 'Status',
+	'WPWIZ_COMMSTATUS' => 'Communicating with server...',
+	
+	//Wizard Step 5
+	'WPWIZ_S5_TITLE' => 'Applying Settings',
+	'WPWIZ_S5_TITLE2' => 'Installing WP-United',
+	'WPWIZ_S5_EXPLAIN1' => 'WP-United is now applying the integration settings.',
+	'WPWIZ_S5_EXPLAIN2' => 'Please wait...',
+	'WPWIZ_S5_SUCCESS' => 'Success! No errors were detected.',
+	'WPWIZ_S5_RETRY' => 'Retry',
+	
+	'WPWIZ_S5_FAIL' => 'ERROR! WP-United could not apply the integration settings',
+	'WPWIZ_SERVER_ERROR' => 'The server did not complete the request. It returned the following information: ',
+	'WPWIZ_SERVER_BLANK_PAGE' => 'The server did not complete the request. It returned a blank page. Please temporarily enable PHP error display so we can see what the error is, or try increasing your server\'s memory limit. Then, click Retry.',
+	'WPWizard_Connection_Fail_Explain1' => 'This is probably due to one of the following being set incorrectly: (a) invalid path to WordPress, (b) invalid script path set for phpBB in board config. Please correct these and try again.',
+	'WPWizard_Connection_Fail_Explain2' => 'The file [phpbb]/wp-united/wpu-plugin.php could not be copied to your WordPress plugins folder. Please copy it there now, or make your WordPress plugins folder writeable. After copying, you should have a copy of wpu-plugin.php in [phpbb]/wp-united and in your WordPress plugins folder. When done, click Retry.',
+	
+	//ACP general
+	'WPU_DATABASE_SAVE_ERR' => 'The settings could not be saved in the database.',
+	'WPWIZ_DB_ERR_CONN_OK' => 'WP-United installed successfully, but the settings could not be saved in the database. Please check your install and try again.'
 
 ));
 

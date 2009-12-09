@@ -125,7 +125,7 @@ class acp_wp_united {
 				$this->step4_show('BACK');
 				break;
 			case "5":
-				$this->step5_show();
+				$this->step5_show_frontend();
 				break;
 			default:
 				$this->step1_show();
@@ -142,6 +142,10 @@ class acp_wp_united {
 			case "pathAjax": 
 				// Figure out the path to WordPress and return AJAX-style
 				$this->findPath(TRUE);
+				break;
+			case "connAjax":
+				// Enable asynchronous enabling of WP-United Connection
+				$this->step5_backend();
 				break;
 			case $wpuAbs->lang('WP_URI_Test'):
 				// Test supplied URI and return data normally, since AJAX is unavailable
@@ -1620,7 +1624,7 @@ class acp_wp_united {
 		} else {
 			//Login is not integrated, we can skip past this wizard page.
 			if ( $dir == 'FWD' ) {
-				$this->step5_show();
+				$this->step5_show_frontend();
 			} else {
 				$this->step3_show();
 			}
@@ -1631,79 +1635,71 @@ class acp_wp_united {
 	//	STEP 5 -- WP-UNITED CONNECTION
 	//	-----------------------------------------------
 	//	Auto-installs a plugin to WordPress that handles elements of the integration from the WP side transparently.
-	//	Tthis (invidible) plugin, AKA the "WP-United Connection", resides in our phpBB fileset - so users don't have to install anything.
+	//	This (invisible) plugin, AKA the "WP-United Connection", resides in our phpBB fileset - so users don't have to install anything.
 	//
-	function step5_show() {
+	function step5_show_frontend() {
 		global $wpuAbs, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
 		
 		$this->tpl_name = 'acp_wp_united';		
 		$this->page_title =$wpuAbs->lang('WP_Wizard_H1');
 		
-		//Read settings from db and make global
-		global $wpSettings, $wpu_debug;
-		$wpu_debug = '';
-		$wpSettings = get_integration_settings();
-
-		$connError = $this->install_wpuConnection();
-		
-		
 		// pass strings
 		$passVars = array(	
+			'L_WP_NO_ADV_JS'  => $wpuAbs->lang('WP_No_JavaScript'),
 			'L_WPWIZARD_H1' => $wpuAbs->lang('WP_Wizard_H1'),
 			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 5, $numWizardSteps),
-			'L_WPWIZARD_CONNECTION_TITLE' => $wpuAbs->lang('WP_Wizard_Connection_Title'),
-			'L_WPWIZARD_CONNECTION_TITLE2' => $wpuAbs->lang('WP_Wizard_Connection_Title2'),
-			'L_WPWIZARD_CONNECTION_EXPLAIN1' => $wpuAbs->lang('WP_Wizard_Connection_Explain1'),
-			'L_WPWIZARD_CONNECTION_EXPLAIN2' => $wpuAbs->lang('WP_Wizard_Connection_Explain2'),
+			'S_WPAJAX_ACTION' => str_replace ('&amp;', '&', $uri),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
-			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 4)
+			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 4),
+			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 6)
 		);
 
 		// set the page section to show
 		$passBlockVars = array(
 			'switch_wizard_page5' => array(),
 		);
-
 		
-		
-		// Show result
-		if ( empty($connError) ) {
-			$passBlockVars['switch_wizard_page5.switch_wpuconn_success'] = array(
-				'WP_CONN_SUCCESS' => $wpuAbs->lang('WP_Wizard_Connection_Success')
-			);
-
-			//THIS MARKS THE END OF THE WIZARD. Allow access to application.
-			$data['installLevel'] = 10;
-			
-			//set the version to the db at this stage
-			$data['wpuVersion'] = $wpuAbs->lang('WPU_Default_Version');
-
-			
-			//Save the fact that we've finished the Wizard to the DB
-			if ( !(set_integration_settings($data)) ) {
-				$wizShowError = TRUE;
-				$wizErrorMsg .= "The settings could not be saved in the database. ";
-				$passBlockVars['switch_wizard_page5.switch_wp_error'] = array(
-					'WP_ERROR_MSG' => $wizErrorMsg
-				);
-			} 
-		} else {
-			$passBlockVars['switch_wizard_page5.switch_wpuconn_fail'] = array(
-				'WP_CONN_FAIL' => $wpuAbs->lang('WP_Wizard_Connection_Fail'),
-				'WP_CONN_DEBUG' => $wpu_debug
-			);
-		}
-		// Hide the Next button if we have an error
-		if ( (empty($connError)) && (empty($wizErrorMsg)) ) {
-			$passBlockVars['switch_wizard_page5.switch_show_next'] = array(
-				'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 6)
-			);
-		}
 		
 		//show the page
 		$this->showPage($passVars, $passBlockVars);
 	}
+	
+	function step5_backend() {
+		//Read settings from db and make global
+		global $wpuAbs, $wpSettings, $wpu_debug;
+		$wpu_debug = '';
+		$wpSettings = get_integration_settings();
 
+		$connError = $this->install_wpuConnection();
+		
+		$xmlData['info'] = ' ';
+
+		if (empty($connError)) {
+			$data['installLevel'] = 10;
+			//set the version to the db at this stage
+			$data['wpuVersion'] = $wpuAbs->lang('WPU_Default_Version');
+			if ( !(set_integration_settings($data)) ) {
+				$xmlData['result'] = "NOSAVE";
+				$xmlData['message'] = $wpuAbs->lang('WPWIZ_DB_ERR_CONN_OK');
+			} else {
+				$xmlData['result'] = "OK";
+				$xmlData['message'] = $wpuAbs->lang('WP-United Installed Successfully');
+			}
+		} else {
+				$xmlData['result'] = "FAIL";
+				$xmlData['message'] = "<![CDATA[$wpu_debug]]>";
+		}
+		
+		$this->send_ajax($xmlData, 'installconn');
+		
+	}
+	
+	function step5_errorhandler() {
+	
+	}
+		
+		
+		
 		
 	//
 	//	STEP 6 -- FINISH PAGE
@@ -2061,7 +2057,7 @@ class acp_wp_united {
 			$wizErrorMsg .= "Your settings were not saved.";
 			$this->step4_show('FWD');
 		} else {
-			$this->step5_show();
+			$this->step5_show_frontend();
 		}
 	} 
 
@@ -3168,7 +3164,7 @@ class acp_wp_united {
 		
 				
 			}
-			
+
 			if(!$copySuccess) { 
 				// CORRECT WPU-PLUGIN IS NOT IN PLUGIN DIRECTORY -- FAIL
 				
