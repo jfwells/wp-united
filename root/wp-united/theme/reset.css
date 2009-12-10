@@ -1,4 +1,4 @@
-#wpucssmagic, #wpucssmagic * {height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static;}
+#wpucssmagic, #wpucssmagic * {height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static; line-height: normal;}
 #wpucssmagic {font-size: 16px;  color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
 .wpucssmagic {text-align: inherit;}
 .wpucssmagic * {color: inherit;}
