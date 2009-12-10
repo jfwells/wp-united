@@ -837,4 +837,165 @@ function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankB
 	}
 }
 
+//NEW IN v0.8
+// FULL CROSS-POSTING FUNCTIONS --- BY JAPGALAXY
+	
+//
+//	WPU_TOPIC_XPOSTED
+//	-------------------------------------------
+//	Get the topic id of a cross-posted post.
+//
+function wpu_topic_xposted() {
+global $post;
+$post_ID = $post->ID;
+
+		if ( !empty($post_ID) ) {
+			global $db;
+			$sql = 'SELECT p.topic_id FROM ' . POSTS_TABLE . ' AS p WHERE ' . "p.post_wpu_xpost = '$post_ID'";
+			
+			if ($result = $db->sql_query_limit($sql, 1)) {
+				$row = $db->sql_fetchrow($result);
+				$db->sql_freeresult($result);
+				if  (!empty($row) ) {
+					return $row['topic_id'];
+				}
+			}
+				
+		}
+}
+
+
+//
+//	WPU_COMMENT_NUMBER
+//	-------------------------------------------
+//	Return number of comments reply of a cross-posted post.
+//
+function wpu_comment_number () {
+	//get the Topic_ID corrispondent of Wordpress post
+	$topic_ID = wpu_topic_xposted();
+
+		if ( !empty($topic_ID) ) {
+		//if a Topic_ID exists get the number of replies:
+			global $db;
+			$sql = 'SELECT t.topic_replies as number FROM ' . TOPICS_TABLE . ' AS t WHERE ' . "t.topic_id = $topic_ID";
+			
+			if ($result = $db->sql_query($sql)) {
+				$row = $db->sql_fetchrow($result);
+				$comment_count = $row['number'];
+				if ($comment_count==0) {
+					echo "<a href=\"".get_permalink()."#reply\" title=\" ".get_the_title()." \">".__('No Comments', '')."</a>";
+				} else if ($comment_count==1) {
+					echo "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".__('1 Comment', '')."</a>";
+				} else if ($comment_count>=2) {
+					echo "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".$comment_count." Comments</a>";
+				}
+			}
+		} else {
+			//default wordpress function:
+			comments_popup_link(__('No Comments', ''), __('1 Comment', ''), __('% Comments', ''), '', __('Comments Closed', '') );
+		}
+}
+
+//
+//	WPU_REPLY_XPOSTED
+//	-------------------------------------------
+//	Return replies of a cross-posted post and a comment-form if user is logged in.
+//
+function wpu_reply_xposted() {
+global $post;
+
+	$post_ID = $post->ID;
+	//get the Topic_ID corrispondent of Wordpress post
+	$topic_ID = wpu_topic_xposted($post_ID);
+	
+		if ( !empty($topic_ID) ) {
+		//if a Topic_ID exists get all posts' topic:
+			global $scriptPath, $db;
+			$sql = 'SELECT p.topic_id, p.bbcode_uid, p.bbcode_bitfield, p.forum_id, p.post_id, p.poster_id, u.username, p.post_text, p.post_time FROM ' . POSTS_TABLE . ' AS p, ' . USERS_TABLE . ' AS u WHERE ' . "p.topic_id = $topic_ID AND p.poster_id = u.user_id ORDER BY post_time ASC";
+
+			if ($result = $db->sql_query($sql)) {
+				$comment_count = mysql_num_rows($result);
+				//removing the first post (it isn't a reply)...
+				$real_comments = $comment_count-1;
+				if ($real_comments == 0) {
+					echo '<p id="reply">There aren\'t comments. Post the first one!</p>';
+				} else {
+					echo '<p id="reply">There are '.$real_comments.' comments</p>';
+				}
+			echo '<ul class="wpu_commentlist" id="comments">';
+			$i = 0;
+				while ($row = $db->sql_fetchrow($result)){
+					//set value for comment form
+					$link = $scriptPath."/posting.php?mode=reply&f=".$row['forum_id']."&t=".$row['topic_id']."";
+					$hiddenvalue = '<input type="hidden" value="'.$row['topic_id'].'" name="topic_id"/><input type="hidden" value="'.$row['forum_id'].'" name="forum_id"/>';
+
+					if ($real_comments >= 1 && $i > 0) {
+					echo "<li>";
+						//Userdata
+						echo "<div class=\"wpu_comment_info\">
+							<div class=\"wpu_avatar_comment\">".get_avatar($row['poster_id'])."</div>
+							<a href=\"".$scriptPath."/memberlist.php?mode=viewprofile&u=".$row['poster_id']." \" />".$row['username']."</a><br/>
+							Posted at: ".date("d/m/Y, H:i",$row['post_time']).":</div>";	
+						//building comment_text:
+						echo '<div style="clear: both;"></div>';
+						$uid = $row['bbcode_uid'];
+						$bitfield = $row['bbcode_bitfield'];
+						$row['post_text'] = wpu_censor($row['post_text']);  //IT WORKS!!! ;-)
+						$row['post_text'] = generate_text_for_display($row['post_text'], $uid, $bitfield, 1);  //IT WORKS!!! ;-)
+						$row['post_text'] = wpu_smilies($row['post_text'], $max = 0);  //IT DOESN'T WORK! WHY?? O_o
+						
+						echo "<div class=\"wpu_comment_text\">".$row['post_text']."</div>";
+						echo '<div class="wpu_action">';
+							echo '<a class="wpu_quote" href="'.$scriptPath.'/posting.php?mode=quote&f='.$row['forum_id'].'&p='.$row['post_id'].'" />Quote</a> ';
+							echo '<a class="wpu_report" href="'.$scriptPath.'/report.php?f='.$row['forum_id'].'&p='.$row['post_id'].'" />Report</a>';
+						echo '</div>';
+					echo "</li>";
+					
+					} //end if
+					$i++;
+				} //end while
+			echo '</ul>';
+					echo '<div class="wpu_reply"><a href="'.$link.'"/>Reply</a></div>';
+				$db->sql_freeresult($result);
+				
+				//get max post_id (for comment form topic_cur_post_id value)
+				$sql = 'SELECT MAX(post_id) AS max FROM ' . POSTS_TABLE;
+				if ($result = $db->sql_query($sql)) {
+					$row = $db->sql_fetchrow($result);
+					$phpbb_cur_post_id = $row['max']+1;
+				}
+				$db->sql_freeresult($result);
+				//-----get max post_id
+				
+				//check if user is logged in
+				$usrName = get_wpu_phpbb_username();
+
+				if ( $usrName == 'Guest' ) {
+					echo 'You must be logged in to comment.';
+				} else {
+				//user is logged, show comment form:
+				//form begin
+					echo '<form action="'.$link.'" method="post">
+					<input type="hidden" id="submit" value="Re: '.get_the_title().'" name="subject"/>
+					<textarea class="inputbox" tabindex="3" cols="76" rows="7" name="message" style="height: 9em;"></textarea>
+					
+					<input type="hidden" value="'.time().'" name="creation_time"/>
+					<input type="hidden" value="'.$token.'" name="form_token"/>
+					<input type="hidden" value="'.$phpbb_cur_post_id.'" name="topic_cur_post_id"/>
+					<input type="hidden" value="'.time().'" name="lastclick"/>
+					'.$hiddenvalue.'
+					<input type="hidden" value="1" name="attach_sig"/>
+					<input class="button1" type="submit" value="Submit" name="post" tabindex="6" accesskey="s"/>
+					<input class="button2" type="submit" value="Preview" name="full_editor" tabindex="6" accesskey="f"/>
+					</form>';
+				//form end
+				}
+			}
+		
+	} else {
+		//return default wordpress comments:
+		echo '<ol class="commentlist">'.wp_list_comments().'</ol>';
+	}
+}
+
 ?>
