@@ -800,7 +800,7 @@
 		</fieldset>
 		<input type="hidden" name="mode" value="wizard" />
 		<input type="submit" name="Next" value="{L_WPNEXT}" style="float: right;" class="button1" />	
-		<input type="submit" name="Back" value="{L_WPBACK}" style="float: right;" class="button2" />
+		<input type="submit" name="Back" value="{L_WPBACKSTART}" style="float: right;" class="button2" />
 	</form>
 <!-- END switch_wizard_page1b -->
 <!-- BEGIN switch_wizard_page2 -->
@@ -1566,7 +1566,7 @@
 	</script>
 		
 	<dl class="codebox">
-		<dt>{INFO_TO_POST} <a href="#" onclick="selectCode(this); return false;">({L_SELECT_ALL_CODE}):</a></dt>
+		<dt>{L_INFO_TO_POST} <a href="#" onclick="selectCode(this); return false;">({L_SELECT_ALL_CODE}):</a></dt>
 		<dd><br /><code>{DEBUG_INFO}<code><br /></dd>
 	</dl>
 
@@ -1774,7 +1774,7 @@
 		<br /><p>{L_MAP_ACT_CLOSEPARA}</p>	
 		<!-- BEGIN switch_doactions -->
 			<input type="hidden" name="numrows" value="{switch_usermap_process.switch_doactions.NUM_ROWS}" />
-			<input style="float: right;" type="submit" name="mapaction" class="button1" value="{switch_usermap_process.switch_doactions.L_PROCESS_ACTIONS}" />
+			<input style="float: right;" type="submit" name="mapaction" class="button1" value="{L_PROCESS_ACTIONS}" />
 		<!-- END switch_doactions -->
 	</form>	
 
