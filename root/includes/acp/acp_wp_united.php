@@ -692,7 +692,7 @@ class acp_wp_united {
 		// pass strings
 		$passVars = array(	
 			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 5, $numWizardSteps),
-			'S_WPAJAX_ACTION' => str_replace ('&amp;', '&', $uri),
+			'S_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 4),
 			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 6)

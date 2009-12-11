@@ -1296,7 +1296,7 @@
 				document.getElementById("commstatus").innerHTML = '{LA_WPWIZ_COMMSTATUS}';
 				document.getElementById("retr").style.display = "none";
 				document.getElementById("spinner").style.display = "block";
-				serverRequest.open("POST", '{S_WPAJAX_ACTION}', true);
+				serverRequest.open("POST", '{S_WPAJAX_ACTION}', true); 
 				// set data return event handler
 				serverRequest.onreadystatechange = stateChange;
 				serverRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -1321,7 +1321,9 @@
 					}
 					document.getElementById("retr").style.display = "block";
 				} else {
-						var res = respXML.getElementsByTagName('result').item(0).firstChild.data;
+						try {
+							var res = respXML.getElementsByTagName('result').item(0).firstChild.data;
+						} catch(e) {}
 						var mesg = respXML.getElementsByTagName('message').item(0).firstChild.data;
 						if(res=="OK") {
 							cs.innerHTML = "<span style=\"display: block; color: green;\">{LA_WPWIZ_S5_SUCCESS}<br /></span>";
