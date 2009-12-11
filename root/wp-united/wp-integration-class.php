@@ -8,6 +8,7 @@
 * @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @author John Wells
 *
 */
 
@@ -21,27 +22,32 @@
 // Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //
-/***************************************************************************
-		WORDPRESS INTEGRATION CLASS
-		-------------------------------------------------
-		
-	This class provides access to WordPress.
-	
 
-******************************************************************************/
 
 if ( !defined('IN_PHPBB') ) exit;
 
+/**
+ * This class provides access to WordPress
+ * It should be accessed as a singleton, and made global
+ * It calculates and caches code pathways to invoke WordPress, which can then be evaluated in the global scope
+ * 
+ * It also handles modifying WordPress as necessary in order to integrate it.
+ * @package WP-United Core Integration
+ */
 Class WPU_Integration {
  
 	
 	// The instructions we build in order to execute WordPress
 	var $wpRun;
 	
-	// This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated. 
+	/**
+	 * This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated. 
+	 */
 	var $phpbbVarsToUnset = array('table_prefix', 'userdata', 'search', 'error', 'author');
 	
-	//More vars that phpBB or MODS could use, that MUST be unset before WP runs
+	/**
+	 * More vars that phpBB or MODS could use, that MUST be unset before WP runs
+	 */
 	var $moreVarsToUnset = array('m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search',
 		'exact', 'sentence', 'debug', 'calendar', 'page', 'paged', 'more', 'tb', 'pb', 
 		'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second',
@@ -49,8 +55,10 @@ Class WPU_Integration {
 		'comments_popup', 'attachment', 'attachment_id', 'subpost', 'subpost_id', 'preview', 'robots');
 		
 	
-	// A list of vars that we *know* WordPress will want in the global scope. 
-	// These are ONLY needed on pages where WP is called from within a function -- which is only on message_die pages. On such pages, most of these won't be needed anyway
+	/** 
+	 * A list of vars that we *know* WordPress will want in the global scope. 
+	 * These are ONLY needed on pages where WP is called from within a function -- which is only on message_die pages. On such pages, most of these won't be needed anyway
+	 */
 	var $globalVarNames = array(
 		// basic
 		'wpdb', 
@@ -111,7 +119,9 @@ Class WPU_Integration {
 		// you could add your own here
 	);
 	
-	//these are set as references to objects in the global scope
+	/**
+	 * these are set as references to objects in the global scope
+	 */
 	var $globalRefs = array( 
 		'wp', 
 		'wp_object_cache',
@@ -143,11 +153,10 @@ Class WPU_Integration {
 	var $debugBuffer;
 	var $debugBufferFull;
 	
-	//
-	//	GET INSTANCE
-	//	----------------------
-	//	Makes class a Singleton.
-	//	
+	/*
+	 * This class MUST be called as a singleton using this method
+	 * @param array $varsToSave An array of variable names that should be saved in their current state
+	 */
 	function getInstance ($varsToSave = FALSE ) {
 		static $instance;
 		if (!isset($instance)) {
@@ -156,13 +165,13 @@ Class WPU_Integration {
         	return $instance;
     	}
 
-
+	/**
+	 * Class constructor.
+	 * Takes a snapshot of phpBB variables at this point.
+	 * When we exit WordPress, these can be restored.
+	 */
 	function WPU_Integration($varsToSave) {
-	// 
-	// 	CLASS CONSTRUCTOR
-	//	------------------------------
-	//	Prepares the class for accessing WordPress.  Takes a snapshot of phpBB variables at this point. When we exit WordPress, these will be restored.
-	//	
+
 		//these are constants that ain't gonna change - we're going to need them in our class
 		$this->wpRun = '';
 		$this->phpbb_usr_data = $GLOBALS['userdata']; 
@@ -184,13 +193,10 @@ Class WPU_Integration {
 		$this->wpVersion = 0;
 	}
 	
-	
+	/**
+	 * Test connection to WordPress
+	 */
 	function can_connect_to_wp() {
-	// 
-	// 	"TEST  CONNECTION" TO WORDPRESS
-	//	-----------------------------------------------------
-	//	Easy Peasy
-	//	
 		$test = str_replace('http://', '', $this->wpu_settings['wpPath']); // urls sometimes return true on php 5.. this makes sure they don't.
 		if ( !file_exists( $test . 'wp-config.php') ) {
 			// Now wp-config can be moved one level up, so we try that as well:
@@ -203,11 +209,9 @@ Class WPU_Integration {
 		}
 	}
 	
-	//
-	// CORE CACHE READY ?
-	//	-----------------------------------------------------
-	//	pull code from cache if we can
-	//	
+	/**
+	 * Tests if the core cache is ready
+	 */
 	function core_cache_ready() {
 		global $wpuCache, $wpuAbs;
 	
@@ -223,21 +227,18 @@ Class WPU_Integration {
 		
 
 	
-	// 
-	// PREPARE
-	//	-----------------------------------------------------
-	//	Prepare code for execution
-	//	
+	/**
+	 * Prepares code for execution by adding it to the internal code store
+	 */
 	function prepare($wpCode) {
 		$this->wpRun .= $wpCode . "\n";
 	}
 	
 	
-	// 
-	// EXEC
-	//	-----------------------------------------------------
-	//	Execute prepared code
-	//		
+	/**
+	 * Returns the code to be executed.
+	 * eval() can be called directly on the returned string
+	 */	
 	function exec() {
 		
 		$code = $this->wpRun; 
@@ -246,13 +247,11 @@ Class WPU_Integration {
 		return $code;
 	}
 	
-	
+	/**
+	 * Loads up the WordPress install, to just before the point that the template would be shown
+	 */
 	function enter_wp_integration() {
-	// 
-	// 	LOAD UP WORDPRESS
-	//	------------------------------
-	//	Loads up the WordPress install, to just before the point that the template would be shown
-	//	
+
 		global $wpuCache;
 		//Tell phpBB that we're in WordPress. This controls the branching of the duplicate functions get_userdata and make_clickable
 		$GLOBALS['IN_WORDPRESS'] = 1;
@@ -368,9 +367,12 @@ Class WPU_Integration {
 		}
 		
 	}
-	//	MAKE_COMPATIBLE
-	// 	This is where we try to fix common compatibility problems in plugins
-	//	We return the result as a string for wp-settings to execute
+	/**
+	 * This is where we try to fix common compatibility problems in plugins
+	 * We return the result as a string for wp-settings to execute
+	 * This is a private function to be called internally only
+	 * @private
+	 */
 	function make_compatible($pluginLoc) {
 		global $pluginContent;
 		if(!empty($this->wpu_settings['pluginFixes'])) {
@@ -401,25 +403,23 @@ Class WPU_Integration {
 		}
 		return 'include_once("' . $pluginLoc . '");';
 	}
-	
+	/**
+	 * Prepares the code path wrapper for integrating logins
+	 */
 	function integrate_login() {
 		if ( !empty($this->wpu_settings['integrateLogin']) ) {
 			$this->prepare('$wpUtdInt->do_integrate_login();');
 		}
 	}
 	
+	/**
+	 * If we want to integrate login, this gets WordPress up to speed with the current user and their details. 
+	 * If the user doesn't exist, we create them.
+	 */
 	function do_integrate_login() {
-	// 
-	// 	INTEGRATE LOGIN
-	//	------------------------------
-	//	If we want to integrate login, this gets WordPress up to speed with the current user and their details. 
-	//	If the user doesn't exist, we create them.
-	//	
 		if ( !empty($this->wpu_settings['integrateLogin']) ) {
 			global $wpuAbs;
-			//do the integration
-			//----------------------
-			
+
 			$loggedInUser = '';
 			$newWpUser = '';
 			$phpbbRawUser = $wpuAbs->phpbb_username();
@@ -577,14 +577,16 @@ Class WPU_Integration {
 	} //end of the integration	
 	
 
-	// This handles logging in users into WordPresss -- It's a private function, designed to be called from
-	//do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
-
+	/**
+	 * Log users into WordPresss -- It's a private function, designed to be called from
+	 * do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
+	 */
 	function wpSignIn($wpUsr, $pass) { 
 
-		// This overrides authentication in wp_check_password() [wp-functions.php]
-		// This is OK to set here, as phpBB has already dealt with integration.
-		// DO NOT define this anywhere else, ever!
+		/* This overrides authentication in wp_check_password() [wp-functions.php]
+		 * This is OK to set here, as phpBB has already dealt with integration.
+		 * DO NOT define this anywhere else, ever!
+		 */
 		define('PASSWORD_ALREADY_HASHED', TRUE);	
 		
 		global $error;
@@ -604,12 +606,13 @@ Class WPU_Integration {
 		return false;
 	}
 	
+	/**
+	 * Generates the page.
+	 * Grabs the raw WordPress page and hands it back in $toVarName for processing.
+	 * Yes, this looks ugly, but it *must* be executed in the same scope as everything else... 
+	 * @param string $varName the name of the variable in the global scope to fill with the page contents.
+	*/
 	function get_wp_page($toVarName) {
-	// 
-	// 	GENERATE THE PAGE
-	//	------------------------------
-	//	Grabs the raw WordPress page and hands it back in $toVarName for processing.
-	//	Yes, this looks ugly, but it *must* be executed in the same scope as everything else... may move to include file to neaten things up.
 		$this->prepare('
 			require(\'' . $this->phpbb_root . 'wp-united/wpu-template-funcs.' . $this->phpEx . '\');
 			ob_start();
@@ -633,14 +636,12 @@ Class WPU_Integration {
 			ob_end_clean();'); 
 	}
 
-
+	/**
+	 * Used by usercp_register.php - changes the WP username.
+	 * @param string $oldName The old WordPress username
+	 * @param string $newName The new WordPress username
+	 */
 	function wp_change_username($oldName, $newName) {
-	// 
-	// 	CHANGE THE WP USERNAME
-	//	------------------------------
-	//	Used by usercp_register.php - changes the WP username.
-	//	No need to check for newly-created vars after this one
-	//	
 			// set the global vars we need
 			foreach ($this->globalVarsStore as $varName => $varValue) {
 				if ( !array_key_exists($varName, $this->globalRefs) ) {
@@ -668,17 +669,18 @@ Class WPU_Integration {
 		}
 	}
 	
+	/**
+	 * Code wrapper for logging out of WordPress]
+	 */
 	function wp_logout() {
 		$this->prepare('$wpUtdInt->do_wp_logout();');
 	}
 
+	/** 
+	 * 
+	 * Logs the current user out of WordPress
+	 */
 	function do_wp_logout() {
-	// 
-	// 	LOG OUT
-	//	------------------------------
-	//	used by login.php 
-	//	No need to check for newly-created vars after this one, or use any globals, it's all too simple.
-	
 		if($this->wpVersion >= 2.5) {
 			wp_logout();
 			unset($_COOKIE[AUTH_COOKIE]);
@@ -694,13 +696,12 @@ Class WPU_Integration {
 		unset($_COOKIE[PASS_COOKIE]);
 	
 	}
-
+	/**
+	 * Interated login debug -- adds to or displays the debugging information
+	 * @param string $add_to_debug The string to add
+	 * @param int $end_debug_now Make non-zero to close the debug block and make it ready for display
+	 */
 	function lDebug($add_to_debug, $end_debug_now = 0) {
-	// 
-	// 	LOGIN DEBUG
-	//	------------------------------
-	//	Integrated login debug display. 
-	//
 		if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
 			if ( empty($this->debugBuffer) ) {
 				$this->debugBuffer = '<!-- wpu-debug --><div style="border: 1px solid #8f1fff; background-color: #cc99ff; padding: 3px; margin: 6px; color: #ffff99;"><strong>DEBUG</strong><br />WP Version = ' . $GLOBALS['wp_version'] . '<br />';
@@ -718,12 +719,11 @@ Class WPU_Integration {
 	
 	}
 	
+	/**
+	 * Exits this class, and cleans up, restoring phpBB variable state
+	 */
 	function exit_wp_integration() {
-	// 
-	// 	EXIT WORDPRESS INTEGRATION
-	//	------------------------------
-	//	Exits the class, and restores the variable state to what has been stored when the class was instantiated.
-	//	
+
 		//Switch back to the phpBB DB:
 		$this->switch_db('TO_P');
 		
@@ -745,9 +745,13 @@ Class WPU_Integration {
 		$this->wpRun = '';
 	}
 	
+	/**
+	 * switch DB must be called *every time* whenever we want to switch between the WordPress and phpBB DB
+	 * We can't just acces $db and $wpdb without doing this first.
+	 * @param string $direction Set to 'TO_P' to switch to phpBB, or 'TO_W' to switch to WordPress.
+	 */
 	function switch_db ($direction = 'TO_P') {
 		//global $wpdb;
-		//switches the DB between WP & PHPBB as needed
 		//we originally used $wpdb->select here, but it doesn't seem to work in all circumstances
 		if ( ($this->wpLoaded) && (!$this->phpbb_db_name != DB_NAME) ) {
 			switch ( $direction ) {
@@ -762,7 +766,9 @@ Class WPU_Integration {
 		}
 	}
 	
-	// Fix common 'global assumption' in functions.php in templates that results in fatal error
+	/**
+	 *  Fixes common 'global assumption' in functions.php in templates that results in fatal error
+	 */
 	function fix_template_funcs() {
 		$return_exec = '';
 		if (!$this->wpu_compat) {
@@ -781,7 +787,9 @@ Class WPU_Integration {
 		}
 	}
 	
-	//Updates the Integration ID stored in phpBB profile
+	/**
+	 * Updates the Integration ID stored in phpBB profile
+	 */
 	function update_int_ID($pID, $intID) {
 		global $db, $wpuAbs, $cache;
 
@@ -808,6 +816,9 @@ Class WPU_Integration {
 		}
 	}	
 	
+	/**
+	 * Gets the logged-in user's level so we can arbitrate permissions
+	 */
 	function wpu_get_userlevel($phpbb_userdata) {
 
 		global $db, $wpuAbs;
@@ -818,125 +829,42 @@ Class WPU_Integration {
 			return FALSE;
 		}
 		
-		
-		if ( $wpuAbs->ver == 'PHPBB2' ) {
-			$debug = 'Group Memberships: ';
-			//Get phpBB user groups
-			$aGroups = '';
-			$this->switch_db('TO_P');
-			$sql = "SELECT group_id
-				FROM " . USER_GROUP_TABLE . "
-				WHERE user_id = " . $phpbb_userdata['user_id'] . "
-				AND user_pending <> " . TRUE;		
-			if(!$result = $db->sql_query($sql)) {
-				$wpuAbs->err_msg(GENERAL_ERROR, 'Error getting group information', '', __LINE__, __FILE__, $sql);
-			}
-			while ( $row = $db->sql_fetchrow($result) ) {
-				$debug .= '[Group ID='.$row['group_id'].']';
-				$aGroups[] = 'GID:'.$row['group_id'];
-			}
-			$this->switch_db('TO_W');
-		
-			//Add built-in phpBB perm level
-			switch ($phpbb_userdata['user_level']) {
-				case USER: //TODO: AND IS ACTIVE
-					$debug .= '[USER]';
-					$aGroups[] = 'PHPBB:[USER]';
-				break;
-				case MOD:
-					$debug .= '[MOD]';
-					$aGroups[] = 'PHPBB:[MOD]';
-				break;
-				case ADMIN:
-					$debug .= '[ADMIN]';
-					$aGroups[] = 'PHPBB:[ADMIN]';
-				break;
-				case ANONYMOUS:
-				default;
-					$debug .= '[NOT A USER!]';
-					$this->lDebug($debug);
-					return FALSE;
-			}	
-			$this->lDebug($debug);
-			
-			//Parse existing permissions list
-			$debug = "Parsing permissions list: "; $debug2 = '';
-			$listElements = array('<S:>', '<C:>', '<A:>', '<E:>', '</:>');
-			$listSubs = $listConts = $listAuthors = $listEditors = $listAdmins = ''; 
-			$levels = array('subscriber', 'contributor', 'author', 'editor', 'administrator');
-			for ($i=0;$i<5;$i++) {
-				$debug .= "$levels[$i](";
-				if ( strstr($this->wpu_settings['permList'], $listElements[$i]) ) {
-					$list = explode($listElements[$i], $this->wpu_settings['permList']);
-					if ( $i < 4 ) {
-						if ( strstr($this->wpu_settings['permList'], $listElements[$i+1]) ) {
-							$list = explode($listElements[$i+1], $list[1]);
-							$gpList = $list[0];
-						} else {
-							$gpList = $gpList[1];
-						}
-					} else {
-						$gpList = $list[1];
-					}
-					$gpList = explode('|', $gpList);
-					$countElements = 0;
-					foreach($gpList as $gp) {
-						trim($gp);
-						if ( !empty($gp) ) {
-							$countElements++;
-							$debug .= ($countElements > 1) ? ",$gp" : $gp;
-							if ( in_array($gp,$aGroups) ) {
-								$debug2 .= 'User member of group (' . $gp . '), user level increased to ' . $levels[$i] . '<br />';
-								$user_level = $levels[$i];
-							} 
-						}
-					}
-				}
-				$debug .= ')';
-			} 
-			$this->lDebug($debug);
-			$this->lDebug($debug2);
-		} else {
-			// Just grab phpBB3 permissions
-			global $auth, $user;
-			$auth->acl($user->data);
-			$debug = 'Checking permissions: ';
-			if ( $auth->acl_get('u_wpu_subscriber') ) {
-				$user_level = 'subscriber'; 
-				$debug .= '[' . $user_level . ']';
-			}
-			if ( $auth->acl_get('u_wpu_contributor') ) {
-				$user_level = 'contributor'; 
-				$debug .= '[' . $user_level . ']';
-			}
-			if ( $auth->acl_get('u_wpu_author') ) {
-				$user_level = 'author'; 
-				$debug .= '[' . $user_level . ']';
-			}
-			if ( $auth->acl_get('m_wpu_editor') ) {
-				$user_level = 'editor'; 
-				$debug .= '[' . $user_level . ']';
-			}
-			if ( $auth->acl_get('a_wpu_administrator') ) {
-				$user_level = 'administrator'; 
-				$debug .= '[' . $user_level . ']';
-			}			
-			$this->lDebug($debug);
-			$this->lDebug('User level set to: ' . $user_level);
-			
-		}	
+		global $auth, $user;
+		$auth->acl($user->data);
+		$debug = 'Checking permissions: ';
+		if ( $auth->acl_get('u_wpu_subscriber') ) {
+			$user_level = 'subscriber'; 
+			$debug .= '[' . $user_level . ']';
+		}
+		if ( $auth->acl_get('u_wpu_contributor') ) {
+			$user_level = 'contributor'; 
+			$debug .= '[' . $user_level . ']';
+		}
+		if ( $auth->acl_get('u_wpu_author') ) {
+			$user_level = 'author'; 
+			$debug .= '[' . $user_level . ']';
+		}
+		if ( $auth->acl_get('m_wpu_editor') ) {
+			$user_level = 'editor'; 
+			$debug .= '[' . $user_level . ']';
+		}
+		if ( $auth->acl_get('a_wpu_administrator') ) {
+			$user_level = 'administrator'; 
+			$debug .= '[' . $user_level . ']';
+		}			
+		$this->lDebug($debug);
+		$this->lDebug('User level set to: ' . $user_level);
+
 		return $user_level;
 	}
 	
 	
-		
+	/**
+	 * Arbitrates the user permissions between phpBB and WordPress. Called internally by integrate_login
+	 * @param int $ID WordPress ID
+	 * @param the required WordPress role
+	 */
 	function check_userlevels ($ID, $usrLevel) {
-	//
-	//	CHECK USER LEVELS
-	//	----------------------------
-	//	Arbitrates the user permissions between phpBB and WordPress. Called internally by integrate_login
-	//	
-	
 		global $userdata;
 		$user = new WP_User($ID);
 		$user->set_role($usrLevel);
@@ -945,15 +873,17 @@ Class WPU_Integration {
 		return $userdata;
 	}
 	
-	 function check_details_consistency($wpData, $pData) {	
-	//
-	//	CHECK DETAILS CONSISTENCY
-	//	-------------------------------------------
-	//	Arbitrates the user details - e-mail, password, website, aim, yim, between phpBB & WordPress -- called internally by integrate_login
-	//	Basically, just overwrites WP values with the current phpBB values.
-	//	We try to update these whenever they are changed, but that's not always the case, so for now we also do this on each access.
-	//	
-	global $wpuAbs;
+	/**
+	 * Arbitrates the user details - e-mail, password, website, aim, yim, between phpBB & WordPress -- called internally by integrate_login
+	 * Basically, just overwrites WP values with the current phpBB values.
+	 * We try to update these whenever they are changed, but that's not always the case, so for now we also do this on each access.
+	 *	@param mixed $wpData WordPress user data
+	 * @param mixed $pData phpBB user data
+	 * @return mixed array of fields to update
+	 */
+	function check_details_consistency($wpData, $pData) {	
+
+		global $wpuAbs;
 	
 		if ( !empty($wpData->ID) ) {
 			$wpMeta = get_usermeta($wpData->ID);

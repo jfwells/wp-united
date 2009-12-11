@@ -7,6 +7,7 @@
 * @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @author John Wells
 *
 */
 
@@ -27,6 +28,9 @@ if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) {
 	die('Hacking attempt!');
 }
 
+/**
+ * Wrapper function for initialising widgets
+ */
 function wpu_widgets_init() {
 
 	// Check for the required plugin functions. 
@@ -38,18 +42,16 @@ function wpu_widgets_init() {
 	// Aaaaand... the widgets begin.....	
 		
 		
-	/*******************************************************************************************
-	// 
-	//	READER INFO BLOCK
-	//	-----------------------------
-	//
-	//	Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
-	/*******************************************************************************************/
+	/**
+	 * Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
+	 */
 	function widget_wpu_login_user_info($args) {
-		// these switches should not be necessary, but users are reporting wp-admin errors, 
-		// which can be traced back to widgets. Our widgets are not intended to be run from wp-admin.
-		// Therefore we need to do is_admin() checking for each widget.
-		if(!is_admin()) { 
+		/**
+		 *  these is_admin() switches should not be necessary, but users are reporting wp-admin errors,
+		 * which can be traced back to widgets. Our widgets are not intended to be run from wp-admin.
+		 * Therefore we need to do is_admin() checking for each widget.
+		 */
+		 if(!is_admin()) { 
 			extract($args);
 			$options = get_option('widget_wpu_login_user_info');
 			$titleLoggedIn = $options['title_logged_in'];
@@ -70,7 +72,9 @@ function wpu_widgets_init() {
 		}
 	}
 
-	//The widget control pane:	
+	/**
+	 * Widget control pane
+	 */
 	function widget_wpu_login_user_info_control() {
 	
 		$options = get_option('widget_wpu_login_user_info');
@@ -127,14 +131,10 @@ function wpu_widgets_init() {
 	
 	
 	
-	/*******************************************************************************************
-	// 
-	//	LIST OF LATEST BLOGS
-	//	-----------------------------
-	//
-	//	Returns a lsit of blogs in order of most recently updated
-	/*******************************************************************************************/
-	
+	/**
+	 * List of latest blogs widget
+	 * Returns a lsit of blogs in order of most recently updated
+	 */
 	function widget_wpulatestblogs($args) {
 		if(!is_admin()) {		
 			extract($args);
@@ -155,7 +155,9 @@ function wpu_widgets_init() {
 		}
 	}
 	
-	//The widget control pane:	
+	/**
+	 * Widget control pane
+	 */
 	function widget_wpulatestblogs_control() {
 	
 		$options = get_option('widget_wpulatestblogs');
@@ -184,14 +186,10 @@ function wpu_widgets_init() {
 
 
 
-	/*******************************************************************************************
-	// 
-	//	LIST OF LATEST POSTS IN BLOGS
-	//	-----------------------------
-	//
-	//	Returns a lsit of recent posts, in the format XXXXX in YYYYYY. both XXXXX and YYYYYY are links.
-	/*******************************************************************************************/
-	
+	/**
+	 * List of latest blog posts widget
+	 * Returns a lsit of recent posts, in the format XXXXX in YYYYYY. both XXXXX and YYYYYY are links.
+	*/
 	function widget_wpulatestblogposts($args) {
 		if(!is_admin()) {		
 			extract($args);
@@ -212,7 +210,9 @@ function wpu_widgets_init() {
 		}
 	}
 	
-	//The widget control pane:	
+	/**
+	 * The widget control pane
+	 */
 	function widget_wpulatestblogposts_control() {
 	
 		$options = get_option('widget_wpulatestblogposts');
@@ -240,14 +240,10 @@ function wpu_widgets_init() {
 	
 
 
-	/*******************************************************************************************
-	// 
-	//	LATEST PHPBB TOPICS
-	//	-----------------------------
-	//
-	//	Returns a lsit of recent topics, in the format XXXXX posted by YYYYYY in ZZZZZZZ.
-	/*******************************************************************************************/
-	
+	/**
+	 * Latest phpBB topics widget
+	 * Returns a lsit of recent topics, in the format XXXXX posted by YYYYYY in ZZZZZZZ.
+	 */
 	function widget_wpulatestphpbbtopics($args) {
 		if(!is_admin()) {		
 			extract($args);
@@ -268,7 +264,9 @@ function wpu_widgets_init() {
 		}
 	}
 	
-	//The widget control pane:	
+	/** 
+	 * The widget control pane
+	 */
 	function widget_wpulatestphpbbtopics_control() {
 	
 		$options = get_option('widget_wpulatestphpbbtopics');
@@ -297,14 +295,10 @@ function wpu_widgets_init() {
 	
 	
 	
-	/*******************************************************************************************
-	// 
-	//	PHPBB FORUM STATISTICS
-	//	--------------------------------------
-	//
-	//	Returns a lsit of forum statistics
-	/*******************************************************************************************/
-	
+	/**
+	 * phpBB forum statistics widget
+	 * Returns a lsit of forum statistics
+	 */
 	function widget_wpustats($args) {
 		if(!is_admin()) {		
 			extract($args);
@@ -324,7 +318,9 @@ function wpu_widgets_init() {
 		}
 	}
 	
-	//The widget control pane:	
+	/**
+	 * The widget control pane
+	 */
 	function widget_wpustats_control() {
 	
 		$options = get_option('widget_wpustats');
@@ -350,11 +346,10 @@ function wpu_widgets_init() {
 	
 		
 
-	/*******************************************************************************************
-	//	PHPBB LATEST POSTS by Japgalaxy
-	//	--------------------------------------
-	/*******************************************************************************************/
-	
+	/**
+	 * phpBB latest posts
+	 * @author Japgalaxy
+	 */
 	function widget_wpulatestphpbbposts($args) {
 		if(!is_admin()) {
 			extract($args);
@@ -384,7 +379,9 @@ function wpu_widgets_init() {
 	}
 
 
-	//The widget control pane:	
+	/**
+	 * The widget control pane
+	 */
 	function widget_wpulatestphpbbposts_control() {
 	
 		$options = get_option('widget_wpulatestphpbbposts');
@@ -423,9 +420,10 @@ function wpu_widgets_init() {
 		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
 	}	
 
-	/************************************************************************************************************************************/
 	
-	//register our widgets
+	/**
+	 * The widgets are all registered here
+	 */
 	register_sidebar_widget(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info');
 	register_sidebar_widget(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs');
 	register_sidebar_widget(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts');
@@ -433,7 +431,9 @@ function wpu_widgets_init() {
 	register_sidebar_widget(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats');
 	register_sidebar_widget(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts');
 
-	// register our widget control panes, specifying size of pane
+	/**
+	 * Register all control panes
+	 */
 	register_widget_control(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info_control', 500, 180);
 	register_widget_control(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
 	register_widget_control(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
