@@ -1,21 +1,27 @@
 <?php
-
-/*
-
-Here we modify and integrate templates as necessary. When this file is called, we have the following:
-
--- WordPress only: WordPress is in $innerContent
--- phpBB-in-WordPress: WordPress is in $outerContent, $phpBB in in $innerContent
--- WordPress-in-phpBB: phpBB is in $outerContent, $phpBB is in $innerContent
-
-In addition:
--- $$wpContentVar always points to the WordPress content
--- $$phpBBContentVar always points to the phpBB content
-
+/** 
+*
+* WP-United Main Integration  -- template portion
+*
+* @package WP-United
+* @version $Id: integrator.php,v0.8.0 2009/12/20 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2009 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* 
+* Here we modify and integrate templates as necessary. When this file is called, we have the following:
+* WordPress only: WordPress is in $innerContent
+* phpBB-in-WordPress: WordPress is in $outerContent, $phpBB in in $innerContent
+* WordPress-in-phpBB: phpBB is in $outerContent, $phpBB is in $innerContent
+* 
+* In addition:
+* $$wpContentVar always points to the WordPress content
+* $$phpBBContentVar always points to the phpBB content
+* 
 */
 
-/*************************** Get phpBB header/footer *****************************************/
-
+/**
+ * Get phpBB header/footer
+ */
 if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REVERSE_INTEGRATION')) ) {
 
 	//export header styles to template - before or after phpBB's CSS depending on wpSettings.
@@ -49,10 +55,6 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	ob_end_clean();
 }
 
-// Now, $innerContent and $outerContent are populated. We can now modify them and interleave them as necessary
-// All template modifications take place in template-integrator.php
-	
-
 
 //$sizeUsed = (strlen($outerContent) + strlen($innerContent)) / 1024;
 
@@ -63,7 +65,9 @@ $copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2009
 $innerContent = $innerContent . $copy;
 
 
-/********* Clean up the WordPress body content as necessary *************************/
+/**
+ * Clean up the WordPress body content as necessary
+ */
 
 // Some trailing slashes are hard-coded into the WP templates. We don't want 'em.
 $$wpContentVar = str_replace(".$phpEx/?",  ".$phpEx?", $$wpContentVar);
@@ -78,21 +82,23 @@ if ( !empty($wpSettings['integrateLogin']) ) {
 	$$wpContentVar = str_replace("$siteurl/wp-login.php?action=logout", $scriptPath . $logout_link, $$wpContentVar);
 }
 
-// TODO: wpuNoHead here!!!
+/**
+ * @todo wpuNoHead for embedding in portals should be dealt with here
+ */
 
 
-/**********************************************************************
-		OUTPUT PLAIN WORDPRESS
-***********************************************************************/
-// Now, if this is a plain WordPress page, we can just output it
+/**
+ * Output WordPress -- If this is a plain WordPress page, we can just output it here.
+ */
 if ( !defined('WPU_REVERSE_INTEGRATION') && !($wpSettings['showHdrFtr'] == 'FWD') ) {
 	wpu_output_page($$wpContentVar);
 	unset($outerContent); unset($innerContent);
 }
 
 
-/******** Make modifications to $innerContent, and extract items for interleaving into $outerContent <head> *****/
-
+/** 
+ * Make modifications to $innerContent, and extract items for interleaving into $outerContent <head>
+ */
 if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') )  { // phpBB is inner:
 
 	//Get ltr, rtl & bgcolor, etc, from the body tag
@@ -132,20 +138,20 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
 // So, we generate the phpBB outer page if required, then we're all set.
 
 
-/************************ CSS MAGIC **********************************************/
-
-// Now we have our outer page in $outerContent, and our inner page in $innerContent.
-
-// We now identify all the stylesheets and redirect them to CSS Magic.
-// We don't parse them now, as style.php is used for phpBB styles.
-//
-// Once they have been parsed by CSS Magic, on subsequent run-throughs here, 
-// we can read CSS Magic's cache and look at the stylesheets for conflicting 
-// classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
-// to make additional changes to the CSS the next time around.
-
+/**
+ * CSS MAGIC
+ * 
+ * Now we have our outer page in $outerContent, and our inner page in $innerContent.
+ * 
+ * We now identify all the stylesheets and redirect them to CSS Magic.
+ * We don't parse them now, as style.php is used for phpBB styles.
+ * 
+ * Once they have been parsed by CSS Magic, on subsequent run-throughs here, 
+ * we can read CSS Magic's cache and look at the stylesheets for conflicting 
+ * classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
+ * to make additional changes to the CSS the next time around.
+ */
 if ($wpSettings['cssMagic']) {
-
 
 	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 
@@ -306,13 +312,6 @@ if ($wpSettings['cssMagic']) {
 		}
 	}
 	
-	
-	
-	
-	
-	
-	
-
 
 	//write out the modified stylesheet links
 	$innerHeadInfo = str_replace($innerSSLinks['links'], $innerSSLinks['replacements'], $innerHeadInfo);
@@ -320,8 +319,6 @@ if ($wpSettings['cssMagic']) {
 	
 
 }
-
-
 
 
 //Wrap $innerContent in CSS Magic, padding, etc.
@@ -353,12 +350,14 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
 	wpu_output_page($outerContent); unset($outerContent);
 }
 
-//
-//	PROCESS_HEAD
-//	--------------------------------
-//	Processes the page head, returns header info to be inserted into the WP or phpBB page head
-//	Removes thee had from the rest of the page, which must be passed by ref
-
+/*
+ * Processes the page head, returns header info to be inserted into the WP or phpBB page head.
+ * Removes thee had from the rest of the page.
+ * @param string $retWpInc The page content for modification, must be passed by reference.
+ * @param string $template The phpBB template object
+ * @param abstractify $wpuAbs The WP-United phpBB abstraction layer object.
+ * @return string the page <HEAD>
+ */
 function process_head(&$retWpInc) {
 	global $wpSettings, $template, $wpuAbs;
 	//Locate where the WordPress <body> begins, and snip of everything above and including the statement
@@ -401,12 +400,11 @@ function process_head(&$retWpInc) {
 	return $header_info;
 }
 
-//
-//	HEAD SNIP
-//	----------------
-//	snips content out of a given string, and inserts it into a second string that is returned. 
-//	Stuff to be found is passed in as an array of starting_token => ending_token.
-
+/**
+ * snips content out of a given string, and inserts it into a second string that is returned. 
+ * @param string $haystack the page to be modified -- or <head> -- or whatever -- to find items and snip them out. 
+ * @param array $findItems stuff to be found, provided as an array of starting_token => ending_token.
+ */
 function head_snip(&$haystack,$findItems) {
 	$wpHdrInfo = '';
 	foreach ( $findItems as $startToken => $endToken ) {
@@ -437,7 +435,10 @@ function head_snip(&$haystack,$findItems) {
 	return $wpHdrInfo;
 }
 
-
+/**
+ * Process the <body> section of the integrated page
+ * @param string $pageContent The page to be processed and modified. Must be passed by ref.
+ */
 function process_body(&$pageContent) {	
 	//Process the body section for integrated page
 
@@ -455,9 +456,11 @@ function process_body(&$pageContent) {
 // End of processing of integrated page. 
 }
 
+/**
+ * Does final clean-up of the integrated page, and sends it to the browser.
+ * @param string $content The fully integrated page.
+ */
 function wpu_output_page(&$content) {
-//optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
-// It is unnecessary for gzipped setups, and might be liable to kill some JS or CSS, so it is hidden in options.php
 
 	//Add title back
 	global $wpu_page_title;
@@ -475,6 +478,8 @@ function wpu_output_page(&$content) {
 	
 	}
 	
+	//optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
+	// It is unnecessary for gzipped setups, and might be liable to kill some JS or CSS, so it is hidden in options.php
 	if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) ) {
 		$search = array('/\>[^\S ]+/s',	'/[^\S ]+\</s','/(\s)+/s');
 		$replace = array('>', '<', '\\1');
@@ -488,9 +493,13 @@ function wpu_output_page(&$content) {
 	exit_handler();
 }
 
-//
-// Modify links in header to stylesheets to use CSS Magic instead
-//
+/**
+ * Modify links in header to stylesheets to use CSS Magic instead
+ * @param string $headerInfo The snipped head of the page (By reference)
+ * @param mixed $position Set to "inner" if we are processing HEAD of the application that is destined
+ * for the inner portion of the page (defaults to "outer")
+ * @return array an array of stylesheet links and modifications
+ */
 function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 	global $scriptPath, $wpSettings, $phpbb_root_path;
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
@@ -570,7 +579,11 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 	return array('links' => $links, 'replacements' => $repl, 'caches' => $cacheLinks);
 }
 
-// Extract inline CSS
+/**
+ * Extracts inline CSS from an HTML string
+ * @param $content the HTML string
+ * @return array of css blocks found
+ */
 function wpu_extract_css($content) {
 	$css = array('css' => array(), 'caches' => array(), 'orig' => array());
 	preg_match_all('/<style type=\"text\/css\">(.*?)<\/style>/', $content, $cssStr);

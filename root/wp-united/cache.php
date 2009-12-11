@@ -8,12 +8,17 @@
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
-
-
 */
 
 if ( !defined('IN_PHPBB') ) exit;
-
+/**
+*  The WP-Unted cache stores data for:
+* (a) the WordPress core execution cache; 
+* (b) the WordPress header and footer cache for when phpBB is inside WordPress (in 'simple' mode).
+* (c) Cached CSS for when CSS Magic is enabled
+* (d) Cached template Voodoo instructions
+* (e) Cached plugin modifications
+*/
 class WPU_Cache {
 
 	var $_useTemplateCache;
@@ -22,11 +27,9 @@ class WPU_Cache {
 	var $templateCacheLoc;
 
 
-	//
-	//	GET INSTANCE
-	//	----------------------
-	//	Makes class a Singleton.
-	//	
+	/**
+	 *  Makes class a singleton. Class must be invoked through this method
+	 */
 	function getInstance () {
 		static $instance;
 		if (!isset($instance)) {
@@ -46,11 +49,10 @@ class WPU_Cache {
     		$this->wpVersionLoc = $wpSettings['wpPath'] . "wp-includes/version.$phpEx";
     	}
     	
-	//
-	//	TEMPLATE CACHE ENABlED
-	//	----------------------
-	//	Returns whether the template cache should be used
-	//    	
+		/**
+		 * Determines if the template cache is active
+		 * Currently can be enabled/disabled in options.php
+		 */
     	function template_cache_enabled() {
     		if (defined('WPU_CACHE_ENABLED') && WPU_CACHE_ENABLED) {
     			return true;
@@ -58,11 +60,9 @@ class WPU_Cache {
     		return false;
     	}
     	
-	//
-	//	CORE CACHE ENABlED
-	//	----------------------
-	//	Returns whether the template cache should be used
-	//    	
+	/**
+	 * Determine whether the core cache can be used.	
+	 */
     	function core_cache_enabled() {
     		if (defined('WPU_CORE_CACHE_ENABLED') && WPU_CORE_CACHE_ENABLED) {
     			return true;
@@ -71,11 +71,9 @@ class WPU_Cache {
     	}    		
 
 
-	//
-	//	USE TEMPLATE CACHE
-	//	----------------------
-	//	Decides whether to use, or recreate the template cache
-	//
+	/**
+	 * Decides whether to use, or regenerate, the cache for WordPress template header and footers.
+	 */
 
 	function use_template_cache() {
 		if ( !defined('WPU_REVERSE_INTEGRATION') ) {
@@ -134,11 +132,12 @@ class WPU_Cache {
 
 	}
 	
-	//
-	//	USE CORE CACHE
-	//	----------------------
-	//	Decides whether to use, or recreate the core cache
-	//
+	/**
+	 * Decides whether to use the core cache, or whether it is stale and due for regeneration
+	 * @param string $wpuVer WP-United version number
+	 * @param string $wpVer WordPress version number
+	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
+	 */
 	function use_core_cache($wpuVer, $wpVer, $compat) {
 		global $latest;
 		
@@ -171,18 +170,15 @@ class WPU_Cache {
 				$this->_useCoreCache = "REFRESH";
 				return false;
 		}	
-				
-				
-		
-			
-	
+
 	}
 	
-	//
-	//	SAVE TO TEMPLATE CACHE
-	//	----------------------
-	//	Saves template header/footer to disk
-	//	
+	/**
+	 * Saves WordPress header/footer to disk
+	 * @param string $wpuVer WP-United version number
+	 * @param string $wpVer WordPress version number
+	 * @param string All WordPress portions of the page to save, with a delimiter set for where phpBB should be spliced in.
+	 */
 	function save_to_template_cache($wpuVer, $wpVer, $content) {
 		
 		if ( $this->template_cache_enabled() ) {
@@ -197,11 +193,12 @@ class WPU_Cache {
 
 	}
 	
-	//
-	//	SAVE TO CORE CACHE
-	//	----------------------
-	//	Saves WordPress core to disk
-	//	
+	/**
+	 * Saves WordPress core to disk
+	 * @param string $wpuVer WP-United version number
+	 * @param string $wpVer WordPress version number
+	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
+	 */
 	function save_to_core_cache($content, $wpuVer, $wpVer, $compat) {
 		
 		if ( $this->core_cache_enabled() ) {
@@ -217,11 +214,11 @@ class WPU_Cache {
 
 	}	
 
-	//
-	//	GET FROM TEMPLATE CACHE
-	//	----------------------
-	//	Retrieves header / footer from disk
-	//		
+	/**
+	 * Retrieves a WordPress header/footer frim disk, so we can perform a template integration
+	 * without having to invoke WordPress at all
+	 * use_template_cache() must have already been called to set up cache parameters
+	 */		
 	function get_from_template_cache() {
 		if ( $this->template_cache_enabled() && $this->_useTemplateCache) {
 			return file_get_contents($this->templateCacheLoc);
@@ -229,11 +226,12 @@ class WPU_Cache {
 	}
 
 
-	//
-	//	SAVE
-	//	----
-	// A general cache save function. Can be called publicly for cache types not defined here
-	//
+	/**
+	 * A general save function, intended as a private member, but can be called publicly for cache types
+	 * that are not yet defined
+	 * @param string $content The content to save
+	 * @param string $fileName The complete path and filename
+	 */
 	function save($content, $fileName) {
 			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 999999)) . '-temp';
 			$hTempFile = @fopen($fnTemp, 'w+');
@@ -242,6 +240,15 @@ class WPU_Cache {
 			@copy($fnTemp, $fileName);
 			@unlink($fnTemp); 
 			return true;
+	}
+	
+	/**
+	 * Purge the WP-United cache
+	 * Deletes all files from the wp-united/cache directory
+	 * @TODO: Implement
+	 */
+	function purge() {
+		
 	}
 	
 

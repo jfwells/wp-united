@@ -19,50 +19,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
 //
-//
-//	------------------------------
-// This experimental library attempts to magically fuse templates on the page
-// by modifying CSS specicifity on the fly
-//
-// Inspired by cssParser class. you are welcome to use this class in your own projects, provided this licence is kept intact.
-// John Wells, 2009
-// --------------------------------
-//
-/* USAGE NOTES
-	
-	// instantiate CSS Magic
-	$cssMagic = CSS_Magic::getInstance();
-	
-	// to read a css file. 
-	$success = $cssMagic->parseFile('path_to_file');
-	
-	// or read a css string
-	$cssMagic->clear(); // you can read multiple strings and files. They are combined together. To start anew, use this.
-	$success = $cssMagic->parseString($cssString);
-	
-	// $success will return 1 or true on success, or 0 or false on failure.
-	
-	//Now, make all the CSS we have read in apply only to children of a particular DIV with ID = $id
-	$cssMagic->makeSpecificById($id);
-	
-	// Or, we could use $cssMagic->makeSpecificByClass($class) 
-	// Or, both :-) $cssMagic->makeSpecificByIdThenClass($classAndId) 
-	
-	// Now get the modified CSS. The output is fairly nicely compressed too.
-	$fixedCSS = $cssMagic->getCSS();
-	
-	// alternatively, send the output straight to the browser as a CSS file
-	$cssMagic->sendCSS();
-	
-	// When you're finished,
-	$cssMagic->clear();
-	
-	// Note: CSS Magic doesn't try to validate the CSS coming in. If the inbound CSS in invalid or garbage, 
-	// you'll get garbage coming out -- perhaps even worse than before.
-	
-	// (c) John Wells, 2009
-	
-*/
+
 
 if ( !defined('IN_PHPBB') )
 {
@@ -70,17 +27,55 @@ if ( !defined('IN_PHPBB') )
 	exit;
 }
 
-
+/**
+ * This library attempts to magically fuse templates on the page
+ * by modifying CSS specicifity on the fly
+ * Inspired by cssParser class. you are welcome to use this class in your own projects, provided this licence is kept intact.
+ * This class should be useful for a wide range of template integration projects.
+ * @package CSS Magic
+ * @author John Wells
+ *
+ * USAGE NOTES:
+ * 
+ * instantiate CSS Magic:
+ * $cssMagic = CSS_Magic::getInstance();
+ * 
+ * To read a css file:
+ * $success = $cssMagic->parseFile('path_to_file');
+ * 
+ * Or read a css string:
+ * $cssMagic->clear(); // you can read multiple strings and files. They are combined together. To start anew, use this.
+ * $success = $cssMagic->parseString($cssString);
+ * $success will return 1 or true on success, or 0 or false on failure.
+ * 
+ * Now, make all the CSS we have read in apply only to children of a particular DIV with ID = $id
+ * $cssMagic->makeSpecificById($id);
+ * 
+ * Or, we could use $cssMagic->makeSpecificByClass($class) 
+ * Or, both :-) $cssMagic->makeSpecificByIdThenClass($classAndId) 
+ * 
+ * Now get the modified CSS. The output is fairly nicely compressed too.
+ * $fixedCSS = $cssMagic->getCSS();
+ * 
+ * Alternatively, send the output straight to the browser as a CSS file:
+ * $cssMagic->sendCSS();
+ * 
+ * When you're finished,
+ * $cssMagic->clear();
+ * 
+ * Note: CSS Magic doesn't try to validate the CSS coming in. If the inbound CSS in invalid or garbage, 
+ * you'll get garbage coming out -- perhaps even worse than before.
+ * 
+ * (c) John Wells, 2009
+*/
 class CSS_Magic {
 	var $css;
 	var $filename;
 	var $nestedItems;
 	
-	//
-	//	GET INSTANCE
-	//	----------------------
-	//	If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
-	//	
+	/**
+	 * If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
+	 */
 	function getInstance () {
 		static $instance;
 		if (!isset($instance)) {
@@ -89,27 +84,27 @@ class CSS_Magic {
         return $instance;
     }
 	
-	// 
-	// 	CLASS CONSTRUCTOR
-	//	------------------------------
-	//	
-	//	
+	/**
+	 * Class constructor
+	 */
 	function CSS_Magic() {
 		$this->clear();
 		$this->filename = '';
 		$this->nestedItems = array();
 	}
-	
+	/**
+	 * Private method to initialise or clear out internal representation
+	 */
 	function clear() {
 		$this->css = array();
 		$this->nestedItems = array();
 	}
 
-	// 
-	// 	PARSE STRING
-	//	------------------------------
-	//	Parses raw CSS, storing the keys and CSS code. We don't separate or process the keys, we don't need to.
-	//	
+	/**
+	 * Parses inbound CSS, storing it as an internal representation of keys and code
+	 * @param string $str A valid CSS string
+	 * @return The number of CSS keys stored
+	 */
 	function parseString($str) {
 		$Instr = $str;
 		// Remove comments
@@ -141,11 +136,11 @@ class CSS_Magic {
 		}
 		return (count($this->css) > 0);
 	}
-	// 
-	// 	PARSE FILE
-	//	------------------------------
-	//	Opens and parses the CSS file.
-	//	  
+	/**
+	 * Opens and parses a CSS file
+	 * @param string $filename The path and name of the file 
+	 * @param bool $clear Set to true to clear out the internal representation and start again. Leave false to add to what we already have.
+	 */
 	function parseFile($filename, $clear = false) {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
@@ -155,11 +150,9 @@ class CSS_Magic {
 			return false;
 		}
 	}
-	// 
-	// 	ADD SELECTOR
-	//	------------------------------
-	//	Stores a full CSS selector in our class. 
-	
+	/**
+	 * Add selector (private) -- adds a selector to the internal representation
+	 */
 	function addSelector($keys, $cssCode) {
 		$keys = trim($keys);
 		$cssCode = trim($cssCode);
@@ -171,17 +164,35 @@ class CSS_Magic {
 			$this->css[$keys] = $cssCode;
 
 	}
-	
+	/**
+	 * Makes the CSS more specific by applying an outer ID
+	 * @param string $id The DOM ID to use
+	 * @param bool $removeBody Whether the body tag should be ignored
+	 */
 	function makeSpecificById($id, $removeBody = false) {
 		$this->_makeSpecific("#{$id}", $removeBody);
 	}
+	/**
+	 * Makes the CSS more specific by applying an outer class name
+	 * @param string $class The document class to use
+	 * @param bool $removeBody Whether the body tag should be ignored
+	 */
 	function makeSpecificByClass($class, $removeBody = false) {
 		$this->_makeSpecific(".{$class}", $removeBody);
 	}
+	/**
+	 * Makes the CSS more specific by applying an outer ID and class
+	 * @param string $classAndIdThe string to prepend
+	 * @param bool $removeBody Whether the body tag should be ignored
+	 */
 	function makeSpecificByIdThenClass($classAndId, $removeBody = false) {
 		$this->_makeSpecific("#{$classAndId} .{$classAndId}", $removeBody);
 	}
-	
+	/**
+	 * Applies a prefix (e.g. "wpu") to specific IDs
+	 * @param string prefix the prefix to apply
+	 * @param bool $IDs an array of IDs to modify
+	 */
 	function renameIds($prefix, $IDs) {
 		$fixed = array();
 		$searchStrings = array();
@@ -200,7 +211,11 @@ class CSS_Magic {
 		}
 		unset($fixed);
 	}
-	
+	/**
+	 * Applies a prefix (e.g. "wpu") to specific classes
+	 * @param string prefix the prefix to apply
+	 * @param bool $classess an array ofclasses to modify
+	 */	
 	function renameClasses($prefix, $classes) {
 		$fixed = array();
 		$searchStrings = array();
@@ -220,13 +235,11 @@ class CSS_Magic {
 		unset($fixed);
 	}	
 	
-	
-	// 
-	// 	MAKE SPECIFIC
-	//	------------------------------
-	//	Makes all stored CSS specific to a particular parent ID or class
-	//
-	//	@param $removeBody: set to true to remove 
+	/**
+	 * Makes all stored CSS specific to a particular parent ID or class
+	 * @param string prefix the prefix to apply
+	 * @param bool  $removeBody: set to true to ignore body keys
+	 */
 	function _makeSpecific($prefix, $removeBody = false) {
 		$fixed = array();
 		// things that could be delimiting a "body" selector at the beginning of our string.
@@ -298,11 +311,10 @@ class CSS_Magic {
 
 	}
 	
-	//
-	// REMOVE COMMON ELEMENTS FROM KEYS
-	// ---------------------------------
-	// Removes common elements from CSS selectors
-	// For example, this can be used to undo CSS magic additions
+	/**
+	 * Removes common elements from CSS selectors
+	 * For example, this can be used to undo CSS magic additions
+	 */
 	function removeCommonKeyEl($txt) {
 		$newCSS = array();
 		foreach($this->css as $keyString => $cssCode) {
@@ -315,11 +327,10 @@ class CSS_Magic {
 		unset($newCSS);
 	}
 	
-	//
-	// GET ALL KEY Classes and IDs
-	// --------------------
-	// Returns all key classes and IDs
-	//
+	/**
+	 * Returns all key classes and IDs
+	 * @return an array with all classes and IDs
+	 */
 	function getKeyClassesAndIDs() {
 		$classes = array();
 		$ids = array();
@@ -347,12 +358,11 @@ class CSS_Magic {
 	}
 	
 	
-	//
-	// MODIFY KEYS
-	// -----------
-	// Takes in two arrays -- one with key elements to find, and one with replacements.
-	// Searches and modifies all occurrences in CSS keys. Useful for modifying specific
-	// classes and IDs
+	/**
+	 * Searchs through all keys and and makes modifications
+	 * @param array $finds key elements to find
+	 * @param array $replacements Matching replacements for key elements
+	 */
 	function modifyKeys($finds, $replacements) {
 		$theFinds = array();
 		$theRepl = array();
@@ -373,11 +383,9 @@ class CSS_Magic {
 	}
 	
 
-	// 
-	// 	GET CSS
-	//	------------------------------
-	//	Outputs all our stored, fixed (hopeffuly!) CSS
-	//	
+	/*
+	 * Outputs all our stored, fixed (hopeffuly!) CSS
+	 */
 	function getCSS() {
 		$response = '';
 		foreach($this->css as $keyString => $cssCode) {
@@ -391,7 +399,9 @@ class CSS_Magic {
 		}
 		return $response;
 	}
-	
+	/**
+	 * Sends CSS directly to browser as text/css
+	 */
 	function sendCSS() {
 		header("Content-type: text/css");
 		echo $this->getCSS();

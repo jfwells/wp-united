@@ -28,10 +28,14 @@ into a separate portal page block. This functionality is not advertised (it is a
 (d) via an xmlHttpRequest. This is similar to (c), but it just requires us to login an integrated user silently, and return status via XML.
 This is not implemented yet, but will be added in a future release. The request will need to come in via another file, which cleanses the request.
 
+This is largely procedural code, by necessity.
+
 */
 
-/* ******** Initialisation *************/
 
+/**
+ * Initialisation
+ */
 // Prevent direct accesses
 if ( !defined('IN_PHPBB') ) exit;
 
@@ -146,8 +150,9 @@ if ( isset($HTTP_GET_VARS['numposts']) ) {
 
 
 
-/********************** Initialise cache ***********************/
-//TODO: integrate different cache types
+/**
+ * Initialise cache
+ */
 $useCache = false;
 if ( defined('WPU_REVERSE_INTEGRATION') ) {
 	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
@@ -160,11 +165,12 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 }
 
 
-/* ***************** Run WordPress ****************/
-
-// If this is phpBB-in-wordpress, we just need to get WordPress header & footer, and store them in $outerContent
-// if a valid WordPress template cache is available, we just do that and don't need to run WordPress at all.
-// If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
+/**
+ * Run WordPress
+ *  If this is phpBB-in-wordpress, we just need to get WordPress header & footer, and store them in $outerContent
+ *  if a valid WordPress template cache is available, we just do that and don't need to run WordPress at all.
+ * If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
+ */
 
 $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerContent';
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
@@ -202,7 +208,9 @@ if ( !$wpuCache->use_template_cache() ) {
 
 if ( $useCache || $connectSuccess ) { 
 
-	/****** If phpBB-in-wordpress, we need to generate the WP header/footer ****/
+	/**
+	 * Generate the WP header/footer for phpBB-in-WordPress
+	 */
 	if ( defined('WPU_REVERSE_INTEGRATION') ) {
 
 		//prevent WP 404 error
@@ -294,17 +302,16 @@ if ( $useCache || $connectSuccess ) {
 
 require($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
 
-/***************************************************
-	work-around for plugins that force exit.
-	Some plugins include an exit() command after outputting content.
-	
-	In the Integration Class, we can try to detect these, and insert a wpu_complete()
-	prior to the exit(). 
-	
-	This function tries to complete the remaining tasks as best possile so that
-	WordPress still appears inside the phpBB header/footer in these circumstances.
-
-****************************************************/
+/**
+ * Work-around for plugins that force exit.
+ * Some plugins include an exit() command after outputting content.
+ *
+ *  In the Integration Class, we can try to detect these, and insert a wpu_complete()
+ * prior to the exit(). 
+ * 
+ * This function tries to complete the remaining tasks as best possile so that
+ * WordPress still appears inside the phpBB header/footer in these circumstances.
+ */
 function wpu_complete() {
 	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
 	global $innerHeadInfo, $innerContent;
