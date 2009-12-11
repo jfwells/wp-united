@@ -1321,8 +1321,9 @@
 					}
 					document.getElementById("retr").style.display = "block";
 				} else {
+							var res;
 						try {
-							var res = respXML.getElementsByTagName('result').item(0).firstChild.data;
+							res = respXML.getElementsByTagName('result').item(0).firstChild.data;
 						} catch(e) {}
 						var mesg = respXML.getElementsByTagName('message').item(0).firstChild.data;
 						if(res=="OK") {
