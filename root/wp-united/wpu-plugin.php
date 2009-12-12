@@ -16,6 +16,14 @@ NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow php
 DO NOT MODIFY THE BELOW LINE:
 ||WPU-PLUGIN-VERSION=701||
 */ 
+/** 
+*
+* @package WP-United Connection Plugin
+* @version $Id: wp-united.php,v0.8.0 2009/12/20 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2009 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @author John Wells
+*/
 
 // this file will also be called in wp admin panel, when phpBB is not loaded. ABSPATH should *always* be set though!
 if ( !defined('ABSPATH') ) {
@@ -24,11 +32,11 @@ if ( !defined('ABSPATH') ) {
 
 
 
-//
-// 	WPU_CHECK_FOR_ACTION
-//	----------------------------------
-//	Processes the request
-//	TODO: CHECK IF WE ARE ALLOWED TO SWITCH THEME / BLOG SETTINGS!
+/**
+ * Checks and processes the inbound dashboard request
+ * 
+ * @todo Perhaps add additional perms check to see if we are allowed to switch theme/blog settings
+ */
 function wpu_check_for_action() {
 	global $user_ID, $wp_version;
 
@@ -91,12 +99,10 @@ function wpu_check_for_action() {
 }
 
 
-//
-// 	WPU_PUT_POWERED_TEXT
-//	----------------------------------
-//	Adds the copyright statement
-// 	Please DO NOT remove this!
-//
+/**
+ * Adds the WP-United copyright statement in all dashboards
+ * Please DO NOT remove this!
+ */
 function wpu_put_powered_text() {
 	global $wp_version;
 	echo '<p  id="poweredby"> phpbb integration &copy; 2006-2009 <a href="http://www.wp-united.com" target="_blank">WP-United</a></p>';
@@ -119,12 +125,10 @@ function wpu_put_powered_text() {
 }
 
 
-//
-// 	WPU_CSS
-//	--------------
-//	Sets the styles of the messages we want to appear in the Admin Panel
-//	Hides the messages we don't want
-// 
+/**
+ * Sets the CSS styles of messages we put in the dashboard
+ * Hides the messages we don't want using CSS
+ */
 function wpu_css() {
 	global $wp_version;
 	$wpuConnSettings = get_settings('wputd_connection');
@@ -188,11 +192,11 @@ function wpu_css() {
 
 }
 
-//
-// 	WPU_ADMINMENU_INIT
-//	----------------------------------
-//	Inserts the admin pages we want, and directs to the admin page requested
-// 
+/**
+ * Initialises the dashboard options
+ * Inserts the admin pages we want, and directs to the admin page requested
+ * @todo neaten wp 2.7/2.8+
+ */
 function wpu_adminmenu_init() {
 
 	$wpuConnSettings = get_settings('wputd_connection');
@@ -225,11 +229,8 @@ function wpu_adminmenu_init() {
 						}
 					}
 				} else {
-				//
-				//	WP 2.7 ADMIN PANEL PAGE FOR OWN BLOGS -- IN PROGRESS
-				//
-				//
-				
+				//	WP 2.7 ADMIN PANEL PAGE FOR OWN BLOGS
+			
 					if ( !empty($wpuConnSettings['blogs']) ) {
 						$top = add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', 'wpu-plugin.php', 'wpu_menuTopLevel', $wpuConnSettings['path_to_phpbb'] . 'wp-united/images/tiny.gif' );
 						
@@ -239,9 +240,6 @@ function wpu_adminmenu_init() {
 						}
 					} 
 		
-				//
-				//
-				//
 				//
 				}
 			} 
@@ -263,11 +261,9 @@ function wpu_adminmenu_init() {
 }
  
  
-//
-// 	wpu_menuTopLevel
-//	----------------------------------
-//	Displays the top-leel menu for WP-United, "Your Blog".
-// 
+/**
+ * Displays the top-leel menu for WP-United, "Your Blog".
+ */
 function wpu_menuTopLevel() {
 	if ( isset($_GET['wputab']) ) {
 		$tab = ($_GET['wputab'] == 'themes') ? 'THEMES' : 'SETTINGS';
@@ -279,6 +275,10 @@ function wpu_menuTopLevel() {
 	}
 }
 
+/**
+ * Shows the "Your blog settings" menu
+ * 
+ */
 function wpu_menuSettings() { 
 	global $user_ID, $wp_roles;
 	$profileuser = get_user_to_edit($user_ID);
@@ -409,14 +409,10 @@ function wpu_menuSettings() {
 
 }
 
-
-
-//
-// 	WP_UNITED_DISPLAY_THEME_MENU
-//	------------------------------------------------------
-//	If Style switching is allowed, displays the author theme switching menu
-//	Modelled on WP's existing themes.php
-// 
+/**
+ * If Style switching is allowed, displays the author theme switching menu
+ *	Modelled on WP's existing themes.php
+ */
 function wp_united_display_theme_menu() {
 
 	global $user_ID, $title, $parent_file, $wp_version;
@@ -669,12 +665,10 @@ function wp_united_display_theme_menu() {
 
 
 
-//
-// 	WPU_GET_TEMPLATE
-//	----------------------------------
-//	If Style switching is allowed, returns the template for the current author's blog
-//	We could do all this much later, in the template loader, but it is safer here so we load in all template-specific widgets, etc.
-//
+/**
+ * If Style switching is allowed, returns the template for the current author's blog
+ * We could do all this much later, in the template loader, but it is safer here so we load in all template-specific widgets, etc.
+ */
 function wpu_get_template($default) {
 	global $wpSettings;
 	if ( !empty($wpSettings['allowStyleSwitch']) ) {
@@ -701,11 +695,10 @@ function wpu_get_template($default) {
 	return $default;
 }
 
-//
-// 	WPU_GET_STYLESHEET
-//	----------------------------------
-//	If Style switching is allowed, returns the stylesheet for the current author's blog
-//
+/**
+ * If Style switching is allowed, returns the stylesheet for the current author's blog
+ * 
+ */
 function wpu_get_stylesheet($default) {
 	global $wp_query, $wpSettings;
 	if ( !empty($wpSettings['allowStyleSwitch']) ) {
@@ -720,12 +713,10 @@ function wpu_get_stylesheet($default) {
 	return $default;
 }
 
-//
-// 	WPU_LOGINOUTLINK
-//	-----------------------------
-//	Modifies the WordPress "Login/Out" link to point to phpBB installation
-//	Only modifies it if login is integrated
-//
+/**
+ * Filters the WordPress "Login/Out" link to point to phpBB installation
+ * Only modifies it if login is integrated
+ */
 function wpu_loginoutlink($loginLink) {
 	global $wpSettings, $phpbb_logged_in, $phpbb_username, $phpbb_sid, $wpuAbs, $phpEx, $scriptPath;
 	if ( !empty($wpSettings['integrateLogin']) ) {
@@ -744,12 +735,10 @@ function wpu_loginoutlink($loginLink) {
 	}
 }
 
-//
-// 	WPU_REGISTERLINK
-//	-----------------------------
-//	Modifies the WordPress "Register" link to point to phpBB installation
-//	Only modifies it if login is integrated
-//
+/**
+ * Filters the WordPress "Register" link to point to phpBB installation
+ * Only modifies it if login is integrated
+ */
 function wpu_registerlink($registerLink) {
 	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $wpuAbs, $phpEx, $wpuGetBlog, $scriptPath;
 	if ( !empty($wpSettings['integrateLogin']) ) {
@@ -777,22 +766,20 @@ function wpu_registerlink($registerLink) {
 }
 
 
-//
-// 	WPU_JUSTEDITING
-//	---------------------
-//	Called whenever a post is edited
-//  Prevents an edited post from showing up on the blogs homepage
-//
+/**
+ * Called whenever a post is edited
+ * Prevents an edited post from showing up on the blogs homepage
+ * And allows us to differentiate between edits and new posts for crosws-posting
+ */
 function wpu_justediting() {
 	define('suppress_newpost_action', TRUE);
 }
 
-//
-// 	WPU_NEWPOST
-//	---------------------
-//	Called whenever a new post is published.
-//	Updates the phpBB user table with the latest author ID, to facilitate direct linkage via blog buttons
-//
+/*
+ * Called whenever a new post is published.
+ * Updates the phpBB user table with the latest author ID, to facilitate direct linkage via blog buttons
+ * Also handles cross-posting
+ */
 function wpu_newpost($post_ID, $post) {
 
 	$connSettings = get_settings('wputd_connection');
@@ -929,11 +916,12 @@ function wpu_newpost($post_ID, $post) {
 
 }
 
-//
-//	WPU_ENTER_PHPBB
-//	----------------------------
-//	Enters phpBB (for use in WP admin panel)
-//
+/**
+ * Enters phpBB (for use in WP admin panel)
+ * Can ONLY EVER be called ONCE per instance 
+ * -- or ZERO times if phpBB has already been invoked
+ * (i.e. can only be used in WordPress dashboard)
+ */
 function wpu_enter_phpbb() {
 	$connSettings = get_settings('wputd_connection');
 
@@ -981,11 +969,9 @@ function wpu_fix_phpbb_path($stored_path) {
 
 
 
-//
-//	WPU_EXIT_PHPBB
-//	--------------------------
-//	Exits phpBB (for use in WP admin panel)
-//
+/**
+ * Exits phpBB (for use in WP dashboard only)
+ */
 function wpu_exit_phpbb() {
 	//clean up
 	global $table_prefix, $wp_table_prefix, $cache, $user, $phpbb_user_old, $phpbb_cache_old;
@@ -1002,11 +988,9 @@ function wpu_exit_phpbb() {
 	$_REQUEST = array_merge($_GET, $_POST);
 }
 
-//
-//	WPU_FORUM_XPOST_LIST
-//	--------------------------------------
-//	Get the list of forums we can cross-post to
-//
+/**
+ * Get the list of forums we can cross-post to
+ */
 function wpu_forum_xpost_list() {
 	global $wpuAbs, $user, $auth, $db, $userdata, $template, $phpEx;
 	
@@ -1040,11 +1024,9 @@ function wpu_forum_xpost_list() {
 	return array();
 }
 
-//
-//	WPU_GET_XPOSTED_DETAILS
-//	-------------------------------------------
-//	Determine if this post is already cross-posted.
-//
+/**
+ * Determine if this post is already cross-posted.
+ */
 function wpu_get_xposted_details() {
 	if (isset($_GET['post'])) {
 		$post_ID = (int)$_GET['post'];
@@ -1066,11 +1048,9 @@ function wpu_get_xposted_details() {
 	return false;
 }
 	
-//
-// 	WPU_BLOGNAME
-//	---------------------
-//	Returns the name of the current user's blog
-//
+/**
+ * Returns the name of the current user's blog
+ */
 function wpu_blogname($default) {
 	global $wpSettings, $user_ID, $wpuAbs, $adminSetOnce;
 	if ( ((!empty($wpSettings['usersOwnBlogs'])) || ((is_admin()) && (!$adminSetOnce)))  ) {
@@ -1097,11 +1077,9 @@ function wpu_blogname($default) {
 	return $default;
 }
 
-//
-// 	WPU_BLOGDESC
-//	---------------------
-//	Returns the tagline of the current user's blog
-//
+/**
+ * Returns the tagline of the current user's blog
+ */
 function wpu_blogdesc($default) {
 	global $wpSettings, $wpuAbs;
 	if ( !empty($wpSettings['usersOwnBlogs']) ) {
@@ -1118,11 +1096,9 @@ function wpu_blogdesc($default) {
 	return $default;
 }
 
-//
-// 	WPU_HOMELINK
-//	---------------------
-//	Returns the URL of the current user's blog
-//
+/**
+ * Returns the URL of the current user's blog
+ */
 function wpu_homelink($default) {
 	global $wpSettings, $user_ID, $wpu_done_head, $altered_link, $wp_version, $wputab_altered_link; 
 	if ( ($wpu_done_head && !$altered_link) || ($default=="wpu-activate-theme")  ) {
@@ -1159,10 +1135,9 @@ function wpu_homelink($default) {
 
 
 
-//	WPU_GET_AUTHOR
-//	---------------------------
-//	Code to figure out which author blog this is. Caches the result.
-//
+/**
+ *  Figure out which author's blog this is. Caches the result.
+ */
 function wpu_get_author() {
 	global $wp_query, $wpuCachedAuthor;
 	$authorID = FALSE;
@@ -1183,12 +1158,12 @@ function wpu_get_author() {
 }
 
 
-//
-//	WPU_DONE_HEAD
-//	--------------------------
-//	Sets wpu_done_head to true, so we can alter things like the home link without worrying.
-//	We don't wanna change these options before the <head> is finished.
-//
+/**
+ * Sets wpu_done_head to true, so we can alter things like the home link without worrying.
+ * (before the <HEAD>, we don't want to modify any links)
+ * We also add the blog homepage stylesheet here, and add the head marker for 
+ * template integration when WordPress CSS is first.
+*/
 function wpu_done_head() {
 	global $wpu_done_head, $wpSettings, $scriptPath, $wp_the_query;
 	$wpu_done_head = true;
@@ -1203,18 +1178,16 @@ function wpu_done_head() {
 	
 }
 
-//
-//	WPU_LOOP_ENTRY
-//	---------------------------
-//	This is the last chance we have to prevent the home link from being changed
+/**
+ * Add a marker -- this is the last chance we have to prevent the home link from being changed
+ */
 function wpu_loop_entry() {
 	$GLOBALS['altered_link'] = TRUE;
 }
 
-// 	WPU_CONTENT_PARSE_CHECK
-// 	-------------------------------------------
-// 	turns our page place holder into the blog list page, or the forum-in-a-full-page
-//
+/**
+ * Turns our page place holder into the blog list page, or the forum-in-a-full-page
+ */
 function wpu_content_parse_check($postContent) {
 	if (! defined('PHPBB_CONTENT_ONLY') ) {
 		if ( !(strpos($postContent, "<!--wp-united-home-->") === FALSE) ) {
@@ -1230,11 +1203,10 @@ function wpu_content_parse_check($postContent) {
 }
 
 
-// 	WPU_CHECK_IF_REV_PAGE
-// 	-------------------------------------------
-// 	suppresses the post title if we are showing a phpBB forum on a full page
-//
-
+/**
+ * Suppresses the post title if we are showing a phpBB forum on a full page
+ * @param string $postTitle the post title to filter out
+ */
 function wpu_check_if_rev_page($postTitle) {
 	if (defined('PHPBB_CONTENT_ONLY') ) {
 		return '';
@@ -1243,14 +1215,10 @@ function wpu_check_if_rev_page($postTitle) {
 
 }
 
-
-
-
-//	 WPU_CENSOR
-// 	----------------------------------
-//	Handles parsing of posts through the phpBB word censor.
-//	We also use this hook to suppress everything if this is aforum page.
-//
+/**
+ * Handles parsing of posts through the phpBB word censor.
+ * We also use this hook to suppress everything if this is a forum page.
+*/
 function wpu_censor($postContent) {
 	global $wpSettings, $wpuAbs;
 	//if (! defined('PHPBB_CONTENT_ONLY') ) {  Commented out as we DO want this to to work on a full reverse page.
@@ -1263,11 +1231,9 @@ function wpu_censor($postContent) {
 	//}
 }
 
-//
-//	WPU_PREV_NEXT_POST
-//	------------------------
-//	Alters the where clause of the sql for previous/Next post lookup, to ensure we stay on the same author blog
-//
+/**
+ * Alters the where clause of the sql for previous/Next post lookup, to ensure we stay on the same author blog
+ */
 function wpu_prev_next_post($where) {
 	global $wpSettings, $post;
 	$author = $post->post_author;
@@ -1278,12 +1244,11 @@ function wpu_prev_next_post($where) {
 	return $where;
 }
 
-//
-// 	WPU_USER_UPLOAD_DIR
-//	------------------------------------
-//	If users can have own blogs, uploads attachments to users' own directories.
-//	i.e. uploads/username or uploads/username/yyyyy/mm
-//
+/**
+ * If users can have own blogs, uploads attachments to users' own directories.
+ * i.e. uploads/username or uploads/username/yyyyy/mm
+ * This prevents users from browsing other users' media
+ */
 function wpu_user_upload_dir($default) {
 	$wpuConnSettings = get_settings('wputd_connection');
 	if ( !empty($wpuConnSettings['logins_integrated']) ) {
@@ -1311,11 +1276,9 @@ function wpu_user_upload_dir($default) {
 	return $default;
 }
 
-//
-// 	WPU_BROWSE_ATTACHMENTS
-//	------------------------------------
-//	Adds a filter if we are browsing attachments if users have own blogs but don't have 'edit' permissions
-//
+/**
+ * Adds a filter if we are browsing attachments if users have own blogs but don't have 'edit' permissions
+ */
 function wpu_browse_attachments() {
 	global $user_ID;
 	$wpuConnSettings = get_settings('wputd_connection');
@@ -1324,11 +1287,9 @@ function wpu_browse_attachments() {
 	}
 }
 
-//
-// 	WPU_ATTACHMENTS_WHERE
-//	------------------------------------
-//	Filters attachments so they are for the current user only
-//
+/**
+ * Filters attachments (media) so they are for the current user only
+ */
 function wpu_attachments_where($where) {
 	global $user_ID;
 	if (!empty($user_ID) ) {
@@ -1338,11 +1299,9 @@ function wpu_attachments_where($where) {
 	}
 }
 
-//
-// 	WPU_FEED_LINK
-//	------------------------------------
-//	Returns an author's feed link on the main page if users can have own blogs.
-//
+/**
+ * Returns an author's feed link on the main page if users can have own blogs.
+ */
 function wpu_feed_link($link) {
 	global $wpSettings;
 	if ( !empty($wpSettings['usersOwnBlogs']) ) { //only works if not in admin.
@@ -1356,12 +1315,10 @@ function wpu_feed_link($link) {
 	return $link;
 }
 
-//
-//	WPU_MUST_INTEGRATE
-//	------------------------
-//	Redirects to the integrated page, in case WordPress has been accessed directly.
-//	This will probably piss some people off -- but it's better than people accessing the wrong page and insisting it is screwed up.
-//
+/**
+ * Redirects to the integrated page, in case WordPress has been accessed directly.
+ * This will probably piss some people off -- but it's better than people accessing the wrong page and insisting it is screwed up.
+ */
 function wpu_must_integrate() {
 	if ( (!defined('WP_UNITED_ENTRY')) && (!is_admin()) ) {
 		$wpuConnSettings = get_settings('wputd_connection');
@@ -1373,7 +1330,9 @@ function wpu_must_integrate() {
 }
 
 
-
+/**
+ * include widgets and template functions
+ */
 function wpu_load_extra_files() {
 	//But wait! There's more! We also include some tasty widgets, free of charge!
 	if ( !defined('IN_PHPBB') ) {
@@ -1390,12 +1349,12 @@ function wpu_load_extra_files() {
 	
 }
 
-//
-//	WPU_CLEAR_HEADER_CACHE
-//	------------------------------------------
-//	clears phpbb's cache of WP header/footer.
-//	Called when the main WP theme is changed.
-//
+/**
+ * Clears phpbb's cache of WP header/footer.
+ * We need to do this whenever the main WP theme is changed,
+ * because when WordPress header/footer cache are called from phpBB, we have
+ * no way of knowing what the theme should be a WordPress is not invoked
+ */
 function wpu_clear_header_cache() {
 	$wpuConnSettings = get_settings('wputd_connection');
 	$cacheLoc = $wpuConnSettings['path_to_phpbb'] . 'wp-united/cache/';
@@ -1407,11 +1366,9 @@ function wpu_clear_header_cache() {
 	}
 }
 
-//
-//	WPU_ADD_POSTBOXES
-//	----------------------------------
-//	Add box to the write/(edit) post page.
-//
+/**
+ * Add box to the write/(edit) post page.
+ */
 function wpu_add_postboxes() {
 	global $wp_version, $can_xpost_forumlist, $already_xposted;
 	$wpuConnSettings = get_settings('wputd_connection');
@@ -1449,8 +1406,10 @@ function wpu_add_postboxes() {
 
 }
 
-// Here we decide whether to display the cross-posting box, and store the permissions list in global vars for future use.
-// For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the function now.
+/**
+ *  Here we decide whether to display the cross-posting box, and store the permissions list in global vars for future use.
+ * For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the function now.
+ */
 function wpu_add_meta_box() {
 	global $wp_version, $can_xpost_forumlist, $already_xposted, $wpuAbs, $user, $auth;
 	//global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
@@ -1480,13 +1439,9 @@ function wpu_add_meta_box() {
 }
 
 
-//
-//	WPU_ADMIN_INIT
-//	---------------------------
-//	This sets everything admin-y up
-//
-//
-
+/**
+ * This initialises all the admin changes and functions
+ */
 function wpu_admin_init( ) {
 
 	global $wpu_done_head;
@@ -1522,7 +1477,10 @@ function wpu_admin_init( ) {
 	}
 }
 	
-	
+/**
+ * Buffers the profile page, so it can be modified
+ * @todo this is not curently being used, reinstate it
+ */
 function wpu_buffer_profile($output) {
 	define('WPU_ALTER_PROFILE', TRUE);
 	$pattern = '/<div class="wrap">.*?<div id="footer">/si';
@@ -1530,11 +1488,10 @@ function wpu_buffer_profile($output) {
 }	
 	
 
-//
-//	WPU_BUFFER_USERSPANEL
-//	--------------------------------
-//	Removes edit links, etc. from users.php
-//
+/**
+ * Removes edit links, etc. from users.php
+ * @todo this is not currently being used, reinstate it
+ */
 function wpu_buffer_userspanel($panelContent) {
 
 	$token = array("/<td><a(.*)[^<>]>" . __('Edit') . "<\/a><\/td>/", '/' . __('User List by Role') . "<\/h2>/");
@@ -1543,7 +1500,9 @@ function wpu_buffer_userspanel($panelContent) {
 	return $panelContent;
 }
 
-// disable access to wp-login.php if logins are integrated
+/**
+ * disable access to wp-login.php if logins are integrated
+ */
 function wpu_disable_wp_login() { 
 	if (preg_match('|/wp-login.php|', $_SERVER['REQUEST_URI'])) {	
 		$wpuConnSettings = get_settings('wputd_connection');
@@ -1559,8 +1518,10 @@ function wpu_disable_wp_login() {
 	}
 }
 
+/**
+ * Add script to our user blog theme selection page
+ */
 function wpu_prepare_admin_pages() {
-	// add script to our user blog theme page
 	if ( isset($_GET['wputab']) ) {
 		if ($_GET['wputab'] == 'themes') {
 			add_thickbox();
@@ -1570,9 +1531,10 @@ function wpu_prepare_admin_pages() {
 	}
 }
 
-//@since WP-United 0.7.0
+
 /**
 * Function 'get_avatar()' - Retrieve the phpBB avatar of a user
+* @since WP-United 0.7.0
 */
 
 function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = 'avatar' ) { 
@@ -1628,13 +1590,11 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 } 
 
 
-//@since WP-United 0.7.0
-/*
-Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding smilies into comment text
-*/
-//
-//
-//
+
+/**
+ * Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding smilies into comment text
+ * @since WP-United 0.7.0
+ */
 function wpu_smilies($postContent, $max_smilies = 0) {
 	// since this only takes place outside of WP-Admin, we can just check the global var $wpSettings
 	global $wpSettings;
@@ -1681,9 +1641,10 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 	return $postContent;
 }
 
-//@since WP-United 0.7.0
-/*
-Function 'wpu_print_smilies' prints phpBB smilies into comment form
+
+/**
+ * Function 'wpu_print_smilies' prints phpBB smilies into comment form
+ * @since WP-United 0.7.0
 */
 function wpu_print_smilies() {
 	global $wpSettings;
@@ -1730,11 +1691,10 @@ function wpu_print_smilies() {
 
 
 
-//since v0.7.0
-/*
-Function 'wpu_javascript' inserts the javascript code required by smilies' function!
-
-*/
+/**
+ * Function 'wpu_javascript' inserts the javascript code required by smilies' function.
+ * @since WP-United 0.7.0
+ */
 function wpu_javascript () {
 	global $wpSettings;
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
@@ -1777,16 +1737,16 @@ function wpu_javascript () {
 	}
 }
 
-//@since WP-United 0.7.1
 /**
 * Function 'wpu_fix_blank_username()' - Generates a username in WP when the sanitized username is blank,
- as phpbb is more liberal in user naming 
+* as phpbb is more liberal in user naming
+* Originally by Wintermute
+* If the sanitized user_login is blank, create a random
+* username inside WP. The user_login begins with WPU followed
+* by a random number (1-10) of digits between 0 & 9
+* Also, check to make sure the user_login is unique
+* @since WP-United 0.7.1
 */
-// Originally by Wintermute
-// If the sanitized user_login is blank, create a random
-// username inside WP. The user_login begins with WPU followed
-// by a random number (1-10) of digits between 0 & 9
-// Also, check to make sure the user_login is unique
 function wpu_fix_blank_username($user_login) {
 	$connSettings = get_settings('wputd_connection');
 	if (!empty($connSettings['logins_integrated'])) { 
@@ -1807,23 +1767,21 @@ function wpu_fix_blank_username($user_login) {
 
 
 
-//@since WP-United 0.7.?future
 /**
-* Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
-in WP & phpBB. This is only really a problem in integrated pages when naughty WordPress plugins pull in
-registration.php. 
-
-These functions should NOT collide in usage -- only in namespace. If user integration is turned on, we don't need
-WP's validate_user. 
-
-Furthermore, if phpbb_validate_username is defined, then we know we most likely need to use the phpBB version.
-
-We unfortunately cannot control their
-usage -- phpbb expects 2 arguments, whereas WordPress only expects one.
-
-Therefore here we just try to avoid namespace errors. If they are actually invoked while renamed, the result is undefined
-
-*/ /*
+* Under consideration for future rewrite: Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
+* in WP & phpBB. This is only really a problem in integrated pages when naughty WordPress plugins pull in
+* registration.php. 
+* 
+* These functions should NOT collide in usage -- only in namespace. If user integration is turned on, we don't need
+* WP's validate_user. 
+* 
+* Furthermore, if phpbb_validate_username is defined, then we know we most likely need to use the phpBB version.
+* 
+* We unfortunately cannot control their usage -- phpbb expects 2 arguments, whereas WordPress only expects one.
+* 
+* Therefore here we just try to avoid namespace errors. If they are actually invoked while renamed, the result is undefined
+*/
+/*
 function wpu_validate_username_conflict($wpValdUser, $username) {
 	global $IN_WORDPRESS;
 	$connSettings = get_settings('wputd_connection');
@@ -1838,7 +1796,9 @@ function wpu_validate_username_conflict($wpValdUser, $username) {
 }
 */
 
-// Add hooks and filters
+/**
+ * here we add all the hooks and filters
+ */
 
 //since v0.7.1
 add_filter('pre_user_login', 'wpu_fix_blank_username');
@@ -1903,7 +1863,9 @@ if ( $wp_version >= 2.5 ) {
 	add_action('dbx_post_sidebar', 'wpu_add_meta_box');
 }
 
-//Todo: move somewhere better!
+/**
+ * @todo move $siteurl global declaration somewhere better and review usage
+ */
 global $siteurl;
 $siteurl = get_option('siteurl');
 

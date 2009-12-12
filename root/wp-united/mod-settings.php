@@ -19,12 +19,15 @@
 // Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-//
-// A few functions to write and retrieve the integration package settings from the DB
-//	This is a bit messy & unneccesarily complex -- the phpBB2 version used its own integration table, hence the schema.
-//	In phpBB3, we just pull them from the config table.
-//	Why don't we access them directly?  We may do in the future, but for now, this affords us more flexibility, and saves rewriting the rest of the mod.
-//
+/**
+ * A few functions to write and retrieve the integration package settings from the DB
+ * This is a bit messy & unneccesarily complex, a result of our previous simultaneous support for phpBB2 & phpBB3.
+ * The phpBB2 version used its own integration table, hence the schema.
+ * 
+ * In phpBB3, we just pull them from the config table.
+ * Why don't we access them directly?  We may do in the future, but for now, this affords us more flexibility, and saves rewriting the rest of the mod.
+ * @todo remove schema for v1.0
+ */
 
 if ( !defined('IN_PHPBB') )
 {
@@ -34,18 +37,14 @@ if ( !defined('IN_PHPBB') )
 
 require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 
-//
-//	GET DATABASE SCHEMA
-//	-----------------------------------
-//	Returns a map of the structure of our database against the variables we use in the integration mod.
-//
-//
+/**
+ * Returns a map of the structure of our database against the variables we use in WP-United.
+ * LEFT SIDE = VARIABLE NAMES
+ * RIGHT SIDE = DB FIELD NAMES
+ */
 
 function get_db_schema() {
 
-	//LEFT SIDE = VARIABLE NAMES
-	// RIGHT SIDE = DB FIELD NAMES
-	
 	$dbSchema = array( 
 		'blogsUri' => 'blogsEntry',
 		'wpUri' => 'fullUri' ,
@@ -88,6 +87,9 @@ function get_db_schema() {
 	return $dbSchema;
 }
 
+/**
+ * Set default values for WPU settings
+ */
 function set_default($setting_key) {
 	global $phpEx, $wpuAbs, $phpbb_root_path, $phpEx;
 	require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
@@ -140,54 +142,32 @@ function set_default($setting_key) {
 }
 
 
-//
-//	GET CONFIGURATION SETTINGS FROM DATABASE
-//	-------------------------------------------------------------------------
-//	Gets the configuration settings from the integration table, and returns them in $wpSettings.
-//	Sets initial values to sensible deafaults if they haven't been set yet.
-//
+/**
+ * Get configuration setings from database
+ * Gets the configuration settings from the db, and returns them in $wpSettings.
+ * Sets initial values to sensible deafaults if they haven't been set yet.
+ */
 function get_integration_settings($set_admin_defaults = FALSE) {
 	global $db, $wpuAbs;
 	
 	$config_fields = get_db_schema();
 	$wpSettings = array();
-	if ($wpuAbs->ver == 'PHPBB3') {
-		foreach($config_fields as $var_name => $field_name) {
-			if ($wpuAbs->config('wpu_'.$field_name) !== FALSE) {
-				$wpSettings[$var_name] = $wpuAbs->config('wpu_'.$field_name);
-				//unset($GLOBALS['config']['wpu_'.$field_name]);
-			} elseif ($set_admin_defaults) {
-				$wpSettings[$var_name] = set_default($var_name);
-			}
-		}
-		return $wpSettings;	
-	}
-	
-	$sql = 'SELECT * FROM ' . WP_INT_TABLE . ' LIMIT 1';
-	if (!$result = $db->sql_query($sql)) {
-		//db error -- die
-		message_die(GENERAL_ERROR, $lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
-		return FALSE;
-	}
-	if (!$db->sql_numrows($result)) {
-		// table not populated yet
-		return FALSE;
-	}
-	else {
-	
-		$row = $db->sql_fetchrow($result);
-		$fullFieldSet = get_db_schema();
-		
-		foreach($fullFieldSet as $var_name => $field_name) {
-			$wpSettings[$var_name] = $row[$field_name];
+	foreach($config_fields as $var_name => $field_name) {
+		if ($wpuAbs->config('wpu_'.$field_name) !== FALSE) {
+			$wpSettings[$var_name] = $wpuAbs->config('wpu_'.$field_name);
+			//unset($GLOBALS['config']['wpu_'.$field_name]);
+		} elseif ($set_admin_defaults) {
+			$wpSettings[$var_name] = set_default($var_name);
 		}
 	}
+	return $wpSettings;	
+	
 }
-//
-//	CLEAR INTEGRATION SETTINGS
-//	----------------------------------------------------------
-//	Completely removes all traces of WP-united settings
-//
+/**
+ * Clear integration settings
+ * Completely removes all traces of WP-united settings
+ * @deprecated -- only used by removed phpBB2 code paths
+ */
 function clear_integration_settings() {
 	global $db;
 	
@@ -203,14 +183,13 @@ function clear_integration_settings() {
 
 }
 
-//
-//	WRITE CONFIG SETTINGS TO DATABASE
-//	----------------------------------------------------------
-//	Writes any configuration settings that are passed to the integration settings table.
-//	TODO: IMPLEMENT CLEAN FUNCTION
-//
+/**
+ * Write config settings to the database
+ * Writes any configuration settings that are passed to the integration settings table.
+ * phpBB2 code path removed for v0.8
+*/
 function set_integration_settings($dataIn) {
-	global $db, $wpuAbs;
+	global $db;
 	
 	// Map DB schema to our data keys
 	$fullFieldSet = get_db_schema();
@@ -219,71 +198,18 @@ function set_integration_settings($dataIn) {
 		foreach ($fullFieldSet as $var_name => $field_name ) {
 			if ( array_key_exists($var_name, $dataIn) ) {
 				$data[$field_name] =	$dataIn[$var_name];
-				if ($wpuAbs->ver == 'PHPBB3') {
-					//$GLOBALS['config']['wpu_'.$field_name] = $dataIn[$var_name]; //if we unset them before, update config fails
-					set_config('wpu_'.$field_name, $dataIn[$var_name]);
-				}
+				//$GLOBALS['config']['wpu_'.$field_name] = $dataIn[$var_name]; //if we unset them before, update config fails
+				set_config('wpu_'.$field_name, $dataIn[$var_name]);
 			}
 		}
 	
-	if ($wpuAbs->ver == 'PHPBB3') {
-		return TRUE;
-	}
-	
-	// see what's in the DB already
-	$sql = 'SELECT * FROM ' . WP_INT_TABLE . ' LIMIT 1';
-	$result = $db->sql_query($sql);
-			
-	if ( $db->sql_numrows($result) ) { 
-		// data is already in the database. Merge our data with it 
-		$row = $db->sql_fetchrow($result);
-		$inboundData = '';
-		foreach ( $row as $key => $value ) {
-			$inboundData[$key] = clean_for_db_reinsert($value);
-		}
-		$dataOut = array_merge($inboundData, $data);
-		
-		// and write it out 
-		$iteration = 0;
-		$sql = 'UPDATE ' . WP_INT_TABLE . ' SET ';
-		foreach ($fullFieldSet as $varName => $fieldName ) {
-			$fieldValue = $dataOut[$fieldName];
-			$sql .= ( $iteration == 0) ? '' : ', '; //add commas
-			$sql .= $fieldName . " = '" . $fieldValue . "'";
-			$iteration++;
-		}
-	} else {
-		// the table is empty. We can just throw our data in
-		$iteration = 0;
-		foreach ($fullFieldSet as $varName => $fieldName ) {
-			$fieldValue = ( array_key_exists($fieldName, $data) ) ? $data[$fieldName] : '-99'; //turn unset data into '-99' 
-			if ( $iteration ) { //add commas
-				$sqlLeft .= ', ';
-				$sqlRight .= ', ';
-			}
-			$sqlLeft .= $fieldName;
-			$sqlRight .= "'" . $fieldValue . "'";
-			$iteration++;
-		}
-		$sql = 'INSERT INTO ' . WP_INT_TABLE . "($sqlLeft) VALUES ($sqlRight)";
-	}
-	//Finally -- write the data	
-	if (!$result = $db->sql_query($sql)) {
-		//echo $sql;
-		//message_die(GENERAL_ERROR, $lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
-		return FALSE;
-	} else {
-	//echo $sql;
-		return TRUE;
-	}		
+	return true;
 }
 
-//
-//	CLEAN VALUES READY FOR DB REINSERTION
-//	------------------------------------------------------------
-//	
-//	TODO: REVIEW SECURITY ADVISORY AND ADD  CHECKS IF NECESSARY
-//
+/**
+ * Clean for db reinsertion
+ * @todo check magic quotes etc
+ */
 function clean_for_db_reinsert($value) {
 //$value = str_replace("'", "''", $value);
 $value = addslashes($value);

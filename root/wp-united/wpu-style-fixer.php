@@ -3,14 +3,14 @@
 *
 * WP-United CSS Magic style call backend
 *
-* @package WP-United
+* @package WP-United CSS Magic
 * @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * @author John Wells
 *
 * DO NOT PLACE THIS ON A SITE OPEN TO THE INTERNET!!! 
-*  iT *IS* SUBJECT TO PATH TRAVERSAL HACKING. UNDER DEVELOPMENT
+*  IT *IS* SUBJECT TO PATH TRAVERSAL HACKING. UNDER DEVELOPMENT
 */
 
 $phpbb_root_path = "../";

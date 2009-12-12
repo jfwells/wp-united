@@ -30,8 +30,11 @@ if ( !defined('IN_PHPBB') )
 	exit;
 }
 
-// from pluggable.php
-//unchanged in WP 2.1 -- several changes in WP 2.2. unchanged in WP 2.3 [changed in 2.7 (not checked intermediates)]
+/**
+ * Overridden from pluggable.php
+ * @param int $user_id WordPress user ID
+ * Originally overridden in WP 2.1, updated for WP 2.2 and 2.7
+ */
 if ( !function_exists('wp_get_userdata') ) :
 function wp_get_userdata( $user_id ) {
 	global $wpdb, $wp_version;  //added wp_version
@@ -103,6 +106,10 @@ function wp_get_userdata( $user_id ) {
 }
 endif;
 
+/**
+ * Arbitrates between the two equally-named functions, get_userdata
+ * Called specifically from within WP-United when we know we want to get phpBB user data
+ */
 function get_phpbb_userdata($uid) {
 	global $IN_WORDPRESS;
 	$IN_WORDPRESS = 0;
@@ -112,62 +119,61 @@ function get_phpbb_userdata($uid) {
 }
 
 
-//Here we handle the make_clickable collision. We branch depending on whether we're in WP at the time. We also branch for phpBB3 ;-)
-// TODO: 5: Kill phpbb2 & phpbb3 old brances!
-
+/**
+ * Here we handle the make_clickable collision. 
+ * We branch depending on whether we're in WP at the time.
+ * @param string $text The text to make clickable
+ * @param string $server_url server url
+ * @param string $class The clickable link's classname, defaults to 'postlink'
+ */
 if (!function_exists('make_clickable')) {
 	function make_clickable($text, $server_url = false, $class = 'postlink') { //$server_url is for phpBB3 only $class is for later phpBB3 only
 		global $IN_WORDPRESS;
 		if ($IN_WORDPRESS) {
 			return wp_make_clickable($text); //WP version
 		} else { //phpBB version
-			global $wpuAbs;
-			if ('PHPBB2'== $wpuAbs->ver) {
-				$text = preg_replace('#(script|about|applet|activex|chrome):#is', "\\1&#058;", $text);
-				$ret = ' ' . $text;
-				$ret = preg_replace("#(^|[\n ])([\w]+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)#is", "\\1<a href=\"\\2\" target=\"_blank\">\\2</a>", $ret);
-				$ret = preg_replace("#(^|[\n ])((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*)#is", "\\1<a href=\"http://\\2\" target=\"_blank\">\\2</a>", $ret);
-				$ret = preg_replace("#(^|[\n ])([a-z0-9&\-_.]+?)@([\w\-]+\.([\w\-\.]+\.)*[\w]+)#i", "\\1<a href=\"mailto:\\2@\\3\">\\2@\\3</a>", $ret);
-				$ret = substr($ret, 1);
-				return($ret);
-			} else { //phpBB3 BRANCH:
-				if ($server_url === false) {
-					$server_url = generate_board_url();
-				}
-				static $magic_url_match;
-				static $magic_url_replace;
-				static $static_class;
-				if (!is_array($magic_url_match)) {
-					$magic_url_match = $magic_url_replace = array();
-					if (function_exists('make_clickable_callback')) { //latest phpBB3s
-						$magic_url_match[] = '#(^|[\n\t (>.])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
-						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_LOCAL, '\$1', '\$2', '\$3', '$local_class')";
-						$magic_url_match[] = '#(^|[\n\t (>.])(' . get_preg_expression('url_inline') . ')#ie';
-						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_FULL, '\$1', '\$2', '', '$class')";
-						$magic_url_match[] = '#(^|[\n\t (>])(' . get_preg_expression('www_url_inline') . ')#ie';
-						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_WWW, '\$1', '\$2', '', '$class')";
-						$magic_url_match[] = '/(^|[\n\t (>])(' . get_preg_expression('email') . ')/ie';
-						$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_EMAIL, '\$1', '\$2', '', '')";	
-					} else { // phpBB3 v1.0 
-						$magic_url_match[] = '#(^|[\n\t (])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
-						$magic_url_replace[] = "'\$1<!-- l --><a href=\"\$2/' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '\">' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '</a><!-- l -->'";
-						$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('url_inline') . ')#ie';
-						$magic_url_replace[] = "'\$1<!-- m --><a href=\"\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- m -->'";
-						$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('www_url_inline') . ')#ie';
-						$magic_url_replace[] = "'\$1<!-- w --><a href=\"http://\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- w -->'";
-						$magic_url_match[] = '/(^|[\n\t )])(' . get_preg_expression('email') . ')/ie';
-						$magic_url_replace[] = "'\$1<!-- e --><a href=\"mailto:\$2\">' . ((strlen('\$2') > 55) ? substr('\$2', 0, 39) . ' ... ' . substr('\$2', -10) : '\$2') . '</a><!-- e -->'";
-					}
-				}
-				return preg_replace($magic_url_match, $magic_url_replace, $text);			
+			if ($server_url === false) {
+				$server_url = generate_board_url();
 			}
+			static $magic_url_match;
+			static $magic_url_replace;
+			static $static_class;
+			if (!is_array($magic_url_match)) {
+				$magic_url_match = $magic_url_replace = array();
+				if (function_exists('make_clickable_callback')) { //latest phpBB3s
+					$magic_url_match[] = '#(^|[\n\t (>.])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
+					$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_LOCAL, '\$1', '\$2', '\$3', '$local_class')";
+					$magic_url_match[] = '#(^|[\n\t (>.])(' . get_preg_expression('url_inline') . ')#ie';
+					$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_FULL, '\$1', '\$2', '', '$class')";
+					$magic_url_match[] = '#(^|[\n\t (>])(' . get_preg_expression('www_url_inline') . ')#ie';
+					$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_WWW, '\$1', '\$2', '', '$class')";
+					$magic_url_match[] = '/(^|[\n\t (>])(' . get_preg_expression('email') . ')/ie';
+					$magic_url_replace[] = "make_clickable_callback(MAGIC_URL_EMAIL, '\$1', '\$2', '', '')";	
+				} else { // phpBB3 v1.0 
+					$magic_url_match[] = '#(^|[\n\t (])(' . preg_quote($server_url, '#') . ')/(' . get_preg_expression('relative_url_inline') . ')#ie';
+					$magic_url_replace[] = "'\$1<!-- l --><a href=\"\$2/' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '\">' . preg_replace('/(&amp;|\?)sid=[0-9a-f]{32}/', '\\\\1', '\$3') . '</a><!-- l -->'";
+					$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('url_inline') . ')#ie';
+					$magic_url_replace[] = "'\$1<!-- m --><a href=\"\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- m -->'";
+					$magic_url_match[] = '#(^|[\n\t (])(' . get_preg_expression('www_url_inline') . ')#ie';
+					$magic_url_replace[] = "'\$1<!-- w --><a href=\"http://\$2\">' . ((strlen('\$2') > 55) ? substr(str_replace('&amp;', '&', '\$2'), 0, 39) . ' ... ' . substr(str_replace('&amp;', '&', '\$2'), -10) : '\$2') . '</a><!-- w -->'";
+					$magic_url_match[] = '/(^|[\n\t )])(' . get_preg_expression('email') . ')/ie';
+					$magic_url_replace[] = "'\$1<!-- e --><a href=\"mailto:\$2\">' . ((strlen('\$2') > 55) ? substr('\$2', 0, 39) . ' ... ' . substr('\$2', -10) : '\$2') . '</a><!-- e -->'";
+				}
+			}
+			return preg_replace($magic_url_match, $magic_url_replace, $text);			
+
 		}
 	}
 }
 
 
-// the following  are from registration.php (used to be registration-functions.php) ... we need our own version of wp_insert_user, and wp_update_user, so we pull the whole file here, to make it easier
-// WP 2.8 unchanged
+/**
+ * Overridden from WordPress' registration.php
+ * We don't actually need to modify this -- but because we need our own versions of
+ * wp_insert_user, and wp_update_user, and need to kill validate_username, we have to.
+ * See WordPress documentation for usage
+ * @todo registration.php overriding is causing many problems with plugins, as they try to require() it too.
+ */ 
 function username_exists( $username ) {
 	global $wp_version; //wpu added
 	if ( ((float) $wp_version) < 2.5 ) { // only needed for older WPs
@@ -181,9 +187,13 @@ function username_exists( $username ) {
 	}
 }
 
-
-
-//new in WP2.1, updated after
+/**
+ * Overridden from WordPress' registration.php
+ * We don't actually need to modify this -- but because we need our own versions of
+ * wp_insert_user, and wp_update_user, and need to kill validate_username, we have to.
+ * See WordPress documentation for usage
+ * @todo registration.php overriding is causing many problems with plugins, as they try to require() it too.
+ */ 
 function email_exists( $email ) {
 	global $wp_version;
 	if ( ((float) $wp_version) < 2.5 ) { // only needed for older WPs
@@ -198,16 +208,23 @@ function email_exists( $email ) {
 	}
 }
 
-
-//TODO:: Redirect to this when needed! (was validate_username!). For now, phpBB's user validation is fine.
-// functionally no change, backwards compatible
+/**
+ * Overridden from WordPress' registration.php
+ * This collides with phpBB's same-named function, so we rename it
+ * We currently don't arbitrate between the two functions -- we just call wp_validate_username manually
+ * and everything else gets sent through phpBB
+ * @todo redirect to this when necessary
+ * @todo an alpha plugin version is in wpu-plugin.php, but this whole setup requires more thought and testing
+ */
 function wp_validate_username( $username ) {
 	$sanitized = sanitize_user( $username, true );
 	$valid = ( $sanitized == $username );
 	return apply_filters( 'validate_username', $valid, $username );
 }
-
-//only slight change in WP2.1 -- s/b backwards compatible -- more changed wp 2.5-2.7, branched; WP 2.8 new block
+/**
+ * Overridden from WordPress' registration.php to make password hashes compatible
+ * partially filtered in wpu-plugin.php
+ */
 function wp_insert_user($userdata) {
 	global $wpdb, $wp_version;  //added wp_version;
 
@@ -374,7 +391,10 @@ function wp_insert_user($userdata) {
 	return $user_id;
 }
 
-// some changes in wp2.5+
+/**
+ * Overridden from WordPress' registration.php to make password hashes compatible
+ * 
+ */
 function wp_update_user($userdata) {
 	global $wpdb, $wp_version;
 
@@ -415,7 +435,10 @@ function wp_update_user($userdata) {
 	return $user_id;
 }
 
-
+/**
+ * Overridden from WordPress' registration.php, no change
+ * 
+ */
 function wp_create_user($username, $password, $email = '') {
 	global $wpdb;
 
@@ -427,19 +450,23 @@ function wp_create_user($username, $password, $email = '') {
 	return wp_insert_user($userdata);
 }
 
- // moved to deprecated.php in later wordpress, so just left here for compatibility with old WP
- // we need to use $this->wpVersion here as this check takes place before WP invocation, so WP-United sets the variable, not WP.
- // INSIDE the functions we use $wp_version instead, a global variable set by WP.
+/**
+ * Overridden from WordPress' registration.php -- but moved to deprecated.php in later wordpress
+ * So we only override in WP < 2.5
+ * we need to use $this->wpVersion here as this check takes place before WP invocation, so WP-United sets the variable, not WP.
+ * INSIDE the functions we use $wp_version instead, a global variable set by WP.
+ */
 if($this->wpVersion < 2.5 && !function_exists('create_user')) {
 	function create_user($username, $password, $email) {
 		return wp_create_user($username, $password, $email);
 	}
 }
 
-
-// We need to override WordPress password hash checking, as the password we have to log into wordpress is already hashed.
-// prior to WP 2.5, we could double-hash and check that way, but no longer :-(
-// Half of this is going to take place in wpu-plugin. Eventually we will move it all there.
+/**
+ * We need to override WordPress password hash checking, as the password we have to log into wordpress is already hashed.
+ * prior to WP 2.5, we could double-hash and check that way, but no longer :-(
+ * @todo Half of this is going to take place in wpu-plugin. Eventually we will move it all there.
+ */
 function wp_check_password($password, $hash, $user_id = '') {
 	global $wp_hasher;
 	

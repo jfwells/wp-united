@@ -19,6 +19,6 @@ if ( !defined('IN_PHPBB') ) {
 
 $phpbb_version = 'PHPBB3';
 
-$wpu_version = '0.7.1';
+$wpu_version = '0.8.0';
 
 ?>

@@ -2,7 +2,7 @@
 
 /** 
 *
-* WP-United phpBB2 / phpBB3 abstraction
+* WP-United phpBB abstraction layer
 *
 * @package WP-United
 * @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
@@ -21,38 +21,34 @@
 // Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-/***************************************************************************
-		PHPBB2 / PHPBB3 'OLYMPUS' ABSTRACTIFY
-		------------------------------------------------------------
-		
-	A vain attempt to make life easier by abstracting the functions that change between phpBB 2 & phpBB3.
-	
-	At least, we can include the common ones. Utterly subject to change.
-	
-	The aim is to make syncing the phpBB2 & phpBB3 distributions of WP-United much easier. Once development levels off, the versions may be diverged.
-	
-	phpBB3 mode is set in the external version.php file.
-	
-	Language zealots: Yes, 'abstractify' isn't a word.. Neither are 'abstractificate' or 'abstracterize'. 'Abstract', other than being ambiguous, just isn't as funny.
-	
-******************************************************************************/
 
 if ( !defined('IN_PHPBB') ) {
 	die("Hacking attempt");
 	exit;
 }
-
+/**
+ * PHPBB2 / PHPBB3 abstraction layer
+ * 
+ * This was originally a layer to abstract out differences between phpBB2 and phpBB3
+ * At the time, this was a life-saver, as it meant that 90% of WP-United files were identical for the 
+ * phpBB2 and phpBB3 releases. 
+ * 
+ * However, phpBB2 supportis now dropped from WP-United.
+ * The phpBB2 code paths really need to be removed from this class
+ * However, the class can remain for future use as a more general phpBB abstraction layer
+ * 
+ * The class is automatically instantiated by including the file abstractify.php somewhere. It is then available
+ * through the global variable, $wpuAbs.
+ */
 Class Abstractify {
 	
 	var $ver;
 	var $wpu_ver;
 
-	//
-	//	GET INSTANCE
-	//	----------------------
-	//	Makes class a Singleton.
-	//	
-	function getInstance ($version = 'PHPBB2', $wpu_version = '0') {
+	/**
+	 * Singleton creator
+	 */
+	function getInstance ($version = 'PHPBB3', $wpu_version = '0') {
 		static $instance;
 		if (!isset($instance)) {
 			$instance = new Abstractify($version, $wpu_version);
@@ -60,12 +56,11 @@ Class Abstractify {
         return $instance;
     }
 
+	/**
+	 * Class constructor
+	 */
 	function Abstractify($version, $wpu_version) {
-	// 
-	// 	CLASS CONSTRUCTOR
-	//	------------------------------
-	//	
-		$version = ($version == 'PHPBB3') ? 'PHPBB3' : 'PHPBB2';
+		$version = ($version == 'PHPBB2') ? 'PHPBB2' : 'PHPBB3';
 		$this->ver = $version;
 		$this->wpu_ver = $wpu_version;
 		if ('PHPBB3'== $this->ver) {
@@ -88,7 +83,9 @@ Class Abstractify {
 		}
 	}
 
-	//retrieves board configuration
+	/**
+	 * Retrieves board config key
+	 */
 	function config($config_key) {
 		if ('PHPBB2'== $this->ver) {
 			if ( isset($GLOBALS['board_config'][$config_key]) ) {
@@ -102,7 +99,9 @@ Class Abstractify {
 		return FALSE;
 	}
 	
-	//Parses the template body
+	/**
+	 * Parses the template body
+	 */
 	function show_body($template_name) {
 		if ('PHPBB2'== $this->ver) {
 			$GLOBALS['template']->set_filenames(array(
@@ -118,7 +117,9 @@ Class Abstractify {
 	}
 	
 	
-	//Returns a language string. (getting really lazy now!)
+	/**
+	 * Returns a language string. 
+	 */
 	function lang($lang_key) {
 		if ('PHPBB2'== $this->ver) {
 			global $lang;
@@ -133,7 +134,10 @@ Class Abstractify {
 		return $lang_key;
 	}
 	
-	//Assigns a single template switch. The phpBB3 way is more efficient and requires less template modification, so we prefer to use that if we can.
+	/**
+	 * Assigns a single template switch. 
+	 * The phpBB3 way is more efficient and requires less template modification, so we prefer to use that if we can.
+	 */
 	function add_template_switch($switch_name, $switch_value) {
 		//assume $template is already global
 		if ('PHPBB2'== $this->ver) {
@@ -143,7 +147,9 @@ Class Abstractify {
 		}
 	}
 	
-	//Returns full userdata array. Since we're sometimes unsure whether array keys are equal, we also abstract each key we need
+	/**
+	 * Returns full userdata array. Since we're sometimes unsure whether array keys are equal, we also abstract each key we need
+	 */
 	function userdata($key = '') {
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -166,7 +172,9 @@ Class Abstractify {
 	}
 	
 	
-	// Returns whether the current user is logged in
+	/**
+	 * Returns whether the current user is logged in
+	 */
 	function user_logged_in() {  
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -179,7 +187,9 @@ Class Abstractify {
 		}
 	}
 	
-	// Returns username of currently logged in user
+	/**
+	 * Returns username of currently logged in user
+	 */
 	function phpbb_username() {
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -191,7 +201,9 @@ Class Abstractify {
 			return $GLOBALS['user']->data['username'];
 		}	
 	}
-	// Returns user id of currently logged in user
+	/**
+	 * Returns user id of currently logged in user
+	 */
 	function phpbb_user_id() {
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -203,7 +215,9 @@ Class Abstractify {
 			return $GLOBALS['user']->data['user_id'];
 		}	
 	}
-	// Returns password of currently logged in user
+	/**
+	 * Returns password of currently logged in user
+	 */
 	function phpbb_passwd() {
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -215,7 +229,9 @@ Class Abstractify {
 			return $GLOBALS['user']->data['user_password'];
 		}	
 	}
-	// Returns password of currently logged in user
+	/**
+	 * Returns e-mail of currently logged in user
+	 */
 	function phpbb_email() {
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -227,7 +243,9 @@ Class Abstractify {
 			return $GLOBALS['user']->data['user_email'];
 		}	
 	}
-	// Returns session_id of currently logged in user
+	/**
+	 * Returns session_id of currently logged in user
+	 */
 	function phpbb_sid() {
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -239,7 +257,9 @@ Class Abstractify {
 			return $GLOBALS['user']->data['session_id'];
 		}	
 	}	
-	// Returns whether user is currently active -- normal or founder user
+	/**
+	 * Returns whether user is currently active -- normal or founder user
+	 */
 	function user_normal() {
 		if ('PHPBB2'== $this->ver) {
 			if ( $GLOBALS['IN_WORDPRESS'] == 1 ) {
@@ -255,7 +275,9 @@ Class Abstractify {
 		}
 	}
 	
-	//Returns rank info for currently logged in, or specified, user.
+	/**
+	 * Returns rank info for currently logged in, or specified, user.
+	 */
 	function get_user_rank_info($userID = '') {
 		global $db;
 		if (!$userID ) {
@@ -303,7 +325,10 @@ Class Abstractify {
 			}
 		}
 	}
-	// ranks helper func for phpBB2
+	/**
+	 * ranks helper func for phpBB2
+	 * @access private
+	 */
 	function _get_ranks_phpbb2() {
 		//retrieve and cache rank array
 		global $wpu_ranksArray, $wpuAbs, $db;
@@ -324,7 +349,9 @@ Class Abstractify {
 		return $this->ranks;
 	}
 	
-	// Censor words
+	/**
+	 * Censor text
+	 */
 	function censor($passage) {
 		$GLOBALS['wpUtdInt']->switch_db('TO_P');
 		if ('PHPBB2'== $this->ver) {
@@ -343,7 +370,9 @@ Class Abstractify {
 		return $passage;
 	}
 	
-	// Get board stats
+	/**
+	 * Get board stats
+	 */
 	function stats($stat) {
 		if ('PHPBB2'== $this->ver) {
 			switch ($stat) {
@@ -367,8 +396,10 @@ Class Abstractify {
 	
 	}
 	
-	// Lifts latest phpBB topics from the DB. (this is the phpBB2 version) 
-	// $forum_list limits to a specific forum (comma delimited list). $limit sets the number of posts fetched. 
+	/**
+	 * Lifts latest phpBB topics from the DB. (this is the phpBB2 version) 
+	 * $forum_list limits to a specific forum (comma delimited list). $limit sets the number of posts fetched. 
+	 */
 	function get_recent_topics($forum_list = '', $limit = 50) {
 		global $db, $auth;
 		$GLOBALS['wpUtdInt']->switch_db('TO_P');
@@ -433,7 +464,9 @@ Class Abstractify {
 		return $posts;
 	}	
 	
-	// Insert a new phpBB user
+	/**
+	 * Insert a new phpBB user
+	 */
 	function insert_user($username, $user_password, $user_email, $integration_id = '', $group_id = '') {
 		if ('PHPBB2'== $this->ver) {
 			global $db, $phpbb_root_path, $phpEx;
@@ -473,7 +506,9 @@ Class Abstractify {
 
 	
 	
-	//Displays a dying general error message
+	/**
+	 * Displays a dying general error message
+	 */
 	function err_msg($errType, $msg = '', $title = '', $line = '', $file = '', $sql = '') {
 		global $images, $wpUtdInt, $phpbb_root_path;
 		//Exit the WordPress environment
@@ -499,24 +534,14 @@ Class Abstractify {
 }
 
 
-
-
-
-
-/***************************************************************************
- * Original Filename:          functions_mod_user.php
- * Description:       A library consisting of a user class and some wrapper
- *                    functions which can be used by MOD authors to handle
- *                    user registration
- * Author:            Graham Eames (phpbb@grahameames.co.uk)
+/**
+ * A phpBB2 user wrapper class
+ * @author Graham Eames (phpbb@grahameames.co.uk)
  * Last Modified:     30-Sep-2006
  * File Version:      1.3
- *
- * Acknowlegments:    A few pieces of code in this come from usercp_register.php
- *                    Much of the rest is adapted from [Graham's] convertors
- *	Lightly modified for WP-United
- ***************************************************************************/
-
+  * Acknowlegments:    A few pieces of code in this come from usercp_register.php
+ *  Much of the rest is adapted from Graham's convertors. Lightly modified for WP-United
+ */
 class wpu_user {
 	// These are the 3 critical values for any user
 	var $username;
@@ -701,20 +726,10 @@ class wpu_user {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * Initialise the abstraction
+ * It is loaded automatically by including this file
+ */
 global $wpuAbs, $phpbb_root_path, $phpEx, $user, $userdata, $auth, $user_ip;
 include ($phpbb_root_path . 'wp-united/version.' . $phpEx);
 $wpuAbs = Abstractify::getInstance($phpbb_version, $wpu_version);
