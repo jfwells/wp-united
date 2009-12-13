@@ -1,4 +1,26 @@
-This document shows the status of bringing WP-United up-to-date with WP & phpBB latest versions.
+Actions remaining for release of v0.8
+-------------------------------------------------
+This is more of a general todo list. See code documentation for a full list of @todos. 
+Al full list of bugs is in the forum bug tracker.
 
-Ready for release v0.7.0
+Hooks: Double-phpBB reported. Integration mode not fully set up in head.
+
+Plugin-fixes: Recursive includes should only operate on files under wpu-plugin
+Plugin-fixes: See todo on solution for sending global vars up the chain
+
+ACP: Settings page to fix and upgrade to AJAX split as with Setup Wizard
+ACP: Server Error reported in IE8
+ACP: Reset not working
+ACP: User mapping errors reported
+
+Full page integration: Improve settings / include blank page or option to create one (see blank page plugin)
+
+CSS Magic / template voodoo: Make filename hashes unguessable
+CSS Magic: Harden and clean up wpu-style-fixer
+CSS Magic: Add fixes for IE (6,7,8)
+
+Merge Japgalaxy's cross-posted comments
+
+User blogs: Check and improve dashboard
+
 
