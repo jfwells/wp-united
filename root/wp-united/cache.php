@@ -19,6 +19,7 @@ if ( !defined('IN_PHPBB') ) exit;
 * (c) Cached CSS for when CSS Magic is enabled
 * (d) Cached template Voodoo instructions
 * (e) Cached plugin modifications
+* @todo CSSM & Template voodoo caches
 */
 class WPU_Cache {
 
@@ -26,6 +27,9 @@ class WPU_Cache {
 	var $baseCacheLoc;
 	var $themePath;
 	var $templateCacheLoc;
+	var $salt;
+	var $logged;
+	var $fullPage;
 
 
 	/**
@@ -48,7 +52,27 @@ class WPU_Cache {
     		$this->baseCacheLoc = $phpbb_root_path . 'wp-united/cache/';
     		$this->themePath = $wpSettings['wpPath'] . 'wp-content/themes/';
     		$this->wpVersionLoc = $wpSettings['wpPath'] . "wp-includes/version.$phpEx";
+    		$this->fullPage =  !(bool)$wpSettings['wpSimpleHdr'];
+    		
+    		$this->initialise_salt();
+    		
+    		$this->log = array();
+    		    		
     	}
+    	/**
+    	 * The salt is used when hashing filenames and is stored poermanently in the phpBB database
+    	 * It does not need to be particularly secure, so we still use MD5 -- it will be enough to stop
+    	 * script kiddies from guessing filenames in the cache folder
+    	 */
+    	function initialise_salt() {
+			if(!isset( $GLOBALS['config']['wpu_cache_hash'])) {
+				// Generate a 10-digit random number
+				$this->salt = rand(10000, 99999);
+				set_config('wpu_cache_hash', $this->salt);
+			} else {
+				$this->salt = $GLOBALS['config']['wpu_cache_hash'];
+			}
+		}
     	
 		/**
 		 * Determines if the template cache is active
@@ -83,6 +107,11 @@ class WPU_Cache {
 		if(!$this->template_cache_enabled()) {
 			return false;
 		}
+		
+		if($this->fullPage) {
+			return false;
+		}
+		
 
 		switch($this->_useTemplateCache) {
 			case "USE":
@@ -97,10 +126,10 @@ class WPU_Cache {
 				$cacheFound = false;
 				global $wpuAbs;
 				while( $entry = @readdir($dir) ) {
-					if ( strpos($entry, '.wpucache') ) {
-						$parts = str_replace('.wpucache', '', $entry);
+					if ( strpos($entry, 'theme-') === 0 ) {
+						$parts = str_replace('theme-', '', $entry);
 						$parts = explode('-', $parts);
-						if ($parts[2] == $wpuAbs->wpu_ver) {
+						if ($parts[2] == md5("{$this->salt}-{$wpuAbs->wpu_ver}")) {
 							$cacheFound = true;
 							$theme = str_replace('__sep__', '-', $parts[0]);
 							$this->templateCacheLoc = $this->baseCacheLoc . $entry;
@@ -129,8 +158,6 @@ class WPU_Cache {
 		
 		}
 
-
-
 	}
 	
 	/**
@@ -140,7 +167,7 @@ class WPU_Cache {
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
 	function use_core_cache($wpuVer, $wpVer, $compat) {
-		global $latest;
+		global $latest, $phpEx;
 		
 		if($latest) {
 			return false;
@@ -158,7 +185,7 @@ class WPU_Cache {
 				@$dir = opendir($this->baseCacheLoc);
 				$compat = ($compat) ? "_fast" : "_slow";
 				while( $entry = @readdir($dir) ) {
-					if ( $entry == "core.wpucorecache-{$wpVer}-{$wpuVer}{$compat}.php") {
+					if ( $entry == "core-" . md5("{$this->salt}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}") {
 						$entry = $this->baseCacheLoc . $entry;
 						$compareDate = filemtime($entry);
 						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) {
@@ -176,6 +203,8 @@ class WPU_Cache {
 	
 	/**
 	 * Saves WordPress header/footer to disk
+	 * When restoring, we won't know variables such as WordPress theme and WordPress version, 
+	 * so we only encrypt the things we know (WP-United version).
 	 * @param string $wpuVer WP-United version number
 	 * @param string $wpVer WordPress version number
 	 * @param string All WordPress portions of the page to save, with a delimiter set for where phpBB should be spliced in.
@@ -184,8 +213,9 @@ class WPU_Cache {
 		
 		if ( $this->template_cache_enabled() ) {
 			$theme = str_replace('-', '__sep__', array_pop(explode('/', TEMPLATEPATH))); 
-			$fnDest = $this->baseCacheLoc . $theme. "-{$wpVer}-{$wpuVer}.wpucache";
-			$this->save($content, $fnDest);			
+			$fnDest = $this->baseCacheLoc . "theme-{$theme}-{$wpVer}-". md5("{$this->salt}-{$wpuVer}");
+			$this->save($content, $fnDest);
+			$this->_log("Generated template cache: $fnDest");		
 		
 			return true;
 		}
@@ -201,12 +231,13 @@ class WPU_Cache {
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
 	function save_to_core_cache($content, $wpuVer, $wpVer, $compat) {
-		
+		global $phpEx;
 		if ( $this->core_cache_enabled() ) {
 			$compat = ($compat) ? "_fast" : "_slow";
-			$fnDest = $phpbb_root_path . "wp-united/cache/core.wpucorecache-{$wpVer}-{$wpuVer}{$compat}.php";
-			$content = '<' ."?php\n\n if(!defined('IN_PHPBB')){die('Hacking attempt');exit();}\n\n$content\n\n?" . '>';
+			$fnDest = $this->baseCacheLoc . "core-" . md5("{$this->salt}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}";
+			$content = $this->prepare_content($content); 
 			$this->save($content, $fnDest);
+			$this->_log("Generated core cache: $fnDest");	
 		
 			return true;
 		}
@@ -224,6 +255,48 @@ class WPU_Cache {
 		if ( $this->template_cache_enabled() && $this->_useTemplateCache) {
 			return file_get_contents($this->templateCacheLoc);
 		}
+	}
+	
+	/**
+	 * Saves a "compiled" worked-around plugin
+	 * @param string $pluginPath Full path to plugin
+	 * @param bool $compat Whether the plugin should be run in compatibility (slow) mode or not.
+	 */
+	function save_plugin($content, $pluginPath, $wpuVer, $wpVer, $compat) {
+		global $phpEx;
+		$compat = ($compat) ? "_fast" : "_slow";
+		$fnDest = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}";
+		$content = $this->prepare_content($content); 
+		$this->save($content, $fnDest);
+		$this->_log("Generated plugin cache: $fnDest");	
+		// update plugin compile time
+		set_config('wpu_plugins_compiled', filemtime($fnDest));
+		return $fnDest;
+	}
+	
+	/**
+	 * Pulls a "compiled" worked-around plugin
+	 * and returns the filename, or false if it needs to be created
+	 */
+	function get_plugin($pluginPath,$wpuVer, $wpVer, $compat) {
+		global $phpEx;
+		$lastCompiled = $GLOBALS['config']['wpu_plugins_compiled'];
+		$compat = ($compat) ? "_fast" : "_slow";
+		$fnPlugin = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}";
+		if(file_exists($fnPlugin)) {
+			if(filemtime($fnPlugin) <= $lastCompiled) {
+				return $fnPlugin;
+			}
+		}
+		return false;
+
+	}	
+	
+	/**
+	 * Prepares content for saving to cache -- ensuring it can't be called directly, and that it can be properly eval()d
+	 */
+	function prepare_content($content) {
+		return '<' ."?php\n\n if(!defined('IN_PHPBB')){exit();}\n\n$content\n\n?" . '>';
 	}
 
 
@@ -246,17 +319,28 @@ class WPU_Cache {
 	/**
 	 * Purge the WP-United cache
 	 * Deletes all files from the wp-united/cache directory
-	 * @TODO: Implement
+	 * @todo : Implement
 	 */
 	function purge() {
 		
 	}
 	
-
-
+	/**
+	 * Logs an action
+	 * @access private
+	 *	@param string $action the action to log
+	 */
+	function _log($action) {
+		$this->logged[] = $action;
+	}
+	/**
+	 * Returns a string for display, with all the instances where a cache file was generated.
+	 * If an item is not listed, we can assume it was already cached
+	 */
+	function get_logged_actions() {
+		$strLog = implode('<br />', $this->logged);
+		return $strLog;
+	}
+	
 }
-
-
-
-
 ?>

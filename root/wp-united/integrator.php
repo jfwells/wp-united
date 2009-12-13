@@ -66,16 +66,20 @@ require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 
-//Initialise the cache
-global $wpuCache;
-$wpuCache = WPU_Cache::getInstance();
 
 // There are several variables we need to have around in the global scope. We only need to
 // do this if we are being called from a function, but for convenience, we just do it anyway
-global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
+global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug, $wpuPluginFixer;
 global $innerHeadInfo, $innerContent;
 global $db, $config;
 $lDebug = '';
+
+
+
+//Initialise the cache
+global $wpuCache;
+$GLOBALS['wpuCache'] = WPU_Cache::getInstance();
+
 
 // This is another way for WP-United or WordPress elements to test if they are running in the global scope.
 // They can test for $GLOBALS['amIGlobal']
@@ -263,7 +267,7 @@ if ( $useCache || $connectSuccess ) {
 			//	Full WP page
 			//
 			define('PHPBB_CONTENT_ONLY', TRUE);
-	
+
 			ob_start();
 	
 			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpSettings['wpPageName']);

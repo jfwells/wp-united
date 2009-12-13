@@ -31,7 +31,16 @@ if ( !defined('IN_PHPBB') )
 	exit;
 }
 
+/**
+ * A set of procedural actions called as "code edits" in phpBB. 
+ * by abstracting all the edits into this file, only two-line additions need to be made to phpBB
+ * core files
+ */
 class WPU_Actions {
+	/**
+	 * This is now called from the phpBB hook, and this can be moved
+	 * @todo move to hook file
+	 */
 	function do_head(&$template) {
 		global $wpSettings, $phpbb_root_path, $phpEx;
 		
@@ -52,7 +61,9 @@ class WPU_Actions {
 			}
 		} 	
 	}
-
+	/**
+	 * logs out of WordPress when the phpB logout is called
+	 */
 	function do_logout() { 
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
@@ -71,7 +82,10 @@ class WPU_Actions {
 					$wpUtdInt = null; unset ($wpUtdInt);
 				}
 			}
-	}	
+	}
+	/**
+	 * Updates the WordPress user profile when the phpBB profile is updated
+	 */
 	function profile_update($mode, $phpbb_id, $integration_id, $data) {
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $db;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
@@ -152,6 +166,9 @@ class WPU_Actions {
 					define('WPU_PERFORM_ACTIONS', TRUE);
 					if ( $wpSettings['showHdrFtr'] != 'REV' ) { // if reverse integration, we'll do it later
 						require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
+						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+						$wpuCache = WPU_Cache::getInstance();
+						
 						$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 						if ($wpUtdInt->can_connect_to_wp()) {
 							//enter the integration
@@ -166,7 +183,9 @@ class WPU_Actions {
 			}			
 		}
 	}
-	
+	/**
+	 * adds blog links to users' profiles.
+	 */
 	function generate_profile_link($bloglink_id, &$template) {
 		global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
@@ -188,7 +207,10 @@ class WPU_Actions {
 		}		
 		
 	}
-	
+	/**
+	 * creates blog links for users' posts
+	 * @todo set blog images for subSilver template
+	 */
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
 		global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
@@ -208,7 +230,9 @@ class WPU_Actions {
 			}
 		}	
 	}
-	
+	 /**
+	 * adds blog links to users' posts.
+	 */
 	function show_viewtopic_link($cache, &$postrow) {
 		if (isset($cache['blog_link'])) {
 			$postrow['BLOG_IMG'] = $cache['blog_img'];
@@ -216,7 +240,9 @@ class WPU_Actions {
 		}		
 	
 	}
-	
+	 /**
+	 * CSS Magic actions in style.php.
+	 */	
 	function css_magic($css) {
 		
 		global $phpbb_root_path, $phpEx;

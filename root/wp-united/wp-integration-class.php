@@ -105,7 +105,7 @@ Class WPU_Integration {
   		'inove_nosidebar',
   		// plugins
   		// awpcp
-  		'awpcp_db_version',
+  		/*'awpcp_db_version',
   		'isclassifiedpage',
   		'hasregionsmodule',
   		'hascaticonsmodule',
@@ -114,7 +114,7 @@ Class WPU_Integration {
   		'imagesurl',
   		'haspoweredbyremovalmodule',
   		'clearform',
-  		'hascaticonsmodule',
+  		'hascaticonsmodule',*/
 
 		// you could add your own here
 	);
@@ -191,6 +191,11 @@ Class WPU_Integration {
 		$this->debugBuffer = '';
 		$this->debugBufferFull = FALSE;
 		$this->wpVersion = 0;
+		
+		// Load plugin fixer -- must be loaded regardless of settings, as core cache may contain plugin fixes
+		require($this->phpbb_root . 'wp-united/plugin-fixer.' . $this->phpEx);
+		global $wpuPluginFixer;
+		$wpuPluginFixer = WPU_WP_Plugins::getInstance();
 	}
 	
 	/**
@@ -323,8 +328,20 @@ Class WPU_Integration {
 				$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
 				$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php ';
 				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
+				unset ($cFor);
+				
+				// Fix plugins
+				if(!empty($this->wpu_settings['pluginFixes'])) {
+					$strCompat = ($this->wpu_compat) ? "true" : "false";
+					$cSet = str_replace('get_option(\'active_plugins\');', 'get_option(\'active_plugins\'); $GLOBALS[\'wpuPluginFixer\']->initialise(WP_PLUGIN_DIR, \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+					$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($GLOBALS[\'wpuPluginFixer\']->fix(WP_PLUGIN_DIR  . \'/\' . $plugin));', $cSet);
+				}
+				
 				if (!$this->wpu_compat) {
 					// fix theme template functions!
+					/**
+					 * @todo Add to plugin fixes
+					 */
 					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
 				}
 				
@@ -336,11 +353,8 @@ Class WPU_Integration {
 						$cSet = str_replace('=& $'. $gloRef . ';', '=& $GLOBALS[\'' . $gloRef . '\'];',$cSet);
 					}
 				}
-				// Here we take a cursory look into plugins to fix common compatibility problems.
-				// We need to eval because plugins should be in the global scope
-				$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', 'eval($wpUtdInt->make_compatible(WP_PLUGIN_DIR . \'/\' . $plugin));', $cSet);
+
 				
-				unset ($cFor);
 				$cSet = '?'.'>'.trim($cSet).'<'.'?php ';
 				$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
 				$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php ');
@@ -366,42 +380,6 @@ Class WPU_Integration {
 			return FALSE;
 		}
 		
-	}
-	/**
-	 * This is where we try to fix common compatibility problems in plugins
-	 * We return the result as a string for wp-settings to execute
-	 * This is a private function to be called internally only
-	 * @private
-	 */
-	function make_compatible($pluginLoc) {
-		global $pluginContent;
-		if(!empty($this->wpu_settings['pluginFixes'])) {
-			if(file_exists($pluginLoc) && (stripos($pluginLoc, 'wpu-plugin') === false)) {
-				// TODO: READ FILE FROM CACHE
-				$pluginContent = @file_get_contents($pluginLoc);
-				$pluginContent = str_replace(array('exit;', 'exit('), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
-			
-				// identify all global vars
-				if (!$this->wpu_compat) {
-					preg_match_all('/\n[\s]*global[\s]*[^\n^\r^;^:]*(;|:|\r|\n)/', $pluginContent, $glVars);
-				}
-				$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\)]*registration\.php)/', "\n if(!function_exists('wp_insert_user')) $1", $pluginContent);
-				$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\(]*(\([\s]*__FILE__[\s]*\))?[^\)]*wp-config\.php)/', "\n if(!defined('ABSPATH')) $1", $pluginContent);
-			
-				$pluginContent = str_replace('__FILE__', "'" . $pluginLoc . "'", $pluginContent);
-			
-				$startToken = (preg_match('/^[\s]*<\?php/', $pluginContent)) ? '?'.'>' : '';
-				$endToken = (preg_match('/\?' . '>[\s]*$/', $pluginContent)) ? '<'.'?php ' : ''; 
-			
-				$pluginContent = $startToken. trim($pluginContent) . $endToken;
-			
-				global $wpuCache;
-				$wpuCache->save($pluginContent, $this->phpbb_root . "wp-united/cache/pluginfix" . basename($pluginLoc) . '.wpuplg');
-			
-				return $pluginContent; 
-			}
-		}
-		return 'include_once("' . $pluginLoc . '");';
 	}
 	/**
 	 * Prepares the code path wrapper for integrating logins
