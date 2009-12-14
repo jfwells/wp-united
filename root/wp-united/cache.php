@@ -270,7 +270,9 @@ class WPU_Cache {
 		$this->save($content, $fnDest);
 		$this->_log("Generated plugin cache: $fnDest");	
 		// update plugin compile time
+		$GLOBALS['wpUtdInt']->switch_db('TO_P');
 		set_config('wpu_plugins_compiled', filemtime($fnDest));
+		$GLOBALS['wpUtdInt']->switch_db('TO_W');
 		return $fnDest;
 	}
 	

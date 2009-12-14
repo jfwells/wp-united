@@ -3,24 +3,55 @@ Actions remaining for release of v0.8
 This is more of a general todo list. See code documentation for a full list of @todos. 
 Al full list of bugs is in the forum bug tracker.
 
+TODO
+--------
+
 Hooks: Double-phpBB reported. Integration mode not fully set up in head.
 
-Plugin-fixes: Recursive includes should only operate on files under wpu-plugin
-Plugin-fixes: See todo on solution for sending global vars up the chain
+Cache: Ability to purge. Auto-purge on wizard run
+
+Plugin fixes: Repeat for WPMU plugins
+Plugin fixes: Combine template functions.php fixes
+
+Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
 ACP: Settings page to fix and upgrade to AJAX split as with Setup Wizard
 ACP: Server Error reported in IE8
 ACP: Reset not working
 ACP: User mapping errors reported
+ACP: remove header fix, and split out "advanced" options to simplify install
+ACP: Cache purge
 
-Full page integration: Improve settings / include blank page or option to create one (see blank page plugin)
+Plugin: WP Admin link not showing on full page reverse integration in sidebar
+Plugin: Logout etc. links not showing in dashboard
+Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
+Plugin: use wp_enqueue_script for smilies etc.
+
+Full page integration: Improve settings / include blank page or option to create one (see blank page plugin). Remove "hide pages" hack
 
 CSS Magic / template voodoo: Make filename hashes unguessable
 CSS Magic: Harden and clean up wpu-style-fixer
 CSS Magic: Add fixes for IE (6,7,8)
 
-Merge Japgalaxy's cross-posted comments
+Cross-posting: Auto-link should be in comment form, not at end of post
+Cross-posting: Auto-link doesn;t work on permalinked setups
+Cross-posting: Merge Japgalaxy's cross-posted comments
 
 User blogs: Check and improve dashboard
+
+Under consideration:
+Overall architecture: Remove subdomain restrictions
+Overall architecture: Plugin fixes extend more general compatibility class -- to allow for simple "compatibility slider" in v0.9
+Overall architecture: Script path, URL, etc. still too hard to calculate, messy
+Overall architecture: General phpBB class for forum access from WP
+Overall architecture: switch_db -- better to extend existing DB objects.
+
+
+DONE
+-------
+
+- See SVN changelog for complete list
+- Plugin-fixes: Recursive includes should only operate on files under wpu-plugin
+- Plugin-fixes: Dynamic global variables detection
 
 

@@ -119,6 +119,7 @@ if ( (!$wpuAbs->user_logged_in()) && ($wpSettings['mustLogin'])  && (!defined('W
 
 
 // set some strings for the WordPress page
+global $wpuGetBlog, $wpuGetBlogIntro;
 if ( $phpbb_logged_in ) {
 	if ( $wpuAbs->userdata('user_wpublog_id') ) {
 		$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $wpuAbs->lang('add_to_blog') : $wpuAbs->lang('go_wp_admin');

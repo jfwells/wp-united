@@ -747,14 +747,15 @@ function wpu_registerlink($registerLink) {
 		$endPos = strpos($registerLink, '</a>');
 		$before = substr($registerLink, 0, $startPos);
 		$after = substr($registerLink, $endPos + 4);
-		// TODO -- CHECK WHETHER WE SHOULD DO THIS!!
+		/**
+		 * @todo this could probably be done better
+		 */
 		$before = empty($before) ? '<li>' : $before;
 		$after = empty($after) ? '</li>' : $after;
-		if ($wpuAbs->ver == 'PHPBB2') {
-			$reg_link =  'profile.'.$phpEx.'?mode=register&amp;redirect=wp-united-blog';
-		} else {
-			$reg_link =  'ucp.'.$phpEx.'?mode=register';
-		}
+		$reg_link =  'ucp.'.$phpEx.'?mode=register';
+		/**
+		 * @todo move $wpuGetxxx calculation here
+		 */
 		if ( ! is_user_logged_in() ) {
 			return $before . '<a href="' . append_sid(add_trailing_slash($scriptPath) . $reg_link) . '">' . $wpuAbs->lang('Register') . '</a>' . $after;
 		} else {

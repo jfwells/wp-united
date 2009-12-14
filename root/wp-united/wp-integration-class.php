@@ -78,7 +78,7 @@ Class WPU_Integration {
 		'wp_taxonomies',
 		'wp_object_cache',
 		'options',
-
+		
 		// widgets
 		'registered_sidebars', 
 		'registered_widgets', 
@@ -90,6 +90,7 @@ Class WPU_Integration {
 		'wp_registered_widget_controls', 
 		'wp_registered_widget_updates',
 		'_wp_deprecated_widgets_callbacks',
+		
 		// comments
 		'comment', 
 		'comments', 
@@ -194,8 +195,10 @@ Class WPU_Integration {
 		
 		// Load plugin fixer -- must be loaded regardless of settings, as core cache may contain plugin fixes
 		require($this->phpbb_root . 'wp-united/plugin-fixer.' . $this->phpEx);
-		global $wpuPluginFixer;
-		$wpuPluginFixer = WPU_WP_Plugins::getInstance();
+		
+		// Several library functions are required, and might not have been included if this is called directly from a phpBB function
+		// (e.g. suring setup)
+		require_once($this->phpbb_root . 'wp-united/wpu-helper-funcs.' . $this->phpEx);
 	}
 	
 	/**
@@ -333,8 +336,11 @@ Class WPU_Integration {
 				// Fix plugins
 				if(!empty($this->wpu_settings['pluginFixes'])) {
 					$strCompat = ($this->wpu_compat) ? "true" : "false";
-					$cSet = str_replace('get_option(\'active_plugins\');', 'get_option(\'active_plugins\'); $GLOBALS[\'wpuPluginFixer\']->initialise(WP_PLUGIN_DIR, \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
-					$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($GLOBALS[\'wpuPluginFixer\']->fix(WP_PLUGIN_DIR  . \'/\' . $plugin));', $cSet);
+					$cSet = str_replace('get_option(\'active_plugins\');', 'get_option(\'active_plugins\');global $wpuPluginFixer; $wpuPluginFixer = WPU_WP_Plugins::getInstance(WP_PLUGIN_DIR, \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+					$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($wpuPluginFixer->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
+					if (!$this->wpu_compat) {
+						$cSet = str_replace('do_action(\'plugins_loaded\');', 'eval($wpuPluginFixer->get_globalString()); do_action(\'plugins_loaded\');', $cSet);
+					}
 				}
 				
 				if (!$this->wpu_compat) {
@@ -343,6 +349,7 @@ Class WPU_Integration {
 					 * @todo Add to plugin fixes
 					 */
 					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
+					$cSet = str_replace('include(STYLESHEETPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
 				}
 				
 				//here we handle references to objects that need to be available in the global scope when we're not.
@@ -710,7 +717,7 @@ Class WPU_Integration {
 		//reinstate all the phpBB variables that we've put "on ice", let them overwrite any variables that were claimed by WP.
 		foreach ($this->sleepingVars as $varName => $varVal) {
 			global $userdata, $table_prefix;
-				if ( !($varName == 'wpuNoHead') ) {
+				if ( ($varName != 'wpuNoHead') && ($varName != 'wpuCache') ) {
 					global $$varName;
 					$$varName = $varVal;
 				}

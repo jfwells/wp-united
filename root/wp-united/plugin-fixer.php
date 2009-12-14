@@ -21,56 +21,64 @@ if ( !defined('IN_PHPBB') ) exit;
 */
 class WPU_WP_Plugins {
 	
-	var $compiled;
 	var $pluginDir;
-	
 	var $wpuVer;
 	var $wpVer;
 	var $compat;
 	var $strCompat;
+	var $globals;
+	var $mainEntry;
+	
+	var $fixCoreFiles;
+		
 	
 	
 	
 	/**
 	 * This class MUST be called as a singleton through this method
-	 */
-	function getInstance() {
-		static $instance;
-		if (!isset($instance)) {
-			$instance = new WPU_WP_Plugins();
-        } 
-        	return $instance;
-    }		
-    
-    /**
-     * Class constructor
-     */
-    function WPU_WP_Plugins() {
-		$this->compiled = false;
-	}
-	
-	/**
-	 * Compiles plugins as appropriate
 	 * @param string $wpPluginDir The WordPress plugin directory
 	 * @param string $wpuVer WP-United version
 	 * @param string $wpVer WordPress version
 	 * @param string $compat True if WordPress is in global scope
 	 */
-	function initialise($wpPluginDir, $wpuVer, $wpVer, $compat) {
-		$this->pluginDir = $wpPluginDir;
-		//$this->compile_all($this->pluginDir);
+	function getInstance($wpPluginDir, $wpuVer, $wpVer, $compat) {
+		static $instance;
+		if (!isset($instance)) {
+			$instance = new WPU_WP_Plugins($wpPluginDir, $wpuVer, $wpVer, $compat);
+        } 
+        	return $instance;
+    }		
+    
+	/**
+	 * Class constructor
+	 * @access private
+	 */
+	function WPU_WP_Plugins($wpPluginDir, $wpuVer, $wpVer, $compat) {
+		$this->pluginDir =  add_trailing_slash(realpath($wpPluginDir));
 		$this->compat = $compat;
 		$this->wpuVer = $wpuVer;
 		$this->wpVer = $wpVer;
 		$this->strCompat = ($this->wpu_compat) ? "true" : "false";
+		$this->mainEntry = false;
+		$this->globals = (array)get_option('wpu_plugins_globals');
+		$this->oldGlobals = $this->globals;
+		
+		// problematic WordPress files that could be require()d by a function
+		$this->fixCoreFiles = array(
+			add_trailing_slash(realpath(ABSPATH)) . 'wp-config.php',
+			add_trailing_slash(realpath(ABSPATH . WPINC)) . 'registration.php'
+		);
 	}
 	
 	/**
-	 * Returns plugin code to execute
+	 * Returns compiled plugin file to execute
 	 * @param string $plugin The full path to the plugin
 	 */
-	function fix($plugin, $includeType = false) {
+	function fix($plugin, $mainEntry = false) {
 		global $wpuCache;
+		
+		$this->mainEntry = $mainEntry;
+		
 		if (stripos($plugin, 'wpu-plugin') === false) {
 			if(file_exists($plugin)) {
 				$cached = $wpuCache->get_plugin($plugin, $this->wpuVer, $this->wpVer, $this->strCompat);
@@ -84,33 +92,6 @@ class WPU_WP_Plugins {
 		}
 		return $plugin;
 	}	
-	/**
-	 * Compiles all php files found in wp-content/plugins
-	 */
-	function compile_all($path) {
-		global $phpEx, $wpuCache;
-
-
-		$dir = @opendir($path);
-
-		if (!$dir) {
-			return;
-		}
-		while (($entry = readdir($dir)) !== false) {
-			$fullPath = add_trailing_slash($path) . $entry;
-			// no guarantees WordPress is using $phpEx extension
-			if (((strpos($entry, "." . $phpEx) !== false) || (strpos($entry, ".php") !== false)) && (stripos($entry, 'wpu-plugin') === false)) {
-				if((file_exists($fullPath)) && (!$wpuCache->get_plugin($fullPath, $this->wpuVer, $this->wpVer, $this->strCompat))) {
-					$this->process_file($fullPath);
-				}
-			} else if(is_dir($fullPath) && ($entry != '.') && ($entry != '..')) {
-				$this->compile_all($fullPath);
-			}
-		}
-		
-		closedir($dir);
-
-	}
 	
 	/**
 	 * Process the file
@@ -119,70 +100,86 @@ class WPU_WP_Plugins {
 	function process_file($pluginLoc) {
 		global $phpEx, $wpuCache;
 		
-		//echo "<br />--- Processing file: $pluginLoc ----<br />";
+		// We only process files in the plugins directory, unless that file is a known problem
+		$thisLoc = add_trailing_slash(dirname(realpath($pluginLoc)));
+		if(strpos($thisLoc, $this->pluginDir) === false) {
+			if(in_array(realpath($pluginLoc), $this->fixCoreFiles)) {
+				return $wpuCache->save_plugin('', $pluginLoc, $this->wpuVer, $this->wpVer, $this->strCompat);
+			}
+			return $pluginLoc;
+		}
+			
 		$pluginContent = @file_get_contents($pluginLoc);
 		
-		/**
-		 * @todo: The below should be (;|\n)[\S]*(exit;exit\(
-		 */
-		//$pluginContent = str_replace(array('exit;', 'exit('), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
+		// prevent plugins from calling exit
+		$pluginContent = preg_replace(array('/[;\s]exit;/', '/[;\s]exit\(/'), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
 	
 		// identify all global vars
 		if (!$this->compat) {
-			preg_match_all('/\n[\s]*global[\s]*[^\n^\r^;^:]*(;|:|\r|\n)/', $pluginContent, $glVars);
-		}
+			preg_match_all('/\n[\s]*global[\s]*([^\n^\r^;^:]*)(;|:|\r|\n)/', $pluginContent, $glVars);
 		
-		/**
-		 * @todo: should make vars global at beginning of each file (Can't do here) --- how to cache?
-		 * 
-		 * option 1:
-		 * in main file: grep all globals, declare before code runs --OK
-		 * in include files, do same -- not OK
-		 * 
-		 * Solution: During compile, step into includes --> they are not being executed yet
-		 * Collect global vars and pass back up the chain. Collect in $this->globals
-		 * Main plugin entry should be called with ->fix(xxx, entry=true)
-		 * if this is main plugin entry, then prepend globals - global $x $y $z
-		 * 
-		 * TODO: MUST NOT PROCESS FILES OUTSIDE THE PLUGIN FOLDER
-		 * => THIS MUST FIRST BE INITIALISED WITH THE PLUGIN FOLDER ROOT
-		 */
+			$globs = array();
+			foreach($glVars[1] as $varSec) {
+				$vars = explode(',', $varSec);
+				foreach($vars as $var) {
+					$globs[] = trim(str_replace('$', '',$var));
+				}
+			}
+			if(sizeof($globs)) {
+				if(is_array($this->globals)) {
+					if(sizeof($this->globals)) {
+						$globs = array_merge($this->globals, $globs);
+					}
+				}
+				$globs = array_merge(array_unique($globs));
+				$this->globals = $globs;
+			}
+		}
 		
 		// prevent including files which WP-United has already processed and included
 		$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\)]*registration\.php)/', "\n if(!function_exists('wp_insert_user')) $1", $pluginContent);
 		$pluginContent = preg_replace('/\n[\s]*((include|require)(_once)?[\s]*\([^\(]*(\([\s]*__FILE__[\s]*\))?[^\)]*wp-config\.php)/', "\n if(!defined('ABSPATH')) $1", $pluginContent);
 	
-	//echo getcwd();
+		//prevent buggering up of include paths
+		$pluginContent = str_replace('__FILE__', "'" . $pluginLoc . "'", $pluginContent);
+	
 		// identify all includes and redirect to plugin fixer cache, if appropriate
-		preg_match_all('/\n[\s]*((include|require)(_once)?[\s]*[\(]?([^\);\n]*\.(' . $phpEx . '|php)[^\);\n]*)(\)|;))/', $pluginContent, $includes);
-		//print_r($includes);
+		preg_match_all('/\n[\s]*((include|require)(_once)?[\s]*[\(]?([;\n]*\.(' . $phpEx . '|php)[^\);\n]*)(\n|;))/', $pluginContent, $includes);
 		foreach($includes[4] as $key => $value) {	
 			if(!empty($includes[4][$key])) {
 				$finalChar = ($includes[6][$key] == ';') ? ';' : '';
 				$pluginContent = str_replace($includes[1][$key], $includes[2][$key] . $includes[3][$key] . '($GLOBALS[\'wpuPluginFixer\']->fix(' . "{$value})){$finalChar}", $pluginContent);
-				//echo '$GLOBALS[\'wpuPluginFixer\']->include_redirect(' . $value . ', \'' .  $includes[2][$key] . $includes[3][$key] . '\'' . "<br />";
 			}
 		}
 	
-		$pluginContent = str_replace('__FILE__', "'" . $pluginLoc . "'", $pluginContent);
+		
 	
 		$startToken = (preg_match('/^[\s]*<\?php/', $pluginContent)) ? '?'.'>' : '';
 		$endToken = (preg_match('/\?' . '>[\s]*$/', $pluginContent)) ? '<'.'?php ' : ''; 
 	
 		$pluginContent = $startToken. trim($pluginContent) . $endToken;
-		
-		
+	
 		return $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpuVer, $this->wpVer, $this->strCompat);
-		
-		
-	
-	//	echo"result: " . $pluginContent;
-		//global $wpuCache;
-		//$wpuCache->save($pluginContent, $this->phpbb_root . "wp-united/cache/pluginfix" . basename($pluginLoc) . '.wpuplg');
-	
-		//return $pluginContent; 
+
 	}
 	
+	function save_globals() {
+		// remove any blanks, and remove anything that could wreck global references
+		$this->globals = array_diff($this->globals, array_merge(array(''), $GLOBALS['wpUtdInt']->globalRefs));
+		if($this->globals != $this->oldGlobals) {
+			update_option('wpu_plugins_globals', $this->globals);
+		}
+	}
+	
+	function get_globalString() {
+		if(!$this->compat) {
+			if(sizeof($this->globals) && (is_array($this->globals))) {
+				$this->save_globals();
+				return 'global $' . implode(', $', $this->globals) . ';';
+			}
+		}
+		return '';
+	}
 	
 	
 }
