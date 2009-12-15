@@ -635,14 +635,14 @@ Class WPU_Integration {
 					'if ( is_trackback() ) {',
 					'} else if ( is_author()',
 					'} else {'
-				)
+				);
 				$repls = array(
 					'',
 					'$wpuNoHead = true; do_action(\'do_robots\');',
 					'if (is_trackback()) {$wpuNoHead=true;',
 					'}else if(is_author()&& !empty($wpSettings[\'usersOwnBlogs\']) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
 					'} } else { $wpuNoHead = true;'
-				)
+				);
 				$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);
 				eval('?' . '>' . $wpuTemplate . '<' . '?php');
 			}
