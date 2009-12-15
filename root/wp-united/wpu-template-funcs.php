@@ -7,39 +7,29 @@
 * @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* 
+* WordPress template functions -- see the readme included in the mod download for how to use these.
 *
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-// WordPress template functions -- see the readme included in the mod download for how to use these.
-//
+/**
+ */
 
-
-if ( !defined('IN_PHPBB') && !defined('ABSPATH') )
-{
-	die("Hacking attempt");
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 	exit;
 }
 
 
-//
-// 	WPU_REGISTER_INTRO
-//	-----------------------------
-//	Displays a sentence soliciting users to get started with their blogs
-//
-
+/**
+ * Displays a sentence soliciting users to get started with their blogs
+ * @author John Wells
+ */
 function wpu_intro() {
  echo get_wpu_intro();
 }
-
+/**
+ * Prepares a sentence soliciting users to get started with their blogs
+ */
 function get_wpu_intro() {
 	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $wpuAbs, $phpEx, $wpuGetBlogIntro, $scriptPath;
 	if ( (!empty($wpSettings['useBlogHome'])) && (!empty($wpSettings['usersOwnBlogs'])) ) {
@@ -56,8 +46,11 @@ function get_wpu_intro() {
 }
 
 
-//SHOW A LIST OF PHPBB BLOGS
-//displays a nice paginated list of phpBB blogs
+/**
+ * Returns a nice paginated list of phpBB blogs
+ * @param bool $showAvatars Show phpBB avatars? Defaults to true
+ * @param int $maxEntries Maximum number to show per page. Defaults to 5.
+ */
 function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 	global $wpdb, $authordata, $scriptPath, $wpuAbs, $wpSettings, $wp_version, $phpEx;
 	$start = 0;
@@ -177,19 +170,53 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 	return $blogList;
 }
 
-function wpu_bloglist($showAvatars = TRUE, $maxEntries = 10) {
+/**
+ * Displays the blog list
+ * @param bool $showAvatars Show phpBB avatars? Defaults to true
+ * @param int $maxEntries Maximum number to show per page. Defaults to 5.
+ * @author John Wells
+ */
+function wpu_bloglist($showAvatars = true, $maxEntries = 10) {
 	echo wpu_bloglist($showAvatars, $maxEntries);
 }
 
+/**
+ * Displays the blog list
+ * Synonym of wpu_bloglist
+ * @author John Wells
+ */
+function wpu_blogs_home() {
+	echo get_wpu_blogs_home();
+}
+
+/**
+ * Returns the blog listing without displaying it.
+ * @author John Wells
+ */
+function get_wpu_blogs_home() {
+	global $wpSettings;
+	$postContent = get_wpu_intro(); 
+	$postContent .= get_wpu_bloglist(true, $wpSettings['blogsPerPage']); 
+	return $postContent;
+}
 
 
-// INSERT COMMENTER AVATAR
-//Inserts the commenter's phpBB avatar
-
-function avatar_commenter($default = TRUE, $id = '') {
+/**
+ * Inserts the commenter's avatar
+ * @param bool $default Use default avatars if no avatar is present? Defaults to true
+ * @param int $id User ID (optional)
+ * @author John Wells
+ */
+function avatar_commenter($default = true, $id = '') {
 	echo get_avatar_commenter($default, $id);
 }
 
+/** 
+ * Returns the commenter avatar without displaying it.
+ * @param bool $default Use default avatars if no avatar is present? Defaults to true
+ * @param int $id User ID (optional)
+ * @author John Wells
+ */
 function get_avatar_commenter($default=TRUE, $id = '') {
 global $comment, $images, $scriptPath;
 
@@ -218,14 +245,21 @@ global $comment, $images, $scriptPath;
 
 
 
-// INSERT AUTHOR AVATAR
-//Inserts the author's phpBB avatar
-
-function avatar_poster($default = TRUE) {
+/**
+ * Inserts the author's avatar
+ * @param bool $default Use default avatars if no avatar is present? Defaults to true
+  * @author John Wells
+ */
+function avatar_poster($default = true) {
 	echo get_avatar_poster($default);
 }
 
-function get_avatar_poster($default = TRUE) {
+/** 
+ * Returns the author's avatar without displaying it.
+ * @param bool $default Use default avatars if no avatar is present? Defaults to true
+ * @author John Wells
+ */
+function get_avatar_poster($default = true) {
 	global $images, $authordata, $scriptPath;
 	$image = avatar_create_image($authordata);
 	if ( !empty($image) ) {
@@ -240,14 +274,21 @@ function get_avatar_poster($default = TRUE) {
 
 
 
-// INSERT USER AVATAR
-//Inserts the user's phpBB avatar
-//
-function avatar_reader($default = TRUE) {
+/**
+ * Inserts the reader's (logged in user's) avatar
+ * @param bool $default Use default avatars if no avatar is present? Defaults to true
+ * @author John Wells
+ */
+function avatar_reader($default = true) {
 	echo get_avatar_reader($default);
 }
 
-function get_avatar_reader($default = TRUE) {
+/**
+ * Returns the reader's avatar without displaying it
+ * @param bool $default Use default avatars if no avatar is present? Defaults to true
+ * @author John Wells
+ */
+function get_avatar_reader($default = true) {
 	global $images, $scriptPath, $userdata, $user_ID;
 	get_currentuserinfo();
 	if ( !empty($user_ID) ) {
@@ -268,9 +309,11 @@ function get_avatar_reader($default = TRUE) {
 
 
 
-// AVATAR_CREATE_IMAGE
-// Creates a suitable avatar image
-
+/**
+ * Generates the avatar image
+ * @author John Wells
+ * @access private
+ */
 function avatar_create_image($user) {
 	$avatar = '';
 	if ( !empty($user->ID) ) {
@@ -283,58 +326,34 @@ function avatar_create_image($user) {
 			require_once($phpbb_root_path . 'includes/constants.' . $phpEx); 
 			$scriptPath = $phpbb_root_path;			
 		}			
-		if ($wpuAbs->ver == 'PHPBB2') {
-			$avPath = $scriptPath . $wpuAbs->config('avatar_path');
-			$gallPath = $scriptPath . $wpuAbs->config('avatar_gallery_path');
-			if ( $user->wpu_avatar_type && $user->wpu_allowavatar ) {
-				switch( $user->wpu_avatar_type ) {
-					case USER_AVATAR_UPLOAD:
-						$avatar = ( $wpuAbs->config('allow_avatar_upload') ) ? $avPath . '/' . $user->wpu_avatar  : '';
-						break;
-					case USER_AVATAR_REMOTE:
-						$avatar = ( $wpuAbs->config('allow_avatar_remote') ) ? $user->wpu_avatar  : '';
-						break;
-					case USER_AVATAR_GALLERY:
-						$avatar = ( $wpuAbs->config('allow_avatar_local') ) ? $gallPath . '/' . $user->wpu_avatar : '';
-						break;
-				}
-			}
-		} else { 
-			if ($user->wpu_avatar_type && $user->wpu_avatar) {
-				require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
-				$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
-				$avatar = explode('"', $avatar);
-				$avatar = str_replace($phpbb_root_path, $scriptPath, $avatar[1]); //stops trailing slashes in URI from killing avatars
-			}
+		if ($user->wpu_avatar_type && $user->wpu_avatar) {
+			require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
+			$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
+			$avatar = explode('"', $avatar);
+			$avatar = str_replace($phpbb_root_path, $scriptPath, $avatar[1]); //stops trailing slashes in URI from killing avatars
 		}
+
 	} 
 	return $avatar;
 }
 
-function wpu_blogs_home() {
-	echo get_wpu_blogs_home();
-}
 
-function get_wpu_blogs_home() {
-	global $wpSettings;
-	$postContent = get_wpu_intro(); 
-	$postContent .= get_wpu_bloglist(TRUE, $wpSettings['blogsPerPage']); 
-	return $postContent;
-}
-
-
-//
-//	LATEST UPDATED BLOGS
-//	get_wpu_latest_blogs
-//	based on contribution by  Quentin, qsc@mypozzie.co.za 
-//
-//	wpu_latest_blogs('limit=20&before=<li>&after=</li>');
-//
-
+/**
+ * Displays the latest updated user blogs
+ * Based on a contribution by Quentin qsc AT mypozzie DOT co DOT za
+ * @param string $args
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ */
 function wpu_latest_blogs($args = '') {
 	echo get_wpu_latest_blogs($args);
 }
-	
+
+/**
+ * Returns the latest updated user blogs without displaying them
+ * Based on a contribution by Quentin qsc AT mypozzie DOT co DOT za
+ * @param string $args
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ */
 function get_wpu_latest_blogs($args = '') {
 	global $wpuAbs, $wpdb;
 
@@ -371,17 +390,19 @@ function get_wpu_latest_blogs($args = '') {
 	}
 } 
 
-//
-//	LATEST BLOGS AND POSTS
-//	get_wpu_latest_blogposts
-//
-//	wpu_latest_blogs('limit=20&before=<li>&after=</li>');
-//
-
+/**
+ * Displays the latest user blog posts, together with blog details
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ */
 function wpu_latest_blogposts($args = '') {
 	echo get_wpu_latest_blogposts($args);
 }
-	
+
+/**
+ * Returns the latest user blog posts, together with blog details
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ * @author John Wells
+ */
 function get_wpu_latest_blogposts($args = '') {
 	global $wpuAbs, $wpdb;
 	
@@ -422,13 +443,18 @@ function get_wpu_latest_blogposts($args = '') {
 	}
 } 
 
-// INSERT PHPBB USERNAME
-//Inserts the user's phpBB username if they are logged in, or displays 'Guest' if not.
-
+/**
+ * Displays the logged in user's phpBB username, or 'Guest' if they are logged out
+ * @author John Wells
+ */
 function wpu_phpbb_username() {
 	echo get_wpu_phpbb_username();
 }
 
+/**
+ * Returns the phpBB username without displaying it
+ * @author John Wells
+ */
 function get_wpu_phpbb_username() {
 	global $wpuAbs;
 	$usrName = '';
@@ -438,13 +464,19 @@ function get_wpu_phpbb_username() {
 	return ($usrName == '') ? $wpuAbs->lang('Guest') : $usrName;
 }
 
-//	PHPBB PROFILE LINK
-//	Returns a link to the users' phpBB profile
-//	Will NOT work with older (phpBB2) versions of WP-United unless properly upgraded
+/**
+ * Displays a link to the user's phpBB profile
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ * @author John Wells
+ */
 function wpu_phpbb_profile_link($wpID = '') {
 	echo get_wpu_phpbb_profile_link($wpID);
 }
 
+/**
+ * Returns a link to the user's phpBB profile without displaying it
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ */
 function get_wpu_phpbb_profile_link($wpID = '') {
 	$phpbb_usr_id = get_usermeta($wpID, 'phpbb_userid');
 	if (!empty($usr_data)) {
@@ -453,18 +485,18 @@ function get_wpu_phpbb_profile_link($wpID = '') {
 	}
 }
 
-//
-//	PHPBB USER RANKS
-//	The below tags all deal with ranks in some form or another
-//	wpu_phpbb_ranktitle: The title of the rank
-//	wpu_phpbb_rankimage: The rank image
-//	wpu_phpbb_rankblock : Both the title and image in a 'lockup'
-//	$wpID can be passed in to retrieve a specific user's rank, otherwise we retrieve them for the reader (logged in user). $wpID  is the WORDPRESS user ID!!!
-//
+/**
+ * Displays the user's phpBB rank
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ */
 function wpu_phpbb_ranktitle($wpID = '') {
 	echo get_wpu_phpbb_ranktitle($wpID);
 }
 
+/**
+ * Returns the user's phpBB rank without displaying it
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ */
 function get_wpu_phpbb_ranktitle($wpID = '') {
 	$rank = _wpu_get_user_rank_info($wpID);
 	if ( $rank ) {
@@ -472,10 +504,20 @@ function get_wpu_phpbb_ranktitle($wpID = '') {
 	}
 }
 
+/**
+ * Displays the user's phpBB rank image
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ * @author John Wells
+ */
 function wpu_phpbb_rankimage($wpID = '') {
 	echo get_wpu_phpbb_rankimage($wpID);
 }
 
+/**
+ * Returns the user's phpBB rank image without displaying it
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ * @author John Wells
+ */
 function get_wpu_phpbb_rankimage($wpID = '') {
 	$rank = _wpu_get_user_rank_info($wpID);
 	if ( $rank ) {
@@ -483,10 +525,20 @@ function get_wpu_phpbb_rankimage($wpID = '') {
 	}
 }
 
+/**
+ * Displays a phpBB rank lockup with rank and image
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ * @author John Wells
+ */
 function wpu_phpbb_rankblock($wpID = '') {
 	echo get_wpu_phpbb_rankblock($wpID);
 }
 
+/**
+ * Returns a phpBB rank lockup without displaying it
+ * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ * @author John Wells
+ */
 function get_wpu_phpbb_rankblock($wpID = '') {
 	$rank = _wpu_get_user_rank_info($wpID);
 	if ( $rank ) {
@@ -501,17 +553,22 @@ function get_wpu_phpbb_rankblock($wpID = '') {
 
 
 
-
-//
-//	PHPBB FORUM STATS
-//	-----------------------------
-//	RETURNS A LIST OF FORUM STATS
-//	wpu_phpbb_stats('limit=20&before=<li>&after=</li>');
-//
+/**
+ * Displays phpBB forum stats
+ * @param string args
+ * @example wpu_phpbb_stats('limit=20&before=<li>&after=</li>');
+ * @author John Wells
+ */
 function wpu_phpbb_stats($args='') {
 	echo get_wpu_phpbb_stats($args);
 }
 
+/**
+ * Returns phpBB forum stats without displaying them
+ * @param string args
+ * @example wpu_phpbb_stats('limit=20&before=<li>&after=</li>');
+ * @author John Wells
+ */
 function get_wpu_phpbb_stats($args='') {
 	global $wpuAbs, $phpEx, $scriptPath;
 	$defaults = array('before' => '<li>', 'after' => '</li>');
@@ -531,18 +588,19 @@ function get_wpu_phpbb_stats($args='') {
 }
 
 
-
-
-//
-//	PHPBB POSTS SINCE LAST VISIT LINK
-//	-----------------------------------------------------
-//	Returns the # of posts since the user last visited with a link to the post search
-//
-
+/**
+ * Displays a link to search phpBB posts since the user's last visit (together with number of posts)
+ * @param string args
+ * @author John Wells
+ */
 function wpu_newposts_link() {
 	echo get_wpu_newposts_link();
 }
-
+/**
+ * Returns the link to phpBB posts since the user's last visit without displaying it
+ * @param string args
+ * @author John Wells
+ */
 function get_wpu_newposts_link() {
 	global $wpuAbs, $phpEx, $scriptPath;
 	if( $wpuAbs->user_logged_in() ) {
@@ -550,6 +608,10 @@ function get_wpu_newposts_link() {
 	}
 }
 
+/**
+ * Returns the number of posts since the user's last visit
+ * @author John Wells
+ */
 function get_wpu_newposts() {
 	global $db, $wpuAbs;
 	if( $wpuAbs->user_logged_in() ) {
@@ -567,20 +629,24 @@ function get_wpu_newposts() {
 	}
 }
 
-//
-//	LATEST POSTS
-//	---------------------
-//	Nice list of latest forum posts by Japgalaxy
-//	Example: wpu_latest_phpbb_posts('<li>','</li>','Y-m-j',20,'Yes')
-
+/**
+ * Displays a nice list of latest phpBB forum posts
+ * @author Japgalaxy
+ * @example: wpu_latest_phpbb_posts('<li>','</li>','Y-m-j',20,'Yes')
+ * @todo use consistent args format
+ */
 function wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo) {
+	echo get_wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo);
+}
+/**
+ * Returns a nice list of latest phpBB forum posts without displaying them
+ * @author Japgalaxy
+ * @example: get_wpu_latest_phpbb_posts('<li>','</li>','Y-m-j',20,'Yes')
+ * @todo use consistent args format
+ */
+function get_wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo) {
 	global $scriptPath, $wpuAbs, $db;
 	
-	if ($wpuAbs->ver == 'PHPBB2') {
-		echo "Not phpBB2 compatible."; return false;
-	}
-	
-
 	if ($gtm==""){
 		$gtm="Y-m-j";
 	} 
@@ -598,19 +664,20 @@ function wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo) {
 			GROUP BY pp.topic_id
 			ORDER BY post_time DESC"; 
 	if(!($result = $db->sql_query_limit($sql, $limit, 0))) { 
-		__e("Could not retrieve phpBB data");
+		return __("Could not retrieve phpBB data");
+		
 	}
 				
 
 	if (!sizeof($result)) {
-		echo $before.__("Nothing found").$after;
+		return $before.__("Nothing found").$after;
 		return;
 	} else {
 		while ($row = $db->sql_fetchrow($result)) {
 			if ($seo=="Yes") {
-				echo $before."<a href=\"" . add_trailing_slash($scriptPath) . "post{$row['post_id']}.html#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "member" . $row['poster_id'] . ".html\">" . $row['username'] ."</a> - at: " . date($gtm, $row['post_time']) .$after;
+				return $before."<a href=\"" . add_trailing_slash($scriptPath) . "post{$row['post_id']}.html#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "member" . $row['poster_id'] . ".html\">" . $row['username'] ."</a> - at: " . date($gtm, $row['post_time']) .$after;
 			} else {
-				echo $before."<a href=\"" . add_trailing_slash($scriptPath) . "viewtopic.php?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "memberlist.php?mode=viewprofile&u=" . $row['poster_id'] . "\">" . $row['username'] ."</a> - at: " . date($gtm, $row[post_time]) .$after;
+				return $before."<a href=\"" . add_trailing_slash($scriptPath) . "viewtopic.php?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "memberlist.php?mode=viewprofile&u=" . $row['poster_id'] . "\">" . $row['username'] ."</a> - at: " . date($gtm, $row[post_time]) .$after;
 			}
 		}
 		
@@ -620,16 +687,20 @@ function wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo) {
 }
 
 
-
-//
-//	LATEST TOPICS
-//	---------------------
-//	Nice list of latest forum topics
-//	wpu_latest_phpbb_posts('limit=10&forum=1,2,3&before=<li>&after=</li>')
+/**
+ * Displays a nice list of latest phpBB forum topics
+ * @author John Wells
+ * @example: wpu_latest_phpbb_topics('limit=10&forum=1,2,3&before=<li>&after=</li>')
+ */
 function wpu_latest_phpbb_topics($args = '') {
 	echo get_wpu_latest_phpbb_topics($args);
 }
 
+/**
+ * Returns a nice list of latest phpBB forum topics without displaying it
+ * @author John Wells
+ * @example: get_wpu_latest_phpbb_topics('limit=10&forum=1,2,3&before=<li>&after=</li>')
+ */
 function get_wpu_latest_phpbb_topics($args = '') {
 	global $scriptPath, $phpEx, $wpuAbs;
 	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '');
@@ -654,14 +725,12 @@ function get_wpu_latest_phpbb_topics($args = '') {
 
 
 
-//@since WP-United v0.7.0
-//
-//   RETRIEVE THE PHPBB USER ID FROM A GIVEN WP ID
-//   -----------------------------------------------------
-//      Returns the wpu user id(i.e. the phpBB userID) from a given WP id.
-//      If no id is given then the currently signed in user is used.
-//
-
+/**
+ * Retrieve the phpBB user ID from a given WordPress ID
+ * @author John Wells
+ * @param $wp_userID. The WordPress user ID. Leave blank to use the currently logged-in user.
+ * @since v0.7.0
+ */
 function get_wpu_user_id($wp_userID = '') {
 	global $userdata, $user_ID;
 
@@ -674,13 +743,21 @@ function get_wpu_user_id($wp_userID = '') {
 	return $uID;
 }
 
+/**
+ * Display the phpBB user ID from a given WordPress ID
+ * @author John Wells
+ * @param $wp_userID. The WordPress user ID. Leave blank to use the currently logged-in user.
+ * @since v0.7.0
+ */
 function wpu_user_id($wp_userID = '') {
 	echo get_wpu_user_id($wp_userID);
 }
 
-//@since WP-United 0.7.0
-// Function 'wpu_get_comment_author_link' returns the phpBB user profile link
-//
+/**
+ * Returns the phpBB user profile link for the current commenter
+ * @author John Wells
+ * @since v0.7.0
+ */
 function wpu_get_comment_author_link () {
 global $comment;
  
@@ -704,7 +781,11 @@ global $comment;
 	}
 }
 
-//@since WP-United 0.7.0
+/**
+ * Displays the phpBB user profile link for the current commenter
+ * @author John Wells
+ * @since v0.7.0
+ */
 function wpu_comment_author_link () {
 	// Modified this to echo rather that return, to be consistent with other WordPress functions.
 	echo  wpu_get_comment_author_link();
@@ -713,17 +794,324 @@ function wpu_comment_author_link () {
 
 
 
-//
-//
-//	Helper / Private functions
-//
-//
+/**
+ * Displays info about the current user, or a login form if they are logged out
+ * @author Japgalaxy
+ * @todo make args consistent
+ */
+function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title) {
+	echo get_wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title);
+}
+
+/**
+ * Gets info about the current user, or a login form if they are logged out, without displaying it
+ * @author Japgalaxy
+ * @todo make args consistent
+ */
+function get_wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title) {
+	global $user, $db, $scriptPath, $wpSettings, $auth, $wpuAbs, $phpbb_sid, $wpSettings, $phpEx;
+	
+	$ret = '';
+
+	$wpu_usr = get_wpu_phpbb_username(); 
+
+	if ( !empty($user->data['is_registered']) ) { 
+		$ret .= $before_title . $titleLoggedIn . $after_title;
+		
+		//style for position sidebar/header     
+		$style = ($position == "sidebar") ? 'display:block; margin:0 5px;' : 'float:left; display:inline; margin:0 5px;';
+		
+		if ($position == "sidebar") {
+			$ret .= '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
+			$ret .= '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
+		} else {
+			$ret .= '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
+			$ret .= '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
+		}
+
+		if ( $rankBlock ) {
+			wpu_phpbb_rankblock();
+		}
+
+		if ( $newPosts ) {
+			$ret .= '<p class="wpu_newposts">'; wpu_newposts_link(); echo '</p> ';
+		}
+
+		// Handle new PMs
+		if ($user->data['user_new_privmsg']) {
+			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $wpuAbs->lang('NEW_PM') : $wpuAbs->lang('NEW_PMS');
+			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
+			$ret .= '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
+		} else {
+			$l_privmsgs_text = $wpuAbs->lang('NO_NEW_PM');
+			$s_privmsg_new = false;
+			$ret .= '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
+		}	
+
+		if ($write) {
+			if (current_user_can('publish_posts')) {
+				echo '<p class="wpu_write"><a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="' . __('Write a Post') . '">' . __('Write a Post') . '</a></p> ';
+			}
+		}
+		if ($admin) {
+			$connSettings = get_settings('wputd_connection');
+			if (current_user_can('publish_posts')) {
+				$ret .= '<p class="wpu_siteadmin"><a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a></p> ';
+			}
+			if($auth->acl_get('a_')) {
+				$ret .= '<p class="wpu_forumadmin"><a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $wpuAbs->lang('ACP') . '</a></p>';
+			}
+		}
+		$ret .= '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
+	} else {
+		echo $before_title . $titleLoggedOut . $after_title;
+		if ( $loginForm ) {
+			$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
+			$ret .= '<form method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
+			$ret .= '<p class="wpu_user"><label for="phpbb_username">' . $wpuAbs->lang('USERNAME') . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/></p>';
+			$ret .= '<p class="wpu_password"><label for="phpbb_password">' . $wpuAbs->lang('PASSWORD') . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" /></p>';
+			if ( $wpuAbs->config('allow_autologin') ) {
+				$ret .= '<p class="wpu_remember"><input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $wpuAbs->lang('LOG_ME_IN') . '</label> </p>';
+			}
+			$ret .= '<p class="wpu_login"><input type="submit" name="login" class="button1" value="' . $wpuAbs->lang('LOGIN') . '" /></p>';
+			$ret .= '<p class="wpu_signup"><a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $wpuAbs->lang('REGISTER') . '</a></p>';
+			$ret .= '<p class="wpu_rempassword"><a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $wpuAbs->lang('FORGOT_PASS') . '</a></p>';
+			$ret .= '</form>';
+		} else {
+			$ret .= '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
+		}
+	}			
+	if ($position=="header"){
+		$ret .= '<p style="clear:both;"></p>';
+	}
+	
+	return $ret;
+}
+
+/**
+ * Get the phpBB topic ID of the current cross-posted post
+ * @author Japgalaxy
+ * @todo allow to specify a specific post ID
+ * @version v0.8.0
+ * @access private
+ * @todo if this will not echo anything, should be named get_xxx_xxx()
+ */
+function wpu_topic_xposted() {
+global $post;
+$post_ID = $post->ID;
+
+		if ( !empty($post_ID) ) {
+			global $db;
+			/**
+			 * @Japgalaxy: We cannot use $db directly in WordPress without switching DB first like this
+			 * Otherwise users with separate DBs get fatal errors
+			 */
+			$GLOBALS['wpUtdInt']->switch_db('TO_P');
+			$sql = 'SELECT p.topic_id FROM ' . POSTS_TABLE . ' AS p WHERE ' . "p.post_wpu_xpost = '$post_ID'";
+			
+			if ($result = $db->sql_query_limit($sql, 1)) {
+				$row = $db->sql_fetchrow($result);
+				$db->sql_freeresult($result);
+				$GLOBALS['wpUtdInt']->switch_db('TO_W');
+				if  (!empty($row) ) {
+					return $row['topic_id'];
+				}
+			}
+				
+		}
+}
+
+/**
+ * Gets the comment link, with the number of phpBB comments, without displaying it
+ * @author Japgalaxy
+ * @todo allow to specify a specific post ID
+ * @todo combine these three queries with a JOIN
+ * @todo split this -- this can be used to override wp's comment link
+ * @version v0.8.0
+ * @access private
+ */
+function get_wpu_comment_number () {
+	//get the Topic_ID corrispondent of Wordpress post
+	$topic_ID = wpu_topic_xposted();
+
+		if ( !empty($topic_ID) ) {
+		//if a Topic_ID exists get the number of replies:
+			global $db;
+			$sql = 'SELECT t.topic_replies as number FROM ' . TOPICS_TABLE . ' AS t WHERE ' . "t.topic_id = $topic_ID";
+			$GLOBALS['wpUtdInt']->switch_db('TO_P');
+			if ($result = $db->sql_query($sql)) {
+				$row = $db->sql_fetchrow($result);
+				$comment_count = $row['number'];
+				$db->sql_freeresult($result);
+				$GLOBALS['wpUtdInt']->switch_db('TO_W');				
+				if ($comment_count==0) {
+					return "<a href=\"".get_permalink()."#reply\" title=\" ".get_the_title()." \">".__('No Comments', '')."</a>";
+				} else if ($comment_count==1) {
+					return "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".__('1 Comment', '')."</a>";
+				} else if ($comment_count>=2) {
+					return "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".$comment_count." Comments</a>";
+				}
+			}
+		} else {
+			//default wordpress function:
+			get_comments_popup_link(__('No Comments', ''), __('1 Comment', ''), __('% Comments', ''), '', __('Comments Closed', '') );
+		}
+
+}
+
+/**
+ * Displays the comment link, with the number of phpBB comments
+ * @author Japgalaxy
+ * @todo allow to specify a specific post ID
+ * @todo combine these three queries with a JOIN
+ * @version v0.8.0
+ * @access private
+ */
+function wpu_comment_number () {
+	echo get_wpu_comment_number();
+}
 
 
-//
-//	RANK HELPER FUNCTIONS
-//	These deal with loading in the rank info.
-//
+/**
+ * Display replies of a cross-posted post and a comment-form if user is logged in.
+ * @author Japgalaxy
+ * @since v0.8.0
+ */
+function wpu_reply_xposted() {
+	echo get_wpu_reply_xposts();
+}
+
+/**
+ * Return replies of a cross-posted post and a comment-form if user is logged in, but do not display it
+ * @author Japgalaxy
+ * @since v0.8.0
+ * @todo cleanup, strings
+ */
+function get_wpu_reply_xposted() {
+	global $post, $wpuAbs;
+
+	$ret='';
+
+	$post_ID = $post->ID;
+	//get the Topic_ID corresponding of Wordpress post
+	$topic_ID = wpu_topic_xposted($post_ID);
+	$GLOBALS['wpUtdInt']->switch_db('TO_P');
+		if ( !empty($topic_ID) ) {
+		//if a Topic_ID exists get all posts' topic:
+			global $scriptPath, $db;
+			$sql = 'SELECT p.topic_id, p.bbcode_uid, p.bbcode_bitfield, p.forum_id, p.post_id, p.poster_id, u.username, p.post_text, p.post_time FROM ' . POSTS_TABLE . ' AS p, ' . USERS_TABLE . ' AS u WHERE ' . "p.topic_id = $topic_ID AND p.poster_id = u.user_id ORDER BY post_time ASC";
+			
+			if ($result = $db->sql_query($sql)) {
+				$comment_count = mysql_num_rows($result);
+				//removing the first post (it isn't a reply)...
+				$real_comments = $comment_count-1;
+				if ($real_comments == 0) {
+					$ret .= '<p id="reply">' . __('There aren\'t comments. Post the first one!') . '</p>';
+				} else {
+					$ret .= '<p id="reply">There are '.$real_comments.' comments</p>';
+				}
+				$ret .= '<ul class="wpu_commentlist" id="comments">';
+				$i = 0;
+				while ($row = $db->sql_fetchrow($result)){
+					//set value for comment form
+					$link = $scriptPath."/posting.php?mode=reply&f=".$row['forum_id']."&t=".$row['topic_id']."";
+					$hiddenvalue = '<input type="hidden" value="'.$row['topic_id'].'" name="topic_id"/><input type="hidden" value="'.$row['forum_id'].'" name="forum_id"/>';
+
+					if (($real_comments >= 1) && ($i > 0)) {
+					$ret .=  "<li>";
+						//Userdata
+						$ret .=  '<div class="wpu_comment_info">
+							<div class="wpu_avatar_comment">'.get_avatar($row['poster_id'])."</div>
+							<a href=\"".$scriptPath."/memberlist.php?mode=viewprofile&u=".$row['poster_id']." \" />".$row['username']."</a><br/>
+							Posted at: ".date("d/m/Y, H:i",$row['post_time']).":</div>";	
+						//building comment_text:
+						$ret .=  '<div style="clear: both;"></div>';
+						$uid = $row['bbcode_uid'];
+						$bitfield = $row['bbcode_bitfield'];
+						$row['post_text'] = wpu_censor($row['post_text']);  //IT WORKS!!! ;-)
+						$row['post_text'] = generate_text_for_display($row['post_text'], $uid, $bitfield, 1);  //IT WORKS!!! ;-)
+						$row['post_text'] = wpu_smilies($row['post_text'], $max = 0);  //IT DOESN'T WORK! WHY?? O_o
+						
+						$ret .=  "<div class=\"wpu_comment_text\">".$row['post_text']."</div>";
+						$ret .=  '<div class="wpu_action">';
+							$ret .=  '<a class="wpu_quote" href="'.$scriptPath.'/posting.php?mode=quote&f='.$row['forum_id'].'&p='.$row['post_id'].'" />Quote</a> ';
+							$ret .=  '<a class="wpu_report" href="'.$scriptPath.'/report.php?f='.$row['forum_id'].'&p='.$row['post_id'].'" />Report</a>';
+						$ret .=  '</div>';
+					$ret .=  "</li>";
+					
+					} //end if
+					$i++;
+				} //end while
+			$ret .=  '</ul>';
+					echo '<div class="wpu_reply"><a href="'.$link.'"/>Reply</a></div>';
+				$db->sql_freeresult($result);
+				
+				//get max post_id (for comment form topic_cur_post_id value)
+				$sql = 'SELECT MAX(post_id) AS max FROM ' . POSTS_TABLE;
+				if ($result = $db->sql_query($sql)) {
+					$row = $db->sql_fetchrow($result);
+					$phpbb_cur_post_id = $row['max']+1;
+				}
+				$db->sql_freeresult($result);
+				$GLOBALS['wpUtdInt']->switch_db('TO_W');
+				//-----get max post_id
+				
+				//check if user is logged in
+				$usrName = get_wpu_phpbb_username();
+
+				if ( $usrName == $wpuAbs->lang('Guest') ) {
+					$ret .=  __('You must be logged in to comment.');
+				} else {
+					//user is logged, show comment form:
+					$ret .= '<form action="'.$link.'" method="post">
+					<input type="hidden" id="submit" value="Re: '.get_the_title().'" name="subject" />
+					<textarea class="inputbox" tabindex="3" cols="76" rows="7" name="message" style="height: 9em;"></textarea>
+					<input type="hidden" value="'.time().'" name="creation_time" />
+					<input type="hidden" value="'.$token.'" name="form_token" />
+					<input type="hidden" value="'.$phpbb_cur_post_id.'" name="topic_cur_post_id" />
+					<input type="hidden" value="'.time().'" name="lastclick" />
+					'.$hiddenvalue.'
+					<input type="hidden" value="1" name="attach_sig" />
+					<input class="button1" type="submit" value="Submit" name="post" tabindex="6" accesskey="s" />
+					<input class="button2" type="submit" value="Preview" name="full_editor" tabindex="6" accesskey="f" />
+					</form>';
+				}
+			}
+		
+	} else {
+		//return default wordpress comments:
+		$ret .= '<ol class="commentlist">'.wp_list_comments().'</ol>';
+	}
+	return $ret;
+}
+
+
+
+
+/**
+ * Helper / Private functions
+ */
+
+/**
+ * In order to make the comment link a consistent template tag, and split to get_/echo
+ * we need to create this missing WordPress get_ equivalent for comment link
+ * @author John Wells
+ * @since v0.8.0
+ */
+if(!function_exists('get_comments_popup_link')) {
+	function get_comments_popup_link($no, $com, $coms, $closed) {
+		ob_start();
+		comments_popup_link($no, $com, $coms, $closed);
+		$link = ob_get_contents();
+		ob_end_clean();
+		return $link;
+	}
+}
+
+/**
+ * Load the rank details for the user
+ * @access private
+ */
 function _wpu_get_user_rank_info($userID = '') {
 
 	global $wpuAbs, $scriptPath;
@@ -734,7 +1122,11 @@ function _wpu_get_user_rank_info($userID = '') {
 	return $rank;
 }
 	
-
+/**
+ * Process argument string for template functions
+ * @author John Wells
+ * @access private
+ */
 function _wpu_process_args($args, $defaults='') {
 	if ( is_array($args) ) {
 		$r = &$args;
@@ -747,255 +1139,5 @@ function _wpu_process_args($args, $defaults='') {
 	return $r;
 }
 
-
-
-
-//
-//	LOGIN/USER INFO
-//	---------------------
-//	Login Form/User Info by Japgalaxy
-//	Example: wpu_login_user_info('', '', 1, 1, 1, 1, 1, 'sidebar', '<h2>', '</h2>')
-
-function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title) {
-	global $user, $db, $scriptPath, $wpSettings, $auth, $wpuAbs, $phpbb_sid, $wpSettings, $phpEx;
-	
-	if ($wpuAbs->ver == 'PHPBB2') {
-		echo "Not phpBB2 compatible."; return false;
-	}
-
-
-	$wpu_usr = get_wpu_phpbb_username(); 
-
-	if ( !empty($user->data['is_registered']) ) { 
-		echo $before_title . $titleLoggedIn . $after_title;
-		
-		//style for position sidebar/header     
-		$style = ($position == "sidebar") ? 'display:block; margin:0 5px;' : 'float:left; display:inline; margin:0 5px;';
-		
-		if ($position == "sidebar") {
-			echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
-			echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
-		} else {
-			echo '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
-			echo '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
-		}
-
-		if ( $rankBlock ) {
-			wpu_phpbb_rankblock();
-		}
-
-		if ( $newPosts ) {
-			echo '<p class="wpu_newposts">'; wpu_newposts_link(); echo '</p> ';
-		}
-
-		// Handle new PMs
-		if ($user->data['user_new_privmsg']) {
-			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $wpuAbs->lang('NEW_PM') : $wpuAbs->lang('NEW_PMS');
-			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
-			echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
-		} else {
-			$l_privmsgs_text = $wpuAbs->lang('NO_NEW_PM');
-			$s_privmsg_new = false;
-			echo '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
-		}	
-
-		if ($write) {
-			if (current_user_can('publish_posts')) {
-				echo '<p class="wpu_write"><a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="' . __('Write a Post') . '">' . __('Write a Post') . '</a></p> ';
-			}
-		}
-		if ($admin) {
-			$connSettings = get_settings('wputd_connection');
-			if (current_user_can('publish_posts')) {
-				echo '<p class="wpu_siteadmin"><a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a></p> ';
-			}
-			if($auth->acl_get('a_')) {
-				echo '<p class="wpu_forumadmin"><a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $wpuAbs->lang('ACP') . '</a></p>';
-			}
-		}
-		echo '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
-	} else {
-		echo $before_title . $titleLoggedOut . $after_title;
-		if ( $loginForm ) {
-			$login_link = ($wpuAbs->ver == 'PHPBB2') ? 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid : 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
-			echo '<form method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
-			echo '<p class="wpu_user"><label for="phpbb_username">' . $wpuAbs->lang('USERNAME') . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/></p>';
-			echo '<p class="wpu_password"><label for="phpbb_password">' . $wpuAbs->lang('PASSWORD') . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" /></p>';
-			if ( $wpuAbs->config('allow_autologin') ) {
-				echo '<p class="wpu_remember"><input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $wpuAbs->lang('LOG_ME_IN') . '</label> </p>';
-			}
-			echo '<p class="wpu_login"><input type="submit" name="login" class="button1" value="' . $wpuAbs->lang('LOGIN') . '" /></p>';
-			echo '<p class="wpu_signup"><a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $wpuAbs->lang('REGISTER') . '</a></p>';
-			echo '<p class="wpu_rempassword"><a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $wpuAbs->lang('FORGOT_PASS') . '</a></p>';
-			echo '</form>';
-		} else {
-			echo '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
-		}
-	}			
-	if ($position=="header"){
-		echo '<p style="clear:both;"></p>';
-	}
-}
-
-//NEW IN v0.8
-// FULL CROSS-POSTING FUNCTIONS --- BY JAPGALAXY
-	
-//
-//	WPU_TOPIC_XPOSTED
-//	-------------------------------------------
-//	Get the topic id of a cross-posted post.
-//
-function wpu_topic_xposted() {
-global $post;
-$post_ID = $post->ID;
-
-		if ( !empty($post_ID) ) {
-			global $db;
-			$sql = 'SELECT p.topic_id FROM ' . POSTS_TABLE . ' AS p WHERE ' . "p.post_wpu_xpost = '$post_ID'";
-			
-			if ($result = $db->sql_query_limit($sql, 1)) {
-				$row = $db->sql_fetchrow($result);
-				$db->sql_freeresult($result);
-				if  (!empty($row) ) {
-					return $row['topic_id'];
-				}
-			}
-				
-		}
-}
-
-
-//
-//	WPU_COMMENT_NUMBER
-//	-------------------------------------------
-//	Return number of comments reply of a cross-posted post.
-//
-function wpu_comment_number () {
-	//get the Topic_ID corrispondent of Wordpress post
-	$topic_ID = wpu_topic_xposted();
-
-		if ( !empty($topic_ID) ) {
-		//if a Topic_ID exists get the number of replies:
-			global $db;
-			$sql = 'SELECT t.topic_replies as number FROM ' . TOPICS_TABLE . ' AS t WHERE ' . "t.topic_id = $topic_ID";
-			
-			if ($result = $db->sql_query($sql)) {
-				$row = $db->sql_fetchrow($result);
-				$comment_count = $row['number'];
-				if ($comment_count==0) {
-					echo "<a href=\"".get_permalink()."#reply\" title=\" ".get_the_title()." \">".__('No Comments', '')."</a>";
-				} else if ($comment_count==1) {
-					echo "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".__('1 Comment', '')."</a>";
-				} else if ($comment_count>=2) {
-					echo "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".$comment_count." Comments</a>";
-				}
-			}
-		} else {
-			//default wordpress function:
-			comments_popup_link(__('No Comments', ''), __('1 Comment', ''), __('% Comments', ''), '', __('Comments Closed', '') );
-		}
-}
-
-//
-//	WPU_REPLY_XPOSTED
-//	-------------------------------------------
-//	Return replies of a cross-posted post and a comment-form if user is logged in.
-//
-function wpu_reply_xposted() {
-global $post;
-
-	$post_ID = $post->ID;
-	//get the Topic_ID corrispondent of Wordpress post
-	$topic_ID = wpu_topic_xposted($post_ID);
-	
-		if ( !empty($topic_ID) ) {
-		//if a Topic_ID exists get all posts' topic:
-			global $scriptPath, $db;
-			$sql = 'SELECT p.topic_id, p.bbcode_uid, p.bbcode_bitfield, p.forum_id, p.post_id, p.poster_id, u.username, p.post_text, p.post_time FROM ' . POSTS_TABLE . ' AS p, ' . USERS_TABLE . ' AS u WHERE ' . "p.topic_id = $topic_ID AND p.poster_id = u.user_id ORDER BY post_time ASC";
-
-			if ($result = $db->sql_query($sql)) {
-				$comment_count = mysql_num_rows($result);
-				//removing the first post (it isn't a reply)...
-				$real_comments = $comment_count-1;
-				if ($real_comments == 0) {
-					echo '<p id="reply">There aren\'t comments. Post the first one!</p>';
-				} else {
-					echo '<p id="reply">There are '.$real_comments.' comments</p>';
-				}
-			echo '<ul class="wpu_commentlist" id="comments">';
-			$i = 0;
-				while ($row = $db->sql_fetchrow($result)){
-					//set value for comment form
-					$link = $scriptPath."/posting.php?mode=reply&f=".$row['forum_id']."&t=".$row['topic_id']."";
-					$hiddenvalue = '<input type="hidden" value="'.$row['topic_id'].'" name="topic_id"/><input type="hidden" value="'.$row['forum_id'].'" name="forum_id"/>';
-
-					if ($real_comments >= 1 && $i > 0) {
-					echo "<li>";
-						//Userdata
-						echo "<div class=\"wpu_comment_info\">
-							<div class=\"wpu_avatar_comment\">".get_avatar($row['poster_id'])."</div>
-							<a href=\"".$scriptPath."/memberlist.php?mode=viewprofile&u=".$row['poster_id']." \" />".$row['username']."</a><br/>
-							Posted at: ".date("d/m/Y, H:i",$row['post_time']).":</div>";	
-						//building comment_text:
-						echo '<div style="clear: both;"></div>';
-						$uid = $row['bbcode_uid'];
-						$bitfield = $row['bbcode_bitfield'];
-						$row['post_text'] = wpu_censor($row['post_text']);  //IT WORKS!!! ;-)
-						$row['post_text'] = generate_text_for_display($row['post_text'], $uid, $bitfield, 1);  //IT WORKS!!! ;-)
-						$row['post_text'] = wpu_smilies($row['post_text'], $max = 0);  //IT DOESN'T WORK! WHY?? O_o
-						
-						echo "<div class=\"wpu_comment_text\">".$row['post_text']."</div>";
-						echo '<div class="wpu_action">';
-							echo '<a class="wpu_quote" href="'.$scriptPath.'/posting.php?mode=quote&f='.$row['forum_id'].'&p='.$row['post_id'].'" />Quote</a> ';
-							echo '<a class="wpu_report" href="'.$scriptPath.'/report.php?f='.$row['forum_id'].'&p='.$row['post_id'].'" />Report</a>';
-						echo '</div>';
-					echo "</li>";
-					
-					} //end if
-					$i++;
-				} //end while
-			echo '</ul>';
-					echo '<div class="wpu_reply"><a href="'.$link.'"/>Reply</a></div>';
-				$db->sql_freeresult($result);
-				
-				//get max post_id (for comment form topic_cur_post_id value)
-				$sql = 'SELECT MAX(post_id) AS max FROM ' . POSTS_TABLE;
-				if ($result = $db->sql_query($sql)) {
-					$row = $db->sql_fetchrow($result);
-					$phpbb_cur_post_id = $row['max']+1;
-				}
-				$db->sql_freeresult($result);
-				//-----get max post_id
-				
-				//check if user is logged in
-				$usrName = get_wpu_phpbb_username();
-
-				if ( $usrName == 'Guest' ) {
-					echo 'You must be logged in to comment.';
-				} else {
-				//user is logged, show comment form:
-				//form begin
-					echo '<form action="'.$link.'" method="post">
-					<input type="hidden" id="submit" value="Re: '.get_the_title().'" name="subject"/>
-					<textarea class="inputbox" tabindex="3" cols="76" rows="7" name="message" style="height: 9em;"></textarea>
-					
-					<input type="hidden" value="'.time().'" name="creation_time"/>
-					<input type="hidden" value="'.$token.'" name="form_token"/>
-					<input type="hidden" value="'.$phpbb_cur_post_id.'" name="topic_cur_post_id"/>
-					<input type="hidden" value="'.time().'" name="lastclick"/>
-					'.$hiddenvalue.'
-					<input type="hidden" value="1" name="attach_sig"/>
-					<input class="button1" type="submit" value="Submit" name="post" tabindex="6" accesskey="s"/>
-					<input class="button2" type="submit" value="Preview" name="full_editor" tabindex="6" accesskey="f"/>
-					</form>';
-				//form end
-				}
-			}
-		
-	} else {
-		//return default wordpress comments:
-		echo '<ol class="commentlist">'.wp_list_comments().'</ol>';
-	}
-}
 
 ?>

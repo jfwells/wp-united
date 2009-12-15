@@ -598,59 +598,57 @@ Class WPU_Integration {
 	}
 	
 	/**
-	 * Generates the page.
-	 * Grabs the raw WordPress page and hands it back in $toVarName for processing.
-	 * @param string $varName the name of the variable in the global scope to fill with the page contents.
-	*/
-	function get_wp_page($toVarName) {
-		$this->prepare('$wpUtdInt->do_get_wp_page(\'' . $toVarName . '\');');
-	}
-	/**
-	 * @access private
 	 * @todo No longer need to fill variable like this -- we can just return
+	 * Grabs the raw WordPress page and hands it back in $toVarName for processing.
+	 * We have to prepare everything here, because whe the code is returned it must be ALL executed in
+	 * the global scope
+	 * Even the if statements must be prepared, as the result is cached.
+	 * @param string $varName the name of the variable in the global scope to fill with the page contents.
 	 */
-	function do_get_wp_page($toVarName) {
-		require($this->phpbb_root . 'wp-united/wpu-template-funcs.' . $this->phpEx);
-		ob_start();
-		global $latest;
-		if ( $latest ) {
-			define('WP_USE_THEMES', false);
-		} else {
-			define('WP_USE_THEMES', true);
-		}
-		global $wp_did_header;
-		$wp_did_header = true;   
-		wp();
-		if ( !$latest ) {
-			if ( !defined('WPU_REVERSE_INTEGRATION') ) {
-				/**
-				* @todo this can use the plugin fixer tools to enter and fix themes too
-				* The plugin fixer should extend a base general compatibility class in order to do so.
-				*/
-				$wpuTemplate = file_get_contents(ABSPATH . WPINC . '/template-loader.php');
-				
-				$finds = array(
-					'return;',
-					'do_action(\'do_robots\');',
-					'if ( is_trackback() ) {',
-					'} else if ( is_author()',
-					'} else {'
-				);
-				$repls = array(
-					'',
-					'$wpuNoHead = true; do_action(\'do_robots\');',
-					'if (is_trackback()) {$wpuNoHead=true;',
-					'}else if(is_author()&& !empty($wpSettings[\'usersOwnBlogs\']) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
-					'} } else { $wpuNoHead = true;'
-				);
-				$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);
-				eval('?' . '>' . $wpuTemplate . '<' . '?php');
-			}
-		} else {
-			include($this->phpbb_root . 'wp-united/wpu-latest-posts.' . $this->phpEx);	
-		}
-		$$toVarName = ob_get_contents();
-		ob_end_clean();
+	function get_wp_page($toVarName) {
+		require($this->phpbb_root . "wp-united/wpu-template-funcs." . $this->phpEx);
+		$this->prepare('ob_start();');
+		$this->prepare('if ( $GLOBALS[\'latest\']) {define("WP_USE_THEMES", false);} else {define("WP_USE_THEMES", true);}');
+		$this->prepare('global $wp_did_header; $wp_did_header = true;');
+		$this->prepare('wp();');
+		$this->prepare('if (!$latest ):');
+			$this->prepare('if (!defined(\'WPU_REVERSE_INTEGRATION\')):');
+				$this->prepare('global $wpuNoHead, $wpSettings;');
+				$this->prepare('eval($wpUtdInt->fix_template_loader());');
+			$this->prepare('endif;');
+		$this->prepare('else:');
+			$this->prepare('include($phpbb_root_path . \'wp-united/wpu-latest-posts.\' . $phpEx);');
+		$this->prepare('endif;');
+		$this->prepare('$' . $toVarName . ' = ob_get_contents();');
+		$this->prepare('ob_end_clean();');
+	}
+	
+	/**
+	 * Fixes and returns template-loader
+	* @todo this can use the plugin fixer tools to enter and fix themes too
+	* @todo cache
+	* The plugin fixer should extend a base general compatibility class in order to do so.
+	* This must be executed just-in-time as WPINC is not yet set
+	*/
+	function fix_template_loader() {
+		$wpuTemplate = file_get_contents(ABSPATH . WPINC . '/template-loader.php');
+		$finds = array(
+			'return;',
+			'do_action(\'do_robots\');',
+			'if ( is_trackback() ) {',
+			'} else if ( is_author()',
+			'} else {'
+		);
+		$repls = array(
+			'',
+			'$wpuNoHead = true; do_action(\'do_robots\');',
+			'if (is_trackback()) {$wpuNoHead=true;',
+			'}else if(is_author()&& !empty($wpSettings[\'usersOwnBlogs\']) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
+			'} else { $wpuNoHead = true;'
+		);
+		$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);
+		//echo "\n" . '?' . '>' . $wpuTemplate . '<' . '?php' . "\n";
+		return "\n" . '?' . '>' . $wpuTemplate . '<' . '?php' . "\n";
 	}
 
 	/**

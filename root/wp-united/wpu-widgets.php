@@ -11,21 +11,12 @@
 *
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-// WordPress template functions rolled into widgets
-//
+/**
+ */
 
 // this file will also be called in wp admin panel, when phpBB is not loaded. 
 if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) {
-	die('Hacking attempt!');
+	exit;
 }
 
 /**
@@ -36,11 +27,6 @@ function wpu_widgets_init() {
 	// Check for the required plugin functions. 
 	if ( !function_exists('register_sidebar_widget') )
 		return;
-
-		
-		
-	// Aaaaand... the widgets begin.....	
-		
 		
 	/**
 	 * Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
