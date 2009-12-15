@@ -28,39 +28,25 @@ class WPU_WP_Plugins {
 	var $strCompat;
 	var $globals;
 	var $mainEntry;
-	
+	var $type;
 	var $fixCoreFiles;
 		
-	
-	
-	
 	/**
-	 * This class MUST be called as a singleton through this method
+	 * Class constructor
 	 * @param string $wpPluginDir The WordPress plugin directory
 	 * @param string $wpuVer WP-United version
 	 * @param string $wpVer WordPress version
 	 * @param string $compat True if WordPress is in global scope
 	 */
-	function getInstance($wpPluginDir, $wpuVer, $wpVer, $compat) {
-		static $instance;
-		if (!isset($instance)) {
-			$instance = new WPU_WP_Plugins($wpPluginDir, $wpuVer, $wpVer, $compat);
-        } 
-        	return $instance;
-    }		
-    
-	/**
-	 * Class constructor
-	 * @access private
-	 */
-	function WPU_WP_Plugins($wpPluginDir, $wpuVer, $wpVer, $compat) {
+	function WPU_WP_Plugins($type, $wpPluginDir, $wpuVer, $wpVer, $compat) {
 		$this->pluginDir =  add_trailing_slash(realpath($wpPluginDir));
 		$this->compat = $compat;
 		$this->wpuVer = $wpuVer;
 		$this->wpVer = $wpVer;
 		$this->strCompat = ($this->wpu_compat) ? "true" : "false";
 		$this->mainEntry = false;
-		$this->globals = (array)get_option('wpu_plugins_globals');
+		$this->type = $type;
+		$this->globals = get_option("wpu_{$this->type}_globals", array());
 		$this->oldGlobals = $this->globals;
 		
 		// problematic WordPress files that could be require()d by a function
@@ -167,7 +153,7 @@ class WPU_WP_Plugins {
 		// remove any blanks, and remove anything that could wreck global references
 		$this->globals = array_diff($this->globals, array_merge(array(''), $GLOBALS['wpUtdInt']->globalRefs));
 		if($this->globals != $this->oldGlobals) {
-			update_option('wpu_plugins_globals', $this->globals);
+			update_option("wpu_{$this->type}_globals", $this->globals);
 		}
 	}
 	

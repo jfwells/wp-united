@@ -17,9 +17,6 @@ Widgets: Latest forum topics not showing topic titles on full page reverse integ
 Widgets: Latest posts widget not styling properly, but showing titles OK 
 Widgets: No linebreaks/lis in forum stats widget
 
-Plugin fixes: Repeat for WPMU plugins
-Plugin fixes: Combine template functions.php fixes
-
 Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
 ACP: Settings page to fix and upgrade to AJAX split as with Setup Wizard
@@ -29,6 +26,7 @@ ACP: User mapping errors reported
 ACP: remove header fix, and split out "advanced" options to simplify install
 ACP: Cache purge
 
+Plugin: All post titles suppressed on full page integration
 Plugin: WP Admin link not showing on full page reverse integration in sidebar
 Plugin: Logout etc. links not showing in dashboard
 Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
@@ -62,5 +60,8 @@ DONE
 - See SVN changelog for complete list
 - Plugin-fixes: Recursive includes should only operate on files under wpu-plugin
 - Plugin-fixes: Dynamic global variables detection
+- Plugin fixes: Repeat for WPMU plugins
+- Plugin fixes: Combine themes functions.php etc with plugin fixes
+- Split WP page invocation in integration class to 'prepare' and 'do_'
 
 

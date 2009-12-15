@@ -336,22 +336,28 @@ Class WPU_Integration {
 				// Fix plugins
 				if(!empty($this->wpu_settings['pluginFixes'])) {
 					$strCompat = ($this->wpu_compat) ? "true" : "false";
-					$cSet = str_replace('get_option(\'active_plugins\');', 'get_option(\'active_plugins\');global $wpuPluginFixer; $wpuPluginFixer = WPU_WP_Plugins::getInstance(WP_PLUGIN_DIR, \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+					// MU Plugins
+					$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
+					$cSet = str_replace('include_once( WPMU_PLUGIN_DIR . \'/\' . $plugin );', ' include_once($wpuMuPluginFixer->fix(WPMU_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
+					
+					//WP Plugins
+					$cSet = str_replace('get_option(\'active_plugins\');', 'get_option(\'active_plugins\');global $wpuPluginFixer; $wpuPluginFixer = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
 					$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($wpuPluginFixer->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
+					
+					// Theme functions
+					$cSet = str_replace('// Load functions for active theme.', 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'styles\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+					$cSet = str_replace('include(STYLESHEETPATH . \'/functions.php\');', ' include_once($wpuStyleFixer->fix(STYLESHEETPATH . \'/functions.php\', true));', $cSet);
+					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', ' include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', $cSet);
+					
+					// Predeclare globals for all 
 					if (!$this->wpu_compat) {
-						$cSet = str_replace('do_action(\'plugins_loaded\');', 'eval($wpuPluginFixer->get_globalString()); do_action(\'plugins_loaded\');', $cSet);
+						$cSet = str_replace('do_action(\'muplugins_loaded\');', 'eval($wpuMuPluginFixer->get_globalString()); unset($wpuMuPluginFixer); do_action(\'muplugins_loaded\');', $cSet);
+						$cSet = str_replace('do_action(\'plugins_loaded\');', 'eval($wpuPluginFixer->get_globalString()); unset($wpuPluginFixer); do_action(\'plugins_loaded\');', $cSet);
+						$cSet = str_replace('include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', 'include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));' . "\n\n" . 'eval($wpuStyleFixer->get_globalString()); unset($wpuStyleFixer);' . "\n" . 'eval($wpuThemeFixer->get_globalString()); unset($wpuThemeFixer);', $cSet);
 					}
 				}
 				
-				if (!$this->wpu_compat) {
-					// fix theme template functions!
-					/**
-					 * @todo Add to plugin fixes
-					 */
-					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
-					$cSet = str_replace('include(STYLESHEETPATH . \'/functions.php\');', '{ eval($wpUtdInt->fix_template_funcs()); include(TEMPLATEPATH . \'/functions.php\'); }', $cSet);
-				}
-				
+			
 				//here we handle references to objects that need to be available in the global scope when we're not.
 				if (!$this->wpu_compat) {
 					foreach ( $this->globalRefs as $gloRef ) {
@@ -594,31 +600,35 @@ Class WPU_Integration {
 	/**
 	 * Generates the page.
 	 * Grabs the raw WordPress page and hands it back in $toVarName for processing.
-	 * Yes, this looks ugly, but it *must* be executed in the same scope as everything else... 
 	 * @param string $varName the name of the variable in the global scope to fill with the page contents.
 	*/
 	function get_wp_page($toVarName) {
-		$this->prepare('
-			require(\'' . $this->phpbb_root . 'wp-united/wpu-template-funcs.' . $this->phpEx . '\');
-			ob_start();
-			global $latest;
-			if ( $latest ) {
-				define(\'WP_USE_THEMES\', false);
-			} else {
-				define(\'WP_USE_THEMES\', true);
+		$this->prepare('$wpUtdInt->do_get_wp_page(\'' . $toVarName . '\');');
+	}
+	/**
+	 * @access private
+	 */
+	function do_get_wp_page($toVarName) {
+		require($this->phpbb_root . 'wp-united/wpu-template-funcs.' . $this->phpEx);
+		ob_start();
+		global $latest;
+		if ( $latest ) {
+			define('WP_USE_THEMES', false);
+		} else {
+			define('WP_USE_THEMES', true);
+		}
+		global $wp_did_header;
+		$wp_did_header = true;   
+		wp();
+		if ( !$latest ) {
+			if ( !defined('WPU_REVERSE_INTEGRATION') ) {
+				include($this->phpbb_root . 'wp-united/wp-template-loader.' . $this->phpEx);
 			}
-			global $wp_did_header;
-			$wp_did_header = true;   
-			wp();
-			if ( !$latest ) {
-				if ( !defined(\'WPU_REVERSE_INTEGRATION\') ) {
-					include(\'' . $this->phpbb_root . 'wp-united/wp-template-loader.' . $this->phpEx . '\');
-				}
-			} else {
-				include(\'' . $this->phpbb_root . 'wp-united/wpu-latest-posts.' . $this->phpEx . '\');	
-			}
-			$' . $toVarName . ' = ob_get_contents();
-			ob_end_clean();'); 
+		} else {
+			include($this->phpbb_root . 'wp-united/wpu-latest-posts.' . $this->phpEx);	
+		}
+		$$toVarName = ob_get_contents();
+		ob_end_clean();
 	}
 
 	/**
@@ -750,28 +760,7 @@ Class WPU_Integration {
 			}
 		}
 	}
-	
-	/**
-	 *  Fixes common 'global assumption' in functions.php in templates that results in fatal error
-	 */
-	function fix_template_funcs() {
-		$return_exec = '';
-		if (!$this->wpu_compat) {
-			$fnCont = file_get_contents(TEMPLATEPATH . '/functions.php');
-			if ($fnCont = strstr($fnCont, 'themetoolkit(')) {
-				$fnCont = explode("'", $fnCont);
-				if (isset($fnCont[1])) {
-					$fnCont = strip_tags(trim($fnCont[1]));
-					if ( (strpos($fnCont, ' ') === FALSE) && (strpos($fnCont, ';') === FALSE) && (strpos($fnCont, "\n") === FALSE) && (strpos($fnCont, "\r") === FALSE) && (strpos($fnCont, "'") === FALSE) ) {
-						// Ensure that we have not matched more than a single word, as that would be a security risk
-						return 'global $' . $fnCont . ';';
-					} 
-				}
-			}
 		
-		}
-	}
-	
 	/**
 	 * Updates the Integration ID stored in phpBB profile
 	 */
