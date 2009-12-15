@@ -17,8 +17,6 @@ Then can move all edits in --  for now, the template-loader edits, but also leav
 
 
 Widgets: Login box not using correct styles
-Widgets: Latest forum topics not showing topic titles on full page reverse integration, but styled OK
-Widgets: Latest posts widget not styling properly, but showing titles OK 
 Widgets: No linebreaks/lis in forum stats widget
 
 Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
@@ -68,5 +66,6 @@ DONE
 - Plugin fixes: Combine themes functions.php etc with plugin fixes
 - Split WP page invocation in integration class to 'prepare' and 'do_'
 - Removed wp-template-loader.php in favour of parsing WordPress code
+- Widgets: Cleaned up latest forum posts template func and widget
 
 

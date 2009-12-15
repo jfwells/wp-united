@@ -250,6 +250,7 @@ function wpu_widgets_init() {
 		}
 	}
 	
+
 	/** 
 	 * The widget control pane
 	 */
@@ -278,7 +279,43 @@ function wpu_widgets_init() {
 		echo '<input type="hidden" id="widget_wpu_rpt" name="widget_wpu_rpt" value="1" />';
 	}	
 	
+	/**
+	 * The widget control pane
+	 */
+	function widget_wpulatestphpbbposts_control() {
 	
+		$options = get_option('widget_wpulatestphpbbposts');
+		
+		if ( !is_array($options) ) {
+			$options = array('title'=>__('Recent Forum Posts'), 'limit'=>20, 'dateformat'=>"Y-m-j", 'seo'=>0);
+		}
+		// handle form submission
+		if ( $_POST['widget_wpu_lpp'] ) {
+			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
+			$options['max'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
+			$options['dateformat'] = strip_tags(stripslashes($_POST['wpu-lpp-gtm']));
+			$options['seo'] = ($_POST['wpu-lpp-seo'] == "yes") ? 1 : 0;
+			update_option('widget_wpulatestphpbbposts', $options);
+		}
+
+		// set form values
+		$title = htmlspecialchars($options['title'], ENT_QUOTES);
+		$title = (empty($title)) ? __('Latest phpBB posts') : $title;
+		$max =(int) htmlspecialchars($options['max'], ENT_QUOTES);
+		$max = ($max) ? (string)$max : '20';
+		$dateformat = empty($options['dateformat']) ? 'Y-m-j' : $options['dateformat'];
+		$dateformat = htmlspecialchars($dateformat);
+		$seo = ($options['seo']) ? 'checked="checked"' : '';
+
+		// Show form
+		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$max.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('Date format:') . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$dateformat.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . '</label> <input type="checkbox" id="wpu-lpp-seo" name="wpu-lpp-seo" value="yes" $seo /></p>';
+
+		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
+	}	
+
 	
 	
 	/**
@@ -331,10 +368,10 @@ function wpu_widgets_init() {
 	}	
 	
 		
-
 	/**
 	 * phpBB latest posts
-	 * @author Japgalaxy
+	 * @author Japgalaxy 
+	 * Fixed by John Wells for v0.8
 	 */
 	function widget_wpulatestphpbbposts($args) {
 		if(!is_admin()) {
@@ -342,69 +379,21 @@ function wpu_widgets_init() {
 			
 			$options = get_option('widget_wpulatestphpbbposts');
 			$title = $options['title'];
-		
-			$before = $options['before'];
-			$after = $options['after'];
-			$gtm = $options['gtm'];
+			$dateformat = $options['dateformat'];
 			$seo = $options['seo'];
-			$limit = $options['limit'];
-		
-			if ( !function_exists('wpu_latest_phpbb_posts') ) return;
+			$maxEntries = $options['max'];
+
 			echo $before_widget;
-			echo '<h2>'.$title.'</h2>';
-			if ( ($before=="<li>") && ($after=="</li>") ) {
-				$prev = "<ul>";
-				$next = "</ul>";
-			}
-		
-			echo $prev;
-			wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo);
-			echo $next;
+			echo $before_title .$title. $after_title;
+			echo '<ul>';
+			wpu_latest_phpbb_posts("limit={$limit}&seo={$seo}&dateformat={$dateformat}");
+			echo '</ul>';
 			echo $after_widget;
 		}
 	}
 
 
-	/**
-	 * The widget control pane
-	 */
-	function widget_wpulatestphpbbposts_control() {
-	
-		$options = get_option('widget_wpulatestphpbbposts');
-		
-		if ( !is_array($options) ) {
-			$options = array('title'=>__('Recent Forum Posts'), 'limit'=>20, 'gtm'=>"Y-m-j", 'before'=>"<li>", 'after'=>"</li>", 'seo'=>"No");
-		}
-		// handle form submission
-		if ( $_POST['widget_wpu_lpp'] ) {
-			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
-			$options['limit'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
-			$options['before'] = $_POST['wpu-lpp-before'];
-			$options['after'] = $_POST['wpu-lpp-after'];
-			$options['gtm'] = $_POST['wpu-lpp-gtm'];
-			$options['seo'] = $_POST['wpu-lpp-seo'];
-			update_option('widget_wpulatestphpbbposts', $options);
-		}
 
-		// set form values
-		$title = htmlspecialchars($options['title'], ENT_QUOTES);
-		$max = htmlspecialchars($options['max'], ENT_QUOTES);
-		$before = $options['before'];
-		$after = $options['after'];
-		$gtm = $options['gtm'];
-		$seo = $options['seo'];
-		$limit = $options['limit'];
-
-		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$limit.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-before">' . __('Before:') . '</label> <input style="width: 60px;" id="wpu-lpp-before" name="wpu-lpp-before" type="text" value="'.$before.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-after">' . __('After:') . '</label> <input style="width: 60px;" id="wpu-lpp-after" name="wpu-lpp-after" type="text" value="'.$after.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('GTM Data format:') . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$gtm.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . '</label> <input style="width: 90px;" id="wpu-lpp-seo" name="wpu-lpp-seo" type="text" value="'.$seo.'" /></p>';
-
-		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
-	}	
 
 	
 	/**

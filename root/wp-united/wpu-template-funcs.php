@@ -631,59 +631,69 @@ function get_wpu_newposts() {
 
 /**
  * Displays a nice list of latest phpBB forum posts
- * @author Japgalaxy
- * @example: wpu_latest_phpbb_posts('<li>','</li>','Y-m-j',20,'Yes')
- * @todo use consistent args format
+ * @author Japgalaxy & John Wells
+ * @example: wpu_latest_phpbb_posts('limit=10&forum=1,2,3&before=<li>&after=</li>&seo=0&dateformat=Y-m-j')
  */
-function wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo) {
-	echo get_wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo);
+function wpu_latest_phpbb_posts($args='') {
+	echo get_wpu_latest_phpbb_posts($args);
 }
 /**
  * Returns a nice list of latest phpBB forum posts without displaying them
- * @author Japgalaxy
- * @example: get_wpu_latest_phpbb_posts('<li>','</li>','Y-m-j',20,'Yes')
- * @todo use consistent args format
+ * @author Japgalaxy & John Wells
+ * @example: get_wpu_latest_phpbb_posts('limit=10&forum=1,2,3&before=<li>&after=</li>&seo=0&dateformat=Y-m-j')
+ * @todo dateformat to use phpBB format
+ * Modified for v0.8 to use proper WP widget styling and args
  */
-function get_wpu_latest_phpbb_posts($before, $after, $gtm, $limit, $seo) {
-	global $scriptPath, $wpuAbs, $db;
+function get_wpu_latest_phpbb_posts($args='') {
+	global $scriptPath, $wpuAbs, $db, $auth, $phpEx;
 	
-	if ($gtm==""){
-		$gtm="Y-m-j";
-	} 
-	if ($limit=="") {
-		$limit=20;
+	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '', 'dateformat' => 'Y-m-j', 'seo' => 0);
+	
+	extract(_wpu_process_args($args, $defaults));
+	$limit = ($limit > 50 ) ? 50 : $limit;
+	
+	$ret = '';
+	
+	$GLOBALS['wpUtdInt']->switch_db('TO_W');
+	$forum_list = (empty($forum)) ? array() :  explode(',', $forum); //forums to explicitly check
+	$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true)));
+	if (sizeof($forum_list)) {
+		$forums_check = array_intersect($forums_check, $forum_list);
 	}
-	
-    	$sql = "SELECT pp.post_id, pp.topic_id,pp.forum_id, post_time, topic_title, pf.forum_name, pp.poster_id, pu.username, pf.forum_id
-            	FROM " . POSTS_TABLE . " pp, " . TOPICS_TABLE . " pt, " . FORUMS_TABLE . " pf, " . USERS_TABLE . " pu
-			WHERE  pp.topic_id = pt.topic_id
-			AND pu.user_id = pp.poster_id
-			AND pf.forum_id = pp.forum_id
-			AND pp.forum_id = pt.forum_id
-			AND pp.post_id = pt.topic_last_post_id
-			GROUP BY pp.topic_id
-			ORDER BY post_time DESC"; 
+	if (!sizeof($forums_check)) {
+		$GLOBALS['wpUtdInt']->switch_db('TO_W');
+		return $before.__('No access') . $after;
+	}	
+	$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, post_time, topic_title, f.forum_name, p.poster_id, u.username, f.forum_id
+            FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f, ' . USERS_TABLE . ' AS u
+			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
+			AND  p.topic_id = t.topic_id
+			AND u.user_id = p.poster_id
+			AND f.forum_id = p.forum_id
+			AND p.forum_id = t.forum_id
+			AND p.post_id = t.topic_last_post_id
+			GROUP BY p.topic_id
+			ORDER BY post_time DESC'; 
+			
 	if(!($result = $db->sql_query_limit($sql, $limit, 0))) { 
-		return __("Could not retrieve phpBB data");
-		
+		$ret = $before.__('Could not retrieve phpBB data') . $after;
 	}
-				
-
+	
 	if (!sizeof($result)) {
-		return $before.__("Nothing found").$after;
-		return;
+		$ret = $before.__('Nothing found').$after;
 	} else {
 		while ($row = $db->sql_fetchrow($result)) {
-			if ($seo=="Yes") {
-				return $before."<a href=\"" . add_trailing_slash($scriptPath) . "post{$row['post_id']}.html#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "member" . $row['poster_id'] . ".html\">" . $row['username'] ."</a> - at: " . date($gtm, $row['post_time']) .$after;
-			} else {
-				return $before."<a href=\"" . add_trailing_slash($scriptPath) . "viewtopic.php?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}\" title=\"{$row['topic_title']}\">{$row['topic_title']}</a><br/>by: <a href=\"" . add_trailing_slash($scriptPath) . "memberlist.php?mode=viewprofile&u=" . $row['poster_id'] . "\">" . $row['username'] ."</a> - at: " . date($gtm, $row[post_time]) .$after;
-			}
+			$topic_link = ($seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}";
+			$topic_link = '<a href="' . add_trailing_slash($scriptPath) . $topic_link . '" title="' . $row['topic_title'] . '">' . $row['topic_title'] . '</a>';
+			$user_link = ($seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
+			$user_link = '<a href="' . add_trailing_slash($scriptPath) . $user_link . '">' . $row['username'] .'</a>';
+			$ret .= $before . sprintf(__('%1s, posted by %2s at %3s'),$topic_link, $user_link,  date($dateformat, $row['post_time']))  ."$after\n";
 		}
-		
 	}
+	
 	$db->sql_freeresult($result);
 	$GLOBALS['wpUtdInt']->switch_db('TO_W');
+	return $ret;
 }
 
 
@@ -709,7 +719,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
 	$limit = ($limit > 50 ) ? 50 : $limit;
 	
 	if ($posts = $wpuAbs->get_recent_topics($forum, $limit)) {
-		$profile_path = ($wpuAbs->ver == 'PHPBB2') ? "profile.$phpEx" : "memberlist.$phpEx";
+		$profile_path = "memberlist.$phpEx";
 		foreach ($posts as $post) {
 			$topic_link = '<a href="' . add_trailing_slash($scriptPath) . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . $post['topic_title'] . '</a>';
 			$forum_link = '<a href="' . add_trailing_slash($scriptPath) . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
