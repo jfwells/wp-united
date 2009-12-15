@@ -12,6 +12,10 @@ Hooks: Double-phpBB reported. Integration mode not fully set up in head.
 
 Cache: Ability to purge. Auto-purge on wizard run
 
+Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
+Then can move all edits in --  for now, the template-loader edits, but also leave ability to step into all WP code
+
+
 Widgets: Login box not using correct styles
 Widgets: Latest forum topics not showing topic titles on full page reverse integration, but styled OK
 Widgets: Latest posts widget not styling properly, but showing titles OK 
@@ -63,5 +67,6 @@ DONE
 - Plugin fixes: Repeat for WPMU plugins
 - Plugin fixes: Combine themes functions.php etc with plugin fixes
 - Split WP page invocation in integration class to 'prepare' and 'do_'
+- Removed wp-template-loader.php in favour of parsing WordPress code
 
 
