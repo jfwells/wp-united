@@ -12,6 +12,11 @@ Hooks: Double-phpBB reported. Integration mode not fully set up in head.
 
 Cache: Ability to purge. Auto-purge on wizard run
 
+Widgets: Login box not using correct styles
+Widgets: Latest forum topics not showing topic titles on full page reverse integration, but styled OK
+Widgets: Latest posts widget not styling properly, but showing titles OK 
+Widgets: No linebreaks/lis in forum stats widget
+
 Plugin fixes: Repeat for WPMU plugins
 Plugin fixes: Combine template functions.php fixes
 
