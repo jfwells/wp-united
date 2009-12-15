@@ -607,6 +607,7 @@ Class WPU_Integration {
 	}
 	/**
 	 * @access private
+	 * @todo No longer need to fill variable like this -- we can just return
 	 */
 	function do_get_wp_page($toVarName) {
 		require($this->phpbb_root . 'wp-united/wpu-template-funcs.' . $this->phpEx);
@@ -622,7 +623,28 @@ Class WPU_Integration {
 		wp();
 		if ( !$latest ) {
 			if ( !defined('WPU_REVERSE_INTEGRATION') ) {
-				include($this->phpbb_root . 'wp-united/wp-template-loader.' . $this->phpEx);
+				/**
+				* @todo this can use the plugin fixer tools to enter and fix themes too
+				* The plugin fixer should extend a base general compatibility class in order to do so.
+				*/
+				$wpuTemplate = file_get_contents(ABSPATH . WPINC . '/template-loader.php');
+				
+				$finds = array(
+					'return;',
+					'do_action(\'do_robots\');',
+					'if ( is_trackback() ) {',
+					'} else if ( is_author()',
+					'} else {'
+				)
+				$repls = array(
+					'',
+					'$wpuNoHead = true; do_action(\'do_robots\');',
+					'if (is_trackback()) {$wpuNoHead=true;',
+					'}else if(is_author()&& !empty($wpSettings[\'usersOwnBlogs\']) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
+					'} } else { $wpuNoHead = true;'
+				)
+				$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);
+				eval('?' . '>' . $wpuTemplate . '<' . '?php');
 			}
 		} else {
 			include($this->phpbb_root . 'wp-united/wpu-latest-posts.' . $this->phpEx);	
