@@ -1,7 +1,9 @@
 Actions remaining for release of v0.8
 -------------------------------------------------
-This is more of a general todo list. See code documentation for a full list of @todos. 
+This is more of a general todo list so that I (John) can prioritise changes 
+and stick to a release date. See code documentation for a full list of @todos. 
 Al full list of bugs is in the forum bug tracker.
+The "DONE" section only contains changes in the final run-up to release
 
 TODO
 --------
@@ -26,6 +28,8 @@ Plugin: WP Admin link not showing on full page reverse integration in sidebar
 Plugin: Logout etc. links not showing in dashboard
 Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
 Plugin: use wp_enqueue_script for smilies etc.
+
+Template tags: phpBB "function bar"
 
 Full page integration: Improve settings / include blank page or option to create one (see blank page plugin). Remove "hide pages" hack
 
