@@ -947,7 +947,7 @@ function wpu_enter_phpbb() {
 		
 		include($phpbb_root_path . 'common.' . $phpEx);
 	
-		include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx);
+		//include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx); now auto-included
 
 	} else {
 		$cache = $phpbb_cache_old;
@@ -998,27 +998,23 @@ function wpu_forum_xpost_list() {
 	$can_xpost_forumlist = array();
 	$can_xpost_to = array();
 	
-	if ( 'PHPBB2' == $wpuAbs->ver ) {
-		// TODO: PHPBB2 BRANCH!!
-	} else { 
-		$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
-		
-		if ( sizeof($can_xpost_to) ) { 
-			$can_xpost_to = array_keys($can_xpost_to); 
-		} 
-		//Don't return categories -- just forums!
-		if ( sizeof($can_xpost_to) ) {
-			$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
-				'forum_type = ' . FORUM_POST . ' AND ' .
-				$db->sql_in_set('forum_id', $can_xpost_to);
-			if ($result = $db->sql_query($sql)) {
-				while ( $row = $db->sql_fetchrow($result) ) {
-					$can_xpost_forumlist['forum_id'][] = $row['forum_id'];
-					$can_xpost_forumlist['forum_name'][] = $row['forum_name'];
-				}
-				$db->sql_freeresult($result);
-				return $can_xpost_forumlist;
+	$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
+	
+	if ( sizeof($can_xpost_to) ) { 
+		$can_xpost_to = array_keys($can_xpost_to); 
+	} 
+	//Don't return categories -- just forums!
+	if ( sizeof($can_xpost_to) ) {
+		$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
+			'forum_type = ' . FORUM_POST . ' AND ' .
+			$db->sql_in_set('forum_id', $can_xpost_to);
+		if ($result = $db->sql_query($sql)) {
+			while ( $row = $db->sql_fetchrow($result) ) {
+				$can_xpost_forumlist['forum_id'][] = $row['forum_id'];
+				$can_xpost_forumlist['forum_name'][] = $row['forum_name'];
 			}
+			$db->sql_freeresult($result);
+			return $can_xpost_forumlist;
 		}
 	}
 	
@@ -1203,18 +1199,6 @@ function wpu_content_parse_check($postContent) {
 	return $postContent;
 }
 
-
-/**
- * Suppresses the post title if we are showing a phpBB forum on a full page
- * @param string $postTitle the post title to filter out
- */
-function wpu_check_if_rev_page($postTitle) {
-	if (defined('PHPBB_CONTENT_ONLY') ) {
-		return '';
-	}
-	return $postTitle;
-
-}
 
 /**
  * Handles parsing of posts through the phpBB word censor.
@@ -1813,7 +1797,7 @@ add_filter('comment_text', 'wpu_smilies');
 add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
 add_action('comment_form', 'wpu_print_smilies');
 add_action('wp_head', 'wpu_javascript');
-add_action('the_title', 'wpu_check_if_rev_page');
+
 if ( isset($_GET['wputab']) ) {
 	if ($_GET['wputab'] == 'themes') {
 		add_action('admin_init', 'wpu_prepare_admin_pages');

@@ -52,7 +52,7 @@ Class WPU_Integration {
 		'exact', 'sentence', 'debug', 'calendar', 'page', 'paged', 'more', 'tb', 'pb', 
 		'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second',
 		'name', 'category_name', 'feed', 'author_name', 'static', 'pagename', 'page_id', 'error',
-		'comments_popup', 'attachment', 'attachment_id', 'subpost', 'subpost_id', 'preview', 'robots');
+		'comments_popup', 'attachment', 'attachment_id', 'subpost', 'subpost_id', 'preview', 'robots', 'entry');
 		
 	
 	/** 
@@ -78,6 +78,7 @@ Class WPU_Integration {
 		'wp_taxonomies',
 		'wp_object_cache',
 		'options',
+		'entry',
 		
 		// widgets
 		'registered_sidebars', 
@@ -647,7 +648,6 @@ Class WPU_Integration {
 			'} else { $wpuNoHead = true;'
 		);
 		$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);
-		//echo "\n" . '?' . '>' . $wpuTemplate . '<' . '?php' . "\n";
 		return "\n" . '?' . '>' . $wpuTemplate . '<' . '?php' . "\n";
 	}
 

@@ -47,13 +47,19 @@ function wpu_widgets_init() {
 			$newPosts = $options['new'];
 			$write = $options['write'];
 			$admin = $options['admin'];
-			$position = 'sidebar';
 		
 			//generate the widget output
 			// wpu_template_funcs.php MUST be available!
 			if ( !function_exists('wpu_login_user_info') ) return;
-			echo $before_widget;
-			wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title);
+			
+			global $user_ID;
+			get_currentuserinfo();
+			$title =  (!empty($user_ID)) ? $titleLoggedIn : $titleLoggedOut;
+			$loggedIn = (!empty($user_ID)) ? '1' : '0';
+			echo $before_widget . $before_title . $title . $after_title;
+			echo '<ul class="wpulogininfo">';
+			wpu_login_user_info("showLoginForm={$loginForm}&showRankBlock={$rankBlock}&showNewPosts={$newPosts}&showWriteLink={$write}&showAdminLinks={$admin}");
+			echo '</ul>';
 			echo $after_widget;
 		}
 	}
@@ -131,7 +137,6 @@ function wpu_widgets_init() {
 		
 		
 			//generate the widget output
-			// wpu_template_funcs.php MUST be available!
 			if ( !function_exists('wpu_latest_blogs') ) return false;
 			echo $before_widget;
 			echo $before_title . $title . $after_title;
@@ -190,7 +195,7 @@ function wpu_widgets_init() {
 			if ( !function_exists('wpu_latest_blogposts') ) return false;
 			echo $before_widget;
 			echo $before_title . $title . $after_title;
-			echo '<ul>';
+			echo '<ul class="wpulatestblogposts">';
 			wpu_latest_blogposts('limit='.$maxEntries);
 			echo '</ul>' . $after_widget;
 		}
@@ -244,7 +249,7 @@ function wpu_widgets_init() {
 			if ( !function_exists('wpu_latest_phpbb_topics') ) return false;
 			echo $before_widget;
 			echo $before_title . $title . $after_title;
-			echo '<ul>';
+			echo '<ul class="wpulatesttopics">';
 			wpu_latest_phpbb_topics('limit='.$maxEntries);
 			echo '</ul>' . $after_widget;
 		}
@@ -279,44 +284,7 @@ function wpu_widgets_init() {
 		echo '<input type="hidden" id="widget_wpu_rpt" name="widget_wpu_rpt" value="1" />';
 	}	
 	
-	/**
-	 * The widget control pane
-	 */
-	function widget_wpulatestphpbbposts_control() {
-	
-		$options = get_option('widget_wpulatestphpbbposts');
-		
-		if ( !is_array($options) ) {
-			$options = array('title'=>__('Recent Forum Posts'), 'limit'=>20, 'dateformat'=>"Y-m-j", 'seo'=>0);
-		}
-		// handle form submission
-		if ( $_POST['widget_wpu_lpp'] ) {
-			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
-			$options['max'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
-			$options['dateformat'] = strip_tags(stripslashes($_POST['wpu-lpp-gtm']));
-			$options['seo'] = ($_POST['wpu-lpp-seo'] == "yes") ? 1 : 0;
-			update_option('widget_wpulatestphpbbposts', $options);
-		}
 
-		// set form values
-		$title = htmlspecialchars($options['title'], ENT_QUOTES);
-		$title = (empty($title)) ? __('Latest phpBB posts') : $title;
-		$max =(int) htmlspecialchars($options['max'], ENT_QUOTES);
-		$max = ($max) ? (string)$max : '20';
-		$dateformat = empty($options['dateformat']) ? 'Y-m-j' : $options['dateformat'];
-		$dateformat = htmlspecialchars($dateformat);
-		$seo = ($options['seo']) ? 'checked="checked"' : '';
-
-		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$max.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('Date format:') . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$dateformat.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . '</label> <input type="checkbox" id="wpu-lpp-seo" name="wpu-lpp-seo" value="yes" $seo /></p>';
-
-		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
-	}	
-
-	
 	
 	/**
 	 * phpBB forum statistics widget
@@ -335,7 +303,7 @@ function wpu_widgets_init() {
 			if ( !function_exists('wpu_phpbb_stats') ) return false;
 			echo $before_widget;
 			echo $before_title . $title . $after_title;
-			echo '<ul>';
+			echo '<ul class="wpuforumstats">';
 			wpu_phpbb_stats();
 			echo '</ul>' . $after_widget;
 		}
@@ -367,6 +335,68 @@ function wpu_widgets_init() {
 		echo '<input type="hidden" id="widget_wpu_stats" name="widget_wpu_stats" value="1" />';
 	}	
 	
+	/**
+	 * Users online widget
+	 * Returns a lsit of forum statistics
+	 */
+	function widget_wpuusersonline($args) {
+		if(!is_admin()) {		
+			extract($args);
+
+			$options = get_option('widget_wpuusersonline');
+			$title = $options['title'];
+			$showBreakdown = (int)$options['showBreakdown'];
+			$showRecord = (int)$options['showRecord'];
+			$showLegend = (int)$options['showLegend'];
+		
+			//generate the widget output
+			// wpu-template-funcs.php MUST be available!
+			if ( !function_exists('wpu_useronlinelist') ) return false;
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
+			echo '<ul class="wpuusersonline">';
+			wpu_useronlinelist("showBreakdown={$showBreakdown}&showRecord={$showRecord}&showLegend={$showLegend}");
+			echo '</ul>' . $after_widget;
+		}
+	}
+	
+	/**
+	 * The widget control pane
+	 */
+	function widget_wpuusersonline_control() {
+	
+		$options = get_option('widget_wpuusersonline');
+		
+		if ( !is_array($options) ) {
+			$options = array('title'=>__('Users Online'), 'showBreakdown' => 1, 'showRecord' => 1, 'showLegend' => 1);
+		}
+		// handle form submission
+		if ( $_POST['widget_wpu_usersonline'] ) {
+			$options['title'] = strip_tags(stripslashes($_POST['wpu-usersonline-title']));
+			$options['showBreakdown'] = strip_tags(stripslashes($_POST['wpu-usersonline-breakdown']));
+			$options['showRecord'] = strip_tags(stripslashes($_POST['wpu-usersonline-record']));
+			$options['showLegend'] = strip_tags(stripslashes($_POST['wpu-usersonline-legend']));
+			$options['showBreakdown'] = ($options['showBreakdown'] == 'brk')? 1 : 0;
+			$options['showRecord'] = ($options['showRecord'] == 'rec')? 1 : 0;
+			$options['showLegend'] = ($options['showLegend'] == 'leg')? 1 : 0;
+			update_option('widget_wpuusersonline', $options);
+		}
+
+		// set form values
+		$title = htmlspecialchars($options['title'], ENT_QUOTES);
+		$inShowBreakdown = ($options['showBreakdown'] == 1) ? 'checked="checked"' : '';
+		$inShowRecord = ($options['showRecord'] == 1) ? 'checked="checked"' : '';
+		$inShowLegend = ($options['showLegend'] == 1) ? 'checked="checked"' : '';
+		
+		// Show form
+		echo '<p style="text-align:right;"><label for="wpu-stats-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-usersonline-title" name="wpu-usersonline-title" type="text" value="'.$title.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-usersonline-breakdown">' . __('Show a breakdown of user types?') . ' <input  id="wpu-usersonline-breakdown" name="wpu-usersonline-breakdown" type="checkbox" value="brk" ' . $inShowBreakdown . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-usersonline-record">' . __('Show record number of users?') . ' <input  id="wpu-usersonline-record" name="wpu-usersonline-record" type="checkbox" value="rec" ' . $inShowRecord . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-usersonline-legend">' . __('Show legend?') . ' <input  id="wpu-usersonline-legend" name="wpu-usersonline-legend" type="checkbox" value="leg" ' . $inShowLegend . ' /></label></p>';
+		
+		echo '<input type="hidden" id="widget_wpu_usersonline" name="widget_wpu_usersonline" value="1" />';
+	}	
+	
 		
 	/**
 	 * phpBB latest posts
@@ -382,16 +412,54 @@ function wpu_widgets_init() {
 			$dateformat = $options['dateformat'];
 			$seo = $options['seo'];
 			$maxEntries = $options['max'];
-
+			
+			if ( !function_exists('wpu_latest_phpbb_posts') ) return false;
+			
 			echo $before_widget;
 			echo $before_title .$title. $after_title;
-			echo '<ul>';
+			echo '<ul class="wpulatestposts">';
 			wpu_latest_phpbb_posts("limit={$limit}&seo={$seo}&dateformat={$dateformat}");
 			echo '</ul>';
 			echo $after_widget;
 		}
 	}
 
+	/**
+	 * The widget control pane
+	 */
+	function widget_wpulatestphpbbposts_control() {
+	
+		$options = get_option('widget_wpulatestphpbbposts');
+		
+		if ( !is_array($options) ) {
+			$options = array('title'=>__('Latest phpBB Posts'), 'limit'=>20, 'dateformat'=>"Y-m-j", 'seo'=>0);
+		}
+		// handle form submission
+		if ( $_POST['widget_wpu_lpp'] ) {
+			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
+			$options['max'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
+			$options['dateformat'] = strip_tags(stripslashes($_POST['wpu-lpp-gtm']));
+			$options['seo'] = ($_POST['wpu-lpp-seo'] == "yes") ? 1 : 0;
+			update_option('widget_wpulatestphpbbposts', $options);
+		}
+
+		// set form values
+		$title = htmlspecialchars($options['title'], ENT_QUOTES);
+		$title = (empty($title)) ? __('Latest phpBB posts') : $title;
+		$max =(int) htmlspecialchars($options['max'], ENT_QUOTES);
+		$max = ($max) ? (string)$max : '20';
+		$dateformat = empty($options['dateformat']) ? 'Y-m-j' : $options['dateformat'];
+		$dateformat = htmlspecialchars($dateformat);
+		$seo = ($options['seo']) ? 'checked="checked"' : '';
+
+		// Show form
+		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$max.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('Date format:') . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$dateformat.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . '</label> <input type="checkbox" id="wpu-lpp-seo" name="wpu-lpp-seo" value="yes" $seo /></p>';
+
+		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
+	}	
 
 
 
@@ -405,6 +473,7 @@ function wpu_widgets_init() {
 	register_sidebar_widget(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics');
 	register_sidebar_widget(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats');
 	register_sidebar_widget(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts');
+	register_sidebar_widget(array('WP-United Users Online', 'widgets'), 'widget_wpuusersonline');
 
 	/**
 	 * Register all control panes
@@ -415,6 +484,7 @@ function wpu_widgets_init() {
 	register_widget_control(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics_control', 300, 100);
 	register_widget_control(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats_control', 300, 100);
 	register_widget_control(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts_control', 300, 100);
+	register_widget_control(array('WP-United Users Online', 'widgets'), 'widget_wpuusersonline_control', 300, 100);
 }
 
 

@@ -340,7 +340,9 @@ class WPU_Cache {
 	 * If an item is not listed, we can assume it was already cached
 	 */
 	function get_logged_actions() {
-		$strLog = implode('<br />', $this->logged);
+		if(sizeof($this->logged)) {
+			$strLog = implode('<br />', $this->logged);
+		}
 		return $strLog;
 	}
 	

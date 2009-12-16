@@ -480,7 +480,7 @@ function wpu_phpbb_profile_link($wpID = '') {
 function get_wpu_phpbb_profile_link($wpID = '') {
 	$phpbb_usr_id = get_usermeta($wpID, 'phpbb_userid');
 	if (!empty($usr_data)) {
-		$profile_path = ($wpuAbs->ver == 'PHPBB2') ? "profile.$phpEx" : "memberlist.$phpEx";
+		$profile_path = "memberlist.$phpEx";
 		return add_trailing_slash($scriptPath) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
 	}
 }
@@ -575,7 +575,7 @@ function get_wpu_phpbb_stats($args='') {
 	extract(_wpu_process_args($args, $defaults));
 
 	
-	$profile_path = ($wpuAbs->ver == 'PHPBB2') ? "profile.$phpEx" : "memberlist.$phpEx";
+	$profile_path = "memberlist.$phpEx";
 	
 	$GLOBALS['wpUtdInt']->switch_db('TO_P');
 	$output .= $before .  __('Forum Posts: ') 		. '<strong>' 	. $wpuAbs->stats('num_posts') 	. "</strong>$after\n";
@@ -682,12 +682,16 @@ function get_wpu_latest_phpbb_posts($args='') {
 	if (!sizeof($result)) {
 		$ret = $before.__('Nothing found').$after;
 	} else {
+		$i =0;
 		while ($row = $db->sql_fetchrow($result)) {
+			$class = ($i==0) ? 'class="wpufirst" ' : '';
+			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
 			$topic_link = ($seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}";
-			$topic_link = '<a href="' . add_trailing_slash($scriptPath) . $topic_link . '" title="' . $row['topic_title'] . '">' . $row['topic_title'] . '</a>';
+			$topic_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . $topic_link . '" title="' . $row['topic_title'] . '">' . $row['topic_title'] . '</a>';
 			$user_link = ($seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
-			$user_link = '<a href="' . add_trailing_slash($scriptPath) . $user_link . '">' . $row['username'] .'</a>';
-			$ret .= $before . sprintf(__('%1s, posted by %2s at %3s'),$topic_link, $user_link,  date($dateformat, $row['post_time']))  ."$after\n";
+			$user_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . $user_link . '">' . $row['username'] .'</a>';
+			$ret .= $thisBefore . sprintf(__('%1s, posted by %2s at %3s'),$topic_link, $user_link,  date($dateformat, $row['post_time']))  ."$after\n";
+			$i++;
 		}
 	}
 	
@@ -720,11 +724,15 @@ function get_wpu_latest_phpbb_topics($args = '') {
 	
 	if ($posts = $wpuAbs->get_recent_topics($forum, $limit)) {
 		$profile_path = "memberlist.$phpEx";
+		$i=0;
 		foreach ($posts as $post) {
-			$topic_link = '<a href="' . add_trailing_slash($scriptPath) . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . $post['topic_title'] . '</a>';
-			$forum_link = '<a href="' . add_trailing_slash($scriptPath) . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-			$user_link = '<a href="' . add_trailing_slash($scriptPath) . "$profile_path.$phpEx?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
-			$output .= $before . sprintf(__('%1s, posted by %2s in %3s'),$topic_link, $user_link, $forum_link)  ."$after\n";
+			$class = ($i==0) ? 'class="wpufirst" ' : '';
+			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
+			$topic_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . $post['topic_title'] . '</a>';
+			$forum_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
+			$user_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . "$profile_path.$phpEx?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
+			$output .= $thisBefore . sprintf(__('%1s, posted by %2s in %3s'),$topic_link, $user_link, $forum_link)  ."$after\n";
+			$i++;
 		}
 	} else {
 		$output = __('No topics to show');
@@ -797,102 +805,186 @@ global $comment;
  * @since v0.7.0
  */
 function wpu_comment_author_link () {
-	// Modified this to echo rather that return, to be consistent with other WordPress functions.
 	echo  wpu_get_comment_author_link();
 }
 
+/**
+ * Displays the logged in user list
+ * @author John Wells
+ * @since v0.8.0
+ * @example wpu_useronlinelist('before=<li>&after=</li>&showBreakdown=1&showRecord=1&showLegend=1');
+ */
+function wpu_useronlinelist($args = '') {
+	echo get_wpu_useronlinelist($args);
+}
 
+/**
+ * Returns the logged in user list without displaying it
+ * @author John Wells
+ * @since v0.8.0
+ * @example wpu_useronlinelist('before=<li>&after=</li>&showBreakdown=1&showRecord=1&showLegend=1');
+ */
+function get_wpu_useronlinelist($args = '') {
+	global $template, $user, $auth, $db, $config;
+	
+	$defaults = array('before' => '<li>', 'after' => '</li>', 'showCurrent' => 1, 'showRecord' => 1, 'showLegend' => 1);
+	extract(_wpu_process_args($args, $defaults));
+	
+	if( (!empty($template)) && (!empty($legend))  && ($theList = $template->_rootref['LOGGED_IN_USER_LIST'])) {
+		// On the phpBB index page -- everything's already in template
+		$legend = $template->_rootref['LEGEND'];
+		$l_online_users = $template->_rootref['TOTAL_USERS_ONLINE'];
+		$l_online_time = $template->_rootref['L_ONLINE_EXPLAIN'];
+		$l_online_record = $template->_rootref['RECORD_USERS'];
+		
+	} else {
+		// On other pages, get the list
+		
+		$online_users = obtain_users_online();
+		$list = obtain_users_online_string($online_users);
+		
+		$GLOBALS['wpUtdInt']->switch_db('TO_P');
+		// Grab group details for legend display
+		if ($auth->acl_gets('a_group', 'a_groupadd', 'a_groupdel'))	{
+			$sql = 'SELECT group_id, group_name, group_colour, group_type
+				FROM ' . GROUPS_TABLE . '
+				WHERE group_legend = 1
+				ORDER BY group_name ASC';
+		} else {
+			$sql = 'SELECT g.group_id, g.group_name, g.group_colour, g.group_type
+				FROM ' . GROUPS_TABLE . ' g
+				LEFT JOIN ' . USER_GROUP_TABLE . ' ug
+					ON (
+						g.group_id = ug.group_id
+						AND ug.user_id = ' . $user->data['user_id'] . '
+						AND ug.user_pending = 0
+					)
+				WHERE g.group_legend = 1
+					AND (g.group_type <> ' . GROUP_HIDDEN . ' OR ug.user_id = ' . $user->data['user_id'] . ')
+				ORDER BY g.group_name ASC';
+		}
+		$result = $db->sql_query($sql);
 
+		$legend = array();
+		while ($row = $db->sql_fetchrow($result)) {
+			$colour_text = ($row['group_colour']) ? ' style="color:#' . $row['group_colour'] . '"' : '';
+			$group_name = ($row['group_type'] == GROUP_SPECIAL) ? $user->lang['G_' . $row['group_name']] : $row['group_name'];
+
+			if ($row['group_name'] == 'BOTS' || ($user->data['user_id'] != ANONYMOUS && !$auth->acl_get('u_viewprofile'))) {
+				$legend[] = '<span' . $colour_text . '>' . $group_name . '</span>';
+			} else {
+				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
+			}
+		}
+		$db->sql_freeresult($result);
+		$GLOBALS['wpUtdInt']->switch_db('TO_W');
+
+		$legend = implode(', ', $legend);
+		$l_online_time = ($config['load_online_time'] == 1) ? 'VIEW_ONLINE_TIME' : 'VIEW_ONLINE_TIMES';
+		$l_online_time = sprintf($user->lang[$l_online_time], $config['load_online_time']);
+		$l_online_record = sprintf($user->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date']));
+		$l_online_users = $list['l_online_users'];
+		$theList = $list['online_userlist'];
+			
+	} 
+		
+	if ($showBreakdown) {
+		$ret .= "{$before}{$l_online_users} ({$l_online_time}){$after}";
+	}
+	if ($showRecord) {
+		$ret .= "{$before}{$l_online_record}{$after}";
+	}
+	$ret .= "{$before}{$theList}{$after}";
+	if($showLegend) {
+		$ret .= "{$before}<em>{$user->lang['LEGEND']}: {$legend}</em>{$after}";
+	}
+	
+	return $ret;
+	
+}
 
 /**
  * Displays info about the current user, or a login form if they are logged out
- * @author Japgalaxy
- * @todo make args consistent
  */
-function wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title) {
-	echo get_wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title);
+function wpu_login_user_info($args) {
+	echo get_wpu_login_user_info($args);
 }
 
 /**
  * Gets info about the current user, or a login form if they are logged out, without displaying it
- * @author Japgalaxy
- * @todo make args consistent
+ * @author Japgalaxy, updated by John Wells
+ * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1");
  */
-function get_wpu_login_user_info($titleLoggedIn, $titleLoggedOut, $loginForm, $rankBlock, $newPosts, $write, $admin, $position, $before_title, $after_title) {
-	global $user, $db, $scriptPath, $wpSettings, $auth, $wpuAbs, $phpbb_sid, $wpSettings, $phpEx;
+function get_wpu_login_user_info($args) {
+	global $user_ID, $user, $db, $scriptPath, $wpSettings, $auth, $wpuAbs, $phpbb_sid, $wpSettings, $phpEx;
+	
+	$defaults = array('before' => '<li>', 'after' => '</li>');
+	extract(_wpu_process_args($args, $defaults));
+	
 	
 	$ret = '';
+	
+	get_currentuserinfo();
+	$title =  (!empty($user_ID)) ? $titleLoggedIn : $titleLoggedOut;
+	$loggedIn = (!empty($user_ID)) ? true: false;
+	
+	if($loggedIn) {
+		$wpu_usr = get_wpu_phpbb_username(); 
 
-	$wpu_usr = get_wpu_phpbb_username(); 
+			$ret .= $before . '<a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a>' . $after;
+			$ret .= $before . '<img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" />' . $after; 
 
-	if ( !empty($user->data['is_registered']) ) { 
-		$ret .= $before_title . $titleLoggedIn . $after_title;
-		
-		//style for position sidebar/header     
-		$style = ($position == "sidebar") ? 'display:block; margin:0 5px;' : 'float:left; display:inline; margin:0 5px;';
-		
-		if ($position == "sidebar") {
-			$ret .= '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
-			$ret .= '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
-		} else {
-			$ret .= '<p style="' . $style . '" class="wpu_avatar"><img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" /></p>'; 
-			$ret .= '<p style="' . $style . '" class="wpu_username"><a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a></p>';
+
+		if ( $showRankBlock ) {
+			$ret .= $before . get_wpu_phpbb_rankblock() . $after;
 		}
 
-		if ( $rankBlock ) {
-			wpu_phpbb_rankblock();
-		}
-
-		if ( $newPosts ) {
-			$ret .= '<p class="wpu_newposts">'; wpu_newposts_link(); echo '</p> ';
+		if ( $showNewPosts ) {
+			$ret .= $before .  get_wpu_newposts_link() . $after;
 		}
 
 		// Handle new PMs
 		if ($user->data['user_new_privmsg']) {
 			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $wpuAbs->lang('NEW_PM') : $wpuAbs->lang('NEW_PMS');
 			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
-			$ret .= '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
+			$ret .= $before. '<a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 		} else {
 			$l_privmsgs_text = $wpuAbs->lang('NO_NEW_PM');
 			$s_privmsg_new = false;
-			$ret .= '<p class="wpu_pm"><a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a></p>';
+			$ret .= $before . '<a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 		}	
 
-		if ($write) {
+		if ($showWriteLink) {
 			if (current_user_can('publish_posts')) {
-				echo '<p class="wpu_write"><a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="' . __('Write a Post') . '">' . __('Write a Post') . '</a></p> ';
+				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="' . __('Write a Post') . '">' . __('Write a Post') . '</a>' . $after;
 			}
 		}
-		if ($admin) {
+		if ($showAdminLinks) {
 			$connSettings = get_settings('wputd_connection');
 			if (current_user_can('publish_posts')) {
-				$ret .= '<p class="wpu_siteadmin"><a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a></p> ';
+				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
 			if($auth->acl_get('a_')) {
-				$ret .= '<p class="wpu_forumadmin"><a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $wpuAbs->lang('ACP') . '</a></p>';
+				$ret .= $before . '<a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $wpuAbs->lang('ACP') . '</a>' . $after;
 			}
 		}
-		$ret .= '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
+		$ret .= $before . get_wp_loginout() . $after;
 	} else {
-		echo $before_title . $titleLoggedOut . $after_title;
-		if ( $loginForm ) {
+		if ( $showLoginForm ) {
 			$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
-			$ret .= '<form method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
-			$ret .= '<p class="wpu_user"><label for="phpbb_username">' . $wpuAbs->lang('USERNAME') . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/></p>';
-			$ret .= '<p class="wpu_password"><label for="phpbb_password">' . $wpuAbs->lang('PASSWORD') . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" /></p>';
+			$ret .= '<form class="wpuloginform" method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
+			$ret .= $before . '<label for="phpbb_username">' . $wpuAbs->lang('USERNAME') . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
+			$ret .= $before . '<label for="phpbb_password">' . $wpuAbs->lang('PASSWORD') . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
 			if ( $wpuAbs->config('allow_autologin') ) {
-				$ret .= '<p class="wpu_remember"><input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $wpuAbs->lang('LOG_ME_IN') . '</label> </p>';
+				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $wpuAbs->lang('LOG_ME_IN') . '</label>' . $after;
 			}
-			$ret .= '<p class="wpu_login"><input type="submit" name="login" class="button1" value="' . $wpuAbs->lang('LOGIN') . '" /></p>';
-			$ret .= '<p class="wpu_signup"><a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $wpuAbs->lang('REGISTER') . '</a></p>';
-			$ret .= '<p class="wpu_rempassword"><a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $wpuAbs->lang('FORGOT_PASS') . '</a></p>';
+			$ret .= $before . '<input type="submit" name="login" class="wpuloginsubmit" value="' . $wpuAbs->lang('LOGIN') . '" />' . $after;
+			$ret .= $before . '<a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $wpuAbs->lang('REGISTER') . '</a>' . $after;
+			$ret .= $before . '<a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $wpuAbs->lang('FORGOT_PASS') . '</a>' . $after;
 			$ret .= '</form>';
 		} else {
-			$ret .= '<p class="wpu_logout">'; wp_loginout(); echo '</p> ';
+			$ret .= $before . get_wp_loginout() . $after;
 		}
-	}			
-	if ($position=="header"){
-		$ret .= '<p style="clear:both;"></p>';
 	}
 	
 	return $ret;
@@ -1117,6 +1209,23 @@ if(!function_exists('get_comments_popup_link')) {
 		return $link;
 	}
 }
+
+/**
+ * In order to make the loginout link a consistent template tag, and split to get_/echo
+ * we need to create this missing WordPress get_ equivalent
+ * @author John Wells
+ * @since v0.8.0
+ */
+if(!function_exists('get_wp_loginout')) {
+	function get_wp_loginout() {
+		ob_start();
+		wp_loginout();
+		$link = ob_get_contents();
+		ob_end_clean();
+		return $link;
+	}
+}
+
 
 /**
  * Load the rank details for the user
