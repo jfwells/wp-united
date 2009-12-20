@@ -117,7 +117,7 @@ if(file_exists($cssFileToFix)) {
 	
 	// Load and CSS-Magic-ify the CSS file. If an outer file, just cache it
 	if(empty($css)) {
-		include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
+		include($phpbb_root_path . 'wp-united/css-magic.' . $phpEx);
 		$cssMagic = CSS_Magic::getInstance();
 		if($cssMagic->parseFile($cssFileToFix)) {
 

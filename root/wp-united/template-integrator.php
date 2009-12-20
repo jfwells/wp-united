@@ -157,7 +157,7 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
  */
 if (!empty($wpSettings['cssMagic'])) {
 
-	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
+	include($phpbb_root_path . 'wp-united/css-magic.' . $phpEx);
 
 	/** 
 	 * Get all links to stylesheets, and prepare appropriate replacement links to insert into the page content
