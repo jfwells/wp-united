@@ -4,22 +4,10 @@
 * WP-United Mod Settings
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0 2009/12/18 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
-*/
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-
-/**
  * A few functions to write and retrieve the integration package settings from the DB
  * This is a bit messy & unneccesarily complex, a result of our previous simultaneous support for phpBB2 & phpBB3.
  * The phpBB2 version used its own integration table, hence the schema.
@@ -29,13 +17,11 @@
  * @todo remove schema for v1.0
  */
 
-if ( !defined('IN_PHPBB') )
-{
-	die("Hacking attempt");
+
+
+if ( !defined('IN_PHPBB') ) {
 	exit;
 }
-
-require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 
 /**
  * Returns a map of the structure of our database against the variables we use in WP-United.
@@ -50,7 +36,6 @@ function get_db_schema() {
 		'wpUri' => 'fullUri' ,
 		'wpPath' => 'fullPath', 
 		'integrateLogin' => 'wpLogin', 
-		'permList' => 'permMapping',
 		'showHdrFtr' => 'showInside',
 		'cssFirst' => 'cssFirst',
 		'wpSimpleHdr' => 'wpHdrSimple',
@@ -91,10 +76,10 @@ function get_db_schema() {
  * Set default values for WPU settings
  */
 function set_default($setting_key) {
-	global $phpEx, $wpuAbs, $phpbb_root_path, $phpEx;
+	global $phpEx, $config, $phpbb_root_path, $phpEx, $user;
 	require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
-	$server = add_http(add_trailing_slash($wpuAbs->config('server_name')));
-	$scriptPath = add_trailing_slash($wpuAbs->config('script_path'));
+	$server = add_http(add_trailing_slash($config['server_name']));
+	$scriptPath = add_trailing_slash($config['script_path']);
 	$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 	$defaultBlogUri = $server . $scriptPath . "blog." . $phpEx;
 	
@@ -103,7 +88,6 @@ function set_default($setting_key) {
 		'wpUri' => '' ,
 		'wpPath' => '', 
 		'integrateLogin' => 0, 
-		'permList' => ($wpuAbs->ver == 'PHPBB3') ? '' : '<S:><C:><A:>PHPBB:[USER]<E:>PHPBB:[MOD]</:>PHPBB:[ADMIN]',
 		'showHdrFtr' => 'FWD',
 		'cssFirst' => 0,
 		'wpSimpleHdr' => 1,
@@ -114,15 +98,14 @@ function set_default($setting_key) {
 		'buttonsPost' => 0,
 		'allowStyleSwitch' => 0,
 		'useBlogHome' => 0,
-		'blogListHead' => $wpuAbs->lang('WPWiz_BlogListHead_Default'),
-		'blogIntro' => $wpuAbs->lang('WPWiz_blogIntro_Default'),
+		'blogListHead' => $user->lang['WPWiz_BlogListHead_Default'],
+		'blogIntro' => $user->lang['WPWiz_blogIntro_Default'],
 		'blogsPerPage' => 6,
 		'blUseCSS' => 1,
-		'charEncoding' => ($wpuAbs->ver == 'PHPBB3') ? 'NO_CHANGE' : 'MATCH_WP',
 		'phpbbCensor' => 1,
-		'wpuVersion' => $wpuAbs->lang('WPU_Not_Installed'),
+		'wpuVersion' => $user->lang['WPU_Not_Installed'],
 		'wpPageName' => 'page.php',
-		'phpbbPadding' => ($wpuAbs->ver == 'PHPBB3') ? '6-12-6-12' : '20-20-20-20',
+		'phpbbPadding' =>  '6-12-6-12',
 		'mustLogin' => 0,
 		'upgradeRun' => 0,
 		'xposting' => 0,
@@ -147,18 +130,46 @@ function set_default($setting_key) {
  * Gets the configuration settings from the db, and returns them in $wpSettings.
  * Sets initial values to sensible deafaults if they haven't been set yet.
  */
-function get_integration_settings($set_admin_defaults = FALSE) {
-	global $db, $wpuAbs;
+function get_integration_settings($setAdminDefaults = FALSE) {
+	global $config, $db;
 	
-	$config_fields = get_db_schema();
+	$configFields = get_db_schema();
 	$wpSettings = array();
-	foreach($config_fields as $var_name => $field_name) {
-		if ($wpuAbs->config('wpu_'.$field_name) !== FALSE) {
-			$wpSettings[$var_name] = $wpuAbs->config('wpu_'.$field_name);
-			//unset($GLOBALS['config']['wpu_'.$field_name]);
-		} elseif ($set_admin_defaults) {
-			$wpSettings[$var_name] = set_default($var_name);
+	foreach($configFields as $varName => $fieldName) {
+		if(isset($config["wpu_{$fieldName}"])) {
+			if ($config["wpu_{$fieldName}"] !== FALSE) {
+				$wpSettings[$varName] = $config["wpu_{$fieldName}"];
+			} else {
+				$wpSettings[$varName] ='';
+			}
+		} elseif ($setAdminDefaults) {
+			$wpSettings[$varName] = set_default($varName);
 		}
+	}
+	/**
+	 * Handle style keys for CSS Magic
+	 * We load them here so that we can auto-remove them if CSS Magic is disabled
+	 */
+	$key = 1;
+	if(!empty($wpSettings['cssMagic'])) {
+		$fullKey = '';
+		while(isset( $config["wpu_style_keys_{$key}"])) {
+			$fullKey .= $config["wpu_style_keys_{$key}"];
+			$key++;
+		}
+		if(!empty($fullKey)) {
+			$wpSettings['styleKeys'] = unserialize(base64_decode($fullKey));
+		} else {
+			$wpSettings['styleKeys'] = array();
+		}
+	} else {
+		// Clear out the config keys
+		if(isset($config['wpu_style_keys_1'])) {
+			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+				WHERE config_name LIKE \'wpu_style_keys_%\'';
+			$db->sql_query($sql);
+		}
+		$wpSettings['styleKeys'] = array();
 	}
 	return $wpSettings;	
 	
@@ -166,7 +177,6 @@ function get_integration_settings($set_admin_defaults = FALSE) {
 /**
  * Clear integration settings
  * Completely removes all traces of WP-united settings
- * @deprecated -- only used by removed phpBB2 code paths
  */
 function clear_integration_settings() {
 	global $db;
@@ -195,11 +205,10 @@ function set_integration_settings($dataIn) {
 	$fullFieldSet = get_db_schema();
 	
 	//Clean data, and convert it to our DB schema
-		foreach ($fullFieldSet as $var_name => $field_name ) {
-			if ( array_key_exists($var_name, $dataIn) ) {
-				$data[$field_name] =	$dataIn[$var_name];
-				//$GLOBALS['config']['wpu_'.$field_name] = $dataIn[$var_name]; //if we unset them before, update config fails
-				set_config('wpu_'.$field_name, $dataIn[$var_name]);
+		foreach ($fullFieldSet as $varName => $fieldName ) {
+			if ( array_key_exists($varName, $dataIn) ) {
+				$data[$fieldName] =	$dataIn[$varName];
+				set_config('wpu_'.$fieldName, $dataIn[$varName]);
 			}
 		}
 	

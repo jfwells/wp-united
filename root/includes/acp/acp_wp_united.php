@@ -10,16 +10,6 @@
 *
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-
 /**
 * @package acp
 */
@@ -303,14 +293,14 @@ class acp_wp_united {
 		}
 		
 		//Check that wp-united/cache is writable
-		if(!is_writable(add_trailing_slash($phpbb_root_path) . "wp-united/cache/")) {
+		if(!is_writable($this->add_trailing_slash($phpbb_root_path) . "wp-united/cache/")) {
 			$passBlockVars['switch_main_page.switch_cache_unwritable'] = array(
 				'L_CACHE_UNWRITABLE' => $wpuAbs->lang('WPU_Cache_Unwritable')
 			);
 		}
 		
 		//Check that wpu-install has been deleted
-		if(file_exists(add_trailing_slash($phpbb_root_path) . "wpu-install." . $phpEx)) { 
+		if(file_exists($this->add_trailing_slash($phpbb_root_path) . "wpu-install." . $phpEx)) { 
 			$passBlockVars['switch_main_page.switch_install_file_exists'] = array(
 				'L_INSTALL_EXISTS' => $wpuAbs->lang('WPU_Install_Exists')
 			);
@@ -692,7 +682,7 @@ class acp_wp_united {
 		// pass strings
 		$passVars = array(	
 			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 5, $numWizardSteps),
-			'S_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
+			'U_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 4),
 			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 6)
@@ -709,9 +699,12 @@ class acp_wp_united {
 	}
 	
 	function step5_backend() {
-		//Read settings from db and make global
 		global $wpuAbs, $wpSettings, $wpu_debug;
 		$wpu_debug = '';
+		
+		set_error_handler(array($this, 'step5_errorhandler'), E_ERROR);
+		
+		
 		$wpSettings = get_integration_settings();
 
 		$connError = $this->install_wpuConnection();
@@ -721,13 +714,13 @@ class acp_wp_united {
 		if (empty($connError)) {
 			$data['installLevel'] = 10;
 			//set the version to the db at this stage
-			$data['wpuVersion'] = $wpuAbs->lang('WPU_Default_Version');
-			if ( !(set_integration_settings($data)) ) {
+			$data['wpuVersion'] = $wpuAbs->lang('WPU_Default_Version'); 
+			if ( !(set_integration_settings($data)) ) { 
 				$xmlData['result'] = "NOSAVE";
 				$xmlData['message'] = $wpuAbs->lang('WPWIZ_DB_ERR_CONN_OK');
 			} else {
-				$xmlData['result'] = "OK";
-				$xmlData['message'] = $wpuAbs->lang('WP-United Installed Successfully');
+				$xmlData['result'] = "OK"; 
+				$xmlData['message'] = $wpuAbs->lang('WPWIZ_INSTALLED_OK');
 			}
 		} else {
 				$xmlData['result'] = "FAIL";
@@ -738,8 +731,26 @@ class acp_wp_united {
 		
 	}
 	
-	function step5_errorhandler() {
-	
+	function step5_errorhandler($errNo, $errStr, $errFile, $errLine) {
+		global $wpuAbs;
+		switch ($errNo) {
+			case E_NOTICE:
+			case E_USER_NOTICE:
+			
+				break;
+			case E_WARNING:
+			case E_USER_WARNING:
+				echo sprintf($wpuAbs->lang('WPWIZ_CAUGHT_WARNING'), $errNo, $errFile, $errLine, $errStr) . '<br />';
+				break;
+			case E_ERROR:
+			case E_USER_ERROR:
+				echo sprintf($wpuAbs->lang('WPWIZ_CAUGHT_ERROR'), $errNo, $errFile, $errLine, $errStr). '<br />';
+				break;
+			default:
+				echo sprintf($wpuAbs->lang('WPWIZ_CAUGHT_UNKNOWN'), $errNo, $errFile, $errLine, $errStr). '<br />';
+				break;
+        }
+		
 	}
 		
 	//
@@ -976,11 +987,11 @@ class acp_wp_united {
 			default;
 			$data['showHdrFtr'] = 'NONE';
 			$data['cssMagic'] = 0;
-			$data['templateVoodoo'] = 0;
+			$data['templateVoodoo'] = 1;
 			break;
 		}
 		if(!$data['cssMagic']) {
-			$data['templateVoodoo'] = 0;
+			$data['templateVoodoo'] = 1;
 		}
 
 		switch ( $data['cssFirst'] ) {
@@ -1121,11 +1132,11 @@ class acp_wp_united {
 			default;
 			$data['showHdrFtr'] = 'NONE';
 			$data['cssMagic'] = 0;
-			$data['templateVoodoo'] = 0;
+			$data['templateVoodoo'] = 1;
 			break;
 		}
 		if(!$data['cssMagic']) {
-			$data['templateVoodoo'] = 0;
+			$data['templateVoodoo'] = 1;
 		}
 
 		switch ( $data['cssFirst'] ) {

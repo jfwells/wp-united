@@ -1296,7 +1296,7 @@
 				document.getElementById("commstatus").innerHTML = '{LA_WPWIZ_COMMSTATUS}';
 				document.getElementById("retr").style.display = "none";
 				document.getElementById("spinner").style.display = "block";
-				serverRequest.open("POST", '{S_WPAJAX_ACTION}', true); 
+				serverRequest.open("POST", '{U_WPAJAX_ACTION}', true); 
 				// set data return event handler
 				serverRequest.onreadystatechange = stateChange;
 				serverRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -1308,11 +1308,11 @@
 	// process ajax response
 	function stateChange() {
 	    if (serverRequest.readyState == 4) {
+			document.getElementById("spinner").style.display = "none";
+	        var cs = document.getElementById("commstatus");
 	        if (serverRequest.status == 200) {
 	            var respXML = serverRequest.responseXML;
 	            var respText = serverRequest.responseText;
-	            document.getElementById("spinner").style.display = "none";
-	            var cs = document.getElementById("commstatus");
 	            if(respXML==null) {
 					if (respText == "") {
 						cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_SERVER_BLANK_PAGE}</span>";
@@ -1338,7 +1338,8 @@
 						}
 				}
 	        } else {
-	            alert('{WP_AJAX_TIMEOUT}\n\n' + serverRequest.statusText);
+				cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WP_AJAX_RESPONSE_ERROR}: "  + serverRequest.statusText + " (" + serverRequest.status + ")</span>";
+				document.getElementById("retr").style.display = "block";
 	        }
 			serverRequestInProgress = false;
 			//Hide spinner

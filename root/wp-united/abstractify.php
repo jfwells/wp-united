@@ -34,15 +34,14 @@ if ( !defined('IN_PHPBB') ) {
 Class Abstractify {
 	
 	var $ver;
-	var $wpu_ver;
 
 	/**
 	 * Singleton creator
 	 */
-	function getInstance ($version = 'PHPBB3', $wpu_version = '0') {
+	function getInstance ($version = 'PHPBB3') {
 		static $instance;
 		if (!isset($instance)) {
-			$instance = new Abstractify($version, $wpu_version);
+			$instance = new Abstractify($version);
         }
         return $instance;
     }
@@ -50,10 +49,9 @@ Class Abstractify {
 	/**
 	 * Class constructor
 	 */
-	function Abstractify($version, $wpu_version) {
+	function Abstractify($version) {
 		$version = ($version == 'PHPBB2') ? 'PHPBB2' : 'PHPBB3';
 		$this->ver = $version;
-		$this->wpu_ver = $wpu_version;
 		if ('PHPBB3'== $this->ver) {
 			define('GENERAL_ERROR', 100);
 			define('CRITICAL_ERROR' , -100);
@@ -721,7 +719,6 @@ class wpu_user {
  * Initialise the abstraction
  * It is loaded automatically by including this file
  */
-global $wpuAbs, $phpbb_root_path, $phpEx, $user, $userdata, $auth, $user_ip;
-include ($phpbb_root_path . 'wp-united/version.' . $phpEx);
-$wpuAbs = Abstractify::getInstance($phpbb_version, $wpu_version);
+global $wpuAbs, $phpbb_root_path, $phpEx, $user, $userdata, $auth, $user_ip, $phpbb_version;
+$wpuAbs = Abstractify::getInstance($phpbb_version);
 ?>

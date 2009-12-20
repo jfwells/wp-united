@@ -30,6 +30,7 @@ class WPU_Cache {
 	var $salt;
 	var $logged;
 	var $fullPage;
+	var $wpuVer;
 
 
 	/**
@@ -57,6 +58,10 @@ class WPU_Cache {
     		$this->initialise_salt();
     		
     		$this->log = array();
+    		
+    		$this->wpuVer = $GLOBALS['wpuVersion'];
+    		
+    		$this->numStyleKeys = sizeof($GLOBALS['wpSettings']['styleKeys']);
     		    		
     	}
     	/**
@@ -129,7 +134,7 @@ class WPU_Cache {
 					if ( strpos($entry, 'theme-') === 0 ) {
 						$parts = str_replace('theme-', '', $entry);
 						$parts = explode('-', $parts);
-						if ($parts[2] == md5("{$this->salt}-{$wpuAbs->wpu_ver}")) {
+						if ($parts[2] == md5("{$this->salt}-{$this->wpuVer}")) {
 							$cacheFound = true;
 							$theme = str_replace('__sep__', '-', $parts[0]);
 							$this->templateCacheLoc = $this->baseCacheLoc . $entry;
@@ -162,11 +167,10 @@ class WPU_Cache {
 	
 	/**
 	 * Decides whether to use the core cache, or whether it is stale and due for regeneration
-	 * @param string $wpuVer WP-United version number
 	 * @param string $wpVer WordPress version number
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
-	function use_core_cache($wpuVer, $wpVer, $compat) {
+	function use_core_cache($wpVer, $compat) {
 		global $latest, $phpEx;
 		
 		if($latest) {
@@ -185,7 +189,7 @@ class WPU_Cache {
 				@$dir = opendir($this->baseCacheLoc);
 				$compat = ($compat) ? "_fast" : "_slow";
 				while( $entry = @readdir($dir) ) {
-					if ( $entry == "core-" . md5("{$this->salt}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}") {
+					if ( $entry == "core-" . md5("{$this->salt}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}") {
 						$entry = $this->baseCacheLoc . $entry;
 						$compareDate = filemtime($entry);
 						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) {
@@ -205,15 +209,14 @@ class WPU_Cache {
 	 * Saves WordPress header/footer to disk
 	 * When restoring, we won't know variables such as WordPress theme and WordPress version, 
 	 * so we only encrypt the things we know (WP-United version).
-	 * @param string $wpuVer WP-United version number
 	 * @param string $wpVer WordPress version number
 	 * @param string All WordPress portions of the page to save, with a delimiter set for where phpBB should be spliced in.
 	 */
-	function save_to_template_cache($wpuVer, $wpVer, $content) {
+	function save_to_template_cache($wpVer, $content) {
 		
 		if ( $this->template_cache_enabled() ) {
 			$theme = str_replace('-', '__sep__', array_pop(explode('/', TEMPLATEPATH))); 
-			$fnDest = $this->baseCacheLoc . "theme-{$theme}-{$wpVer}-". md5("{$this->salt}-{$wpuVer}");
+			$fnDest = $this->baseCacheLoc . "theme-{$theme}-{$wpVer}-". md5("{$this->salt}-{$this->wpuVer}");
 			$this->save($content, $fnDest);
 			$this->_log("Generated template cache: $fnDest");		
 		
@@ -226,15 +229,14 @@ class WPU_Cache {
 	
 	/**
 	 * Saves WordPress core to disk
-	 * @param string $wpuVer WP-United version number
 	 * @param string $wpVer WordPress version number
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
-	function save_to_core_cache($content, $wpuVer, $wpVer, $compat) {
+	function save_to_core_cache($content, $wpVer, $compat) {
 		global $phpEx;
 		if ( $this->core_cache_enabled() ) {
 			$compat = ($compat) ? "_fast" : "_slow";
-			$fnDest = $this->baseCacheLoc . "core-" . md5("{$this->salt}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}";
+			$fnDest = $this->baseCacheLoc . "core-" . md5("{$this->salt}-{$wpVer}-{$compat}") . ".{$phpEx}";
 			$content = $this->prepare_content($content); 
 			$this->save($content, $fnDest);
 			$this->_log("Generated core cache: $fnDest");	
@@ -262,10 +264,10 @@ class WPU_Cache {
 	 * @param string $pluginPath Full path to plugin
 	 * @param bool $compat Whether the plugin should be run in compatibility (slow) mode or not.
 	 */
-	function save_plugin($content, $pluginPath, $wpuVer, $wpVer, $compat) {
+	function save_plugin($content, $pluginPath, $wpVer, $compat) {
 		global $phpEx;
 		$compat = ($compat) ? "_fast" : "_slow";
-		$fnDest = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}";
+		$fnDest = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
 		$content = $this->prepare_content($content); 
 		$this->save($content, $fnDest);
 		$this->_log("Generated plugin cache: $fnDest");	
@@ -280,11 +282,11 @@ class WPU_Cache {
 	 * Pulls a "compiled" worked-around plugin
 	 * and returns the filename, or false if it needs to be created
 	 */
-	function get_plugin($pluginPath,$wpuVer, $wpVer, $compat) {
+	function get_plugin($pluginPath, $wpVer, $compat) {
 		global $phpEx;
 		$lastCompiled = $GLOBALS['config']['wpu_plugins_compiled'];
 		$compat = ($compat) ? "_fast" : "_slow";
-		$fnPlugin = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$wpuVer}{$compat}") . ".{$phpEx}";
+		$fnPlugin = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
 		if(file_exists($fnPlugin)) {
 			if(filemtime($fnPlugin) <= $lastCompiled) {
 				return $fnPlugin;
@@ -292,7 +294,133 @@ class WPU_Cache {
 		}
 		return false;
 
-	}	
+	}
+	
+	/**
+	 * Returns a key number for a CSS file or a CSS magic cache
+	 */
+	function get_style_key($fileName, $pos) {
+		if(stripos($fileName, 'style.php?') !== false) {
+			/**
+			 * For style.php, we just need to create a style key for the cache
+			 */
+			$fileName = preg_replace('/sid=[^&]*?&amp;/', '', $fileName);
+			$fileName = $this->get_css_magic_cache_name($fileName, $pos);
+			return $this->_generate_style_key($fileName);
+		} else {
+			/**
+			 * For css files, we need to create a style key for the filename
+			 */
+			$fileName = explode('?', $fileName);
+			return $this->_generate_style_key($fileName[0]);
+		}
+	}
+	
+	/**
+	 * returns a key number for a template voodoo instruction cache
+	 */
+	function get_template_voodoo_key($path1, $arr1, $arr2, $arr3, $arr4) {		
+		$fileName = 'tplvoodoo-' . md5( $this->salt . array_pop(explode('/', $path1)) .  implode('.', $arr1) . implode('.', $arr2) . implode('.', $arr2) . implode('.', $arr3) . "-{$this->wpuVer}");
+		return $this->_generate_style_key($fileName);
+	}
+	
+	/**
+	 * gets the Template Voodoo instructions, if they exist
+	 */
+	function get_template_voodoo($key) {
+		global $wpSettings;
+		if($key < 0) {
+			return false;
+		}
+		$fileName = $this->baseCacheLoc . $wpSettings['styleKeys'][$key];
+		if(file_exists($fileName)) { 
+			$templateVoodoo = @file_get_contents($fileName);
+			if(!empty($templateVoodoo)) {
+				$templateVoodoo = @unserialize($templateVoodoo);
+				return $templateVoodoo;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Saves Template Voodoo instructions
+	 */
+	function save_template_voodoo($contents, $key) {
+		global $wpSettings;
+		$fileName = $this->baseCacheLoc . $wpSettings['styleKeys'][$key];
+		$templateVoodoo = serialize($contents);
+		$this->save($templateVoodoo, $fileName);
+		$this->_log("Generated Template Voodoo cache: $fileName");
+	}
+		
+	/**
+	 * generates a style key, or returns the correct one if it already exists
+	 * @access private
+	 */
+	function _generate_style_key($fileName) {
+		global $wpSettings;
+		$key = array_search($fileName, $wpSettings['styleKeys']);
+		if($key === false) {
+			$wpSettings['styleKeys'][] = $fileName;
+			$key = sizeof($wpSettings['styleKeys']) - 1;
+		}
+		return $key;
+	}
+	
+	/**
+	 * Gets the CSS magic cache if it exists
+	 */
+	function get_css_magic($fileName, $pos, $incTplVoodoo = -1) {
+		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
+		if(file_exists($cacheFileName)) {
+			return  $cacheFileName;
+		}
+		return false;
+	}
+	
+	/**
+	 * Generates a name for the CSS Magic Cache
+	 */
+	function get_css_magic_cache_name($fileName, $pos, $incTplVoodoo = -1) {
+		$tpl = ($incTplVoodoo > -1) ? 'tplvd-' : '';
+		return "cssmagic-{$tpl}" . md5("{$this->salt}{$fileName }-{$pos}-{$incTplVoodoo}-{$this->wpuVer}") . '.css';
+	}
+	
+	/**
+	 * Saves the CSS Magic 
+	 */
+	function save_css_magic($content, $fileName, $pos, $incTplVoodoo = -1) {
+		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
+		$this->save($content, $cacheFileName);
+		$this->_log("Generated CSS Magic cache: $cacheFileName");
+	}
+	
+
+	/**
+	 * Saves updated style keys to the database.
+	 * phpBB $config keys can only store 255 bytes of data, so we usually need to store the data
+	 * split over several config keys
+	 * @return int the number of config keys used
+	 */
+	function update_style_keys() {
+		global $wpSettings; 
+		if(sizeof($wpSettings['styleKeys']) > $this->numStyleKeys) {
+			$fullLocs = (base64_encode(serialize($wpSettings['styleKeys'])));
+			$currPtr=1;
+			$chunkStart = 0;
+			while($chunkStart < strlen($fullLocs)) {
+				set_config("wpu_style_keys_{$currPtr}", substr($fullLocs, $chunkStart, 255), true);
+				$chunkStart = $chunkStart + 255;
+				$currPtr++;
+			}
+			return $currPtr;
+		}
+		return $this->numStyleKeys;
+	}
+	
+	
+	
 	
 	/**
 	 * Prepares content for saving to cache -- ensuring it can't be called directly, and that it can be properly eval()d

@@ -13,12 +13,13 @@
 
 
 if ( !defined('IN_PHPBB') ) {
-	die("Hacking attempt");
 	exit;
 }
 
+global $phpbb_version;
 $phpbb_version = 'PHPBB3';
 
-$wpu_version = '0.8.0';
+global $wpuVersion;
+$wpuVersion = '0.8.0';
 
 ?>

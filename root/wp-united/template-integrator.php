@@ -49,7 +49,11 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	define('PHPBB_EXIT_DISABLED', true);
 
 	$wpuAbs->show_body('blog');
-
+	
+	//restore the DB connection that phpBB tried to close
+	$GLOBALS['db'] = $GLOBALS['bckDB'];
+	$GLOBALS['cache'] = $GLOBALS['bckCache'];
+	
 	$outerContent = ob_get_contents();
 	
 	ob_end_clean();
@@ -151,95 +155,96 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
  * classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
  * to make additional changes to the CSS the next time around.
  */
-if ($wpSettings['cssMagic']) {
+if (!empty($wpSettings['cssMagic'])) {
 
 	include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 
-	// Get all links to stylesheets, see if they have been cached yet
+	/** 
+	 * Get all links to stylesheets, and prepare appropriate replacement links to insert into the page content
+	 * The generated CSS links to insert into the HTML will need to carry information for the browser on the 
+	 * physical disk location of the CSS files on the server.
+	 * 
+	 * We cannot allow browsers to just request any file on the server, so get_stylesheet_links pre-approves the
+	 * files and stores them in the DB under $wpSettings['styleKeys']. Browsers then only need to know the 
+	 * appropriate style key, not the filename
+	 */
+	
 	$innerSSLinks = wpu_get_stylesheet_links($innerHeadInfo, "inner");
-	$outerSSLinks = wpu_get_stylesheet_links($outerContent, "outer");
-	
-	
 	// also grep all inline css out of headers
 	$inCSSInner = wpu_extract_css($innerHeadInfo);
-	$inCSSOuter = wpu_extract_css($outerContent);
-	$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
+	
 	
 
-	
-	
 	// TEMPLATE VOODOO
-	if ($wpSettings['templateVoodoo']) {
-	
+	if (!empty($wpSettings['templateVoodoo'])) {
 		
-		// First check if the files exist, and insert placeholders for TV cache location if they do
+		//For template voodoo, we also need the outer styles
+		$outerSSLinks = wpu_get_stylesheet_links($outerContent, "outer");
+		$inCSSOuter = wpu_extract_css($outerContent);
+		
+		// First check if the cached CSS Magic files exist, and insert placeholders for TV cache location if they do
 		$foundInner = array();
 		$foundOuter = array();
-		foreach ($innerSSLinks['caches'] as $index => $cached) {
-			$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-inner.cssm";
-			if(file_exists($cssFile)) {
-				$foundInner[] = $cached;
+
+		foreach ($innerSSLinks['keys'] as $index => $key) {
+			if($found = $wpuCache->get_css_magic($wpSettings['styleKeys'][$key], "inner", -1)) {
+				$foundInner[] = $found;
 				$innerSSLinks['replacements'][$index] .=  "[*FOUND*]";
 			} else {
-				$innerSSLinks['replacements'][$index] .=  "0";
+				$innerSSLinks['replacements'][$index] .=  "-1";
 			}
 		}
-		foreach ($outerSSLinks['caches'] as $index => $cached) {
-			$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-outer.cssm";
-			if(file_exists($cssFile)) {
-				$foundOuter[] = $cached;
+		foreach ($outerSSLinks['keys'] as $index => $key) {
+			if($found = $wpuCache->get_css_magic($wpSettings['styleKeys'][$key], "outer", -1)) {
+				$foundOuter[] = $found;
 			}
-			$outerSSLinks['replacements'][$index] .=  "0";
-		}
-		
-		// set Template Voodoo cache name based on a hash of existing files
-		$theme = array_pop(explode('/', TEMPLATEPATH));
-		
-		$linkHash = md5(implode('.', $foundInner) . implode('.', $foundOuter) . implode('.', (array)$inCSSInner['caches']) . implode('.', (array)$inCSSOuter['caches']));
-		
-		$tvCacheLoc = $phpbb_root_path . "wp-united/cache/{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd";
-		$passTvCacheLoc = urlencode("{$linkHash}-{$theme}-{$wp_version}-{$wpuAbs->wpu_ver}.tvd");
+		}	
 
-		$innerSSLinks['replacements'] = str_replace('[*FOUND*]', $passTvCacheLoc, $innerSSLinks['replacements']);
-		
+		/**
+		 * Now we create a unique hash based on everything we've found, and use this to 
+		 * store our Template Voodoo instructions.
+		 * We append the template voodoo hash key to the end of the redirected stylesheets
+		 */
+		$tplVoodooKey = $wpuCache->get_template_voodoo_key(TEMPLATEPATH, $foundInner, $foundOuter, (array)$inCSSInner['orig'], (array)$innCSSOuter['orig']);	
+		$innerSSLinks['replacements'] = str_replace('[*FOUND*]', $tplVoodooKey, $innerSSLinks['replacements']);
 
-		if((sizeof($foundInner) || $inCSSInner['caches'] ) && (sizeof($foundOuter) || $inCSSOuter['caches'])) {
+		if((sizeof($foundInner) || $inCSSInner['orig'] ) && (sizeof($foundOuter) || $inCSSOuter['orig'])) {
 			$classDupes = array();
-			$idDupes = array();			
-			if(file_exists($tvCacheLoc)) {
-				$templateVoodoo = @file_get_contents($tvCacheLoc);
-				
-				$templateVoodoo = @unserialize($templateVoodoo);
-
+			$idDupes = array();
+			
+			if($templateVoodoo = $wpuCache->get_template_voodoo($tplVoodooKey)) {
+				/**
+				 * The template voodoo instructions already exist for this CSS combination
+				 */
 				if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
 					$classDupes = $templateVoodoo['classes'];
 					$idDupes = $templateVoodoo['ids'];
-				}
-			} else {
-	
-				// Do Template Voodoo
+				} 
+			} else { 
+				/**
+				 * We don't have template voodoo for this yet, we need to do some legwork
+				 * and generate a set of instructions.
+				 * @todo move to separate function, generate_instructions().
+				 */
 				$outerCSS = new CSS_Magic();
 				$innerCSS = new CSS_Magic();
 		
-				foreach ($innerSSLinks['caches'] as $index => $cached) {
-					$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-inner.cssm";
-					$innerCSS->parseFile($cssFile);
+				foreach ($foundInner as $index => $cacheFile) {
+					$innerCSS->parseFile($cacheFile);
 				}
-				foreach ($outerSSLinks['caches'] as $index => $cached) {
-					$cssFile = $phpbb_root_path . "wp-united/cache/{$cached}-outer.cssm";
-					$outerCSS->parseFile($cssFile);
-				}
-				foreach($inCSSInner['css'] as $index => $cached) {
-					$innerCSS->parseString($cached);
-				}
-				foreach($inCSSOuter['css'] as $index => $cached) {
-					$innerCSS->parseString($cached);
+				foreach ($foundOuter as $index => $cacheFile) {
+					$innerCSS->parseFile($cacheFile);
 				}				
+				foreach($inCSSInner['css'] as $index => $css) {
+					$innerCSS->parseString($css);
+				}
+				foreach($inCSSOuter['css'] as $index => $css) {
+					$innerCSS->parseString($css);
+				}
 
 				$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');
 				$innerKeys = $innerCSS->getKeyClassesAndIDs();
 				$outerKeys = $outerCSS->getKeyClassesAndIDs();
-
 
 				$innerCSS->clear();
 				$outerCSS->clear();
@@ -247,39 +252,44 @@ if ($wpSettings['cssMagic']) {
 	
 				$classDupes = array_intersect($innerKeys['classes'], $outerKeys['classes']);
 				$idDupes = array_intersect($innerKeys['ids'], $outerKeys['ids']);
-	
+
 				unset($innerKeys, $outerKeys);
 
 				// save to cache
-				$templateVoodoo = serialize(array('classes' => $classDupes, 'ids' => $idDupes));
-				$wpuCache->save($templateVoodoo, $tvCacheLoc);
+				$wpuCache->save_template_voodoo(array('classes' => $classDupes, 'ids' => $idDupes), $tplVoodooKey);
 			}
 	
-			// FINALLY: Modify the templates, remove duplicates
+			/**
+			 * Now, we can modify the page, removing class and ID duplicates from innerContent
+			 */
 			foreach($classDupes as $dupe) {
-				//remove leading .
-				$findClass = substr($dupe, 1);
+				$findClass = substr($dupe, 1); //remove leading '.'
 				$innerContent = preg_replace('/(class=["\']([^\s^\'^"]*\s+)*)'.$findClass.'([\s\'"])/', '\\1wpu'.$findClass.'\\3', $innerContent);
 			}
 			foreach($idDupes as $dupe) {
-				//remove leading .
-				$findId = substr($dupe, 1);
+				$findId = substr($dupe, 1); //remove leading '.'
 				$innerContent = preg_replace('/(id=["\']\s*)'.$findId.'([\s\'"])/', '\\1wpu'.$findId.'\\2', $innerContent);
 			}
 		}
-	}
+	} // end template voodoo
 	
 		
-	// apply CSS Magic for inline CSS
-	$suffix = ($wpSettings['templateVoodoo']) ? '-inline-cssmtv' : '-inline-cssm';
+	/**
+	 * Now we can apply the CSS magic to any inline CSS
+	 */
+	$useTVStr =  ($wpSettings['templateVoodoo']) ? 'TV' : '';
+	$tvKey = ($wpSettings['templateVoodoo']) ? $tplVoodooKey : -1;
+	$numFixes = 0;
 	foreach($inCSSInner['css'] as $index => $innerCSSItem) {
-		$inlineCache = $phpbb_root_path . "wp-united/cache/" .$inCSSInner['caches'][$index] . $suffix;
-		if(file_exists($inlineCache)) {
+
+		if($inlineCache = $wpuCache->get_css_magic("{$index}-{$useTVStr}", 'inline', $tvKey)) {
 			$result = @file_get_contents($inlineCache);
 		} else {
 			$cssM = new CSS_Magic();
 			$cssM->parseString($innerCSSItem);
-			
+			/**
+			 * @todo could split out to templatevoodoo file
+			 */
 			if ($wpSettings['templateVoodoo']) {
 				if(isset($classDupes) && isset($idDupes)) {
 					$finds = array();
@@ -296,28 +306,33 @@ if ($wpSettings['cssMagic']) {
 					$cssM->modifyKeys($finds, $repl);
 				}
 			}
-			
-			
 			$cssM->makeSpecificByIdThenClass('wpucssmagic', false);
 			$result = $cssM->getCSS();
 		
 			// save to cache
-			$wpuCache->save($result, $inlineCache);
+			$wpuCache->save_css_magic($result, "{$index}-{$useTVStr}", 'inline', $tvKey);
 		
 		}
-	
 		if(!empty($result)) {
-			$result = '<style type="text/css">' . $reset . $result . '</style>';
+			$result = '<style type="text/css">'  . $result . '</style>';
 			$innerHeadInfo = str_replace($inCSSInner['orig'][$index], $result, $innerHeadInfo);
+			$numFixes++;
 		}
 	}
 	
+	// Store the updated style keys
+	$wpuCache->update_style_keys();
+	
+	// add link to reset stylesheet
+	$reset = "<link href=\"{$scriptPath}wp-united/theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
+	$innerHeadInfo = $reset . $innerHeadInfo;
 
 	//write out the modified stylesheet links
 	$innerHeadInfo = str_replace($innerSSLinks['links'], $innerSSLinks['replacements'], $innerHeadInfo);
-	$outerContent = str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $outerContent);
 	
-
+	if ($wpSettings['templateVoodoo']) {
+		$outerContent = str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $outerContent);
+	}
 }
 
 
@@ -352,7 +367,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
 
 /*
  * Processes the page head, returns header info to be inserted into the WP or phpBB page head.
- * Removes thee had from the rest of the page.
+ * Removes the head from the rest of the page.
  * @param string $retWpInc The page content for modification, must be passed by reference.
  * @param string $template The phpBB template object
  * @param abstractify $wpuAbs The WP-United phpBB abstraction layer object.
@@ -501,82 +516,75 @@ function wpu_output_page(&$content) {
  * @return array an array of stylesheet links and modifications
  */
 function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
-	global $scriptPath, $wpSettings, $phpbb_root_path;
+	global $scriptPath, $phpbb_root_path, $wpuCache, $wpSettings;
+
+	// grep all styles
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
 	preg_match_all('/@import url\([^\)]+?\)/i', $headerInfo, $matches2);
 	preg_match_all('/@import "[^"]+?"/i', $headerInfo, $matches3);
 	$matches = array_merge($matches[0], $matches2[0], $matches3[0]);
-	$links = array();
-	$repl = array();
-	$cacheLinks = array();
+	$links = array(); $repl = array(); $cacheLinks = array();
 	if(is_array($matches)) {
 		$pos = "pos=" . $position;
-		
 		foreach($matches as $match) {
 			// extract css location
-			if(stristr($match, "@import url") !== false) {
+			$and = '&';
+			if(stristr($match, "@import url") !== false) { // import URL
 				$el = str_replace(array("@import", "(", "url",  ")", " ", "'", '"'), "", $match);
-				$and = "&";
-				$tv = ($position == 'inner') ? '&tv=' : '';
-			} elseif(stristr($match, "@import") !== false) {
+			} elseif(stristr($match, "@import") !== false) { // import
 				$el = str_replace(array("@import", "(",  ")", " ", "'", '"'), "", $match);
-				$and = "&";
-				$tv = ($position == 'inner') ? '&tv=' : '';
-			
-			} else {
-				$cssLoc = '';
-				$stylePhpLoc = '';
+			} else { // link href -- xxx.css or style.php
+				/**
+				 * Need to extract the stylesheet name, by extracting from between 'href =' and ('|"| )
+				 * Bearing in mind that there could be an = in the stylesheet name
+				 */
 				$els = explode("href", $match);
-				//an '=' could be in the stylesheet name, so rather than replace, we explode around the first =.
 				$els = explode('=', $els[1]);
 				array_shift($els);
 				$els = implode("=", $els);
-
 				$els = explode('"', $els);
 				$el = str_replace(array(" ", "'", '"'), "", $els[1]);
-				$and = "&amp;";
-				$tv = ($position == 'inner') ? '&amp;tv=' : '';
+				$and = '&amp;';
 			}
-			if(stristr($el, ".css") !== false) { 
-				$cssLoc = $el;
+			$tv = (($position == 'inner') && (!empty($wpSettings['templateVoodoo']))) ? "{$and}tv=" : '';
+			if(stristr($el, ".css") !== false) {
+				/**
+				 * We need to ensure the stylesheet maps to a real file on disk as fopen_url will not work on most 
+				 * servers.
+				 * We try various methods to find the file
+				 */
+				// Absolute path to CSS, in phpBB
+				if(stristr($el, $scriptPath) !== false) {
+					$cssLnk = str_replace($scriptPath, "", $el); 
+				// Absolute path to CSS, in WordPress
+				} elseif(stristr($el, $wpSettings['wpUri']) !== false) {
+					$cssLnk = str_replace($wpSettings['wpUri'], $wpSettings['wpPath'], $el);
+				} else {
+					// else: relative path
+					$cssLnk = $phpbb_root_path . $el;
+				}
+				
+				$cssLnk = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $cssLnk) : $cssLnk;
+				
+				if( file_exists($cssLnk) && (stristr($cssLnk, "http:") === false) ) { 
+					$links[] = $el;
+					$cssLnk = realpath($cssLnk);
+					$key = $wpuCache->get_style_key($cssLnk, $position);
+					$keys[] = $key;
+					$repl[] = "{$scriptPath}wp-united/wpu-style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
+				}
 			} elseif(stristr($el, "style.php?") !== false) {
-				$stylePhpLoc = $el;
-			}
-			if($cssLoc) { // Redirect stylesheet
-				$findLoc = $cssLoc;
-				// We try to translate the URL to a local path
-				// type 1: Absolute path to CSS, in phpBB
-				if(stristr($findLoc, $scriptPath) !== false) {
-					$findLoc = str_replace($scriptPath, "", $findLoc);
-				//type 2: Absolute path to CSS, in WordPress
-				} elseif(stristr($findLoc, $wpSettings['wpUri']) !== false) {
-					$findLoc = str_replace($wpSettings['wpUri'], $wpSettings['wpPath'], $findLoc);
-				}
-				// else: relative path
-				$findLoc = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $findLoc) : $findLoc;
-				if( file_exists($findLoc) && (stristr($findLoc, "http:") === false) ) { 
-					$theLoc = urlencode(base64_encode(htmlentities($findLoc)));
-					$links[] = $cssLoc;
-					$repl[] = "wp-united/wpu-style-fixer.php?usecssm=1{$and}style=" . $theLoc . $and . $pos . $tv;
-					// remove get vars from cached file
-					$cacheLoc = explode('?', $findLoc);
-					$cacheLinks[] = urlencode(base64_encode(htmlentities($cacheLoc[0])));
-					//$headerInfo = str_replace(if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm")) {$cssLoc, $newLoc, $headerInfo);
-				}
-			}
-			if($stylePhpLoc) { //  style.php
-				// remove SID from URL
-				$cLoc = preg_replace('/sid=[^&]*?&amp;/', '', $stylePhpLoc);
-				$cLoc = urlencode(base64_encode(htmlentities($cLoc)));
-				//$headerInfo = str_replace($stylePhpLoc, $stylePhpLoc . "&amp;usecssm=1&amp;".$pos . "&amp;cloc=". $cLoc, $headerInfo);
-				$links[] = $stylePhpLoc;				
-				$cacheLinks[] = $cLoc;
-				$tv = ($position == 'inner') ? '&amp;tv=' : '';
-				$repl[] = $stylePhpLoc . "&amp;usecssm=1&amp;".$pos . "&amp;cloc=". $cLoc . $tv;
-			}
+				/**
+				 * phpBB style.php css
+				 */
+				$links[] = $el;
+				$key = $wpuCache->get_style_key($el, $position);
+				$keys[] = $key;
+				$repl[] = "{$el}{$and}usecssm=1{$and}{$pos}{$and}cloc={$key}{$tv}";
+			} 
 		}
 	}
-	return array('links' => $links, 'replacements' => $repl, 'caches' => $cacheLinks);
+	return array('links' => $links, 'keys' => $keys, 'replacements' => $repl); 
 }
 
 /**
@@ -585,18 +593,18 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
  * @return array of css blocks found
  */
 function wpu_extract_css($content) {
-	$css = array('css' => array(), 'caches' => array(), 'orig' => array());
+	$css = array('css' => array(), 'orig' => array());
 	preg_match_all('/<style type=\"text\/css\">(.*?)<\/style>/', $content, $cssStr);
 	foreach($cssStr[1] as $index => $c) {
 		$cssFixed = str_replace(array('<!--', '-->'), '', $c);
 		if(!empty($cssFixed)) {
 			$css['css'][] = $cssFixed;
-			$css['caches'][] = md5($cssStr[0][$index]);
 			$css['orig'][] = $cssStr[0][$index];
 		}
 	}
 	return $css;
 }
+
 
 
 

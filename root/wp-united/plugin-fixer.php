@@ -67,7 +67,7 @@ class WPU_WP_Plugins {
 		
 		if (stripos($plugin, 'wpu-plugin') === false) {
 			if(file_exists($plugin)) {
-				$cached = $wpuCache->get_plugin($plugin, $this->wpuVer, $this->wpVer, $this->strCompat);
+				$cached = $wpuCache->get_plugin($plugin, $this->wpVer, $this->strCompat);
 				if (!$cached) {
 					if(!$cached = $this->process_file($plugin)) {
 						$cached = $plugin;
@@ -90,7 +90,7 @@ class WPU_WP_Plugins {
 		$thisLoc = add_trailing_slash(dirname(realpath($pluginLoc)));
 		if(strpos($thisLoc, $this->pluginDir) === false) {
 			if(in_array(realpath($pluginLoc), $this->fixCoreFiles)) {
-				return $wpuCache->save_plugin('', $pluginLoc, $this->wpuVer, $this->wpVer, $this->strCompat);
+				return $wpuCache->save_plugin('', $pluginLoc, $this->wpVer, $this->strCompat);
 			}
 			return $pluginLoc;
 		}
@@ -145,7 +145,7 @@ class WPU_WP_Plugins {
 	
 		$pluginContent = $startToken. trim($pluginContent) . $endToken;
 	
-		return $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpuVer, $this->wpVer, $this->strCompat);
+		return $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpVer, $this->strCompat);
 
 	}
 	

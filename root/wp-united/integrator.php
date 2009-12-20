@@ -170,6 +170,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 }
 
 
+
 /**
  * Run WordPress
  *  If this is phpBB-in-wordpress, we just need to get WordPress header & footer, and store them in $outerContent
@@ -253,7 +254,7 @@ if ( $useCache || $connectSuccess ) {
 				ob_end_clean();
 				
 				if ( $wpuCache->template_cache_enabled() ) {
-					$wpuCache->save_to_template_cache($wpuAbs->wpu_ver, $wp_version, $outerContent);
+					$wpuCache->save_to_template_cache($wp_version, $outerContent);
 				}
 				
 			} else {
@@ -320,7 +321,7 @@ require($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
 function wpu_complete() {
 	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
 	global $innerHeadInfo, $innerContent;
-	global $wpContentVar, $lDebug, $outerContent, $wpuAbs, $phpbb_root_path, $phpEx, $wpuCache;
+	global $wpContentVar, $lDebug, $outerContent, $wpuAbs, $phpbb_root_path, $phpEx, $wpuCache, $config;
 	
 	$$wpContentVar = ob_get_contents();
 	ob_end_clean();

@@ -61,6 +61,11 @@ $lang = array_merge($lang, array(
 	'WPU_DATABASE_SAVE_ERR' => 'The settings could not be saved in the database.',
 	'WPU_NOT_SAVED' => 'Your settings were not saved',
 	'WPWIZ_DB_ERR_CONN_OK' => 'WP-United installed successfully, but the settings could not be saved in the database. Please check your install and try again.',
+	'WPWIZ_INSTALLED_OK' => 'WP-United Installed Successfully',
+	'WPWIZ_CAUGHT_ERROR' => 'An error (code %1d) occurred in %2s on line %3d: %4s',
+	'WPWIZ_CAUGHT_NOTICE' => 'Notice (code %1d) in %2s on line %3d: %4s',
+	'WPWIZ_CAUGHT_WARNING' => 'Warning (code %1d) in %2s on line %3d: %4s',
+	'WPWIZ_CAUGHT_UNKNOWN' => 'Unknown error (code %1d) in %2s on line %3d: %4s',
 	'WPMAIN_TITLE' => 'Welcome to WP-United',
 	'WPMAIN_INTRO' => 'From here you can set up WP-United, and choose the settings you need to make it work the way you want.',
 	'PAYPAL_TITLE' => 'Help Support WP-United',
@@ -338,6 +343,7 @@ $lang = array_merge($lang, array(
 	'MAP_DELETE_ALL_UNINTEGRATED' => 'Delete all unintegrated',
 	'MAP_BREAK_ALL' => 'Break all integrations',
 	'MAP_RESET_DEFAULT' => 'Reset selections',
+	'WP_AJAX_RESPONSE_ERROR' => 'Communications Error',
 
 	// Programmatic strings
 	'WP_UriProb' => 'I couldn\'t find the WordPress install here. Please make sure this field contains the full external URL to your WordPress install.',

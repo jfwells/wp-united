@@ -41,14 +41,14 @@ Class WPU_Integration {
 	var $wpRun;
 	
 	/**
-	 * This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated. 
+	 * This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated, and restore them later. 
 	 */
-	var $phpbbVarsToUnset = array('table_prefix', 'userdata', 'search', 'error', 'author');
+	var $varsToUnsetAndRestore = array('table_prefix', 'userdata', 'search', 'error', 'author', 'template');
 	
 	/**
 	 * More vars that phpBB or MODS could use, that MUST be unset before WP runs
 	 */
-	var $moreVarsToUnset = array('m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search',
+	var $varsToUnset = array('m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search',
 		'exact', 'sentence', 'debug', 'calendar', 'page', 'paged', 'more', 'tb', 'pb', 
 		'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second',
 		'name', 'category_name', 'feed', 'author_name', 'static', 'pagename', 'page_id', 'error',
@@ -136,6 +136,7 @@ Class WPU_Integration {
 	
 	// We'll put phpBB's current variable state "on ice" in here.
 	var $sleepingVars = array();
+	var $varsToSave;
 	
 	var $wpu_settings;
 	var $phpbb_root;
@@ -182,13 +183,13 @@ Class WPU_Integration {
 		$this->phpbb_root = $GLOBALS['phpbb_root_path'];
 		$this->wpu_settings = $GLOBALS['wpSettings'];
 		// store all vars set by phpBB, ready for retrieval after we exit WP
+		/**
+		 * @todo disable passing in of varsToSave -- may be better to 100% manage
+		 */
 		if ($varsToSave === FALSE ) {
-			$varsToSave = array(
-				'table_prefix' => $GLOBALS['table_prefix'], 
-				'userdata' => $GLOBALS['userdata']
-			);
+			$varsToSave = $this->varsToUnsetAndRestore;
 		}
-		$this->sleepingVars = $varsToSave;
+		$this->varsToSave = $varsToSave;
 		$this->wpLoaded = FALSE;
 		$this->debugBuffer = '';
 		$this->debugBufferFull = FALSE;
@@ -228,7 +229,7 @@ Class WPU_Integration {
 			return false;
 		}
 
-		if ($wpuCache->use_core_cache($wpuAbs->wpu_ver, $this->wpVersion, $this->wpu_compat)) {
+		if ($wpuCache->use_core_cache($this->wpVersion, $this->wpu_compat)) {
 			return true;
 		}
 		return false;
@@ -265,11 +266,21 @@ Class WPU_Integration {
 		//Tell phpBB that we're in WordPress. This controls the branching of the duplicate functions get_userdata and make_clickable
 		$GLOBALS['IN_WORDPRESS'] = 1;
 		
+		/**
+		 * @since v0.8.0
+		 */
+		foreach($this->varsToUnsetAndRestore as $value) {
+			$this->sleepingVars[$value] = $GLOBALS[$value];
+		}
+		
+		
 		// This is not strictly necessary, but it cleans up the vars we know are important to WP, or unsets variables we want to explicity get rid of.
-		$to_unset=array_merge( $this->phpbbVarsToUnset, $this->moreVarsToUnset);
-		foreach ( $to_unset as $varNames) {
+		$toUnset=array_merge( $this->varsToUnsetAndRestore, $this->varsToUnset);
+		foreach ( $toUnset as $varNames) {
 			unset($GLOBALS[$varNames]);
 		} 
+		
+
 
 		//Determine if WordPress will be running in the global scope -- in rare ocasions, such as in message_die, it won't be. 
 		// This is fine - even preferable, but many third-party plugins are not prepared for this and we must hold their hands
@@ -375,7 +386,7 @@ Class WPU_Integration {
 				unset ($cConf, $cSet);
 
 				if ( $wpuCache->core_cache_enabled()) {
-					$wpuCache->save_to_core_cache($content, $wpuAbs->wpu_ver, $this->wpVersion, $this->wpu_compat);
+					$wpuCache->save_to_core_cache($content, $this->wpVersion, $this->wpu_compat);
 				}
 			} else {
 				$this->prepare('require_once(\'' . $wpuCache->coreCacheLoc . '\');');
@@ -746,7 +757,6 @@ Class WPU_Integration {
 
 		//reinstate all the phpBB variables that we've put "on ice", let them overwrite any variables that were claimed by WP.
 		foreach ($this->sleepingVars as $varName => $varVal) {
-			global $userdata, $table_prefix;
 				if ( ($varName != 'wpuNoHead') && ($varName != 'wpuCache') ) {
 					global $$varName;
 					$$varName = $varVal;

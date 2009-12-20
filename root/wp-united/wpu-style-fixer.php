@@ -4,76 +4,119 @@
 * WP-United CSS Magic style call backend
 *
 * @package WP-United CSS Magic
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: v 0.8.0 2009/12/20 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * @author John Wells
 *
-* DO NOT PLACE THIS ON A SITE OPEN TO THE INTERNET!!! 
-*  IT *IS* SUBJECT TO PATH TRAVERSAL HACKING. UNDER DEVELOPMENT
 */
 
-$phpbb_root_path = "../";
-define('IN_PHPBB', 1);
+/**
+* @ignore
+*/
+define('IN_PHPBB', true);
+$phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : '../';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
+
+/**
+ * Process the inbound args
+ */
 
 if(!isset($_GET['usecssm'])) exit;
 if(!isset($_GET['style'])) exit;
 
-$pos = "outer";
-if(isset($_GET['pos'])) {
-	$pos = ($_GET['pos'] == 'inner') ? 'inner' : 'outer';
+/**
+ * We load in a simplified skeleton phpBB, based on the code in style.php
+ * We just need enough to get $config filled so we can get our cache salt and unencrypt the passed strings.
+ * @todo move to phpBB abstraction layer $phpbb->load_simple();
+ */
+
+// Report all errors, except notices
+error_reporting(E_ALL ^ E_NOTICE);
+require($phpbb_root_path . 'config.' . $phpEx);
+
+if (!defined('PHPBB_INSTALLED') || empty($dbms) || empty($acm_type)) {
+	exit;
+}
+
+if (version_compare(PHP_VERSION, '6.0.0-dev', '<')) {
+	@set_magic_quotes_runtime(0);
+}
+
+// Include files
+require($phpbb_root_path . 'includes/acm/acm_' . $acm_type . '.' . $phpEx);
+require($phpbb_root_path . 'includes/cache.' . $phpEx);
+require($phpbb_root_path . 'includes/db/' . $dbms . '.' . $phpEx);
+require($phpbb_root_path . 'includes/constants.' . $phpEx);
+require($phpbb_root_path . 'includes/functions.' . $phpEx);
+
+$db = new $sql_db();
+$cache = new cache();
+
+// Connect to DB
+if (!@$db->sql_connect($dbhost, $dbuser, $dbpasswd, $dbname, $dbport, false, false)) {
+	exit;
+}
+unset($dbpasswd);
+
+$config = $cache->obtain_config();
+$user = false;
+
+
+
+/**
+ * Initialise variables
+ */
+$pos = (request_var('pos', 'outer') == 'inner') ? 'inner' : 'outer';
+
+$cssFileToFix = request_var('style', 0);
+
+$useTV = -1;
+if(isset($_GET['tv']) && $pos == 'inner') { 
+	$useTV = request_var('tv', -1);
 }
 
 
 
+// We load the bare minimum to get our data
+include($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
+include($phpbb_root_path . 'wp-united/version.' . $phpEx);
+include($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+$wpuCache = WPU_Cache::getInstance();
 
 
-$cssFileToFix = (string) $_GET['style'];
-$cssFileToFix = base64_decode(urldecode($cssFileToFix));
-$cacheLocation = explode('?', $cssFileToFix);
-$cacheLocation = urlencode(base64_encode($cacheLocation[0]));
-$cssFileToFix = html_entity_decode($cssFileToFix); 
-// Some rudimentary security, but we really need to be reading in WP-United options, getting the path to WordPress
-// and phpBB templates, and then ensuring the passed file corresponds to them.
-// Don't rely on the below to protect your server
+$cssFileToFix = $wpSettings['styleKeys'][$cssFileToFix];
+
+/*
+ * Some rudimentary additional security
+ */
 $cssFileToFix = str_replace("http:", "", $cssFileToFix);
 $cssFileToFix = str_replace("//", "", $cssFileToFix);
 $cssFileToFix = str_replace("@", "", $cssFileToFix);
 $cssFileToFix = str_replace(".php", "", $cssFileToFix);
-$cssFileToFix = str_replace("../../", "", $cssFileToFix); // temporary -- will kill some setups where wordpress is somewhere else
-
-if(!file_exists($cssFileToFix)) $cssFileToFix = $phpbb_root_path . $cssFileToFix;
-
-
 
 
 if(file_exists($cssFileToFix)) {
-
-
-	$useTV = '';
-	if(isset($_GET['tv']) && $pos == 'inner') { 
-		$useTV = $_GET['tv'];
-		//prevent path traversal
-		$useTV = str_replace(array('/', '\\', '..', ';', ':'), '', $useTV);
-	}
+	/**
+	 * First check cache
+	 */
 	$css = '';
-	// first check caches (TODO: port to cache class):
-	if(!empty($useTV)) {
+	if($useTV > -1) {
 		// template voodoo-modified CSS already cached?
-		if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv")) {
-			$css = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv");
+		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, $useTV)) {
+			$css = @file_get_contents($cacheLocation);
 		}
 	} else {
-		// No template voodoo needed -- check for plain cache
-		if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm")) {
-			$css = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm");
+		// Try loading CSS-magic-only CSS from cache
+		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, $useTV)) {
+			$css = @file_get_contents($cacheLocation);
 		}
 	}
-
+	
+	// Load and CSS-Magic-ify the CSS file. If an outer file, just cache it
 	if(empty($css)) {
-		//include($phpbb_root_path . 'common.' . $phpEx);
-		include($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 		include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
 		$cssMagic = CSS_Magic::getInstance();
 		if($cssMagic->parseFile($cssFileToFix)) {
@@ -81,14 +124,13 @@ if(file_exists($cssFileToFix)) {
 			if($pos=='inner') {
 				
 				// Apply Template Voodoo
-				if(!empty($useTV)) {
+				if($useTV > -1) {
+					$templateVoodoo = $wpuCache->get_template_voodoo($useTV);
 					
-					$tvCacheLoc = $phpbb_root_path . "wp-united/cache/" . $useTV;
-						
-					if(file_exists($tvCacheLoc)) { 
-						$templateVoodoo = @file_get_contents($tvCacheLoc);
-						$templateVoodoo = @unserialize($templateVoodoo);
-
+					if(empty($templateVoodoo)) { 
+						// set useTV to -1 so that cache name reflects that we weren't able to apply TemplateVoodoo
+						$useTV = -1;
+					} else {
 						if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
 							
 							$classDupes = $templateVoodoo['classes'];
@@ -108,7 +150,7 @@ if(file_exists($cssFileToFix)) {
 						}
 					}
 				
-				}				
+				}	
 				
 				// Apply CSS Magic
 				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
@@ -116,14 +158,18 @@ if(file_exists($cssFileToFix)) {
 			$css = $cssMagic->getCSS();
 			$cssMagic->clear();
 	
-			//clean up relative urls
-	
-			//We need to find the absolute URL to the image dir. We can infer it by comparing the
-			// current path (wp-united/wpu-style-fixer) against the provided one.
-	
+			/**
+			 * clean up relative urls
+			 * 
+			 * We need to find the absolute URL to the image dir. We can infer it by comparing the
+			 * current path (wp-united/wpu-style-fixer) against the provided one.
+			 * 
+			 * @todo clean up
+			 * @todo This may not work well on subdomains. -- to check
+			 */
+			include($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
 			$absCssLoc = clean_path(realpath($cssFileToFix));
 			$absCurrLoc = add_trailing_slash(clean_path(realpath(getcwd())));
-	
 	
 			$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
 			$absCssLoc = explode($pathSep, $absCssLoc);
@@ -165,32 +211,23 @@ if(file_exists($cssFileToFix)) {
 		}
 			
 		//cache fixed CSS
-		$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmcache';
+		$wpuCache->save_css_magic($css, $cssFileToFix, $pos, $useTV);
 		
-		$lastPart = (!empty($useTV)) ? "{$useTV}.cssmtv" : "{$pos}.cssm";
-		
-		$fnDest = $phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$lastPart}";
-		$hTempFile = @fopen($fnTemp, 'w+');
-		
-		@fwrite($hTempFile, $css);
-		@fclose($hTempFile);
-		@copy($fnTemp, $fnDest);
-		@unlink($fnTemp);	
 
 
 	}
-	
-	$reset = '';
-	if($pos == 'inner') {
-		$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
-	}
-	
+		
 	$expire_time = 7*86400;
 	header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $expire_time));
 	header('Content-type: text/css; charset=UTF-8');
 
-	echo $reset . $css;
+	echo $css;
+	
 }
 
+if (!empty($cache)) {
+	$cache->unload();
+}
+$db->sql_close();
 
 ?>

@@ -5,29 +5,17 @@
 * WP-United Mod Edits
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: v 0.8.0 2009/12/20 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
+* This is the file for accessing WordPress from inside phpBB pages. Most of this stuff is in flux, meaning that users had to constantly re-mod their phpBB.
+* Moving them off into this file is intended to alleviate that. 
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-// This is the file for accessing WordPress from inside phpBB pages. Most of this stuff is in flux, meaning that users had to constantly re-mod their phpBB.
-// Moving them off into this file is intended to alleviate that. Currently phpBB3-only
-//
-
-
-if ( !defined('IN_PHPBB') )
-{
-	die("Hacking attempt");
+/**
+ */
+if ( !defined('IN_PHPBB') ) {
 	exit;
 }
 
@@ -38,31 +26,7 @@ if ( !defined('IN_PHPBB') )
  */
 class WPU_Actions {
 	/**
-	 * This is now called from the phpBB hook, and this can be moved
-	 * @todo move to hook file
-	 */
-	function do_head(&$template) {
-		global $wpSettings, $phpbb_root_path, $phpEx;
-		
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
-		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-		if  ($wpSettings['installLevel'] == 10) {
-			$template->assign_vars(array(
-				'U_BLOG'	 =>	append_sid($GLOBALS['wpSettings']['blogsUri']),
-				'S_BLOG'	=>	TRUE,
-			));  
-			//Do a reverse integration?
-			if ($wpSettings['showHdrFtr'] == 'REV') {
-				if (empty($gen_simple_header)) {
-					define('WPU_REVERSE_INTEGRATION', true);
-					ob_start();
-				}
-			}
-		} 	
-	}
-	/**
-	 * logs out of WordPress when the phpB logout is called
+	 * logs out of WordPress when the phpBB logout is called
 	 */
 	function do_logout() { 
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
@@ -243,119 +207,100 @@ class WPU_Actions {
 	 /**
 	 * CSS Magic actions in style.php.
 	 */	
-	function css_magic($css) {
+	function css_magic($cssIn) {
 		
 		global $phpbb_root_path, $phpEx;
-		$pos = "outer";	
 		
-		
-		
-		if(isset($_GET['usecssm'])) {
-			if(isset($_GET['pos'])) {
-				$pos = ($_GET['pos'] == 'inner') ? 'inner' : 'outer';
-			}
-			$cacheLocation = '';
-			if(isset($_GET['cloc'])) {
-				$cacheLocation = urlencode(request_var('cloc', ''));
-			}
-			
-			
-			$useTV = '';
-			if(isset($_GET['tv']) && $pos == 'inner') { 
-				$useTV = $_GET['tv'];
-				//prevent path traversal
-				$useTV = str_replace(array('/', '\\', '..', ';', ':'), '', $useTV);
-			}			
-			
-			if(request_var("usecssm", 0) && ($pos == 'inner')) {
-				$cssCache = '';
-				// first check caches (TODO: port to cache class):
-				if(!empty($useTV)) {
-					// template voodoo-modified CSS already cached?
-					if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv")) {
-						$cssCache = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$useTV}.cssmtv");
-					}
-				} else {
-					// No template voodoo needed -- check for plain cache
-					if(file_exists($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm")) {
-						$cssCache = @file_get_contents($phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$pos}.cssm");
-					}
-				}			
-			
-				if(!empty($cssCache)) {
-					$css = $cssCache;
-				} else {
-				
-					include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
-					$cssMagic = CSS_Magic::getInstance();
-					if($cssMagic->parseString($css)) {
-					
-						// Apply Template Voodoo
-						if(!empty($useTV)) {
-					
-							$tvCacheLoc = $phpbb_root_path . "wp-united/cache/" . $useTV;
-						
-							if(file_exists($tvCacheLoc)) { 
-								$templateVoodoo = @file_get_contents($tvCacheLoc);
-								$templateVoodoo = @unserialize($templateVoodoo);
+		include($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
-								if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
-							
-									$classDupes = $templateVoodoo['classes'];
-									$idDupes = $templateVoodoo['ids'];
-									$finds = array();
-									$repl = array();
-									foreach($classDupes as $classDupe) {
-										$finds[] = $classDupe;
-										$repl[] = ".wpu" . substr($classDupe, 1);
-									}
-									foreach($idDupes as $idDupe) {
-										$finds[] = $idDupe;
-										$repl[] = "#wpu" . substr($idDupe, 1);
-									}	
+		include($phpbb_root_path . 'wp-united/version.' . $phpEx);
+		include($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+		$wpuCache = WPU_Cache::getInstance();
 
-									$cssMagic->modifyKeys($finds, $repl);
-								}
-							}
-				
-						}					
-					
-
-						
-						$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
-						$css = $cssMagic->getCSS();
-						$cssMagic->clear();
-					}
-				
-					// cache result here
-					$fnTemp = $phpbb_root_path . "wp-united/cache/" . 'temp_' . floor(rand(0, 9999)) . 'cssmcache';
-					
-					$lastPart = (!empty($useTV)) ? "{$useTV}.cssmtv" : "{$pos}.cssm";
-		
-					$fnDest = $phpbb_root_path . "wp-united/cache/{$cacheLocation}-{$lastPart}";
-					
-					$hTempFile = @fopen($fnTemp, 'w+');
-
-					@fwrite($hTempFile, $css);
-					@fclose($hTempFile);
-					@copy($fnTemp, $fnDest);
-					@unlink($fnTemp);				
-				
-				
-				
-				}
-
-
-				$reset = '';
-				if($pos == 'inner') {
-					$reset = @file_get_contents($phpbb_root_path . "wp-united/theme/reset.css");
-				}			
-
-				return $reset . $css;
-			}
+		if(!isset($_GET['usecssm'])) {
+			return $cssIn;
 		}
+		$pos = (request_var('pos', 'outer') == 'inner') ? 'inner' : 'outer';
+		$cacheLocation = '';
+		
+		$cssIdentifier = request_var('cloc', 0);
+		
+		
+		$useTV = -1;
+		if(isset($_GET['tv']) && $pos == 'inner') { 
+			$useTV = request_var('tv', -1);
+		}
+		
+		
+		/**
+		 * First check cache
+		 */
+		$css = '';
+		if($useTV > -1) {
+			// template voodoo-modified CSS already cached?
+			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, $useTV)) {
+				$css = @file_get_contents($cacheLocation);
+			}
+		} else {
+			// Try loading CSS-magic-only CSS from cache
+			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, $useTV)) {
+				$css = @file_get_contents($cacheLocation);
+			}
+		}		
+		
+		if(!empty($css)) {
+			return $css;
+		}
+		
+		// Apply or load css magic
+		include($phpbb_root_path . 'wp-united/wpu-css-magic.' . $phpEx);
+		$cssMagic = CSS_Magic::getInstance();
+		if(!$cssMagic->parseString($cssIn)) {
+			return $cssIn;
+		}
+		
+		// if pos= outer, we just need to cache the CSS so that Template Voodoo can get at it
+		
+		if ($pos=='inner') {
+			// Apply Template Voodoo
+			if ($useTV > -1) {
+				$templateVoodoo = $wpuCache->get_template_voodoo($useTV);
+				if(empty($templateVoodoo)) { 
+					// set useTV to -1 so that cache name reflects that we weren't able to apply TemplateVoodoo
+					$useTV = -1;
+				} else {
+					if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
+						$classDupes = $templateVoodoo['classes'];
+						$idDupes = $templateVoodoo['ids'];
+						$finds = array();
+						$repl = array();
+						foreach($classDupes as $classDupe) {
+							$finds[] = $classDupe;
+							$repl[] = ".wpu" . substr($classDupe, 1);
+						}
+						foreach($idDupes as $idDupe) {
+							$finds[] = $idDupe;
+							$repl[] = "#wpu" . substr($idDupe, 1);
+						}	
+						$cssMagic->modifyKeys($finds, $repl);
+					}
+				}
+			}
+			// Do the magic for inner stylesheet
+			$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
+		}
+		
+		
+		$css = $cssMagic->getCSS();
+		$cssMagic->clear();
+		
+		//cache fixed CSS
+		$wpuCache->save_css_magic($css, $cssIdentifier, $pos, $useTV);
+		
 		return $css;
 	}
+			
 	
 }
 
