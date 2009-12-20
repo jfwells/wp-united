@@ -8,7 +8,7 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-Styles: Default padding a little off (?)
+
 
 Cache: Core cache is being generated every time
 Cache: WordPress version can be auto-filled -- it already knows the version filename
@@ -18,14 +18,10 @@ Cache: Ability to purge. Auto-purge on wizard run
 Cache: Cache log seems to under-report on occasion after cache is purged
 Cache: Add .htaccess to package
 
-Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
-Then can move all edits in --  for now, the template-loader edits, but also leave ability to step into all WP code
 
-Plugin-fixes: When making global, plugin globals can override some phpBB vars. In compat mode,
-instead of making straight global, we should run them through a fn that checks if the var already exists, and if it does, adds them
-to sleepingVars. May be best to first create phpBB abstraction to store them.
-
-
+Cross-posting: Auto-link should be in comment form, not at end of post
+Cross-posting: Auto-link doesn't work on permalinked setups
+Cross-posting: Merge Japgalaxy's cross-posted comments
 
 Widgets: Direct link to ACP no longer works with new phpBB form nonce
 
@@ -56,10 +52,15 @@ Full page integration: Improve settings / include blank page or option to create
 
 CSS Magic: Add fixes for IE (6,7,8)
 
-Cross-posting: Auto-link should be in comment form, not at end of post
-Cross-posting: Auto-link doesn;t work on permalinked setups
-Cross-posting: Merge Japgalaxy's cross-posted comments
 
+Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
+Then can move all edits in --  for now, the template-loader edits, but also leave ability to step into all WP code
+
+Plugin-fixes: When making global, plugin globals can override some phpBB vars. In compat mode,
+instead of making straight global, we should run them through a fn that checks if the var already exists, and if it does, adds them
+to sleepingVars. May be best to first create phpBB abstraction to store them.
+
+Styles: Default padding a little off (?)
 
 User blogs: Check and improve dashboard
 
@@ -103,7 +104,7 @@ DONE
 - CSS Magic - cleaned up style.php actions
 - CSS Magic: only replace outer links if template voodoo is active
 - CSS Magic - combined wpu-style-fixer and style.php actions
-- Renamed wpu-style-fixer.php to style-fixer.php, wpu-helper-funcs.php to functions-general.php, and wpu-template-funcs.php to template-tags.php
+- Renamed several files to improve consistency and make it more obvious what their function is.
 
 
 
