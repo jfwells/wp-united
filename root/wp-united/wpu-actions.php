@@ -209,13 +209,15 @@ class WPU_Actions {
 	 */	
 	function css_magic($cssIn) {
 		
-		global $phpbb_root_path, $phpEx;
+		global $phpbb_root_path, $phpEx, $wpuCache;
 		
-		include($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		require($phpbb_root_path . 'wp-united/functions-css-magic.' . $phpEx);
+		
+		require($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
-		include($phpbb_root_path . 'wp-united/version.' . $phpEx);
-		include($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+		require($phpbb_root_path . 'wp-united/version.' . $phpEx);
+		require($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 		$wpuCache = WPU_Cache::getInstance();
 
 		if(!isset($_GET['usecssm'])) {
@@ -225,7 +227,7 @@ class WPU_Actions {
 		$cacheLocation = '';
 		
 		$cssIdentifier = request_var('cloc', 0);
-		
+		$cssIdentifier = $wpSettings['styleKeys'][$cssIdentifier];
 		
 		$useTV = -1;
 		if(isset($_GET['tv']) && $pos == 'inner') { 
@@ -244,7 +246,7 @@ class WPU_Actions {
 			}
 		} else {
 			// Try loading CSS-magic-only CSS from cache
-			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, $useTV)) {
+			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, -1)) {
 				$css = @file_get_contents($cacheLocation);
 			}
 		}		
@@ -262,35 +264,17 @@ class WPU_Actions {
 		
 		// if pos= outer, we just need to cache the CSS so that Template Voodoo can get at it
 		
-		if ($pos=='inner') {
+		if($pos=='inner') { 
 			// Apply Template Voodoo
-			if ($useTV > -1) {
-				$templateVoodoo = $wpuCache->get_template_voodoo($useTV);
-				if(empty($templateVoodoo)) { 
+			if($useTV > -1) {
+				if(!apply_template_voodoo($cssMagic, $useTV)) {
 					// set useTV to -1 so that cache name reflects that we weren't able to apply TemplateVoodoo
 					$useTV = -1;
-				} else {
-					if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
-						$classDupes = $templateVoodoo['classes'];
-						$idDupes = $templateVoodoo['ids'];
-						$finds = array();
-						$repl = array();
-						foreach($classDupes as $classDupe) {
-							$finds[] = $classDupe;
-							$repl[] = ".wpu" . substr($classDupe, 1);
-						}
-						foreach($idDupes as $idDupe) {
-							$finds[] = $idDupe;
-							$repl[] = "#wpu" . substr($idDupe, 1);
-						}	
-						$cssMagic->modifyKeys($finds, $repl);
-					}
 				}
-			}
-			// Do the magic for inner stylesheet
+			}	
+			// Apply CSS Magic
 			$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 		}
-		
 		
 		$css = $cssMagic->getCSS();
 		$cssMagic->clear();

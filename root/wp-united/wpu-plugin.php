@@ -812,7 +812,7 @@ function wpu_newpost($post_ID, $post) {
 					$can_crosspost_list = wpu_forum_xpost_list();  
 					//Check that we have the authority to cross-post there
 					if ( in_array($forum_id, $can_crosspost_list['forum_id']) ) { 
-						require_once($connSettings['path_to_phpbb'] . 'wp-united/wpu-helper-funcs.' . $phpEx);
+						require_once($connSettings['path_to_phpbb'] . 'wp-united/functions-general.' . $phpEx);
 						// Get the post excerpt
 						if (!$excerpt = $post->post_excerpt) {
 							$excerpt = $post->post_content;
@@ -1323,8 +1323,8 @@ function wpu_load_extra_files() {
 	if ( !defined('IN_PHPBB') ) {
 		if(is_admin()) { // try not to let things like the mandigo theme, which invoke wordpress just to generate some CSS, load in our widgets.
 			$wpuConnSettings = get_settings('wputd_connection');
-			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/wpu-widgets.php');
-			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/wpu-template-funcs.php');
+			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/widgets.php');
+			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/template-tags.php');
 			add_action('widgets_init', 'wpu_widgets_init');	
 		}
 	} else {

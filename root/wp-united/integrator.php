@@ -22,7 +22,7 @@ has already been prepared, and phpBB has exited. All the page contents are store
 or pull stuff from our WordPress header/footer cache as necessary
 if(empty $wpSettings)
 
-(c) via blog.php using cURL from wpu-latest-posts.php or similar. This is used for grabbing latest blog data for, e.g. integration
+(c) via blog.php using cURL from latest-posts.php or similar. This is used for grabbing latest blog data for, e.g. integration
 into a separate portal page block. This functionality is not advertised (it is a throwback to phpBB2), but it still works.
 
 (d) via an xmlHttpRequest. This is similar to (c), but it just requires us to login an integrated user silently, and return status via XML.
@@ -62,7 +62,7 @@ if ( !defined('WPU_BLOG_PAGE') ) {
 }
 
 // More required files
-require_once($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
+require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 
@@ -95,7 +95,7 @@ if  ( $wpSettings == FALSE ) {
 
 
 // For convenience, we set several variables that are useful in WordPress. Most template-related strings should be
-// taking place elsewhere, e.g. in wpu-template-funcs.php, but for some commonly used items which we also use here in
+// taking place elsewhere, e.g. in template-tags.php, but for some commonly used items which we also use here in
 // integrator.php, it makes sense to declare them up-front.
 
 // $scriptPath is a global variable that provides the fully qualified path to phpBB. Used all over the place when we're in WordPress

@@ -5,23 +5,12 @@
 * WP-United -- Integration class (the bit that talks to WordPress!)
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: v 0.8.0 2009/12/20 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * @author John Wells
 *
 */
-
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-//
 
 
 if ( !defined('IN_PHPBB') ) exit;
@@ -200,7 +189,7 @@ Class WPU_Integration {
 		
 		// Several library functions are required, and might not have been included if this is called directly from a phpBB function
 		// (e.g. suring setup)
-		require_once($this->phpbb_root . 'wp-united/wpu-helper-funcs.' . $this->phpEx);
+		require_once($this->phpbb_root . 'wp-united/functions-general.' . $this->phpEx);
 	}
 	
 	/**
@@ -314,7 +303,7 @@ Class WPU_Integration {
 			require($this->phpbb_root . 'wp-united/wp-functions.' . $this->phpEx);
 			
 			// Load widgets
-			require($this->phpbb_root . 'wp-united/wpu-widgets.' . $this->phpEx);
+			require($this->phpbb_root . 'wp-united/widgets.' . $this->phpEx);
 			
 			
 			
@@ -618,7 +607,7 @@ Class WPU_Integration {
 	 * @param string $varName the name of the variable in the global scope to fill with the page contents.
 	 */
 	function get_wp_page($toVarName) {
-		require($this->phpbb_root . "wp-united/wpu-template-funcs." . $this->phpEx);
+		require($this->phpbb_root . "wp-united/template-tags." . $this->phpEx);
 		$this->prepare('ob_start();');
 		$this->prepare('if ( $GLOBALS[\'latest\']) {define("WP_USE_THEMES", false);} else {define("WP_USE_THEMES", true);}');
 		$this->prepare('global $wp_did_header; $wp_did_header = true;');
@@ -629,7 +618,7 @@ Class WPU_Integration {
 				$this->prepare('eval($wpUtdInt->fix_template_loader());');
 			$this->prepare('endif;');
 		$this->prepare('else:');
-			$this->prepare('include($phpbb_root_path . \'wp-united/wpu-latest-posts.\' . $phpEx);');
+			$this->prepare('include($phpbb_root_path . \'wp-united/latest-posts.\' . $phpEx);');
 		$this->prepare('endif;');
 		$this->prepare('$' . $toVarName . ' = ob_get_contents();');
 		$this->prepare('ob_end_clean();');

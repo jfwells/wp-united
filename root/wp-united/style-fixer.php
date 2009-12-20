@@ -79,11 +79,13 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 
 
 // We load the bare minimum to get our data
-include($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+require($phpbb_root_path . 'wp-united/functions-css-magic.' . $phpEx);
+
+require($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 $wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
-include($phpbb_root_path . 'wp-united/version.' . $phpEx);
-include($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+require($phpbb_root_path . 'wp-united/version.' . $phpEx);
+require($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 $wpuCache = WPU_Cache::getInstance();
 
 
@@ -110,104 +112,33 @@ if(file_exists($cssFileToFix)) {
 		}
 	} else {
 		// Try loading CSS-magic-only CSS from cache
-		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, $useTV)) {
+		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, -1)) {
 			$css = @file_get_contents($cacheLocation);
 		}
 	}
 	
 	// Load and CSS-Magic-ify the CSS file. If an outer file, just cache it
 	if(empty($css)) {
-		include($phpbb_root_path . 'wp-united/css-magic.' . $phpEx);
+		require($phpbb_root_path . 'wp-united/css-magic.' . $phpEx);
 		$cssMagic = CSS_Magic::getInstance();
 		if($cssMagic->parseFile($cssFileToFix)) {
 
 			if($pos=='inner') {
-				
 				// Apply Template Voodoo
 				if($useTV > -1) {
-					$templateVoodoo = $wpuCache->get_template_voodoo($useTV);
-					
-					if(empty($templateVoodoo)) { 
+					if(!apply_template_voodoo($cssMagic, $useTV)) {
 						// set useTV to -1 so that cache name reflects that we weren't able to apply TemplateVoodoo
 						$useTV = -1;
-					} else {
-						if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
-							
-							$classDupes = $templateVoodoo['classes'];
-							$idDupes = $templateVoodoo['ids'];
-							$finds = array();
-							$repl = array();
-							foreach($classDupes as $classDupe) {
-								$finds[] = $classDupe;
-								$repl[] = ".wpu" . substr($classDupe, 1);
-							}
-							foreach($idDupes as $idDupe) {
-								$finds[] = $idDupe;
-								$repl[] = "#wpu" . substr($idDupe, 1);
-							}	
-				
-							$cssMagic->modifyKeys($finds, $repl);
-						}
 					}
-				
 				}	
-				
 				// Apply CSS Magic
 				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 			}
 			$css = $cssMagic->getCSS();
 			$cssMagic->clear();
 	
-			/**
-			 * clean up relative urls
-			 * 
-			 * We need to find the absolute URL to the image dir. We can infer it by comparing the
-			 * current path (wp-united/wpu-style-fixer) against the provided one.
-			 * 
-			 * @todo clean up
-			 * @todo This may not work well on subdomains. -- to check
-			 */
-			include($phpbb_root_path . 'wp-united/wpu-helper-funcs.' . $phpEx);
-			$absCssLoc = clean_path(realpath($cssFileToFix));
-			$absCurrLoc = add_trailing_slash(clean_path(realpath(getcwd())));
-	
-			$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
-			$absCssLoc = explode($pathSep, $absCssLoc);
-			$absCurrLoc = explode($pathSep, $absCurrLoc);
-	
-			array_pop($absCssLoc);
-	
-			while($absCurrLoc[0]==$absCssLoc[0]) { 
-				array_shift($absCurrLoc);
-				array_shift($absCssLoc);
-			}
-			$pathsBack = array(".");
-			for($i=0;$i<(sizeof($absCurrLoc)-1);$i++) {
-				$pathsBack[] = "..";
-			}
-			$relPath = add_trailing_slash(implode("/", $pathsBack)) . add_trailing_slash(implode("/", $absCssLoc));
-	
-	
-			preg_match_all('/url\(.*?\)/', $css, $urls);
-			if(is_array($urls[0])) {
-				foreach($urls[0] as $url) {
-					$replaceUrl = false;
-					if(stristr($url, "http:") === false) {
-						$out = str_replace("url(", "", $url);
-						$out = str_replace(")", "", $out);
-						$out = str_replace("'", "", $out);
-						if ($out[0] != "/") {
-							//$out = $phpbb_root_path . dirname($cssFileToFix) . "/" . $out;
-							$replace = true;
-						}
-					}
-					if ($replace) {
-						$css = str_replace($url, "url('{$relPath}{$out}')", $css);
-					}
-				}
-	
-			}
-
+			//fix relative URLs in the CSS
+			wpu_fix_css_urls($cssFileToFix, $css);
 		}
 			
 		//cache fixed CSS

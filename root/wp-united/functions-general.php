@@ -1,66 +1,45 @@
 <?php 
 /** 
 *
-* WP-United Helper Functions
-*
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0 2009/12/25 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
+* Generic WP-United functions that don't have anywhere better to go (yet).
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-// Helper Functions used in WP-United scripts. Need to make more use of these.
-//
-
-if ( !defined('IN_PHPBB') )
-{
-	die("Hacking attempt");
+if ( !defined('IN_PHPBB') ) {
 	exit;
 }
 
 
-//
-//	ADD TRAILING SLASH 
-//	--------------------------------
-//	Adds a traling slash to a string if one is not already present.
-//
+/**
+ * Adds a traling slash to a string if one is not already present.
+ */
 function add_trailing_slash($path) {
 	return ( $path[strlen($path)-1] == "/" ) ? $path : $path . "/";
 }
 
-//
-//	ADD HTTP:// 
-//	-----------------
-//	Adds http:// to the URL if it is not already present
-//	TODO: Check if https:// is already present, too!!
-//
+/**
+ * Adds http:// to the URL if it is not already present
+ */
 function add_http($path) {
-
-	return ( strpos($path, "http://") === FALSE ) ? "http://" . $path : $path;
+	if ( (strpos($path, "http://") === FALSE) && (strpos($path, "https://") === FALSE) ) {
+		return "http://" . $path;
+	}
+	return $path;
 }
 
 
-// 
-// 	The following functions are used by the cross-posting feature. They are lifted  from an early version of the WYSIWIG MOD
-//	 We have made several changes and fixes . Originally (C) DeViAnThans3 - 2005 (GPL v2)
-// 
 
-
+/**
+ * Convert HTML to BBCode 
+ * Cut down version of function from early version of the WYSIWIG MOD by DeViAnThans3, 2005 (GPL v2)
+ * Several changes and fixes for WP-United
+ * @author DeViAnThans3
+ */
 function wpu_html_to_bbcode(&$string, $uid) { 
-	// 
-	// Function convert HTML to BBCode 
-	// Cut down from DeViAnThans3's version.
-
     // Strip slashes ! 
 	$string = stripslashes($string); 
 	$string = strip_tags($string, '<p><a><img><br><strong><em><blockquote><b><u><i><ul><ol><li><code>');
@@ -121,8 +100,13 @@ function wpu_html_to_bbcode(&$string, $uid) {
 	}
 } 
 
+/**
+ * Convert BBCode to HTML
+ * Not used (yet). May use in future for forum -> blog posting
+ * Cut down version of function from early version of the WYSIWIG MOD by DeViAnThans3, 2005 (GPL v2)
+ * @author DeViAnThans3
+ */
 function wpu_bbcode_to_html($string, $uid) { 
-	// May use this in the future for forum -> blog posting (Not yet).
 	// Bold text 
 	$bbcode_initial = "/([[Bb]:$uid])(.+)([/[Bb]:$uid])/"; 
 	$bbcode_replacements[] = "<strong>2</strong>";  
@@ -197,7 +181,9 @@ function wpu_bbcode_to_html($string, $uid) {
 return $string; 
 } 
 
-
+/**
+ * Final additional checks to ensure string is safe to post to forum
+ */
 function wpu_safe_post($string) { 
 	$tmpString = $string; 
 	$tmpString = trim($string); 
@@ -219,6 +205,9 @@ function wpu_safe_post($string) {
 	return $tmpString; 
 } 
 
+/**
+ * Clean and standardise a provided file path
+ */
 function clean_path($value) {
 	$value = trim($value);
 	$value = str_replace('\\', '/', $value);
@@ -226,6 +215,37 @@ function clean_path($value) {
 	return $value;
 }
 
+/**
+ * Calculates a relative path from the current location to a given absolute file path
+ */
+function wpu_compute_path_difference($filePath, $currPath = false) {
+	
+	$absFileLoc = clean_path(realpath($filePath));
+	
+	if($currLoc === false) {
+		$currLoc = getcwd();
+	}
+	
+	$absCurrLoc = add_trailing_slash(clean_path(realpath($currLoc)));
+
+	$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
+	$absFileLoc = explode($pathSep, $absFileLoc);
+	$absCurrLoc = explode($pathSep, $absCurrLoc);
+
+	array_pop($absFileLoc);
+
+	while($absCurrLoc[0]==$absFileLoc[0]) { 
+		array_shift($absCurrLoc);
+		array_shift($absFileLoc);
+	}
+	$pathsBack = array(".");
+	for($i=0;$i<(sizeof($absCurrLoc)-1);$i++) {
+		$pathsBack[] = "..";
+	}
+	$relPath = add_trailing_slash(implode("/", $pathsBack)) . add_trailing_slash(implode("/", $absFileLoc));
+	
+	return $relPath;
+}
 
 
 

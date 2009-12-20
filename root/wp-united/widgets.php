@@ -350,7 +350,7 @@ function wpu_widgets_init() {
 			$showLegend = (int)$options['showLegend'];
 		
 			//generate the widget output
-			// wpu-template-funcs.php MUST be available!
+			// template-tags.php MUST be available!
 			if ( !function_exists('wpu_useronlinelist') ) return false;
 			echo $before_widget;
 			echo $before_title . $title . $after_title;

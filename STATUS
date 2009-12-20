@@ -8,8 +8,6 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-CSS Magic - combine wpu-style-fixer and style.php actions
-
 Styles: Default padding a little off (?)
 
 Cache: Core cache is being generated every time
@@ -18,6 +16,7 @@ Cache: Everything should use filemtime checking where possible
 Cache: Align all calls
 Cache: Ability to purge. Auto-purge on wizard run
 Cache: Cache log seems to under-report on occasion after cache is purged
+Cache: Add .htaccess to package
 
 Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
 Then can move all edits in --  for now, the template-loader edits, but also leave ability to step into all WP code
@@ -103,6 +102,8 @@ DONE
 - CSS Magic: Hardened and cleaned up wpu-style-fixer
 - CSS Magic - cleaned up style.php actions
 - CSS Magic: only replace outer links if template voodoo is active
+- CSS Magic - combined wpu-style-fixer and style.php actions
+- Renamed wpu-style-fixer.php to style-fixer.php, wpu-helper-funcs.php to functions-general.php, and wpu-template-funcs.php to template-tags.php
 
 
 
