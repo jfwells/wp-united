@@ -120,9 +120,9 @@ function wpu_extract_css($content) {
 /**
  * Cleans up relative URLs in stylesheets so that they still work even through style-fixer
  * @param string $filePath the path to the current file
- * @param string $css a string containing valid CSS
+ * @param string $css a string containing valid CSS to be modified
  */
-function wpu_fix_css_urls($filePath, $css) {
+function wpu_fix_css_urls($filePath, &$css) {
 	global $phpbb_root_path, $phpEx;
 	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 	$relPath = wpu_compute_path_difference($filePath);
@@ -144,7 +144,6 @@ function wpu_fix_css_urls($filePath, $css) {
 			}
 		}
 	}
-	return $css;
 }
 
 function apply_template_voodoo(&$cssMagic, $tplVoodooKey) {
