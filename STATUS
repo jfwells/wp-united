@@ -10,6 +10,7 @@ TODO
 
 
 
+
 Cache: Core cache is being generated every time
 Cache: WordPress version can be auto-filled -- it already knows the version filename
 Cache: Everything should use filemtime checking where possible
@@ -22,6 +23,8 @@ Cache: Add .htaccess to package
 Cross-posting: Auto-link should be in comment form, not at end of post
 Cross-posting: Auto-link doesn't work on permalinked setups
 Cross-posting: Merge Japgalaxy's cross-posted comments
+
+WordPress detection: Stop using config file
 
 Widgets: Direct link to ACP no longer works with new phpBB form nonce
 
@@ -105,6 +108,7 @@ DONE
 - CSS Magic: only replace outer links if template voodoo is active
 - CSS Magic - combined wpu-style-fixer and style.php actions
 - Renamed several files to improve consistency and make it more obvious what their function is.
-
+- Fixed for WP 2.9
+- Added easy option in options.php to disable WP-United template integration to prevent lock-outs
 
 

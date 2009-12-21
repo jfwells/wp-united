@@ -68,6 +68,7 @@ Class WPU_Integration {
 		'wp_object_cache',
 		'options',
 		'entry',
+		'wp_embed',
 		
 		// widgets
 		'registered_sidebars', 
@@ -342,7 +343,7 @@ Class WPU_Integration {
 					$cSet = str_replace('include_once( WPMU_PLUGIN_DIR . \'/\' . $plugin );', ' include_once($wpuMuPluginFixer->fix(WPMU_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
 					
 					//WP Plugins
-					$cSet = str_replace('get_option(\'active_plugins\');', 'get_option(\'active_plugins\');global $wpuPluginFixer; $wpuPluginFixer = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+					$cSet = preg_replace('/(get_option\(\s?\'active_plugins\'\s?\)\s?\)?;)/', '$1global $wpuPluginFixer; $wpuPluginFixer = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
 					$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($wpuPluginFixer->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
 					
 					// Theme functions

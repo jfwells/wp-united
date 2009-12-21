@@ -4,32 +4,36 @@
 * WP-United Extra Options
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0 2009/12/21 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-//	YOU MAY SET THE ADVANCED OPTIONS IN THIS FILE... PLEASE READ THROUGH THE COMMENTS THAT PRECEDE EACH OPTION BEFORE CHANGING ANY.
-//	MORE OPTIONS WILL BE HERE IN FUTURE RELEASES.
 
-// This seciton is for security. Do not modify this part:
-if ( !defined('IN_PHPBB') )
-{
-	die("Hacking attempt");
+/**
+ * This seciton is for security. Do not modify this part:
+ * @ignore
+ */
+if ( !defined('IN_PHPBB') ) {
 	exit;
 }
 
 //The options you can set begin below:
+
+/**
+ * (TEMPORARILY) DISABLE WP-UNITED?
+ * This is useful if you have locked yourself out of your forum -- for example, if you have deleted 
+ * your WordPress wpu-plugin, but have template integration on, you might not be able to see
+ * your forum.
+ * 
+ * Temporarily change this to TRUE to completely disable the integration so that you can log in and
+ * get to the ACP. 
+ * 
+ * To permanently remove WP-United, use the uninstall option in the ACP, not this.
+ */
+define('WPU_DISABLE', FALSE);
+
 
 /**
  * USE TEMPLATE CACHE?
