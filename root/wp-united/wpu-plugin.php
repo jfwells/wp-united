@@ -4,8 +4,8 @@ Plugin Name: WP-United Connection
 Plugin URI: http://www.wp-united.com
 Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
-Version: 0.9.5-Beta (phpBB2) / v0.7.1 Beta (phpBB3)
-Last Updated: 18 May 2009
+Version: v0.8.0 RC2 (phpBB3)
+Last Updated: 23 December 2009
 Author URI: http://www.wp-united.com
 
 NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow phpBB mod conventions. Specifically:
@@ -14,7 +14,7 @@ NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow php
 	- WordPress hard-codes php extensions, so so do we
 
 DO NOT MODIFY THE BELOW LINE:
-||WPU-PLUGIN-VERSION=701||
+||WPU-PLUGIN-VERSION=799||
 */ 
 /** 
 *
@@ -39,6 +39,7 @@ function wpu_init_plugin() {
 	$wpuConnSettings = get_settings('wputd_connection');
 	
 	if ( !defined('IN_PHPBB') ) {
+				
 		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	}
@@ -46,8 +47,14 @@ function wpu_init_plugin() {
 	require_once($phpbb_root_path . 'wp-united/phpbb.'.$phpEx);
 	$phpbbForum = new WPU_Phpbb();
 	
+	require_once($phpbb_root_path . 'wp-united/functions-cross-posting.'.$phpEx);
+	
 	if ( !defined('IN_PHPBB') ) {
+		define('WPU_PHPBB_IS_EMBEDDED', TRUE);
+		
+
 		$phpbbForum->load($phpbb_root_path);
+
 		if(is_admin()) { // try not to let things like the mandigo theme, which invoke wordpress just to generate some CSS, load in our widgets.
 			include_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
 			include_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
@@ -745,16 +752,16 @@ function wpu_get_stylesheet($default) {
  * Only modifies it if login is integrated
  */
 function wpu_loginoutlink($loginLink) {
-	global $wpSettings, $phpbb_logged_in, $phpbb_username, $phpbb_sid, $wpuAbs, $phpEx, $scriptPath;
+	global $phpbbForum, $wpSettings, $phpbb_logged_in, $phpbb_username, $phpbb_sid, $phpEx, $scriptPath;
 	if ( !empty($wpSettings['integrateLogin']) ) {
 		$logout_link = 'ucp.'.$phpEx.'?mode=logout&amp;sid=' . $phpbb_sid;
 		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]);		
 		if ( $phpbb_logged_in ) {
 			$u_login_logout = add_trailing_slash($scriptPath) . $logout_link;
-			$l_login_logout = $wpuAbs->lang('Logout') . ' [ ' . $phpbb_username . ' ]';
+			$l_login_logout = $phpbbForum->lang['Logout'] . ' [ ' . $phpbb_username . ' ]';
 		} else {
 			$u_login_logout = add_trailing_slash($scriptPath) . $login_link;
-			$l_login_logout = $wpuAbs->lang('Login');
+			$l_login_logout = $phpbbForum->lang['Login'];
 		}
 		return '<a href="' . $u_login_logout . '">' . $l_login_logout . '</a>';
 	} else {
@@ -767,7 +774,7 @@ function wpu_loginoutlink($loginLink) {
  * Only modifies it if login is integrated
  */
 function wpu_registerlink($registerLink) {
-	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $wpuAbs, $phpEx, $wpuGetBlog, $scriptPath;
+	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpbbForum, $phpEx, $wpuGetBlog, $scriptPath;
 	if ( !empty($wpSettings['integrateLogin']) ) {
 		//'before' and 'after' can be passed to the links. Let's isolate them.
 		$startPos = strpos($registerLink, '<a');
@@ -784,7 +791,7 @@ function wpu_registerlink($registerLink) {
 		 * @todo move $wpuGetxxx calculation here
 		 */
 		if ( ! is_user_logged_in() ) {
-			return $before . '<a href="' . append_sid(add_trailing_slash($scriptPath) . $reg_link) . '">' . $wpuAbs->lang('Register') . '</a>' . $after;
+			return $before . '<a href="' . append_sid(add_trailing_slash($scriptPath) . $reg_link) . '">' . $phpbbForum->lang['Register'] . '</a>' . $after;
 		} else {
 			return $before . '<a href="' . get_settings('siteurl') . '/wp-admin/">' . $wpuGetBlog . '</a>' . $after;
 		}
@@ -797,7 +804,7 @@ function wpu_registerlink($registerLink) {
 /**
  * Called whenever a post is edited
  * Prevents an edited post from showing up on the blogs homepage
- * And allows us to differentiate between edits and new posts for crosws-posting
+ * And allows us to differentiate between edits and new posts for cross-posting
  */
 function wpu_justediting() {
 	define('suppress_newpost_action', TRUE);
@@ -812,105 +819,36 @@ function wpu_newpost($post_ID, $post) {
 	global $phpbbForum;
 	
 	$connSettings = get_settings('wputd_connection');
-	global $user_ID, $wpdb, $wp_version;
+	global $user_ID, $wpdb;
 	$did_xPost = false;
 	if ( $post->post_status == 'publish' ) { 
 		if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
 			update_usermeta($post->post_author, 'wpu_last_post', $post->post_author); 
 		} 
 
-		if ( (!defined('IN_PHPBB')) && (!empty($connSettings['logins_integrated'])) ) {
-			global $db, $wpuAbs, $user, $phpEx; 
+		if ( !empty($connSettings['logins_integrated']))  {
+			global $db, $user, $phpEx; 
 			
 			$phpbbForum->enter();
 			
 			// Update blog link column
+			/**
+			 * @todo this doesn't need to happen every time
+			 */
 			if ( !empty($post->post_author) ) {
 				$sql = 'UPDATE ' . USERS_TABLE . ' SET user_wpublog_id = ' . $post->post_author . " WHERE user_wpuint_id = '{$post->post_author}'";
 				if (!$result = $db->sql_query($sql)) {
-					$wpuAbs->err_msg(CRITICAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), __LINE__, __FILE__, $sql);
+					$phpbbForum->err_msg(CRITICAL_ERROR, $phpbbForum->lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
 				}
 				$db->sql_freeresult($result);
 			}
-		//X-Posting
+			
 			// Cross-post to forums if necessary
-			if ( isset($_POST['chk_wpuxpost']) && ($wpuAbs->user_logged_in()) && (!isset($_POST['wpu_already_xposted_post'])) ) {
-				if ( ((int)$_POST['chk_wpuxpost'] ) && ($forum_id = (int)$_POST['sel_wpuxpost']) && $connSettings['wpu_enable_xpost'] ) { 
-					$can_crosspost_list = wpu_forum_xpost_list();  
-					//Check that we have the authority to cross-post there
-					if ( in_array($forum_id, $can_crosspost_list['forum_id']) ) { 
-						require_once($connSettings['path_to_phpbb'] . 'wp-united/functions-general.' . $phpEx);
-						// Get the post excerpt
-						if (!$excerpt = $post->post_excerpt) {
-							$excerpt = $post->post_content;
-							if ( preg_match('/<!--more(.*?)?-->/', $excerpt, $matches) ) {
-								$excerpt = explode($matches[0], $excerpt, 2);
-								$excerpt = $excerpt[0];
-							}
-						}							
-						$subject = $wpuAbs->lang('blog_title_prefix') . $post->post_title;
-						$cats = array(); $tags = array();
-						$tag_list = ''; $cat_list = '';
-						$cats = get_the_category($post_ID);
-						if (sizeof($cats)) {
-							foreach ($cats as $cat) {
-								$cat_list .= (empty($cat_list)) ? $cat->cat_name :  ', ' . $cat->cat_name;
-							}
-						}
-						if ( ((float) $wp_version) >= 2.3 ) {
-							 // Get tags for WP >= 2.3
-							 $tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
-							 if ($tag_list == "") {
-							    $tag_list = __('No tags defined.');
-							 }
-						}      						
-						$phpbbForum->enter();
-						$excerpt = sprintf($wpuAbs->lang('blog_post_intro'), '[url=' . get_permalink($post_ID) . ']', '[/url]') . "\n\n" . $excerpt . "\n\n" .
-								'[b]' . $wpuAbs->lang('blog_post_tags') . '[/b]' . $tag_list . "\n" .
-								'[b]' . $wpuAbs->lang('blog_post_cats') . '[/b]' . $cat_list . "\n" .
-								sprintf($wpuAbs->lang('read_more'), '[url=' . get_permalink($post_ID) . ']', '[/url]');
-								
-						$excerpt = utf8_normalize_nfc($excerpt, '', true);
-						$subject = utf8_normalize_nfc($subject, '', true);
-						wpu_html_to_bbcode($excerpt, 0); //$uid=0, but will get removed)
-						$uid = $poll = $bitfield = $options = ''; 
-						generate_text_for_storage($excerpt, $uid, $bitfield, $options, true, true, true);
-						 
-						require_once($connSettings['path_to_phpbb'] . 'includes/functions_posting.' . $phpEx);
-						$data = array(
-							'forum_id' => $forum_id,
-							'icon_id' => false,
-							'enable_bbcode' => true,
-							'enable_smilies' => true,
-							'enable_urls' => true,
-							'enable_sig' => true,
-							'message' => $excerpt,
-							'message_md5' => md5($excerpt),
-							'bbcode_bitfield' => $bitfield,
-							'bbcode_uid' => $uid,
-							'post_edit_locked'	=> ITEM_LOCKED,
-							'topic_title'		=> $subject,
-							'notify_set'		=> false,
-							'notify'			=> false,
-							'post_time' 		=> 0,
-							'forum_name'		=> '',
-							'enable_indexing'	=> true,
-						); 
-						$topic_url = submit_post('post', $subject, $wpuAbs->phpbb_username(), POST_NORMAL, $poll, $data);
-						
-						//Update the posts table with WP post ID so we can remain "in sync" with it.
-						if ( !empty($data['post_id']) ) {
-							$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $post_ID . " WHERE post_id = {$data['post_id']}";
-							if (!$result = $db->sql_query($sql)) {
-								$wpuAbs->err_msg(CRITICAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), __LINE__, __FILE__, $sql);
-							}
-							$db->sql_freeresult($result);
-							
-							$did_xPost = true;
-						}
-					} //end have authority to x-post
-				}
-			} //end isset & user_logged_in
+			$tryXPost = ( (isset($_POST['chk_wpuxpost'])) || (isset($_POST['wpu_already_xposted_post'])) );
+			if ( $tryXPost && ($phpbbForum->user_logged_in()) && (!empty($connSettings['wpu_enable_xpost'])) ) {
+				$did_xPost = wpu_do_crosspost($post_ID, $post);
+			} 
+			
 			$phpbbForum->leave();
 
 			if($did_xPost) { //Need to do this after we exit phpBB code
@@ -936,71 +874,11 @@ function wpu_newpost($post_ID, $post) {
 
 }
 
-
-/**
- * Get the list of forums we can cross-post to
- */
-function wpu_forum_xpost_list() {
-	global $wpuAbs, $user, $auth, $db, $userdata, $template, $phpEx;
-	
-	$can_xpost_forumlist = array();
-	$can_xpost_to = array();
-	
-	$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
-	
-	if ( sizeof($can_xpost_to) ) { 
-		$can_xpost_to = array_keys($can_xpost_to); 
-	} 
-	//Don't return categories -- just forums!
-	if ( sizeof($can_xpost_to) ) {
-		$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
-			'forum_type = ' . FORUM_POST . ' AND ' .
-			$db->sql_in_set('forum_id', $can_xpost_to);
-		if ($result = $db->sql_query($sql)) {
-			while ( $row = $db->sql_fetchrow($result) ) {
-				$can_xpost_forumlist['forum_id'][] = $row['forum_id'];
-				$can_xpost_forumlist['forum_name'][] = $row['forum_name'];
-			}
-			$db->sql_freeresult($result);
-			return $can_xpost_forumlist;
-		}
-	}
-	
-	return array();
-}
-
-/**
- * Determine if this post is already cross-posted.
- */
-function wpu_get_xposted_details($postID = false) {
-	if($postID === false) {
-		if (isset($_GET['post'])) {
-			$postID = (int)$_GET['post'];
-		}
-	}
-	if(empty($postID)) {
-		return false;
-	}
-	global $db;
-	
-	$sql = 'SELECT p.post_id, p.post_subject, p.forum_id, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . FORUMS_TABLE . ' AS f WHERE ' .
-		"p.post_wpu_xpost = $postID AND " .
-		'f.forum_id = p.forum_id';
-	if ($result = $db->sql_query_limit($sql, 1)) {
-		$row = $db->sql_fetchrow($result);
-		$db->sql_freeresult($result);
-		if ( (!empty($row['forum_id'])) && (!empty($row['forum_name'])) ) {
-			return $row;
-		}
-	}
-	return false;
-}
-	
 /**
  * Returns the name of the current user's blog
  */
 function wpu_blogname($default) {
-	global $wpSettings, $user_ID, $wpuAbs, $adminSetOnce;
+	global $wpSettings, $user_ID, $phpbbForum, $adminSetOnce;
 	if ( ((!empty($wpSettings['usersOwnBlogs'])) || ((is_admin()) && (!$adminSetOnce)))  ) {
 		$authorID = wpu_get_author();
 		if ($authorID === FALSE) {
@@ -1013,7 +891,7 @@ function wpu_blogname($default) {
 			$blog_title = get_usermeta($authorID, 'blog_title');
 			if ( empty($blog_title) ) {
 				if ( !is_admin() ) {
-					$blog_title = $wpuAbs->lang('default_blogname'); 
+					$blog_title = $phpbbForum->lang['default_blogname']; 
 				}
 			}
 			$blog_title = wpu_censor($blog_title);
@@ -1029,13 +907,13 @@ function wpu_blogname($default) {
  * Returns the tagline of the current user's blog
  */
 function wpu_blogdesc($default) {
-	global $wpSettings, $wpuAbs;
+	global $wpSettings, $phpbbForum;
 	if ( !empty($wpSettings['usersOwnBlogs']) ) {
 		$authorID = wpu_get_author();
 		if ( !empty($authorID) ) {
 			$blog_tagline = get_usermeta($authorID, 'blog_tagline');
 			if ( empty($blog_tagline) ) {
-				$blog_tagline = $wpuAbs->lang('default_blogdesc');
+				$blog_tagline = $phpbbForum->lang['default_blogdesc'];
 			}
 			$blog_tagline = wpu_censor($blog_tagline);
 			return $blog_tagline;
@@ -1156,11 +1034,11 @@ function wpu_content_parse_check($postContent) {
  * We also use this hook to suppress everything if this is a forum page.
 */
 function wpu_censor($postContent) {
-	global $wpSettings, $wpuAbs;
+	global $wpSettings, $phpbbForum;
 	//if (! defined('PHPBB_CONTENT_ONLY') ) {  Commented out as we DO want this to to work on a full reverse page.
 		if ( !is_admin() ) {
 			if ( !empty($wpSettings['phpbbCensor'] ) ) { 
-				return $wpuAbs->censor($postContent);
+				return $phpbbForum->censor($postContent);
 			}
 		}
 		return $postContent;
@@ -1328,7 +1206,7 @@ function wpu_add_postboxes() {
  * For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the func now.
  */
 function wpu_add_meta_box() {
-	global $phpbbForum, $wp_version, $can_xpost_forumlist, $already_xposted, $wpuAbs, $user, $auth;
+	global $phpbbForum, $wp_version, $can_xpost_forumlist, $already_xposted;
 	// this func is called early
 	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
@@ -1423,11 +1301,7 @@ function wpu_disable_wp_login() {
 	if (preg_match('|/wp-login.php|', $_SERVER['REQUEST_URI'])) {	
 		$wpuConnSettings = get_settings('wputd_connection');
 		if (!empty($wpuConnSettings['logins_integrated'])) {
-			if ($wpuAbs->ver == 'PHPBB2') {
-				$login = 'login.php?redirect=wp-united-blog';
-			} else {
-				$login = 'ucp.php';
-			}
+			$login = 'ucp.php';
 			// path back has one too many ../, so we just add on another path element
 			wp_redirect("wp-includes/".$wpuConnSettings['path_to_phpbb'].$login);
 		}
@@ -1668,143 +1542,7 @@ function wpu_fix_blank_username($user_login) {
 	return $user_login;
 }
 
-/**
- * Loads comments from phpBB rather than WordPress
- * if Xpost-autoloading is on
- * @since v0.8.0
- */
-function wpu_load_phpbb_comments($commentArray, $postID) {
-	global $phpbb_root_path, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
-	
-	$connSettings = get_settings('wputd_connection');
-	
-	if ( (empty($phpbb_root_path)) || (empty($connSettings['wpu_enable_xpost'])) ) {
-		 //&& (!empty($connSettings['autolink_xpost']))
-		return $commentArray;
-	}
-		
-	require_once($phpbb_root_path . 'wp-united/comments.php');
 
-	
-	$phpBBComments = new WPU_Comments();
-	if ( !$phpBBComments->populate($postID) ) {
-		$usePhpBBComments = false;
-		return $commentArray;
-	}
-	
-	$usePhpBBComments = true;
-	$comments = $phpBBComments->comments;
-	
-	$wp_query->comments = $comments;
-	$wp_query->comment_count = sizeof($comments);
-	$wp_query->rewind_comments();
-	
-	update_comment_cache($comments);
-	
-	
-	$overridden_cpage = FALSE;
-	if ( '' == get_query_var('cpage') && get_option('page_comments') ) {
-		set_query_var( 'cpage', 'newest' == get_option('default_comments_page') ? get_comment_pages_count($comments) : 1 );
-		$overridden_cpage = TRUE;
-	}
-
-	
-	return $comments;
-}
-
-function wpu_comments_count($count, $postID) {
-	global $wp_query, $usePhpBBComments;
-
-	if ( !empty($usePhpBBComments) ) {
-		return sizeof($wp_query->comments);
-	}
-	
-	return $count;
-}
-
-function wpu_comment_redirector($postID) {
-	global $phpbb_root_path, $phpEx, $phpbbForum, $wpuAbs;
-	
-	$connSettings = get_settings('wputd_connection');
-
-	if( (empty($connSettings['logins_integrated'])) || (empty($connSettings['wpu_enable_xpost'])) ) {
-		return false;
-	}
-
-	$phpbbForum->enter();	
-
-	if(!$wpuAbs->user_logged_in()) {
-		$phpbbForum->leave();
-		return;
-	}	
-
-	if ( !$xPostDetails = wpu_get_xposted_details($postID) ) { 
-		$phpbbForum->leave();
-		return;
-	}
-
-	$permissionsList = wpu_forum_xpost_list();  
-	if ( !in_array($xPostDetails['forum_id'], $permissionsList['forum_id']) ) { 
-		$phpbbForum->leave();
-		wp_die( __('You do not have permissions to comment in the forum'));
-	}
-
-
-	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
-	
-	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
-	
-	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
-	$uid = $poll = $bitfield = $options = ''; 
-	generate_text_for_storage($content, $uid, $bitfield, $options, true, true, true);
-
-	require_once($connSettings['path_to_phpbb'] . 'includes/functions_posting.' . $phpEx);
-	
-	$subject = $xPostDetails['post_subject'];
-	
-	$data = array(
-		'forum_id' => $xPostDetails['forum_id'],
-		'topic_id' => $xPostDetails['post_id'],
-		'icon_id' => false,
-		'enable_bbcode' => true,
-		'enable_smilies' => true,
-		'enable_urls' => true,
-		'enable_sig' => true,
-		'message' => $content,
-		'message_md5' => md5($content),
-		'bbcode_bitfield' => $bitfield,
-		'bbcode_uid' => $uid,
-		'post_edit_locked'	=> 0,
-		'notify_set'		=> false,
-		'notify'			=> false,
-		'post_time' 		=> 0,
-		'forum_name'		=> '',
-		'enable_indexing'	=> true,
-	); 
-	$postUrl = submit_post('reply', $subject, $wpuAbs->phpbb_username(), POST_NORMAL, $poll, $data);
-	
-	
-	$phpbbForum->leave();
-	
-	$location = empty($_POST['redirect_to']) ? get_comment_link($comment_id) : $_POST['redirect_to'] . '#comment-' . $comment_id;
-	$location = apply_filters('comment_post_redirect', $location, $comment);
-	wp_redirect($location);
-}
-
-/*
-function wpu_buffer_comment_form($open, $postID) {
-	global $usePhpBBComments;
-
-	//echo (int)$GLOBALS['usePhpBBComments'] . "||";
-
-	if ( !empty($usePhpBBComments) ) {
-		return false;
-	}
-	
-	return $open;
-	
-}
-*/
 
 /**
 * Under consideration for future rewrite: Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
