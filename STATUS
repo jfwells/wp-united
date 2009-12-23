@@ -10,6 +10,10 @@ TODO
 
 
 
+- Cross-posting: Finalise ACP options
+- Cross-posting: Auto-link option replaced by "Use phpBB for responses to cross-posted blog posts"
+- Cross posting: To add: Automatically cross-post all blog posts permissions entry
+- Cross-posting: Fix dates
 
 Cache: Core cache is being generated every time
 Cache: WordPress version can be auto-filled -- it already knows the version filename
@@ -19,10 +23,7 @@ Cache: Ability to purge. Auto-purge on wizard run
 Cache: Cache log seems to under-report on occasion after cache is purged
 Cache: Add .htaccess to package
 
-
-Cross-posting: Auto-link should be in comment form, not at end of post
-Cross-posting: Auto-link doesn't work on permalinked setups
-Cross-posting: Merge Japgalaxy's cross-posted comments
+Feeds: Not recognised as XML in Chromium
 
 WordPress detection: Stop using config file
 
@@ -45,7 +46,10 @@ Plugin: All post titles suppressed on full page integration
 Plugin: WP Admin link not showing on full page reverse integration in sidebar
 Plugin: Logout etc. links not showing in dashboard
 Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
-Plugin: use wp_enqueue_script for smilies etc.
+Plugin: JavaScript and CSS should be enqueued
+Plugin: Align (abstract) $connSettings and $wpSettings access methods
+Plugin: All requires/includes to use $phpEx via phpBB abstraction
+plugin: Disable use of $connSettings for paths -- make $phpbb_root_path global and use it everywhere
 
 Template tags: phpBB "function bar"
 
@@ -54,6 +58,7 @@ Full page integration: Improve settings / include blank page or option to create
 
 
 CSS Magic: Add fixes for IE (6,7,8)
+CSS Magic: Width of phpBB in Solostream WP-Genius
 
 
 Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
@@ -110,5 +115,16 @@ DONE
 - Renamed several files to improve consistency and make it more obvious what their function is.
 - Fixed for WP 2.9
 - Added easy option in options.php to disable WP-United template integration to prevent lock-outs
+- Cross-posting: Complete re-realisation: 
+	- Cross-posted posts can now be edited
+	- Cross-posted status is now checked properly, not via form fields
+	- Follow-up posts in the forums now replace WordPress comments (TODO: Add option)
+	- Comments via the WordPress comment box now go to the forum if the blog post is cross-posted
+- Beginning to kill wpuAbs, and replacing with $phpbbForum. TODO: Don't kill $user unless absolutely necessary
+- $phpbbForum handles the current state of the integration. $phpbbForum->enter() and $phpbbForum->leave() MUST be called properly before accessing phpBB features from WordPress
+- phpBB is now always run, even in the dashboard. (It was anyway, but as a result of convoluted logic, and couldn't e relied upon)
+- phpBB varialbes like phpbb_root_path and $phpEx are now consistently available, everywhere. The only ones missing are $user and $cache -- ge those via $phpbbForum or phpbbForum->enter()
+- New comment and comments class load up phpBB comments into a format edible to WordPress
+
 
 

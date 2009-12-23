@@ -77,7 +77,7 @@ function get_db_schema() {
  */
 function set_default($setting_key) {
 	global $phpEx, $config, $phpbb_root_path, $phpEx, $user;
-	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
+
 	$server = add_http(add_trailing_slash($config['server_name']));
 	$scriptPath = add_trailing_slash($config['script_path']);
 	$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;

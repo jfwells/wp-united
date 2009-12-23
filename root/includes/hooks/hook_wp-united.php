@@ -24,7 +24,8 @@ global $wpuAbs;
 require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 require_once ($phpbb_root_path . 'wp-united/version.' . $phpEx);
 require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
-if(!defined('ADMIN_START')) { 
+require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
+if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED'))) { 
 	if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) { 
 		$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
 		$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');

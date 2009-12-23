@@ -2118,7 +2118,7 @@ class acp_wp_united {
 			
 				$WPU_Connection['full_path_to_plugin'] = $pluginPath;
 				//And the path we'll use to access the phpBB root from the WordPress admin dir is:
-				$WPU_Connection['path_to_phpbb'] = $adminFromW . $toP;
+				$WPU_Connection['path_to_phpbb'] = $this->add_trailing_slash(realpath($phpbb_root_path));
 				$wpu_debug .= 'Path back to phpBB: ' . $WPU_Connection['path_to_phpbb'] . '<br />';
 				// We will also want to access our WP-United Connection as a relative URL
 				$WPU_Connection['path_to_plugin'] = $this->add_trailing_slash($board_config['script_path']) . "wp-united/wpu-plugin." . $phpEx;

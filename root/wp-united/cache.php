@@ -129,7 +129,6 @@ class WPU_Cache {
 				
 				@$dir = opendir($this->baseCacheLoc);
 				$cacheFound = false;
-				global $wpuAbs;
 				while( $entry = @readdir($dir) ) {
 					if ( strpos($entry, 'theme-') === 0 ) {
 						$parts = str_replace('theme-', '', $entry);

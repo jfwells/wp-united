@@ -27,10 +27,37 @@ DO NOT MODIFY THE BELOW LINE:
 
 // this file will also be called in wp admin panel, when phpBB is not loaded. ABSPATH should *always* be set though!
 if ( !defined('ABSPATH') ) {
-	die('Hacking attempt!');
+	exit;
 }
 
-
+/**
+ * Initialise WP-United
+ */
+function wpu_init_plugin() {
+	global $phpbb_root_path, $phpEx, $phpbbForum;
+	
+	$wpuConnSettings = get_settings('wputd_connection');
+	
+	if ( !defined('IN_PHPBB') ) {
+		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
+		$phpEx = substr(strrchr(__FILE__, '.'), 1);
+	}
+	
+	require_once($phpbb_root_path . 'wp-united/phpbb.'.$phpEx);
+	$phpbbForum = new WPU_Phpbb();
+	
+	if ( !defined('IN_PHPBB') ) {
+		$phpbbForum->load($phpbb_root_path);
+		if(is_admin()) { // try not to let things like the mandigo theme, which invoke wordpress just to generate some CSS, load in our widgets.
+			include_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
+			include_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
+			add_action('widgets_init', 'wpu_widgets_init');	
+		}
+	} else {
+		add_action('widgets_init', 'wpu_widgets_init');	
+	}
+	
+}
 
 /**
  * Checks and processes the inbound dashboard request
@@ -782,7 +809,8 @@ function wpu_justediting() {
  * Also handles cross-posting
  */
 function wpu_newpost($post_ID, $post) {
-
+	global $phpbbForum;
+	
 	$connSettings = get_settings('wputd_connection');
 	global $user_ID, $wpdb, $wp_version;
 	$did_xPost = false;
@@ -794,7 +822,7 @@ function wpu_newpost($post_ID, $post) {
 		if ( (!defined('IN_PHPBB')) && (!empty($connSettings['logins_integrated'])) ) {
 			global $db, $wpuAbs, $user, $phpEx; 
 			
-			wpu_enter_phpbb();
+			$phpbbForum->enter();
 			
 			// Update blog link column
 			if ( !empty($post->post_author) ) {
@@ -805,7 +833,6 @@ function wpu_newpost($post_ID, $post) {
 				$db->sql_freeresult($result);
 			}
 		//X-Posting
-			mysql_select_db(DBNAME); 
 			// Cross-post to forums if necessary
 			if ( isset($_POST['chk_wpuxpost']) && ($wpuAbs->user_logged_in()) && (!isset($_POST['wpu_already_xposted_post'])) ) {
 				if ( ((int)$_POST['chk_wpuxpost'] ) && ($forum_id = (int)$_POST['sel_wpuxpost']) && $connSettings['wpu_enable_xpost'] ) { 
@@ -834,66 +861,57 @@ function wpu_newpost($post_ID, $post) {
 							 // Get tags for WP >= 2.3
 							 $tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
 							 if ($tag_list == "") {
-							    $tag_list = "No tags definied.";
+							    $tag_list = __('No tags defined.');
 							 }
 						}      						
-						mysql_select_db($GLOBALS['dbname']);
+						$phpbbForum->enter();
 						$excerpt = sprintf($wpuAbs->lang('blog_post_intro'), '[url=' . get_permalink($post_ID) . ']', '[/url]') . "\n\n" . $excerpt . "\n\n" .
 								'[b]' . $wpuAbs->lang('blog_post_tags') . '[/b]' . $tag_list . "\n" .
 								'[b]' . $wpuAbs->lang('blog_post_cats') . '[/b]' . $cat_list . "\n" .
 								sprintf($wpuAbs->lang('read_more'), '[url=' . get_permalink($post_ID) . ']', '[/url]');
 								
-						if ($wpuAbs->ver == 'PHPBB3') {
-							$excerpt = utf8_normalize_nfc($excerpt, '', true);
-							$subject = utf8_normalize_nfc($subject, '', true);
-							wpu_html_to_bbcode($excerpt, 0); //$uid=0, but will get removed)
-							$uid = $poll = $bitfield = $options = ''; 
-							generate_text_for_storage($excerpt, $uid, $bitfield, $options, true, true, true);
-
-							//fix phpBB SEO mod
-				                         global $phpbb_seo;
-				                         if (!empty($phpbb_seo) ) {
-				                         	require_once($connSettings['path_to_phpbb'] . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
-				                         	$phpbb_seo = new phpbb_seo();
-				                         }
-							 
-							require_once($connSettings['path_to_phpbb'] . 'includes/functions_posting.' . $phpEx);
-							$data = array(
-								'forum_id' => $forum_id,
-								'icon_id' => false,
-								'enable_bbcode' => true,
-								'enable_smilies' => true,
-								'enable_urls' => true,
-								'enable_sig' => true,
-								'message' => $excerpt,
-								'message_md5' => md5($excerpt),
-								'bbcode_bitfield' => $bitfield,
-								'bbcode_uid' => $uid,
-								'post_edit_locked'	=> ITEM_LOCKED,
-								'topic_title'		=> $subject,
-								'notify_set'		=> false,
-								'notify'			=> false,
-								'post_time' 		=> 0,
-								'forum_name'		=> '',
-								'enable_indexing'	=> true,
-							); 
-							$topic_url = submit_post('post', $subject, $wpuAbs->phpbb_username(), POST_NORMAL, $poll, $data);
-							
-							//Update the post table with WP post ID so we can remain "in sync" with it (yawn... another query..... need to cut down on these).
-							if ( !empty($data['post_id']) ) {
-								$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $post_ID . " WHERE post_id = {$data['post_id']}";
-								if (!$result = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(CRITICAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), __LINE__, __FILE__, $sql);
-								}
-								$db->sql_freeresult($result);
-								
-								$did_xPost = true;
+						$excerpt = utf8_normalize_nfc($excerpt, '', true);
+						$subject = utf8_normalize_nfc($subject, '', true);
+						wpu_html_to_bbcode($excerpt, 0); //$uid=0, but will get removed)
+						$uid = $poll = $bitfield = $options = ''; 
+						generate_text_for_storage($excerpt, $uid, $bitfield, $options, true, true, true);
+						 
+						require_once($connSettings['path_to_phpbb'] . 'includes/functions_posting.' . $phpEx);
+						$data = array(
+							'forum_id' => $forum_id,
+							'icon_id' => false,
+							'enable_bbcode' => true,
+							'enable_smilies' => true,
+							'enable_urls' => true,
+							'enable_sig' => true,
+							'message' => $excerpt,
+							'message_md5' => md5($excerpt),
+							'bbcode_bitfield' => $bitfield,
+							'bbcode_uid' => $uid,
+							'post_edit_locked'	=> ITEM_LOCKED,
+							'topic_title'		=> $subject,
+							'notify_set'		=> false,
+							'notify'			=> false,
+							'post_time' 		=> 0,
+							'forum_name'		=> '',
+							'enable_indexing'	=> true,
+						); 
+						$topic_url = submit_post('post', $subject, $wpuAbs->phpbb_username(), POST_NORMAL, $poll, $data);
+						
+						//Update the posts table with WP post ID so we can remain "in sync" with it.
+						if ( !empty($data['post_id']) ) {
+							$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $post_ID . " WHERE post_id = {$data['post_id']}";
+							if (!$result = $db->sql_query($sql)) {
+								$wpuAbs->err_msg(CRITICAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), __LINE__, __FILE__, $sql);
 							}
-						} //end if phpBB3
+							$db->sql_freeresult($result);
+							
+							$did_xPost = true;
+						}
 					} //end have authority to x-post
 				}
 			} //end isset & user_logged_in
-			wpu_exit_phpbb();
+			$phpbbForum->leave();
 
 			if($did_xPost) { //Need to do this after we exit phpBB code
 				$topic_url = str_replace($connSettings['path_to_phpbb'], "", $topic_url);
@@ -913,81 +931,11 @@ function wpu_newpost($post_ID, $post) {
 
 			define('suppress_newpost_action', TRUE);
 		} //end ? logins integrated
+		$phpbbForum->leave();
 	} //post status: publish
 
 }
 
-/**
- * Enters phpBB (for use in WP admin panel)
- * Can ONLY EVER be called ONCE per instance 
- * -- or ZERO times if phpBB has already been invoked
- * (i.e. can only be used in WordPress dashboard)
- */
-function wpu_enter_phpbb() {
-	$connSettings = get_settings('wputd_connection');
-
-	//need board config global for abstractify.php
-	global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path;
-	global $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
-	//phpBB makes this conflicting var global (in phpBB2). But we want to revert back to WP's afterwards.
-	$wp_table_prefix = $table_prefix;
-	$user_old = (isset($GLOBALS['user'])) ? $GLOBALS['user']: '';
-	$cache_old = (isset($GLOBALS['cache'])) ? $GLOBALS['cache'] : '';
-	
-	$IN_WORDPRESS = 1; $IN_WP_ADMIN = 1;
-	if(!defined('IN_PHPBB')) {
-		define('IN_PHPBB', TRUE);
-
-		$phpbb_root_path = wpu_fix_phpbb_path($connSettings['path_to_phpbb']);
-	
-		$phpEx = substr(strrchr(__FILE__, '.'), 1);
-	
-		// WordPress removes $_COOKIE from $_REQUEST, which is the source of much wailing and gnashing of teeth
-		$_REQUEST = array_merge($_COOKIE, $_REQUEST);
-		
-		include($phpbb_root_path . 'common.' . $phpEx);
-	
-		//include($phpbb_root_path . 'wp-united/abstractify.'.$phpEx); now auto-included
-
-	} else {
-		$cache = $phpbb_cache_old;
-		$user = $phpbb_user_old;
-	}
-
-}
-// takes account of the fact that wpu-plugin could be called from several locations, so include paths could change
-function wpu_fix_phpbb_path($stored_path) {
-	$phpEx = substr(strrchr(__FILE__, '.'), 1);
-	if(!file_exists($stored_path . 'common.' . $phpEx)) {
-		$stored_path = explode("/", $stored_path); 
-		array_shift($stored_path);
-		$stored_path = implode("/", $stored_path);
-		$connSettings['path_to_phpbb'] = $stored_path;
-	}
-	return $stored_path;
-
-}
-
-
-
-/**
- * Exits phpBB (for use in WP dashboard only)
- */
-function wpu_exit_phpbb() {
-	//clean up
-	global $table_prefix, $wp_table_prefix, $cache, $user, $phpbb_user_old, $phpbb_cache_old;
-	$phpbb_user_old = $user;
-	$phpbb_cache_old = $cache;
-	$user = $GLOBALS['user_old'];
-	$cache = $GLOBALS['cache_old'];
-	$table_prefix = $wp_table_prefix;
-	
-	// just in case
-	mysql_select_db(DB_NAME);
-	
-	//set back
-	$_REQUEST = array_merge($_GET, $_POST);
-}
 
 /**
  * Get the list of forums we can cross-post to
@@ -1024,22 +972,25 @@ function wpu_forum_xpost_list() {
 /**
  * Determine if this post is already cross-posted.
  */
-function wpu_get_xposted_details() {
-	if (isset($_GET['post'])) {
-		$post_ID = (int)$_GET['post'];
-		if ( !empty($post_ID) ) {
-			global $db;
-			$sql = 'SELECT p.post_id, p.forum_id, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . FORUMS_TABLE . ' AS f WHERE ' .
-				"p.post_wpu_xpost = $post_ID AND " .
-				'f.forum_id = p.forum_id';
-			if ($result = $db->sql_query_limit($sql, 1)) {
-				$row = $db->sql_fetchrow($result);
-				$db->sql_freeresult($result);
-				if ( (!empty($row['forum_id'])) && (!empty($row['forum_name'])) ) {
-					return $row;
-				}
-			}
-				
+function wpu_get_xposted_details($postID = false) {
+	if($postID === false) {
+		if (isset($_GET['post'])) {
+			$postID = (int)$_GET['post'];
+		}
+	}
+	if(empty($postID)) {
+		return false;
+	}
+	global $db;
+	
+	$sql = 'SELECT p.post_id, p.post_subject, p.forum_id, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . FORUMS_TABLE . ' AS f WHERE ' .
+		"p.post_wpu_xpost = $postID AND " .
+		'f.forum_id = p.forum_id';
+	if ($result = $db->sql_query_limit($sql, 1)) {
+		$row = $db->sql_fetchrow($result);
+		$db->sql_freeresult($result);
+		if ( (!empty($row['forum_id'])) && (!empty($row['forum_name'])) ) {
+			return $row;
 		}
 	}
 	return false;
@@ -1316,25 +1267,6 @@ function wpu_must_integrate() {
 
 
 /**
- * include widgets and template functions
- */
-function wpu_load_extra_files() {
-	//But wait! There's more! We also include some tasty widgets, free of charge!
-	if ( !defined('IN_PHPBB') ) {
-		if(is_admin()) { // try not to let things like the mandigo theme, which invoke wordpress just to generate some CSS, load in our widgets.
-			$wpuConnSettings = get_settings('wputd_connection');
-			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/widgets.php');
-			include_once($wpuConnSettings['path_to_phpbb'] . 'wp-united/template-tags.php');
-			add_action('widgets_init', 'wpu_widgets_init');	
-		}
-	} else {
-		add_action('widgets_init', 'wpu_widgets_init');	
-	}
-
-	
-}
-
-/**
  * Clears phpbb's cache of WP header/footer.
  * We need to do this whenever the main WP theme is changed,
  * because when WordPress header/footer cache are called from phpBB, we have
@@ -1393,23 +1325,22 @@ function wpu_add_postboxes() {
 
 /**
  *  Here we decide whether to display the cross-posting box, and store the permissions list in global vars for future use.
- * For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the function now.
+ * For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the func now.
  */
 function wpu_add_meta_box() {
-	global $wp_version, $can_xpost_forumlist, $already_xposted, $wpuAbs, $user, $auth;
-	//global $IN_WORDPRESS, $phpEx, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $phpbb_root_path, $IN_WP_ADMIN, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname;
-	// this function is called early
+	global $phpbbForum, $wp_version, $can_xpost_forumlist, $already_xposted, $wpuAbs, $user, $auth;
+	// this func is called early
 	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
 			$wpuConnSettings = get_settings('wputd_connection'); 
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to
 			if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) { 
-				wpu_enter_phpbb(); 
+				$phpbbForum->enter();
 				if ( !($already_xposted = wpu_get_xposted_details()) ) { 
 					$can_xpost_forumlist = wpu_forum_xpost_list(); 
 				}
-				wpu_exit_phpbb();
+				$phpbbForum->leave();
 				
 				if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
 					if($wp_version >= 2.5) { 
@@ -1582,7 +1513,8 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
  */
 function wpu_smilies($postContent, $max_smilies = 0) {
 	// since this only takes place outside of WP-Admin, we can just check the global var $wpSettings
-	global $wpSettings;
+	global $phpbbForum, $wpSettings;
+	
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) { 
 		static $match;
 		static $replace;
@@ -1592,11 +1524,8 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 		// See if the static arrays have already been filled on an earlier invocation
 		if (!is_array($match)) {
 		
-			if(is_admin()) {
-				wpu_enter_phpbb();
-			} else {
-				$GLOBALS['wpUtdInt']->switch_db('TO_P');
-			} 
+			$phpbbForum->enter();
+			
 			$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
 
 			while ($row = $db->sql_fetchrow($result)) {
@@ -1607,11 +1536,8 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 				$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $scriptPath . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
 			}
 			$db->sql_freeresult($result);
-			if(is_admin()) {
-				wpu_exit_phpbb();
-			} else {
-				$GLOBALS['wpUtdInt']->switch_db('TO_W');
-			}
+			
+			$phpbbForum->leave();
 			
 		}
 		if (sizeof($match)) {
@@ -1632,15 +1558,11 @@ function wpu_smilies($postContent, $max_smilies = 0) {
  * @since WP-United 0.7.0
 */
 function wpu_print_smilies() {
-	global $wpSettings;
+	global $phpbbForum, $wpSettings;
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
 		global $scriptPath, $db;
 
-		if(is_admin()) {
-			wpu_enter_phpbb();
-		} else {
-			$GLOBALS['wpUtdInt']->switch_db('TO_P');
-		}
+		$phpbbForum->enter();
 	
 		$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' GROUP BY emotion ORDER BY smiley_order ', 3600);
 
@@ -1658,11 +1580,7 @@ function wpu_print_smilies() {
 		}
 		$db->sql_freeresult($result);
 	
-		if(is_admin()) {
-			wpu_exit_phpbb();
-		} else {
-			$GLOBALS['wpUtdInt']->switch_db('TO_W');
-		}
+		$phpbbForum->leave();
 	
 	
 		if($i >= 20) {
@@ -1687,7 +1605,7 @@ function wpu_javascript () {
 		echo "
 <script language=\"javascript\">
 	//<![CDATA[
-	function insert_text(text, spaces, popup) {
+	funct" . "ion insert_text(text, spaces, popup) {
 		var tb = document.getElementById('comment');
 		if (document.selection) { // IE
 			tb.focus();
@@ -1701,7 +1619,7 @@ function wpu_javascript () {
 		return false;
 	}
 
-	function moreSmilies() {
+	funct" . "ion moreSmilies() {
 		document.getElementById('wpu-smiley-more').style.display = 'inline';
 		var toggle = document.getElementById('wpu-smiley-toggle');
 		toggle.setAttribute(\"onclick\", \"return lessSmilies();\");
@@ -1709,7 +1627,7 @@ function wpu_javascript () {
 		return false;
 	}
     
-	function lessSmilies() {
+	funct" . "ion lessSmilies() {
 		document.getElementById('wpu-smiley-more').style.display = 'none';
 		var toggle = document.getElementById('wpu-smiley-toggle');
 		toggle.setAttribute(\"onclick\", \"return moreSmilies();\");
@@ -1750,7 +1668,143 @@ function wpu_fix_blank_username($user_login) {
 	return $user_login;
 }
 
+/**
+ * Loads comments from phpBB rather than WordPress
+ * if Xpost-autoloading is on
+ * @since v0.8.0
+ */
+function wpu_load_phpbb_comments($commentArray, $postID) {
+	global $phpbb_root_path, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
+	
+	$connSettings = get_settings('wputd_connection');
+	
+	if ( (empty($phpbb_root_path)) || (empty($connSettings['wpu_enable_xpost'])) ) {
+		 //&& (!empty($connSettings['autolink_xpost']))
+		return $commentArray;
+	}
+		
+	require_once($phpbb_root_path . 'wp-united/comments.php');
 
+	
+	$phpBBComments = new WPU_Comments();
+	if ( !$phpBBComments->populate($postID) ) {
+		$usePhpBBComments = false;
+		return $commentArray;
+	}
+	
+	$usePhpBBComments = true;
+	$comments = $phpBBComments->comments;
+	
+	$wp_query->comments = $comments;
+	$wp_query->comment_count = sizeof($comments);
+	$wp_query->rewind_comments();
+	
+	update_comment_cache($comments);
+	
+	
+	$overridden_cpage = FALSE;
+	if ( '' == get_query_var('cpage') && get_option('page_comments') ) {
+		set_query_var( 'cpage', 'newest' == get_option('default_comments_page') ? get_comment_pages_count($comments) : 1 );
+		$overridden_cpage = TRUE;
+	}
+
+	
+	return $comments;
+}
+
+function wpu_comments_count($count, $postID) {
+	global $wp_query, $usePhpBBComments;
+
+	if ( !empty($usePhpBBComments) ) {
+		return sizeof($wp_query->comments);
+	}
+	
+	return $count;
+}
+
+function wpu_comment_redirector($postID) {
+	global $phpbb_root_path, $phpEx, $phpbbForum, $wpuAbs;
+	
+	$connSettings = get_settings('wputd_connection');
+
+	if( (empty($connSettings['logins_integrated'])) || (empty($connSettings['wpu_enable_xpost'])) ) {
+		return false;
+	}
+
+	$phpbbForum->enter();	
+
+	if(!$wpuAbs->user_logged_in()) {
+		$phpbbForum->leave();
+		return;
+	}	
+
+	if ( !$xPostDetails = wpu_get_xposted_details($postID) ) { 
+		$phpbbForum->leave();
+		return;
+	}
+
+	$permissionsList = wpu_forum_xpost_list();  
+	if ( !in_array($xPostDetails['forum_id'], $permissionsList['forum_id']) ) { 
+		$phpbbForum->leave();
+		wp_die( __('You do not have permissions to comment in the forum'));
+	}
+
+
+	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
+	
+	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
+	
+	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
+	$uid = $poll = $bitfield = $options = ''; 
+	generate_text_for_storage($content, $uid, $bitfield, $options, true, true, true);
+
+	require_once($connSettings['path_to_phpbb'] . 'includes/functions_posting.' . $phpEx);
+	
+	$subject = $xPostDetails['post_subject'];
+	
+	$data = array(
+		'forum_id' => $xPostDetails['forum_id'],
+		'topic_id' => $xPostDetails['post_id'],
+		'icon_id' => false,
+		'enable_bbcode' => true,
+		'enable_smilies' => true,
+		'enable_urls' => true,
+		'enable_sig' => true,
+		'message' => $content,
+		'message_md5' => md5($content),
+		'bbcode_bitfield' => $bitfield,
+		'bbcode_uid' => $uid,
+		'post_edit_locked'	=> 0,
+		'notify_set'		=> false,
+		'notify'			=> false,
+		'post_time' 		=> 0,
+		'forum_name'		=> '',
+		'enable_indexing'	=> true,
+	); 
+	$postUrl = submit_post('reply', $subject, $wpuAbs->phpbb_username(), POST_NORMAL, $poll, $data);
+	
+	
+	$phpbbForum->leave();
+	
+	$location = empty($_POST['redirect_to']) ? get_comment_link($comment_id) : $_POST['redirect_to'] . '#comment-' . $comment_id;
+	$location = apply_filters('comment_post_redirect', $location, $comment);
+	wp_redirect($location);
+}
+
+/*
+function wpu_buffer_comment_form($open, $postID) {
+	global $usePhpBBComments;
+
+	//echo (int)$GLOBALS['usePhpBBComments'] . "||";
+
+	if ( !empty($usePhpBBComments) ) {
+		return false;
+	}
+	
+	return $open;
+	
+}
+*/
 
 /**
 * Under consideration for future rewrite: Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
@@ -1822,6 +1876,12 @@ add_filter('get_next_post_where', 'wpu_prev_next_post');
 add_filter('upload_dir', 'wpu_user_upload_dir');
 add_filter('feed_link', 'wpu_feed_link');
 
+add_filter( 'comments_array', 'wpu_load_phpbb_comments', 10, 2);
+add_filter( 'get_comments_number', 'wpu_comments_count', 10, 2);
+
+//add_filter( 'comments_open', 'wpu_buffer_comment_form', 10, 2);
+add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
+
 
 //per-user cats in progress
 //add_filter('wpu_cat_presave', 'category_save_pre');
@@ -1837,9 +1897,9 @@ add_action('wp_head', 'wpu_done_head');
 add_action('upload_files_browse', 'wpu_browse_attachments');
 add_action('upload_files_browse-all', 'wpu_browse_attachments');
 add_action('template_redirect', 'wpu_must_integrate');
-add_action('plugins_loaded', 'wpu_load_extra_files');
+add_action('plugins_loaded', 'wpu_init_plugin');
 add_action('switch_theme', 'wpu_clear_header_cache');
-add_action('loop_start', 'wpu_loop_entry');
+add_action('loop_start', 'wpu_loop_entry'); 
 
 
 if ( $wp_version >= 2.5 ) {       

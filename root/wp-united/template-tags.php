@@ -4,7 +4,7 @@
 * WP-United WordPress template tags
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0 2009/12/22 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * 
@@ -31,10 +31,10 @@ function wpu_intro() {
  * Prepares a sentence soliciting users to get started with their blogs
  */
 function get_wpu_intro() {
-	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $wpuAbs, $phpEx, $wpuGetBlogIntro, $scriptPath;
+	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpEx, $wpuGetBlogIntro, $scriptPath;
 	if ( (!empty($wpSettings['useBlogHome'])) && (!empty($wpSettings['usersOwnBlogs'])) ) {
-		$reg_link = ($wpuAbs->ver == 'PHPBB2') ? 'profile.'.$phpEx.'?mode=register&amp;redirect=wp-united-blog' : 'ucp.'.$phpEx.'?mode=register';
-		$login_link = ($wpuAbs->ver == 'PHPBB2') ? 'login.'.$phpEx.'?redirect=wp-united-blog&amp;sid='. $phpbb_sid : 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect='. attribute_escape($_SERVER["REQUEST_URI"]);	
+		$reg_link =  'ucp.'.$phpEx.'?mode=register';
+		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect='. attribute_escape($_SERVER["REQUEST_URI"]);	
 		if ( ! $phpbb_logged_in ) {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro,'<a href="' . $scriptPath . append_sid($reg_link) . '">', '</a>',  '<a href="'. $scriptPath . $login_link . '">', '</a>') . '</p>';
 		} else {
@@ -52,7 +52,7 @@ function get_wpu_intro() {
  * @param int $maxEntries Maximum number to show per page. Defaults to 5.
  */
 function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
-	global $wpdb, $authordata, $scriptPath, $wpuAbs, $wpSettings, $wp_version, $phpEx;
+	global $wpdb, $authordata, $scriptPath, $phpbbForum, $wpSettings, $wp_version, $phpEx;
 	$start = 0;
 	$start = (integer)trim($_GET['start']);
 	$start = ($start < 0) ? 0 : $start;
@@ -96,8 +96,8 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 					$name = "{$author->first_name} {$author->last_name}";
 				}
 				$avatar = avatar_create_image($author); 
-				$blogTitle = ( empty($author->blog_title) ) ? $wpuAbs->lang('default_blogname') : $author->blog_title;
-				$blogDesc = ( empty($author->blog_tagline) ) ? $wpuAbs->lang('default_blogdesc') : $author->blog_tagline;
+				$blogTitle = ( empty($author->blog_title) ) ? $phpbbForum->lang['default_blogname'] : $author->blog_title;
+				$blogDesc = ( empty($author->blog_tagline) ) ? $phpbbForum->lang['default_blogdesc'] : $author->blog_tagline;
 				if ( ((float) $wp_version) >= 2.1 ) {
 					//WP >= 2.1 branch
 					$blogPath = get_author_posts_url($author->ID, $author->user_nicename);
@@ -111,7 +111,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 				} else {
 					$pUsrName == $author->phpbb_userLogin;
 				}
-				$profile_path = ($wpuAbs->ver == 'PHPBB2') ? "profile.$phpEx" : "memberlist.$phpEx";
+				$profile_path =  "memberlist.$phpEx";
 				$path_to_profile = ( empty($pID) ) ? append_sid($blogPath) : append_sid(add_trailing_slash($scriptPath) . $profile_path .'?mode=viewprofile&amp;u=' .$pID); 
 				$rssLink = get_author_rss_link(0, $author->ID, $author->user_nicename);
 				$lastPostID = $author->wpu_last_post;
@@ -317,7 +317,7 @@ function get_avatar_reader($default = true) {
 function avatar_create_image($user) {
 	$avatar = '';
 	if ( !empty($user->ID) ) {
-		global $wpuAbs, $scriptPath, $phpbb_root_path, $phpEx;
+		global $scriptPath, $phpbb_root_path, $phpEx;
 		if(empty($phpbb_root_path)) {
 			$connSettings = get_settings('wputd_connection');
 			$phpbb_root_path = $connSettings['path_to_phpbb'];
@@ -355,7 +355,7 @@ function wpu_latest_blogs($args = '') {
  * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
  */
 function get_wpu_latest_blogs($args = '') {
-	global $wpuAbs, $wpdb;
+	global $phpbbForum, $wpdb;
 
 	$defaults = array('limit' => '20','before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
@@ -376,7 +376,7 @@ function get_wpu_latest_blogs($args = '') {
 		$blogLinks = ''; 
 		foreach ( $posts as $post ) {
 			$blogTitle = wpu_censor(strip_tags(get_usermeta($post->post_author, 'blog_title')));
-			$blogTitle = ( $blogTitle == '' ) ? $wpuAbs->lang('default_blogname') : $blogTitle;
+			$blogTitle = ( $blogTitle == '' ) ? $phpbbForum->lang['default_blogname'] : $blogTitle;
 			if ( function_exists('get_author_posts_url') ) {
 				//WP >= 2.1 branch
 				$blogPath = get_author_posts_url($post->post_author);
@@ -404,7 +404,7 @@ function wpu_latest_blogposts($args = '') {
  * @author John Wells
  */
 function get_wpu_latest_blogposts($args = '') {
-	global $wpuAbs, $wpdb;
+	global $phpbbForum, $wpdb;
 	
 	$defaults = array('limit' => '20','before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
@@ -426,7 +426,7 @@ function get_wpu_latest_blogposts($args = '') {
 		foreach ( $posts as $post ) {
 			$lastPostTitle = wpu_censor(strip_tags($post->post_title));
 			$blogTitle = wpu_censor(strip_tags(get_usermeta($post->post_author, 'blog_title')));
-			$blogTitle = ( $blogTitle == '' ) ? $wpuAbs->lang('default_blogname') : $blogTitle;
+			$blogTitle = ( $blogTitle == '' ) ? $phpbbForum->lang['default_blogname'] : $blogTitle;
 			$lastPostURL = get_permalink($post->ID); 
 			if ( function_exists('get_author_posts_url') ) {
 				//WP >= 2.1 branch
@@ -456,12 +456,12 @@ function wpu_phpbb_username() {
  * @author John Wells
  */
 function get_wpu_phpbb_username() {
-	global $wpuAbs;
+	global $phpbbForum;
 	$usrName = '';
-	if ( $wpuAbs->user_logged_in() ) {
-		$usrName = $wpuAbs->phpbb_username();
+	if ( $phpbbForum->user_logged_in() ) {
+		$usrName = $phpbbForum->get_username();
 	} 
-	return ($usrName == '') ? $wpuAbs->lang('Guest') : $usrName;
+	return ($usrName == '') ? $phpbbForum->lang['Guest'] : $usrName;
 }
 
 /**
@@ -570,19 +570,20 @@ function wpu_phpbb_stats($args='') {
  * @author John Wells
  */
 function get_wpu_phpbb_stats($args='') {
-	global $wpuAbs, $phpEx, $scriptPath;
+	global $phpbbForum,  $phpEx, $scriptPath;
 	$defaults = array('before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
 
 	
 	$profile_path = "memberlist.$phpEx";
 	
-	$GLOBALS['wpUtdInt']->switch_db('TO_P');
-	$output .= $before .  __('Forum Posts: ') 		. '<strong>' 	. $wpuAbs->stats('num_posts') 	. "</strong>$after\n";
-	$output .= $before .  __('Forum Threads: ') 	. '<strong>' 	. $wpuAbs->stats('num_topics') . "</strong>$after\n";
-	$output .= $before .  __('Registered Users: ') . '<strong>' 	. $wpuAbs->stats('num_users') 	. "</strong>$after\n";	
-	   $output .= $before .  __('Newest User: ') . '<a href="' . add_trailing_slash($scriptPath) . "$profile_path?mode=viewprofile&amp;u=" . $wpuAbs->stats('newest_user_id') . '"><strong>' . $wpuAbs->stats('newest_username') . "</strong></a>$after\n";
-	$GLOBALS['wpUtdInt']->switch_db('TO_W');
+	$phpbbForum->enter();
+	
+	$output .= $before .  __('Forum Posts: ') 		. '<strong>' 	. $phpbbForum->stats('num_posts') 	. "</strong>$after\n";
+	$output .= $before .  __('Forum Threads: ') 	. '<strong>' 	. $phpbbForum->stats('num_topics') . "</strong>$after\n";
+	$output .= $before .  __('Registered Users: ') . '<strong>' 	. $phpbbForum->stats('num_users') 	. "</strong>$after\n";	
+	$output .= $before .  __('Newest User: ') . '<a href="' . add_trailing_slash($scriptPath) . "$profile_path?mode=viewprofile&amp;u=" . $phpbbForum->stats('newest_user_id') . '"><strong>' . $phpbbForum->stats('newest_username') . "</strong></a>$after\n";
+	$phpbbForum->leave();
 	return $output;
 
 }
@@ -602,9 +603,9 @@ function wpu_newposts_link() {
  * @author John Wells
  */
 function get_wpu_newposts_link() {
-	global $wpuAbs, $phpEx, $scriptPath;
-	if( $wpuAbs->user_logged_in() ) {
-		return '<a href="'. append_sid($scriptPath . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". $wpuAbs->lang('Search_new') . "</a>";
+	global $phpbbForum, $phpEx, $scriptPath;
+	if( $phpbbForum->user_logged_in() ) {
+		return '<a href="'. append_sid($scriptPath . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". $phpbbForum->lang['Search_new'] . "</a>";
 	}
 }
 
@@ -613,17 +614,17 @@ function get_wpu_newposts_link() {
  * @author John Wells
  */
 function get_wpu_newposts() {
-	global $db, $wpuAbs;
-	if( $wpuAbs->user_logged_in() ) {
-		$GLOBALS['wpUtdInt']->switch_db('TO_P');
+	global $db, $phpbbForum;
+	if( $phpbbForum->user_logged_in() ) {
+		$phpbbForum->enter();
 		$sql = "SELECT COUNT(post_id) as total
 				FROM " . POSTS_TABLE . "
-				WHERE post_time >= " . $wpuAbs->userdata('user_lastvisit');
+				WHERE post_time >= " . $phpbbForum->get_userdata('user_lastvisit');
 		$result = $db->sql_query($sql);
 		if( $result ) {
 			$row = $db->sql_fetchrow($result);
 			$db->sql_freeresult($result);
-			$GLOBALS['wpUtdInt']->switch_db('TO_W');
+			$phpbbForum->leave();
 			return $row['total'];
 		}
 	}
@@ -645,7 +646,7 @@ function wpu_latest_phpbb_posts($args='') {
  * Modified for v0.8 to use proper WP widget styling and args
  */
 function get_wpu_latest_phpbb_posts($args='') {
-	global $scriptPath, $wpuAbs, $db, $auth, $phpEx;
+	global $phpbbForum, $scriptPath, $db, $auth, $phpEx;
 	
 	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '', 'dateformat' => 'Y-m-j', 'seo' => 0);
 	
@@ -654,14 +655,14 @@ function get_wpu_latest_phpbb_posts($args='') {
 	
 	$ret = '';
 	
-	$GLOBALS['wpUtdInt']->switch_db('TO_W');
+	$phpbbForum->enter();
 	$forum_list = (empty($forum)) ? array() :  explode(',', $forum); //forums to explicitly check
 	$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true)));
 	if (sizeof($forum_list)) {
 		$forums_check = array_intersect($forums_check, $forum_list);
 	}
 	if (!sizeof($forums_check)) {
-		$GLOBALS['wpUtdInt']->switch_db('TO_W');
+		$phpbbForum->leave();
 		return $before.__('No access') . $after;
 	}	
 	$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, post_time, topic_title, f.forum_name, p.poster_id, u.username, f.forum_id
@@ -696,7 +697,7 @@ function get_wpu_latest_phpbb_posts($args='') {
 	}
 	
 	$db->sql_freeresult($result);
-	$GLOBALS['wpUtdInt']->switch_db('TO_W');
+	$phpbbForum->leave();
 	return $ret;
 }
 
@@ -716,13 +717,13 @@ function wpu_latest_phpbb_topics($args = '') {
  * @example: get_wpu_latest_phpbb_topics('limit=10&forum=1,2,3&before=<li>&after=</li>')
  */
 function get_wpu_latest_phpbb_topics($args = '') {
-	global $scriptPath, $phpEx, $wpuAbs;
+	global $scriptPath, $phpEx, $phpbbForum;
 	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '');
 	extract(_wpu_process_args($args, $defaults));
 	
 	$limit = ($limit > 50 ) ? 50 : $limit;
 	
-	if ($posts = $wpuAbs->get_recent_topics($forum, $limit)) {
+	if ($posts = $phpbbForum->get_recent_topics($forum, $limit)) {
 		$profile_path = "memberlist.$phpEx";
 		$i=0;
 		foreach ($posts as $post) {
@@ -777,7 +778,7 @@ function wpu_user_id($wp_userID = '') {
  * @since v0.7.0
  */
 function wpu_get_comment_author_link () {
-global $comment;
+global $comment, $phpbb_seo;
  
 	$uID = get_wpu_user_id($comment->user_id);
 	
@@ -791,7 +792,7 @@ global $comment;
 		} else { 
 			$phpbbPath = $scriptPath;
 		}
-		if (file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.php')) {
+		if (!empty($phpbb_seo)) {
 			return $wpu_link = '<a href="' . $phpbbPath . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
 		} else {
 			return $wpu_link = '<a href="' . $phpbbPath . 'memberlist.php?mode=viewprofile&u=' . $uID  . '" rel="nofollow">' . $comment->comment_author . '</a>';
@@ -825,7 +826,7 @@ function wpu_useronlinelist($args = '') {
  * @example wpu_useronlinelist('before=<li>&after=</li>&showBreakdown=1&showRecord=1&showLegend=1');
  */
 function get_wpu_useronlinelist($args = '') {
-	global $template, $user, $auth, $db, $config;
+	global $phpbbForum, $template, $user, $auth, $db, $config;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>', 'showCurrent' => 1, 'showRecord' => 1, 'showLegend' => 1);
 	extract(_wpu_process_args($args, $defaults));
@@ -843,7 +844,7 @@ function get_wpu_useronlinelist($args = '') {
 		$online_users = obtain_users_online();
 		$list = obtain_users_online_string($online_users);
 		
-		$GLOBALS['wpUtdInt']->switch_db('TO_P');
+		$phpbbForum->enter();
 		// Grab group details for legend display
 		if ($auth->acl_gets('a_group', 'a_groupadd', 'a_groupdel'))	{
 			$sql = 'SELECT group_id, group_name, group_colour, group_type
@@ -877,7 +878,7 @@ function get_wpu_useronlinelist($args = '') {
 			}
 		}
 		$db->sql_freeresult($result);
-		$GLOBALS['wpUtdInt']->switch_db('TO_W');
+		$phpbbForum->leave();
 
 		$legend = implode(', ', $legend);
 		$l_online_time = ($config['load_online_time'] == 1) ? 'VIEW_ONLINE_TIME' : 'VIEW_ONLINE_TIMES';
@@ -916,7 +917,7 @@ function wpu_login_user_info($args) {
  * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1");
  */
 function get_wpu_login_user_info($args) {
-	global $user_ID, $user, $db, $scriptPath, $wpSettings, $auth, $wpuAbs, $phpbb_sid, $wpSettings, $phpEx;
+	global $user_ID, $user, $db, $scriptPath, $wpSettings, $auth, $phpbbForum, $phpbb_sid, $wpSettings, $phpEx, $config;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
@@ -934,7 +935,6 @@ function get_wpu_login_user_info($args) {
 			$ret .= $before . '<a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a>' . $after;
 			$ret .= $before . '<img src="' . get_avatar_reader() . '" alt="' . __(avatar) . '" />' . $after; 
 
-
 		if ( $showRankBlock ) {
 			$ret .= $before . get_wpu_phpbb_rankblock() . $after;
 		}
@@ -945,11 +945,11 @@ function get_wpu_login_user_info($args) {
 
 		// Handle new PMs
 		if ($user->data['user_new_privmsg']) {
-			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $wpuAbs->lang('NEW_PM') : $wpuAbs->lang('NEW_PMS');
+			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
 			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
 			$ret .= $before. '<a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 		} else {
-			$l_privmsgs_text = $wpuAbs->lang('NO_NEW_PM');
+			$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
 			$s_privmsg_new = false;
 			$ret .= $before . '<a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 		}	
@@ -965,7 +965,7 @@ function get_wpu_login_user_info($args) {
 				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
 			if($auth->acl_get('a_')) {
-				$ret .= $before . '<a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $wpuAbs->lang('ACP') . '</a>' . $after;
+				$ret .= $before . '<a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
 		}
 		$ret .= $before . get_wp_loginout() . $after;
@@ -973,14 +973,14 @@ function get_wpu_login_user_info($args) {
 		if ( $showLoginForm ) {
 			$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
 			$ret .= '<form class="wpuloginform" method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
-			$ret .= $before . '<label for="phpbb_username">' . $wpuAbs->lang('USERNAME') . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
-			$ret .= $before . '<label for="phpbb_password">' . $wpuAbs->lang('PASSWORD') . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
-			if ( $wpuAbs->config('allow_autologin') ) {
-				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $wpuAbs->lang('LOG_ME_IN') . '</label>' . $after;
+			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
+			$ret .= $before . '<label for="phpbb_password">' . $phpbbForum->lang['PASSWORD'] . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
+			if ( $config['allow_autologin'] ) {
+				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $phpbbForum->lang['LOG_ME_IN'] . '</label>' . $after;
 			}
-			$ret .= $before . '<input type="submit" name="login" class="wpuloginsubmit" value="' . $wpuAbs->lang('LOGIN') . '" />' . $after;
-			$ret .= $before . '<a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $wpuAbs->lang('REGISTER') . '</a>' . $after;
-			$ret .= $before . '<a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $wpuAbs->lang('FORGOT_PASS') . '</a>' . $after;
+			$ret .= $before . '<input type="submit" name="login" class="wpuloginsubmit" value="' . $phpbbForum->lang['LOGIN'] . '" />' . $after;
+			$ret .= $before . '<a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $phpbbForum->lang['REGISTER'] . '</a>' . $after;
+			$ret .= $before . '<a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $phpbbForum->lang['FORGOT_PASS'] . '</a>' . $after;
 			$ret .= '</form>';
 		} else {
 			$ret .= $before . get_wp_loginout() . $after;
@@ -990,76 +990,6 @@ function get_wpu_login_user_info($args) {
 	return $ret;
 }
 
-/**
- * Get the phpBB topic ID of the current cross-posted post
- * @author Japgalaxy
- * @todo allow to specify a specific post ID
- * @version v0.8.0
- * @access private
- * @todo if this will not echo anything, should be named get_xxx_xxx()
- */
-function wpu_topic_xposted() {
-global $post;
-$post_ID = $post->ID;
-
-		if ( !empty($post_ID) ) {
-			global $db;
-			/**
-			 * @Japgalaxy: We cannot use $db directly in WordPress without switching DB first like this
-			 * Otherwise users with separate DBs get fatal errors
-			 */
-			$GLOBALS['wpUtdInt']->switch_db('TO_P');
-			$sql = 'SELECT p.topic_id FROM ' . POSTS_TABLE . ' AS p WHERE ' . "p.post_wpu_xpost = '$post_ID'";
-			
-			if ($result = $db->sql_query_limit($sql, 1)) {
-				$row = $db->sql_fetchrow($result);
-				$db->sql_freeresult($result);
-				$GLOBALS['wpUtdInt']->switch_db('TO_W');
-				if  (!empty($row) ) {
-					return $row['topic_id'];
-				}
-			}
-				
-		}
-}
-
-/**
- * Gets the comment link, with the number of phpBB comments, without displaying it
- * @author Japgalaxy
- * @todo allow to specify a specific post ID
- * @todo combine these three queries with a JOIN
- * @todo split this -- this can be used to override wp's comment link
- * @version v0.8.0
- * @access private
- */
-function get_wpu_comment_number () {
-	//get the Topic_ID corrispondent of Wordpress post
-	$topic_ID = wpu_topic_xposted();
-
-		if ( !empty($topic_ID) ) {
-		//if a Topic_ID exists get the number of replies:
-			global $db;
-			$sql = 'SELECT t.topic_replies as number FROM ' . TOPICS_TABLE . ' AS t WHERE ' . "t.topic_id = $topic_ID";
-			$GLOBALS['wpUtdInt']->switch_db('TO_P');
-			if ($result = $db->sql_query($sql)) {
-				$row = $db->sql_fetchrow($result);
-				$comment_count = $row['number'];
-				$db->sql_freeresult($result);
-				$GLOBALS['wpUtdInt']->switch_db('TO_W');				
-				if ($comment_count==0) {
-					return "<a href=\"".get_permalink()."#reply\" title=\" ".get_the_title()." \">".__('No Comments', '')."</a>";
-				} else if ($comment_count==1) {
-					return "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".__('1 Comment', '')."</a>";
-				} else if ($comment_count>=2) {
-					return "<a href=\"".get_permalink()."#comments\" title=\" ".get_the_title()." \">".$comment_count." Comments</a>";
-				}
-			}
-		} else {
-			//default wordpress function:
-			get_comments_popup_link(__('No Comments', ''), __('1 Comment', ''), __('% Comments', ''), '', __('Comments Closed', '') );
-		}
-
-}
 
 /**
  * Displays the comment link, with the number of phpBB comments
@@ -1079,114 +1009,6 @@ function wpu_comment_number () {
  * @author Japgalaxy
  * @since v0.8.0
  */
-function wpu_reply_xposted() {
-	echo get_wpu_reply_xposts();
-}
-
-/**
- * Return replies of a cross-posted post and a comment-form if user is logged in, but do not display it
- * @author Japgalaxy
- * @since v0.8.0
- * @todo cleanup, strings
- */
-function get_wpu_reply_xposted() {
-	global $post, $wpuAbs;
-
-	$ret='';
-
-	$post_ID = $post->ID;
-	//get the Topic_ID corresponding of Wordpress post
-	$topic_ID = wpu_topic_xposted($post_ID);
-	$GLOBALS['wpUtdInt']->switch_db('TO_P');
-		if ( !empty($topic_ID) ) {
-		//if a Topic_ID exists get all posts' topic:
-			global $scriptPath, $db;
-			$sql = 'SELECT p.topic_id, p.bbcode_uid, p.bbcode_bitfield, p.forum_id, p.post_id, p.poster_id, u.username, p.post_text, p.post_time FROM ' . POSTS_TABLE . ' AS p, ' . USERS_TABLE . ' AS u WHERE ' . "p.topic_id = $topic_ID AND p.poster_id = u.user_id ORDER BY post_time ASC";
-			
-			if ($result = $db->sql_query($sql)) {
-				$comment_count = mysql_num_rows($result);
-				//removing the first post (it isn't a reply)...
-				$real_comments = $comment_count-1;
-				if ($real_comments == 0) {
-					$ret .= '<p id="reply">' . __('There aren\'t comments. Post the first one!') . '</p>';
-				} else {
-					$ret .= '<p id="reply">There are '.$real_comments.' comments</p>';
-				}
-				$ret .= '<ul class="wpu_commentlist" id="comments">';
-				$i = 0;
-				while ($row = $db->sql_fetchrow($result)){
-					//set value for comment form
-					$link = $scriptPath."/posting.php?mode=reply&f=".$row['forum_id']."&t=".$row['topic_id']."";
-					$hiddenvalue = '<input type="hidden" value="'.$row['topic_id'].'" name="topic_id"/><input type="hidden" value="'.$row['forum_id'].'" name="forum_id"/>';
-
-					if (($real_comments >= 1) && ($i > 0)) {
-					$ret .=  "<li>";
-						//Userdata
-						$ret .=  '<div class="wpu_comment_info">
-							<div class="wpu_avatar_comment">'.get_avatar($row['poster_id'])."</div>
-							<a href=\"".$scriptPath."/memberlist.php?mode=viewprofile&u=".$row['poster_id']." \" />".$row['username']."</a><br/>
-							Posted at: ".date("d/m/Y, H:i",$row['post_time']).":</div>";	
-						//building comment_text:
-						$ret .=  '<div style="clear: both;"></div>';
-						$uid = $row['bbcode_uid'];
-						$bitfield = $row['bbcode_bitfield'];
-						$row['post_text'] = wpu_censor($row['post_text']);  //IT WORKS!!! ;-)
-						$row['post_text'] = generate_text_for_display($row['post_text'], $uid, $bitfield, 1);  //IT WORKS!!! ;-)
-						$row['post_text'] = wpu_smilies($row['post_text'], $max = 0);  //IT DOESN'T WORK! WHY?? O_o
-						
-						$ret .=  "<div class=\"wpu_comment_text\">".$row['post_text']."</div>";
-						$ret .=  '<div class="wpu_action">';
-							$ret .=  '<a class="wpu_quote" href="'.$scriptPath.'/posting.php?mode=quote&f='.$row['forum_id'].'&p='.$row['post_id'].'" />Quote</a> ';
-							$ret .=  '<a class="wpu_report" href="'.$scriptPath.'/report.php?f='.$row['forum_id'].'&p='.$row['post_id'].'" />Report</a>';
-						$ret .=  '</div>';
-					$ret .=  "</li>";
-					
-					} //end if
-					$i++;
-				} //end while
-			$ret .=  '</ul>';
-					echo '<div class="wpu_reply"><a href="'.$link.'"/>Reply</a></div>';
-				$db->sql_freeresult($result);
-				
-				//get max post_id (for comment form topic_cur_post_id value)
-				$sql = 'SELECT MAX(post_id) AS max FROM ' . POSTS_TABLE;
-				if ($result = $db->sql_query($sql)) {
-					$row = $db->sql_fetchrow($result);
-					$phpbb_cur_post_id = $row['max']+1;
-				}
-				$db->sql_freeresult($result);
-				$GLOBALS['wpUtdInt']->switch_db('TO_W');
-				//-----get max post_id
-				
-				//check if user is logged in
-				$usrName = get_wpu_phpbb_username();
-
-				if ( $usrName == $wpuAbs->lang('Guest') ) {
-					$ret .=  __('You must be logged in to comment.');
-				} else {
-					//user is logged, show comment form:
-					$ret .= '<form action="'.$link.'" method="post">
-					<input type="hidden" id="submit" value="Re: '.get_the_title().'" name="subject" />
-					<textarea class="inputbox" tabindex="3" cols="76" rows="7" name="message" style="height: 9em;"></textarea>
-					<input type="hidden" value="'.time().'" name="creation_time" />
-					<input type="hidden" value="'.$token.'" name="form_token" />
-					<input type="hidden" value="'.$phpbb_cur_post_id.'" name="topic_cur_post_id" />
-					<input type="hidden" value="'.time().'" name="lastclick" />
-					'.$hiddenvalue.'
-					<input type="hidden" value="1" name="attach_sig" />
-					<input class="button1" type="submit" value="Submit" name="post" tabindex="6" accesskey="s" />
-					<input class="button2" type="submit" value="Preview" name="full_editor" tabindex="6" accesskey="f" />
-					</form>';
-				}
-			}
-		
-	} else {
-		//return default wordpress comments:
-		$ret .= '<ol class="commentlist">'.wp_list_comments().'</ol>';
-	}
-	return $ret;
-}
-
 
 
 
@@ -1233,10 +1055,10 @@ if(!function_exists('get_wp_loginout')) {
  */
 function _wpu_get_user_rank_info($userID = '') {
 
-	global $wpuAbs, $scriptPath;
-	$GLOBALS['wpUtdInt']->switch_db('TO_P');
-	$rank = $wpuAbs->get_user_rank_info($userID);
-	$GLOBALS['wpUtdInt']->switch_db('TO_W');
+	global $phpbbForum, $scriptPath;
+	$phpbbForum->enter();
+	$rank = $phpbbForum->get_user_rank_info($userID);
+	$phpbbForum->leave();
 	$rank['image'] = (empty($rank['image'])) ? '' : $scriptPath . $rank['image'];
 	return $rank;
 }

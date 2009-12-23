@@ -68,6 +68,8 @@ Class WPU_Integration {
 		'wp_object_cache',
 		'options',
 		'entry',
+		'id',
+		'withcomments',
 		'wp_embed',
 		
 		// widgets
@@ -739,9 +741,9 @@ Class WPU_Integration {
 	 * Exits this class, and cleans up, restoring phpBB variable state
 	 */
 	function exit_wp_integration() {
-
-		//Switch back to the phpBB DB:
-		$this->switch_db('TO_P');
+		global $phpbbForum;
+		
+		$phpbbForum->leave();
 		
 		// We previously here mopped up all the WP vars that had been created... but it is a waste of CPU and usually unnecessary
 
