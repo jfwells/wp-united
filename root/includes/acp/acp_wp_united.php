@@ -18,7 +18,7 @@ class acp_wp_united {
 	var $new_config;
 	function main($id, $mode) {
 		global $db, $user, $auth, $template, $wizShowError, $wizErrorMsg, $inWizard, $numWizardSteps, $showFooter;
-		global $wpuAbs, $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
+		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
 		$user->add_lang('mods/admin_wp-united');
 		require_once($phpbb_root_path . 'wp-united/mod-settings.php');
 		require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
@@ -37,29 +37,28 @@ class acp_wp_united {
 		$numWizardSteps = 6;
 		$showFooter = TRUE;
 		
-		//
-		//	MAIN PROGRAM LOGIC -- FIGURE OUT WHAT WAS CLICKED, AND SHOW APPROPRIATE ACP PAGE
-		//	----------------------------------------------------------------------------------------------------------------------------------------
-		//
-		
+		/**
+		 * MAIN PROGRAM LOGIC
+		 * FIGURE OUT WHAT WAS CLICKED, AND SHOW APPROPRIATE ACP PAGE
+		 */
 		if ( isset($_POST['Submit']) ) {
 
 			$submit = request_var('Submit', ''); 
 			// Data has been submitted from the main page, or the save settings page.
 			switch ( $submit ) {
 			
-			case $wpuAbs->lang('WP_SubmitWiz'):
+			case $user->lang['WP_SubmitWiz']:
 			// The "Launch Setup Wizard" button was clicked.
 			$inWizard = TRUE;
 			$this->step1_show();
 				break;
 				
-			case $wpuAbs->lang('WP_Submit'):
+			case $user->lang['WP_Submit']:
 			// Process data from "configuration-on-a-page".
 				$this->settings_process(); 
 				break;
 				
-			case $wpuAbs->lang('WP_SubmitDet'):
+			case $user->lang['WP_SubmitDet']:
 				// Launch the "configuration-on-a-page".
 				$this->settings_show();
 				break;
@@ -137,12 +136,12 @@ class acp_wp_united {
 				// Enable asynchronous enabling of WP-United Connection
 				$this->step5_backend();
 				break;
-			case $wpuAbs->lang('WP_URI_Test'):
+			case $user->lang['WP_URI_Test']:
 				// Test supplied URI and return data normally, since AJAX is unavailable
 				$returnMessageUri = $this->testUri(FALSE);
 				$this->step1b_show($returnMessageUri);
 				break;
-			case $wpuAbs->lang('WP_Path_Test'): 
+			case $user->lang['WP_Path_Test']: 
 				// Figure out the path to WordPress and return normally, since AJAX is unavailable
 				$returnMessagePath = $this->findPath(FALSE);
 				$this->step1b_show('', $returnMessagePath);
@@ -154,16 +153,16 @@ class acp_wp_united {
 		} elseif ( isset($_POST['mapaction']) ) {
 			$usermap = request_var('mapaction', '');
 			switch ( $usermap ) {
-			case $wpuAbs->lang('MAP_BEGIN'):
-			case $wpuAbs->lang('MAP_NEXTPAGE'):      
-			case $wpuAbs->lang('MAP_SKIPNEXT'):
-			case $wpuAbs->lang('MAP_CHANGE_PERPAGE'):
+			case $user->lang['MAP_BEGIN'];
+			case $user->lang['MAP_NEXTPAGE'];    
+			case $user->lang['MAP_SKIPNEXT'];
+			case $user->lang['MAP_CHANGE_PERPAGE'];
 				$this->usermap_main();
 				break;
-			case $wpuAbs->lang('MAP_PROCESS'):
+			case $user->lang['MAP_PROCESS']:
 				$this->usermap_process();
 				break;
-			case $wpuAbs->lang('PROCESS_ACTIONS'):
+			case $user->lang['PROCESS_ACTIONS']:
 				$this->usermap_perform();
 				break;
 			default;
@@ -209,8 +208,8 @@ class acp_wp_united {
 	}
 	
 	function mainPage_show() {
-		global $wpuAbs, $phpEx, $ignorePrompt, $phpbb_root_path;
-		$this->page_title = 'ACP_WPU_INDEX_TITLE';
+		global $template, $user, $phpEx, $ignorePrompt, $phpbb_root_path;
+		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 		
 		//get integration package settings
@@ -218,54 +217,52 @@ class acp_wp_united {
 
 		//The captions and order of the buttons on the page changes depending on if the package has been installed prior
 		if ( $wpSettings['installLevel'] < 10 ) { //not yet installed. Recommend wizard.
-			$introAdd = $wpuAbs->lang('WP_Main_IntroFirst');
-			$button1Title = $wpuAbs->lang('WP_Wizard_Title');
-			$button1Explain = $wpuAbs->lang('WP_Wizard_ExplainFirst');
-			$button1Value = $wpuAbs->lang('WP_SubmitWiz');
-			$button2Title = $wpuAbs->lang('WP_Detailed_Title');
-			$button2Explain = $wpuAbs->lang('WP_Detailed_ExplainFirst');
-			$button2Value = $wpuAbs->lang('WP_SubmitDet');
-			$recommended = $wpuAbs->lang('WP_Recommended');
+			$introAdd = $user->lang['WP_Main_IntroFirst'];
+			$button1Title = $user->lang['WP_Wizard_Title'];
+			$button1Explain = $user->lang['WP_Wizard_ExplainFirst'];
+			$button1Value = $user->lang['WP_SubmitWiz'];
+			$button2Title = $user->lang['WP_Detailed_Title'];
+			$button2Explain = $user->lang['WP_Detailed_ExplainFirst'];
+			$button2Value = $user->lang['WP_SubmitDet'];
+			$recommended = $user->lang['WP_Recommended'];
 			$mode1 = 'wizard';
 			$mode2 = 'detailed';
 		} else { // installed. Show settings page first.
-			$introAdd = $wpuAbs->lang('WP_Main_IntroAdd');
-			$button1Title = $wpuAbs->lang('WP_Detailed_Title');
-			$button1Explain = $wpuAbs->lang('WP_Detailed_Explain');
-			$button1Value = $wpuAbs->lang('WP_SubmitDet');
-			$button2Title = $wpuAbs->lang('WP_Wizard_Title');
-			$button2Explain = $wpuAbs->lang('WP_Wizard_Explain');
-			$button2Value = $wpuAbs->lang('WP_SubmitWiz');
+			$introAdd = $user->lang['WP_Main_IntroAdd'];
+			$button1Title = $user->lang['WP_Detailed_Title'];
+			$button1Explain = $user->lang['WP_Detailed_Explain'];
+			$button1Value = $user->lang['WP_SubmitDet'];
+			$button2Title = $user->lang['WP_Wizard_Title'];
+			$button2Explain = $user->lang['WP_Wizard_Explain'];
+			$button2Value = $user->lang['WP_SubmitWiz'];
 			$mode1 = 'detailed';
 			$mode2 = 'wizard';
 			$recommended = "";
 		}
 		
 		// set the page section to show
-		$passBlockVars = array(
-		'switch_main_page' => array(),
-		);
+		$template->assign_block_vars('switch_main_page', array());
 		
 		//If this is an upgrade, and that upgrade requires an install script, throw up a message
-		if ($wpSettings['wpuVersion'] != $wpuAbs->lang('WPU_Default_Version')) {
+		if ($wpSettings['wpuVersion'] != $user->lang['WPU_Default_Version']) {
 			//clear the phpBB cache
 			global $cache;
 			$cache->purge();
 				
-			$ver = $wpuAbs->lang('WPU_Not_Installed');
+			$ver = $user->lang['WPU_Not_Installed'];
 			if ( ($wpSettings['upgradeRun'] == 1) && ($wpSettings['installLevel'] >= 5) && (!$ignorePrompt) ) {
-				$passBlockVars['switch_main_page.switch_upgrade_warning'] = array(
-				'L_WP_UPGRADE_TITLE' => $wpuAbs->lang('WPU_Must_Upgrade_Title'),
-				'L_WP_UPGRADE_EXPLAIN1' => sprintf($wpuAbs->lang('WPU_Must_Upgrade_Explain1'), '<a href="'. append_sid('wpu_usermap.' .$phpEx) .'" title="upgrade script" style="color: #fff;">', '</a>'),
-				'L_WP_UPGRADE_EXPLAIN2' => sprintf($wpuAbs->lang('WPU_Must_Upgrade_Explain2'), '<a href="'. append_sid('admin_wordpress.' .$phpEx .'?ignore=1') .'" title="ignore this prompt" style="color: #fff;">', '</a>')
-				);
+				$template->assign_block_vars('switch_main_page.switch_upgrade_warning', array(
+				'L_WP_UPGRADE_TITLE' => $user->lang['WPU_Must_Upgrade_Title'],
+				'L_WP_UPGRADE_EXPLAIN1' => sprintf($user->lang['WPU_Must_Upgrade_Explain1'], '<a href="'. append_sid('wpu_usermap.' .$phpEx) .'" title="upgrade script" style="color: #fff;">', '</a>'),
+				'L_WP_UPGRADE_EXPLAIN2' => sprintf($user->lang['WPU_Must_Upgrade_Explain2'], '<a href="'. append_sid('admin_wordpress.' .$phpEx .'?ignore=1') .'" title="ignore this prompt" style="color: #fff;">', '</a>')
+				));
 			}
 		} else {
 			$ver = $wpSettings['wpuVersion'];
 		}
 
 		// pass strings	
-		$passVars = array(
+		$template->assign_vars(array(
 			'L_WPMAIN_INTROADD' => $introAdd,
 			'S_WPMAIN_ACTION' =>  append_sid("index.$phpEx?i=wp_united"),
 			'L_WPB1_TITLE' => $button1Title,
@@ -277,38 +274,38 @@ class acp_wp_united {
 			'L_SUBMITB2' => $button2Value,
 			'S_MODE_1' => $mode1,
 			'S_MODE_2' => $mode2,
-			'L_WP_VERSION' => sprintf($wpuAbs->lang('WP_Version_Text'), $ver)
-		);
+			'L_WP_VERSION' => sprintf($user->lang['WP_Version_Text'], $ver)
+		));
 
 
 		//show user mapping link, if package is handling WP logins
 		if ( (!empty($wpSettings['integrateLogin'])) && (!empty($wpSettings['wpUri'])) ) {
 			$mapLink = append_sid('wpu_usermap.' .$phpEx);
-			$passBlockVars['switch_main_page.switch_show_wpmap'] = array(
-				'L_MAPLINK_EXPLAIN' => $wpuAbs->lang('WP_MapLink_Explain'),
+			$template->assign_block_vars('switch_main_page.switch_show_wpmap', array(
+				'L_MAPLINK_EXPLAIN' => $user->lang['WP_MapLink_Explain'],
 				'U_MAPLINK' => append_sid("index.$phpEx?i=wp_united"),
-				'L_MAPLINK_TITLE' => $wpuAbs->lang('WP_MapLink_Title'),
-				'L_MAPLINK' => $wpuAbs->lang('WP_MapLink')
-			);
+				'L_MAPLINK_TITLE' => $user->lang['WP_MapLink_Title'],
+				'L_MAPLINK' => $user->lang['WP_MapLink']
+			));
 		}
 		
 		//Check that wp-united/cache is writable
 		if(!is_writable($this->add_trailing_slash($phpbb_root_path) . "wp-united/cache/")) {
-			$passBlockVars['switch_main_page.switch_cache_unwritable'] = array(
-				'L_CACHE_UNWRITABLE' => $wpuAbs->lang('WPU_Cache_Unwritable')
-			);
+			$template->assign_block_vars('switch_main_page.switch_cache_unwritable', array(
+				'L_CACHE_UNWRITABLE' => $user->lang['WPU_Cache_Unwritable']
+			));
 		}
 		
 		//Check that wpu-install has been deleted
 		if(file_exists($this->add_trailing_slash($phpbb_root_path) . "wpu-install." . $phpEx)) { 
-			$passBlockVars['switch_main_page.switch_install_file_exists'] = array(
-				'L_INSTALL_EXISTS' => $wpuAbs->lang('WPU_Install_Exists')
-			);
+			$template->assign_block_vars('switch_main_page.switch_install_file_exists', array(
+				'L_INSTALL_EXISTS' => $user->lang['WPU_Install_Exists']
+			));
 		}
 				
 		
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 
 	}
 
@@ -321,17 +318,39 @@ class acp_wp_united {
 	//	Shows a page with all the configuration settings at a glance.
 	//
 	function settings_show() {
-		$this->page_title = 'ACP_WPU_DETAILED';
+		global $template, $user, $phpEx, $errMsg, $db;
+		$this->page_title = $user->lang['ACP_WPU_DETAILED'];
 		$this->tpl_name = 'acp_wp_united';
-		global $wpuAbs, $phpEx, $errMsg, $db;
+		
 
 		$wpSettings = ( !empty($errMsg) ) ? $wpErrSettings : $this->get_settings_set_defaults();
 
 		// set padding text boxes
 		$padding = ($wpSettings['phpbbPadding'] == 'NOT_SET') ? array('','','','') : explode('-', $wpSettings['phpbbPadding']);
 		
+				
+		// set the page section to show
+		$template->assign_block_vars('switch_settings_page', array());
 		
-		$passVars = array(
+		//Prepare forum list for forced cross-posting		
+		$template->assign_block_vars('switch_settings_page.xpost_forumlist', array(
+			'S_XPOST_VALUE' => -1,
+			'S_XPOST_SEL' => ($wpSettings['xpostforce'] == -1) ? 'selected="selected"' : '',
+			'S_XPOST_DESC' => "----{$user->lang['WPU_DISABLED']}----"
+		));		
+		$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
+			'forum_type = ' . FORUM_POST;
+		if ($result = $db->sql_query($sql)) {
+			while ( $row = $db->sql_fetchrow($result) ) {
+				$template->assign_block_vars('switch_settings_page.xpost_forumlist', array(
+					'S_XPOST_VALUE' => $row['forum_id'],
+					'S_XPOST_SEL' => ($wpSettings['xpostforce'] == (int)$row['forum_id']) ? 'selected="selected"' : '',
+					'S_XPOST_DESC' => $row['forum_name']
+				));
+			}
+		}
+		
+		$template->assign_vars(array(
 			'S_WP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'S_WPURI' => $wpSettings['wpUri'],
 			'S_WPPATH' => $wpSettings['wpPath'],
@@ -386,21 +405,17 @@ class acp_wp_united {
 			'S_WPBLOGSPERPAGE' => $wpSettings['blogsPerPage'],			
 			'S_WPUBL_CSS_ENABLE' => ( $wpSettings['blUseCSS'] ) ? 'checked="checked"' : '',					
 			'S_WPUBL_CSS_DISABLE' => ( $wpSettings['blUseCSS'] ) ? '' : 'checked="checked"',
-		);
-		
-		// set the page section to show
-		$passBlockVars = array(
-			'switch_settings_page' => array(),
-		);
+		));
+
 		
 		// Should we show an error box at the top of the page?
 		if ( !empty($errMsg) ) {
-			$passBlockVars['switch_settings_page.switch_wp_error'] = array(
+			$template->assign_block_vars('switch_settings_page.switch_wp_error', array(
 			'WP_ERROR_MSG' => $errMsg
-			);
+			));
 		}
 
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 	}
 	
 	function step1_show() {
@@ -410,23 +425,21 @@ class acp_wp_united {
 		//	-----------------------------------------------------------------------
 		//	Not interactive. Just asks tthe user to install WordPress. AKA "Step 0"
 		//
-		global $wpuAbs, $numWizardSteps, $phpEx;
+		global $template, $user, $numWizardSteps, $phpEx;
 		$this->tpl_name = 'acp_wp_united';		
-		$this->page_title =$wpuAbs->lang('WPWIZARD_H1');
+		$this->page_title =$user->lang['WPWIZARD_H1'];
 		// pass strings
-		$passVars = array(
-			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 0, $numWizardSteps),
+		$template->assign_vars(array(
+			'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 0, $numWizardSteps),
 			'S_WPWIZ_ACTION' =>  append_sid("index.$phpEx?i=wp_united"),
-			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 1)
-		);
+			'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 1)
+		));
 
 		// set the page section to show
-		$passBlockVars = array(
-			'switch_wizard_page1' => array(),
-		);
+		$template->assign_block_vars('switch_wizard_page1', array());
 
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 	}
 	
 	//
@@ -435,10 +448,10 @@ class acp_wp_united {
 	//	Sets the WordPress path & URL to WordPress. User sees as continuation of "Step 1"
 	//	
 	function step1b_show($uriResult = '', $pathResult = '') {
-		global $wpuAbs, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
+		global $user, $template, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
 		
 		$this->tpl_name = 'acp_wp_united';		
-		$this->page_title =$wpuAbs->lang('WPWIZARD_H1');
+		$this->page_title =$user->lang['WPWIZARD_H1'];
 		
 		//Read settings from db
 		$wpSettings = $this->get_settings_set_defaults();
@@ -461,32 +474,30 @@ class acp_wp_united {
 		}
 
 		// pass strings
-		$passVars = array(
-			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 1, $numWizardSteps),
+		$template->assign_vars(array(
+			'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 1, $numWizardSteps),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'S_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
 			'S_WPURI' => $wpSettings['wpUri'],
 			'S_WPPATH' => $wpSettings['wpPath'],
 			'S_BLOGSURI' => $wpSettings['blogsUri'],
-			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 2),
+			'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 2),
 			'L_WPWIZ_URITESTRESULT_NOAJAX' => $uriResult,
 			'L_WPWIZ_PATHTESTRESULT_NOAJAX' => $pathResult
-		);
+		));
 		
 		// set the page section to show
-		$passBlockVars = array(
-			'switch_wizard_page1b' => array(),
-		);
+		$template->assign_block_vars('switch_wizard_page1b',  array());
 
 		// Should we show an error box at the top of the page?
 		if ( !empty($wizShowError) ) {
-			$passBlockVars['switch_wizard_page1b.switch_wp_error'] = array(
+			$template->assign_block_vars('switch_wizard_page1b.switch_wp_error', array(
 				'WP_ERROR_MSG' => $wizErrorMsg
-			);
+			));
 		}
 		
 		//show the page
-		$this->showPage($passVars, $passBlockVars); 
+		$this->showPage(); 
 	}
 	
 
@@ -496,16 +507,39 @@ class acp_wp_united {
 		//	--------------------------------------------------
 		//	Sets how login integration is handled
 		//
-		global $wpuAbs, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx, $db;
+		global $user, $template, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx, $db;
 		$this->tpl_name = 'acp_wp_united';		
-		$this->page_title =$wpuAbs->lang('WPWIZARD_H1');
+		$this->page_title =$user->lang['WPWIZARD_H1'];
 		
 		//Read settings from db
 		$wpSettings = $this->get_settings_set_defaults();
+		
+		
+		// set the page section to show
+		$template->assign_block_vars('switch_wizard_page2', array());
+
+		//Prepare forum list for forced cross-posting		
+		$template->assign_block_vars('switch_wizard_page2.xpost_forumlist', array(
+			'S_XPOST_VALUE' => -1,
+			'S_XPOST_SEL' => ($wpSettings['xpostforce'] == -1) ? 'selected="selected"' : '',
+			'S_XPOST_DESC' => "----{$user->lang['WPU_DISABLED']}----"
+		));		
+		$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
+			'forum_type = ' . FORUM_POST;
+		if ($result = $db->sql_query($sql)) {
+			while ( $row = $db->sql_fetchrow($result) ) {
+				$template->assign_block_vars('switch_wizard_page2.xpost_forumlist', array(
+					'S_XPOST_VALUE' => $row['forum_id'],
+					'S_XPOST_SEL' => ($wpSettings['xpostforce'] == (int)$row['forum_id']) ? 'selected="selected"' : '',
+					'S_XPOST_DESC' => $row['forum_name']
+				));
+			}
+		}
+		
 
 		// pass strings
-		$passVars = array(		
-			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 2, $numWizardSteps),
+		$template->assign_vars(array(		
+			'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 2, $numWizardSteps),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'S_WPLOGIN_ENABLE' => ( $wpSettings['integrateLogin'] ) ? 'checked="checked"' : '',
 			'S_WPLOGIN_DISABLE' => ( $wpSettings['integrateLogin'] ) ? '' : 'checked="checked"',
@@ -513,21 +547,20 @@ class acp_wp_united {
 			'S_WPXPOST_DISABLE' => ( $wpSettings['xposting'] ) ? '' : 'checked="checked"' ,
 			'S_WPXAL_ENABLE' => ( $wpSettings['xpostautolink'] ) ? 'checked="checked"' : '',
 			'S_WPXAL_DISABLE' => ( $wpSettings['xpostautolink'] ) ? '' : 'checked="checked"' ,
-			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 1),
-			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 3)		
-		);
+			'L_WPBACK' => sprintf($user->lang['WP_Wizard_Back'], 1),
+			'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 3)		
+		));
 		
-		// set the page section to show
-		$passBlockVars['switch_wizard_page2'] = array();
+		
 
 		// Should we show an error box at the top of the page?
 		if ( !empty($wizShowError) ) {
-			$passBlockVars['switch_wizard_page2.switch_wp_error'] = array(
+			$template->assign_block_vars('switch_wizard_page2.switch_wp_error', array(
 				'WP_ERROR_MSG' => $wizErrorMsg
-			);
+			));
 		}
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 
 	}
 
@@ -538,10 +571,10 @@ class acp_wp_united {
 	//	Sets the appearance of the WordPress page.
 	//
 	function step3_show() {
-		global $wpuAbs, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
+		global $user, $template, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
 		
 		$this->tpl_name = 'acp_wp_united';		
-		$this->page_title =$wpuAbs->lang('WPWIZARD_H1');
+		$this->page_title =$user->lang['WPWIZARD_H1'];
 		
 		//Read settings from db
 		$wpSettings = $this->get_settings_set_defaults();
@@ -549,8 +582,8 @@ class acp_wp_united {
 		$padding = ($wpSettings['phpbbPadding'] == 'NOT_SET') ? array('','','','') : explode('-', $wpSettings['phpbbPadding']);
 		
 		// pass strings
-		$passVars = array(	
-			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 3, $numWizardSteps),
+		$template->assign_vars(array(	
+			'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 3, $numWizardSteps),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'S_WPINP' =>  ( $wpSettings['showHdrFtr'] == 'FWD' ) ? 'checked="checked"' : '',
 			'S_PINWP' =>  ( $wpSettings['showHdrFtr']  == 'REV') ? 'checked="checked"' : '',
@@ -581,24 +614,22 @@ class acp_wp_united {
 			'S_PHPBBSMILIES_DISABLE' => ( $wpSettings['phpbbSmilies'] ) ? '' : 'checked="checked"',
 			'S_WPPRIVATE_ENABLE' => ( $wpSettings['mustLogin'] ) ? 'checked="checked"' : '',
 			'S_WPPRIVATE_DISABLE' => ( $wpSettings['mustLogin'] ) ? '' : 'checked="checked"',			
-			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 2),
-			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 4)
-		);
+			'L_WPBACK' => sprintf($user->lang['WP_Wizard_Back'], 2),
+			'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 4)
+		));
 		
 		// set the page section to show
-		$passBlockVars = array(
-		'switch_wizard_page3' => array(),
-		);
+		$template->assign_block_vars('switch_wizard_page3', array());
 
 		// Should we show an error box at the top of the page?
 		if ( !empty($wizShowError) ) {
-			$passBlockVars['switch_wizard_page3.switch_wp_error'] = array(
+			$template->assign_block_vars('switch_wizard_page3.switch_wp_error', array(
 				'WP_ERROR_MSG' => $wizErrorMsg
-			);
+			));
 		}
 		
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 		
 	}
 
@@ -609,10 +640,10 @@ class acp_wp_united {
 	//	controlling how members use/see their blogs.
 	//	
 	function step4_show($dir='FWD') {
-		global $wpuAbs, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
+		global $user, $template, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
 		
 		$this->tpl_name = 'acp_wp_united';		
-		$this->page_title =$wpuAbs->lang('WPWIZARD_H1');
+		$this->page_title =$user->lang['WPWIZARD_H1'];
 
 
 		//Read settings from db
@@ -621,8 +652,8 @@ class acp_wp_united {
 		if ( $wpSettings['integrateLogin'] ) {
 			
 			// pass strings
-			$passVars = array(	
-				'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 4, $numWizardSteps),
+			$template->assign_vars(array(	
+				'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 4, $numWizardSteps),
 				'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 				'S_WPOWNBLOGS_ENABLE' => ( $wpSettings['usersOwnBlogs'] ) ? 'checked="checked"' : '',
 				'S_WPOWNBLOGS_DISABLE' => ( $wpSettings['usersOwnBlogs'] ) ? '' : 'checked="checked"',
@@ -639,24 +670,22 @@ class acp_wp_united {
 				'S_WPBLOGSPERPAGE' => $wpSettings['blogsPerPage'],
 				'S_WPUBL_CSS_ENABLE' => ( $wpSettings['blUseCSS'] ) ? 'checked="checked"' : '',					
 				'S_WPUBL_CSS_DISABLE' => ( $wpSettings['blUseCSS'] ) ? '' : 'checked="checked"',			
-				'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 3),
-				'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 5)
-			);
+				'L_WPBACK' => sprintf($user->lang['WP_Wizard_Back'], 3),
+				'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 5)
+			));
 			
 			// set the page section to show
-			$passBlockVars = array(
-			'switch_wizard_page4' => array(),
-			);
+			$template->assign_block_vars('switch_wizard_page4',array());
 
 			// Should we show an error box at the top of the page?
 			if ( !empty($wizShowError) ) {
-				$passBlockVars['switch_wizard_page4.switch_wp_error'] = array(
+				$template->assign_block_vars('switch_wizard_page4.switch_wp_error', array(
 					'WP_ERROR_MSG' => $wizErrorMsg
-				);
+				));
 			}
 			
 			//show the page
-			$this->showPage($passVars, $passBlockVars);
+			$this->showPage();
 		} else {
 			//Login is not integrated, we can skip past this wizard page.
 			if ( $dir == 'FWD' ) {
@@ -674,32 +703,30 @@ class acp_wp_united {
 	//	This (invisible) plugin, AKA the "WP-United Connection", resides in our phpBB fileset - so users don't have to install anything.
 	//
 	function step5_show_frontend() {
-		global $wpuAbs, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
+		global $user, $template, $numWizardSteps, $wizShowError, $wizErrorMsg, $phpEx;
 		
 		$this->tpl_name = 'acp_wp_united';		
-		$this->page_title =$wpuAbs->lang('WPWIZARD_H1');
+		$this->page_title =$user->lang['WPWIZARD_H1'];
 		
 		// pass strings
-		$passVars = array(	
-			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 5, $numWizardSteps),
+		$template->assign_vars(array(	
+			'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 5, $numWizardSteps),
 			'U_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
-			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 4),
-			'L_WPNEXT' => sprintf($wpuAbs->lang('WP_Wizard_Next'), 6)
-		);
+			'L_WPBACK' => sprintf($user->lang['WP_Wizard_Back'], 4),
+			'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 6)
+		));
 
 		// set the page section to show
-		$passBlockVars = array(
-			'switch_wizard_page5' => array(),
-		);
+		$template->assign_block_vars('switch_wizard_page5', array());
 		
 		
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 	}
 	
 	function step5_backend() {
-		global $wpuAbs, $wpSettings, $wpu_debug;
+		global $user, $wpSettings, $wpu_debug;
 		$wpu_debug = '';
 		
 		set_error_handler(array($this, 'step5_errorhandler'), E_ERROR);
@@ -714,13 +741,13 @@ class acp_wp_united {
 		if (empty($connError)) {
 			$data['installLevel'] = 10;
 			//set the version to the db at this stage
-			$data['wpuVersion'] = $wpuAbs->lang('WPU_Default_Version'); 
+			$data['wpuVersion'] = $user->lang['WPU_Default_Version']; 
 			if ( !(set_integration_settings($data)) ) { 
 				$xmlData['result'] = "NOSAVE";
-				$xmlData['message'] = $wpuAbs->lang('WPWIZ_DB_ERR_CONN_OK');
+				$xmlData['message'] = $user->lang['WPWIZ_DB_ERR_CONN_OK'];
 			} else {
 				$xmlData['result'] = "OK"; 
-				$xmlData['message'] = $wpuAbs->lang('WPWIZ_INSTALLED_OK');
+				$xmlData['message'] = $user->lang['WPWIZ_INSTALLED_OK'];
 			}
 		} else {
 				$xmlData['result'] = "FAIL";
@@ -732,7 +759,7 @@ class acp_wp_united {
 	}
 	
 	function step5_errorhandler($errNo, $errStr, $errFile, $errLine) {
-		global $wpuAbs;
+		global $user;
 		switch ($errNo) {
 			case E_NOTICE:
 			case E_USER_NOTICE:
@@ -740,14 +767,14 @@ class acp_wp_united {
 				break;
 			case E_WARNING:
 			case E_USER_WARNING:
-				echo sprintf($wpuAbs->lang('WPWIZ_CAUGHT_WARNING'), $errNo, $errFile, $errLine, $errStr) . '<br />';
+				echo sprintf($user->lang['WPWIZ_CAUGHT_WARNING'], $errNo, $errFile, $errLine, $errStr) . '<br />';
 				break;
 			case E_ERROR:
 			case E_USER_ERROR:
-				echo sprintf($wpuAbs->lang('WPWIZ_CAUGHT_ERROR'), $errNo, $errFile, $errLine, $errStr). '<br />';
+				echo sprintf($user->lang['WPWIZ_CAUGHT_ERROR'], $errNo, $errFile, $errLine, $errStr). '<br />';
 				break;
 			default:
-				echo sprintf($wpuAbs->lang('WPWIZ_CAUGHT_UNKNOWN'), $errNo, $errFile, $errLine, $errStr). '<br />';
+				echo sprintf($user->lang['WPWIZ_CAUGHT_UNKNOWN'], $errNo, $errFile, $errLine, $errStr). '<br />';
 				break;
         }
 		
@@ -759,29 +786,27 @@ class acp_wp_united {
 	//	Congratulates the user for completing the wizard, and encourages them to donate.
 	//
 	function step6_show() {
-		global $wpuAbs, $numWizardSteps, $phpEx;	
+		global $user, $template, $numWizardSteps, $phpEx;	
 		$this->tpl_name = 'acp_wp_united';		
-		$this->page_title =$wpuAbs->lang('WPWIZARD_H1');
+		$this->page_title =$user->lang['WPWIZARD_H1'];
 		
 		//get integration package settings
 		$wpSettings = $this->get_settings_set_defaults();
 		
 		
 		// pass strings
-		$passVars = array(
-			'L_WPWIZARD_STEP' => sprintf($wpuAbs->lang('WP_Wizard_Step'), 6, $numWizardSteps),
-			'L_WPWIZARD_COMPLETE_EXPLAIN4' => sprintf($wpuAbs->lang('WP_Config_GoBack'), "<a href=\"" . append_sid("index.$phpEx?i=wp_united") . "\">", "</a>") ,
+		$template->assign_vars(array(
+			'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 6, $numWizardSteps),
+			'L_WPWIZARD_COMPLETE_EXPLAIN4' => sprintf($user->lang['WP_Config_GoBack'], "<a href=\"" . append_sid("index.$phpEx?i=wp_united") . "\">", "</a>") ,
 			'S_WPWIZ_ACTION' =>  append_sid("index.$phpEx?i=wp_united"),
-			'L_WPBACK' => sprintf($wpuAbs->lang('WP_Wizard_Back'), 5),
-		);
+			'L_WPBACK' => sprintf($user->lang['WP_Wizard_Back'], 5),
+		));
 
 		// set the page section to show
-		$passBlockVars = array(
-			'switch_wizard_page6' => array(),
-		);
+		$template->assign_block_vars('switch_wizard_page6', array());
 
 		//show the page
-		$this->showPage($passVars, $passBlockVars);	
+		$this->showPage();	
 		
 	}				
 
@@ -793,7 +818,7 @@ class acp_wp_united {
 	//	Performs some, albeit limited validation.
 	//
 	function step1b_process() {
-		global $wpuAbs, $phpEx, $wizShowError, $wizErrorMsg;
+		global $user, $phpEx, $wizShowError, $wizErrorMsg;
 		// Process form data
 		$saveSettings = TRUE;
 		$data['wpUri'] = $this->clean_path(request_var('txt_Uri', ''));
@@ -802,7 +827,7 @@ class acp_wp_united {
 		
 		if (($data['wpUri'] == "") || (strlen($data['wpUri']) < 3)) {
 			$wizShowError = TRUE;
-			$wizErrorMsg = $wpuAbs->lang('wizErr_invalid_URL');
+			$wizErrorMsg = $user->lang['wizErr_invalid_URL'];
 			$saveSettings = FALSE;
 		} else {
 			//Add http:// and trailing slash if needed
@@ -810,7 +835,7 @@ class acp_wp_united {
 		}
 		if (($data['wpPath'] == "") || (strlen($data['wpPath']) < 3)) {
 			$wizShowError = TRUE;
-			$wizErrorMsg .= $wpuAbs->lang('wizErr_invalid_Path'); 
+			$wizErrorMsg .= $user->lang['wizErr_invalid_Path']; 
 			$saveSettings = FALSE;
 		} else {
 			$data['wpPath'] = $this->add_trailing_slash($data['wpPath']);
@@ -818,7 +843,7 @@ class acp_wp_united {
 
 		if (($data['blogsUri'] == "") || (strlen($data['blogsUri']) < 3)) {
 			$wizShowError = TRUE;
-			$wizErrorMsg = $wpuAbs->lang('wizErr_invalid_Blog_URL');
+			$wizErrorMsg = $user->lang['wizErr_invalid_Blog_URL'];
 			$saveSettings = FALSE;
 		} else {
 			//Add http:// if needed
@@ -829,14 +854,14 @@ class acp_wp_united {
 			//Save settings to db
 			if ( !(set_integration_settings($data)) ) {
 				$wizShowError = TRUE;
-				$wizErrorMsg .= $wpuAbs->lang('WPU_DATABASE_SAVE_ERR');
+				$wizErrorMsg .= $user->lang['WPU_DATABASE_SAVE_ERR'];
 			} else {
 				$this->step2_show();
 			}
 		} 
 		
 		if ( !empty($wizShowError) ) {
-			$wizErrorMsg .= $wpuAbs->lang('WPU_NOT_SAVED');
+			$wizErrorMsg .= $user->lang['WPU_NOT_SAVED'];
 			$this->step1b_show();
 		}
 
@@ -849,13 +874,14 @@ class acp_wp_united {
 	//	Saves the login integration settings to the config table.
 	//
 	function step2_process() {
-		global $wpuAbs, $phpEx, $wizShowError, $wizErrorMsg;
+		global $user, $phpEx, $wizShowError, $wizErrorMsg;
 		// Process form data
 		$radWpLogin = (int) request_var('rad_Login', '');
 
 		if ( $radWpLogin ) {
-			$data['xposting'] = (int) request_var('rad_xPost', '');
-			$data['xpostautolink'] = (int) request_var('rad_xpost_al', '');
+			$data['xposting'] = (int) request_var('rad_xPost', 0);
+			$data['xpostautolink'] = (int) request_var('rad_xpost_al', 0);
+			$data['xpostforce'] = (int) request_var('al_xpost_must', -1);
 			$data['integrateLogin'] = 1;
 
 			// Add phpBB3 modules
@@ -930,11 +956,11 @@ class acp_wp_united {
 		//Save settings to db
 		if ( !(set_integration_settings($data)) ) {
 			$wizShowError = TRUE;
-			$wizErrorMsg .= $wpuAbs->lang('WPU_DATABASE_SAVE_ERR');
+			$wizErrorMsg .= $user->lang['WPU_DATABASE_SAVE_ERR'];
 		} 	 
 		
 		if ( !empty($wizShowError) ) {
-			$wizErrorMsg .= $wpuAbs->lang('WPU_NOT_SAVED');
+			$wizErrorMsg .= $user->lang['WPU_NOT_SAVED'];
 			$this->step2_show();
 		} else {
 			$this->step3_show();
@@ -949,7 +975,7 @@ class acp_wp_united {
 	//
 	function step3_process() {
 
-		global $wpuAbs, $phpEx, $wizShowError, $wizErrorMsg;
+		global $user, $phpEx, $wizShowError, $wizErrorMsg;
 		
 		$data['dtdSwitch'] = (int) request_var('rad_DTD', 0);
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
@@ -1010,14 +1036,14 @@ class acp_wp_united {
 		//Save settings to db
 		if ( !(set_integration_settings($data)) ) {
 			$wizShowError = TRUE;
-			$wizErrorMsg .= $wpuAbs->lang('WPU_DATABASE_SAVE_ERR');
+			$wizErrorMsg .= $user->lang['WPU_DATABASE_SAVE_ERR'];
 		} else {
 			$this->step4_show('FWD');
 		}
 		
 		
 		if ( !empty($wizShowError) ) {
-			$wizErrorMsg .= $wpuAbs->lang('WPU_NOT_SAVED');
+			$wizErrorMsg .= $user->lang['WPU_NOT_SAVED'];
 			$this->step3_show();
 		}
 
@@ -1031,7 +1057,7 @@ class acp_wp_united {
 	//
 	function step4_process() {
 
-		global $wpuAbs, $phpEx, $wizShowError, $wizErrorMsg;
+		global $user, $phpEx, $wizShowError, $wizErrorMsg;
 		
 		$ownBlogs = (int) request_var('rad_ownBlogs', 0);
 		$btnsProf = (int) request_var('rad_Prof', 0);
@@ -1065,8 +1091,8 @@ class acp_wp_united {
 		//Save settings to db
 		if ( !(set_integration_settings($data)) ) {
 			$wizShowError = TRUE;
-			$wizErrorMsg .= $wpuAbs->lang('WPU_DATABASE_SAVE_ERR');
-			$wizErrorMsg .= $wpuAbs->lang('WPU_NOT_SAVED');
+			$wizErrorMsg .= $user->lang['WPU_DATABASE_SAVE_ERR'];
+			$wizErrorMsg .= $user->lang['WPU_NOT_SAVED'];
 			$this->step4_show('FWD');
 		} else {
 			$this->step5_show_frontend();
@@ -1088,8 +1114,8 @@ class acp_wp_united {
 
 	function settings_process() {
 		
-		global $wpuAbs, $phpEx, $wpu_debug;
-		$this->page_title = 'ACP_WPU_INDEX_TITLE';
+		global $user, $phpEx, $wpu_debug;
+		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 		
 		// Process form data
@@ -1154,9 +1180,9 @@ class acp_wp_united {
 
 		//set the version to the db at this stage
 		if ( !isset($data['wpuVersion']) ) {
-			$data['wpuVersion'] = $wpuAbs->lang('WPU_Default_Version');
+			$data['wpuVersion'] = $user->lang['WPU_Default_Version'];
 		} else {
-			$data['wpuVersion'] = ($data['wpuVersion'] == $wpuAbs->lang('WPU_Not_Installed')) ? $wpuAbs->lang('WPU_Default_Version') : $data['wpuVersion'];
+			$data['wpuVersion'] = ($data['wpuVersion'] == $user->lang['WPU_Not_Installed']) ? $user->lang['WPU_Default_Version'] : $data['wpuVersion'];
 		}
 		
 		
@@ -1175,8 +1201,9 @@ class acp_wp_united {
 		
 		if ( $radWpLogin ) {
 			$data['integrateLogin'] = 1;
-			$data['xposting'] = (int) request_var('rad_xPost', '');
-			$data['xpostautolink'] = (int) request_var('rad_xpost_al', '');
+			$data['xposting'] = (int) request_var('rad_xPost', 0);
+			$data['xpostautolink'] = (int) request_var('rad_xpost_al', 0);
+			$data['xpostforce'] = (int) request_var('al_xpost_must', -1);
 			
 			// Add phpBB3 modules
 			if ($tab = $this->module_exists('ACP_WP_UNITED')) {
@@ -1265,7 +1292,7 @@ class acp_wp_united {
 		$procError = FALSE; 
 		if (($data['wpUri'] == "") || (strlen($data['wpUri']) < 3)) {
 			$procError = TRUE;
-			$msgError .= $wpuAbs->lang('WPU_URL_Not_Provided');
+			$msgError .= $user->lang['WPU_URL_Not_Provided'];
 		} else {
 			// Clean up the URI 
 			//Add http:// and trailing slash if needed
@@ -1277,44 +1304,44 @@ class acp_wp_united {
 			$hostName = "http://".$_SERVER['HTTP_HOST'];
 			If (strpos($data['wpUri'], $hostName) === FALSE) {
 				$urlCheckColour = "orange";
-				$urlCheckResult = $wpuAbs->lang('WPU_URL_Diff_Host');
+				$urlCheckResult = $user->lang['WPU_URL_Diff_Host'];
 				$autoDetect = FALSE;
 			} else {
 				$urlCheckColour = "green";
-				$urlCheckResult = $wpuAbs->lang('WPU_OK');
+				$urlCheckResult = $user->lang['WPU_OK'];
 			}	
 			//test that the URL at that location actually exists
 
 			$uriExists = $this->uri_exists($data['wpUri']);
 			if ( $uriExists ){
 				$urlExistColour = "green";
-				$urlExistResult = $wpuAbs->lang('WPU_OK');
+				$urlExistResult = $user->lang['WPU_OK'];
 			} else {
 				if ($uriExists === FALSE) {
 					$urlExistColour = "orange";
-					$urlExistResult = $wpuAbs->lang('WPU_URL_No_Exist');
+					$urlExistResult = $user->lang['WPU_URL_No_Exist'];
 				} else{
 					$urlExistColour = "orange";
-					$urlExistResult = $wpuAbs->lang('WP_cURL_Not_Avail');
+					$urlExistResult = $user->lang['WP_cURL_Not_Avail'];
 				}
 			} 
 
 			if ($data['wpPath'] == "") {
 				if (!$autoDetect) {
 					$procError = TRUE;
-					$msgError .= $wpuAbs->lang('WPU_Cant_Autodet');
+					$msgError .= $user->lang['WPU_Cant_Autodet'];
 				} else {
-					$pathDet = $wpuAbs->lang('WPU_Path_Autodet');
+					$pathDet = $user->lang['WPU_Path_Autodet'];
 					//figure out the filesystem path
 					$data['wpPath'] = $this->detect_path_from_uri($data['wpUri']);
 				}
 			} else {
-				$pathDet = $wpuAbs->lang('WPU_PathIs');
+				$pathDet = $user->lang['WPU_PathIs'];
 			}
 			if (!$data['wpPath']) {
 				if ($autoDetect) {
 					$procError = TRUE;
-					$msgError .= $wpuAbs->lang('WPU_Autodet_Error');
+					$msgError .= $user->lang['WPU_Autodet_Error'];
 				}
 			} else {	
 				$pathDetColour = "green";
@@ -1323,30 +1350,30 @@ class acp_wp_united {
 				//Check that location to see if WordPress files exist there
 				if ( !$this->wordpress_exists($data['wpPath']) ) {
 					$wpExistColour = "orange";
-					$wpExistResult = sprintf($wpuAbs->lang['WPU_Pathfind_Warning'], $this->add_trailing_slash($data['wpPath']) . 'wp-settings.php');
-					$msgError .= sprintf($wpuAbs->lang['WPU_Pathfind_Warning'] . "<br />", $this->add_trailing_slash($data['wpPath']) . 'wp-settings.php');
+					$wpExistResult = sprintf($user->lang['WPU_Pathfind_Warning'], $this->add_trailing_slash($data['wpPath']) . 'wp-settings.php');
+					$msgError .= sprintf($user->lang['WPU_Pathfind_Warning'] . "<br />", $this->add_trailing_slash($data['wpPath']) . 'wp-settings.php');
 				} else {
 					$wpExistColour = "green";
-					$wpExistResult = $wpuAbs->lang('WPU_OK');
+					$wpExistResult = $user->lang['WPU_OK'];
 				}
 				global $wpSettings;
 				$wpSettings = $data; 
 				$connError = $this->install_wpuConnection();
 				if ( $connError ) {
 					$procError = TRUE;
-					$msgError .= $wpuAbs->lang('WP_Wizard_Connection_Fail');
+					$msgError .= $user->lang['WP_Wizard_Connection_Fail'];
 					$msgError .= $wpu_debug;
 				} else {
 					$allOK = TRUE;
 					$wpConnColour = "green";
-					$wpConnResult = $wpuAbs->lang('WPU_OK');
+					$wpConnResult = $user->lang['WPU_OK'];
 				}
 			}
 		}
 		
 		if (($data['blogsUri'] == "") || (strlen($data['blogsUri']) < 3)) {
 			$procError = TRUE;
-			$msgError .= $wpuAbs->lang('wizErr_invalid_Blog_URL');
+			$msgError .= $user->lang['wizErr_invalid_Blog_URL'];
 		} else {
 			//Add http:// if needed
 			$data['blogsUri'] = $this->add_http($data['blogsUri']);
@@ -1358,20 +1385,20 @@ class acp_wp_united {
 			//THIS MARKS THE END OF THE SETUP. Allow access to application.
 			$data['installLevel'] = 10;
 			//set the version to the db at this stage
-			$data['wpuVersion'] = $wpuAbs->lang('WPU_Default_Version');		
+			$data['wpuVersion'] = $user->lang['WPU_Default_Version'];		
 			
 			//Save settings to db
 			if ( !(set_integration_settings($data)) ) {
 				$procError = TRUE;
-				$msgError .= $wpuAbs->lang('WP_DBErr_Write');
+				$msgError .= $user->lang['WP_DBErr_Write'];
 			}
 			
 			if ((!$allOK) || ($uriNotFound)) {
 				$saveColour = "orange";
-				$saveResult = $wpuAbs->lang('WP_Saved_Caution');
+				$saveResult = $user->lang['WP_Saved_Caution'];
 			} else {
 				$saveColour = "green";
-				$saveResult = $wpuAbs->lang('WP_AllOK');
+				$saveResult = $user->lang['WP_AllOK'];
 			}
 		} 
 		
@@ -1379,7 +1406,7 @@ class acp_wp_united {
 		
 		if ( $procError ) { 
 			if ( empty($msgError) ) {
-				$msgError .= $wpuAbs->lang('WP_Errors_NoSave');
+				$msgError .= $user->lang['WP_Errors_NoSave'];
 			}
 			global $wpErrSettings, $errMsg;
 			$errMsg = $msgError;
@@ -1387,34 +1414,27 @@ class acp_wp_united {
 			$this->settings_show();
 		} else {
 			// pass strings
-			$passVars = array(	
-				'L_WPSETTINGS_PROCESS' => $wpuAbs->lang('WPU_Process_Settings'),
-				'L_WP_URL' => $wpuAbs->lang('WPU_Checking_URL'),
+			$template->assign_vars(array(	
 				'L_WP_URLCOLOUR' => $urlCheckColour,
 				'L_WP_URLRESULT' => $urlCheckResult,
-				'L_WP_URLEXIST' => $wpuAbs->lang('WPU_Checking_URL'),
 				'L_WP_URLEXISTCOLOUR' => $urlExistColour,
 				'L_WP_URLEXISTRESULT' => $urlExistResult,
 				'L_WP_PATHDET' => $pathDet,
 				'L_WP_PATHDETCOLOUR' => $pathDetColour,
 				'L_WP_PATHDETRESULT' => $pathDetResult,
-				'L_WP_WPEXIST' => $wpuAbs->lang('WPU_Checking_WPExists'),
 				'L_WP_WPEXISTCOLOUR' => $wpExistColour,
 				'L_WP_WPEXISTRESULT' => $wpExistResult,
-				'L_WP_WPCONN' => $wpuAbs->lang('WPU_Conn_Installing'),
 				'L_WP_WPCONNCOLOUR' => $wpConnColour,
 				'L_WP_WPCONNRESULT' => $wpConnResult,
 				'L_WP_WPSAVECOLOR' => $saveColour,
 				'L_WP_WPSAVERESULT' => $saveResult,
-				'L_WPSETTINGS_RESULTMSG' => sprintf($wpuAbs->lang('WP_Config_GoBack'), "<a href=\"" . append_sid("index.$phpEx?i=wp_united") . "\">", "</a>") ,
-			);
+				'L_WPSETTINGS_RESULTMSG' => sprintf($user->lang['WP_Config_GoBack'], "<a href=\"" . append_sid("index.$phpEx?i=wp_united") . "\">", "</a>") ,
+			));
 			
 
 			// set the page section to show
-			$passBlockVars = array(
-				'switch_settings_process_page' => array(),
-			);
-			$this->showPage($passVars, $passBlockVars);
+			$template->assign_block_vars('switch_settings_process_page', array());
+			$this->showPage();
 			
 		}
 	}
@@ -1425,17 +1445,15 @@ class acp_wp_united {
 	//***********************************************************************
 
 	function donate_show() {
-		global $wpuAbs, $phpEx, $ignorePrompt;
-		$this->page_title = 'ACP_WPU_INDEX_TITLE';
+		global $user, $phpEx, $ignorePrompt;
+		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 
 		// set the page section to show
-		$passBlockVars = array(
-		'switch_donate' => array(),
-		);
+		$template->assign_block_vars('switch_donate', array());
 
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 
 	}
 	
@@ -1448,8 +1466,8 @@ class acp_wp_united {
 	//	Resets WP-United back to freshly installed state
 	//
 	function uninstall_show() {
-		global $phpbb_root_path, $phpEx, $wpuAbs, $phpEx, $cache, $auth, $db, $wpSettings;
-		$this->page_title = 'ACP_WPU_INDEX_TITLE';
+		global $phpbb_root_path, $template, $phpEx, $user, $phpEx, $cache, $auth, $db, $wpSettings;
+		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 		
 		$wpSettings = get_integration_settings();
@@ -1457,11 +1475,11 @@ class acp_wp_united {
 		$do_uninstall = request_var('uninstallaction', '');
 			
 		// pass strings	
-		$passVars = array(
+		$template->assign_vars(array(
 			'S_WPWIZ_ACTION' =>  append_sid("index.$phpEx?i=wp_united"),			
-		);
+		));
 		
-		if ($do_uninstall == $wpuAbs->lang('WP_UNINSTALL')) {	
+		if ($do_uninstall == $user->lang['WP_UNINSTALL']) {	
 			if (confirm_box(true)) {		
 				
 				$wp_id_list = array();
@@ -1528,12 +1546,12 @@ class acp_wp_united {
 				}				
 
 				//drop mappng data
-				if  (array_key_exists('user_wpuint_id', $wpuAbs->userdata()) ) {
+				if  (array_key_exists('user_wpuint_id', $user->data()) ) {
  					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 								DROP user_wpuint_id';
 				}
 				$db->sql_query($sql);
-				if  (array_key_exists('user_wpublog_id', $wpuAbs->userdata()) ) {
+				if  (array_key_exists('user_wpublog_id', $user->data()) ) {
  					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 								DROP user_wpublog_id';
 				}				
@@ -1575,24 +1593,22 @@ class acp_wp_united {
 				$cache->destroy('_modules_');
 				$cache->destroy('_sql_', MODULES_TABLE);
 				$cache->purge();	
-				add_log('admin', 'WP_UNINSTALLED', $wpuAbs->lang('WP_UNINSTALL_LOG'));				
+				add_log('admin', 'WP_UNINSTALLED', $user->lang['WP_UNINSTALL_LOG']);				
 				redirect(append_sid("index.$phpEx"));
 			} else {
-				confirm_box(false,$wpuAbs->lang('WP_UNINSTALL_CONFIRM'), build_hidden_fields(array(
+				confirm_box(false,$user->lang['WP_UNINSTALL_CONFIRM'], build_hidden_fields(array(
 						'i'			=> 'wp_united',
 						'mode'		=> 'uninstall',
-						'uninstallaction' => $wpuAbs->lang('WP_UNINSTALL'),
+						'uninstallaction' => $user->lang['WP_UNINSTALL'],
 					)));
 			}
 		}
 		
 		// set the page section to show
-		$passBlockVars = array(
-		'switch_uninstall' => array(),
-		);
+		$template->assign_block_vars('switch_uninstall', array());
 
 		//show the page
-		$this->showPage($passVars, $passBlockVars);		
+		$this->showPage();		
 	}
 	// **********************************************************************
 	//***																	***
@@ -1604,8 +1620,8 @@ class acp_wp_united {
 	// i18n'ed.
 	//
 	function debug_show() {
-		global $phpbb_root_path, $phpEx, $wpuAbs, $phpEx, $db;
-		$this->page_title = 'ACP_WPU_INDEX_TITLE';
+		global $phpbb_root_path, $template, $phpEx, $user, $onfig, $phpEx, $db;
+		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';	
 		
 		$result = $db->sql_query("select version() as ve");
@@ -1619,34 +1635,32 @@ class acp_wp_united {
 		
 		
 		$wpSettings = get_integration_settings(TRUE);
-		$debug_info = '<strong style="text-decoration: underline;">[b][u]' . $wpuAbs->lang('DEBUG_SETTINGS_SECTION') . '[/u][/b]</strong><br /><br />';
+		$debug_info = '<strong style="text-decoration: underline;">[b][u]' . $user->lang['DEBUG_SETTINGS_SECTION'] . '[/u][/b]</strong><br /><br />';
 		foreach ($wpSettings as $setting_name => $setting_value) {
 			$debug_info .= '[b]<strong>: ' . $setting_name . ':</strong>[/b] ' . $setting_value . "<br />\n";
 		}
 		
-		$debug_info .= '<br /><strong style="text-decoration: underline;">[b][u]' . $wpuAbs->lang('DEBUG_PHPBB_SECTION') . '[/u][/b]</strong><br /><br />';
+		$debug_info .= '<br /><strong style="text-decoration: underline;">[b][u]' . $user->lang['DEBUG_PHPBB_SECTION'] . '[/u][/b]</strong><br /><br />';
 		$phpbb_info = array('server_name', 'server_protocol', 'server_port', 'script_path', 'force_server_vars', 'cookie_name', 'cookie_domain', 'cookie_path', 'cookie_secure');
 		foreach ($phpbb_info as $config_name) {
-			$debug_info .= '[b]<strong>' . $config_name . ':</strong>[/b] ' . $wpuAbs->config($config_name) . "<br />\n";
+			$debug_info .= '[b]<strong>' . $config_name . ':</strong>[/b] ' . $config[$config_name] . "<br />\n";
 		}
 		
-		$debug_info .= '<br /><strong style="text-decoration: underline;">[b][u]' . $wpuAbs->lang('DEBUG_SERVER_SETTINGS') .  '[/u][/b]</strong><br /><br />';
+		$debug_info .= '<br /><strong style="text-decoration: underline;">[b][u]' . $user->lang['DEBUG_SERVER_SETTINGS'] .  '[/u][/b]</strong><br /><br />';
 		$debug_info .= '[b]<strong>PHP version:</strong>[/b] ' . phpversion() . "<br />\n";
 		$debug_info .= '[b]<strong>MySQL version:</strong>[/b] ' . $myVersion . "<br />\n";
 		$debug_info .= '[b]<strong>cURL available:</strong>[/b] ' . $curl_exists . "<br />\n";
 		
 		// pass strings	
-		$passVars = array(
+		$template->assign_vars(array(
 			'DEBUG_INFO' => $debug_info,
-		);
+		));
 		
 		// set the page section to show
-		$passBlockVars = array(
-			'switch_debug' => array(),
-		);
+		$template->assign_block_vars('switch_debug', array());
 
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 	}
 	
 	// **********************************************************************
@@ -1658,23 +1672,23 @@ class acp_wp_united {
 	//	Resets WP-United back to freshly installed state
 	//
 	function reset_show() {
-		global $phpbb_root_path, $phpEx, $wpuAbs, $phpEx, $cache;
-		$this->page_title = 'ACP_WPU_INDEX_TITLE';
+		global $phpbb_root_path, $user, $template, $phpEx, $phpEx, $cache;
+		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 
 		$do_reset = request_var('resetaction', '');
 		$did_reset = request_var('didreset', '');
 		
 		// pass strings	
-		$passVars = array(
+		$template->assign_vars(array(
 			'S_WPWIZ_ACTION' =>  append_sid("index.$phpEx?i=wp_united"),			
-		);
+		));
 		
 		if($did_reset) {
-			$passVars['DID_RESET'] = $wpuAbs->lang('WP_DID_RESET');
+			$template->assign_var('DID_RESET', $user->lang['WP_DID_RESET']);
 		}
 		
-		if ($do_reset == $wpuAbs->lang('WP_RESET')) {
+		if ($do_reset == $user->lang['WP_RESET']) {
 			if (confirm_box(true)) {	
 			
 				// reset modules...
@@ -1799,7 +1813,7 @@ class acp_wp_united {
 					'module_langname'	=> 'ACP_WPU_USERMAP', 
 					'module_class'		=>'acp'
 				);
-				$someid = $this->add_acp_module($modData);
+				$usermapId = $this->add_acp_module($modData);
 				$modData = array(
 					'module_basename'	=> 'wp_united',
 					'module_mode'		=> 'donate', 
@@ -1849,66 +1863,55 @@ class acp_wp_united {
 				$resetId= $this->add_acp_module($modData);
 				
 				
-				
-				
 				//now reset settings
 				clear_integration_settings();
 				$cache->destroy('_modules_');
 				$cache->destroy('_sql_', MODULES_TABLE);
 				$cache->purge();
-				add_log('admin','ACP_WPU_RESET', $wpuAbs->lang('WP_RESET_LOG'));	
+				add_log('admin','ACP_WPU_RESET', $user->lang['WP_RESET_LOG']);	
 				//the module IDs have changed -- we redirect so that the "WP-United" tab on the page is the new one.
 				redirect(append_sid("index.$phpEx?mode=reset&didreset=true&i=$resetId"));		
 			} else {
-				confirm_box(false,$wpuAbs->lang('WP_RESET_CONFIRM'), build_hidden_fields(array(
+				confirm_box(false,$user->lang['WP_RESET_CONFIRM'], build_hidden_fields(array(
 						'i'			=> 'wp_united',
 						'mode'		=> 'reset',
-						'resetaction' => $wpuAbs->lang('WP_RESET'),
+						'resetaction' => $user->lang['WP_RESET'],
 					)));
 			}
 		}
 
 		// set the page section to show
-		$passBlockVars = array(
-			'switch_reset' => array(),
-		);
+		$template->assign_block_vars('switch_reset', array());
 
 		//show the page
-		$this->showPage($passVars, $passBlockVars);
+		$this->showPage();
 	}
-	//
-	//	PERMISSIONS SIDEBAR LINK
-	//	---------------------------------------------------------------------------------------------------
-	//	Adding a module doesn't cross-link to the right tab. So we just redirect instead
-	//	
+	/**
+	 * Permissions sidebar link
+	 * Adding a module doesn't cross-link to the right tab. So we just redirect instead
+	 */
 	function permissions_show() {
 		redirect(append_sid("index.php?i=permissions&mode=intro"));
 	}
 
 
 	
-	//
-	//	GET CONFIGURATION SETTINGS FROM DATABASE, OR SET DEFAULTS
-	//	---------------------------------------------------------------------------------------------------
-	//	Gets the configuration settings from the integration table, and returns them in $wpSettings.
-	//	Sets initial values to sensible deafaults if they haven't been set yet -- useful for populating form fields with default values.
-	//
+	/**
+	 * Gets the configuration settings from the integration table, and returns them in $wpSettings.
+	 * Sets initial values to sensible deafaults if they haven't been set yet -- useful for populating form fields with default values.
+	 * This has been superseded by defaults in mod_settings.
+	 */
 	function get_settings_set_defaults() {
-		
-		//This has been superseded by defaults in mod_settings.
 		return get_integration_settings(TRUE);
-
 	}
 
 
-	//
-	//	TEST THE PROVIDED URL
-	//	-----------------------------------
-	//  	Tests that the supplied URL exists and is on the same domain.
-	//	Return the result in XML if browser supports AJAX. 
-	//
+	/**
+	 * Tests that the supplied URL exists and is on the same domain.
+	 * Return the result in XML if browser supports AJAX. 
+	 */
 	function testUri($ajax = TRUE) {
-		global $wpuAbs;
+		global $user;
 		
 		$hostName = "http://".$_SERVER['HTTP_HOST'];
 		
@@ -1921,20 +1924,20 @@ class acp_wp_united {
 		if ( !empty($uriExists) ) {
 			If ( $sameHost === FALSE) {
 				$testSuccess = "WARNING";
-				$returnMessage = $wpuAbs->lang('WP_URI_OK_Diff_Host');
+				$returnMessage = $user->lang['WP_URI_OK_Diff_Host'];
 			} else {
 				$testSuccess = "SUCCESS";
-				$returnMessage = $wpuAbs->lang('WP_URI_Found');
+				$returnMessage = $user->lang['WP_URI_Found'];
 			}
 		} elseif ( $uriExists === 0 ) {
 			$testSuccess = "ERROR";
-			$returnMessage = $wpuAbs->lang('WP_cURL_Not_Avail');
+			$returnMessage = $user->lang['WP_cURL_Not_Avail'];
 		} elseif ( $sameHost === FALSE) {
 			$testSuccess = "ERROR";
-			$returnMessage = $wpuAbs->lang('WP_URI_No_Diff_Host');
+			$returnMessage = $user->lang['WP_URI_No_Diff_Host'];
 		} else {
 			$testSuccess = "ERROR";
-			$returnMessage = $wpuAbs->lang('WP_URI_Not_Found');
+			$returnMessage = $user->lang['WP_URI_Not_Found'];
 		}
 		
 		
@@ -1949,15 +1952,13 @@ class acp_wp_united {
 		return $returnMessage;
 	}
 
-	//
-	//	PATH "AUTO-DISCOVERY"
-	//	-----------------------------------
-	//	Figures out the filesystem path to WordPress and tests to see if WordPress files exist there.
-	//	Return the result in XML if browser supports AJAX. 
-	//
+	/** Path "auto-discovery"
+	 * Figures out the filesystem path to WordPress and tests to see if WordPress files exist there.
+	 * Return the result in XML if browser supports AJAX.
+	 */
 	function findPath($ajax = TRUE) {
 		
-		global $wpuAbs;
+		global $user;
 		
 		$hostName = "http://".$_SERVER['HTTP_HOST'];
 		$wpUri = $this->clean_path(request_var('txt_Uri', ''));
@@ -1968,7 +1969,7 @@ class acp_wp_united {
 			$sameHost = strpos($wpUri, $hostName);
 			if ($sameHost === FALSE ) {
 				$testSuccess = 'ERROR';
-				$returnMessage = $wpuAbs->lang('WP_PathTest_Diff_Host');
+				$returnMessage = $user->lang['WP_PathTest_Diff_Host'];
 			} else {
 
 				$wpPath = $this->detect_path_from_uri($wpUri);
@@ -1981,20 +1982,20 @@ class acp_wp_united {
 			if ( empty($wpPath) ) { // path is still empty, after autodetect
 				$testSuccess = 'ERROR';
 				if ( strlen($wpUri) <= 3 ) {  //because the URI is invalid on non-existent
-					$returnMessage = $wpuAbs->lang('WP_PathTest_Invalid_URL');
+					$returnMessage = $user->lang['WP_PathTest_Invalid_URL'];
 				} else { // Due to an unknown error
-					$returnMessage = $wpuAbs->lang('WP_PathTest_Not_Detected');
+					$returnMessage = $user->lang['WP_PathTest_Not_Detected'];
 				}
 			} else {
 				if ( $this->wordpress_exists($wpPath) ) { //Found WordPress at that path
 					$testSuccess = 'SUCCESS';
-					$returnMessage = sprintf($wpuAbs->lang('WP_PathTest_Success'), $wpPath);
+					$returnMessage = sprintf($user->lang['WP_PathTest_Success'], $wpPath);
 				} else { // Found path (or path was manualy typed), but no WordPress there!
 					$testSuccess = 'WARNING';
 					if ( $manuallyTyped ) {
-						$returnMessage = $wpuAbs->lang('WP_PathTest_TestOnly_NotFound');
+						$returnMessage = $user->lang['WP_PathTest_TestOnly_NotFound'];
 					} else {
-						$returnMessage = sprintf($wpuAbs->lang('WP_PathTest_GuessedOnly'), $wpPath);
+						$returnMessage = sprintf($user->lang['WP_PathTest_GuessedOnly'], $wpPath);
 					}
 				}
 			}
@@ -2014,14 +2015,13 @@ class acp_wp_united {
 
 
 
-	//
-	//	INSTALL WP-UNITED CONNECTION
-	//	-----------------------------------
-	//	Sets and installs the auto-plugin, "WP-United Connection"
-	//
+	/**
+	 * Install WP-United Connection
+	 * Sets and installs the auto-plugin, "WP-United Connection"
+	 */
 	function install_wpuConnection() {
 		define ('WPU_SET', 1);
-		global $wpuAbs, $wpuCache, $wpSettings, $phpEx, $phpbb_root_path, $board_config, $wpu_debug, $wpUtdInt;
+		global $user, $wpuCache, $wpSettings, $phpEx, $phpbb_root_path, $config, $wpu_debug, $wpUtdInt;
 		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);		
 		$wpuCache = WPU_Cache::getInstance();
 
@@ -2105,7 +2105,7 @@ class acp_wp_united {
 				// CORRECT WPU-PLUGIN IS NOT IN PLUGIN DIRECTORY -- FAIL
 				
 				$connError = TRUE;
-				$wpu_debug = "<br />" . $wpuAbs->lang('WPWizard_Connection_Fail_Explain2');
+				$wpu_debug = "<br />" . $user->lang['WPWizard_Connection_Fail_Explain2'];
 				
 			} else {
 			
@@ -2121,10 +2121,10 @@ class acp_wp_united {
 				$WPU_Connection['path_to_phpbb'] = $this->add_trailing_slash(realpath($phpbb_root_path));
 				$wpu_debug .= 'Path back to phpBB: ' . $WPU_Connection['path_to_phpbb'] . '<br />';
 				// We will also want to access our WP-United Connection as a relative URL
-				$WPU_Connection['path_to_plugin'] = $this->add_trailing_slash($board_config['script_path']) . "wp-united/wpu-plugin." . $phpEx;
+				$WPU_Connection['path_to_plugin'] = $this->add_trailing_slash($config['script_path']) . "wp-united/wpu-plugin." . $phpEx;
 				// We'll also want to have the full scriptPath in wp-admin for playing with URLs
-				$server = $wpuAbs->config('server_protocol') . $this->add_trailing_slash($wpuAbs->config('server_name'));
-				$scriptPath = $this->add_trailing_slash($wpuAbs->config('script_path'));
+				$server = $config['server_protocol'] . $this->add_trailing_slash($config['server_name']);
+				$scriptPath = $this->add_trailing_slash($config['script_path']);
 				$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 				$scriptPath = $server . $scriptPath;
 				$WPU_Connection['phpbb_url'] = $scriptPath;
@@ -2138,8 +2138,8 @@ class acp_wp_united {
 				$WPU_Connection['autolink_xpost'] = $wpSettings['xpostautolink'];
 				//Set Connection settings
 				update_option('wputd_connection', $WPU_Connection);
-				$server = $this->add_http($this->add_trailing_slash($wpuAbs->config('server_name')));
-				$scriptPath = $this->add_trailing_slash($wpuAbs->config('script_path'));
+				$server = $this->add_http($this->add_trailing_slash($config['server_name']));
+				$scriptPath = $this->add_trailing_slash($config['script_path']);
 				$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 				$blogUri = $wpSettings['blogsUri']; 
 			
@@ -2217,15 +2217,15 @@ class acp_wp_united {
 					update_option('active_plugins', $arrPlugins);
 				} else {
 					$connError = TRUE; 
-					$wpu_debug = "<br />" . $wpuAbs->lang('WPWizard_Connection_Fail_Explain2');
+					$wpu_debug = "<br />" . $user->lang['WPWizard_Connection_Fail_Explain2'];
 				}
 			} // end if copy success
 			
 		} else { // can't connect to WP
 			$connError = TRUE;
 			$debugPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
-			$wpu_debug .= "<br />" . $wpuAbs->lang('NO_CONNECT_WP_GEN') . "<br />";
-			$wpu_debug .= $wpuAbs->lang('WPWizard_Connection_Fail_Explain1');
+			$wpu_debug .= "<br />" . $user->lang['NO_CONNECT_WP_GEN'] . "<br />";
+			$wpu_debug .= $user->lang['WPWizard_Connection_Fail_Explain1'];
 			$wpu_debug .=  'DEBUG (to post if you need help):<br />Current Path: ' . $debugPath . ' <br />';
 			$wpu_debug .= 'Path To WP: ' . $wpSettings['wpPath'] . '<br />';
 			
@@ -2237,40 +2237,34 @@ class acp_wp_united {
 
 
 
-	//
-	//	USERMAP_INTRO
-	//	------------------------
-	//	Shows the introductory usermap page
-	//
+	/**	
+	 * Shows the introductory user mapping page
+	 */
 	function usermap_intro() {
-		global $wpuAbs, $phpEx;
-		$this->page_title = $wpuAbs->lang('MAP_TITLE');
+		global $user, $template, $phpEx;
+		$this->page_title = $user->lang['MAP_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 
 		//Get integration settings
 		$wpSettings = get_integration_settings();
 		if ( ($wpSettings == FALSE)	|| ($wpSettings['wpPath'] == '') ) {
-			$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Gen'), $wpuAbs->lang('WP_NO_SETTINGS'), __LINE__, __FILE__, $sql);
+			trigger_error($user->lang['WP_DBErr_Gen'] . " " . $user->lang['WP_NO_SETTINGS'], __LINE__, __FILE__, $sql);
 		}
 		
-		$passVars = array(	
+		$template->assign_vars(array(	
 			'S_WPMAP_ACTION' => append_sid("index.$phpEx?i=wp_united")
-		);
+		));
 		
 		// set the page section to show
-		$passBlockVars = array(
-			'switch_usermap_intro' => array(),
-		);
-		$this->showPage($passVars, $passBlockVars);
+		$template->assign_block_vars('switch_usermap_intro', array());
+		$this->showPage();
 	}
 	
-	//
-	//	USERMAP_MAIN
-	//	------------------------
-	//	The main usermap page that lists all the names
-	//
+	/**
+	 * The main user mapping page that lists all the names
+	 */
 	function usermap_main() {	
-		global $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
+		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
 		// NUMBER OF RESULTS PER PAGE -- COULD ADJUST THIS FOR LARGE USERBASES
 		
 		$numPerPage = $numResults = (int)request_var('wpumapperpage', 50);
@@ -2278,10 +2272,10 @@ class acp_wp_united {
 		//Get integration settings
 		$wpSettings = get_integration_settings();
 		if ( ($wpSettings == FALSE)	|| ($wpSettings['wpPath'] == '') ) {
-			$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Gen'), $wpuAbs->lang('WP_NO_SETTINGS'), __LINE__, __FILE__, $sql);
+			$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Gen'], $user->lang['WP_NO_SETTINGS'], __LINE__, __FILE__, $sql);
 		}			
 		
-		$this->page_title = $wpuAbs->lang('MAP_TITLE');
+		$this->page_title = $user->lang['MAP_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 		
 		// set the page section to show
@@ -2289,7 +2283,7 @@ class acp_wp_united {
 
 		// Eventually this will be in a dropdown.
 		$action = request_var('mapaction', '');
-		if($action == $wpuAbs->lang('MAP_CHANGE_PERPAGE')) {
+		if($action == $user->lang['MAP_CHANGE_PERPAGE']) {
 			$wpStart = (int)request_var('oldstart', 0);
 		} else {
 			$wpStart = (int)request_var('start', 0);
@@ -2337,7 +2331,7 @@ class acp_wp_united {
 					$posts = get_usernumposts($result->ID);
 					//TODO: show number of comments
 					if ( empty($result->ID) ) {
-						$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('NO_WP_ID'), 'NO_WP_ID_ERR', __LINE__, __FILE__, $sql);
+						$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['NO_WP_ID'], 'NO_WP_ID_ERR', __LINE__, __FILE__, $sql);
 					}
 					$phpBBMappedName = get_usermeta($result->ID, 'phpbb_userLogin');
 					if ( empty($phpBBMappedName) ) {
@@ -2347,8 +2341,8 @@ class acp_wp_united {
 					$pUsername = '';
 					$pID = '';
 					$class = '';
-					$pStatus = $wpuAbs->lang('MAP_NOT_INTEGRATED');
-					$intText = $wpuAbs->lang('MAP_INTEGRATE');
+					$pStatus = $user->lang['MAP_NOT_INTEGRATED'];
+					$intText = $user->lang['MAP_INTEGRATE'];
 					$selInt = ''; $selBrk = ''; $selDel = '';
 					$alreadyID = ''; $alreadyUN = ''; $mustBrk = 'FALSE';
 					
@@ -2368,16 +2362,16 @@ class acp_wp_united {
 								$numResults++;
 							}
 							if ($numResults > 1) {
-								$pStatus = $wpuAbs->lang('MAP_ERROR_MULTIACCTS');
-								$breakOrLeave = $wpuAbs->lang('MAP_BRK_MULTI');
+								$pStatus = $user->lang['MAP_ERROR_MULTIACCTS'];
+								$breakOrLeave = $user->lang['MAP_BRK_MULTI'];
 								$selBrk = 'selected="selected"';
 								$mustBrk = 'TRUE';
 								$class = "mustbrk";
 							} else {
-								$pStatus = $wpuAbs->lang('MAP_ALREADYINT'); 
-								$breakOrLeave = $wpuAbs->lang('MAP_BRK');
+								$pStatus = $user->lang['MAP_ALREADYINT']; 
+								$breakOrLeave = $user->lang['MAP_BRK'];
 								$selInt = 'selected="selected"';
-								$intText = $wpuAbs->lang('MAP_LEAVE_INT');
+								$intText = $user->lang['MAP_LEAVE_INT'];
 								$alreadyID = $pRes['user_id'];
 								$alreadyUN = $pRes['username'];
 								$class = "alreadyint";			
@@ -2386,14 +2380,14 @@ class acp_wp_united {
 							//No Integration ID... so let's search for a match
 							
 							//User may want to create a phpBB user
-							$optCre = '<option value="Cre">'. $wpuAbs->lang('MAP_CREATEP') .'</option>'; 
+							$optCre = '<option value="Cre">'. $user->lang['MAP_CREATEP'] .'</option>'; 
 							
 							if ( !empty($phpBBMappedName) ) {
 								$sql = 	"SELECT username, user_id, user_wpuint_id FROM " . USERS_TABLE .
 								" WHERE username = '" . $phpBBMappedName . "'
 										LIMIT 1";
 								if (!$pResults = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), $wpuAbs->lang('MAP_CANTCONNECTP'), __LINE__, __FILE__, $sql);
+									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Retrieve'], $user->lang['MAP_CANTCONNECTP'], __LINE__, __FILE__, $sql);
 								}
 								if ($pResults = $db->sql_fetchrow($pResults))  {
 									//OK, so we found a username match... but show only if they're not already integrated to another acct.
@@ -2401,38 +2395,38 @@ class acp_wp_united {
 										if ( (!empty($pResults['username'])) && (!empty($pResults['user_id'])) ) {
 											$pUsername = $pResults['username'];
 											$pID = $pResults['user_id'];
-											$breakOrLeave = $wpuAbs->lang('MAP_LEAVE_UNINT');
-											$pStatus = $wpuAbs->lang('MAP_UNINT_FOUND');
+											$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
+											$pStatus = $user->lang['MAP_UNINT_FOUND'];
 											$selInt = 'selected="selected"';
 											$class = 'unintfound';
 										}
 									} else {
-										$breakOrLeave = $wpuAbs->lang('MAP_LEAVE_UNINT');
+										$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
 										$selBrk = 'selected="selected"';
-										$pStatus = sprintf($wpuAbs->lang('MAP_UNINT_FOUNDBUT'), $pResults['username'], $pResults['username'], $pResults['user_wpuint_id']);
+										$pStatus = sprintf($user->lang['MAP_UNINT_FOUNDBUT'], $pResults['username'], $pResults['username'], $pResults['user_wpuint_id']);
 										$class = 'unintfoundbut';
 									}	
 								} else {
 									// Offer to create the user
-									$optCre = '<option value="Cre" selected="selected">'. $wpuAbs->lang('MAP_CREATEP') .'</option>'; 
-									$pStatus = $wpuAbs->lang('MAP_UNINT_NOTFOUND'); 										
+									$optCre = '<option value="Cre" selected="selected">'. $user->lang['MAP_CREATEP'] .'</option>'; 
+									$pStatus = $user->lang['MAP_UNINT_NOTFOUND']; 										
 									$pUsername = $phpBBMappedName;
-									$breakOrLeave = $wpuAbs->lang('MAP_LEAVE_UNINT');
+									$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
 									$class = 'unintnotfound';
 									/*
-									$breakOrLeave = $wpuAbs->lang('MAP_LEAVE_UNINT');
+									$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
 									$selBrk = 'selected="selected"';
-									$pStatus = $wpuAbs->lang('MAP_UNINT_NOTFOUND'); ; */
+									$pStatus = $user->lang['MAP_UNINT_NOTFOUND'] ; */
 								}	
 							}
 						}	
 					} else {
-						$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), $wpuAbs->lang('WP_DBErr_Retrieve'), __LINE__, __FILE__, $sql);
+						$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Retrieve'], $user->lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
 					}
 					if ( empty($phpBBMappedName) ) {
-						$breakOrLeave = $wpuAbs->lang('MAP_LEAVE_UNINT');
+						$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
 						$selDel = 'selected="selected"';
-						$pStatus = $wpuAbs->lang('MAP_ERROR_BLANK');
+						$pStatus = $user->lang['MAP_ERROR_BLANK'];
 						$class = "maperror";
 					}
 					$wpUtdInt->switch_db('TO_W');
@@ -2466,44 +2460,42 @@ class acp_wp_united {
 				}
 				if ( $thisEnd < $numWpResults ) {
 					$template->assign_block_vars('switch_usermap_main.next_page_data', array(
-						'MAP_SKIPNEXT' => $wpuAbs->lang('MAP_SKIPNEXT'),
+						'MAP_SKIPNEXT' => $user->lang['MAP_SKIPNEXT'],
 					));
 				} 
 
 			} else {
 				$template->assign_block_vars('switch_usermap_main.switch_no_results', array(
-					'MAP_NOUSERS' => $wpuAbs->lang('MAP_NOUSERS'),
+					'MAP_NOUSERS' => $user->lang['MAP_NOUSERS'],
 				));
 			}
 		} else {
-			die($wpuAbs->lang('MAP_CANT_CONNECT'));
+			die($user->lang['MAP_CANT_CONNECT']);
 		}
 		
-		$passVars = array(	
+		$template->assign_vars(array(	
 			'S_WPMAP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'S_NEXTSTART' => $nextStart,
 			'S_OLDSTART' => $wpStart,
 			'S_TOTAL_ITN' => $itn - 1,
-		);
+		));
 		
 		for($i=50;$i<=500;$i=$i+50) {
-			$passVars['S_NUMPERPAGE_' . $i] = ($i == $numPerPage) ? 'selected = "selected"' : '';
+			$template->assign_var('S_NUMPERPAGE_' . $i, ($i == $numPerPage) ? 'selected = "selected"' : '');
 		}
 		
-		$this->showPage($passVars, 0);
+		$this->showPage();
 		
 	}
 	
 	
-	//
-	//	USERMAP_PROCESS
-	//	------------------------
-	//	Process the users' selections into an actionable list
-	//
+	/**
+	 * Process the users' selections into an actionable list
+	 */
 	function usermap_process() {	
-		global $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
+		global $wpuAbs, $user, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
 		
-		$this->page_title = $wpuAbs->lang('MAP_TITLE');
+		$this->page_title = $user->lang['MAP_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 		
 		// set the page section to show
@@ -2532,14 +2524,14 @@ class acp_wp_united {
 						'action' => 'break',
 						'wpID' => $wpID,
 						'wpUN' => $wpUN,
-						'text' => sprintf($wpuAbs->lang('MAP_BREAKWITH'), $alreadyUN)
+						'text' => sprintf($user->lang['MAP_BREAKWITH'], $alreadyUN)
 						);
 						$actionList[] = array(
 						'action' => 'integrate',
 						'wpID' => $wpID,
 						'wpUN' => $wpUN,								
 						'typed' => $typedName,
-						'text' => sprintf($wpuAbs->lang('MAP_INTWITH'), $typedName)
+						'text' => sprintf($user->lang['MAP_INTWITH'], $typedName)
 						);
 					}
 				} else {
@@ -2549,14 +2541,14 @@ class acp_wp_united {
 						'action' => 'break',
 						'wpID' => $wpID,
 						'wpUN' => $wpUN,								
-						'text' => $wpuAbs->lang('MAP_BREAKEXISTING')
+						'text' => $user->lang['MAP_BREAKEXISTING']
 						);
 						$actionList[] = array(
 						'action' => 'integrate',
 						'wpID' => $wpID,
 						'wpUN' => $wpUN,								
 						'typed' => $typedName,
-						'text' => sprintf($wpuAbs->lang('MAP_INTWITH'), $typedName)
+						'text' => sprintf($user->lang['MAP_INTWITH'], $typedName)
 						);
 					} else {
 						$action = "INTEGRATE_NEW";
@@ -2565,7 +2557,7 @@ class acp_wp_united {
 						'wpID' => $wpID,
 						'wpUN' => $wpUN,								
 						'typed' => $typedName,
-						'text' => sprintf($wpuAbs->lang('MAP_INTWITH'), $typedName)
+						'text' => sprintf($user->lang['MAP_INTWITH'], $typedName)
 						);
 					}
 				}	
@@ -2579,7 +2571,7 @@ class acp_wp_united {
 						'action' => 'break',
 						'wpID' => $wpID,
 						'wpUN' => $wpUN,								
-						'text' => $wpuAbs->lang('MAP_BREAKMULTI')
+						'text' => $user->lang['MAP_BREAKMULTI']
 						);
 					} else {
 						$action = "NO_CHANGE";
@@ -2590,7 +2582,7 @@ class acp_wp_united {
 					'action' => 'break',
 					'wpID' => $wpID,
 					'wpUN' => $wpUN,							
-					'text' => sprintf($wpuAbs->lang('MAP_BREAKWITH'), $alreadyUN)
+					'text' => sprintf($user->lang['MAP_BREAKWITH'], $alreadyUN)
 					);
 				}
 			}
@@ -2601,7 +2593,7 @@ class acp_wp_united {
 					'action' => 'delete',
 					'wpID' =>$wpID,
 					'wpUN' => $wpUN,							
-					'text' => $wpuAbs->lang('MAP_DEL_WP')
+					'text' => $user->lang['MAP_DEL_WP']
 					);
 				} else {
 					$action = 'BREAK_THEN_DELETE';
@@ -2609,13 +2601,13 @@ class acp_wp_united {
 					'action' => 'break',
 					'wpID' => $wpID,
 					'wpUN' => $wpUN,							
-					'text' => sprintf($wpuAbs->lang('MAP_BREAKWITH'), $alreadyUN)							
+					'text' => sprintf($user->lang['MAP_BREAKWITH'], $alreadyUN)							
 					);
 					$actionList[] = array(
 					'action' => 'delete',
 					'wpID' =>$wpID,
 					'wpUN' => $wpUN,							
-					'text' => $wpuAbs->lang('MAP_DEL_WP')							
+					'text' => $user->lang['MAP_DEL_WP']					
 					);
 				}
 			}
@@ -2627,12 +2619,12 @@ class acp_wp_united {
 				'wpID' =>$wpID,
 				'wpUN' => $wpUN,
 				'typed' => $typedName,
-				'text' => $wpuAbs->lang('MAP_CREATE_P')
+				'text' => $user->lang['MAP_CREATE_P']
 				);
 			}
 		}
 		if ( isset($actionList) ) { 
-			$intro_para = $wpuAbs->lang('MAP_ACTIONSINTRO');
+			$intro_para = $user->lang['MAP_ACTIONSINTRO'];
 			$ctr = 0;
 			$error = FALSE;
 			foreach ((array)$actionList as $doThis) { 
@@ -2642,18 +2634,18 @@ class acp_wp_united {
 					$sql = 	"SELECT user_wpuint_id, user_id FROM " . USERS_TABLE .
 					" WHERE username = '" . $db->sql_escape($doThis['typed']) . "'";
 					if (!$pCheck = $db->sql_query($sql)) {
-						$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Retrieve'), $wpuAbs->lang('MAP_CANTCONNECTP'), __LINE__, __FILE__, $sql);
+						$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Retrieve'], $user->lang['MAP_CANTCONNECTP'], __LINE__, __FILE__, $sql);
 					}
 					if (!($pCheckResults = $db->sql_fetchrow($pCheck)))  {
 						$error = TRUE;
 						$col = 'red';
-						$errText =  ' ' . $wpuAbs->lang('MAP_PNOTEXIST');							
+						$errText =  ' ' . $user->lang['MAP_PNOTEXIST'];							
 					} else {
 						if ( !empty($pCheckResults['user_wpuint_id']) ) {
 							if (   !(($pCheckResults['user_wpuint_id'] == $doThis['wpID']) && empty($doThis['alreadyID']) && empty($doThis['alreadyUN'])) ) {
 								$error = TRUE;
 								$col = 'red';
-								$errText =   ' ' . $wpuAbs->lang('MAP_ERR_ALREADYINT');
+								$errText =   ' ' . $user->lang['MAP_ERR_ALREADYINT'];
 							}
 						} else {
 							$pID = $pCheckResults['user_id'];
@@ -2676,36 +2668,34 @@ class acp_wp_united {
 				$ctr++;
 			}
 			if (!$error) { 
-				$close_para = $wpuAbs->lang('MAP_ACTIONSEXPLAIN1');
+				$close_para = $user->lang['MAP_ACTIONSEXPLAIN1'];
 				$template->assign_block_vars('switch_usermap_process.switch_doactions', array(
 					'S_WPMAP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 					'NUM_ROWS' => $ctr - 1,
 				));
 			} else {
-				$close_para = $wpuAbs->lang('MAP_ERR_GOBACK'); 
+				$close_para = $user->lang['MAP_ERR_GOBACK']; 
 			}
 		} else {
-			$intro_para = $wpuAbs->lang('MAP_NOWTTODO');
+			$intro_para = $user->lang['MAP_NOWTTODO'];
 		} 
 		
-		$passVars = array(	
+		$template->assign_vars(array(	
 			'L_MAP_ACTINTRO' => $intro_para,
 			'L_MAP_ACT_CLOSEPARA' => $close_para,
 			'S_NEXTSTART' => $nextStart,
 			'S_NUMPERPAGE' => $numPerPage,
-		);
-		$this->showPage($passVars,0);	
+		));
+		$this->showPage();	
 	}
 	
-	//
-	//	USERMAP_PERFORM
-	//	------------------------
-	//	Process each of the actions in the list.
-	//
+	/**
+	 * Process each of the actions in the list.
+	 */
 	function usermap_perform() {	
-		global $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
+		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
 		
-		$this->page_title = $wpuAbs->lang('MAP_TITLE');
+		$this->page_title = $user->lang['MAP_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 
 		// set the page section to show
@@ -2714,7 +2704,7 @@ class acp_wp_united {
 		//Get integration settings
 		$wpSettings = get_integration_settings();
 		if ( ($wpSettings == FALSE)	|| ($wpSettings['wpPath'] == '') ) {
-			$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Gen'), $wpuAbs->lang('WP_NO_SETTINGS'), __LINE__, __FILE__, $sql);
+			$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Gen'], $user->lang['WP_NO_SETTINGS'], __LINE__, __FILE__, $sql);
 		}		
 		
 		$lastAction= (int) request_var('numrows', 0);
@@ -2755,11 +2745,11 @@ class acp_wp_united {
 									" SET user_wpuint_id = NULL 
 									WHERE user_wpuint_id = $wpID";
 								if (!$pDel = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('MAP_COULDNT_BREAK'), $wpuAbs->lang('DB_ERROR'), __LINE__, __FILE__, $sql);
+									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_BREAK'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
 								}									
-								$status_text = '<li>'. sprintf($wpuAbs->lang('MAP_BROKE_SUCCESS'), $wpID) . '</li>';
+								$status_text = '<li>'. sprintf($user->lang['MAP_BROKE_SUCCESS'], $wpID) . '</li>';
 							} else {
-								$status_text = '<li>' . $wpuAbs->lang('MAP_CANNOT_BREAK') . '</li>';
+								$status_text = '<li>' . $user->lang['MAP_CANNOT_BREAK'] . '</li>';
 							}
 						break;
 						case 'integrate':
@@ -2768,14 +2758,14 @@ class acp_wp_united {
 									" SET user_wpuint_id = $wpID 
 									WHERE user_id = $pID";
 								if (!$pInt = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('MAP_COULDNT_INT'), $wpuAbs->lang('DB_ERROR'), __LINE__, __FILE__, $sql);
+									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
 								}
 								// Sync profiles
 								$sql = 	"SELECT *
 												FROM " . USERS_TABLE . " 
 												WHERE user_id = $pID";
 								if (!$pUserData = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('MAP_COULDNT_INT'), $wpuAbs->lang('DB_ERROR'), __LINE__, __FILE__, $sql);
+									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
 								}
 								$data = $db->sql_fetchrow($pUserData);
 								$db->sql_freeresult($pUserData);
@@ -2802,25 +2792,25 @@ class acp_wp_united {
 								$wpUpdateData = $wpUtdInt->check_details_consistency($wpUsrData, $wpu_newDetails);
 	
 								$wpUtdInt->switch_db('TO_P');
-								$status_text = '<li>' . sprintf($wpuAbs->lang('MAP_INT_SUCCESS'), $wpID, $pID) . '</li>';	
+								$status_text = '<li>' . sprintf($user->lang['MAP_INT_SUCCESS'], $wpID, $pID) . '</li>';	
 							} else {
-								$status_text = '<li>' . $wpuAbs->lang('MAP_CANNOT_INT') . '</li>';
+								$status_text = '<li>' . $user->lang['MAP_CANNOT_INT'] . '</li>';
 							}							
 						break;
 						case 'delete':
 							$wpUtdInt->switch_db('TO_W');
 							if ( !empty($wpID) ) {
 								wp_delete_user($wpID, $reassign = '0');
-								$status_text = '<li>' . sprintf($wpuAbs->lang('MAP_WPDEL_SUCCESS'), $wpID) . '</li>';
+								$status_text = '<li>' . sprintf($user->lang['MAP_WPDEL_SUCCESS'], $wpID) . '</li>';
 								$nextStart = $nextStart - 1;
 							} else {
-								$status_text = '<li>' . $wpuAbs->lang('MAP_CANNOT_DEL') . '</li>';
+								$status_text = '<li>' . $user->lang['MAP_CANNOT_DEL'] . '</li>';
 							}
 							$wpUtdInt->switch_db('TO_P');
 						break;
 						case 'createP':
 							if (!$wpID || !$typedName) {
-								$status_text = '<li>' . $wpuAbs->lang('MAP_CANNOT_CREATEP_ID') . '</li>';
+								$status_text = '<li>' . $user->lang['MAP_CANNOT_CREATEP_ID'] . '</li>';
 							} else {
 								$wpUtdInt->switch_db('TO_W');
 								$wpUsr = get_userdata($wpID);
@@ -2830,18 +2820,18 @@ class acp_wp_united {
 									$password = substr_replace($password, '$H$', 0, 3);
 								}								
 								if ($wpuAbs->insert_user($typedName, $password, $wpUsr->user_email , $wpID)) {
-									$status_text = '<li>'. sprintf($wpuAbs->lang('MAP_CREATEP_SUCCESS'), $typedName) . '</li>';
+									$status_text = '<li>'. sprintf($user->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
 								} else {
-									$status_text = '<li>' . $wpuAbs->lang('MAP_CANNOT_CREATEP_NAME') . '</li>';
+									$status_text = '<li>' . $user->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
 								}
 							}
 						break;
 						default;
-							$wpuAbs->err_msg(sprintf($wpuAbs->lang('MAP_INVALID_ACTION'), $procAction));
+							$wpuAbs->err_msg(sprintf($user->lang['MAP_INVALID_ACTION'], $procAction));
 						break;
 					}
 				} else {
-					$wpuAbs->err_msg(sprintf($wpuAbs->lang('MAP_EMPTY_ACTION'), $procAction)); 
+					$wpuAbs->err_msg(sprintf($user->lang['MAP_EMPTY_ACTION'], $procAction)); 
 				}
 				$template->assign_block_vars('switch_usermap_perform.performlist_row', array(
 					'LIST_ITEM' => $status_text
@@ -2850,97 +2840,84 @@ class acp_wp_united {
 			}
 			
 		} else {
-			die($wpuAbs->lang('MAP_CANT_CONNECT'));
+			die($user->lang['MAP_CANT_CONNECT']);
 		}
 		
 		if (!empty($paged)) {
 			$template->assign_block_vars('switch_usermap_perform.switch_paged', array(
-				'L_MAP_NEXTPAGE' => $wpuAbs->lang('MAP_NEXTPAGE')
+				'L_MAP_NEXTPAGE' => $user->lang['MAP_NEXTPAGE']
 			));
 		} else {
 			$template->assign_block_vars('switch_usermap_perform.switch_unpaged', array(
-				'L_MAP_FINISHED' => sprintf($wpuAbs->lang('MAP_FINISHED'), '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=index") . '">', '</a>', '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=usermap") . '">', '</a>' )
+				'L_MAP_FINISHED' => sprintf($user->lang['MAP_FINISHED'], '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=index") . '">', '</a>', '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=usermap") . '">', '</a>' )
 			));
 		}
 		
-		$passVars = array(	
-			'L_MAP_TITLE'  =>	$wpuAbs->lang('MAP_TITLE'),
+		$template->assign_vars(array(	
+			'L_MAP_TITLE'  =>	$user->lang['MAP_TITLE'],
 			'S_WPMAP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
-			'L_MAP_PERFORM_INTRO' => $wpuAbs->lang('MAP_PERFORM_INTRO'),
+			'L_MAP_PERFORM_INTRO' => $user->lang['MAP_PERFORM_INTRO'],
 			'S_NEXTSTART' => $nextStart,
 			'S_NUMPERPAGE' => $numPerPage,
-		);		
-		$this->showPage($passVars, 0);			
+		));		
+		$this->showPage();			
 	}
 	
 
-	// 
-	// 	SHOW THE PAGE
-	//	------------------------
-	//	Assigns vars & block vars, and displays the page
-	//
-	function showPage($assignVars, $assignBlockVars) {
+	/**
+	 * Show the Page
+	 * Assigns vars & block vars, and displays the page
+	 */
+	function showPage() {
 
 		global $template, $showFooter; 
 		
-		// assign template variables
-		if ( !($assignVars === 0)) {
-			$template->assign_vars($assignVars);
-		}
-		if ( !($assignBlockVars === 0)) {
-			foreach ($assignBlockVars as $arrayName => $arrayOfVars) {
-				$template->assign_block_vars($arrayName, $arrayOfVars);
-			}
-		}
 		if ( $showFooter ) {
 			$template->assign_block_vars('switch_show_footer', array());
 		}
 	}    
 	
-	//
-	//	ADD TRAILING SLASH 
-	//	--------------------------------
-	//	Adds a traling slash to a string if one is not already present.
-	//
+	/**
+	 * Adds a traling slash to a string if one is not already present.
+	 */
 	function add_trailing_slash($path) {
 		return ( $path[strlen($path)-1] == "/" ) ? $path : $path . "/";
 	}
 
-	//
-	//	ADD HTTP:// 
-	//	-----------------
-	//	Adds http:// to the URL if it is not already present
-	//	TODO: Check if https:// is already present, too!!
-	//
+	/**
+	 * Adds http:// to the URL if it is not already present
+	 */
 	function add_http($path) {
-		return ( strpos($path, "http://") === FALSE ) ? "http://" . $path : $path;
+		if ( (strpos($path, "http://") === FALSE) && (strpos($path, "https://") === FALSE) ) {
+			return "http://" . $path;
+		}
+		return $path;
 	}
 	
+	/**
+	 * Clean and standardise a provided file path
+	 */
 	function clean_path($value) {
 		$value = trim($value);
 		$value = str_replace('\\', '/', $value);
 		$value = (get_magic_quotes_gpc()) ? stripslashes($value) : $value;
 		return $value;
 	}
-	//
-	//	GET PAGE NUMBER
-	//	--------------------------
-	//	grabs the number from a string.
-	//	Could be done very simply but we cannot guarantee where the numbers will occur, due to language differences.
-	//
+	
+	/**
+	 * Grabs the number from a string.
+	 * Could be done very simply but we cannot guarantee where the numbers will occur, due to language differences.
+	 */
 	function get_page_number($string) {
-
 		preg_match('{(\d+)}', $string, $pResult); 
 		return $pResult[1];
-		
 	}
 
-	//
-	//	TEST IF SUPPLIED PAGE EXISTS
-	//	---------------------------------------------
-	//	Uses cURL to see if the page exists. 
-	//	Returns TRUE unless page times out or returns HTTP 404.
-	//
+	/**
+	 * Uses cURL to see if the page exists.
+	 * @return bool true unless page times out or returns HTTP 404. 
+	 * Returns integer zero if cURL is unavailable
+	 */
 	function uri_exists($wpUri) {
 
 		//Test to see if cURL is available.
@@ -2970,12 +2947,10 @@ class acp_wp_united {
 	}	
 
 
-	//
-	//	FIGURE OUT FILESYSTEM PATH OF WORDPRESS
-	//	-------------------------------------------------------------------
-	//	Gets the filepath & URI of the current script, and then compares it to a provided WordPress URI 
-	//	to calculate the difference. Works on Unix-style & Windows servers.
-	//
+	/**
+	 * Gets the filepath & URI of the current script, and then compares it to a provided WordPress URI 
+	 * to calculate the difference. Works on Unix-style & Windows servers.
+	 */
 	function detect_path_from_uri($wpUri) {
 
 		$hostName = "http://".$_SERVER['HTTP_HOST'];
@@ -2998,25 +2973,21 @@ class acp_wp_united {
 	}
 
 
-	//
-	//	CHECK TO SEE IF WORDPRESS INSTALL EXISTS
-	//	--------------------------------------------------------------------
-	//	Simple func that tries to access wp-settings.php (a core WordPress file) locally.
-	//
+	/**
+	 * Simple func that tries to access wp-settings.php (a core WordPress file) locally.
+	 */
 	function wordpress_exists($wpPath) {
 		$wpPath = $this->add_trailing_slash($wpPath);
-		$wpPath = str_replace('http://', '', $wpPath); // urs sometimes return true on php 5.. this makes sure they don't.
+		$wpPath = str_replace('http://', '', $wpPath); // urls sometimes return true on php 5.. this makes sure they don't.
 		$pathToWpSettings = $wpPath . "wp-settings.php";
 		return (file_exists($pathToWpSettings));
 	}
 
 
-	//
-	//	SEND "AJAX" XML
-	//	-----------------------------------
-	//	Returns an XML message
-	//	Used by the wizard for asynchronous communication with the server
-	//
+	/**
+	 * Returns an XML message
+	 * Used by the wizard for asynchronous communication with the server
+	 */
 	function send_ajax ($xmlData, $title="results") {
 		
 		global $template, $showHeader, $showFooter; //$showPage;
@@ -3051,11 +3022,10 @@ class acp_wp_united {
 		//$showPage = FALSE;
 	}
 
-	//
-	//	ADD ACP MODULE
-	//	-----------------------------------
-	//	Auto-creates an ACP module
-	//
+	/**
+	 * Add ACP Module
+	 * Auto-creates an ACP module
+	 */
 	function add_acp_module(&$module_data) {
 		global $cache;
 
@@ -3086,11 +3056,11 @@ class acp_wp_united {
 
 		return $module_data['module_id'];
 	}
-	//
-	//	MODULE EXISTS?
-	//	-----------------------------------
-	//	Returns module ID if module exists
-	//
+	
+	
+	/**
+	 * Returns module ID if module exists
+	 */
 	function module_exists($modName, $parent = 0) {
 		global $db;
 		$sql = "SELECT module_id FROM " . MODULES_TABLE . "
@@ -3108,11 +3078,9 @@ class acp_wp_united {
 		return false;
 	}
 
-	//
-	//	REMOVE MODULES
-	//	-----------------------------------
-	//	Removes WP-United ACP modules. Note: Only removes them if they're in the expected place in the tree.
-	//
+	/**
+	 * Removes WP-United ACP modules. Note: Only removes them if they're in the expected place in the tree.
+	 */
 	function remove_modules() {
 
 		$modules_to_delete = array(
@@ -3146,11 +3114,10 @@ class acp_wp_united {
 		return $errors;
 	}
 
-	//
-	//	GET ACL OPTION IDS
-	//	-----------------------------------
-	//	Based on fn by Poyntesm Poyntesm, http://www.phpbb.com/community/viewtopic.php?f=71&t=545415&p=3026305
-	//
+	/**
+	 * Get ACL option IDs
+	 * Original author Poyntesm, http://www.phpbb.com/community/viewtopic.php?f=71&t=545415&p=3026305
+	 */
 	function get_acl_option_ids($auth_options) {
 	   global $db;
 

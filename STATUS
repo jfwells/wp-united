@@ -10,7 +10,7 @@ TODO
 
 
 
-- Cross-posting: Finalise ACP options
+- Cross-posting: Implement new ACP options
 - Cross-posting: Auto-link option replaced by "Use phpBB for responses to cross-posted blog posts"
 - Cross posting: To add: Automatically cross-post all blog posts permissions entry
 - Cross-posting: Fix dates
@@ -22,6 +22,8 @@ Cache: Align all calls
 Cache: Ability to purge. Auto-purge on wizard run
 Cache: Cache log seems to under-report on occasion after cache is purged
 Cache: Add .htaccess to package
+
+Language strings: Use phpBB i18n via phpbbForum for all strings, including in wpu-plugin and template-tags
 
 Feeds: Not recognised as XML in Chromium
 
@@ -123,8 +125,11 @@ DONE
 - Beginning to kill wpuAbs, and replacing with $phpbbForum. TODO: Don't kill $user unless absolutely necessary
 - $phpbbForum handles the current state of the integration. $phpbbForum->enter() and $phpbbForum->leave() MUST be called properly before accessing phpBB features from WordPress
 - phpBB is now always run, even in the dashboard. (It was anyway, but as a result of convoluted logic, and couldn't e relied upon)
-- phpBB varialbes like phpbb_root_path and $phpEx are now consistently available, everywhere. The only ones missing are $user and $cache -- ge those via $phpbbForum or phpbbForum->enter()
+- phpBB varialbes like phpbb_root_path and $phpEx are now consistently available, everywhere. The only ones missing are $user and $cache -- get those via $phpbbForum or phpbbForum->enter()
 - New comment and comments class load up phpBB comments into a format edible to WordPress
+- Removed all wpuAbs, apart from err_msg, from ACP
+- Removed passVars and passBlockVars from ACP. TODO: stop using block vars for conditionals
+- Added new cross-posting options, and re-worded cross-posting options. TODO: Link them to new x-posting code
 
 
 

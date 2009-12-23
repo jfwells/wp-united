@@ -58,12 +58,10 @@ function get_db_schema() {
 		'mustLogin' => 'mustLogin',
 		'upgradeRun' => 'ugRun',
 		'xposting' => 'xposting',
-		// Added in v0.7.0
 		'phpbbSmilies' => 'phpbbSmilies',
 		'fixHeader' => 'fixHeader',
-		// Added in 0.7.1
 		'xpostautolink' => 'xpostautolink',
-		// Added in 0.8.0
+		'xpostforce' => 'xpostforce',
 		'cssMagic' => 'cssmagic',
 		'templateVoodoo' => 'tempvoodoo',
 		'pluginFixes' => 'pluginfixes'
@@ -109,11 +107,10 @@ function set_default($setting_key) {
 		'mustLogin' => 0,
 		'upgradeRun' => 0,
 		'xposting' => 0,
-		// Added in 0.7.0
 		'phpbbSmilies' => 0,
 		'fixHeader' => 1,
-		// Added in 0.8.0
 		'xpostautolink' => 0,
+		'xpostforce' => -1,
 		'cssMagic' => 1,
 		'templateVoodoo' => 1,
 		'pluginFixes' => 0	

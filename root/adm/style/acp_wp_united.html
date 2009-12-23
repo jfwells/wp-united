@@ -218,6 +218,7 @@
 			//document.getElementById("wpRowH").style.display = 'none';
 			document.getElementById("xpostRow").style.display = 'none';
 			document.getElementById("xpostal").style.display = 'none';
+			document.getElementById("xpostal2").style.display = 'none';
 			document.getElementById("xpostalhead").style.display = 'none';
 			document.getElementById("xPostHead").style.display = 'none';			
 			//document.getElementById("wpRow1").style.display = 'none';
@@ -240,6 +241,7 @@
 			if (document.getElementById("xpostYes").checked == true) {
 				document.getElementById("xpostal").style.display = '';
 				document.getElementById("xpostalhead").style.display = '';
+				document.getElementById("xpostal2").style.display = '';
 			}
 			document.getElementById("xPostHead").style.display = '';
 			//document.getElementById("wpRow1").style.display = '';
@@ -302,73 +304,7 @@
 		return false;
 	} 
 
-	var currItem = 'INIT';
-	function listSelect(selbox) {
-		if (enhanced ) {
-			if ('lbGroups' != selbox) { 
-				var boxes = new Array('lbSubs','lbConts','lbAuthors','lbEditors','lbAdmins');
-				for(var b=0;b<boxes.length;b++)
-					document.getElementById('p'+boxes[b]).style.backgroundColor=(boxes[b]==selbox)?"#000000":"#996699";
-				currItem = selbox;
-			}
-			return false;
-		}
-	}
-	function moveLeft() {
-		if (enhanced) {
-			if ( currItem != 'INIT' ) {
-				var leftSelect = document.getElementById('lbGroups');
-				var rightSelect = document.getElementById(currItem);
-				if (rightSelect.selectedIndex > -1) {
-					var addOpt = document.createElement('option');		
-					addOpt.value = rightSelect.options[rightSelect.selectedIndex].value;
-					addOpt.text = rightSelect.options[rightSelect.selectedIndex].text;
-					addOption(leftSelect, addOpt);
-					rightSelect.remove(rightSelect.selectedIndex);
-					doCollate();
-				}
-			}
-			return false;
-		}
-	}
-	function moveRight() {
-		if (enhanced) {
-			if ( currItem != 'INIT' ) {
-				var leftSelect = document.getElementById('lbGroups');
-				var rightSelect = document.getElementById(currItem);
-				if (leftSelect.selectedIndex > -1) {
-					var addOpt = document.createElement('option');
-					addOpt.value = leftSelect.options[leftSelect.selectedIndex].value;
-					addOpt.text = leftSelect.options[leftSelect.selectedIndex].text;
-					addOption(rightSelect, addOpt);
-					leftSelect.remove(leftSelect.selectedIndex);
-					if (leftSelect.length > 0) {
-						leftSelect.selectedIndex = 0;
-					}
-					doCollate();
-				}
-			}
-			return false;
-		}
-	}
-	function doCollate() {
-		if (enhanced) {
-			var roleList = '[--**WPU-ROLELIST**--]<S:>' + parseRoles('lbSubs') + '<C:>' + parseRoles('lbConts') + '<A:>' + parseRoles('lbAuthors') + '<E:>' + parseRoles('lbEditors') + '</:>' + parseRoles('lbAdmins') + '[--**--]';
-			document.getElementById('rolesOutput').value = roleList;
-			return false;
-		}
-	}
-	function parseRoles(lbox) {
-		var output = '';
-		var theRole = document.getElementById(lbox);
-		for (var i=0;i<theRole.length;i++)output += (i==theRole.length-1)?theRole.options[i].value:theRole.options[i].value+'|';
-		return output;
-	}
-	function addOption(sel, opt) {
-		try {sel.add(opt, null);}catch(ex){sel.add(opt);}	
-	}
-	
-	
+
 	// ]]>
 	</script>
 
@@ -421,6 +357,16 @@
 				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="al_xpostYes" name="rad_xpost_al" value="1" {S_WPXAL_ENABLE} />{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xpost_al" value="0" {S_WPXAL_DISABLE} />{L_WP_NO}</dd>
 			</dl>
+			<dl id="xpostal2">
+				<dt><label for="al_xpost_must">{L_WPXPOST_MUST_XPOST_TITLE}</label><br /><span>{L_WPXPOST_MUST_XPOST_EXPLAIN}</span></dt>
+				<dd>
+					<select name="al_xpost_must" id="al_xpost_must">
+						<!-- BEGIN xpost_forumlist -->
+						<option value="{switch_settings_page.xpost_forumlist.S_XPOST_VALUE}" {switch_settings_page.xpost_forumlist.S_XPOST_SEL}>{switch_settings_page.xpost_forumlist.S_XPOST_DESC}</option>
+						<!-- END xpost_forumlist -->
+					</select>
+				</dd>
+			</dl>	
 		</fieldset>		
 
 		</fieldset>
@@ -547,10 +493,11 @@
 		</fieldset>
 	</form>
 	<script type="text/javascript">
-	<!--
+	// <![CDATA
+
 	var enhanced = enhancePage();
 	rowState();
-	//-->
+	// ]]>
 	</script>
 
 <!-- END switch_settings_page -->
@@ -824,6 +771,7 @@
 			document.getElementById("xpostRow").style.display = 'none';
 			document.getElementById("xPostHead").style.display = 'none';
 			document.getElementById("xpostal").style.display = 'none';
+			document.getElementById("xpostal2").style.display = 'none';
 			document.getElementById("xpostalhead").style.display = 'none';
 		}
 	}
@@ -834,6 +782,7 @@
 			document.getElementById("xPostHead").style.display = '';
 			if (document.getElementById("xpostYes").checked == true) {
 				document.getElementById("xpostal").style.display = '';
+				document.getElementById("xpostal2").style.display = '';
 				document.getElementById("xpostalhead").style.display = '';
 			}
 
@@ -881,17 +830,27 @@
 			<dl id="xpostal">
 				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="al_xpostYes" name="rad_xpost_al" value="1" {S_WPXAL_ENABLE} />{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xpost_al" value="0" {S_WPXAL_DISABLE} />{L_WP_NO}</dd>
-			</dl>		
+			</dl>
+			<dl id="xpostal2">
+				<dt><label for="al_xpost_must">{L_WPXPOST_MUST_XPOST_TITLE}</label><br /><span>{L_WPXPOST_MUST_XPOST_EXPLAIN}</span></dt>
+				<dd>
+					<select name="al_xpost_must" id="al_xpost_must">
+						<!-- BEGIN xpost_forumlist -->
+						<option value="{switch_wizard_page2.xpost_forumlist.S_XPOST_VALUE}" {switch_wizard_page2.xpost_forumlist.S_XPOST_SEL}>{switch_wizard_page2.xpost_forumlist.S_XPOST_DESC}</option>
+						<!-- END xpost_forumlist -->
+					</select>
+				</dd>
+			</dl>
 		</fieldset>
 		<input type="hidden" name="mode" value="wizard" />
 		<input type="submit" name="Next" value="{L_WPNEXT}" style="float: right;" class="button1" />	
 		<input type="submit" name="Back" value="{L_WPBACK}" style="float: right;" class="button2" />
 	</form>
 	<script type="text/javascript">
-	<!--
+	// <![CDATA
 	var enhanced = enhancePage();
 	rowState();
-	//-->
+	// ]]>
 	</script>	
 <!-- END switch_wizard_page2 -->
 <!-- BEGIN switch_wizard_page3 -->
@@ -1086,10 +1045,10 @@
 	</form>
 
 	<script type="text/javascript">
-	<!--
+	// <![CDATA
 	var enhanced = enhancePage();
 	rowState();
-	//-->
+	// ]]>
 	</script>
 <!-- END switch_wizard_page3 -->
 <!-- BEGIN switch_wizard_page4 -->
