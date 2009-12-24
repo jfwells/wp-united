@@ -42,9 +42,10 @@ class WPU_Comments {
 		if($result = $db->sql_query_limit($sql, 1)) {
 			$dets = $db->sql_fetchrow($result);
 			if(isset($dets['topic_id'])) {
-				$topicID = (int)$topicID['topic_id'];
+				$topicID = (int)$dets['topic_id'];
 			}
 		} 
+		
 		
 		if(!isset($topicID)) {
 			$db->sql_freeresult($result);

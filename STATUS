@@ -135,5 +135,7 @@ DONE
 - Added new cross-posting options, and re-worded cross-posting options. TODO: Link them to new x-posting code
 - Most use of wp-united-connection-settings in wpu-plugin removed, as we can now just use $wpSettings and phpbb_root_path everywhere. TODO: normalise scriptPath everywhere!
 - Per-user blogs widgets only registered if per-user blogs are enabled
+- new cross-posting options now work
+- cross-posting comments auto-link fixed as post_id != topic_id
 
 

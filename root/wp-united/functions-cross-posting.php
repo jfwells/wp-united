@@ -21,12 +21,22 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
  * Cross-posts a blog-post that was just added to the relevant forum
  */
 function wpu_do_crosspost($postID, $post) {
-	global $phpbbForum, $phpbb_root_path, $phpEx, $db, $wp_version;
+	global $wpSettings, $phpbbForum, $phpbb_root_path, $phpEx, $db, $wp_version;
 	
-	// cross-post check-box and forum selector will be filled in, OR the already-xposted box will be
-	// We do a proper check for already-cposted below, too.
-	if ( ( !(isset($_POST['chk_wpuxpost'])) || !($forum_id = (int)$_POST['sel_wpuxpost']) ) && 
-		(!isset($_POST['wpu_already_xposted_post'])) ) { 
+	$forum_id = false;
+	if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
+		$forum_id = (int)$_POST['sel_wpuxpost'];
+	} else if ($wpSettings['xpostforce'] > -1) {
+		$forum_id = $wpSettings['xpostforce'];
+	}
+	
+	/**
+	 * cross-post check-box and forum selector will be filled in, 
+	 * OR the already-xposted box will be shown,
+	 * OR xpost-forcing is on
+	 */
+	// We do a proper check for already-xposted below, too.
+	if ( ($forum_id  === false) && (!isset($_POST['wpu_already_xposted_post'])) ) { 
 		return false;
 	}
 
@@ -43,7 +53,7 @@ function wpu_do_crosspost($postID, $post) {
 			$mode = 'edit';
 			$subject = $details['post_subject'];
 			$forum_id = $details['forum_id'];
-			$data['topic_id'] = $details['post_id'];
+			$data['topic_id'] = $details['topic_id'];
 			$data['post_id'] = $details['post_id'];
 			$data['poster_id'] = $details['poster_id'];
 		}
@@ -131,10 +141,11 @@ function wpu_do_crosspost($postID, $post) {
 				$phpbbForum->err_msg(CRITICAL_ERROR, $phpbbForum->lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
 			}
 			$db->sql_freeresult($result);
-			
+			$phpbbForum->leave(); 
 			return true;
 		}
 	}
+	$phpbbForum->leave(); 
 }
 
 /**
@@ -183,7 +194,7 @@ function wpu_get_xposted_details($postID = false) {
 	}
 	global $db;
 	
-	$sql = 'SELECT p.post_id, p.post_subject, p.forum_id, p.poster_id, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . FORUMS_TABLE . ' AS f WHERE ' .
+	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . FORUMS_TABLE . ' AS f WHERE ' .
 		"p.post_wpu_xpost = $postID AND " .
 		'f.forum_id = p.forum_id';
 	if ($result = $db->sql_query_limit($sql, 1)) {
@@ -197,6 +208,41 @@ function wpu_get_xposted_details($postID = false) {
 }
 
 /**
+ * Returns the forced xposting forum name from an ID, or false if it does not exist or cannot be posted to
+ */
+function wpu_get_forced_forum_name($forumID) {
+	global $user, $db, $auth, $phpbbForum;
+	
+	$phpbbForum->enter();
+	
+	$forumName = false;
+	
+	$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
+	
+	if ( sizeof($can_xpost_to) ) { 
+		$can_xpost_to = array_keys($can_xpost_to); 
+	} 
+
+	if(in_array($forumID, $can_xpost_to)) {
+		
+		$sql = 'SELECT forum_name FROM ' . FORUMS_TABLE . ' WHERE forum_id = ' . $forumID;
+			
+		if($result = $db->sql_query($sql)) {
+			$row = $db->sql_fetchrow($result);
+			$db->sql_freeresult($result);
+			
+			if (isset($row['forum_name'])) {
+				$forumName = $row['forum_name'];
+			}
+		}
+	}
+	$phpbbForum->leave();
+	
+	return (empty($forumName)) ? false : $forumName;
+	
+}
+
+/**
  * Loads comments from phpBB rather than WordPress
  * if Xpost-autoloading is on
  * @since v0.8.0
@@ -204,14 +250,16 @@ function wpu_get_xposted_details($postID = false) {
 function wpu_load_phpbb_comments($commentArray, $postID) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
 	
-	if ( (empty($phpbb_root_path)) || (empty($wpSettings['xposting'])) ) {
-		 //&& (!empty($connSettings['autolink_xpost']))
+	if ( 
+		(empty($phpbb_root_path)) || 
+		(empty($wpSettings['xposting'])) || 
+		(empty($wpSettings['xpostautolink'])) 
+	) {
 		return $commentArray;
 	}
-		
+	
 	require_once($phpbb_root_path . 'wp-united/comments.' . $phpEx);
 
-	
 	$phpBBComments = new WPU_Comments();
 	if ( !$phpBBComments->populate($postID) ) {
 		$usePhpBBComments = false;
@@ -258,7 +306,11 @@ function wpu_comments_count($count, $postID) {
 function wpu_comment_redirector($postID) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum;
 	
-	if( (empty($wpSettings['integrateLogin'])) || (empty($wpSettings['xposting'])) ) {
+	if ( 
+		(empty($phpbb_root_path)) || 
+		(empty($wpSettings['xposting'])) || 
+		(empty($wpSettings['xpostautolink'])) 
+	) {
 		return false;
 	}
 
@@ -292,7 +344,7 @@ function wpu_comment_redirector($postID) {
 	
 	$data = array(
 		'forum_id' => $xPostDetails['forum_id'],
-		'topic_id' => $xPostDetails['post_id'],
+		'topic_id' => $xPostDetails['topic_id'],
 		'icon_id' => false,
 		'enable_bbcode' => true,
 		'enable_smilies' => true,
@@ -310,8 +362,7 @@ function wpu_comment_redirector($postID) {
 		'enable_indexing'	=> true,
 	); 
 	$postUrl = submit_post('reply', $subject, $phpbbForum->get_username(), POST_NORMAL, $poll, $data);
-	
-	
+
 	$phpbbForum->leave();
 	
 	$location = empty($_POST['redirect_to']) ? get_comment_link($comment_id) : $_POST['redirect_to'] . '#comment-' . $comment_id;
