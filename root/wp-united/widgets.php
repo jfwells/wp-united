@@ -467,24 +467,30 @@ function wpu_widgets_init() {
 	/**
 	 * The widgets are all registered here
 	 */
+	
+	global $wpSettings;
+	
 	register_sidebar_widget(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info');
-	register_sidebar_widget(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs');
-	register_sidebar_widget(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts');
 	register_sidebar_widget(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics');
 	register_sidebar_widget(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats');
 	register_sidebar_widget(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts');
 	register_sidebar_widget(array('WP-United Users Online', 'widgets'), 'widget_wpuusersonline');
-
+	if(!empty($wpSettings['usersOwnBlogs'])) {
+		register_sidebar_widget(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs');
+		register_sidebar_widget(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts');	
+	}
 	/**
 	 * Register all control panes
 	 */
 	register_widget_control(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info_control', 500, 180);
-	register_widget_control(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
-	register_widget_control(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
 	register_widget_control(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics_control', 300, 100);
 	register_widget_control(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats_control', 300, 100);
 	register_widget_control(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts_control', 300, 100);
 	register_widget_control(array('WP-United Users Online', 'widgets'), 'widget_wpuusersonline_control', 300, 100);
+	if(!empty($wpSettings['usersOwnBlogs'])) {	
+		register_widget_control(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
+		register_widget_control(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
+	}
 }
 
 

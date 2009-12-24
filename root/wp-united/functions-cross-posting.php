@@ -202,11 +202,9 @@ function wpu_get_xposted_details($postID = false) {
  * @since v0.8.0
  */
 function wpu_load_phpbb_comments($commentArray, $postID) {
-	global $phpbb_root_path, $phpEx, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
+	global $wpSettings, $phpbb_root_path, $phpEx, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
 	
-	$connSettings = get_settings('wputd_connection');
-	
-	if ( (empty($phpbb_root_path)) || (empty($connSettings['wpu_enable_xpost'])) ) {
+	if ( (empty($phpbb_root_path)) || (empty($wpSettings['xposting'])) ) {
 		 //&& (!empty($connSettings['autolink_xpost']))
 		return $commentArray;
 	}
@@ -258,11 +256,9 @@ function wpu_comments_count($count, $postID) {
  * this catches posted comments and sends them to the forum
  */
 function wpu_comment_redirector($postID) {
-	global $phpbb_root_path, $phpEx, $phpbbForum;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum;
 	
-	$connSettings = get_settings('wputd_connection');
-
-	if( (empty($connSettings['logins_integrated'])) || (empty($connSettings['wpu_enable_xpost'])) ) {
+	if( (empty($wpSettings['integrateLogin'])) || (empty($wpSettings['xposting'])) ) {
 		return false;
 	}
 

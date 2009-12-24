@@ -31,6 +31,9 @@ WordPress detection: Stop using config file
 
 Widgets: Direct link to ACP no longer works with new phpBB form nonce
 
+Plugin: Remove full_path_to_pluigin -- try replacing with __FILE__
+Plugin: wpu_must_integrate being called on template_redirect is probably not good -- disabled for now.  Review.
+
 Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
 ACP: wpu-plugin copy doesn't need to look for magic verion variable, just use filemtime instead.
@@ -130,6 +133,7 @@ DONE
 - Removed all wpuAbs, apart from err_msg, from ACP
 - Removed passVars and passBlockVars from ACP. TODO: stop using block vars for conditionals
 - Added new cross-posting options, and re-worded cross-posting options. TODO: Link them to new x-posting code
-
+- Most use of wp-united-connection-settings in wpu-plugin removed, as we can now just use $wpSettings and phpbb_root_path everywhere. TODO: normalise scriptPath everywhere!
+- Per-user blogs widgets only registered if per-user blogs are enabled
 
 

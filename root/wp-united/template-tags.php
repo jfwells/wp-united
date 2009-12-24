@@ -318,14 +318,8 @@ function avatar_create_image($user) {
 	$avatar = '';
 	if ( !empty($user->ID) ) {
 		global $scriptPath, $phpbb_root_path, $phpEx;
-		if(empty($phpbb_root_path)) {
-			$connSettings = get_settings('wputd_connection');
-			$phpbb_root_path = $connSettings['path_to_phpbb'];
-			$phpEx = substr(strrchr(__FILE__, '.'), 1);	
-			define('IN_PHPBB', TRUE);
-			require_once($phpbb_root_path . 'includes/constants.' . $phpEx); 
-			$scriptPath = $phpbb_root_path;			
-		}			
+		$scriptPath = (empty($scriptPath)) ? $phpbb_root_path : $scriptPath;			
+		
 		if ($user->wpu_avatar_type && $user->wpu_avatar) {
 			require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
 			$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
@@ -778,20 +772,15 @@ function wpu_user_id($wp_userID = '') {
  * @since v0.7.0
  */
 function wpu_get_comment_author_link () {
-global $comment, $phpbb_seo;
+global $comment, $phpbb_seo, $phpbb_root_path, $scriptPath;
  
 	$uID = get_wpu_user_id($comment->user_id);
 	
 	if (empty($uID)) { 
 		return $wpu_link = get_comment_author();
 	} else {
-		global $scriptPath;
-		if(empty($scriptPath)) {
-			$connSettings = get_settings('wputd_connection');
-			$phpbbPath = $connSettings['path_to_phpbb'];
-		} else { 
-			$phpbbPath = $scriptPath;
-		}
+		$scriptPath = (empty($scriptPath)) ? $phpbb_root_path : $scriptPath;
+		
 		if (!empty($phpbb_seo)) {
 			return $wpu_link = '<a href="' . $phpbbPath . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
 		} else {
@@ -960,7 +949,6 @@ function get_wpu_login_user_info($args) {
 			}
 		}
 		if ($showAdminLinks) {
-			$connSettings = get_settings('wputd_connection');
 			if (current_user_can('publish_posts')) {
 				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
