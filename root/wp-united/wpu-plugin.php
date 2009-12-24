@@ -138,17 +138,17 @@ function wpu_check_for_action() {
  * Please DO NOT remove this!
  */
 function wpu_put_powered_text() {
-	global $wp_version;
+	global $wp_version, $wpSettings;
 	echo '<p  id="poweredby"> phpbb integration &copy; 2006-2009 <a href="http://www.wp-united.com" target="_blank">WP-United</a></p>';
-	$wpuConnSettings = get_settings('wputd_connection');
+
 	if ( current_user_can('publish_posts') ) {	
-		if ( $wpuConnSettings['blogs'] ) {
+		if ( $wpSettings['usersOwnBlogs'] ) {
 			if($wp_version < 2.5) {
 				echo '<p  id="welcome1">' . __('Welcome to WP-United. Click <strong>Write</strong> to add to your blog');
 			} else {
 				echo '<p  id="welcome1">' . __('Welcome to WP-United. Click <strong>Posts</strong> &rarr; <strong>Add New</strong> to add to your blog');
 			}
-			if ( $wpuConnSettings['styles'] ) {	
+			if ( $wpSettings['allowStyleSwitch'] ) {	
 				echo '<br />' . __('You can set how it looks under the <strong>Your Blog</strong> tab!');
 			}
 			echo '</p>';
@@ -164,9 +164,9 @@ function wpu_put_powered_text() {
  * Hides the messages we don't want using CSS
  */
 function wpu_css() {
-	global $wp_version;
-	$wpuConnSettings = get_settings('wputd_connection');
-	$top = ( $wpuConnSettings['blogs'] && $wpuConnSettings['styles'] ) ? "0.3" : "1";
+	global $wpSettings;
+
+	$top = ( $wpSettings['usersOwnBlogs'] && $wpSettings['allowStyleSwitch'] ) ? "0.3" : "1";
 		
 	if ($wp_version >= 2.5) {
 		echo '
@@ -219,11 +219,7 @@ function wpu_css() {
 			}
 			</style>
 			';	
-	
 	}
-	
-
-
 }
 
 /**
@@ -232,7 +228,7 @@ function wpu_css() {
  * @todo neaten wp 2.7/2.8+
  */
 function wpu_adminmenu_init() {
-
+	global $wpSettings, $phpbb_root_path, $phpEx;
 	$wpuConnSettings = get_settings('wputd_connection');
 	
 	//Check for action
@@ -244,11 +240,11 @@ function wpu_adminmenu_init() {
 
 	$fullFilePath = $wpuConnSettings['path_to_plugin'];
 	
-	if (!empty($wpuConnSettings['logins_integrated'])) {
+	if (!empty($wpSettings['integrateLogin'])) {
 		if (function_exists('add_submenu_page')) {
 			if (current_user_can('publish_posts'))  {
 				if($wp_version < 2.7) {
-					if ( !empty($wpuConnSettings['blogs']) ) {
+					if ( !empty($wpSettings['usersOwnBlogs']) ) {
 						add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'], 'wpu_menuTopLevel');
 					} 
 					if ( isset($_GET['page']) ) { // add submenus if we're under the blog main page
@@ -257,7 +253,7 @@ function wpu_adminmenu_init() {
 							global $parent_file;
 							$parent_file = 'wpu';
 							add_submenu_page('wpu', __('Your Blog Settings'), __('Your Blog Settings'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=bset', 'wpu_menuTopLevel');
-							if ( !empty($wpuConnSettings['styles']) ) {
+							if ( !empty($wpSettings['allowStyleSwitch']) ) {
 								add_submenu_page('wpu', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=themes', 'wp_united_display_theme_menu');
 							}
 						}
@@ -265,12 +261,12 @@ function wpu_adminmenu_init() {
 				} else {
 				//	WP 2.7 ADMIN PANEL PAGE FOR OWN BLOGS
 			
-					if ( !empty($wpuConnSettings['blogs']) ) {
-						$top = add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', 'wpu-plugin.php', 'wpu_menuTopLevel', $wpuConnSettings['path_to_phpbb'] . 'wp-united/images/tiny.gif' );
+					if ( !empty($wpSettings['usersOwnBlogs']) ) {
+						$top = add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', 'wpu-plugin.' . $phpEx, 'wpu_menuTopLevel', $phpbb_root_path . 'wp-united/images/tiny.gif' );
 						
-						add_submenu_page('wpu-plugin.php', __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin.php' , 'wpu_menuTopLevel');						
-						if ( !empty($wpuConnSettings['styles']) ) {
-							add_submenu_page('wpu-plugin.php', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts','wpu-plugin.php&wputab=themes', 'wpu_menuTopLevel');
+						add_submenu_page('wpu-plugin.php', __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin.' . $phpEx , 'wpu_menuTopLevel');						
+						if ( !empty($wpSettings['allowStyleSwitch']) ) {
+							add_submenu_page('wpu-plugin.' . $phpEx, __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts','wpu-plugin.' . $phpEx . '&wputab=themes', 'wpu_menuTopLevel');
 						}
 					} 
 		
@@ -279,11 +275,10 @@ function wpu_adminmenu_init() {
 			} 
 			//Redirect the profile page if own blogs -- if not own blogs, it gets buffered anyway.
 			if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
-				$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
-				if ( (current_user_can('publish_posts')) && ($wpuConnSettings['blogs']==1) )  {
+				if ( (current_user_can('publish_posts')) && ($wpSettings['usersOwnBlogs']==1) )  {
 					wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin']);
 				} else {
-					wp_redirect($phpbb_root_path.'ucp.php');
+					wp_redirect($phpbb_root_path.'ucp.' . $phpEx);
 				}
 			}
 			//Redirect the edit users page (just in case)
@@ -314,7 +309,7 @@ function wpu_menuTopLevel() {
  * 
  */
 function wpu_menuSettings() { 
-	global $user_ID, $wp_roles;
+	global $wpSettings, $user_ID, $wp_roles;
 	$profileuser = get_user_to_edit($user_ID);
 	$bookmarklet_height= 440;
 	$wpuConnSettings = get_settings('wputd_connection');
@@ -324,7 +319,7 @@ function wpu_menuSettings() {
 		<p><strong>' . __('Settings updated.') . '</strong></p>
 		</div>';
 	}
-	if ( !empty($wpuConnSettings['blogs']) ) {
+	if ( !empty($wpSettings['usersOwnBlogs']) ) {
 		$pageTitle .= __('Your Blog Details');
 	} else {
 		$pageTitle .= __('Your Profile');
@@ -383,7 +378,7 @@ function wpu_menuSettings() {
 	}
 	$page_output .= '</select></label></p>
 	</fieldset>';
-	if ( !empty($wpuConnSettings['blogs']) ) {
+	if ( !empty($wpSettings['usersOwnBlogs']) ) {
 		$page_output .= '<fieldset>
 		<legend>' . __('About Your Blog') . '</legend>
 		<input type="hidden" name="email" value="' . $profileuser->user_email . '" />';
@@ -449,7 +444,7 @@ function wpu_menuSettings() {
  */
 function wp_united_display_theme_menu() {
 
-	global $user_ID, $title, $parent_file, $wp_version;
+	global $user_ID, $title, $parent_file, $wp_version, $phpEx;
 	$wpuConnSettings = get_settings('wputd_connection');
 	
 	if ( ! validate_current_theme() ) { ?>
@@ -521,7 +516,7 @@ function wp_united_display_theme_menu() {
 		$themes = array_slice( $themes, $start, $per_page );
 	
 		$pageTitle = __('Set Your Blog Theme');
-		$parent_file = 'wpu-plugin.php&wputab=themes'; ?>
+		$parent_file = 'wpu-plugin.' . $phpEx . '&wputab=themes'; ?>
 		
 		<div class="wrap">
 			<?php screen_icon(); ?>
@@ -597,7 +592,7 @@ function wp_united_display_theme_menu() {
 						$preview_text = attribute_escape( sprintf( __('Preview of "%s"'), $title ) );
 						$tags = $themes[$theme_name]['Tags'];
 						$thickbox_class = 'thickbox';
-						$activate_link = wp_nonce_url('admin.php?page=wpu-plugin.php&amp;wputab=themes&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
+						$activate_link = wp_nonce_url('admin.php?page=wpu-plugin.' . $phpEx . '&amp;wputab=themes&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
 						$activate_text = attribute_escape( sprintf( __('Activate "%s"'), $title ) );
 						?>
 						<?php if ( $screenshot ) { ?>
@@ -816,9 +811,8 @@ function wpu_justediting() {
  * Also handles cross-posting
  */
 function wpu_newpost($post_ID, $post) {
-	global $phpbbForum;
+	global $wpSettings, $phpbbForum, $phpbb_root_path;
 	
-	$connSettings = get_settings('wputd_connection');
 	global $user_ID, $wpdb;
 	$did_xPost = false;
 	if ( $post->post_status == 'publish' ) { 
@@ -826,7 +820,7 @@ function wpu_newpost($post_ID, $post) {
 			update_usermeta($post->post_author, 'wpu_last_post', $post->post_author); 
 		} 
 
-		if ( !empty($connSettings['logins_integrated']))  {
+		if ( !empty($wpSettings['integrateLogin']))  {
 			global $db, $user, $phpEx; 
 			
 			$phpbbForum->enter();
@@ -844,33 +838,20 @@ function wpu_newpost($post_ID, $post) {
 			}
 			
 			// Cross-post to forums if necessary
-			$tryXPost = ( (isset($_POST['chk_wpuxpost'])) || (isset($_POST['wpu_already_xposted_post'])) );
-			if ( $tryXPost && ($phpbbForum->user_logged_in()) && (!empty($connSettings['wpu_enable_xpost'])) ) {
+			$tryXPost = ( (isset($_POST['chk_wpuxpost'])) || 
+								   (isset($_POST['wpu_already_xposted_post'])) || 
+								   ($wpSettings['xpostforce'] > -1) 
+			);
+
+			if ( $tryXPost && ($phpbbForum->user_logged_in()) && (!empty($wpSettings['xposting'])) ) {
+				
 				$did_xPost = wpu_do_crosspost($post_ID, $post);
 			} 
-			
-			$phpbbForum->leave();
-
-			if($did_xPost) { //Need to do this after we exit phpBB code
-				$topic_url = str_replace($connSettings['path_to_phpbb'], "", $topic_url);
-				$topic_url = $connSettings['phpbb_url'] . $topic_url;
-			
-			
-				if (!empty($connSettings['autolink_xpost'])) {
-				
-			  		$thePost = array(
-				  		'ID' 			=> 	$post_ID,
-				  		'comment_status' 	=> 	'closed',
-				  		'post_content'		=>	$post->post_content . "<br /><br /><a href=\"$topic_url\" title=\"" . __('Comments') . "\">" . __('Comment on this post in our forums') . "</a>"
-			  		); 
-			  		wp_update_post($thePost);
-				}
-			}
 
 			define('suppress_newpost_action', TRUE);
-		} //end ? logins integrated
+		}
 		$phpbbForum->leave();
-	} //post status: publish
+	}
 
 }
 
@@ -928,8 +909,8 @@ function wpu_blogdesc($default) {
 function wpu_homelink($default) {
 	global $wpSettings, $user_ID, $wpu_done_head, $altered_link, $wp_version, $wputab_altered_link; 
 	if ( ($wpu_done_head && !$altered_link) || ($default=="wpu-activate-theme")  ) {
-		$wpuConnSettings = get_settings('wputd_connection');
-		if ( !empty($wpuConnSettings['blogs']) ) {
+
+		if ( !empty($wpSettings['usersOwnBlogs']) ) {
 
 			$altered_link = TRUE; // prevents this from becoming recursive -- we only want to do it once anyway
 
@@ -1064,8 +1045,9 @@ function wpu_prev_next_post($where) {
  * This prevents users from browsing other users' media
  */
 function wpu_user_upload_dir($default) {
-	$wpuConnSettings = get_settings('wputd_connection');
-	if ( !empty($wpuConnSettings['logins_integrated']) ) {
+	global $wpSettings;
+
+	if ( !empty($wpSettings['integratelogin']) ) {
 		global $user_ID;
 		$usr = get_userdata($user_ID);
 		$usrDir = $usr->user_login;
@@ -1094,9 +1076,9 @@ function wpu_user_upload_dir($default) {
  * Adds a filter if we are browsing attachments if users have own blogs but don't have 'edit' permissions
  */
 function wpu_browse_attachments() {
-	global $user_ID;
-	$wpuConnSettings = get_settings('wputd_connection');
-	if ( (!empty($wpuConnSettings['logins_integrated'])) && (!current_user_can('edit_post', (int) $ID)) ) {
+	global $user_ID, $wpSettings;
+
+	if ( (!empty($wpSettings['integrateLogin'])) && (!current_user_can('edit_post', (int) $ID)) ) {
 		add_filter( 'posts_where', 'wpu_attachments_where' );
 	}
 }
@@ -1132,11 +1114,11 @@ function wpu_feed_link($link) {
 /**
  * Redirects to the integrated page, in case WordPress has been accessed directly.
  * This will probably piss some people off -- but it's better than people accessing the wrong page and insisting it is screwed up.
+ * @todo this actio is currently disabled -- we should just check for login page for now
  */
 function wpu_must_integrate() {
 	if ( (!defined('WP_UNITED_ENTRY')) && (!is_admin()) ) {
-		$wpuConnSettings = get_settings('wputd_connection');
-		if ( $wpuConnSettings ) { //try to avoid infinitely redirecting loops
+		if ( defined('IN_PHPBB') ) { //try to avoid infinitely redirecting loops
 			wp_redirect(get_option('home'));
 			exit();
 		}
@@ -1151,8 +1133,8 @@ function wpu_must_integrate() {
  * no way of knowing what the theme should be a WordPress is not invoked
  */
 function wpu_clear_header_cache() {
-	$wpuConnSettings = get_settings('wputd_connection');
-	$cacheLoc = $wpuConnSettings['path_to_phpbb'] . 'wp-united/cache/';
+	global $phpbb_root_path;
+	$cacheLoc = $phpbb_root_path . 'wp-united/cache/';
 	@$dir = opendir($cacheLoc);
 	while( $entry = readdir($dir) ) {
 		if ( strpos($entry, '.wpucache') ) {
@@ -1166,7 +1148,7 @@ function wpu_clear_header_cache() {
  */
 function wpu_add_postboxes() {
 	global $wp_version, $can_xpost_forumlist, $already_xposted;
-	$wpuConnSettings = get_settings('wputd_connection');
+
 	if ( $wp_version >= 2.5 ) { ?> 
 		<div id="wpuxpostdiv" class="inside">
 		<?php //_e('Cross-post to Forums?'); ?>
@@ -1200,31 +1182,65 @@ function wpu_add_postboxes() {
 	<?php if ( $wp_version < 2.5 ) echo "</fieldset>";
 
 }
+/**
+ * Adds a "Force cross-posting" info box
+ */
+function wpu_add_forcebox($forumName) {
+	global $wp_version, $forceXPosting;
+
+	if ( $wp_version >= 2.5 ) { ?> 
+		<div id="wpuxpostdiv" class="inside">
+		<?php //_e('Cross-post to Forums?'); ?>
+	<?php } else { ?>
+		<fieldset id="wpuxpostdiv" class="dbx-box">
+		<h3 class="dbx-handle"><?php _e('Forum Posting') ?></h3> 
+		<div class="dbx-content">
+	<?php } ?>
+		
+	<p> <?php echo sprintf(__('This post will be cross-posted to the forum: \'%s\''), $forceXPosting) ?></p>
+	</div>
+	<?php if ( $wp_version < 2.5 ) echo "</fieldset>";
+
+}
 
 /**
  *  Here we decide whether to display the cross-posting box, and store the permissions list in global vars for future use.
  * For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the func now.
  */
 function wpu_add_meta_box() {
-	global $phpbbForum, $wp_version, $can_xpost_forumlist, $already_xposted;
+	global $phpbbForum, $wpSettings, $wp_version, $can_xpost_forumlist, $already_xposted;
 	// this func is called early
 	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
-			$wpuConnSettings = get_settings('wputd_connection'); 
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to
-			if ( $wpuConnSettings['wpu_enable_xpost'] && !empty($wpuConnSettings['logins_integrated']) ) { 
-				$phpbbForum->enter();
-				if ( !($already_xposted = wpu_get_xposted_details()) ) { 
-					$can_xpost_forumlist = wpu_forum_xpost_list(); 
-				}
-				$phpbbForum->leave();
+			if ( !empty($wpSettings['xposting']) && !empty($wpSettings['integrateLogin']) ) { 
 				
-				if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
-					if($wp_version >= 2.5) { 
-						add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
-					} else {
-						wpu_add_postboxes();
+				if($wpSettings['xpostforce'] > -1) { 
+					// Add forced xposting info box
+					global $forceXPosting;
+					$forceXPosting = wpu_get_forced_forum_name($wpSettings['xpostforce']);
+					if($forceXPosting !== false) {
+						if($wp_version >= 2.5) { 
+							add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
+						} else {
+							wpu_add_forcebox();
+						}
+					}
+				} else {	
+					// Add xposting choice box
+					$phpbbForum->enter();
+					if ( !($already_xposted = wpu_get_xposted_details()) ) { 
+						$can_xpost_forumlist = wpu_forum_xpost_list(); 
+					}
+					$phpbbForum->leave();
+			
+					if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
+						if($wp_version >= 2.5) { 
+							add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
+						} else {
+							wpu_add_postboxes();
+						}
 					}
 				}
 			}
@@ -1237,29 +1253,24 @@ function wpu_add_meta_box() {
  * This initialises all the admin changes and functions
  */
 function wpu_admin_init( ) {
-
-	global $wpu_done_head;
+	global $wpu_done_head, $wpSettings;
 	$wpu_done_head = true;
-	
-	$wpuConnSettings = get_settings('wputd_connection');
 	
 	// style the header text!
 	wpu_css();
 
-	if ( (!empty($wpuConnSettings['logins_integrated'])) && (current_user_can('publish_posts')) ) {
+	if (!empty($wpSettings['integrateLogin'])) {
+		if (current_user_can('publish_posts')) {
 		//Buffer the users page
 		if(preg_match('|/wp-admin/users.php|', $_SERVER['REQUEST_URI'])) {
 			ob_start('wpu_buffer_userspanel');
 		}
-	}	
-	
-	
-	// 'Fix' the profile page
-	if (!empty($wpuConnSettings['logins_integrated'])) {
-		if(preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
-			ob_start('wpu_buffer_profile');
-		}
 	}
+	// 'Fix' the profile page
+	if(preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
+		ob_start('wpu_buffer_profile');
+	}
+}
 	
 	//Buffer the Categories box on the post page
 	
@@ -1298,12 +1309,10 @@ function wpu_buffer_userspanel($panelContent) {
  * disable access to wp-login.php if logins are integrated
  */
 function wpu_disable_wp_login() { 
+	global $phpbb_root_path, $phpEx, $wpSettings; 
 	if (preg_match('|/wp-login.php|', $_SERVER['REQUEST_URI'])) {	
-		$wpuConnSettings = get_settings('wputd_connection');
-		if (!empty($wpuConnSettings['logins_integrated'])) {
-			$login = 'ucp.php';
-			// path back has one too many ../, so we just add on another path element
-			wp_redirect("wp-includes/".$wpuConnSettings['path_to_phpbb'].$login);
+		if (!empty($wpSettings['integrateLogin'])) {
+			wp_redirect($phpbb_root_path . 'ucp.' . $phpEx);
 		}
 	}
 }
@@ -1328,8 +1337,9 @@ function wpu_prepare_admin_pages() {
 */
 
 function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = 'avatar' ) { 
+	global $wpSwettings;
 	$connSettings = get_settings('wputd_connection');
-	if (empty($connSettings['logins_integrated'])) { 
+	if (empty($wpSettings['integrateLogin'])) { 
 		return $avatar;
 	}
 
@@ -1386,7 +1396,6 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
  * @since WP-United 0.7.0
  */
 function wpu_smilies($postContent, $max_smilies = 0) {
-	// since this only takes place outside of WP-Admin, we can just check the global var $wpSettings
 	global $phpbbForum, $wpSettings;
 	
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) { 
@@ -1525,8 +1534,9 @@ function wpu_javascript () {
 * @since WP-United 0.7.1
 */
 function wpu_fix_blank_username($user_login) {
-	$connSettings = get_settings('wputd_connection');
-	if (!empty($connSettings['logins_integrated'])) { 
+	global $wpSettings;
+
+	if (!empty($wpSettings['integrateLogin'])) { 
 	    if ( empty($user_login) ){
 			$foundFreeName = FALSE;
 			while ( !$foundFreeName ) {
@@ -1634,7 +1644,7 @@ add_action('admin_head', 'wpu_admin_init');
 add_action('wp_head', 'wpu_done_head');
 add_action('upload_files_browse', 'wpu_browse_attachments');
 add_action('upload_files_browse-all', 'wpu_browse_attachments');
-add_action('template_redirect', 'wpu_must_integrate');
+//add_action('template_redirect', 'wpu_must_integrate'); disabled @todo check action
 add_action('plugins_loaded', 'wpu_init_plugin');
 add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry'); 
