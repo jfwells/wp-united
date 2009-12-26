@@ -236,13 +236,13 @@ if (!empty($wpSettings['cssMagic'])) {
 					$innerCSS->parseFile($cacheFile);
 				}
 				foreach ($foundOuter as $index => $cacheFile) {
-					$innerCSS->parseFile($cacheFile);
+					$outerCSS->parseFile($cacheFile);
 				}				
 				foreach($inCSSInner['css'] as $index => $css) {
 					$innerCSS->parseString($css);
 				}
 				foreach($inCSSOuter['css'] as $index => $css) {
-					$innerCSS->parseString($css);
+					$outerCSS->parseString($css);
 				}
 
 				$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');

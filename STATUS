@@ -53,10 +53,8 @@ Template tags: phpBB "function bar"
 
 Full page integration: Improve settings / include blank page or option to create one (see blank page plugin). Remove "hide pages" hack
 
-
-
 CSS Magic: Add fixes for IE (6,7,8)
-CSS Magic: Width of phpBB in Solostream WP-Genius
+
 
 
 Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
@@ -132,5 +130,6 @@ DONE
 - cross-posting comments auto-link fixed as post_id != topic_id
 - Fixed core cache being generated every time
 - Cache: Added .htaccess to package
+- CSS Magic: Template Voodoo fixed (Width of phpBB in Solostream WP-Genius)
 
 
