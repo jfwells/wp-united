@@ -8,14 +8,8 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
+Cross-posting: Fix dates
 
-
-- Cross-posting: Implement new ACP options
-- Cross-posting: Auto-link option replaced by "Use phpBB for responses to cross-posted blog posts"
-- Cross posting: To add: Automatically cross-post all blog posts permissions entry
-- Cross-posting: Fix dates
-
-Cache: Core cache is being generated every time
 Cache: WordPress version can be auto-filled -- it already knows the version filename
 Cache: Everything should use filemtime checking where possible
 Cache: Align all calls
@@ -137,5 +131,6 @@ DONE
 - Per-user blogs widgets only registered if per-user blogs are enabled
 - new cross-posting options now work
 - cross-posting comments auto-link fixed as post_id != topic_id
+- Fixed core cache being generated every time
 
 

@@ -170,7 +170,7 @@ class WPU_Cache {
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
 	function use_core_cache($wpVer, $compat) {
-		global $latest, $phpEx;
+		global $latest;
 		
 		if($latest) {
 			return false;
@@ -184,11 +184,9 @@ class WPU_Cache {
 				return false;
 				break;
 			default:
-				
 				@$dir = opendir($this->baseCacheLoc);
-				$compat = ($compat) ? "_fast" : "_slow";
 				while( $entry = @readdir($dir) ) {
-					if ( $entry == "core-" . md5("{$this->salt}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}") {
+					if ( $entry == $this->_get_core_cache_name($wpVer, $compat) )  {
 						$entry = $this->baseCacheLoc . $entry;
 						$compareDate = filemtime($entry);
 						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) {
@@ -212,7 +210,6 @@ class WPU_Cache {
 	 * @param string All WordPress portions of the page to save, with a delimiter set for where phpBB should be spliced in.
 	 */
 	function save_to_template_cache($wpVer, $content) {
-		
 		if ( $this->template_cache_enabled() ) {
 			$theme = str_replace('-', '__sep__', array_pop(explode('/', TEMPLATEPATH))); 
 			$fnDest = $this->baseCacheLoc . "theme-{$theme}-{$wpVer}-". md5("{$this->salt}-{$this->wpuVer}");
@@ -227,15 +224,23 @@ class WPU_Cache {
 	}
 	
 	/**
+	 * Generate core cache name
+	 * @access private
+	 */
+	function _get_core_cache_name($wpVer, $compat) {
+		global $phpEx;
+		$compat = ($compat) ? "_fast" : "_slow";
+		return "core-" . md5("{$this->salt}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
+	}
+	
+	/**
 	 * Saves WordPress core to disk
 	 * @param string $wpVer WordPress version number
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
 	function save_to_core_cache($content, $wpVer, $compat) {
-		global $phpEx;
 		if ( $this->core_cache_enabled() ) {
-			$compat = ($compat) ? "_fast" : "_slow";
-			$fnDest = $this->baseCacheLoc . "core-" . md5("{$this->salt}-{$wpVer}-{$compat}") . ".{$phpEx}";
+			$fnDest = $this->baseCacheLoc . $this->_get_core_cache_name($wpVer, $compat);
 			$content = $this->prepare_content($content); 
 			$this->save($content, $fnDest);
 			$this->_log("Generated core cache: $fnDest");	
