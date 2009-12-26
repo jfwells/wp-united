@@ -268,8 +268,15 @@ if ( $useCache || $connectSuccess ) {
 			//	Full WP page
 			//
 			define('PHPBB_CONTENT_ONLY', TRUE);
-
+			global $phpbbForum;
 			ob_start();
+			
+			$phpbbForum->leave();
+			$forum_page_ID = get_option('wpu_set_forum');
+			if(!empty($forum_page_ID)) {
+				query_posts("showposts=1&page_id={$forum_page_ID}");
+			}
+			$phpbbForum->enter();
 	
 			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpSettings['wpPageName']);
 			if ( !file_exists($wpTemplateFile) ) {
@@ -286,9 +293,12 @@ if ( $useCache || $connectSuccess ) {
 
 		}
 		
+		/*
 		if ( !$wpuCache->use_template_cache() ) {
+			$phpbbForum->leave();
 			wp_reset_query();
-		}
+			$phpbbForum->enter();
+		} */
 		
 		if ( $wpSettings['cssFirst'] == 'P' ) {
 			$outerContent = str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $outerContent);

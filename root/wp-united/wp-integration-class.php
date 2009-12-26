@@ -743,7 +743,7 @@ Class WPU_Integration {
 	function exit_wp_integration() {
 		global $phpbbForum;
 		
-		$phpbbForum->leave();
+		$phpbbForum->enter();
 		
 		// We previously here mopped up all the WP vars that had been created... but it is a waste of CPU and usually unnecessary
 

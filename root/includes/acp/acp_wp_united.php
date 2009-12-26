@@ -2021,7 +2021,7 @@ class acp_wp_united {
 	 */
 	function install_wpuConnection() {
 		define ('WPU_SET', 1);
-		global $user, $wpuCache, $wpSettings, $phpEx, $phpbb_root_path, $config, $wpu_debug, $wpUtdInt;
+		global $phpbbForum, $user, $wpuCache, $wpSettings, $phpEx, $phpbb_root_path, $config, $wpu_debug, $wpUtdInt;
 		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);		
 		$wpuCache = WPU_Cache::getInstance();
 
@@ -2128,14 +2128,8 @@ class acp_wp_united {
 				$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 				$scriptPath = $server . $scriptPath;
 				$WPU_Connection['phpbb_url'] = $scriptPath;
-				
-				//and...
 				$WPU_Connection['path_to_wp'] = $wpSettings['wpPath'];
-				$WPU_Connection['logins_integrated'] = $wpSettings['integrateLogin'];
-				$WPU_Connection['styles'] = $wpSettings['allowStyleSwitch'];
-				$WPU_Connection['blogs'] = $wpSettings['usersOwnBlogs'];
-				$WPU_Connection['wpu_enable_xpost'] = $wpSettings['xposting'];
-				$WPU_Connection['autolink_xpost'] = $wpSettings['xpostautolink'];
+
 				//Set Connection settings
 				update_option('wputd_connection', $WPU_Connection);
 				$server = $this->add_http($this->add_trailing_slash($config['server_name']));
@@ -2145,13 +2139,63 @@ class acp_wp_united {
 			
 				//Set up WordPress the way we want
 				update_option('home', $blogUri);
-				global $wpdb;
+				global $wpdb, $phpbbForum;
+				
+				// Set up the reverse-integrated forum page
+				$forum_page_ID = get_option('wpu_set_forum');
+				if ( ($wpSettings['showHdrFtr'] == 'REV') && (empty($wpSettings['wpSimpleHdr'])) ) {
+					$content = '<!--wp-united-phpbb-forum-->';
+					$title = $phpbbForum->lang['FORUM'];
+					if ( !empty($forum_page_ID) ) {
+						$wpdb->query( 
+							"UPDATE IGNORE $wpdb->posts SET
+							post_author = '0',
+							post_date = '".current_time('mysql')."',
+							post_date_gmt = '".current_time('mysql',1)."',
+							post_content = '$content',
+							post_content_filtered = '',
+							post_title = '$title',
+							post_excerpt = '',
+							post_status = 'publish',
+							post_type = 'page',
+							comment_status = 'closed',
+							ping_status = 'closed',
+							post_password = '',
+							post_name = 'blogs-home',
+							to_ping = '',
+							pinged = '',
+							post_modified = '".current_time('mysql')."',
+							post_modified_gmt = '".current_time('mysql',1)."',
+							post_parent = '0',
+							menu_order = '0'
+							WHERE ID = $forum_page_ID"
+						);
+					} else {
+						$wpdb->query(
+						"INSERT IGNORE INTO $wpdb->posts
+								(post_author, post_date, post_date_gmt, post_content, post_content_filtered, post_title, post_excerpt,  post_status, post_type, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_parent, menu_order, post_mime_type)
+							VALUES
+								('0', '".current_time('mysql')."', '".current_time('mysql',1)."', '{$content}', '', '{$title}', '', 'publish', 'page', 'closed', 'closed', '', 'blogs-home', '', '', '".current_time('mysql')."', '".current_time('mysql',1)."', '0', '0', '')"
+						);
+						$forum_page_ID = $wpdb->insert_id;		
+					}		
+					update_option('wpu_set_forum', $forum_page_ID);			
+					
+				} else {
+					if ( !empty($forum_page_ID) ) {
+						update_option('wpu_set_forum', '');
+						wp_delete_post($forum_page_ID);
+					}					
+				}
+				
+				
+				
 				//Set up the blog front page
 				$post_ID = get_option('wpu_set_frontpage');
 				if ( $wpSettings['useBlogHome'] ) {
 					if ( !empty($post_ID) ) {
 						$wpdb->query(
-						"UPDATE IGNORE $wpdb->posts SET
+							"UPDATE IGNORE $wpdb->posts SET
 							post_author = '0',
 							post_date = '".current_time('mysql')."',
 							post_date_gmt = '".current_time('mysql',1)."',

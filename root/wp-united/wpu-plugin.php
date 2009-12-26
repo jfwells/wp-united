@@ -1627,7 +1627,6 @@ add_filter('feed_link', 'wpu_feed_link');
 add_filter( 'comments_array', 'wpu_load_phpbb_comments', 10, 2);
 add_filter( 'get_comments_number', 'wpu_comments_count', 10, 2);
 
-//add_filter( 'comments_open', 'wpu_buffer_comment_form', 10, 2);
 add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
 
 
