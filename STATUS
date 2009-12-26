@@ -10,12 +10,11 @@ TODO
 
 Cross-posting: Fix dates
 
-Cache: WordPress version can be auto-filled -- it already knows the version filename
+Cache: WordPress version can be auto-filled -- it already knows the version filename (? WPINC dynamic?)
 Cache: Everything should use filemtime checking where possible
 Cache: Align all calls
 Cache: Ability to purge. Auto-purge on wizard run
 Cache: Cache log seems to under-report on occasion after cache is purged
-Cache: Add .htaccess to package
 
 Language strings: Use phpBB i18n via phpbbForum for all strings, including in wpu-plugin and template-tags
 
@@ -132,5 +131,6 @@ DONE
 - new cross-posting options now work
 - cross-posting comments auto-link fixed as post_id != topic_id
 - Fixed core cache being generated every time
+- Cache: Added .htaccess to package
 
 

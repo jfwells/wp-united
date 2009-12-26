@@ -41,64 +41,64 @@ class WPU_Cache {
 		if (!isset($instance)) {
 			$instance = new WPU_Cache();
         } 
-        	return $instance;
-    	}
+        return $instance;
+    }
     	
-    	function WPU_Cache() {
-    		
-    		global $phpbb_root_path, $wpSettings, $phpEx;
-    		
-    		$this->_useTemplateCache = 'UNKNOWN';
-    		$this->_useCoreCache = 'UNKNOWN';
-    		$this->baseCacheLoc = $phpbb_root_path . 'wp-united/cache/';
-    		$this->themePath = $wpSettings['wpPath'] . 'wp-content/themes/';
-    		$this->wpVersionLoc = $wpSettings['wpPath'] . "wp-includes/version.$phpEx";
-    		$this->fullPage =  !(bool)$wpSettings['wpSimpleHdr'];
-    		
-    		$this->initialise_salt();
-    		
-    		$this->log = array();
-    		
-    		$this->wpuVer = $GLOBALS['wpuVersion'];
-    		
-    		$this->numStyleKeys = sizeof($GLOBALS['wpSettings']['styleKeys']);
-    		    		
-    	}
-    	/**
-    	 * The salt is used when hashing filenames and is stored poermanently in the phpBB database
-    	 * It does not need to be particularly secure, so we still use MD5 -- it will be enough to stop
-    	 * script kiddies from guessing filenames in the cache folder
-    	 */
-    	function initialise_salt() {
-			if(!isset( $GLOBALS['config']['wpu_cache_hash'])) {
-				// Generate a 10-digit random number
-				$this->salt = rand(10000, 99999);
-				set_config('wpu_cache_hash', $this->salt);
-			} else {
-				$this->salt = $GLOBALS['config']['wpu_cache_hash'];
-			}
+	function WPU_Cache() {
+		
+		global $phpbb_root_path, $wpSettings, $phpEx;
+		
+		$this->_useTemplateCache = 'UNKNOWN';
+		$this->_useCoreCache = 'UNKNOWN';
+		$this->baseCacheLoc = $phpbb_root_path . 'wp-united/cache/';
+		$this->themePath = $wpSettings['wpPath'] . 'wp-content/themes/';
+		$this->wpVersionLoc = $wpSettings['wpPath'] . "wp-includes/version.$phpEx";
+		$this->fullPage =  !(bool)$wpSettings['wpSimpleHdr'];
+		
+		$this->initialise_salt();
+		
+		$this->log = array();
+		
+		$this->wpuVer = $GLOBALS['wpuVersion'];
+		
+		$this->numStyleKeys = sizeof($GLOBALS['wpSettings']['styleKeys']);
+					
+	}
+	/**
+	 * The salt is used when hashing filenames and is stored poermanently in the phpBB database
+	 * It does not need to be particularly secure, so we still use MD5 -- it will be enough to stop
+	 * script kiddies from guessing filenames in the cache folder
+	 */
+	function initialise_salt() {
+		if(!isset( $GLOBALS['config']['wpu_cache_hash'])) {
+			// Generate a 10-digit random number
+			$this->salt = rand(10000, 99999);
+			set_config('wpu_cache_hash', $this->salt);
+		} else {
+			$this->salt = $GLOBALS['config']['wpu_cache_hash'];
 		}
-    	
-		/**
-		 * Determines if the template cache is active
-		 * Currently can be enabled/disabled in options.php
-		 */
-    	function template_cache_enabled() {
-    		if (defined('WPU_CACHE_ENABLED') && WPU_CACHE_ENABLED) {
-    			return true;
-    		}
-    		return false;
-    	}
-    	
+	}
+	
+	/**
+	 * Determines if the template cache is active
+	 * Currently can be enabled/disabled in options.php
+	 */
+	function template_cache_enabled() {
+		if (defined('WPU_CACHE_ENABLED') && WPU_CACHE_ENABLED) {
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Determine whether the core cache can be used.	
 	 */
-    	function core_cache_enabled() {
-    		if (defined('WPU_CORE_CACHE_ENABLED') && WPU_CORE_CACHE_ENABLED) {
-    			return true;
-    		}
-    		return false;
-    	}    		
+	function core_cache_enabled() {
+		if (defined('WPU_CORE_CACHE_ENABLED') && WPU_CORE_CACHE_ENABLED) {
+			return true;
+		}
+		return false;
+	}    		
 
 
 	/**
@@ -163,7 +163,7 @@ class WPU_Cache {
 		}
 
 	}
-	
+
 	/**
 	 * Decides whether to use the core cache, or whether it is stale and due for regeneration
 	 * @param string $wpVer WordPress version number
@@ -201,7 +201,7 @@ class WPU_Cache {
 		}	
 
 	}
-	
+
 	/**
 	 * Saves WordPress header/footer to disk
 	 * When restoring, we won't know variables such as WordPress theme and WordPress version, 
@@ -222,7 +222,7 @@ class WPU_Cache {
 		return false;
 
 	}
-	
+
 	/**
 	 * Generate core cache name
 	 * @access private
@@ -232,7 +232,7 @@ class WPU_Cache {
 		$compat = ($compat) ? "_fast" : "_slow";
 		return "core-" . md5("{$this->salt}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
 	}
-	
+
 	/**
 	 * Saves WordPress core to disk
 	 * @param string $wpVer WordPress version number
@@ -262,7 +262,7 @@ class WPU_Cache {
 			return file_get_contents($this->templateCacheLoc);
 		}
 	}
-	
+
 	/**
 	 * Saves a "compiled" worked-around plugin
 	 * @param string $pluginPath Full path to plugin
@@ -281,7 +281,7 @@ class WPU_Cache {
 		$GLOBALS['wpUtdInt']->switch_db('TO_W');
 		return $fnDest;
 	}
-	
+
 	/**
 	 * Pulls a "compiled" worked-around plugin
 	 * and returns the filename, or false if it needs to be created
@@ -299,7 +299,7 @@ class WPU_Cache {
 		return false;
 
 	}
-	
+
 	/**
 	 * Returns a key number for a CSS file or a CSS magic cache
 	 */
@@ -319,7 +319,7 @@ class WPU_Cache {
 			return $this->_generate_style_key($fileName[0]);
 		}
 	}
-	
+
 	/**
 	 * returns a key number for a template voodoo instruction cache
 	 */
@@ -327,7 +327,7 @@ class WPU_Cache {
 		$fileName = 'tplvoodoo-' . md5( $this->salt . array_pop(explode('/', $path1)) .  implode('.', $arr1) . implode('.', $arr2) . implode('.', $arr2) . implode('.', $arr3) . "-{$this->wpuVer}");
 		return $this->_generate_style_key($fileName);
 	}
-	
+
 	/**
 	 * gets the Template Voodoo instructions, if they exist
 	 */
@@ -346,7 +346,7 @@ class WPU_Cache {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Saves Template Voodoo instructions
 	 */
@@ -371,7 +371,7 @@ class WPU_Cache {
 		}
 		return $key;
 	}
-	
+
 	/**
 	 * Gets the CSS magic cache if it exists
 	 */
@@ -382,7 +382,7 @@ class WPU_Cache {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Generates a name for the CSS Magic Cache
 	 */
@@ -390,7 +390,7 @@ class WPU_Cache {
 		$tpl = ($incTplVoodoo > -1) ? 'tplvd-' : '';
 		return "cssmagic-{$tpl}" . md5("{$this->salt}{$fileName }-{$pos}-{$incTplVoodoo}-{$this->wpuVer}") . '.css';
 	}
-	
+
 	/**
 	 * Saves the CSS Magic 
 	 */
@@ -399,7 +399,7 @@ class WPU_Cache {
 		$this->save($content, $cacheFileName);
 		$this->_log("Generated CSS Magic cache: $cacheFileName");
 	}
-	
+
 
 	/**
 	 * Saves updated style keys to the database.
@@ -422,10 +422,10 @@ class WPU_Cache {
 		}
 		return $this->numStyleKeys;
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Prepares content for saving to cache -- ensuring it can't be called directly, and that it can be properly eval()d
 	 */
@@ -449,7 +449,7 @@ class WPU_Cache {
 			@unlink($fnTemp); 
 			return true;
 	}
-	
+
 	/**
 	 * Purge the WP-United cache
 	 * Deletes all files from the wp-united/cache directory
@@ -458,7 +458,7 @@ class WPU_Cache {
 	function purge() {
 		
 	}
-	
+
 	/**
 	 * Logs an action
 	 * @access private
