@@ -4,7 +4,7 @@
 * WP-United [English]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v 0.7.1 2009/05/18 John Wells (Jhong) Exp $
+* @version $Id: wp-united.php,v 0.8.0 2009/12/28 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
@@ -386,7 +386,7 @@ $lang = array_merge($lang, array(
 	'WP_Detailed' => 'Here you can review all the settings associated with the WP-United.',
 	'WP_Detailed_Explain' => 'This contains all the settings on a single page.',
 	'WP_SubmitWiz' => 'Setup Wizard',
-	'WP_SubmitDet' => 'Settings',
+	'WP_SUBMITDET' => 'Settings',
 	'WP_MapLink_Title' => 'User Integration Mapping Tool',
 	'WP_MapLink' => 'Go',
 	'WP_MapLink_Explain' => 'User integration is turned on. To review the status of WordPress users, click the button to access the User Integration Mapping Tool',

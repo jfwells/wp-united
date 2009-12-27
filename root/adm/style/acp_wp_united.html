@@ -505,18 +505,145 @@
 <!-- --------------------------------------------- 	-->
 <!-- 		PROCESS SETTINGS PAGE					-->
 <!-- --------------------------------------------- 	-->
+	<script type="text/javascript">
+		// <![CDATA[
+	function getXmlHttpObject() {
+		if(window.XMLHttpRequest) {
+			try {
+				request = new XMLHttpRequest();
+			} catch(e) {
+				request = false;
+			}
+		} else if(window.ActiveXObject) {
+			try {
+				request = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch(e) {
+				try {
+					request = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch(e) {
+					request = false;
+				}
+			}
+		}
+		return request;
+	}
+
+	function enhancePage(requestObject) {
+		// Enhance the page  if JS features are available
+		//If unavailable, leaving the page as is will preserve all needed functionality
+		if (requestObject) {
+			if(document.getElementById){
+				//We can use AJAX, and getElementById, prepare the page
+				var warningPara = document.getElementById('noJsMsg')
+				warningPara.style.display='none';
+				warningPara.parentNode.removeChild(warningPara);
+
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+		
+	function getStatus() {
+		if (useAjax && !(serverRequestInProgress)) {
+				document.getElementById("commstatus").innerHTML = '{LA_WPWIZ_COMMSTATUS}';
+				document.getElementById("retr").style.display = "none";
+				document.getElementById("spinner").style.display = "block";
+				serverRequest.open("POST", '{U_WPAJAX_ACTION}', true); 
+				// set data return event handler
+				serverRequest.onreadystatechange = stateChange;
+				serverRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+				serverRequest.send('action=connAjax');
+				serverRequestInProgress = true;
+		}
+		return !useAjax;
+	}
+	// process ajax response
+	function stateChange() {
+	    if (serverRequest.readyState == 4) {
+			document.getElementById("spinner").style.display = "none";
+	        var cs = document.getElementById("commstatus");
+	        if (serverRequest.status == 200) {
+	            var respXML = serverRequest.responseXML;
+	            var respText = serverRequest.responseText;
+	            if(respXML==null) {
+					if (respText == "") {
+						cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_SERVER_BLANK_PAGE}</span>";
+					} else {
+						cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_SERVER_ERROR}<br /><span style=\"display: block; border: 1px solid #333333; background-color: #dedede; color: #000000; padding: 6px; margin: 6px;\">" + respText + "</span></span>";
+					}
+					document.getElementById("retr").style.display = "block";
+				} else {
+						var res;
+						try {
+							res = respXML.getElementsByTagName('result').item(0).firstChild.data;
+						} catch(e) {}
+						var mesg = respXML.getElementsByTagName('message').item(0).firstChild.data;
+						if(res=="OK") {
+							cs.innerHTML = "<span style=\"display: block; color: green;\">{LA_WPWIZ_S5_SUCCESS}<br /></span>";
+						} else if(res == "NOSAVE") {
+							cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_DB_ERR_CONN_OK}<br /></span>";
+							document.getElementById("retr").style.display = "block";
+						} else { //FAIL
+							cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />" + mesg + "</span>";
+							document.getElementById("retr").style.display = "block";
+						}
+						document.getElementById("settresult").style.display = "block";
+				}
+	        } else {
+				cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WP_AJAX_RESPONSE_ERROR}: "  + serverRequest.statusText + " (" + serverRequest.status + ")</span>";
+				document.getElementById("retr").style.display = "block";
+	        }
+			serverRequestInProgress = false;
+			//Hide spinner
+	    } else {
+			//request is in progress.
+		}
+	}
+		function init () {
+			serverRequest = getXmlHttpObject();
+			useAjax = enhancePage(serverRequest);
+			getStatus();
+		}
+		var serverRequestInProgress = false;
+		var serverRequest; 
+		var useAjax = true;
+		window.onload = init;
+		
+		
+		
+		// ]]>
+	</script>
+	
 	<img src="../wp-united/images/wp-united-logo.gif" alt="wp-united" style="float: right;"/>
 	<h1>{L_WP_TITLE}</h1>
 	<br />
 	<h2>{L_WPSETTINGS_PROCESS}</h2>
-	<p>{L_WP_URL} <span style = "color: {L_WP_URLCOLOUR}; font-weight: bold;">{L_WP_URLRESULT}</span></p>
-	<p>{L_WP_URLEXIST} <span style = "color: {L_WP_URLEXISTCOLOUR}; font-weight: bold;">{L_WP_URLEXISTRESULT}</span></p>
-	<p>{L_WP_PATHDET} <span style = "color: {L_WP_PATHDETCOLOUR}; font-weight: bold;">{L_WP_PATHDETRESULT}</span></p>
-	<p>{L_WP_WPEXIST} <span style = "color: {L_WP_WPEXISTCOLOUR}; font-weight: bold;">{L_WP_WPEXISTRESULT}</span></p>
-	<p>{L_WP_WPCONN} <span style = "color: {L_WP_WPCONNCOLOUR}; font-weight: bold;">{L_WP_WPCONNRESULT}</span></p>
-	<p style="color: {L_WP_WPSAVECOLOR}; font-weight: bold;">{L_WP_WPSAVERESULT}</p>
-	<br />
-	<p class="gen" style="text-align: center;">{L_WPSETTINGS_RESULTMSG}</p>
+	
+	<p style="color: red;" id="noJsMsg">{L_WP_NO_ADV_JS}</p><br />
+	
+	
+	
+
+	<p>{L_WPWIZ_S5_EXPLAIN1}</p>
+	<p>{L_WPWIZ_S5_EXPLAIN2}</p>
+	
+	
+	<fieldset>
+		<legend>{L_WPWIZ_COMMWINDOW}</legend>
+		<img id="spinner" src="../wp-united/images/wpuldg.gif" alt="working..." style="float: right; position: relative;"/>
+		<p>{L_WP_URL} <span style = "color: {L_WP_URLCOLOUR}; font-weight: bold;">{L_WP_URLRESULT}</span></p>
+		<p>{L_WP_URLEXIST} <span style = "color: {L_WP_URLEXISTCOLOUR}; font-weight: bold;">{L_WP_URLEXISTRESULT}</span></p>
+		<p>{L_WP_PATHDET} <span style = "color: {L_WP_PATHDETCOLOUR}; font-weight: bold;">{L_WP_PATHDETRESULT}</span></p>
+		<p>{L_WP_WPEXIST} <span style = "color: {L_WP_WPEXISTCOLOUR}; font-weight: bold;">{L_WP_WPEXISTRESULT}</span></p>
+		<p style="color: #ababab;" id="commstatus">{L_WPWIZ_COMMSTATUS}</p>
+		<button id="retr" style="display: none;" onclick="getStatus(); return false;">{L_WPWIZ_S5_RETRY}</button>
+	</fieldset>
+	
+	<p id="settresult" style="display: none;" class="gen" style="text-align: center;">{L_WPSETTINGS_RESULTMSG}</p>
 
 <!-- END switch_settings_process_page -->
 <!-- BEGIN switch_wizard_page1 -->

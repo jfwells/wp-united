@@ -53,12 +53,12 @@ class acp_wp_united {
 			$this->step1_show();
 				break;
 				
-			case $user->lang['WP_Submit']:
+			case $user->lang['SUBMIT']:
 			// Process data from "configuration-on-a-page".
 				$this->settings_process(); 
 				break;
 				
-			case $user->lang['WP_SubmitDet']:
+			case $user->lang['WP_SUBMITDET']:
 				// Launch the "configuration-on-a-page".
 				$this->settings_show();
 				break;
@@ -223,7 +223,7 @@ class acp_wp_united {
 			$button1Value = $user->lang['WP_SubmitWiz'];
 			$button2Title = $user->lang['WP_Detailed_Title'];
 			$button2Explain = $user->lang['WP_Detailed_ExplainFirst'];
-			$button2Value = $user->lang['WP_SubmitDet'];
+			$button2Value = $user->lang['WP_SUBMITDET'];
 			$recommended = $user->lang['WP_Recommended'];
 			$mode1 = 'wizard';
 			$mode2 = 'detailed';
@@ -231,7 +231,7 @@ class acp_wp_united {
 			$introAdd = $user->lang['WP_Main_IntroAdd'];
 			$button1Title = $user->lang['WP_Detailed_Title'];
 			$button1Explain = $user->lang['WP_Detailed_Explain'];
-			$button1Value = $user->lang['WP_SubmitDet'];
+			$button1Value = $user->lang['WP_SUBMITDET'];
 			$button2Title = $user->lang['WP_Wizard_Title'];
 			$button2Explain = $user->lang['WP_Wizard_Explain'];
 			$button2Value = $user->lang['WP_SubmitWiz'];
@@ -1114,7 +1114,7 @@ class acp_wp_united {
 
 	function settings_process() {
 		
-		global $user, $phpEx, $wpu_debug;
+		global $user, $phpEx, $wpu_debug, $template;
 		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 		
@@ -1178,13 +1178,6 @@ class acp_wp_united {
 			break;
 		}			
 
-		//set the version to the db at this stage
-		if ( !isset($data['wpuVersion']) ) {
-			$data['wpuVersion'] = $user->lang['WPU_Default_Version'];
-		} else {
-			$data['wpuVersion'] = ($data['wpuVersion'] == $user->lang['WPU_Not_Installed']) ? $user->lang['WPU_Default_Version'] : $data['wpuVersion'];
-		}
-		
 		
 		
 		$radWpLogin = (int) request_var('rad_Login', 0);
@@ -1358,16 +1351,6 @@ class acp_wp_united {
 				}
 				global $wpSettings;
 				$wpSettings = $data; 
-				$connError = $this->install_wpuConnection();
-				if ( $connError ) {
-					$procError = TRUE;
-					$msgError .= $user->lang['WP_Wizard_Connection_Fail'];
-					$msgError .= $wpu_debug;
-				} else {
-					$allOK = TRUE;
-					$wpConnColour = "green";
-					$wpConnResult = $user->lang['WPU_OK'];
-				}
 			}
 		}
 		
@@ -1379,13 +1362,11 @@ class acp_wp_united {
 			$data['blogsUri'] = $this->add_http($data['blogsUri']);
 		}
 		
-		
-		
 		if ( !$procError ) {
 			//THIS MARKS THE END OF THE SETUP. Allow access to application.
-			$data['installLevel'] = 10;
+		/*	$data['installLevel'] = 10;
 			//set the version to the db at this stage
-			$data['wpuVersion'] = $user->lang['WPU_Default_Version'];		
+			$data['wpuVersion'] = $user->lang['WPU_Default_Version'];		*/
 			
 			//Save settings to db
 			if ( !(set_integration_settings($data)) ) {
@@ -1424,10 +1405,12 @@ class acp_wp_united {
 				'L_WP_PATHDETRESULT' => $pathDetResult,
 				'L_WP_WPEXISTCOLOUR' => $wpExistColour,
 				'L_WP_WPEXISTRESULT' => $wpExistResult,
-				'L_WP_WPCONNCOLOUR' => $wpConnColour,
-				'L_WP_WPCONNRESULT' => $wpConnResult,
-				'L_WP_WPSAVECOLOR' => $saveColour,
-				'L_WP_WPSAVERESULT' => $saveResult,
+				'U_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
+				'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
+				//'L_WP_WPCONNCOLOUR' => $wpConnColour,
+				//'L_WP_WPCONNRESULT' => $wpConnResult,
+				//'L_WP_WPSAVECOLOR' => $saveColour,
+				//'L_WP_WPSAVERESULT' => $saveResult,
 				'L_WPSETTINGS_RESULTMSG' => sprintf($user->lang['WP_Config_GoBack'], "<a href=\"" . append_sid("index.$phpEx?i=wp_united") . "\">", "</a>") ,
 			));
 			
