@@ -34,6 +34,7 @@ class WPU_Phpbb {
 	var $state;
 	var $lang;
 	var $was_out;
+	var $seo = false;
 	
 	/**
 	 * Class initialisation
@@ -44,6 +45,7 @@ class WPU_Phpbb {
 			$this->lang = $GLOBALS['user']->lang;
 		}
 		$this->was_out = false;
+		$this->seo = false;
 		/**
 		 * error constats for $this->err_msg
 		 * todo use wp_die for most errors instead
@@ -79,6 +81,7 @@ class WPU_Phpbb {
 			 if(file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx)) {
 				require_once($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
 				$phpbb_seo = new phpbb_seo();
+				$this->seo = true;
 			}
 		 }
 		 

@@ -116,8 +116,8 @@ function wpu_check_for_action() {
 			//
 			//	UPDATE BLOG DETAILS
 			//
-			$blog_title = __('My Blog');
-			$blog_tagline = __('My description will go here');
+			$blog_title = $phpbbForum->lang['default_blogname'];
+			$blog_tagline = $phpbbForum->lang['default_blogdesc'];
 			if (isset ($_POST['blog_title']))
 				$blog_title = wp_specialchars(trim($_POST['blog_title']));
 			if (isset ($_POST['blog_tagline']))
@@ -139,21 +139,21 @@ function wpu_check_for_action() {
  */
 function wpu_put_powered_text() {
 	global $wp_version, $wpSettings;
-	echo '<p  id="poweredby"> phpbb integration &copy; 2006-2009 <a href="http://www.wp-united.com" target="_blank">WP-United</a></p>';
+	echo '<p  id="poweredby">' . sprintf($phpbbForum->lang['wpu_dash_copy'], '<a href="http://www.wp-united.com">', '</a>') . '</p>';
 
 	if ( current_user_can('publish_posts') ) {	
 		if ( $wpSettings['usersOwnBlogs'] ) {
 			if($wp_version < 2.5) {
-				echo '<p  id="welcome1">' . __('Welcome to WP-United. Click <strong>Write</strong> to add to your blog');
+				echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . sprintf($phpbbForum->lang['wpu_write_blog_pre250'], '<strong>', '</strong>');
 			} else {
-				echo '<p  id="welcome1">' . __('Welcome to WP-United. Click <strong>Posts</strong> &rarr; <strong>Add New</strong> to add to your blog');
+				echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . sprintf($phpbbForum->lanf['wpu_write_blog'], '<strong>', '</strong> &rarr; <strong>', '</strong>');
 			}
 			if ( $wpSettings['allowStyleSwitch'] ) {	
-				echo '<br />' . __('You can set how it looks under the <strong>Your Blog</strong> tab!');
+				echo '<br />' . sprintf($phpbbForum->lang['wpu_blog_intro_appearance'], '<strong>', '</strong>'); 
 			}
 			echo '</p>';
 		} else {
-			echo '<p  id="welcome1">' . __('Welcome to WP-United!');
+			echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . '</p>';
 		}
 	}
 }
@@ -162,6 +162,7 @@ function wpu_put_powered_text() {
 /**
  * Sets the CSS styles of messages we put in the dashboard
  * Hides the messages we don't want using CSS
+ * @todo enqueue from stylesheet once we have proper url
  */
 function wpu_css() {
 	global $wpSettings;
@@ -228,7 +229,7 @@ function wpu_css() {
  * @todo neaten wp 2.7/2.8+
  */
 function wpu_adminmenu_init() {
-	global $wpSettings, $phpbb_root_path, $phpEx;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phobbForum;
 	$wpuConnSettings = get_settings('wputd_connection');
 	
 	//Check for action
@@ -245,16 +246,16 @@ function wpu_adminmenu_init() {
 			if (current_user_can('publish_posts'))  {
 				if($wp_version < 2.7) {
 					if ( !empty($wpSettings['usersOwnBlogs']) ) {
-						add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'], 'wpu_menuTopLevel');
+						add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'],$phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', $wpuConnSettings['full_path_to_plugin'], 'wpu_menuTopLevel');
 					} 
 					if ( isset($_GET['page']) ) { // add submenus if we're under the blog main page
 					$wpuPage = ( $_GET['page'] == $wpuConnSettings['full_path_to_plugin'] ) ? TRUE : FALSE;
 						if ( $wpuPage ) {
 							global $parent_file;
 							$parent_file = 'wpu';
-							add_submenu_page('wpu', __('Your Blog Settings'), __('Your Blog Settings'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=bset', 'wpu_menuTopLevel');
+							add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=bset', 'wpu_menuTopLevel');
 							if ( !empty($wpSettings['allowStyleSwitch']) ) {
-								add_submenu_page('wpu', __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=themes', 'wp_united_display_theme_menu');
+								add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=themes', 'wp_united_display_theme_menu');
 							}
 						}
 					}
@@ -262,11 +263,11 @@ function wpu_adminmenu_init() {
 				//	WP 2.7 ADMIN PANEL PAGE FOR OWN BLOGS
 			
 					if ( !empty($wpSettings['usersOwnBlogs']) ) {
-						$top = add_menu_page(__('Your Blog'), __('Your Blog'), 'publish_posts', 'wpu-plugin.' . $phpEx, 'wpu_menuTopLevel', $phpbb_root_path . 'wp-united/images/tiny.gif' );
+						$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wpu-plugin.' . $phpEx, 'wpu_menuTopLevel', $phpbb_root_path . 'wp-united/images/tiny.gif' );
 						
-						add_submenu_page('wpu-plugin.php', __('Your Blog Setings'), __('Your Blog Settings'), 'publish_posts', 'wpu-plugin.' . $phpEx , 'wpu_menuTopLevel');						
+						add_submenu_page('wpu-plugin.php', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', 'wpu-plugin.' . $phpEx , 'wpu_menuTopLevel');						
 						if ( !empty($wpSettings['allowStyleSwitch']) ) {
-							add_submenu_page('wpu-plugin.' . $phpEx, __('Set Blog Theme'), __('Set Blog Theme'), 'publish_posts','wpu-plugin.' . $phpEx . '&wputab=themes', 'wpu_menuTopLevel');
+							add_submenu_page('wpu-plugin.' . $phpEx, $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts','wpu-plugin.' . $phpEx . '&wputab=themes', 'wpu_menuTopLevel');
 						}
 					} 
 		
@@ -309,7 +310,7 @@ function wpu_menuTopLevel() {
  * 
  */
 function wpu_menuSettings() { 
-	global $wpSettings, $user_ID, $wp_roles;
+	global $wpSettings, $user_ID, $wp_roles, $phpbbForum;
 	$profileuser = get_user_to_edit($user_ID);
 	$bookmarklet_height= 440;
 	$wpuConnSettings = get_settings('wputd_connection');
@@ -320,7 +321,7 @@ function wpu_menuSettings() {
 		</div>';
 	}
 	if ( !empty($wpSettings['usersOwnBlogs']) ) {
-		$pageTitle .= __('Your Blog Details');
+		$pageTitle .= $phpbbForum->lang['wpu_blog_details'];
 	} else {
 		$pageTitle .= __('Your Profile');
 	}
@@ -380,14 +381,14 @@ function wpu_menuSettings() {
 	</fieldset>';
 	if ( !empty($wpSettings['usersOwnBlogs']) ) {
 		$page_output .= '<fieldset>
-		<legend>' . __('About Your Blog') . '</legend>
+		<legend>' . $phpbbForum->lang['wpu_blog_about'] . '</legend>
 		<input type="hidden" name="email" value="' . $profileuser->user_email . '" />';
 		// Retrieve blog options
 		$blog_title = get_usermeta($user_ID, 'blog_title');
 		$blog_tagline = get_usermeta($user_ID, 'blog_tagline');
-		$page_output .= '<p><label>' . __('The Title of Your Blog:') . '<br />
+		$page_output .= '<p><label>' . $phpbbForum->lang['wpu_blog_about_title'] . '<br />
 		<input type="text" name="blog_title" value="' . $blog_title . '" /></label></p>
-		<p><label>' . __('Blog Tagline') . '<br />
+		<p><label>' . $phpbbForum->lang['wpu_blog_about_tagline'] . '<br />
 		<input type="text" name="blog_tagline" value="' . $blog_tagline . '"</label></p>
 		</fieldset>';
 	}
@@ -444,13 +445,13 @@ function wpu_menuSettings() {
  */
 function wp_united_display_theme_menu() {
 
-	global $user_ID, $title, $parent_file, $wp_version, $phpEx;
+	global $user_ID, $title, $parent_file, $wp_version, $phpEx, $phpbbForum;
 	$wpuConnSettings = get_settings('wputd_connection');
 	
 	if ( ! validate_current_theme() ) { ?>
-	<div id="message1" class="updated fade"><p><?php _e('The active theme is broken.  Reverting to the default theme.'); ?></p></div>
+	<div id="message1" class="updated fade"><p><?php echo $phpBBForum->lang['wpu_theme_broken']; ?></p></div>
 	<?php } elseif ( isset($_GET['activated']) ) { ?>
-	<div id="message2" class="updated fade"><p><?php printf(__('New theme activated. <a href="%s">View your blog &raquo;</a>'), wpu_homelink('wpu-activate-theme') . '/'); ?></p></div>
+	<div id="message2" class="updated fade"><p><?php sprintf($phpbbForum->lang['wpu_theme_activated'], '<a href="' . wpu_homelink('wpu-activate-theme') . '/">', '</a>'); ?></p></div>
 	<?php }
 	
 
@@ -515,7 +516,7 @@ function wp_united_display_theme_menu() {
 
 		$themes = array_slice( $themes, $start, $per_page );
 	
-		$pageTitle = __('Set Your Blog Theme');
+		$pageTitle = $phpbbForum->lang['wpu_blog_your_theme'];
 		$parent_file = 'wpu-plugin.' . $phpEx . '&wputab=themes'; ?>
 		
 		<div class="wrap">
@@ -625,7 +626,6 @@ function wp_united_display_theme_menu() {
 			</div>
 		<?php } ?>
 		<br class="clear" />
-	</div>
 			
 			
 <?php
@@ -680,16 +680,16 @@ function wp_united_display_theme_menu() {
 		</div>
 		<?php } // end foreach theme_names ?>
 
-		<?php } ?>
+		<?php }
 
-	
+	 } ?>
 
-		<h2><?php _e('Want More Themes?'); ?></h2>
-		<p><?php _e('If you have found another WordPress theme that you would like to use, please inform an administrator.'); ?></p>
+		<h2><?php echo $phpbbForum->lang['wpu_more_themes_head']; ?></h2>
+		<p><?php echo $phpbbForum->lang['wpu_more_themes_get']; ?></p>
 
 		</div>
-	<?php }
 
+<?php
 }
 
 
@@ -1045,10 +1045,10 @@ function wpu_prev_next_post($where) {
  * This prevents users from browsing other users' media
  */
 function wpu_user_upload_dir($default) {
-	global $wpSettings;
+	global $wpSettings, $phpbbForum;
 
 	if ( !empty($wpSettings['integratelogin']) ) {
-		global $user_ID;
+		global $user_ID, $phpbbForum;
 		$usr = get_userdata($user_ID);
 		$usrDir = $usr->user_login;
 		if ( get_option('uploads_use_yearmonth_folders')) {
@@ -1063,7 +1063,7 @@ function wpu_user_upload_dir($default) {
 			$inputUrl = $default['url'] . '/'.$usrDir;
 		}
 		if ( !wp_mkdir_p($inputDir) ) {
-			$message = sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?'), $dir);
+			$message = sprintf($phpbbForum->lang['wpu_user_media_dir_error'], $dir);
 			return array('error' => $message);
 		}
 		$default['path'] = $inputDir;
@@ -1087,11 +1087,11 @@ function wpu_browse_attachments() {
  * Filters attachments (media) so they are for the current user only
  */
 function wpu_attachments_where($where) {
-	global $user_ID;
+	global $user_ID, $phpbbForum;
 	if (!empty($user_ID) ) {
 		return $where . " AND post_author = '" . (int)$user_ID . "'";
 	} else {
-		die(__('You should not be here'));
+		die($phpbbForum->lang['wpu_access_error']);
 	}
 }
 
@@ -1147,21 +1147,20 @@ function wpu_clear_header_cache() {
  * Add box to the write/(edit) post page.
  */
 function wpu_add_postboxes() {
-	global $wp_version, $can_xpost_forumlist, $already_xposted;
+	global $wp_version, $can_xpost_forumlist, $already_xposted, $phpbbFoum;
 
 	if ( $wp_version >= 2.5 ) { ?> 
 		<div id="wpuxpostdiv" class="inside">
-		<?php //_e('Cross-post to Forums?'); ?>
 	<?php } else { ?>
 		<fieldset id="wpuxpostdiv" class="dbx-box">
-		<h3 class="dbx-handle"><?php _e('Cross-post to Forums?') ?></h3> 
+		<h3 class="dbx-handle"><?php echo $phpbbForum->lang['wpu_xpost_box_title']; ?></h3> 
 		<div class="dbx-content">
 	<?php } ?>
 		
-	<?php if ($already_xposted) echo '<strong><small>' . sprintf(__('Already cross-posted (Post ID = %s)'), $already_xposted['post_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
+	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
 	<label for="wpu_chkxpost" class="selectit">
 		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1" />
-		<?php _e('Cross-post to Forums?'); ?><br />
+		<?php echo $phpbbForum->lang['wpu_xpost_box_title']; ?><br />
 	</label><br />
 	<label for="wpu_selxpost">Select Forum:<br />
 		<select name="sel_wpuxpost" id="wpu_selxpost" <?php if ($already_xposted) echo 'disabled="disabled"'; ?>> 
@@ -1186,18 +1185,17 @@ function wpu_add_postboxes() {
  * Adds a "Force cross-posting" info box
  */
 function wpu_add_forcebox($forumName) {
-	global $wp_version, $forceXPosting;
+	global $wp_version, $forceXPosting, $phpbbForum;
 
 	if ( $wp_version >= 2.5 ) { ?> 
 		<div id="wpuxpostdiv" class="inside">
-		<?php //_e('Cross-post to Forums?'); ?>
 	<?php } else { ?>
 		<fieldset id="wpuxpostdiv" class="dbx-box">
-		<h3 class="dbx-handle"><?php _e('Forum Posting') ?></h3> 
+		<h3 class="dbx-handle"><?php echo $phpbbForum->lang['wpu_forcexpost_box_title']; ?></h3> 
 		<div class="dbx-content">
 	<?php } ?>
 		
-	<p> <?php echo sprintf(__('This post will be cross-posted to the forum: \'%s\''), $forceXPosting) ?></p>
+	<p> <?php echo sprintf($phpbbForum->lang['wpu_forcexpost_details'], $forceXPosting); ?></p>
 	</div>
 	<?php if ( $wp_version < 2.5 ) echo "</fieldset>";
 
@@ -1222,7 +1220,7 @@ function wpu_add_meta_box() {
 					$forceXPosting = wpu_get_forced_forum_name($wpSettings['xpostforce']);
 					if($forceXPosting !== false) {
 						if($wp_version >= 2.5) { 
-							add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
+							add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_focexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
 						} else {
 							wpu_add_forcebox();
 						}
@@ -1237,7 +1235,7 @@ function wpu_add_meta_box() {
 			
 					if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
 						if($wp_version >= 2.5) { 
-							add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
+							add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_xpost_box_title'], 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
 						} else {
 							wpu_add_postboxes();
 						}
@@ -1298,9 +1296,9 @@ function wpu_buffer_profile($output) {
  * @todo this is not currently being used, reinstate it
  */
 function wpu_buffer_userspanel($panelContent) {
-
+	global $phpbbForum;
 	$token = array("/<td><a(.*)[^<>]>" . __('Edit') . "<\/a><\/td>/", '/' . __('User List by Role') . "<\/h2>/");
-	$replace = array('', __('User List by Role') . "</h2>\n<p>" . __('NOTE: User profile information can be edited in phpBB') . "</p>\n");
+	$replace = array('', __('User List by Role') . "</h2>\n<p>" . $phpbbForum->lang['wpu_user_edit_use_phpbb'] . "</p>\n");
 	$panelContent= preg_replace($token, $replace, $panelContent);
 	return $panelContent;
 }
@@ -1469,7 +1467,7 @@ function wpu_print_smilies() {
 		if($i >= 20) {
 			echo '</span>';
 			if($i>20) {
-				echo '<a id="wpu-smiley-toggle" href="#" onclick="return moreSmilies();">' . __("More smilies") . '&nbsp;&raquo;</a></span>';
+				echo '<a id="wpu-smiley-toggle" href="#" onclick="return moreSmilies();">' . $phpbbForum->lang['wpu_more_smilies'] . '&nbsp;&raquo;</a></span>';
 			}
 		}
 	}
@@ -1480,9 +1478,10 @@ function wpu_print_smilies() {
 /**
  * Function 'wpu_javascript' inserts the javascript code required by smilies' function.
  * @since WP-United 0.7.0
+ * @todo enqueue
  */
 function wpu_javascript () {
-	global $wpSettings;
+	global $wpSettings, $phpbbForum;
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
 
 		echo "
@@ -1506,7 +1505,7 @@ function wpu_javascript () {
 		document.getElementById('wpu-smiley-more').style.display = 'inline';
 		var toggle = document.getElementById('wpu-smiley-toggle');
 		toggle.setAttribute(\"onclick\", \"return lessSmilies();\");
-		toggle.firstChild.nodeValue =\"\\u00AB\\u00A0" . __("Less smilies") . "\"
+		toggle.firstChild.nodeValue =\"\\u00AB\\u00A0" . $phpbbForum->lang['wpu_less_smilies'] . "\"
 		return false;
 	}
     
@@ -1514,7 +1513,7 @@ function wpu_javascript () {
 		document.getElementById('wpu-smiley-more').style.display = 'none';
 		var toggle = document.getElementById('wpu-smiley-toggle');
 		toggle.setAttribute(\"onclick\", \"return moreSmilies();\");
-		toggle.firstChild.nodeValue =\"" . __("More smilies") . "\\u00A0\\u00BB\";
+		toggle.firstChild.nodeValue =\"" . $phpbbForum->lang['wpu_more_smilies'] . "\\u00A0\\u00BB\";
 		return false;
 	}
 	// ]]>
@@ -1627,6 +1626,7 @@ add_filter('feed_link', 'wpu_feed_link');
 add_filter( 'comments_array', 'wpu_load_phpbb_comments', 10, 2);
 add_filter( 'get_comments_number', 'wpu_comments_count', 10, 2);
 
+//add_filter( 'comments_open', 'wpu_buffer_comment_form', 10, 2);
 add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
 
 

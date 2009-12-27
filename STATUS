@@ -9,78 +9,76 @@ TODO
 --------
 
 Cross-posting: Fix dates
+WordPress detection: Stop using config file
+Widgets: Direct link to ACP no longer works with new phpBB form nonce
 
-Cache: WordPress version can be auto-filled -- it already knows the version filename (? WPINC dynamic?)
 Cache: Everything should use filemtime checking where possible
 Cache: Align all calls
 Cache: Ability to purge. Auto-purge on wizard run
 Cache: Cache log seems to under-report on occasion after cache is purged
 
-Language strings: Use phpBB i18n via phpbbForum for all strings, including in wpu-plugin and template-tags
-
 Feeds: Not recognised as XML in Chromium
 
-WordPress detection: Stop using config file
 
-Widgets: Direct link to ACP no longer works with new phpBB form nonce
+
+
 
 Plugin: Remove full_path_to_pluigin -- try replacing with __FILE__
 Plugin: wpu_must_integrate being called on template_redirect is probably not good -- disabled for now.  Review.
-
 Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
-ACP: wpu-plugin copy doesn't need to look for magic verion variable, just use filemtime instead.
+ACP: wpu-plugin copy doesn't need to look for magic version variable, just use filemtime instead.
 
 ACP: Settings page to fix and upgrade to AJAX split as with Setup Wizard
 ACP: Reset not working
 ACP: User mapping errors reported
 ACP: remove header fix, and split out "advanced" options to simplify install
 ACP: Cache purge
-ACP: Ditch wizard, put settings page into 4 jquery ui tabs, with next/back buttons and a 
-submit button on the 4th (or ensure all tabs read on first install).
-ACP: Compatibility / Performance slider
 
-Plugin: All post titles suppressed on full page integration
-Plugin: WP Admin link not showing on full page reverse integration in sidebar
 Plugin: Logout etc. links not showing in dashboard
 Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
 Plugin: JavaScript and CSS should be enqueued
-Plugin: Align (abstract) $connSettings and $wpSettings access methods
-Plugin: All requires/includes to use $phpEx via phpBB abstraction
-plugin: Disable use of $connSettings for paths -- make $phpbb_root_path global and use it everywhere
 
-Template tags: phpBB "function bar"
 
 CSS Magic: Add fixes for IE (6,7,8)
 
 
 
-Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
-Then can move all edits in --  for now, the template-loader edits, but also leave ability to step into all WP code
-
-Plugin-fixes: When making global, plugin globals can override some phpBB vars. In compat mode,
-instead of making straight global, we should run them through a fn that checks if the var already exists, and if it does, adds them
-to sleepingVars. May be best to first create phpBB abstraction to store them.
-
 Styles: Default padding a little off (?)
 
 User blogs: Check and improve dashboard
 
-Under consideration:
+============================================
+
+Under consideration for v0.8:
+--------------------------------------
 Overall architecture: Remove subdomain restrictions
 Overall architecture: Plugin fixes extend more general compatibility class -- to allow for simple "compatibility slider" in v0.9
 Overall architecture: Script path, URL, etc. still too hard to calculate, messy
-Overall architecture: General phpBB class for forum access from WP
-Overall architecture: switch_db -- better to extend existing DB objects.
+
+============================================
+
+Deferred to v0.9:
+----------------------
+Cache: WordPress version can be auto-filled -- and WPINC should be dynamic when calculating file path
+Use phpBB hook file to include WordPress first, making scope always global
+Remove need for blog.php by handling all function collisions is phpBB via the above
+Store all sleeping phpBB vars in phpbbForum abstraction, move away from wp-integration-class for handling phpBB state
+ACP: Ditch wizard, put settings page into 4 jquery ui tabs, with next/back buttons and a 
+submit button on the 4th (or ensure all tabs read on first install).
+ACP: Compatibility / Performance slider
 Widgets: Add birthdays widget
 Widgets: Add AJAX backend framework
 style fixer: Try to pull page with fixed links from cache -- perhaps based on quick hash of header content? (unlikely)
+Template funcs: Move more phpBB code to phpBB abstraction
+Template tags / widget: phpBB "function bar"
+Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
+  Then can move all edits in --  for now, the template-loader edits, but also leave ability to step into all WP code
 
-Template funcs: Move all phpBB code to phpBB abstraction
 
+=============================================
 
-
-DONE
+DONE / COMMITTED
 -------
 
 - See SVN changelog for complete list
@@ -130,5 +128,6 @@ DONE
 - Cache: Added .htaccess to package
 - CSS Magic: Template Voodoo fixed (Width of phpBB in Solostream WP-Genius)
 - Improved full page reverse integration: auto-insert a Forum page in WordPress
+- Language strings: Using phpBB i18n via phpbbForum for all strings, including in wpu-plugin, template-tags and widgets
 
 

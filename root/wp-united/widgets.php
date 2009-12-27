@@ -68,11 +68,11 @@ function wpu_widgets_init() {
 	 * Widget control pane
 	 */
 	function widget_wpu_login_user_info_control() {
-	
+		global $phpbbForum;
 		$options = get_option('widget_wpu_login_user_info');
 		
 		if ( !is_array($options) ) {
-			$options = array('title_logged_in'=>__('You are logged in as:'), 'title_logged_out'=>__('You are not logged in.'), 'rank'=>1, 'new'=>1, 'login_form'=>1);
+			$options = array('title_logged_in'=> $phpbbForum->lang['wpu_loginbox_loggedin'], 'title_logged_out'=>$phpbbForum->lang['wpu_loginbox_loggedout'], 'rank'=>1, 'new'=>1, 'login_form'=>1);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_login_user_info'] ) {
@@ -106,15 +106,13 @@ function wpu_widgets_init() {
 		$cbAdminValue = ($admin == 1) ? 'checked="checked"' : '';
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-user-info-titIn">' . __('Heading to show when reader is logged in:') . ' <input style="width: 200px;" id="wpu-user-info-titIn" name="wpu-user-info-titIn" type="text" value="'.$titleLoggedIn.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-titOut">' . __('Heading to show when reader is not logged in:') . ' <input style="width: 200px;" id="wpu-user-info-titOut" name="wpu-user-info-titOut" type="text" value="'.$titleLoggedOut.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-rank">' . __('Show rank title & image?') . ' <input  id="wpu-user-info-rank" name="wpu-user-info-rank" type="checkbox" value="rank" ' . $cbRankValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-new">' . __('Show new posts?') . ' <input  id="wpu-user-info-new" name="wpu-user-info-new" type="checkbox" value="new" ' . $cbNewValue . ' /></label></p>';
-		//
-		echo '<p style="text-align:right;"><label for="wpu-user-info-write">' . __('Show Write Post link?') . ' <input  id="wpu-user-info-write" name="wpu-user-info-write" type="checkbox" value="write" ' . $cbWriteValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-admin">' . __('Show Admin link?') . ' <input  id="wpu-user-info-admin" name="wpu-user-info-admin" type="checkbox" value="admin" ' . $cbAdminValue . ' /></label></p>';
-		//
-		echo '<p style="text-align:right;"><label for="wpu-user-info-form">' . __('Show phpBB login form if logged out?') . ' <input  id="wpu-user-info-form" name="wpu-user-info-form" type="checkbox" value="auto" ' . $cbValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-titIn">' . $phpbbForum->lang['wpu_loginbox_panel_loggedin'] . ' <input style="width: 200px;" id="wpu-user-info-titIn" name="wpu-user-info-titIn" type="text" value="'.$titleLoggedIn.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-titOut">' .$phpbbForum->lang['wpu_loginbox_panel_loggedout']  . ' <input style="width: 200px;" id="wpu-user-info-titOut" name="wpu-user-info-titOut" type="text" value="'.$titleLoggedOut.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-rank">' . $phpbbForum->lang['wpu_loginbox_panel_rank'] . ' <input  id="wpu-user-info-rank" name="wpu-user-info-rank" type="checkbox" value="rank" ' . $cbRankValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-new">' . $phpbbForum->lang['wpu_loginbox_newposts'] . ' <input  id="wpu-user-info-new" name="wpu-user-info-new" type="checkbox" value="new" ' . $cbNewValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-write">' . $phpbbForum->lang['wpu_loginbox_write'] . ' <input  id="wpu-user-info-write" name="wpu-user-info-write" type="checkbox" value="write" ' . $cbWriteValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-admin">' .$phpbbForum->lang['wpu_loginbox_admin'] . ' <input  id="wpu-user-info-admin" name="wpu-user-info-admin" type="checkbox" value="admin" ' . $cbAdminValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-form">' . $phpbbForum->lang['wpu_loginbox_loginform'] . ' <input  id="wpu-user-info-form" name="wpu-user-info-form" type="checkbox" value="auto" ' . $cbValue . ' /></label></p>';
 
 		echo '<input type="hidden" id="widget_wpu_login_user_info" name="widget_wpu_login_user_info" value="1" />';
 	}
@@ -150,11 +148,11 @@ function wpu_widgets_init() {
 	 * Widget control pane
 	 */
 	function widget_wpulatestblogs_control() {
-	
+		global $phpbbForum;
 		$options = get_option('widget_wpulatestblogs');
 		
 		if ( !is_array($options) ) {
-			$options = array('title'=>__('Recently Updated Blogs'), 'max'=>20);
+			$options = array('title'=> $phpbbForum->lang['wpu_bloglist_panel_title'], 'max'=>20);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_lb'] ) {
@@ -168,8 +166,8 @@ function wpu_widgets_init() {
 		$max = htmlspecialchars($options['max'], ENT_QUOTES);
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-lb-title">' . __('Heading:') . ' <input style="width: 200px;" id="wpu-lb-title" name="wpu-lb-title" type="text" value="'.$title.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lb-max">' . __('Maximum Entries:') . ' <input style="width: 50px;" id="wpu-lb-max" name="wpu-lb-max" type="text" value="'.$max.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lb-title">' . $phpbbForum->lang['wpu_panel_heading'] . ' <input style="width: 200px;" id="wpu-lb-title" name="wpu-lb-title" type="text" value="'.$title.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lb-max">' . $phpbbForum->lang['wpu_panel_max_entries'] . ' <input style="width: 50px;" id="wpu-lb-max" name="wpu-lb-max" type="text" value="'.$max.'" /></label></p>';
 		
 		echo '<input type="hidden" id="widget_wpu_lb" name="widget_wpu_lb" value="1" />';
 	}	
@@ -205,11 +203,11 @@ function wpu_widgets_init() {
 	 * The widget control pane
 	 */
 	function widget_wpulatestblogposts_control() {
-	
+		global $phpbbForum;
 		$options = get_option('widget_wpulatestblogposts');
 		
 		if ( !is_array($options) ) {
-			$options = array('title'=>__('Recent Posts in Blogs'), 'max'=>20);
+			$options = array('title'=> $phpbbForum->lang['wpu_blogposts_panel_title'], 'max'=>20);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_lbp'] ) {
@@ -223,8 +221,8 @@ function wpu_widgets_init() {
 		$max = htmlspecialchars($options['max'], ENT_QUOTES);
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-lbp-title">' . __('Heading:') . ' <input style="width: 200px;" id="wpu-lbp-title" name="wpu-lbp-title" type="text" value="'.$title.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lbp-max">' . __('Maximum Entries:') . ' <input style="width: 50px;" id="wpu-lbp-max" name="wpu-lbp-max" type="text" value="'.$max.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lbp-title">' . $phpbbForum->lang['wpu_panel_heading'] . ' <input style="width: 200px;" id="wpu-lbp-title" name="wpu-lbp-title" type="text" value="'.$title.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lbp-max">' . $phpbbForum->lang['wpu_panel_max_entries'] . ' <input style="width: 50px;" id="wpu-lbp-max" name="wpu-lbp-max" type="text" value="'.$max.'" /></label></p>';
 		
 		echo '<input type="hidden" id="widget_wpu_lbp" name="widget_wpu_lbp" value="1" />';
 	}	
@@ -260,11 +258,11 @@ function wpu_widgets_init() {
 	 * The widget control pane
 	 */
 	function widget_wpulatestphpbbtopics_control() {
-	
+		global $phpbbForum;
 		$options = get_option('widget_wpulatestphpbbtopics');
 		
 		if ( !is_array($options) ) {
-			$options = array('title'=>__('Recent Forum Topics'), 'max'=>20);
+			$options = array('title'=> $phpbbForum->lang['wpu_forumtopics_panel_title'], 'max'=>20);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_rpt'] ) {
@@ -278,8 +276,8 @@ function wpu_widgets_init() {
 		$max = htmlspecialchars($options['max'], ENT_QUOTES);
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-rpt-title">' . __('Heading:') . ' <input style="width: 200px;" id="wpu-rpt-title" name="wpu-rpt-title" type="text" value="'.$title.'" /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-rpt-max">' . __('Maximum Entries:') . ' <input style="width: 50px;" id="wpu-rpt-max" name="wpu-rpt-max" type="text" value="'.$max.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-rpt-title">' . $phpbbForum->lang['wpu_panel_heading']  . ' <input style="width: 200px;" id="wpu-rpt-title" name="wpu-rpt-title" type="text" value="'.$title.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-rpt-max">' . $phpbbForum->lang['wpu_panel_max_entries'] . ' <input style="width: 50px;" id="wpu-rpt-max" name="wpu-rpt-max" type="text" value="'.$max.'" /></label></p>';
 		
 		echo '<input type="hidden" id="widget_wpu_rpt" name="widget_wpu_rpt" value="1" />';
 	}	
@@ -313,11 +311,11 @@ function wpu_widgets_init() {
 	 * The widget control pane
 	 */
 	function widget_wpustats_control() {
-	
+		global $phpbbForum;
 		$options = get_option('widget_wpustats');
 		
 		if ( !is_array($options) ) {
-			$options = array('title'=>__('Forum Stats'));
+			$options = array('title'=>$phpbbForum->lang['wpu_stats_panel_title']);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_stats'] ) {
@@ -329,9 +327,7 @@ function wpu_widgets_init() {
 		$title = htmlspecialchars($options['title'], ENT_QUOTES);
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-stats-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-stats-title" name="wpu-stats-title" type="text" value="'.$title.'" /></p>';
-	
-		
+		echo '<p style="text-align:right;"><label for="wpu-stats-title">' . $phpbbForum->lang['wpu_panel_heading']  . '</label> <input style="width: 200px;" id="wpu-stats-title" name="wpu-stats-title" type="text" value="'.$title.'" /></p>';
 		echo '<input type="hidden" id="widget_wpu_stats" name="widget_wpu_stats" value="1" />';
 	}	
 	
@@ -364,11 +360,11 @@ function wpu_widgets_init() {
 	 * The widget control pane
 	 */
 	function widget_wpuusersonline_control() {
-	
+		global $phpbbForum;
 		$options = get_option('widget_wpuusersonline');
 		
 		if ( !is_array($options) ) {
-			$options = array('title'=>__('Users Online'), 'showBreakdown' => 1, 'showRecord' => 1, 'showLegend' => 1);
+			$options = array('title'=>$phpbbForum->lang['wpu_online_panel_title'], 'showBreakdown' => 1, 'showRecord' => 1, 'showLegend' => 1);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_usersonline'] ) {
@@ -389,11 +385,10 @@ function wpu_widgets_init() {
 		$inShowLegend = ($options['showLegend'] == 1) ? 'checked="checked"' : '';
 		
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-stats-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-usersonline-title" name="wpu-usersonline-title" type="text" value="'.$title.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-usersonline-breakdown">' . __('Show a breakdown of user types?') . ' <input  id="wpu-usersonline-breakdown" name="wpu-usersonline-breakdown" type="checkbox" value="brk" ' . $inShowBreakdown . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-usersonline-record">' . __('Show record number of users?') . ' <input  id="wpu-usersonline-record" name="wpu-usersonline-record" type="checkbox" value="rec" ' . $inShowRecord . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-usersonline-legend">' . __('Show legend?') . ' <input  id="wpu-usersonline-legend" name="wpu-usersonline-legend" type="checkbox" value="leg" ' . $inShowLegend . ' /></label></p>';
-		
+		echo '<p style="text-align:right;"><label for="wpu-stats-title">' . $phpbbForum->lang['wpu_panel_heading']  . '</label> <input style="width: 200px;" id="wpu-usersonline-title" name="wpu-usersonline-title" type="text" value="'.$title.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-usersonline-breakdown">' . $phpbbForum->lang['wpu_online_panel_breakdown'] . ' <input  id="wpu-usersonline-breakdown" name="wpu-usersonline-breakdown" type="checkbox" value="brk" ' . $inShowBreakdown . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-usersonline-record">' . $phpbbForum->lang['wpu_online_panel_record'] . ' <input  id="wpu-usersonline-record" name="wpu-usersonline-record" type="checkbox" value="rec" ' . $inShowRecord . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-usersonline-legend">' . $phpbbForum->lang['wpu_online_panel_legend'] . ' <input  id="wpu-usersonline-legend" name="wpu-usersonline-legend" type="checkbox" value="leg" ' . $inShowLegend . ' /></label></p>';
 		echo '<input type="hidden" id="widget_wpu_usersonline" name="widget_wpu_usersonline" value="1" />';
 	}	
 	
@@ -410,7 +405,6 @@ function wpu_widgets_init() {
 			$options = get_option('widget_wpulatestphpbbposts');
 			$title = $options['title'];
 			$dateformat = $options['dateformat'];
-			$seo = $options['seo'];
 			$maxEntries = $options['max'];
 			
 			if ( !function_exists('wpu_latest_phpbb_posts') ) return false;
@@ -428,35 +422,32 @@ function wpu_widgets_init() {
 	 * The widget control pane
 	 */
 	function widget_wpulatestphpbbposts_control() {
-	
+		global $phpbbForum;
 		$options = get_option('widget_wpulatestphpbbposts');
 		
 		if ( !is_array($options) ) {
-			$options = array('title'=>__('Latest phpBB Posts'), 'limit'=>20, 'dateformat'=>"Y-m-j", 'seo'=>0);
+			$options = array('title'=>$phpbbForum->lang['wpu_forumposts_panel_title'], 'limit'=>20, 'dateformat'=>"Y-m-j", 'seo'=>0);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_lpp'] ) {
 			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
 			$options['max'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
 			$options['dateformat'] = strip_tags(stripslashes($_POST['wpu-lpp-gtm']));
-			$options['seo'] = ($_POST['wpu-lpp-seo'] == "yes") ? 1 : 0;
 			update_option('widget_wpulatestphpbbposts', $options);
 		}
 
 		// set form values
 		$title = htmlspecialchars($options['title'], ENT_QUOTES);
-		$title = (empty($title)) ? __('Latest phpBB posts') : $title;
+		$title = (empty($title)) ? $phpbbForum->lang['wpu_forumposts_panel_title'] : $title;
 		$max =(int) htmlspecialchars($options['max'], ENT_QUOTES);
 		$max = ($max) ? (string)$max : '20';
 		$dateformat = empty($options['dateformat']) ? 'Y-m-j' : $options['dateformat'];
 		$dateformat = htmlspecialchars($dateformat);
-		$seo = ($options['seo']) ? 'checked="checked"' : '';
 
 		// Show form
-		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . __('Heading:') . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . __('Maximum Entries:') . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$max.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . __('Date format:') . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$dateformat.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-seo">' . __('phpBB SEO installed?:') . '</label> <input type="checkbox" id="wpu-lpp-seo" name="wpu-lpp-seo" value="yes" $seo /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . $phpbbForum->lang['wpu_panel_heading'] . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . $phpbbForum->lang['wpu_panel_max_entries'] . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$max.'" /></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . $phpbbForum->lang['wpu_forumposts_panel_date'] . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$dateformat.'" /></p>';
 
 		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
 	}	
@@ -482,14 +473,14 @@ function wpu_widgets_init() {
 	/**
 	 * Register all control panes
 	 */
-	register_widget_control(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info_control', 500, 180);
-	register_widget_control(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics_control', 300, 100);
-	register_widget_control(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats_control', 300, 100);
-	register_widget_control(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts_control', 300, 100);
-	register_widget_control(array('WP-United Users Online', 'widgets'), 'widget_wpuusersonline_control', 300, 100);
+	register_widget_control(array($phpbbForum->lang['wpu_loginbox_desc'], 'widgets'), 'widget_wpu_login_user_info_control', 500, 180);
+	register_widget_control(array($phpbbForum->lang['wpu_forumtopics_desc'], 'widgets'), 'widget_wpulatestphpbbtopics_control', 300, 100);
+	register_widget_control(array($phpbbForum->lang['wpu_stats_desc'], 'widgets'), 'widget_wpustats_control', 300, 100);
+	register_widget_control(array($phpbbForum->lang['wpu_forumposts_desc'], 'widgets'), 'widget_wpulatestphpbbposts_control', 300, 100);
+	register_widget_control(array($phpbbForum->lang['wpu_online_desc'], 'widgets'), 'widget_wpuusersonline_control', 300, 100);
 	if(!empty($wpSettings['usersOwnBlogs'])) {	
-		register_widget_control(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
-		register_widget_control(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
+		register_widget_control(array($phpbbForum->lang['wpu_bloglist_desc'], 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
+		register_widget_control(array($phpbbForum->lang['wpu_blogposts_desc'], 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
 	}
 }
 
