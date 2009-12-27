@@ -35,6 +35,7 @@ class WPU_Phpbb {
 	var $lang;
 	var $was_out;
 	var $seo = false;
+	var $url = '';
 	
 	/**
 	 * Class initialisation
@@ -43,9 +44,18 @@ class WPU_Phpbb {
 		if(defined('IN_PHPBB')) {
 			$this->state = 'phpbb';
 			$this->lang = $GLOBALS['user']->lang;
+			
+			$this->_calculate_url();
+
 		}
 		$this->was_out = false;
 		$this->seo = false;
+		
+
+		
+		
+		
+		
 		/**
 		 * error constats for $this->err_msg
 		 * todo use wp_die for most errors instead
@@ -86,6 +96,8 @@ class WPU_Phpbb {
 		 }
 		 
 		 $this->lang = $GLOBALS['user']->lang;
+		 
+		 $this->_calculate_url();
 		
 		$this->_backup_phpbb_state();
 		$this->_switch_to_wp_db();
@@ -274,6 +286,18 @@ class WPU_Phpbb {
 		}
 		trigger_error($msg);
 	}	
+	
+	/**
+	 * Calculates the URL to the forum
+	 * @access private
+	 */
+	function _calculate_url() {
+			global $config;
+			$server = $config['server_protocol'] . add_trailing_slash($config['server_name']);
+			$scriptPath = add_trailing_slash($config['script_path']);
+			$scriptPath= ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
+			$this->url = $server . $scriptPath;	
+	}
 	
 	
 	/**

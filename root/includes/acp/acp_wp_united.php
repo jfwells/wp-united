@@ -2144,7 +2144,7 @@ class acp_wp_united {
 							comment_status = 'closed',
 							ping_status = 'closed',
 							post_password = '',
-							post_name = 'blogs-home',
+							post_name = 'forum',
 							to_ping = '',
 							pinged = '',
 							post_modified = '".current_time('mysql')."',
@@ -2158,7 +2158,7 @@ class acp_wp_united {
 						"INSERT IGNORE INTO $wpdb->posts
 								(post_author, post_date, post_date_gmt, post_content, post_content_filtered, post_title, post_excerpt,  post_status, post_type, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_parent, menu_order, post_mime_type)
 							VALUES
-								('0', '".current_time('mysql')."', '".current_time('mysql',1)."', '{$content}', '', '{$title}', '', 'publish', 'page', 'closed', 'closed', '', 'blogs-home', '', '', '".current_time('mysql')."', '".current_time('mysql',1)."', '0', '0', '')"
+								('0', '".current_time('mysql')."', '".current_time('mysql',1)."', '{$content}', '', '{$title}', '', 'publish', 'page', 'closed', 'closed', '', 'forum', '', '', '".current_time('mysql')."', '".current_time('mysql',1)."', '0', '0', '')"
 						);
 						$forum_page_ID = $wpdb->insert_id;		
 					}		

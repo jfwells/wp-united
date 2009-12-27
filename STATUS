@@ -8,7 +8,8 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-Forum Page: filter link and add redirect in dashboard
+$scriptPath -- replace with new $phpbbForum->url, everywhere. This will also remove a lot of the path guesswork in various places.
+Forum page: Use for simple hdr ftr, not only full page.
 
 Cross-posting: Fix dates
 WordPress detection: Stop using config file
@@ -30,6 +31,7 @@ ACP: Reset not working
 ACP: User mapping errors reported
 ACP: remove header fix, and split out "advanced" options to simplify install
 ACP: Cache purge
+ACP: .php to $phpEx for wpu-plugin.php
 
 Plugin: Logout etc. links not showing in dashboard
 Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
@@ -124,4 +126,5 @@ DONE / COMMITTED
 - Language strings: Using phpBB i18n via phpbbForum for all strings, including in wpu-plugin, template-tags and widgets
 - ACP: Settings process page fixed
 - ACP: Settings page uses AJAX split to install WP-United Connection
+- Plugin: Forum page link filtered so that it always goes directly to the forum
 

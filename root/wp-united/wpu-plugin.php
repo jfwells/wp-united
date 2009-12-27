@@ -38,6 +38,7 @@ function wpu_init_plugin() {
 	
 	$wpuConnSettings = get_settings('wputd_connection');
 	
+	
 	if ( !defined('IN_PHPBB') ) {
 				
 		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
@@ -63,8 +64,28 @@ function wpu_init_plugin() {
 	} else {
 		add_action('widgets_init', 'wpu_widgets_init');	
 	}
+
 	
 }
+
+/**
+ * Check the permalink to see if this is a link to the forum. 
+ * If it is, replace it with the real forum link
+ */
+function wpu_modify_pagelink($permalink, $post) {
+	global $wpSettings, $phpbbForum;
+	static $forumPage;
+	
+	if ( ($wpSettings['showHdrFtr'] == 'REV') && (empty($wpSettings['wpSimpleHdr'])) ) {
+		$forumPage = get_option('wpu_set_forum');
+		if(!empty($forumPage) && ($forumPage == $post)) {
+			return $phpbbForum->url;
+		}
+	}
+	
+	return $permalink;
+}
+
 
 /**
  * Checks and processes the inbound dashboard request
@@ -1586,11 +1607,11 @@ function wpu_validate_username_conflict($wpValdUser, $username) {
  * here we add all the hooks and filters
  */
 
-//since v0.7.1
+
 add_filter('pre_user_login', 'wpu_fix_blank_username');
 //add_filter('validate_username', 'wpu_validate_username_conflict');
 
-//since v0.7.0
+
 add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
 add_action('comment_author_link', 'wpu_comment_author_link');
 add_filter('comment_text', 'wpu_censor');
@@ -1625,9 +1646,9 @@ add_filter('feed_link', 'wpu_feed_link');
 
 add_filter( 'comments_array', 'wpu_load_phpbb_comments', 10, 2);
 add_filter( 'get_comments_number', 'wpu_comments_count', 10, 2);
-
-//add_filter( 'comments_open', 'wpu_buffer_comment_form', 10, 2);
 add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
+
+add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
 
 
 //per-user cats in progress
