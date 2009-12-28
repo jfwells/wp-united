@@ -768,15 +768,15 @@ function wpu_get_stylesheet($default) {
  * Only modifies it if login is integrated
  */
 function wpu_loginoutlink($loginLink) {
-	global $phpbbForum, $wpSettings, $phpbb_logged_in, $phpbb_username, $phpbb_sid, $phpEx, $scriptPath;
+	global $phpbbForum, $wpSettings, $phpbb_logged_in, $phpbb_username, $phpbb_sid, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
 		$logout_link = 'ucp.'.$phpEx.'?mode=logout&amp;sid=' . $phpbb_sid;
 		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]);		
 		if ( $phpbb_logged_in ) {
-			$u_login_logout = add_trailing_slash($scriptPath) . $logout_link;
+			$u_login_logout = $phpbbForum->url . $logout_link;
 			$l_login_logout = $phpbbForum->lang['Logout'] . ' [ ' . $phpbb_username . ' ]';
 		} else {
-			$u_login_logout = add_trailing_slash($scriptPath) . $login_link;
+			$u_login_logout = $phpbbForum->url . $login_link;
 			$l_login_logout = $phpbbForum->lang['Login'];
 		}
 		return '<a href="' . $u_login_logout . '">' . $l_login_logout . '</a>';
@@ -790,7 +790,7 @@ function wpu_loginoutlink($loginLink) {
  * Only modifies it if login is integrated
  */
 function wpu_registerlink($registerLink) {
-	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpbbForum, $phpEx, $wpuGetBlog, $scriptPath;
+	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpbbForum, $phpEx, $wpuGetBlog;
 	if ( !empty($wpSettings['integrateLogin']) ) {
 		//'before' and 'after' can be passed to the links. Let's isolate them.
 		$startPos = strpos($registerLink, '<a');
@@ -807,7 +807,7 @@ function wpu_registerlink($registerLink) {
 		 * @todo move $wpuGetxxx calculation here
 		 */
 		if ( ! is_user_logged_in() ) {
-			return $before . '<a href="' . append_sid(add_trailing_slash($scriptPath) . $reg_link) . '">' . $phpbbForum->lang['Register'] . '</a>' . $after;
+			return $before . '<a href="' . append_sid($phpbbForum->url . $reg_link) . '">' . $phpbbForum->lang['Register'] . '</a>' . $after;
 		} else {
 			return $before . '<a href="' . get_settings('siteurl') . '/wp-admin/">' . $wpuGetBlog . '</a>' . $after;
 		}
@@ -993,11 +993,11 @@ function wpu_get_author() {
  * template integration when WordPress CSS is first.
 */
 function wpu_done_head() {
-	global $wpu_done_head, $wpSettings, $scriptPath, $wp_the_query;
+	global $wpu_done_head, $wpSettings, $phpbbForum, $wp_the_query;
 	$wpu_done_head = true;
 	//add the frontpage stylesheet, if needed: 
 	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {
-		echo '<link rel="stylesheet" href="' . add_trailing_slash($scriptPath) . 'wp-united/theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
+		echo '<link rel="stylesheet" href="' . $phpbbForum->url . 'wp-united/theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
 	if ( (defined('WPU_REVERSE_INTEGRATION')) && ($wpSettings['cssFirst'] == 'W') ) {
 		echo '<!--[**HEAD_MARKER**]-->';
@@ -1356,7 +1356,7 @@ function wpu_prepare_admin_pages() {
 */
 
 function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = 'avatar' ) { 
-	global $wpSwettings;
+	global $wpSwettings, $phpbbForum;
 	$connSettings = get_settings('wputd_connection');
 	if (empty($wpSettings['integrateLogin'])) { 
 		return $avatar;
@@ -1390,20 +1390,19 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 		$email = $id_or_email;
    	}
 
-	global $scriptPath; 
-	$path = (empty($scriptPath)) ? $connSettings['path_to_phpbb'] : $scriptPath;	
+	
 		
 	if($user) {
 		// use default WordPress or WP-United image
 		if(!$image = avatar_create_image($user)) { 
 			if(empty($default)) {
-				$image = $path . 'wp-united/images/wpu_unregistered.gif';
+				$image = $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
 			} else {
 				return $avatar;
 			}
 		} 
 	} else {
-	       $image = $path . 'wp-united/images/wpu_no_avatar.gif';
+	       $image = $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
 	}
 	return "<img alt='{$safe_alt}' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
 } 
@@ -1420,7 +1419,7 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) { 
 		static $match;
 		static $replace;
-		global $scriptPath, $db;
+		global $db;
 	
 
 		// See if the static arrays have already been filled on an earlier invocation
@@ -1435,7 +1434,7 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 					continue; 
 				} 
 				$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
-				$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $scriptPath . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+				$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $phpbbForum->url . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
 			}
 			$db->sql_freeresult($result);
 			
@@ -1462,7 +1461,7 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 function wpu_print_smilies() {
 	global $phpbbForum, $wpSettings;
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
-		global $scriptPath, $db;
+		global $db;
 
 		$phpbbForum->enter();
 	
@@ -1477,7 +1476,7 @@ function wpu_print_smilies() {
 				echo '<span id="wpu-smiley-more" style="display:none">';
 			}
 		
-			echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$scriptPath.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
+			echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$phpbbForum->url.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
 			$i++;
 		}
 		$db->sql_freeresult($result);

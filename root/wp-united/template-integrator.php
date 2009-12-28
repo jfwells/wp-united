@@ -32,7 +32,7 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	
 	$wpuAbs->add_template_switch('S_SHOW_HDR_FTR', TRUE);
 	// We need to set the base HREF correctly, so that images and links in the phpBB header and footer work properly
-	$wpuAbs->add_template_switch('PHPBB_BASE', $scriptPath);
+	$wpuAbs->add_template_switch('PHPBB_BASE', $phpbbForum->url);
 	
 	
 	// If the user wants CSS magic, we will need to inspect the phpBB Head, so we buffer the output 
@@ -81,9 +81,9 @@ $$wpContentVar = str_replace(".$phpEx/\"",  ".$phpEx\"", $$wpContentVar);
 if ( !empty($wpSettings['integrateLogin']) ) {
 	$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=';
 
-	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $scriptPath . $login_link, $$wpContentVar);
-	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $scriptPath . $login_link, $$wpContentVar);
-	$$wpContentVar = str_replace("$siteurl/wp-login.php?action=logout", $scriptPath . $logout_link, $$wpContentVar);
+	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
+	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
+	$$wpContentVar = str_replace("$siteurl/wp-login.php?action=logout", $phpbbForum->url . $logout_link, $$wpContentVar);
 }
 
 /**
@@ -327,7 +327,7 @@ if (!empty($wpSettings['cssMagic'])) {
 	$wpuCache->update_style_keys();
 	
 	// add link to reset stylesheet
-	$reset = "<link href=\"{$scriptPath}wp-united/theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
+	$reset = "<link href=\"{$phpbbForum->url}wp-united/theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
 	$innerHeadInfo = $reset . $innerHeadInfo;
 
 	//write out the modified stylesheet links

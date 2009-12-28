@@ -31,12 +31,12 @@ function wpu_intro() {
  * Prepares a sentence soliciting users to get started with their blogs
  */
 function get_wpu_intro() {
-	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpEx, $wpuGetBlogIntro, $scriptPath;
+	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpEx, $wpuGetBlogIntro, $phpbbForum;
 	if ( (!empty($wpSettings['useBlogHome'])) && (!empty($wpSettings['usersOwnBlogs'])) ) {
 		$reg_link =  'ucp.'.$phpEx.'?mode=register';
 		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect='. attribute_escape($_SERVER["REQUEST_URI"]);	
 		if ( ! $phpbb_logged_in ) {
-			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro,'<a href="' . $scriptPath . append_sid($reg_link) . '">', '</a>',  '<a href="'. $scriptPath . $login_link . '">', '</a>') . '</p>';
+			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro,'<a href="' . $phpbbForum->url . append_sid($reg_link) . '">', '</a>',  '<a href="'. $phpbbForum->url . $login_link . '">', '</a>') . '</p>';
 		} else {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro, '<a href="' . get_settings('siteurl') . '/wp-admin/">','</a>') . '</p>';
 		}
@@ -52,7 +52,7 @@ function get_wpu_intro() {
  * @param int $maxEntries Maximum number to show per page. Defaults to 5.
  */
 function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
-	global $wpdb, $authordata, $scriptPath, $phpbbForum, $wpSettings, $wp_version, $phpEx;
+	global $wpdb, $authordata, $phpbbForum, $wpSettings, $wp_version, $phpEx;
 	$start = 0;
 	$start = (integer)trim($_GET['start']);
 	$start = ($start < 0) ? 0 : $start;
@@ -112,7 +112,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 					$pUsrName == $author->phpbb_userLogin;
 				}
 				$profile_path =  "memberlist.$phpEx";
-				$path_to_profile = ( empty($pID) ) ? append_sid($blogPath) : append_sid(add_trailing_slash($scriptPath) . $profile_path .'?mode=viewprofile&amp;u=' .$pID); 
+				$path_to_profile = ( empty($pID) ) ? append_sid($blogPath) : append_sid($phpbbForum->url . $profile_path .'?mode=viewprofile&amp;u=' .$pID); 
 				$rssLink = get_author_rss_link(0, $author->ID, $author->user_nicename);
 				$lastPostID = $author->wpu_last_post;
 				if ( empty($lastPostID) ) {
@@ -218,7 +218,7 @@ function avatar_commenter($default = true, $id = '') {
  * @author John Wells
  */
 function get_avatar_commenter($default=TRUE, $id = '') {
-global $comment, $images, $scriptPath;
+global $comment, $images, $phpbbForum;
 
 	if ( empty($id) ) {
 		if ( !empty($comment) ) {
@@ -226,7 +226,7 @@ global $comment, $images, $scriptPath;
 		} 
 		if ( empty($id) ) {
 			if ( $default ) {
-				return $scriptPath . 'wp-united/images/wpu_unregistered.gif';
+				return $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
 			}
 			return '';
 		}
@@ -238,7 +238,7 @@ global $comment, $images, $scriptPath;
 		return $image;
 	} 
 	if ( $default ) {
-		return $scriptPath . 'wp-united/images/wpu_no_avatar.gif';
+		return $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -260,13 +260,13 @@ function avatar_poster($default = true) {
  * @author John Wells
  */
 function get_avatar_poster($default = true) {
-	global $images, $authordata, $scriptPath;
+	global $images, $authordata, $phpbbForum;
 	$image = avatar_create_image($authordata);
 	if ( !empty($image) ) {
 		return $image;
 	} 
 	if ( $default ) {
-		return $scriptPath . 'wp-united/images/wpu_no_avatar.gif';
+		return $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -289,7 +289,7 @@ function avatar_reader($default = true) {
  * @author John Wells
  */
 function get_avatar_reader($default = true) {
-	global $images, $scriptPath, $userdata, $user_ID;
+	global $images, $phpbbForum, $userdata, $user_ID;
 	get_currentuserinfo();
 	if ( !empty($user_ID) ) {
 		$image = avatar_create_image($userdata);
@@ -298,11 +298,11 @@ function get_avatar_reader($default = true) {
 		return $image;
 	} elseif ( $image === FALSE ) {
 		if ( $default ) {
-			return $scriptPath . 'wp-united/images/wpu_unregistered.gif';
+			return $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
 		}
 	}
 	if ( $default ) {
-		return $scriptPath . 'wp-united/images/wpu_no_avatar.gif';
+		return $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -317,14 +317,13 @@ function get_avatar_reader($default = true) {
 function avatar_create_image($user) {
 	$avatar = '';
 	if ( !empty($user->ID) ) {
-		global $scriptPath, $phpbb_root_path, $phpEx;
-		$scriptPath = (empty($scriptPath)) ? $phpbb_root_path : $scriptPath;			
+		global $phpbbForum, $phpbb_root_path, $phpEx;
 		
 		if ($user->wpu_avatar_type && $user->wpu_avatar) {
 			require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
 			$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
 			$avatar = explode('"', $avatar);
-			$avatar = str_replace($phpbb_root_path, $scriptPath, $avatar[1]); //stops trailing slashes in URI from killing avatars
+			$avatar = str_replace($phpbb_root_path, $phpbbForum->url, $avatar[1]); //stops trailing slashes in URI from killing avatars
 		}
 
 	} 
@@ -472,10 +471,11 @@ function wpu_phpbb_profile_link($wpID = '') {
  * @param int $wpID the WordPress ID, leave blank for currently logged-in user
  */
 function get_wpu_phpbb_profile_link($wpID = '') {
+	global $phpbbForum;
 	$phpbb_usr_id = get_usermeta($wpID, 'phpbb_userid');
 	if (!empty($usr_data)) {
 		$profile_path = "memberlist.$phpEx";
-		return add_trailing_slash($scriptPath) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
+		return add_trailing_slash($phpbbForum->url) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
 	}
 }
 
@@ -565,7 +565,7 @@ function wpu_phpbb_stats($args='') {
  * @author John Wells
  */
 function get_wpu_phpbb_stats($args='') {
-	global $phpbbForum,  $phpEx, $scriptPath;
+	global $phpbbForum,  $phpEx;
 	$defaults = array('before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
 
@@ -575,7 +575,7 @@ function get_wpu_phpbb_stats($args='') {
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_posts'],  '<strong>' 	. $phpbbForum->stats('num_posts') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_threads'], '<strong>' 	. $phpbbForum->stats('num_topics') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_users'], '<strong>' 	. $phpbbForum->stats('num_users')  . '</strong>') . "$after\n";	
-	$output .= $before . sprintf($phpbbForum->lang['wpu_forum_stats_newest_user'], '<a href="' . add_trailing_slash($scriptPath) . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $phpbbForum->stats('newest_user_id') . '"><strong>' . $phpbbForum->stats('newest_username') . '</strong></a>') . "$after\n";
+	$output .= $before . sprintf($phpbbForum->lang['wpu_forum_stats_newest_user'], '<a href="' . $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $phpbbForum->stats('newest_user_id') . '"><strong>' . $phpbbForum->stats('newest_username') . '</strong></a>') . "$after\n";
 	$phpbbForum->leave();
 	return $output;
 
@@ -596,9 +596,9 @@ function wpu_newposts_link() {
  * @author John Wells
  */
 function get_wpu_newposts_link() {
-	global $phpbbForum, $phpEx, $scriptPath;
+	global $phpbbForum, $phpEx;
 	if( $phpbbForum->user_logged_in() ) {
-		return '<a href="'. append_sid($scriptPath . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". $phpbbForum->lang['Search_new'] . "</a>";
+		return '<a href="'. append_sid($phpbbForum->url . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". $phpbbForum->lang['Search_new'] . "</a>";
 	}
 }
 
@@ -639,7 +639,7 @@ function wpu_latest_phpbb_posts($args='') {
  * Modified for v0.8 to use proper WP widget styling and args
  */
 function get_wpu_latest_phpbb_posts($args='') {
-	global $phpbbForum, $scriptPath, $db, $auth, $phpEx;
+	global $phpbbForum, $db, $auth, $phpEx;
 	
 	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '', 'dateformat' => 'Y-m-j');
 	
@@ -681,9 +681,9 @@ function get_wpu_latest_phpbb_posts($args='') {
 			$class = ($i==0) ? 'class="wpufirst" ' : '';
 			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
 			$topic_link = ($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}";
-			$topic_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . $topic_link . '" title="' . $row['topic_title'] . '">' . $row['topic_title'] . '</a>';
+			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url. $topic_link . '" title="' . $row['topic_title'] . '">' . $row['topic_title'] . '</a>';
 			$user_link = ($phpbbForum->seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
-			$user_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . $user_link . '">' . $row['username'] .'</a>';
+			$user_link = '<a ' . $class . 'href="' . $phpbbForum->url . $user_link . '">' . $row['username'] .'</a>';
 			$ret .= $thisBefore . sprintf($phpbbForum->lang['wpu_phpbb_post_summary'],$topic_link, $user_link,  date($dateformat, $row['post_time']))  ."$after\n";
 			$i++;
 		}
@@ -710,7 +710,7 @@ function wpu_latest_phpbb_topics($args = '') {
  * @example: get_wpu_latest_phpbb_topics('limit=10&forum=1,2,3&before=<li>&after=</li>')
  */
 function get_wpu_latest_phpbb_topics($args = '') {
-	global $scriptPath, $phpEx, $phpbbForum;
+	global $phpEx, $phpbbForum;
 	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '');
 	extract(_wpu_process_args($args, $defaults));
 	
@@ -722,9 +722,9 @@ function get_wpu_latest_phpbb_topics($args = '') {
 		foreach ($posts as $post) {
 			$class = ($i==0) ? 'class="wpufirst" ' : '';
 			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
-			$topic_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . $post['topic_title'] . '</a>';
-			$forum_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-			$user_link = '<a ' . $class . 'href="' . add_trailing_slash($scriptPath) . "$profile_path.$phpEx?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
+			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . $post['topic_title'] . '</a>';
+			$forum_link = '<a ' . $class . 'href="' . $phpbbForum->url . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
+			$user_link = '<a ' . $class . 'href="' . $phpbbForum->url . "$profile_path.$phpEx?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
 			$output .= $thisBefore . sprintf($phpbbForum->lang['wpu_phpbb_topic_summary'],$topic_link, $user_link, $forum_link)  ."$after\n";
 			$i++;
 		}
@@ -771,19 +771,18 @@ function wpu_user_id($wp_userID = '') {
  * @since v0.7.0
  */
 function wpu_get_comment_author_link () {
-global $comment, $phpbb_root_path, $scriptPath, $phpbbForum;
+global $comment, $phpbb_root_path, $phpbbForum;
  
 	$uID = get_wpu_user_id($comment->user_id);
 	
 	if (empty($uID)) { 
 		return $wpu_link = get_comment_author();
 	} else {
-		$scriptPath = (empty($scriptPath)) ? $phpbb_root_path : $scriptPath;
 		
 		if ($phpbbForum->seo) {
-			return $wpu_link = '<a href="' . $phpbbPath . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
+			return $wpu_link = '<a href="' . $phpbbForum->url . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
 		} else {
-			return $wpu_link = '<a href="' . $phpbbPath . 'memberlist.php?mode=viewprofile&u=' . $uID  . '" rel="nofollow">' . $comment->comment_author . '</a>';
+			return $wpu_link = '<a href="' . $phpbbForum->url . 'memberlist.php?mode=viewprofile&u=' . $uID  . '" rel="nofollow">' . $comment->comment_author . '</a>';
 		}
 	}
 }
@@ -905,7 +904,7 @@ function wpu_login_user_info($args) {
  * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1");
  */
 function get_wpu_login_user_info($args) {
-	global $user_ID, $user, $db, $scriptPath, $wpSettings, $auth, $phpbbForum, $phpbb_sid, $wpSettings, $phpEx, $config;
+	global $user_ID, $user, $db, $wpSettings, $auth, $phpbbForum, $phpbb_sid, $wpSettings, $phpEx, $config;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
@@ -920,7 +919,7 @@ function get_wpu_login_user_info($args) {
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 
 
-			$ret .= $before . '<a href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a>' . $after;
+			$ret .= $before . '<a href="' . $phpbbForum->url . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a>' . $after;
 			$ret .= $before . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
 
 		if ( $showRankBlock ) {
@@ -935,11 +934,11 @@ function get_wpu_login_user_info($args) {
 		if ($user->data['user_new_privmsg']) {
 			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
 			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
-			$ret .= $before. '<a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+			$ret .= $before. '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 		} else {
 			$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
 			$s_privmsg_new = false;
-			$ret .= $before . '<a title="' . $l_privmsgs_text . '" href="' . add_trailing_slash($scriptPath) . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+			$ret .= $before . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 		}	
 
 		if ($showWriteLink) {
@@ -952,22 +951,22 @@ function get_wpu_login_user_info($args) {
 				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
 			if($auth->acl_get('a_')) {
-				$ret .= $before . '<a href="'.$scriptPath.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
+				$ret .= $before . '<a href="'.$phpbbForum->url.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
 		}
 		$ret .= $before . get_wp_loginout() . $after;
 	} else {
 		if ( $showLoginForm ) {
 			$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
-			$ret .= '<form class="wpuloginform" method="post" action="' . add_trailing_slash($scriptPath) . $login_link . '">';
+			$ret .= '<form class="wpuloginform" method="post" action="' . $phpbbForum->url . $login_link . '">';
 			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
 			$ret .= $before . '<label for="phpbb_password">' . $phpbbForum->lang['PASSWORD'] . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
 			if ( $config['allow_autologin'] ) {
 				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $phpbbForum->lang['LOG_ME_IN'] . '</label>' . $after;
 			}
 			$ret .= $before . '<input type="submit" name="login" class="wpuloginsubmit" value="' . $phpbbForum->lang['LOGIN'] . '" />' . $after;
-			$ret .= $before . '<a href="' . append_sid(add_trailing_slash($scriptPath)."ucp.php?mode=register") . '">' . $phpbbForum->lang['REGISTER'] . '</a>' . $after;
-			$ret .= $before . '<a href="'.append_sid(add_trailing_slash($scriptPath)).'ucp.php?mode=sendpassword">' . $phpbbForum->lang['FORGOT_PASS'] . '</a>' . $after;
+			$ret .= $before . '<a href="' . append_sid($phpbbForum->url."ucp.php?mode=register") . '">' . $phpbbForum->lang['REGISTER'] . '</a>' . $after;
+			$ret .= $before . '<a href="'.append_sid($phpbbForum->url).'ucp.php?mode=sendpassword">' . $phpbbForum->lang['FORGOT_PASS'] . '</a>' . $after;
 			$ret .= '</form>';
 		} else {
 			$ret .= $before . get_wp_loginout() . $after;
@@ -1042,11 +1041,11 @@ if(!function_exists('get_wp_loginout')) {
  */
 function _wpu_get_user_rank_info($userID = '') {
 
-	global $phpbbForum, $scriptPath;
+	global $phpbbForum;
 	$phpbbForum->enter();
 	$rank = $phpbbForum->get_user_rank_info($userID);
 	$phpbbForum->leave();
-	$rank['image'] = (empty($rank['image'])) ? '' : $scriptPath . $rank['image'];
+	$rank['image'] = (empty($rank['image'])) ? '' : $phpbbForum->url . $rank['image'];
 	return $rank;
 }
 	

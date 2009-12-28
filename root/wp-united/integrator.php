@@ -68,7 +68,7 @@ require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 
 // There are several variables we need to have around in the global scope. We only need to
 // do this if we are being called from a function, but for convenience, we just do it anyway
-global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug, $wpuPluginFixer;
+global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $template, $latest, $wpu_page_title, $wp_version, $lDebug, $wpuPluginFixer, $phpbbForum;
 global $innerHeadInfo, $innerContent;
 global $db, $config;
 $lDebug = '';
@@ -96,13 +96,6 @@ if  ( $wpSettings == FALSE ) {
 // For convenience, we set several variables that are useful in WordPress. Most template-related strings should be
 // taking place elsewhere, e.g. in template-tags.php, but for some commonly used items which we also use here in
 // integrator.php, it makes sense to declare them up-front.
-
-// $scriptPath is a global variable that provides the fully qualified path to phpBB. Used all over the place when we're in WordPress
-$server = $wpuAbs->config('server_protocol') . add_trailing_slash($wpuAbs->config('server_name'));
-$scriptPath = add_trailing_slash($wpuAbs->config('script_path'));
-$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
-$scriptPath = $server . $scriptPath;
-
 
 // set some vars for wpu-plugin to use. 
 global $phpbb_logged_in, $phpbb_username, $phpbb_sid, $login_link, $logout_link;
@@ -328,7 +321,7 @@ require($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
  * WordPress still appears inside the phpBB header/footer in these circumstances.
  */
 function wpu_complete() {
-	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $scriptPath, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
+	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
 	global $innerHeadInfo, $innerContent;
 	global $wpContentVar, $lDebug, $outerContent, $wpuAbs, $phpbb_root_path, $phpEx, $wpuCache, $config;
 	

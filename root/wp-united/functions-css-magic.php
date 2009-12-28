@@ -28,7 +28,7 @@ if ( !defined('IN_PHPBB') ) {
  * @return array an array of stylesheet links and modifications
  */
 function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
-	global $scriptPath, $phpbb_root_path, $wpuCache, $wpSettings;
+	global $phpbb_root_path, $wpuCache, $wpSettings, $phpbbForum;
 
 	// grep all styles
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
@@ -66,8 +66,8 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 				 * We try various methods to find the file
 				 */
 				// Absolute path to CSS, in phpBB
-				if(stristr($el, $scriptPath) !== false) {
-					$cssLnk = str_replace($scriptPath, "", $el); 
+				if(stristr($el, $phpbbForum->url) !== false) {
+					$cssLnk = str_replace($phpbbForum->url, "", $el); 
 				// Absolute path to CSS, in WordPress
 				} elseif(stristr($el, $wpSettings['wpUri']) !== false) {
 					$cssLnk = str_replace($wpSettings['wpUri'], $wpSettings['wpPath'], $el);
@@ -83,7 +83,7 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 					$cssLnk = realpath($cssLnk);
 					$key = $wpuCache->get_style_key($cssLnk, $position);
 					$keys[] = $key;
-					$repl[] = "{$scriptPath}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
+					$repl[] = "{$phpbbForum->url}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
 				}
 			} elseif(stristr($el, "style.php?") !== false) {
 				/**

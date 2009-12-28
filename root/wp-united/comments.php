@@ -27,7 +27,7 @@ class WPU_Comments {
 
 	function populate($wpPostID) {
 		
-		global $phpbbForum, $auth, $db, $scriptPath, $phpEx, $user;
+		global $phpbbForum, $auth, $db, $phpEx, $user;
 		
 		$phpbbForum->enter();
 		
@@ -94,7 +94,7 @@ class WPU_Comments {
 				
 				while ($comment = $db->sql_fetchrow($result)) {
 					
-					$link = add_trailing_slash($scriptPath) . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['user_id'];
+					$link = $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['user_id'];
 					$args = array(
 						'comment_ID' => $comment['post_id'],
 						'comment_post_ID' => $wpPostID,

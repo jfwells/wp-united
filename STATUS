@@ -8,7 +8,7 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-$scriptPath -- replace with new $phpbbForum->url, everywhere. This will also remove a lot of the path guesswork in various places.
+remove $phpbb_sid, etc, as with $scriptPath
 Forum page: Use for simple hdr ftr, not only full page.
 
 Cross-posting: Fix dates
@@ -127,4 +127,4 @@ DONE / COMMITTED
 - ACP: Settings process page fixed
 - ACP: Settings page uses AJAX split to install WP-United Connection
 - Plugin: Forum page link filtered so that it always goes directly to the forum
-
+- replaced $scriptPath with new $phpbbForum->url, everywhere. This will also remove a lot of the path guesswork in various places.
