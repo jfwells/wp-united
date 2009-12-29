@@ -9,7 +9,6 @@ TODO
 --------
 
 remove $phpbb_sid, etc, as with $scriptPath
-Forum page: Use for simple hdr ftr, not only full page.
 
 Cross-posting: Fix dates
 WordPress detection: Stop using config file
@@ -17,10 +16,6 @@ Widgets: Direct link to ACP no longer works with new phpBB form nonce
 
 Cache: Everything should use filemtime checking where possible
 Cache: Align all calls
-Cache: Ability to purge. Auto-purge on wizard run
-Cache: Cache log seems to under-report on occasion after cache is purged
-
-Feeds: Not recognised as XML in Chromium
 
 Plugin: Remove full_path_to_pluigin -- try replacing with __FILE__
 Plugin: wpu_must_integrate being called on template_redirect is probably not good -- disabled for now.  Review.
@@ -128,3 +123,7 @@ DONE / COMMITTED
 - ACP: Settings page uses AJAX split to install WP-United Connection
 - Plugin: Forum page link filtered so that it always goes directly to the forum
 - replaced $scriptPath with new $phpbbForum->url, everywhere. This will also remove a lot of the path guesswork in various places.
+- ACP: Fixed error trapping function on PHP4
+- Forum page used for simple hdr ftr, not only full page.
+- WP-united cache is now purged when the "purge cache" button is clicked in the phpBB ACP. It is also auto-purged when the wizard is run.
+

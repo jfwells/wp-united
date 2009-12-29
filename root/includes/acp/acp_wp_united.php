@@ -729,7 +729,7 @@ class acp_wp_united {
 		global $user, $wpSettings, $wpu_debug;
 		$wpu_debug = '';
 		
-		set_error_handler(array($this, 'step5_errorhandler'), E_ERROR);
+		set_error_handler(array($this, 'step5_errorhandler'));
 		
 		
 		$wpSettings = get_integration_settings();
@@ -761,21 +761,12 @@ class acp_wp_united {
 	function step5_errorhandler($errNo, $errStr, $errFile, $errLine) {
 		global $user;
 		switch ($errNo) {
-			case E_NOTICE:
-			case E_USER_NOTICE:
-			
-				break;
-			case E_WARNING:
-			case E_USER_WARNING:
-				echo sprintf($user->lang['WPWIZ_CAUGHT_WARNING'], $errNo, $errFile, $errLine, $errStr) . '<br />';
-				break;
 			case E_ERROR:
 			case E_USER_ERROR:
 				echo sprintf($user->lang['WPWIZ_CAUGHT_ERROR'], $errNo, $errFile, $errLine, $errStr). '<br />';
 				break;
 			default:
-				echo sprintf($user->lang['WPWIZ_CAUGHT_UNKNOWN'], $errNo, $errFile, $errLine, $errStr). '<br />';
-				break;
+				return false;
         }
 		
 	}
@@ -2007,6 +1998,7 @@ class acp_wp_united {
 		global $phpbbForum, $user, $wpuCache, $wpSettings, $phpEx, $phpbb_root_path, $config, $wpu_debug, $wpUtdInt;
 		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);		
 		$wpuCache = WPU_Cache::getInstance();
+		$wpuCache->purge();
 
 		//Set up the WordPress Integration
 		require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
@@ -2126,7 +2118,7 @@ class acp_wp_united {
 				
 				// Set up the reverse-integrated forum page
 				$forum_page_ID = get_option('wpu_set_forum');
-				if ( ($wpSettings['showHdrFtr'] == 'REV') && (empty($wpSettings['wpSimpleHdr'])) ) {
+				if ( $wpSettings['showHdrFtr'] == 'REV' ) {
 					$content = '<!--wp-united-phpbb-forum-->';
 					$title = $phpbbForum->lang['FORUM'];
 					if ( !empty($forum_page_ID) ) {
@@ -2259,6 +2251,9 @@ class acp_wp_united {
 		}
 		$wpUtdInt->exit_wp_integration();
 		$wpUtdInt = null; unset ($wpUtdInt);
+		
+		$wpuCache->purge();
+		
 		return $connError;
 	}
 

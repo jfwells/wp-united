@@ -1154,14 +1154,10 @@ function wpu_must_integrate() {
  * no way of knowing what the theme should be a WordPress is not invoked
  */
 function wpu_clear_header_cache() {
-	global $phpbb_root_path;
-	$cacheLoc = $phpbb_root_path . 'wp-united/cache/';
-	@$dir = opendir($cacheLoc);
-	while( $entry = readdir($dir) ) {
-		if ( strpos($entry, '.wpucache') ) {
-			@unlink($cacheLoc . $entry);
-		}
-	}
+	global $phpbb_root_path, $phpEx;
+	require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+	$wpuCache = WPU_Cache::getInstance();
+	$wpuCache->template_purge();
 }
 
 /**

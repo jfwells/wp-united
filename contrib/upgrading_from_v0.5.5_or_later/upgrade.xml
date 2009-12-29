@@ -105,7 +105,16 @@ Visit http://www.wp-united.com for more help or information.
         <action type="before-add"><![CDATA[ 	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 	$theme['theme_data'] = $GLOBALS['wpu_actions']->css_magic($theme['theme_data']); ]]></action>
       </edit>
-    </open>    
+    </open> 
+    
+        <open src="includes/acp/acp_main.php">
+      <edit>
+        <find><![CDATA[						$cache->purge();]]></find>
+        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+						$wpuCache = WPU_Cache::getInstance();
+						$wpuCache->purge();]]></action>
+      </edit>
+    </open> 
     
     
     <diy-instructions lang="en-gb"><![CDATA[	

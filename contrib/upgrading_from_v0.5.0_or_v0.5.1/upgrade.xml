@@ -95,6 +95,14 @@ Visit http://www.wp-united.com for more help or information.
         <comment lang="en-gb">Delete any lines you added for a previous version of WP-United.</comment>
 		   
     </open>
+        <open src="includes/acp/acp_main.php">
+      <edit>
+        <find><![CDATA[						$cache->purge();]]></find>
+        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+						$wpuCache = WPU_Cache::getInstance();
+						$wpuCache->purge();]]></action>
+      </edit>
+    </open>
 
      <diy-instructions lang="en-gb"><![CDATA[	
 

@@ -456,9 +456,30 @@ class WPU_Cache {
 	 * @todo : Implement
 	 */
 	function purge() {
-		
+		@$dir = opendir($this->baseCacheLoc);
+			while( $entry = @readdir($dir) ) {
+				if ( (strpos($entry, '.htaccess') === false) && ((strpos($entry, '.txt') === false)) ) {
+					if(!is_dir($this->baseCacheLoc . $entry)) {
+						@unlink($this->baseCacheLoc . $entry);
+					}
+				}
+			}
 	}
-
+	
+	/** 
+	 * Clears the cache of template files. Used when a new template is selected.
+	 */
+	function template_purge() {
+		@$dir = opendir($this->baseCacheLoc);
+			while( $entry = @readdir($dir) ) {
+				if ( strpos($entry, 'theme-') !== false) {
+					if(!is_dir($this->baseCacheLoc . $entry)) {
+						@unlink($this->baseCacheLoc . $entry);
+					}
+				}
+			}		
+	}
+	
 	/**
 	 * Logs an action
 	 * @access private

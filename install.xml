@@ -139,6 +139,14 @@ if ($config['load_cpf_viewtopic'])]]></find>
 						]]></action>
       </edit>
     </open>
+    <open src="includes/acp/acp_main.php">
+      <edit>
+        <find><![CDATA[						$cache->purge();]]></find>
+        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+						$wpuCache = WPU_Cache::getInstance();
+						$wpuCache->purge();]]></action>
+      </edit>
+    </open>
     <open src="includes/acp/acp_users.php">
       <edit>
         <find>						add_log('admin', 'LOG_USER_USER_UPDATE', $data['username']);	</find>
