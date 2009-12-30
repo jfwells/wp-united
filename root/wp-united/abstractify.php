@@ -55,7 +55,7 @@ Class Abstractify {
 		if ('PHPBB3'== $this->ver) {
 			define('GENERAL_ERROR', 100);
 			define('CRITICAL_ERROR' , -100);
-			if ( !$GLOBALS['user']->data ) { 
+			if ( !$GLOBALS['user']->data  && !$GLOBALS['config']['board_disable']) { 
 				$GLOBALS['user']->session_begin();
 				$GLOBALS['auth']->acl($GLOBALS['user']->data);
 				$GLOBALS['user']->setup('mods/wp-united');

@@ -8,7 +8,7 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-Disabling board and logging out screws you -- WP-United is not included early, but template integration is still run, locking users out.
+WP Login / logout etc. links are dead when board disabled
 
 remove $phpbb_sid, etc, as with $scriptPath
 
@@ -133,3 +133,4 @@ DONE / COMMITTED
 - Fixed redirection on wp-united reset not working
 - Fixed duplicate phpBB displayed when installLevel = uninstalled
 - CSS first option not properly defaulted on install or reset -- fixed.
+- Fixed login inaccessible when board is disabled
