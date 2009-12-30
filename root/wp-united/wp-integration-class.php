@@ -200,11 +200,7 @@ Class WPU_Integration {
 	 */
 	function can_connect_to_wp() {
 		$test = str_replace('http://', '', $this->wpu_settings['wpPath']); // urls sometimes return true on php 5.. this makes sure they don't.
-		if ( !file_exists( $test . 'wp-config.php') ) {
-			// Now wp-config can be moved one level up, so we try that as well:
-			if ( file_exists( $test . '../wp-config.php') ) {
-				return TRUE;
-			}
+		if ( !file_exists( $test . 'wp-settings.php') ) {
 			return FALSE;
 		} else {
 			return TRUE;

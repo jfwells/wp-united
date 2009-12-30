@@ -87,7 +87,7 @@ function set_default($setting_key) {
 		'wpPath' => '', 
 		'integrateLogin' => 0, 
 		'showHdrFtr' => 'FWD',
-		'cssFirst' => 0,
+		'cssFirst' => 'P',
 		'wpSimpleHdr' => 1,
 		'dtdSwitch' => 0,
 		'installLevel' => 0,

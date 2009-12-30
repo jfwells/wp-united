@@ -63,28 +63,28 @@ function wpu_init(&$hook) {
  * Capture the outputted page, and prevent phpBB for exiting
  */
 function wpu_execute(&$hook, $handle) {
-	global $wpuRunning, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
+	global $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
 	// We only want this action to fire once
-	if(!$wpuRunning) {
+	if ( (!$wpuRunning) &&  ($wpSettings['installLevel'] == 10) ) {
 		$wpuRunning = true;
 		//$hook->remove_hook(array('template', 'display'));
-		$template->display($handle);
-		if (defined('WPU_REVERSE_INTEGRATION')) { 
+		if (defined('WPU_REVERSE_INTEGRATION')) {
+			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 
 			//insert phpBB into a wordpress page
 			include ($phpbb_root_path . 'wp-united/integrator.' . $phpEx);
-			
 		} elseif (defined('PHPBB_EXIT_DISABLED')) {
 			/**
 			 * page_footer was called, but we don't want to close the DB connection & cache yet
 			 */
+			$template->display($handle);
 			$GLOBALS['bckDB'] = $db;
 			$GLOBALS['bckCache'] = $cache;
 			$db = ''; $cache = '';
 			
 			return "";
-		}
+		} // else display as normal
 	}
 }
 
