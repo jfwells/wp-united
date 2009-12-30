@@ -233,8 +233,8 @@ $lang = array_merge($lang, array(
 
 	// Debug Info
 	'INFO_TO_POST' => 'Info to Post',
-	'WP_Debug' => 'Debugging Information',
-	'WP_Debug_Explain' => 'If you are having problems with WP-United, and need to ask for help on the wp-united.com forums, please post the debugging information below to help assist with your enquiry. <br /><br />Please also post the content of any error or additional debug information. If you are experiencing problems with usere mapping, turn on debugging in your wp-united/options.php file.<br /><br />NOTE: You may want to obfuscate path information.',
+	'DEBUG_TITLE' => 'Debugging Information',
+	'DEBUG_EXPLAIN' => 'If you are having problems with WP-United, and need to ask for help on the wp-united.com forums, please post the debugging information below to help assist with your enquiry. <br /><br />Please also post the content of any error or additional debug information. If you are experiencing problems with usere mapping, turn on debugging in your wp-united/options.php file.<br /><br />NOTE: You may want to obfuscate path information.',
 	'DEBUG_SETTINGS_SECTION' => 'WP-United Settings:',
 	'DEBUG_PHPBB_SECTION' => 'phpBB Settings:',	
 	'DEBUG_SERVER_SETTINGS' => 'Server settings:',

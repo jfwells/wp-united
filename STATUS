@@ -22,11 +22,7 @@ Plugin: wpu_must_integrate being called on template_redirect is probably not goo
 Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
 ACP: wpu-plugin copy doesn't need to look for magic version variable, just use filemtime instead.
-ACP: Reset not working
-ACP: User mapping errors reported
 ACP: remove header fix, and split out "advanced" options to simplify install
-ACP: Cache purge
-ACP: .php to $phpEx for wpu-plugin.php
 
 Plugin: Logout etc. links not showing in dashboard
 Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
@@ -126,4 +122,7 @@ DONE / COMMITTED
 - ACP: Fixed error trapping function on PHP4
 - Forum page used for simple hdr ftr, not only full page.
 - WP-united cache is now purged when the "purge cache" button is clicked in the phpBB ACP. It is also auto-purged when the wizard is run.
-
+- Fixed debug page
+- Fixed user mapping tool
+- Removed .php for $phpEx in wpu-plugin.php
+- Fixed redirection on wp-united reset not working

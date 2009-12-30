@@ -20,7 +20,7 @@ class acp_wp_united {
 		global $db, $user, $auth, $template, $wizShowError, $wizErrorMsg, $inWizard, $numWizardSteps, $showFooter;
 		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
 		$user->add_lang('mods/admin_wp-united');
-		require_once($phpbb_root_path . 'wp-united/mod-settings.php');
+		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 		require_once($phpbb_root_path . 'includes/acp/acp_modules.' . $phpEx);
 		
@@ -1594,7 +1594,7 @@ class acp_wp_united {
 	// i18n'ed.
 	//
 	function debug_show() {
-		global $phpbb_root_path, $template, $phpEx, $user, $onfig, $phpEx, $db;
+		global $phpbb_root_path, $template, $phpEx, $user, $config, $phpEx, $db;
 		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';	
 		
@@ -1646,12 +1646,15 @@ class acp_wp_united {
 	//	Resets WP-United back to freshly installed state
 	//
 	function reset_show() {
-		global $phpbb_root_path, $user, $template, $phpEx, $phpEx, $cache;
+		global $phpbb_root_path, $user, $template, $phpEx, $cache;
 		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 
 		$do_reset = request_var('resetaction', '');
 		$did_reset = request_var('didreset', '');
+		
+		// add additional language strings from non-admin file
+		$user->add_lang('mods/wp-united');
 		
 		// pass strings	
 		$template->assign_vars(array(
@@ -1661,10 +1664,10 @@ class acp_wp_united {
 		if($did_reset) {
 			$template->assign_var('DID_RESET', $user->lang['WP_DID_RESET']);
 		}
-		
+
 		if ($do_reset == $user->lang['WP_RESET']) {
 			if (confirm_box(true)) {	
-			
+
 				// reset modules...
 				//delete them first
 				$errors = $this->remove_modules();
@@ -1834,7 +1837,7 @@ class acp_wp_united {
 					'module_langname'	=> 'ACP_WPU_DEBUG', 
 					'module_class'		=>'acp',
 				);
-				$resetId= $this->add_acp_module($modData);
+				$debugId= $this->add_acp_module($modData);
 				
 				
 				//now reset settings
@@ -1865,7 +1868,8 @@ class acp_wp_united {
 	 * Adding a module doesn't cross-link to the right tab. So we just redirect instead
 	 */
 	function permissions_show() {
-		redirect(append_sid("index.php?i=permissions&mode=intro"));
+		global $phpEx;
+		redirect(append_sid("index.{$phpEx}?i=permissions&mode=intro"));
 	}
 
 
@@ -2052,17 +2056,17 @@ class acp_wp_united {
 			if (file_exists($wpPluginDir)) {
 				// we got the plugin directory correct, copy file over
 				$copySuccess = false;
-				if(!@copy($phpbb_root_path . "/wp-united/wpu-plugin.php", $wpPluginDir . "wpu-plugin.php")) {
+				if(!@copy($phpbb_root_path . "/wp-united/wpu-plugin.{$phpEx}", $wpPluginDir . "wpu-plugin.{$phpEx}")) {
 					// Copy failed
 				} 
-				if (file_exists($wpPluginDir . "wpu-plugin.php")) {
+				if (file_exists($wpPluginDir . "wpu-plugin.{$phpEx}")) {
 					// Check to see that WPU-Plugin is the correct version
 					
-					$correctVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.php");
+					$correctVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.{$phpEx}");
 					$found = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $correctVerFile,  $correctVer);
 					unset($correctVerFile);
 					if ($found) {
-						$testVerFile = file_get_contents($wpPluginDir . "wpu-plugin.php");
+						$testVerFile = file_get_contents($wpPluginDir . "wpu-plugin.{$phpEx}");
 						$test = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $testVerFile,  $testVer);
 						unset($testVerFile);
 						if ($test) {
@@ -2286,7 +2290,7 @@ class acp_wp_united {
 	 * The main user mapping page that lists all the names
 	 */
 	function usermap_main() {	
-		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
+		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template, $phpbbForum;
 		// NUMBER OF RESULTS PER PAGE -- COULD ADJUST THIS FOR LARGE USERBASES
 		
 		$numPerPage = $numResults = (int)request_var('wpumapperpage', 50);
@@ -2359,7 +2363,7 @@ class acp_wp_united {
 					if ( empty($phpBBMappedName) ) {
 						$phpBBMappedName = $result->user_login;
 					}
-					$wpUtdInt->switch_db('TO_P');
+					$phpbbForum->enter();
 					$pUsername = '';
 					$pID = '';
 					$class = '';
@@ -2451,7 +2455,7 @@ class acp_wp_united {
 						$pStatus = $user->lang['MAP_ERROR_BLANK'];
 						$class = "maperror";
 					}
-					$wpUtdInt->switch_db('TO_W');
+					$wpUtdInt->exit_wp_integration();
 					$bg = ($mustBrk == 'FALSE' ) ? 'none' : 'red';		
 					$x = ( $x == 1 ) ? 2 : 1;
 
@@ -2715,7 +2719,7 @@ class acp_wp_united {
 	 * Process each of the actions in the list.
 	 */
 	function usermap_perform() {	
-		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
+		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template, $phpbbForum;
 		
 		$this->page_title = $user->lang['MAP_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
@@ -2741,128 +2745,131 @@ class acp_wp_united {
 		require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 		$wpUtdInt = WPU_Integration::getInstance();
 		define('USE_THEMES', FALSE);
-		if ($wpUtdInt->can_connect_to_wp()) {
-			$wpUtdInt->enter_wp_integration();
-			eval($wpUtdInt->exec()); 
-			$wpUtdInt->switch_db('TO_P');
-			if (file_exists($wpSettings['wpPath'] .'wp-admin/includes/user.php')) {  //WP >= 2.3
-				require_once($wpSettings['wpPath'] .'wp-admin/includes/user.php');
-			} else {
-				require_once($wpSettings['wpPath'] .'wp-admin/admin-db.php'); //WP < 2.3
-			}
-			require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-			
-			
-			for ( $procAction = 0; $procAction <= $lastAction; $procAction++ ) {
-				$status_text = '';
-				$actionName = request_var('actname'.$procAction, '') ;
-				if ( !empty($actionName) ) {
-					$wpID = (int) request_var('wpID'.$procAction, 0);				
-					$pID = (int)request_var('pID'.$procAction, 0);		
-					$typedName = request_var('typedName'.$procAction, '');	
-					switch ($actionName) {
-						case 'break':
-							if ( !empty($wpID) ) {
-								$sql = 'UPDATE ' . USERS_TABLE .
-									" SET user_wpuint_id = NULL 
-									WHERE user_wpuint_id = $wpID";
-								if (!$pDel = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_BREAK'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
-								}									
-								$status_text = '<li>'. sprintf($user->lang['MAP_BROKE_SUCCESS'], $wpID) . '</li>';
-							} else {
-								$status_text = '<li>' . $user->lang['MAP_CANNOT_BREAK'] . '</li>';
-							}
-						break;
-						case 'integrate':
-							if ( (!empty($wpID)) && (!empty($pID))  ) {
-								$sql = 'UPDATE ' . USERS_TABLE .
-									" SET user_wpuint_id = $wpID 
-									WHERE user_id = $pID";
-								if (!$pInt = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
-								}
-								// Sync profiles
-								$sql = 	"SELECT *
-												FROM " . USERS_TABLE . " 
-												WHERE user_id = $pID";
-								if (!$pUserData = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
-								}
-								$data = $db->sql_fetchrow($pUserData);
-								$db->sql_freeresult($pUserData);
-								$password = $data['user_password'];
-								if(substr($password, 0, 3) == '$H$') {
-									$password = substr_replace($password, '$P$', 0, 3);
-								}
-								$wpu_newDetails = array(
-									'user_id' 		=>  	$pID,
-									'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
-									'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
-									'user_password' 	=> 	(isset($password)) ? $password : '',
-									'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
-									'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
-									'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
-									'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : '',							
-									'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
-									'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
-									'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
-									'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''							
-								);
-								$wpUtdInt->switch_db('TO_W');
-								$wpUsrData = get_userdata($wpID);
-								$wpUpdateData = $wpUtdInt->check_details_consistency($wpUsrData, $wpu_newDetails);
-	
-								$wpUtdInt->switch_db('TO_P');
-								$status_text = '<li>' . sprintf($user->lang['MAP_INT_SUCCESS'], $wpID, $pID) . '</li>';	
-							} else {
-								$status_text = '<li>' . $user->lang['MAP_CANNOT_INT'] . '</li>';
-							}							
-						break;
-						case 'delete':
-							$wpUtdInt->switch_db('TO_W');
-							if ( !empty($wpID) ) {
-								wp_delete_user($wpID, $reassign = '0');
-								$status_text = '<li>' . sprintf($user->lang['MAP_WPDEL_SUCCESS'], $wpID) . '</li>';
-								$nextStart = $nextStart - 1;
-							} else {
-								$status_text = '<li>' . $user->lang['MAP_CANNOT_DEL'] . '</li>';
-							}
-							$wpUtdInt->switch_db('TO_P');
-						break;
-						case 'createP':
-							if (!$wpID || !$typedName) {
-								$status_text = '<li>' . $user->lang['MAP_CANNOT_CREATEP_ID'] . '</li>';
-							} else {
-								$wpUtdInt->switch_db('TO_W');
-								$wpUsr = get_userdata($wpID);
-								$wpUtdInt->switch_db('TO_P');
-								$password = $wpUsr->user_pass;
-								if(substr($password, 0, 3) == '$P$') {
-									$password = substr_replace($password, '$H$', 0, 3);
-								}								
-								if ($wpuAbs->insert_user($typedName, $password, $wpUsr->user_email , $wpID)) {
-									$status_text = '<li>'. sprintf($user->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
-								} else {
-									$status_text = '<li>' . $user->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
-								}
-							}
-						break;
-						default;
-							$wpuAbs->err_msg(sprintf($user->lang['MAP_INVALID_ACTION'], $procAction));
-						break;
-					}
-				} else {
-					$wpuAbs->err_msg(sprintf($user->lang['MAP_EMPTY_ACTION'], $procAction)); 
-				}
-				$template->assign_block_vars('switch_usermap_perform.performlist_row', array(
-					'LIST_ITEM' => $status_text
-				));
-			
-			}
-			
-		} else {
+		if (!$wpUtdInt->can_connect_to_wp()) {
 			die($user->lang['MAP_CANT_CONNECT']);
+		}
+		$wpUtdInt->enter_wp_integration();
+		eval($wpUtdInt->exec()); 
+		
+		if (file_exists($wpSettings['wpPath'] .'wp-admin/includes/user.php')) {  //WP >= 2.3
+			require_once($wpSettings['wpPath'] .'wp-admin/includes/user.php');
+		} else {
+			require_once($wpSettings['wpPath'] .'wp-admin/admin-db.php'); //WP < 2.3
+		}
+		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+		
+		$phpbbForum->enter();
+		$status = array();
+		for ( $procAction = 0; $procAction <= $lastAction; $procAction++ ) {
+			$status_text = '';
+			$actionName = request_var('actname'.$procAction, '') ;
+			if ( !empty($actionName) ) {
+				$wpID = (int) request_var('wpID'.$procAction, 0);				
+				$pID = (int)request_var('pID'.$procAction, 0);		
+				$typedName = request_var('typedName'.$procAction, '');	
+				switch ($actionName) {
+					case 'break':
+						if ( !empty($wpID) ) {
+							$sql = 'UPDATE ' . USERS_TABLE .
+								" SET user_wpuint_id = NULL 
+								WHERE user_wpuint_id = $wpID";
+							if (!$pDel = $db->sql_query($sql)) {
+								$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_BREAK'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
+							}									
+							$status[] = '<li>'. sprintf($user->lang['MAP_BROKE_SUCCESS'], $wpID) . '</li>';
+						} else {
+							$status[] = '<li>' . $user->lang['MAP_CANNOT_BREAK'] . '</li>';
+						}
+					break;
+					case 'integrate':
+						if ( (!empty($wpID)) && (!empty($pID))  ) {
+							$sql = 'UPDATE ' . USERS_TABLE .
+								" SET user_wpuint_id = $wpID 
+								WHERE user_id = $pID";
+							if (!$pInt = $db->sql_query($sql)) {
+								$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
+							}
+							// Sync profiles
+							$sql = 	"SELECT *
+											FROM " . USERS_TABLE . " 
+											WHERE user_id = $pID";
+							if (!$pUserData = $db->sql_query($sql)) {
+								$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
+							}
+							$data = $db->sql_fetchrow($pUserData);
+							$db->sql_freeresult($pUserData);
+							$password = $data['user_password'];
+							if(substr($password, 0, 3) == '$H$') {
+								$password = substr_replace($password, '$P$', 0, 3);
+							}
+							$wpu_newDetails = array(
+								'user_id' 		=>  	$pID,
+								'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
+								'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
+								'user_password' 	=> 	(isset($password)) ? $password : '',
+								'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
+								'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
+								'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
+								'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : '',							
+								'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
+								'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
+								'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
+								'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''							
+							);
+							$phpbbForum->leave();
+							$wpUsrData = get_userdata($wpID);
+							$wpUpdateData = $wpUtdInt->check_details_consistency($wpUsrData, $wpu_newDetails);
+							$phpbbForum->enter();
+							
+							$status[] = '<li>' . sprintf($user->lang['MAP_INT_SUCCESS'], $wpID, $pID) . '</li>';	
+						} else {
+							$status[] = '<li>' . $user->lang['MAP_CANNOT_INT'] . '</li>';
+						}							
+					break;
+					case 'delete':
+						$phpbbForum->leave();
+						if ( !empty($wpID) ) {
+							wp_delete_user($wpID, $reassign = '0');
+							$status[] = '<li>' . sprintf($user->lang['MAP_WPDEL_SUCCESS'], $wpID) . '</li>';
+							$nextStart = $nextStart - 1;
+						} else {
+							$status[] = '<li>' . $user->lang['MAP_CANNOT_DEL'] . '</li>';
+						}
+						$phpbbForum->enter();
+					break;
+					case 'createP':
+						if (!$wpID || !$typedName) {
+							$status[] = '<li>' . $user->lang['MAP_CANNOT_CREATEP_ID'] . '</li>';
+						} else {
+							$phpbbForum->leave();
+							$wpUsr = get_userdata($wpID);
+							$phpbbForum->enter();
+							$password = $wpUsr->user_pass;
+							if(substr($password, 0, 3) == '$P$') {
+								$password = substr_replace($password, '$H$', 0, 3);
+							}								
+							if ($wpuAbs->insert_user($typedName, $password, $wpUsr->user_email , $wpID)) {
+								$status[] = '<li>'. sprintf($user->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
+							} else {
+								$status[] = '<li>' . $user->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
+							}
+						}
+					break;
+					default;
+						$wpuAbs->err_msg(sprintf($user->lang['MAP_INVALID_ACTION'], $procAction));
+					break;
+				}
+			} else {
+				$wpuAbs->err_msg(sprintf($user->lang['MAP_EMPTY_ACTION'], $procAction)); 
+			}
+		}
+
+		$wpUtdInt->exit_wp_integration();
+		
+		foreach($status as $statusText) {
+			$template->assign_block_vars('switch_usermap_perform.performlist_row', array(
+				'LIST_ITEM' => $statusText
+			));
 		}
 		
 		if (!empty($paged)) {
@@ -3104,6 +3111,7 @@ class acp_wp_united {
 	 * Removes WP-United ACP modules. Note: Only removes them if they're in the expected place in the tree.
 	 */
 	function remove_modules() {
+		global $user;
 
 		$modules_to_delete = array(
 			 'ACP_WPU_CATOTHER' => array('ACP_WPU_UNINSTALL', 'ACP_WPU_RESET', 'ACP_WPU_DEBUG'),
