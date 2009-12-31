@@ -31,7 +31,13 @@ if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED'))) {
 		$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
 		$phpbb_hook->register('exit_handler', 'wpu_continue');
 	}
+	
 }
+
+// Add lang strings if this isn't blog.php
+if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
+	$user->add_lang('mods/wp-united');
+}	
 
 /**
  * Initialise WP-United variables and template strings
@@ -39,10 +45,7 @@ if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED'))) {
 function wpu_init(&$hook) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user;
 	
-	// Add lang strings if this isn't blog.php
-	if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
-		$user->add_lang('mods/wp-united');
-	}
+
 
 	if  ($wpSettings['installLevel'] == 10) {
 		$template->assign_vars(array(

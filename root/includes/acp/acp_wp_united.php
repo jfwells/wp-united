@@ -21,7 +21,6 @@ class acp_wp_united {
 		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
 		$user->add_lang('mods/admin_wp-united');
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-		require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 		require_once($phpbb_root_path . 'includes/acp/acp_modules.' . $phpEx);
 		
 		$wizShowError = FALSE;
@@ -2357,7 +2356,7 @@ class acp_wp_united {
 					$posts = get_usernumposts($result->ID);
 					//TODO: show number of comments
 					if ( empty($result->ID) ) {
-						trigger_error($user->lang['NO_WP_ID'] . . '<br />' . $user->lang['NO_WP_ID_ERR']);
+						trigger_error($user->lang['NO_WP_ID'] . '<br />' . $user->lang['NO_WP_ID_ERR']);
 					}
 					$phpBBMappedName = get_usermeta($result->ID, 'phpbb_userLogin');
 					if ( empty($phpBBMappedName) ) {
@@ -2856,14 +2855,13 @@ class acp_wp_united {
 									'user_email' => $wpUsr->user_email,
 									'user_type' => USER_NORMAL,
 									'group_id' => 2  //add to registered users group		
-								));
-							}			
-
-							if (user_add($userToAdd)) {
-								$status[] = '<li>'. sprintf($user->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
-							} else {
-								$status[] = '<li>' . $user->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
-							}
+								);
+								if (user_add($userToAdd)) {
+									$status[] = '<li>'. sprintf($user->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
+								} else {
+									$status[] = '<li>' . $user->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
+								}
+							}		
 						}
 					break;
 					default;
