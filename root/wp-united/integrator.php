@@ -59,11 +59,6 @@ if(isset($GLOBALS['starttime'])) {
 	$wpuScriptTime = $starttime[1] + $starttime[0];
 }
 
-// Add lang if this is not a blog.php wordpress page
-if(!defined('WPU_BLOG_PAGE')) {
-	$user->add_lang('mods/wp-united');
-}
-
 
 // More required files
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);

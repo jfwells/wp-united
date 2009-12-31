@@ -39,6 +39,8 @@ Test logout and profile transfer
 test that adding phpBB user in user map still works
 User blogs: Check and improve dashboard
 
+Remove phpbbForum->err_msg with plan trigger_error or wp_die -- it is a throwback to wpuAbs
+
 ============================================
 
 Under consideration for v0.8:
