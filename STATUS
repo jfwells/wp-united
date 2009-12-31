@@ -21,7 +21,7 @@ Plugin: Remove full_path_to_pluigin -- try replacing with __FILE__
 Plugin: wpu_must_integrate being called on template_redirect is probably not good -- disabled for now.  Review.
 Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
-
+Login devug not working: Combine with status
 
 ACP: wpu-plugin copy doesn't need to look for magic version variable, just use filemtime instead.
 ACP: remove header fix, and split out "advanced" options to simplify install

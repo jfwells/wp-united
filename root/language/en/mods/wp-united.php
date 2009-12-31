@@ -121,7 +121,7 @@ $lang = array_merge($lang, array(
 	'wpu_xpost_box_title' => 'Cross-post to Forums?',
 	'wpu_already_xposted' => 'Already cross-posted (Topic ID = %s)',
 	'wpu_forcexpost_box_title' => 'Forum Posting',
-	'wpu_focexpost_details' => 'This post will be cross-posted to the forum: \'%s\'',
+	'wpu_forcexpost_details' => 'This post will be cross-posted to the forum: \'%s\'',
 	'wpu_user_edit_use_phpbb' => 'NOTE: User profile information can be edited in phpBB',
 	'wpu_more_smilies' => 'More smilies',
 	'wpu_less_smilies' => 'Less smilies',

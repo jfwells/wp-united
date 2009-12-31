@@ -778,7 +778,7 @@ function wpu_user_id($wp_userID = '') {
  * @author John Wells
  * @since v0.7.0
  */
-function wpu_get_comment_author_link () {
+function wpu_get_comment_author_link() {
 global $comment, $phpbb_root_path, $phpbbForum;
  
 	$uID = get_wpu_user_id($comment->user_id);

@@ -611,7 +611,7 @@ Class WPU_Integration {
 	 * @param string $varName the name of the variable in the global scope to fill with the page contents.
 	 */
 	function get_wp_page($toVarName) {
-		require($this->phpbb_root . "wp-united/template-tags." . $this->phpEx);
+		require_once($this->phpbb_root . 'wp-united/template-tags.' . $this->phpEx);
 		$this->prepare('ob_start();');
 		$this->prepare('if ( $GLOBALS[\'latest\']) {define("WP_USE_THEMES", false);} else {define("WP_USE_THEMES", true);}');
 		$this->prepare('global $wp_did_header; $wp_did_header = true;');
