@@ -72,7 +72,7 @@ define('WPU_MAX_COMPRESS', FALSE);
  * Enabling the below option displays debug information that could be useful in tracking down problems with integrated logins
  * It should be left off on a production site!
  */
-define('WPU_DEBUG', FALSE);
+define('WPU_DEBUG', TRUE);
 
 /**
  * OVERRIDE WORDPRESS SITE COOKIE PATH?

@@ -138,6 +138,8 @@ Class WPU_Integration {
 	
 	var $wpVersion;
 	
+	var $wpu_ver;
+	
 	// prevents the main WordPress script from being included more than once
 	var $wpLoaded;
 	
@@ -187,6 +189,8 @@ Class WPU_Integration {
 		$this->debugBufferFull = FALSE;
 		$this->wpVersion = 0;
 		
+		$this->wpu_ver = $GLOBALS['wpuVersion'];
+		
 		// Load plugin fixer -- must be loaded regardless of settings, as core cache may contain plugin fixes
 		require($this->phpbb_root . 'wp-united/plugin-fixer.' . $this->phpEx);
 		
@@ -211,7 +215,7 @@ Class WPU_Integration {
 	 * Tests if the core cache is ready
 	 */
 	function core_cache_ready() {
-		global $wpuCache, $wpuAbs;
+		global $wpuCache;
 	
 		if ( !$wpuCache->core_cache_enabled() ){
 			return false;
@@ -240,7 +244,6 @@ Class WPU_Integration {
 	function exec() {
 		
 		$code = $this->wpRun; 
-		//echo $code;
 		$this->wpRun = '';
 		return $code;
 	}
@@ -306,7 +309,7 @@ Class WPU_Integration {
 			
 			
 			
-			global $lang, $wpuAbs;
+			global $user;
 			// Added realpath to account for symlinks -- 
 			//otherwise it is inconsistent with __FILE__ in WP, which causes plugin inconsistencies.
 			$realAbsPath = realpath($this->wpu_settings['wpPath']);
@@ -326,7 +329,7 @@ Class WPU_Integration {
 				} elseif (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/functions-formatting.php')) {
 					$fName='functions-formatting.php';  //WP< 2.1
 				} else {
-					$wpuAbs->err_msg(GENERAL_ERROR, $lang['Function_Duplicate'], 'WordPress Integration Error' . WPU_SET,'','','');
+					trigger_error($user->lang['Function_Duplicate']);
 				}
 				$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
 				$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php ';
@@ -337,15 +340,15 @@ Class WPU_Integration {
 				if(!empty($this->wpu_settings['pluginFixes'])) {
 					$strCompat = ($this->wpu_compat) ? "true" : "false";
 					// MU Plugins
-					$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
+					$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
 					$cSet = str_replace('include_once( WPMU_PLUGIN_DIR . \'/\' . $plugin );', ' include_once($wpuMuPluginFixer->fix(WPMU_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
 					
 					//WP Plugins
-					$cSet = preg_replace('/(get_option\(\s?\'active_plugins\'\s?\)\s?\)?;)/', '$1global $wpuPluginFixer; $wpuPluginFixer = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+					$cSet = preg_replace('/(get_option\(\s?\'active_plugins\'\s?\)\s?\)?;)/', '$1global $wpuPluginFixer; $wpuPluginFixer = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
 					$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($wpuPluginFixer->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
 					
 					// Theme functions
-					$cSet = str_replace('// Load functions for active theme.', 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'styles\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $wpuAbs->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+					$cSet = str_replace('// Load functions for active theme.', 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'styles\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
 					$cSet = str_replace('include(STYLESHEETPATH . \'/functions.php\');', ' include_once($wpuStyleFixer->fix(STYLESHEETPATH . \'/functions.php\', true));', $cSet);
 					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', ' include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', $cSet);
 					
@@ -408,162 +411,164 @@ Class WPU_Integration {
 	 * If the user doesn't exist, we create them.
 	 */
 	function do_integrate_login() {
-		if ( !empty($this->wpu_settings['integrateLogin']) ) {
-			global $wpuAbs;
+		if ( empty($this->wpu_settings['integrateLogin']) ) {
+			return false;
+		}
+		
+		global $phpbbForum;
 
-			$loggedInUser = '';
-			$newWpUser = '';
-			$phpbbRawUser = $wpuAbs->phpbb_username();
-			$phpbbUserName = sanitize_user($phpbbRawUser, true);
-			$integratedID = ( array_key_exists('user_wpuint_id', $wpuAbs->userdata()) ) ? $wpuAbs->userdata('user_wpuint_id') : 0 ; 
-			$wpUserData = '';
-			$newUserID = '';
-			
-			$user_level = $this->wpu_get_userlevel($wpuAbs->userdata());
-	
-			// Integrate only if logged in, and user level is mapped to integrate
-			if (  (!$wpuAbs->user_logged_in()) || ($user_level === FALSE) || (!$wpuAbs->user_normal()) ) {
-				//log them out of WP, and look needlessly suspicious
-				$this->lDebug('Not logged in');
+		$loggedInUser = '';
+		$newWpUser = '';
+		$phpbbRawUser = $phpbbForum->get_username();
+		$phpbbUserName = sanitize_user($phpbbRawUser, true);
+		$integratedID = ( array_key_exists('user_wpuint_id', $phpbbForum->get_userdata()) ) ? $phpbbForum->get_userdata('user_wpuint_id') : 0 ; 
+		$wpUserData = '';
+		$newUserID = '';
+		
+		$user_level = $this->get_userlevel($phpbbForum->get_userdata());
+
+		// Integrate only if logged in, and user level is mapped to integrate
+		if (  (!$phpbbForum->user_logged_in()) || ($user_level === false) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) )  {
+			//log them out of WP, and look needlessly suspicious
+			$this->lDebug('Not logged in'); 
+			$this->do_wp_logout();
+			wp_set_current_user(0, 0);
+		} else {
+			$wpUserdata = get_userdata($integratedID);
+			if ( empty($wpUserdata) ) {
+				$integratedID = 0;
+				$this->update_int_ID($phpbbForum->get_userdata('user_id'), $integratedID);
+			} else {
+				$this->lDebug('Logged into phpBB, username=' .  $phpbbRawUser . '(' . $phpbbUserName . ',' . $integratedID . ')');
+			}
+			//SECTION TO CREATE INTEGRATED ACCOUNT
+			if ( empty($integratedID) ) {
+				// The user hasn't integrated an account yet. If they're logged in for some reason, assume it is suspicious and log them out
 				$this->do_wp_logout();
 				wp_set_current_user(0, 0);
-			} else {
-				$wpUserdata = get_userdata($integratedID);
-				if ( empty($wpUserdata) ) {
-					$integratedID = 0;
-					$this->update_int_ID($wpuAbs->phpbb_user_id(), $integratedID);
-				} else {
-					$this->lDebug('Logged into phpBB, username=' .  $phpbbRawUser . '(' . $phpbbUserName . ',' . $integratedID . ')');
-				}
-				//SECTION TO CREATE INTEGRATED ACCOUNT
-				if ( empty($integratedID) ) {
-					// The user hasn't integrated an account yet. If they're logged in for some reason, assume it is suspicious and log them out
-					$this->do_wp_logout();
-					wp_set_current_user(0, 0);
-					$loggedInUser = '';
-					
-					$this->lDebug('No WP Account Detected, Creating.');
-					// No user reaching this point has an integrated account. So let's create one.
-					$tryThisName = $phpbbUserName;
-					
-					//start with the plain username, if unavailable then append a number onto the login name until we find one that is available
-					$i = 0; $foundFreeName = FALSE;
-					while ( !$foundFreeName ) {
-						if ( !username_exists($tryThisName) ) {
-							$foundFreeName = TRUE;
-						} else {
-							// A username already exists. But it could belong to a different person 
-							$whoIsIt = get_userdatabylogin($signUpName);
-							// print_r($whoIsIt);
-							if ( $whoIsIt->phpbb_userLogin == $phpbbRawUser ) {
-								//uh-oh, we have a problem. Why has this integration come undone?
-								// This will pop up for users integrated prior to v0.8.9.2 who haven't been converted w/ the update script... bah! too much validation...
-								$wpuAbs->err_msg(GENERAL_ERROR, 'Error! Your Integration has become decoupled! Please contact an administrator and inform them of this error message.', 'WordPress Integration Error', __LINE__, __FILE__, '');
-							}
-							$i++; 
-							$tryThisName = $phpbbUserName . $i;
+				$loggedInUser = '';
+				
+				$this->lDebug('No WP Account Detected, Creating.');
+				// No user reaching this point has an integrated account. So let's create one.
+				$tryThisName = $phpbbUserName;
+				
+				//start with the plain username, if unavailable then append a number onto the login name until we find one that is available
+				$i = 0; $foundFreeName = FALSE;
+				while ( !$foundFreeName ) {
+					if ( !username_exists($tryThisName) ) {
+						$foundFreeName = TRUE;
+					} else {
+						// A username already exists. But it could belong to a different person 
+						$whoIsIt = get_userdatabylogin($signUpName);
+						// print_r($whoIsIt);
+						if ( $whoIsIt->phpbb_userLogin == $phpbbRawUser ) {
+							//uh-oh, we have a problem. Why has this integration come undone?
+							// This will pop up for users integrated prior to phBB2 WPU v0.8.9.2 who haven't been converted w/ the update script... bah! too much validation...
+							trigger_error('Error! Your Integration has become decoupled! Please contact an administrator and inform them of this error message.');
 						}
+						$i++; 
+						$tryThisName = $phpbbUserName . $i;
 					}
-					$signUpName = $tryThisName;
-					
-					$this->lDebug('Found a suitable WP username: '.$signUpName);
-					
-					//Now we have a unique signup name.. let's create the user.
-					$newWpUser->user_login = $signUpName;
-					$newWpUser->user_pass = $wpuAbs->phpbb_passwd();
-					$newWpUser->user_email = $wpuAbs->phpbb_email();
-					$newUserID = wp_insert_user(get_object_vars($newWpUser));
-					$integratedID = $newUserID;
-					$this->update_int_ID($wpuAbs->phpbb_user_id(), $integratedID);
-					$this->lDebug('Created a user with ID = ' . $integratedID);
-					$newUserData = get_userdata($newUserID);
-
-					//Set usermeta options and check details consistency
-					$wpUpdateData =	$this->check_details_consistency($newUserData, $wpuAbs->userdata());
-					if ( $wpUpdateData ) {
-						wp_update_user($wpUpdateData);
-					}	
 				}
-											
+				$signUpName = $tryThisName;
+				
+				$this->lDebug('Found a suitable WP username: '.$signUpName);
+				
+				//Now we have a unique signup name.. let's create the user.
+				$newWpUser->user_login = $signUpName;
+				$newWpUser->user_pass = $phpbbForum->get_userdata('user_password');
+				$newWpUser->user_email = $phpbbForum->get_userdata('user_email');
+				$newUserID = wp_insert_user(get_object_vars($newWpUser));
+				$integratedID = $newUserID;
+				$this->update_int_ID($phpbbForum->get_userdata('user_id'), $integratedID);
+				$this->lDebug('Created a user with ID = ' . $integratedID);
+				$newUserData = get_userdata($newUserID);
+
+				//Set usermeta options and check details consistency
+				$wpUpdateData =	$this->check_details_consistency($newUserData, $phpbbForum->get_userdata());
+				if ( $wpUpdateData ) {
+					wp_update_user($wpUpdateData);
+				}	
+			}
+										
+			$loggedInUser = wp_get_current_user();
+			
+			
+			// Check that they're not already logged into the wrong account (weird stuff happens)
+			if ($loggedInUser->ID !== $integratedID && ($loggedInUser->ID)) {
+				$this->lDebug('You are logged into the wrong account! (WP ID = ' . $loggedInUser->ID . ', integrated ID = ' . $integratedID . '). Logging out!');
+				$this->do_wp_logout();
+				wp_set_current_user(0, 0);
 				$loggedInUser = wp_get_current_user();
 				
+			}
+			
+			
+			//SECTION TO LOG USER IN
+			if ( empty($loggedInUser->ID) ) {
+				global $error;
+				//user isn't logged in
+				$wpUser = get_userdata($integratedID);
+				$wpUserName = $wpUser->user_login;
+				$this->lDebug('WP account detected, logging into account (ID=' . $integratedID . ',Username=' . $wpUserName . ')');
+				//see if user can log into WP (need to double-hash password)  
+				// This authentication is really unneccessary at this point.... but we need them to have a strong password in a WP cookie for Admin panel access
 				
-				// Check that they're not already logged into the wrong account (weird stuff happens)
-				if ($loggedInUser->ID !== $integratedID && ($loggedInUser->ID)) {
-					$this->lDebug('You are logged into the wrong account! (WP ID = ' . $loggedInUser->ID . ', integrated ID = ' . $integratedID . '). Logging out!');
-					$this->do_wp_logout();
-					wp_set_current_user(0, 0);
-					$loggedInUser = wp_get_current_user();
-					
-				}
-				
-				
-				//SECTION TO LOG USER IN
-				if ( empty($loggedInUser->ID) ) {
-					global $error;
-					//user isn't logged in
+
+				if($this->wpSignIn($wpUserName,  $phpbbForum->get_userdata('user_password'))) {					
+					$loggedInUser = wp_set_current_user($wpUser->ID);
+					$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
+				} else {
+					$this->lDebug('Could not authenticate. (' . $error .') Synchronising password.');
+					// they couldn't log in... so let's just change their password
+					$wpUpdateData =	$this->check_details_consistency($wpUser,  $phpbbForum->get_userdata()); 
+					if ( $wpUpdateData ) {
+						wp_update_user($wpUpdateData);
+					}
+					//It must work now....
 					$wpUser = get_userdata($integratedID);
 					$wpUserName = $wpUser->user_login;
-					$this->lDebug('WP account detected, logging into account (ID=' . $integratedID . ',Username=' . $wpUserName . ')');
-					//see if user can log into WP (need to double-hash password)  
-					// This authentication is really unneccessary at this point.... but we need them to have a strong password in a WP cookie for Admin panel access
 					
-
-					if($this->wpSignIn($wpUserName, $wpuAbs->phpbb_passwd())) {					
+					if($this->wpSignIn($wpUserName,  $phpbbForum->get_userdata['user_password'])) {
 						$loggedInUser = wp_set_current_user($wpUser->ID);
 						$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
 					} else {
-						$this->lDebug('Could not authenticate. (' . $error .') Synchronising password.');
-						// they couldn't log in... so let's just change their password
-						$wpUpdateData =	$this->check_details_consistency($wpUser, $wpuAbs->userdata()); 
-						if ( $wpUpdateData ) {
-							wp_update_user($wpUpdateData);
-						}
-						//It must work now....
-						$wpUser = get_userdata($integratedID);
-						$wpUserName = $wpUser->user_login;
+						//Unbelievable.... something is clearly wrong. Sound apologetic.
 						
-						if($this->wpSignIn($wpUserName, $wpuAbs->phpbb_passwd())) {
-							$loggedInUser = wp_set_current_user($wpUser->ID);
-							$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
-						} else {
-							//Unbelievable.... something is clearly wrong. Sound apologetic.
-							
-							$this->exit_wp_integration();
-							$this->lDebug('Failed, aborting (' . $error .')', 1);
-							$wpuAbs->err_msg(GENERAL_ERROR, 'WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message', 'WordPress Integration Error', __LINE__, __FILE__, '');
-						}
+						$this->exit_wp_integration();
+						$this->lDebug('Failed, aborting (' . $error .')', 1);
+						trigger_error('WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message', 'WordPress Integration Error');
 					}
 				}
-								
-				if ( !empty($loggedInUser->ID) ) {
-					$this->lDebug('Checking Profile Consistency');
-					$userdata = $this->check_userlevels($loggedInUser->ID, $user_level);
-					$userdata = get_userdata($userdata->ID);
-					wp_set_current_user($userdata->ID);
-					$wpUpdateData =	$this->check_details_consistency($userdata, $wpuAbs->userdata());					
-					if ( $wpUpdateData ) {
-						$this->lDebug('Synchronising Profiles');
-						$loggedInID = wp_update_user($wpUpdateData);
-						$loggedInUser = wp_set_current_user($loggedInID);
-						$loggedInUser = get_userdata($loggedInUser->ID);
-					}
-				} else {
-					//The login integration has failed. Log them out of WP just in case, and raise a stink.
-					$this->do_wp_logout();
-					$this->exit_wp_integration();
-					$this->lDebug('Failed, aborting2', 1);
-					$wpuAbs->err_msg(GENERAL_ERROR, 'Integration Error with your account! Please contact an administrator.', __LINE__, __FILE__, '');
-				}
-				
-				if ( !($loggedInUser->ID == $integratedID) ) {
-					//ID mismatch. something is heavily borked.
-					$wpuAbs->err_msg(GENERAL_ERROR, 'Integration Mismatch Error with your account! Please contact an administrator.', 'WordPress Integration Error', __LINE__, __FILE__, '');
-				}
-				
 			}
-			if (!$this->debugBufferFull) $this->lDebug('',1);
+							
+			if ( !empty($loggedInUser->ID) ) {
+				$this->lDebug('Checking Profile Consistency');
+				$userdata = $this->check_userlevels($loggedInUser->ID, $user_level);
+				$userdata = get_userdata($userdata->ID);
+				wp_set_current_user($userdata->ID);
+				$wpUpdateData =	$this->check_details_consistency($userdata, $phpbbForum->get_userdata());					
+				if ( $wpUpdateData ) {
+					$this->lDebug('Synchronising Profiles');
+					$loggedInID = wp_update_user($wpUpdateData);
+					$loggedInUser = wp_set_current_user($loggedInID);
+					$loggedInUser = get_userdata($loggedInUser->ID);
+				}
+			} else {
+				//The login integration has failed. Log them out of WP just in case, and raise a stink.
+				$this->do_wp_logout();
+				$this->exit_wp_integration();
+				$this->lDebug('Failed, aborting2', 1);
+				trigger_error('Integration Error with your account! Please contact an administrator.');
+			}
+			
+			if ( !($loggedInUser->ID == $integratedID) ) {
+				//ID mismatch. something is heavily borked.
+				trigger_error('Integration Mismatch Error with your account! Please contact an administrator.', 'WordPress Integration Error');
+			}
+			
 		}
+		if (!$this->debugBufferFull) $this->lDebug('',1);
 		
 	} //end of the integration	
 	
@@ -783,41 +788,43 @@ Class WPU_Integration {
 	 * Updates the Integration ID stored in phpBB profile
 	 */
 	function update_int_ID($pID, $intID) {
-		global $db, $wpuAbs, $cache;
+		global $db, $cache, $phpbbForum;
 
 		//Do we need to update the integration ID?
-		if ( !empty($intID) ) { 
-			//Switch back to the phpBB DB:
-			$this->switch_db('TO_P');
-			$updated = FALSE;
-			if ( !empty($pID) ) { 
-				$sql = 'UPDATE ' . USERS_TABLE . " 
-					SET user_wpuint_id = $intID 
-					WHERE user_id = '$pID'";
-				if(!$result = $db->sql_query($sql)) {
-					$wpuAbs->err_msg(CRITICAL_ERROR, $sql . ' WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.', 'Database access error', __LINE__, __FILE__, $sql);
-				} else {
-					$updated = TRUE;
-				}
+		if ( empty($intID) ) {
+			return false;
+		} 
+		//Switch back to the phpBB DB:
+		$phpbbForum->enter();
+		
+		$updated = FALSE;
+		if ( !empty($pID) ) { 
+			$sql = 'UPDATE ' . USERS_TABLE . " 
+				SET user_wpuint_id = $intID 
+				WHERE user_id = '$pID'";
+			if(!$result = $db->sql_query($sql)) {
+				trigger_error('WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.');
+			} else {
+				$updated = TRUE;
 			}
-			//Switch back to the WP DB:
-			$this->switch_db('TO_W');
-			if ( !$updated ) {
-				$wpuAbs->err_msg(CRITICAL_ERROR, 'WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.', 'Could not update integration data', __LINE__, __FILE__, '');
-			}
+		}
+		//Switch back to the WP DB:
+		$phpbbForum->leave();
+		if ( !$updated ) {
+			trigger_error('WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.', 'Could not update integration data');
 		}
 	}	
 	
 	/**
 	 * Gets the logged-in user's level so we can arbitrate permissions
 	 */
-	function wpu_get_userlevel($phpbb_userdata) {
+	function get_userlevel($phpbb_userdata) {
 
-		global $db, $wpuAbs;
+		global $db, $phpbbForum;
 		
 		$user_level = FALSE;
 		
-		if ( (!$wpuAbs->user_logged_in()) || (!$wpuAbs->user_normal()) ) {
+		if ( (!$phpbbForum->user_logged_in()) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) ) {
 			return FALSE;
 		}
 		
@@ -875,8 +882,6 @@ Class WPU_Integration {
 	 */
 	function check_details_consistency($wpData, $pData) {	
 
-		global $wpuAbs;
-	
 		if ( !empty($wpData->ID) ) {
 			$wpMeta = get_usermeta($wpData->ID);
 		}
@@ -918,7 +923,7 @@ Class WPU_Integration {
 			$update['yim'] = $pData['user_yim'];
 			$doWpUpdate = true;
 		}
-		if ( (!($pData['user_jabber'] == $wpData->jabber)) && (!empty($pData['user_jabber'])) && ($wpuAbs->ver == 'PHPBB3') ) {
+		if ( (!($pData['user_jabber'] == $wpData->jabber)) && (!empty($pData['user_jabber'])) ) {
 			$update['jabber'] = $pData['user_jabber'];
 			$doWpUpdate = true;
 		}		
@@ -932,17 +937,13 @@ Class WPU_Integration {
 				update_usermeta( $wpData->ID, 'wpu_avatar', $pData['user_avatar']);
 			}
 		}
-		if ( (!($pData['user_allowavatar'] == $wpMeta['wpu_allowavatar'])) && (!empty($pData['user_allowavatar'])) && ($wpuAbs->ver == 'PHPBB2') ) {
-			if ( !empty($wpData->ID) ) {
-				update_usermeta( $wpData->ID, 'wpu_allowavatar', $pData['user_allowavatar']);
-			}
-		}
-		if ( (!($pData['user_avatar_width'] == $wpMeta['wpu_avatar_width'])) && (!empty($pData['user_avatar_width'])) && ($wpuAbs->ver == 'PHPBB3') ) {
+
+		if ( (!($pData['user_avatar_width'] == $wpMeta['wpu_avatar_width'])) && (!empty($pData['user_avatar_width'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar_width', $pData['user_avatar_width']);
 			}
 		}	
-		if ( (!($pData['user_avatar_height'] == $wpMeta['wpu_avatar_height'])) && (!empty($pData['user_avatar_height'])) && ($wpuAbs->ver == 'PHPBB3') ) {
+		if ( (!($pData['user_avatar_height'] == $wpMeta['wpu_avatar_height'])) && (!empty($pData['user_avatar_height'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar_height', $pData['user_avatar_height']);
 			}

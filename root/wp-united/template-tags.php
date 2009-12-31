@@ -31,11 +31,19 @@ function wpu_intro() {
  * Prepares a sentence soliciting users to get started with their blogs
  */
 function get_wpu_intro() {
-	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpEx, $wpuGetBlogIntro, $phpbbForum;
+	global $wpSettings, $phpEx, $wpuGetBlogIntro, $phpbbForum;
 	if ( (!empty($wpSettings['useBlogHome'])) && (!empty($wpSettings['usersOwnBlogs'])) ) {
 		$reg_link =  'ucp.'.$phpEx.'?mode=register';
-		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect='. attribute_escape($_SERVER["REQUEST_URI"]);	
-		if ( ! $phpbb_logged_in ) {
+		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;redirect='. attribute_escape($_SERVER["REQUEST_URI"]);	
+		
+		$isReg = $phpbbForum->get_userdata('is_registered');
+		if ( !empty($isReg) ) {
+			$wpuGetBlogIntro = ($phpbbForum->get_userdata('user_wpublog_id') > 0 ) ? $phpbbForum->lang('blog_intro_add') : $phpbbForum->lang['blog_intro_get'];
+		} else {
+			$wpuGetBlogIntro =  ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['blog_intro_loginreg_ownblogs'] : $phpbbForum->lang['blog_intro_loginreg'];
+		}
+		
+		if ( ! $phbbForum->user_logged_in() ) {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro,'<a href="' . $phpbbForum->url . append_sid($reg_link) . '">', '</a>',  '<a href="'. $phpbbForum->url . $login_link . '">', '</a>') . '</p>';
 		} else {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro, '<a href="' . get_settings('siteurl') . '/wp-admin/">','</a>') . '</p>';
@@ -904,7 +912,7 @@ function wpu_login_user_info($args) {
  * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1");
  */
 function get_wpu_login_user_info($args) {
-	global $user_ID, $user, $db, $wpSettings, $auth, $phpbbForum, $phpbb_sid, $wpSettings, $phpEx, $config;
+	global $user_ID, $user, $db, $wpSettings, $auth, $phpbbForum, $wpSettings, $phpEx, $config;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
@@ -951,13 +959,13 @@ function get_wpu_login_user_info($args) {
 				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
 			if($auth->acl_get('a_')) {
-				$ret .= $before . '<a href="'.$phpbbForum->url.'adm/index.php?'.$phpbb_sid.'" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
+				$ret .= $before . '<a href="'.$phpbbForum->url . append_sid('adm/index.php') . '" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
 		}
 		$ret .= $before . get_wp_loginout() . $after;
 	} else {
 		if ( $showLoginForm ) {
-			$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]);
+			$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]));
 			$ret .= '<form class="wpuloginform" method="post" action="' . $phpbbForum->url . $login_link . '">';
 			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
 			$ret .= $before . '<label for="phpbb_password">' . $phpbbForum->lang['PASSWORD'] . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;

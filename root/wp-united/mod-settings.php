@@ -128,7 +128,7 @@ function set_default($setting_key) {
  * Sets initial values to sensible deafaults if they haven't been set yet.
  */
 function get_integration_settings($setAdminDefaults = FALSE) {
-	global $config, $db;
+	global $config, $db, $phpbb_root_path, $phpEx;
 	
 	$configFields = get_db_schema();
 	$wpSettings = array();
@@ -168,6 +168,13 @@ function get_integration_settings($setAdminDefaults = FALSE) {
 		}
 		$wpSettings['styleKeys'] = array();
 	}
+	
+	
+	/**
+	 * Load the version number
+	 */
+	require_once($phpbb_root_path . 'wp-united/version.' . $phpEx);
+	
 	return $wpSettings;	
 	
 }

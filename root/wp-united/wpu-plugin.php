@@ -40,7 +40,6 @@ function wpu_init_plugin() {
 	
 	
 	if ( !defined('IN_PHPBB') ) {
-				
 		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	}
@@ -61,9 +60,28 @@ function wpu_init_plugin() {
 			include_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
 			add_action('widgets_init', 'wpu_widgets_init');	
 		}
+		
 	} else {
 		add_action('widgets_init', 'wpu_widgets_init');	
 	}
+	
+		/**
+		 * Disable access to the blog if the forum is disabled -- otherwise too many variables
+		 * are off-limits
+		 */
+		/*if(!is_admin()) {
+			$phpbbForum->enter();
+			global $config, $auth, $wp_actions;
+			if ($config['board_disable'] && !defined('IN_LOGIN') && !$auth->acl_gets('a_', 'm_') && !$auth->acl_getf_global('m_')) {
+				if ($phpbbForum->get_userdata('is_bot')) {
+					header('HTTP/1.1 503 Service Unavailable');
+				}
+				$message = (!empty($config['board_disable_msg'])) ? $config['board_disable_msg'] : 'BOARD_DISABLE';
+				$phpbbForum->leave();
+				wp_die($message);
+			}
+			$phpbbForum->leave();
+		}*/
 
 	
 }
@@ -159,7 +177,7 @@ function wpu_check_for_action() {
  * Please DO NOT remove this!
  */
 function wpu_put_powered_text() {
-	global $wp_version, $wpSettings;
+	global $wp_version, $wpSettings, $phpbbForum;
 	echo '<p  id="poweredby">' . sprintf($phpbbForum->lang['wpu_dash_copy'], '<a href="http://www.wp-united.com">', '</a>') . '</p>';
 
 	if ( current_user_can('publish_posts') ) {	
@@ -186,7 +204,7 @@ function wpu_put_powered_text() {
  * @todo enqueue from stylesheet once we have proper url
  */
 function wpu_css() {
-	global $wpSettings;
+	global $wpSettings, $wp_version;
 
 	$top = ( $wpSettings['usersOwnBlogs'] && $wpSettings['allowStyleSwitch'] ) ? "0.3" : "1";
 		
@@ -194,7 +212,7 @@ function wpu_css() {
 		echo '
 			<style type="text/css">
 			#user_info {
-				display: none !important;
+			/*	display: none !important;*/
 			}
 			#poweredby {
 				text-align: center;
@@ -214,7 +232,7 @@ function wpu_css() {
 				position: relative; /* ie6 bug */
 				position: absolute;
 				top: ' . $top . 'em;
-				margin: 4px 150px 0 0;
+				margin: 4px 380px 0 0;
 				padding: 0;
 				right: 1em;
 				color: #f1f1f1;
@@ -225,7 +243,7 @@ function wpu_css() {
 		echo '
 			<style type="text/css">
 			#user_info {
-				display: none !important;
+				/*display: none !important;*/
 			}
 			#poweredby {
 				text-align: center;
@@ -250,7 +268,7 @@ function wpu_css() {
  * @todo neaten wp 2.7/2.8+
  */
 function wpu_adminmenu_init() {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phobbForum;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum;
 	$wpuConnSettings = get_settings('wputd_connection');
 	
 	//Check for action
@@ -284,7 +302,7 @@ function wpu_adminmenu_init() {
 				//	WP 2.7 ADMIN PANEL PAGE FOR OWN BLOGS
 			
 					if ( !empty($wpSettings['usersOwnBlogs']) ) {
-						$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wpu-plugin.' . $phpEx, 'wpu_menuTopLevel', $phpbb_root_path . 'wp-united/images/tiny.gif' );
+						$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wpu-plugin.' . $phpEx, 'wpu_menuTopLevel', $phpbbForum->url . 'wp-united/images/tiny.gif' );
 						
 						add_submenu_page('wpu-plugin.php', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', 'wpu-plugin.' . $phpEx , 'wpu_menuTopLevel');						
 						if ( !empty($wpSettings['allowStyleSwitch']) ) {
@@ -299,8 +317,8 @@ function wpu_adminmenu_init() {
 			if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
 				if ( (current_user_can('publish_posts')) && ($wpSettings['usersOwnBlogs']==1) )  {
 					wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin']);
-				} else {
-					wp_redirect($phpbb_root_path.'ucp.' . $phpEx);
+				} else { 
+					wp_redirect($phpbbForum->url.'ucp.' . $phpEx);
 				}
 			}
 			//Redirect the edit users page (just in case)
@@ -768,16 +786,18 @@ function wpu_get_stylesheet($default) {
  * Only modifies it if login is integrated
  */
 function wpu_loginoutlink($loginLink) {
-	global $phpbbForum, $wpSettings, $phpbb_logged_in, $phpbb_username, $phpbb_sid, $phpEx;
+	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		$logout_link = 'ucp.'.$phpEx.'?mode=logout&amp;sid=' . $phpbb_sid;
-		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]);		
-		if ( $phpbb_logged_in ) {
+		$phpbbForum->enter();
+		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout');
+		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]));		
+		$phpbbForum->leave();
+		if ( $phpbbForum->user_logged_in() ) {
 			$u_login_logout = $phpbbForum->url . $logout_link;
-			$l_login_logout = $phpbbForum->lang['Logout'] . ' [ ' . $phpbb_username . ' ]';
+			$l_login_logout = sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username());
 		} else {
 			$u_login_logout = $phpbbForum->url . $login_link;
-			$l_login_logout = $phpbbForum->lang['Login'];
+			$l_login_logout = $phpbbForum->lang['LOGIN'];
 		}
 		return '<a href="' . $u_login_logout . '">' . $l_login_logout . '</a>';
 	} else {
@@ -786,29 +806,40 @@ function wpu_loginoutlink($loginLink) {
 }
 
 /**
+ * Returns the logout URL for the dashboard, modified if logins are integrated.
+ */
+function wpu_logout_url($logoutLink, $redirect) {
+	global $phpbbForum, $wpSettings, $phpEx;
+	if ( !empty($wpSettings['integrateLogin']) ) {
+		$logoutLink = $phpbbForum->url . append_sid('ucp.'.$phpEx.'?mode=logout');
+	}
+	return $logoutLink;
+}
+
+/**
  * Filters the WordPress "Register" link to point to phpBB installation
  * Only modifies it if login is integrated
  */
 function wpu_registerlink($registerLink) {
-	global $wpSettings, $phpbb_logged_in, $phpbb_sid, $phpbbForum, $phpEx, $wpuGetBlog;
+	global $wpSettings, $phpbbForum, $phpEx, $wpuGetBlog;
 	if ( !empty($wpSettings['integrateLogin']) ) {
 		//'before' and 'after' can be passed to the links. Let's isolate them.
 		$startPos = strpos($registerLink, '<a');
 		$endPos = strpos($registerLink, '</a>');
 		$before = substr($registerLink, 0, $startPos);
 		$after = substr($registerLink, $endPos + 4);
-		/**
-		 * @todo this could probably be done better
-		 */
 		$before = empty($before) ? '<li>' : $before;
 		$after = empty($after) ? '</li>' : $after;
 		$reg_link =  'ucp.'.$phpEx.'?mode=register';
-		/**
-		 * @todo move $wpuGetxxx calculation here
-		 */
+
 		if ( ! is_user_logged_in() ) {
-			return $before . '<a href="' . append_sid($phpbbForum->url . $reg_link) . '">' . $phpbbForum->lang['Register'] . '</a>' . $after;
+			return $before . '<a href="' . append_sid($phpbbForum->url . $reg_link) . '">' . $phpbbForum->lang['REGISTER'] . '</a>' . $after;
 		} else {
+			if ( $phpbbForum->get_userdata('user_wpublog_id') > 0 ) {
+				$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['add_to_blog'] : $phpbbForum->lang['go_wp_admin'];
+			} else {
+				$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['get_blog'] : $phpbbForum->lang['go_wp_admin'];
+			}
 			return $before . '<a href="' . get_settings('siteurl') . '/wp-admin/">' . $wpuGetBlog . '</a>' . $after;
 		}
 	} else { 
@@ -1324,10 +1355,10 @@ function wpu_buffer_userspanel($panelContent) {
  * disable access to wp-login.php if logins are integrated
  */
 function wpu_disable_wp_login() { 
-	global $phpbb_root_path, $phpEx, $wpSettings; 
+	global $phpbb_root_path, $phpEx, $wpSettings, $phpbbForum; 
 	if (preg_match('|/wp-login.php|', $_SERVER['REQUEST_URI'])) {	
 		if (!empty($wpSettings['integrateLogin'])) {
-			wp_redirect($phpbb_root_path . 'ucp.' . $phpEx);
+			wp_redirect($phpbbForum->url . 'ucp.' . $phpEx);
 		}
 	}
 }
@@ -1644,6 +1675,8 @@ add_filter( 'get_comments_number', 'wpu_comments_count', 10, 2);
 add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
 
 add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
+
+add_filter('logout_url', 'wpu_logout_url', 10, 2);
 
 
 //per-user cats in progress

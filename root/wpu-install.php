@@ -10,14 +10,6 @@
 *
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //	DELETE THIS FiLE AFTER USE!
 
@@ -26,7 +18,6 @@ define('IN_PHPBB', true);
 $phpbb_root_path = './'; 
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
-require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 
 require($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
 require($phpbb_root_path . 'includes/functions_module.' . $phpEx);
@@ -43,12 +34,12 @@ require($phpbb_root_path . 'includes/functions_module.' . $phpEx);
 
 echo "Modifying USERS Table (Integration ID)... ";
 
-if  ( !array_key_exists('user_wpuint_id', $wpuAbs->userdata()) ) {
+if  ( !array_key_exists('user_wpuint_id', $user->data()) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 		ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
 
 	if (!$result = $db->sql_query($sql)) {
-		$wpuAbs->err_msg(CRITICAL_ERROR, 'Cannot add integration column to users table.', 'Install Error', __LINE__, __FILE__, $sql);
+		trigger_error('ERROR: Cannot add the integration column to the users table');
 	}
 	echo "Done!<br />\n\n";
 } else {
@@ -57,11 +48,11 @@ if  ( !array_key_exists('user_wpuint_id', $wpuAbs->userdata()) ) {
 
 echo "Modifying USERS Table (Blog ID)...";
 
-if  ( !array_key_exists('user_wpublog_id', $wpuAbs->userdata()) ) {
+if  ( !array_key_exists('user_wpublog_id', $user->data()) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 		ADD user_wpublog_id VARCHAR(10) NULL DEFAULT NULL';
 	if (!$result = $db->sql_query($sql)) {
-		$wpuAbs->err_msg(CRITICAL_ERROR, 'Cannot add blog ID column to users table.', 'Install Error', __LINE__, __FILE__, $sql);
+		trigger_error('ERROR: Cannot add blog ID column to users table');
 	}
 	echo "Done!<br />\n\n";
 } else {
@@ -80,7 +71,7 @@ if (!array_key_exists('post_wpu_xpost', $row) ) {
 		ADD post_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
 
 	if (!$result = $db->sql_query($sql)) {
-		$wpuAbs->err_msg(CRITICAL_ERROR, 'Cannot add x-posting column to posts table.', 'Install Error', __LINE__, __FILE__, $sql);
+		trigger_error('ERROR: Cannot add cross-posting column to posts table');
 	}
 	echo "Done!<br />\n\n";
 } else {
@@ -354,7 +345,7 @@ function module_exists($modName, $parent = 0) {
 				WHERE parent_id = $parent
 				AND module_langname = '$modName'";
 	if (!$result = $db->sql_query($sql)) {
-		$wpuAbs->err_msg(CRITICAL_ERROR, 'Cannot add integration column to users table.', 'Install Error', __LINE__, __FILE__, $sql);
+		trigger_error('ERROR: Cannot get module details');
 	}
 	//there could be a duplicate module, but screw it -- just deal with the first one we find. Alternative is to abort and tell user we don't know what to do with dupes, which isn't better.
 	if ( $row = $db->sql_fetchrow($result) ) {

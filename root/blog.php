@@ -64,16 +64,16 @@ if (strlen($PATH_TO_PHPBB_INSTALL)) {
 $phpbb_root_path = './'; 
 
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
-
+define('WPU_BLOG_PAGE', 1);
 if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 	include($phpbb_root_path . 'common.' . $phpEx);
 
+	$user->session_begin();
+	$auth->acl($user->data);
+	$user->setup('mods/wp-united');
 	
 	
-	define('WPU_BLOG_PAGE', 1);
-	// abstractify is now called from phpBB hook
-	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-	$wpSettings = get_integration_settings();
+	
 
 	include ($phpbb_root_path . 'wp-united/integrator.php');
 } else {

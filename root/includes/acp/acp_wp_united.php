@@ -2290,7 +2290,7 @@ class acp_wp_united {
 	 * The main user mapping page that lists all the names
 	 */
 	function usermap_main() {	
-		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template, $phpbbForum;
+		global $user, $phpEx, $phpbb_root_path, $wpSettings, $db, $template, $phpbbForum;
 		// NUMBER OF RESULTS PER PAGE -- COULD ADJUST THIS FOR LARGE USERBASES
 		
 		$numPerPage = $numResults = (int)request_var('wpumapperpage', 50);
@@ -2298,7 +2298,7 @@ class acp_wp_united {
 		//Get integration settings
 		$wpSettings = get_integration_settings();
 		if ( ($wpSettings == FALSE)	|| ($wpSettings['wpPath'] == '') ) {
-			$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Gen'], $user->lang['WP_NO_SETTINGS'], __LINE__, __FILE__, $sql);
+			trigger_error($user->lang['WP_DBErr_Gen'] . '<br />' . $user->lang['WP_NO_SETTINGS']);
 		}			
 		
 		$this->page_title = $user->lang['MAP_TITLE'];
@@ -2357,7 +2357,7 @@ class acp_wp_united {
 					$posts = get_usernumposts($result->ID);
 					//TODO: show number of comments
 					if ( empty($result->ID) ) {
-						$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['NO_WP_ID'], 'NO_WP_ID_ERR', __LINE__, __FILE__, $sql);
+						trigger_error($user->lang['NO_WP_ID'] . . '<br />' . $user->lang['NO_WP_ID_ERR']);
 					}
 					$phpBBMappedName = get_usermeta($result->ID, 'phpbb_userLogin');
 					if ( empty($phpBBMappedName) ) {
@@ -2413,7 +2413,7 @@ class acp_wp_united {
 								" WHERE username = '" . $phpBBMappedName . "'
 										LIMIT 1";
 								if (!$pResults = $db->sql_query($sql)) {
-									$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Retrieve'], $user->lang['MAP_CANTCONNECTP'], __LINE__, __FILE__, $sql);
+									trigger_error($user->lang['WP_DBErr_Retrieve']  . '<br />' . $user->lang['MAP_CANTCONNECTP']);
 								}
 								if ($pResults = $db->sql_fetchrow($pResults))  {
 									//OK, so we found a username match... but show only if they're not already integrated to another acct.
@@ -2447,7 +2447,7 @@ class acp_wp_united {
 							}
 						}	
 					} else {
-						$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Retrieve'], $user->lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
+						trigger_error($user->lang['WP_DBErr_Retrieve'] . '<br />' . $user->lang['WP_DBErr_Retrieve']);
 					}
 					if ( empty($phpBBMappedName) ) {
 						$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
@@ -2519,7 +2519,7 @@ class acp_wp_united {
 	 * Process the users' selections into an actionable list
 	 */
 	function usermap_process() {	
-		global $wpuAbs, $user, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
+		global $user, $phpEx, $phpbb_root_path, $wpSettings, $db, $template;
 		
 		$this->page_title = $user->lang['MAP_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
@@ -2660,7 +2660,7 @@ class acp_wp_united {
 					$sql = 	"SELECT user_wpuint_id, user_id FROM " . USERS_TABLE .
 					" WHERE username = '" . $db->sql_escape($doThis['typed']) . "'";
 					if (!$pCheck = $db->sql_query($sql)) {
-						$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Retrieve'], $user->lang['MAP_CANTCONNECTP'], __LINE__, __FILE__, $sql);
+						trigger_error($user->lang['WP_DBErr_Retrieve'] . '<br />' . $user->lang['MAP_CANTCONNECTP']);
 					}
 					if (!($pCheckResults = $db->sql_fetchrow($pCheck)))  {
 						$error = TRUE;
@@ -2719,8 +2719,8 @@ class acp_wp_united {
 	 * Process each of the actions in the list.
 	 */
 	function usermap_perform() {	
-		global $user, $wpuAbs, $phpEx, $phpbb_root_path, $wpSettings, $db, $template, $phpbbForum;
-		
+		global $user, $phpEx, $phpbb_root_path, $wpSettings, $db, $template, $phpbbForum;
+		require_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
 		$this->page_title = $user->lang['MAP_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 
@@ -2730,7 +2730,7 @@ class acp_wp_united {
 		//Get integration settings
 		$wpSettings = get_integration_settings();
 		if ( ($wpSettings == FALSE)	|| ($wpSettings['wpPath'] == '') ) {
-			$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['WP_DBErr_Gen'], $user->lang['WP_NO_SETTINGS'], __LINE__, __FILE__, $sql);
+			trigger_error($user->lang['WP_DBErr_Gen'] . '<br />' . $user->lang['WP_NO_SETTINGS']);
 		}		
 		
 		$lastAction= (int) request_var('numrows', 0);
@@ -2774,7 +2774,7 @@ class acp_wp_united {
 								" SET user_wpuint_id = NULL 
 								WHERE user_wpuint_id = $wpID";
 							if (!$pDel = $db->sql_query($sql)) {
-								$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_BREAK'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
+								trigger_error($user->lang['MAP_COULDNT_BREAK'] . '<br />' . $user->lang['DB_ERROR']);
 							}									
 							$status[] = '<li>'. sprintf($user->lang['MAP_BROKE_SUCCESS'], $wpID) . '</li>';
 						} else {
@@ -2787,14 +2787,14 @@ class acp_wp_united {
 								" SET user_wpuint_id = $wpID 
 								WHERE user_id = $pID";
 							if (!$pInt = $db->sql_query($sql)) {
-								$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
+								trigger_error($user->lang['MAP_COULDNT_INT'] . '<br />' . $user->lang['DB_ERROR']);
 							}
 							// Sync profiles
 							$sql = 	"SELECT *
 											FROM " . USERS_TABLE . " 
 											WHERE user_id = $pID";
 							if (!$pUserData = $db->sql_query($sql)) {
-								$wpuAbs->err_msg(GENERAL_ERROR, $user->lang['MAP_COULDNT_INT'], $user->lang['DB_ERROR'], __LINE__, __FILE__, $sql);
+								trigger_error($user->lang['MAP_COULDNT_INT'] . '<br />' . $user->lang['DB_ERROR']);
 							}
 							$data = $db->sql_fetchrow($pUserData);
 							$db->sql_freeresult($pUserData);
@@ -2847,8 +2847,19 @@ class acp_wp_united {
 							$password = $wpUsr->user_pass;
 							if(substr($password, 0, 3) == '$P$') {
 								$password = substr_replace($password, '$H$', 0, 3);
-							}								
-							if ($wpuAbs->insert_user($typedName, $password, $wpUsr->user_email , $wpID)) {
+							}
+							
+							if ( validate_username($username) === FALSE ) {
+								$userToAdd = array(
+									'username' => $typedName,
+									'user_password' => $password,
+									'user_email' => $wpUsr->user_email,
+									'user_type' => USER_NORMAL,
+									'group_id' => 2  //add to registered users group		
+								));
+							}			
+
+							if (user_add($userToAdd)) {
 								$status[] = '<li>'. sprintf($user->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
 							} else {
 								$status[] = '<li>' . $user->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
@@ -2856,11 +2867,11 @@ class acp_wp_united {
 						}
 					break;
 					default;
-						$wpuAbs->err_msg(sprintf($user->lang['MAP_INVALID_ACTION'], $procAction));
+						trigger_error($user->lang['MAP_INVALID_ACTION'] . '<br />' . $procAction);
 					break;
 				}
 			} else {
-				$wpuAbs->err_msg(sprintf($user->lang['MAP_EMPTY_ACTION'], $procAction)); 
+				trigger_error($user->lang['MAP_EMPTY_ACTION'] . '<br />' . $procAction);
 			}
 		}
 

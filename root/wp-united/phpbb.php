@@ -10,7 +10,7 @@
 * When in WordPress, we often want to switch between phpBB & WordPress functions
 * By accessing through this class, it ensures that things are done cleanly.
 * This will eventually replace much of the awkward variable swapping that wp-integration-class is
-* doing, and will incorporate wpuAbs abstractions.
+* doing.
 */
 
 /**
@@ -68,7 +68,7 @@ class WPU_Phpbb {
 	 * Loads the phpBB environment if it is not already
 	 */
 	function load($rootPath) {
-		global $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpuAbs, $wpSettings;
+		global $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
 		global $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 		
 		$this->_backup_wp_conflicts();
@@ -81,6 +81,10 @@ class WPU_Phpbb {
 		$this->_make_phpbb_env();
 		
 		require_once($phpbb_root_path . 'common.' . $phpEx);
+		
+		$user->session_begin();
+		$auth->acl($user->data);
+		$user->setup('mods/wp-united');
 
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
@@ -168,8 +172,9 @@ class WPU_Phpbb {
 		$this->_enter_if_out();
 		if ( !empty($key) ) {
 			$result = $GLOBALS['user']->data[$key];
+		} else {
+			$result = $GLOBALS['user']->data;
 		}
-		$result = $GLOBALS['user']->data;
 		$this->_leave_if_just_entered();
 		return $result;		
 	}

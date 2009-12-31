@@ -33,15 +33,14 @@ if ( defined('GET_PORTAL_CONTENT') ) {
 	//	----------------------------------------
 	//
 	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
-	require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);	
-	
+	global $config, $user;
 	$numPosts = 3;
 	if ( defined('GET_NUM_POSTS') ) {
 		$numPosts = (GET_NUM_POSTS > 10) ? 10 : GET_NUM_POSTS;
 		$numPosts = ($numPosts < 1) ? 3 : $numPosts;
 	}
-	$server = add_http(add_trailing_slash($wpuAbs->config('server_name')));
-	$scriptPath = add_trailing_slash($wpuAbs->config('script_path'));
+	$server = add_http(add_trailing_slash($config['server_name']));
+	$scriptPath = add_trailing_slash($config['script_path']);
 	$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 	$scriptPath = $server . $scriptPath;
 
@@ -72,10 +71,10 @@ if ( defined('GET_PORTAL_CONTENT') ) {
 			);
 		} 
 	$template->assign_vars(array(
-		'LATEST_BLOG_POSTS' => $wpuAbs->lang('Latest_Blog_Posts'),
-		'ARTICLE_BY' => $wpuAbs->lang('Article_By'),
-		'WP_CATEGORY' => $wpuAbs->lang('WP_Category'),
-		'WP_POSTED_ON' => $wpuAbs->lang('WP_Posted_On'))
+		'LATEST_BLOG_POSTS' => $user->lang['Latest_Blog_Posts'),
+		'ARTICLE_BY' => $user->lang['Article_By'),
+		'WP_CATEGORY' => $user->lang['WP_Category'),
+		'WP_POSTED_ON' => $user->lang['WP_Posted_On'))
 	);
 	}
 	

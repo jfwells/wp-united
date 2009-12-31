@@ -17,14 +17,14 @@ if ( !defined('IN_PHPBB') ) {
 	exit;
 }
 
-/*
- * @todo remove abstractify to proper phpBB abstraction layer
- */
-global $wpuAbs;
-require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
 require_once ($phpbb_root_path . 'wp-united/version.' . $phpEx);
 require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
+
+require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
+$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
 if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED'))) {  
 	if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) {  
 		$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
@@ -39,16 +39,13 @@ if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED'))) {
 function wpu_init(&$hook) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $template;
 
-	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-	require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
-	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 	if  ($wpSettings['installLevel'] == 10) {
 		$template->assign_vars(array(
 			'U_BLOG'	 =>	append_sid($GLOBALS['wpSettings']['blogsUri']),
 			'S_BLOG'	=>	TRUE,
 		));  
 		//Do a reverse integration?
-		if ($wpSettings['showHdrFtr'] == 'REV') {
+		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 			if (empty($gen_simple_header)) {
 				define('WPU_REVERSE_INTEGRATION', true);
 				ob_start();

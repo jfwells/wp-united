@@ -28,27 +28,30 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later
 	$wpStyleLoc = ( $wpSettings['cssFirst'] == 'P' ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
-	$template->assign_vars(array($wpStyleLoc => "<!--[**HEAD_MARKER**]-->"));
 	
-	$wpuAbs->add_template_switch('S_SHOW_HDR_FTR', TRUE);
-	// We need to set the base HREF correctly, so that images and links in the phpBB header and footer work properly
-	$wpuAbs->add_template_switch('PHPBB_BASE', $phpbbForum->url);
+	$template->assign_vars(array(
+		$wpStyleLoc => '<!--[**HEAD_MARKER**]-->',
+		'S_SHOW_HDR_FTR' => TRUE,
+		// We need to set the base HREF correctly, so that images and links in the phpBB header and footer work properly
+		'PHPBB_BASE' =>  $phpbbForum->url
+	));
 	
 	
 	// If the user wants CSS magic, we will need to inspect the phpBB Head, so we buffer the output 
 	ob_start();
-	page_header("[**PAGE_TITLE**]");
+	page_header('[**PAGE_TITLE**]');
 	
 	
 	$template->assign_vars(array(
-		'WORDPRESS_BODY' => "<!--[**INNER_CONTENT**]-->",
-		'WP_CREDIT' => sprintf($wpuAbs->lang('WPU_Credit'), '<a href="http://www.wp-united.com" target="_blank">', '</a>'))
-	); 
+		'WORDPRESS_BODY' => '<!--[**INNER_CONTENT**]-->',
+		'WP_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com" target="_blank">', '</a>')
+		)); 
 	
 	//Stop phpBB from exiting
 	define('PHPBB_EXIT_DISABLED', true);
 
-	$wpuAbs->show_body('blog');
+	$template->set_filenames(array( 'body' => 'blog.html') ); 
+	page_footer();
 	
 	//restore the DB connection that phpBB tried to close
 	$GLOBALS['db'] = $GLOBALS['bckDB'];
@@ -65,9 +68,8 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 
 // Add copyright comment to the bottom of the page. It is also useful as a quick check to see if users actually have
 // WP-United installed.
-$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2009 www.wp-united.com \n-->\n\n";
+$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2010 www.wp-united.com \n-->\n\n";
 $innerContent = $innerContent . $copy;
-
 
 /**
  * Clean up the WordPress body content as necessary
@@ -79,7 +81,7 @@ $$wpContentVar = str_replace(".$phpEx/\"",  ".$phpEx\"", $$wpContentVar);
 
 // re-point login/out links
 if ( !empty($wpSettings['integrateLogin']) ) {
-	$login_link = 'ucp.'.$phpEx.'?mode=login&amp;sid=' . $phpbb_sid . '&amp;redirect=';
+	$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
 
 	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
 	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
@@ -129,7 +131,7 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
 		if(preg_match('/<div id="search-box">[\s\S]*?<\/div>/', $innerContent, $srchBox)) {
 			$srchBox = $srchBox[0];
 		}
-		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';		$innerContent2 = preg_replace($token, '<br /><div class="navbar">', $innerContent, 1);
+		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';		$innerContent2 = preg_replace($token, '<br /><div class="navbar">', $innerContent);
 		$pHeadRemSuccess = ($innerContent2 != $innerContent); // count paramater to preg_replace only available in php5 :-(
 		$innerContent = $innerContent2; unset($innerContent2);
 	}
@@ -189,7 +191,7 @@ if (!empty($wpSettings['cssMagic'])) {
 		$foundInner = array();
 		$foundOuter = array();
 
-		foreach ($innerSSLinks['keys'] as $index => $key) {
+		foreach ((array)$innerSSLinks['keys'] as $index => $key) {
 			if($found = $wpuCache->get_css_magic($wpSettings['styleKeys'][$key], "inner", -1)) {
 				$foundInner[] = $found;
 				$innerSSLinks['replacements'][$index] .=  "[*FOUND*]";
@@ -372,12 +374,10 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
  * Processes the page head, returns header info to be inserted into the WP or phpBB page head.
  * Removes the head from the rest of the page.
  * @param string $retWpInc The page content for modification, must be passed by reference.
- * @param string $template The phpBB template object
- * @param abstractify $wpuAbs The WP-United phpBB abstraction layer object.
  * @return string the page <HEAD>
  */
 function process_head(&$retWpInc) {
-	global $wpSettings, $template, $wpuAbs;
+	global $wpSettings, $template;
 	//Locate where the WordPress <body> begins, and snip of everything above and including the statement
 	$bodyLocStart = strpos($retWpInc, "<body");
 	$bodyLoc = strpos($retWpInc, ">", $bodyLocStart);
@@ -409,7 +409,7 @@ function process_head(&$retWpInc) {
 	//get the DTD if we're doing DTD switching
 		if ( ($wpSettings['dtdSwitch']) && !defined('WPU_REVERSE_INTEGRATION') ) {
 			$wp_dtd = head_snip($wpHead, array('<!DOCTYPE' => '>'));
-			$wpuAbs->add_template_switch('WP_DTD', $wp_dtd);
+			$template->assign_var('WP_DTD', $wp_dtd);
 		}
 
 	//fix font sizes coded in pixels  by phpBB -- un-comment this line if WordPress text looks too small

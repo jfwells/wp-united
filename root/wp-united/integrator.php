@@ -43,6 +43,13 @@ if ( !defined('IN_PHPBB') ) exit;
 // It is also another way to test that things are running OK from the WordPress side.
 define('WP_UNITED_ENTRY', 1);
 
+// There are several variables we need to have around in the global scope. We only need to
+// do this if we are being called from a function, but for convenience, we just do it anyway
+global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $template, $latest, $wpu_page_title, $wp_version, $lDebug, $wpuPluginFixer, $phpbbForum;
+global $innerHeadInfo, $innerContent;
+global $db, $config, $user, $auth, $config, $template;
+$lDebug = '';
+
 // Start measuring script execution time
 global $wpuScriptTime;
 if(isset($GLOBALS['starttime'])) {
@@ -52,32 +59,20 @@ if(isset($GLOBALS['starttime'])) {
 	$wpuScriptTime = $starttime[1] + $starttime[0];
 }
 
-
-// All accesses via blog.php will already have some required files included. If we're being called from elsewhere
-// or via a callback, we need to include them
-// abstractify also pulls in mod-settings.php
-if ( !defined('WPU_BLOG_PAGE') ) {
-	global $wpuAbs;
-	require_once($phpbb_root_path . 'wp-united/abstractify.' . $phpEx);
+// Add lang if this is not a blog.php wordpress page
+if(!defined('WPU_BLOG_PAGE')) {
+	$user->add_lang('mods/wp-united');
 }
+
 
 // More required files
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 
 
-// There are several variables we need to have around in the global scope. We only need to
-// do this if we are being called from a function, but for convenience, we just do it anyway
-global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $template, $latest, $wpu_page_title, $wp_version, $lDebug, $wpuPluginFixer, $phpbbForum;
-global $innerHeadInfo, $innerContent;
-global $db, $config;
-$lDebug = '';
-
-
-
 //Initialise the cache
 global $wpuCache;
-$GLOBALS['wpuCache'] = WPU_Cache::getInstance();
+$wpuCache = WPU_Cache::getInstance();
 
 
 // This is another way for WP-United or WordPress elements to test if they are running in the global scope.
@@ -87,42 +82,17 @@ $amIGlobal = true;
 // Our Mod Settings should have been loaded by now. If not, either WP-United hasn't been set up, or something
 // is seriously screwed.
 if  ( $wpSettings == FALSE ) {
-	$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_DBErr_Gen'), 'WordPress Integration Error','','',''); 
+	trigger_error($user->lang['WP_DBErr_Gen']);
 } elseif ( ($wpSettings['installLevel'] < 10) || ($wpSettings['wpUri'] == '') || ($wpSettings['wpPath'] == '') ) {
-	$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_Not_Installed_Yet'), 'WordPress Integration Error','','','');
+	trigger_error($user->lang['WP_Not_Installed_Yet']);
 }
 
-
-// For convenience, we set several variables that are useful in WordPress. Most template-related strings should be
-// taking place elsewhere, e.g. in template-tags.php, but for some commonly used items which we also use here in
-// integrator.php, it makes sense to declare them up-front.
-
-// set some vars for wpu-plugin to use. 
-global $phpbb_logged_in, $phpbb_username, $phpbb_sid, $login_link, $logout_link;
-$phpbb_logged_in = $wpuAbs->user_logged_in();
-$phpbb_username = $wpuAbs->phpbb_username();
-$phpbb_sid = $wpuAbs->phpbb_sid();
 
 // redirect to login if not logged in and blogs are private
-if ( (!$wpuAbs->user_logged_in()) && ($wpSettings['mustLogin'])  && (!defined('WPU_REVERSE_INTEGRATION')) ) {
-   redirect($login_link, true);
+if ( (empty($user->data['is_registered'])) && ($wpSettings['mustLogin'])  && (!defined('WPU_REVERSE_INTEGRATION')) ) {
+ redirect(append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . urlencode($_SERVER["REQUEST_URI"])));	
 }
 
-
-
-// set some strings for the WordPress page
-global $wpuGetBlog, $wpuGetBlogIntro;
-if ( $phpbb_logged_in ) {
-	if ( $wpuAbs->userdata('user_wpublog_id') ) {
-		$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $wpuAbs->lang('add_to_blog') : $wpuAbs->lang('go_wp_admin');
-		$wpuGetBlogIntro = $wpuAbs->lang('blog_intro_add');
-	} else {
-		$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $wpuAbs->lang('get_blog') : $wpuAbs->lang('go_wp_admin');
-		$wpuGetBlogIntro = $wpuAbs->lang('blog_intro_get');
-	}
-} else {
-	$wpuGetBlogIntro =  ($wpSettings['usersOwnBlogs']) ? $wpuAbs->lang('blog_intro_loginreg_ownblogs') : $wpuAbs->lang('blog_intro_loginreg');
-}
 
 // When PermaLinks are turned on, a trailing slash is added to the blog.php. Some templates also have trailing slashes hard-coded.
 // This results in a single slash in PATH_INFO, which screws up WP_Query.
@@ -151,7 +121,7 @@ if ( isset($HTTP_GET_VARS['numposts']) ) {
  * Initialise cache
  */
 $useCache = false;
-if ( defined('WPU_REVERSE_INTEGRATION') ) {
+if ( defined('WPU_REVERSE_INTEGRATION') ) { 
 	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
 	if ( !empty($wpSettings['wpSimpleHdr']) ) {
 		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) { 
@@ -174,7 +144,7 @@ $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerCo
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
 
-if ( !$wpuCache->use_template_cache() ) { 
+if ( !$wpuCache->use_template_cache() ) {
 	require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 	$wpUtdInt = WPU_Integration::getInstance();
 
@@ -199,7 +169,7 @@ if ( !$wpuCache->use_template_cache() ) {
 		$connectSuccess = true;
 		
 	} else {
-		$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('WP_Not_Installed_Yet'), '','','');
+		trigger_error($user->lang['WP_Not_Installed_Yet']);
 	}
 }
 
@@ -323,7 +293,7 @@ require($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
 function wpu_complete() {
 	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
 	global $innerHeadInfo, $innerContent;
-	global $wpContentVar, $lDebug, $outerContent, $wpuAbs, $phpbb_root_path, $phpEx, $wpuCache, $config;
+	global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCache, $config, $auth;
 	
 	$$wpContentVar = ob_get_contents();
 	ob_end_clean();

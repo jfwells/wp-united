@@ -94,10 +94,8 @@ function wpu_html_to_bbcode(&$string, $uid) {
 	$string = str_replace('&quot;', '"', $string); 
 	$string = str_replace('&amp;', '&', $string); 
 	
-	//remove uid if phpBB3
-	if ($GLOBALS['wpuAbs']->ver == 'PHPBB3') {
-		$string = str_replace(':' . $uid, '', $string);
-	}
+
+	$string = str_replace(':' . $uid, '', $string);
 } 
 
 /**

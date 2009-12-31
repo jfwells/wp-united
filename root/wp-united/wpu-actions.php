@@ -51,7 +51,7 @@ class WPU_Actions {
 	 * Updates the WordPress user profile when the phpBB profile is updated
 	 */
 	function profile_update($mode, $phpbb_id, $integration_id, $data) {
-		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $db;
+		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $db, $user;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
@@ -63,7 +63,7 @@ class WPU_Actions {
 					FROM " . USERS_TABLE . " 
 					WHERE user_id = $phpbb_id";
 				if (!$result = $db->sql_query($sql)) {
-					$wpuAbs->err_msg(GENERAL_ERROR, $wpuAbs->lang('L_MAP_COULDNT_INT'), $wpuAbs->lang('L_DB_ERROR'), __LINE__, __FILE__, $sql);
+					trigger_error($user->lang['L_MAP_COULDNT_INT'] . '<br />' .  $user->lang['L_DB_ERROR']);
 				}
 				$user_data = $db->sql_fetchrow($result);
 				$db->sql_freeresult($result);
@@ -151,7 +151,7 @@ class WPU_Actions {
 	 * adds blog links to users' profiles.
 	 */
 	function generate_profile_link($bloglink_id, &$template) {
-		global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
+		global $wpSettings, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
@@ -176,7 +176,7 @@ class WPU_Actions {
 	 * @todo set blog images for subSilver template
 	 */
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
-		global $wpSettings, $wpuAbs, $phpbb_root_path, $phpEx;
+		global $wpSettings, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
