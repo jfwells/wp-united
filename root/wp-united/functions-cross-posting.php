@@ -194,8 +194,9 @@ function wpu_get_xposted_details($postID = false) {
 	}
 	global $db;
 	
-	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . FORUMS_TABLE . ' AS f WHERE ' .
+	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, f.forum_name, t.topic_replies FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
 		"p.post_wpu_xpost = $postID AND " .
+		't.topic_id = p.topic_id and ' .
 		'f.forum_id = p.forum_id';
 	if ($result = $db->sql_query_limit($sql, 1)) {
 		$row = $db->sql_fetchrow($result);
@@ -249,7 +250,7 @@ function wpu_get_forced_forum_name($forumID) {
  */
 function wpu_load_phpbb_comments($commentArray, $postID) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
-	
+
 	if ( 
 		(empty($phpbb_root_path)) || 
 		(empty($wpSettings['xposting'])) || 
@@ -288,16 +289,36 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 /**
  * Returns the number of follow-up posts in phpBB in response to the cross-posted blog post
  * @since v0.8.0
+ * @param int $count a WordPress comment count to be returned if the post is not cross-posted
+ * @param int $postID the WordPress post ID
  */
 function wpu_comments_count($count, $postID) {
-	global $wp_query, $usePhpBBComments;
+	global $wp_query, $usePhpBBComments, $phpbbForum, $wpSettings, $phpbb_root_path;
 
+	// if we already have the xposted details, use those
 	if ( !empty($usePhpBBComments) ) {
 		return sizeof($wp_query->comments);
+	} 
+	// else, get the details
+	if ( 
+		(empty($phpbb_root_path)) || 
+		(empty($wpSettings['xposting'])) || 
+		(empty($wpSettings['xpostautolink'])) 
+	) {
+		return $count;
 	}
+	$phpbbForum->enter();
+	
+	if ( $xPostDetails = wpu_get_xposted_details($postID) ) { 
+		$count = $xPostDetails['topic_replies'];
+	}
+
+	$phpbbForum->leave();
 	
 	return $count;
+
 }
+
 
 /**
  * If the blog post is cross-posted, and comments are redirected from phpBB,
@@ -362,13 +383,14 @@ function wpu_comment_redirector($postID) {
 		'forum_name'		=> '',
 		'enable_indexing'	=> true,
 	); 
+
 	$postUrl = submit_post('reply', $subject, $phpbbForum->get_username(), POST_NORMAL, $poll, $data);
 
 	$phpbbForum->leave();
 	
-	$location = empty($_POST['redirect_to']) ? get_comment_link($comment_id) : $_POST['redirect_to'] . '#comment-' . $comment_id;
-	$location = apply_filters('comment_post_redirect', $location, $comment);
-	wp_redirect($location);
+	// We redirect back to the forum, because we cannot make a reliable WordPress comment link to redirect to.
+	$location = str_replace(array('&amp;', $phpbb_root_path), array('&', $phpbbForum->url), $postUrl);
+	wp_redirect($location); exit();
 }
 
 ?>

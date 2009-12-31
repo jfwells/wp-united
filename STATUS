@@ -48,6 +48,7 @@ Under consideration for v0.8:
 Overall architecture: Remove subdomain restrictions
 Overall architecture: Plugin fixes extend more general compatibility class -- to allow for simple "compatibility slider" in v0.9
 Overall architecture: Script path, URL, etc. still too hard to calculate, messy
+To allow for redirects on logout, buffer ucp.php via proxy file
 
 ============================================
 
@@ -142,3 +143,5 @@ DONE / COMMITTED
 - Plugin: Logout etc. links now showing in dashboard (thanks JG)
 - bbCode now works in cross-posted comments
 - dates fixed in cross-posting
+- Comment counts fixed
+- Comment redirection and preventing WordPress post on phpBB cross-posted comments working
