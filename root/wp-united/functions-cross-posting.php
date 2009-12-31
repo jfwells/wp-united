@@ -335,6 +335,7 @@ function wpu_comment_redirector($postID) {
 	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
 	
 	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
+	$content = utf8_normalize_nfc($content);
 	$uid = $poll = $bitfield = $options = ''; 
 	generate_text_for_storage($content, $uid, $bitfield, $options, true, true, true);
 

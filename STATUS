@@ -10,8 +10,7 @@ TODO
 
 Forum Page option should be equally available in all scenarios, even unintegrated, and be an ACP option.
 
-Cross-posting: Fix dates + finish bbcode translation
-WordPress detection: Stop using config file
+Cross-posting: Fix dates
 Widgets: Direct link to ACP no longer works with new phpBB form nonce
 
 Cache: Everything should use filemtime checking where possible
@@ -21,11 +20,12 @@ Plugin: Remove full_path_to_pluigin -- try replacing with __FILE__
 Plugin: wpu_must_integrate being called on template_redirect is probably not good -- disabled for now.  Review.
 Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
-Login debug not working: Combine with status
+Login debug not working: Combine with statistics (NOTE: is ON in options.php)
 
 ACP: wpu-plugin copy doesn't need to look for magic version variable, just use filemtime instead.
 ACP: remove header fix, and split out "advanced" options to simplify install
 ACP: Remove stylesFirst option to options.php
+ACP: Remove unnecessary wpu connection parameters that we aren't using any more
 
 Plugin: Ensure WordPress' $user->display_name (= $user_identity) is being set by phpBB when logins are integrated (it should be).
 Plugin: Remove v0.6x flat redirection to phpBB for user editing, go back to buffering the dashboard instead
@@ -141,3 +141,4 @@ DONE / COMMITTED
 - Fixed broken WP Login / logout etc. links
 - removed $phpbb_sid, etc, and wpuGetxxx from integrator.php
 - Plugin: Logout etc. links now showing in dashboard (thanks JG)
+- bbCode now works in cross-posted comments
