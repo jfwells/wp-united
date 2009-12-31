@@ -10,7 +10,6 @@ TODO
 
 Forum Page option should be equally available in all scenarios, even unintegrated, and be an ACP option.
 
-Cross-posting: Fix dates
 Widgets: Direct link to ACP no longer works with new phpBB form nonce
 
 Cache: Everything should use filemtime checking where possible
@@ -142,3 +141,4 @@ DONE / COMMITTED
 - removed $phpbb_sid, etc, and wpuGetxxx from integrator.php
 - Plugin: Logout etc. links now showing in dashboard (thanks JG)
 - bbCode now works in cross-posted comments
+- dates fixed in cross-posting

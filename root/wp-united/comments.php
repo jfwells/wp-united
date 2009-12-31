@@ -103,7 +103,7 @@ class WPU_Comments {
 						'comment_author_url' => $link,
 						'comment_author_IP' => $comment['poster_ip'],
 						'comment_date' => $user->format_date($comment['post_time']),
-						//'comment_date_gmt' => $user->format_date($comment['post_time']),
+						'comment_date_gmt' =>  get_gmt_from_date($user->format_date($comment['post_time'])),
 						'comment_content' => generate_text_for_display($comment['post_text'], $comment['bbcode_uid'], $comment['bbcode_bitfield'], $comment['enable_bbcode']),
 						'comment_karma' => 0,
 						'comment_approved' => 1,
