@@ -56,8 +56,8 @@ function wpu_init_plugin() {
 		$phpbbForum->load($phpbb_root_path);
 
 		if(is_admin()) { // try not to let things like the mandigo theme, which invoke wordpress just to generate some CSS, load in our widgets.
-			include_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
-			include_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
+			require_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
+			require_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
 			add_action('widgets_init', 'wpu_widgets_init');	
 		}
 		
@@ -331,7 +331,7 @@ function wpu_adminmenu_init() {
  
  
 /**
- * Displays the top-leel menu for WP-United, "Your Blog".
+ * Displays the top-level menu for WP-United, "Your Blog".
  */
 function wpu_menuTopLevel() {
 	if ( isset($_GET['wputab']) ) {
@@ -1195,7 +1195,7 @@ function wpu_clear_header_cache() {
  * Add box to the write/(edit) post page.
  */
 function wpu_add_postboxes() {
-	global $wp_version, $can_xpost_forumlist, $already_xposted, $phpbbFoum;
+	global $wp_version, $can_xpost_forumlist, $already_xposted, $phpbbForum;
 
 	if ( $wp_version >= 2.5 ) { ?> 
 		<div id="wpuxpostdiv" class="inside">
@@ -1262,13 +1262,13 @@ function wpu_add_meta_box() {
 			//Add the cross-posting box if enabled and the user has forums they can post to
 			if ( !empty($wpSettings['xposting']) && !empty($wpSettings['integrateLogin']) ) { 
 				
-				if($wpSettings['xpostforce'] > -1) { 
+				if($wpSettings['xpostforce'] > -1) {
 					// Add forced xposting info box
 					global $forceXPosting;
 					$forceXPosting = wpu_get_forced_forum_name($wpSettings['xpostforce']);
 					if($forceXPosting !== false) {
-						if($wp_version >= 2.5) { 
-							add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_focexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
+						if($wp_version >= 2.5) {
+							add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_forcexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
 						} else {
 							wpu_add_forcebox();
 						}
