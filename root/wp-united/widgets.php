@@ -109,10 +109,10 @@ function wpu_widgets_init() {
 		echo '<p style="text-align:right;"><label for="wpu-user-info-titIn">' . $phpbbForum->lang['wpu_loginbox_panel_loggedin'] . ' <input style="width: 200px;" id="wpu-user-info-titIn" name="wpu-user-info-titIn" type="text" value="'.$titleLoggedIn.'" /></label></p>';
 		echo '<p style="text-align:right;"><label for="wpu-user-info-titOut">' .$phpbbForum->lang['wpu_loginbox_panel_loggedout']  . ' <input style="width: 200px;" id="wpu-user-info-titOut" name="wpu-user-info-titOut" type="text" value="'.$titleLoggedOut.'" /></label></p>';
 		echo '<p style="text-align:right;"><label for="wpu-user-info-rank">' . $phpbbForum->lang['wpu_loginbox_panel_rank'] . ' <input  id="wpu-user-info-rank" name="wpu-user-info-rank" type="checkbox" value="rank" ' . $cbRankValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-new">' . $phpbbForum->lang['wpu_loginbox_newposts'] . ' <input  id="wpu-user-info-new" name="wpu-user-info-new" type="checkbox" value="new" ' . $cbNewValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-write">' . $phpbbForum->lang['wpu_loginbox_write'] . ' <input  id="wpu-user-info-write" name="wpu-user-info-write" type="checkbox" value="write" ' . $cbWriteValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-admin">' .$phpbbForum->lang['wpu_loginbox_admin'] . ' <input  id="wpu-user-info-admin" name="wpu-user-info-admin" type="checkbox" value="admin" ' . $cbAdminValue . ' /></label></p>';
-		echo '<p style="text-align:right;"><label for="wpu-user-info-form">' . $phpbbForum->lang['wpu_loginbox_loginform'] . ' <input  id="wpu-user-info-form" name="wpu-user-info-form" type="checkbox" value="auto" ' . $cbValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-new">' . $phpbbForum->lang['wpu_loginbox_panel_newposts'] . ' <input  id="wpu-user-info-new" name="wpu-user-info-new" type="checkbox" value="new" ' . $cbNewValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-write">' . $phpbbForum->lang['wpu_loginbox_panel_write'] . ' <input  id="wpu-user-info-write" name="wpu-user-info-write" type="checkbox" value="write" ' . $cbWriteValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-admin">' .$phpbbForum->lang['wpu_loginbox_panel_admin'] . ' <input  id="wpu-user-info-admin" name="wpu-user-info-admin" type="checkbox" value="admin" ' . $cbAdminValue . ' /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-user-info-form">' . $phpbbForum->lang['wpu_loginbox_panel_loginform'] . ' <input  id="wpu-user-info-form" name="wpu-user-info-form" type="checkbox" value="auto" ' . $cbValue . ' /></label></p>';
 
 		echo '<input type="hidden" id="widget_wpu_login_user_info" name="widget_wpu_login_user_info" value="1" />';
 	}
@@ -459,16 +459,16 @@ function wpu_widgets_init() {
 	 * The widgets are all registered here
 	 */
 	
-	global $wpSettings;
+	global $wpSettings, $phpbbForum;
 	
-	register_sidebar_widget(array('WP-United Login/User Info', 'widgets'), 'widget_wpu_login_user_info');
-	register_sidebar_widget(array('WP-United Latest phpBB Topics', 'widgets'), 'widget_wpulatestphpbbtopics');
-	register_sidebar_widget(array('WP-United Forum Statistics', 'widgets'), 'widget_wpustats');
-	register_sidebar_widget(array('WP-United Latest phpBB Posts', 'widgets'), 'widget_wpulatestphpbbposts');
-	register_sidebar_widget(array('WP-United Users Online', 'widgets'), 'widget_wpuusersonline');
+	register_sidebar_widget(array($phpbbForum->lang['wpu_loginbox_desc'], 'widgets'), 'widget_wpu_login_user_info');
+	register_sidebar_widget(array($phpbbForum->lang['wpu_forumtopics_desc'], 'widgets'), 'widget_wpulatestphpbbtopics');
+	register_sidebar_widget(array($phpbbForum->lang['wpu_stats_desc'], 'widgets'), 'widget_wpustats');
+	register_sidebar_widget(array($phpbbForum->lang['wpu_forumposts_desc'], 'widgets'), 'widget_wpulatestphpbbposts');
+	register_sidebar_widget(array($phpbbForum->lang['wpu_online_desc'], 'widgets'), 'widget_wpuusersonline');
 	if(!empty($wpSettings['usersOwnBlogs'])) {
-		register_sidebar_widget(array('WP-United Recently Updated Blogs List', 'widgets'), 'widget_wpulatestblogs');
-		register_sidebar_widget(array('WP-United Recent Posts in Blogs', 'widgets'), 'widget_wpulatestblogposts');	
+		register_sidebar_widget(array($phpbbForum->lang['wpu_bloglist_desc'], 'widgets'), 'widget_wpulatestblogs');
+		register_sidebar_widget(array($phpbbForum->lang['wpu_blogposts_desc'], 'widgets'), 'widget_wpulatestblogposts');	
 	}
 	/**
 	 * Register all control panes

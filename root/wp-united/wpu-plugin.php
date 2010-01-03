@@ -92,9 +92,8 @@ function wpu_init_plugin() {
  */
 function wpu_modify_pagelink($permalink, $post) {
 	global $wpSettings, $phpbbForum;
-	static $forumPage;
 	
-	if ( ($wpSettings['showHdrFtr'] == 'REV') && (empty($wpSettings['wpSimpleHdr'])) ) {
+	if ( !empty($wpSettings['useForumPage']) ) {
 		$forumPage = get_option('wpu_set_forum');
 		if(!empty($forumPage) && ($forumPage == $post)) {
 			return $phpbbForum->url;
@@ -317,13 +316,7 @@ function wpu_adminmenu_init() {
 			if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
 				if ( (current_user_can('publish_posts')) && ($wpSettings['usersOwnBlogs']==1) )  {
 					wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin']);
-				} else { 
-					wp_redirect($phpbbForum->url.'ucp.' . $phpEx);
 				}
-			}
-			//Redirect the edit users page (just in case)
-			if(preg_match('|/wp-admin/user-edit.php|', $_SERVER['REQUEST_URI'])) {
-				wp_redirect('users.php');
 			}
 		}
 	}
@@ -788,9 +781,9 @@ function wpu_get_stylesheet($default) {
 function wpu_loginoutlink($loginLink) {
 	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		$phpbbForum->enter();
-		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout');
-		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]));		
+		$phpbbForum->enter(); 
+		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout', false, false, $GLOBALS['user']->session_id);
+		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]), false, false, $GLOBALS['user']->session_id);		
 		$phpbbForum->leave();
 		if ( $phpbbForum->user_logged_in() ) {
 			$u_login_logout = $phpbbForum->url . $logout_link;
@@ -811,7 +804,9 @@ function wpu_loginoutlink($loginLink) {
 function wpu_logout_url($logoutLink, $redirect) {
 	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		$logoutLink = $phpbbForum->url . append_sid('ucp.'.$phpEx.'?mode=logout');
+		$phpbbForum->enter();
+		$logoutLink = $phpbbForum->url . append_sid('ucp.'.$phpEx.'?mode=logout', false, false, $GLOBALS['user']->session_id);
+		$phpbbForum->leave();
 	}
 	return $logoutLink;
 }
@@ -888,15 +883,8 @@ function wpu_newpost($post_ID, $post) {
 				}
 				$db->sql_freeresult($result);
 			}
-			
-			// Cross-post to forums if necessary
-			$tryXPost = ( (isset($_POST['chk_wpuxpost'])) || 
-								   (isset($_POST['wpu_already_xposted_post'])) || 
-								   ($wpSettings['xpostforce'] > -1) 
-			);
 
-			if ( $tryXPost && ($phpbbForum->user_logged_in()) && (!empty($wpSettings['xposting'])) ) {
-				
+			if ( ($phpbbForum->user_logged_in()) && (!empty($wpSettings['xposting'])) ) {
 				$did_xPost = wpu_do_crosspost($post_ID, $post);
 			} 
 
@@ -1313,7 +1301,8 @@ function wpu_admin_init( ) {
 		}
 	}
 	// 'Fix' the profile page
-	if(preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
+	if ( (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) || 
+		(preg_match('|/wp-admin/user-edit.php|', $_SERVER['REQUEST_URI'])) ) {
 		ob_start('wpu_buffer_profile');
 	}
 }
@@ -1329,25 +1318,63 @@ function wpu_admin_init( ) {
 }
 	
 /**
- * Buffers the profile page, so it can be modified
- * @todo this is not curently being used, reinstate it
+ * Buffers the profile and user-edit page, so it can be modified
  */
 function wpu_buffer_profile($output) {
-	define('WPU_ALTER_PROFILE', TRUE);
-	$pattern = '/<div class="wrap">.*?<div id="footer">/si';
-	return preg_replace_callback($pattern, 'wpu_menuTopLevel', $output);
+	global $wpSettings, $phpbbForum, $phpEx, $profileuser;
+	if(($wpSettings['integrateLogin']) && ($id = get_wpu_user_id($profileuser->ID))) {
+		define('WPU_ALTER_PROFILE', TRUE);
+		
+		// We directly edit the profile page. We need to keep the e-mail field around, so hide it.
+		$emailField = '<input type="hidden" name="email" id="email" value="' .  esc_attr($profileuser->user_email) . '" />';
+		$output = preg_replace('/<h3>' . __('Contact Info') . '[\s\S]*<h3>/i', $emailField . '<h3>' , $output);
+		
+		
+		$profileLink = (IS_PROFILE_PAGE) ? $phpbbForum->url . 'ucp.' . $phpEx : get_wpu_phpbb_profile_link($profileuser->ID);
+		
+		$forumString = (IS_PROFILE_PAGE) ? $phpbbForum->lang['wpu_profile_edit_use_phpbb'] : $phpbbForum->lang['wpu_user_edit_use_phpbb'];
+		
+		$output = str_replace('<h3>' .  __('Personal Options'), '<p><em>' . sprintf($forumString, '<a href="' . $profileLink . '">', '</a>') . '</em></p><h3>' .  __('Personal Options'), $output);
+		
+		
+		return $output;
+	}
 }	
 	
 
 /**
- * Removes edit links, etc. from users.php
- * @todo this is not currently being used, reinstate it
+ * Modifies users.php to show appropriate links
  */
 function wpu_buffer_userspanel($panelContent) {
-	global $phpbbForum;
-	$token = array("/<td><a(.*)[^<>]>" . __('Edit') . "<\/a><\/td>/", '/' . __('User List by Role') . "<\/h2>/");
-	$replace = array('', __('User List by Role') . "</h2>\n<p>" . $phpbbForum->lang['wpu_user_edit_use_phpbb'] . "</p>\n");
-	$panelContent= preg_replace($token, $replace, $panelContent);
+	global $phpbbForum, $phpEx, $wpSettings;
+	if(!$wpSettings['integrateLogin']) {
+		return $panelContent;
+	}
+
+	// General message
+	$panelContent = str_replace('</h2>', '</h2><p><em>' . $phpbbForum->lang['wpu_userpanel_use_phpbb'] . '</em></p>', $panelContent);
+	
+	
+	// current user, if integrated
+	if(get_wpu_user_id()) {
+		$token = '/(profile\.php">' . __('Edit') . ')/';
+		$replace = '$1</a> | </span><span class="edit"><a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '">' . $phpbbForum->lang['edit_phpbb_details'];
+		$panelContent = preg_replace($token, $replace, $panelContent);
+	}
+	// Other users -- Add additional link to edit phpBB details if they are integrated
+	$token = '/(user-edit\.php\?user_id=([0-9]+)[^>]*">' . __('Edit') . ')/';
+	if(preg_match_all($token, $panelContent, $matches)) {
+		foreach($matches[2] as $key => $id) {
+			if($pLink = get_wpu_phpbb_profile_link($id)){
+				 // $phpbbForum->url . 'ucp.' . $phpEx ;
+				$replace = $matches[1][$key] . '</a> | </span><span class="edit"><a href="' . $pLink . '">' . $phpbbForum->lang['edit_phpbb_details'];
+				$panelContent= str_replace($matches[1][$key], $replace, $panelContent);
+			}
+		}
+	}
+	
+	
+	
 	return $panelContent;
 }
 
@@ -1598,6 +1625,17 @@ function wpu_fix_blank_username($user_login) {
 	return $user_login;
 }
 
+/**
+Stops the password fields from showing on the profile page if the user is integrated
+*/
+function wpu_disable_passchange($state, $profileUser) {
+	global $wpSettings;
+	if(($wpSettings['integrateLogin']) && (get_wpu_user_id($profileUser->ID))) {
+			return false;
+	}
+	return $state;
+}
+
 
 
 /**
@@ -1651,9 +1689,11 @@ if ( isset($_GET['wputab']) ) {
 		add_action('admin_init', 'wpu_prepare_admin_pages');
 	}
 }
+/**
 if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
 	add_action('init', 'wpu_disable_wp_login');
 }
+*/
 
 add_filter('template', 'wpu_get_template');
 add_filter('stylesheet', 'wpu_get_stylesheet');
@@ -1677,6 +1717,8 @@ add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
 add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
 
 add_filter('logout_url', 'wpu_logout_url', 10, 2);
+
+add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
 
 
 //per-user cats in progress

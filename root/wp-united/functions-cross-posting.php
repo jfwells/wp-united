@@ -29,16 +29,6 @@ function wpu_do_crosspost($postID, $post) {
 	} else if ($wpSettings['xpostforce'] > -1) {
 		$forum_id = $wpSettings['xpostforce'];
 	}
-	
-	/**
-	 * cross-post check-box and forum selector will be filled in, 
-	 * OR the already-xposted box will be shown,
-	 * OR xpost-forcing is on
-	 */
-	// We do a proper check for already-xposted below, too.
-	if ( ($forum_id  === false) && (!isset($_POST['wpu_already_xposted_post'])) ) { 
-		return false;
-	}
 
 	$phpbbForum->enter();
 	
@@ -48,10 +38,14 @@ function wpu_do_crosspost($postID, $post) {
 	
 	// If this is already cross-posted, then edit the post
 	$details = wpu_get_xposted_details($postID);
+	if(($forum_id === false) && ($details === false)) {
+		return false;
+	}
+	
 	if($details !== false) {
 		if(isset($details['post_id'])) {
 			$mode = 'edit';
-			$subject = $details['post_subject'];
+			//$subject = $details['post_subject']; // commented, because we may want to edit the post title after xposting
 			$forum_id = $details['forum_id'];
 			$data['topic_id'] = $details['topic_id'];
 			$data['post_id'] = $details['post_id'];

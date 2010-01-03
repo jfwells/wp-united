@@ -1,16 +1,23 @@
 Actions remaining for release of v0.8
 -------------------------------------------------
 This is more of a general todo list so that I (John) can prioritise changes 
-and stick to a release date. See code documentation for a full list of @todos. 
+and (try to) stick to a release date. See code documentation for a full list of @todos. 
 Al full list of bugs is in the forum bug tracker.
 The "DONE" section only contains changes in the final run-up to release
 
 TODO
 --------
 
-Forum Page option should be equally available in all scenarios, even unintegrated, and be an ACP option.
 
-Widgets: Direct link to ACP no longer works with new phpBB form nonce
+Get wpu_menuSettings() to use new buffered profile page for blog settings
+Remove all old redirects associated with profile editing
+Add phpBB general message to users.php
+
+-- General Error template->_tpl_load(): No file specified for handle body on registration complete
+
+media page reported to be dying
+
+$_SID is not getting set, so append_sid() does nothing without forced param
 
 Cache: Everything should use filemtime checking where possible
 Cache: Align all calls
@@ -145,3 +152,12 @@ DONE / COMMITTED
 - dates fixed in cross-posting
 - Comment counts fixed
 - Comment redirection and preventing WordPress post on phpBB cross-posted comments working
+- New forum page option on step 1 auto-creates forum link page in WordPress, rather than it being turned on only for reverse template integrations.
+- Fixed widget control panes not showing
+- Fixed new widget bugs due to new phpB lang
+- Fixed ACP link and logout in userinfo widget. However, in general this is failing because $_SID is not getting set, so append_sid() does nothing TODO: check
+- Editing posts using quick Edit now updates the cross-posted post too
+- Proper fix for editing of profile fields in phpBB & WP in progress
+-- Added links to edit phpBB profile or administer user in users.php if that user is integrated 
+-- Reinstated buffering of profile.php and user-edit.php when that user is integrated
+-- Added phpbb message to profile.php and user-edit.php if that user is integrated

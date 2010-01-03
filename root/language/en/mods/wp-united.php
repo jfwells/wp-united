@@ -122,7 +122,9 @@ $lang = array_merge($lang, array(
 	'wpu_already_xposted' => 'Already cross-posted (Topic ID = %s)',
 	'wpu_forcexpost_box_title' => 'Forum Posting',
 	'wpu_forcexpost_details' => 'This post will be cross-posted to the forum: \'%s\'',
-	'wpu_user_edit_use_phpbb' => 'NOTE: User profile information can be edited in phpBB',
+	'wpu_user_edit_use_phpbb' => '<strong>NOTE:</strong> Most of this user\'s  information can be administered using the forum. %1sClick here to view/edit%2s.',
+	'wpu_profile_edit_use_phpbb' => '<strong>NOTE:</strong> Most of your  information can be edited in your forum profile. %1sClick here to view/edit%2s.',
+	'wpu_userpanel_use_phpbb' => '<strong>NOTE:</strong> Integrated users\'  information can and should be edited using the forum using the links below.',
 	'wpu_more_smilies' => 'More smilies',
 	'wpu_less_smilies' => 'Less smilies',
 	'wpu_blog_intro' => '%1s, by %2s',
@@ -167,7 +169,8 @@ $lang = array_merge($lang, array(
 	'wpu_online_panel_title' => 'Users Online',
 	'wpu_online_panel_breakdown' => 'Show a breakdown of user types?',
 	'wpu_online_panel_record' => 'Show record number of users?',
-	'wpu_online_panel_legend' => 'Show legend?'
+	'wpu_online_panel_legend' => 'Show legend?',
+	'edit_phpbb_details' => 'Edit forum details'
 	
 
 ));

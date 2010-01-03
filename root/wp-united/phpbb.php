@@ -112,7 +112,7 @@ class WPU_Phpbb {
 	/**
 	 * Enters the phpBB environment
 	 */
-	function enter() {
+	function enter() { 
 		$this->lang = (sizeof($this->phpbbUser->lang)) ? $this->phpbbUser->lang : $this->lang;
 		if($this->state != 'phpbb') {
 			$this->_backup_wp_conflicts();

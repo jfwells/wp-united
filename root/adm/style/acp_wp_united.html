@@ -338,6 +338,10 @@
 				<dt><label for="txtBlogUri">{L_WPWIZARD_BLOGURI_TITLE}</label><br /><span>{L_WPWIZARD_BLOGURI_EXPLAIN1}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN2}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN3}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN4}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN5}</span></dt>
 				<dd><input type="text" id="txtBlogUri" name="txt_BlogsUri" value="{S_BLOGSURI}"  /></dd>
 			</dl>
+			<dl>
+				<dt><label for="txtBlogUri">{L_WPWIZARD_FORUMPG_TITLE}</label><br /><span>{L_WPWIZARD_FORUMPG_EXPLAIN}</span></dt>
+				<dd><input type="radio" id="forumpg" name="rad_ForumPg" value="1" {S_USEFORUMPG_ENABLE} />{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_ForumPg" value="0" {S_USEFORUMPG_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
+			</dl>		
 		</fieldset>
 				
 	
@@ -840,7 +844,6 @@
 	<p style="color: red;" id="noJsMsg">{L_WP_NO_ADV_JS}&nbsp;</p><br />
 	
 	<form action="{S_WPWIZ_ACTION}" method="post">
-		<!-- URL table -->
 		<fieldset>
 			<legend>{L_WPWIZARD_S1B_TH1}</legend>
 			<dl>
@@ -854,7 +857,6 @@
 			<span id="uriResult"><p style="font-weight: bold;" id="uriResultStr">{L_WPWIZ_URITESTRESULT_NOAJAX}&nbsp;</p></span>
 		</fieldset>
 		
-		<!-- Path Table -->
 		<fieldset>
 			<legend>{L_WPWIZARD_S1B_TH2}</legend>
 			<dl>
@@ -864,13 +866,19 @@
 			<span id="pathResult"><p style="font-weight: bold;" id="pathResultStr">{L_WPWIZ_PATHTESTRESULT_NOAJAX}&nbsp;</p></span>
 		</fieldset>
 		
-		<!-- Blog Path Table -->
 		<fieldset>
 			<legend>{L_WPWIZARD_BLOGURI_TH}</legend>
 			<dl>
 				<dt><label for="txtBlogUri">{L_WPWIZARD_BLOGURI_TITLE}</label><br /><span>{L_WPWIZARD_BLOGURI_EXPLAIN1}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN2}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN3}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN4}<br /><br />{L_WPWIZARD_BLOGURI_EXPLAIN5}</span></dt>
 				<dd><input type="text" id="txtBlogUri" name="txt_BlogsUri" value="{S_BLOGSURI}"  /></dd>
 			</dl>
+		</fieldset>
+		<fieldset>
+			<legend>{L_WPWIZARD_FORUMPG_TH}</legend>
+			<dl>
+				<dt><label for="txtBlogUri">{L_WPWIZARD_FORUMPG_TITLE}</label><br /><span>{L_WPWIZARD_FORUMPG_EXPLAIN}</span></dt>
+				<dd><input type="radio" id="forumpg" name="rad_ForumPg" value="1" {S_USEFORUMPG_ENABLE} />{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_ForumPg" value="0" {S_USEFORUMPG_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
+			</dl>	
 		</fieldset>
 		<input type="hidden" name="mode" value="wizard" />
 		<input type="submit" name="Next" value="{L_WPNEXT}" style="float: right;" class="button1" />	

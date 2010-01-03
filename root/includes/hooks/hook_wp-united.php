@@ -48,10 +48,6 @@ function wpu_init(&$hook) {
 
 
 	if  ($wpSettings['installLevel'] == 10) {
-		$template->assign_vars(array(
-			'U_BLOG'	 =>	append_sid($GLOBALS['wpSettings']['blogsUri']),
-			'S_BLOG'	=>	TRUE,
-		));  
 		//Do a reverse integration?
 		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 			if (empty($gen_simple_header)) {
@@ -73,6 +69,13 @@ function wpu_execute(&$hook, $handle) {
 	if ( (!$wpuRunning) &&  ($wpSettings['installLevel'] == 10) ) {
 		$wpuRunning = true;
 		//$hook->remove_hook(array('template', 'display'));
+		
+		$template->assign_vars(array(
+			'U_BLOG'	 =>	append_sid($wpSettings['blogsUri'], false, false, $GLOBALS['user']->session_id),
+			'S_BLOG'	=>	TRUE,
+		));  
+		
+		
 		if (defined('WPU_REVERSE_INTEGRATION')) {
 			$template->display($handle);
 			$innerContent = ob_get_contents();

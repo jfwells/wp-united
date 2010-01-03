@@ -47,6 +47,11 @@ $lang = array_merge($lang, array(
 
 	//  Wizard and Settings Page
 	
+	'WPWIZARD_FORUMPG_TH' =>'Forum Page',
+	'WPWIZARD_FORUMPG_TITLE' =>'Create a WordPress forum page?',
+	'WPWIZARD_FORUMPG_EXPLAIN' =>'If you enable this option, WP-United will create a blank page in your WordPress installation, so that \'Forum\' links appear in your blog. These links will automatically direct to your forum.',
+	
+	
 	'WPWIZ_COMMWINDOW' => 'Status',
 	'WPWIZ_COMMSTATUS' => 'Communicating with server...',
 	'WPWIZ_S5_TITLE' => 'Applying Settings',
@@ -173,7 +178,7 @@ $lang = array_merge($lang, array(
 	'WPPRIVATE_EXPLAIN' => 'If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility',
 	'WPOWNBLOGS_OPTTITLE' => 'The following options must be set if you allow users to have their own blogs...',
 	'WPBLOGLIST_OPTTITLE' => 'The following options must be set if you want to use the blogs listing...',
-	'WPBLOGLIST_HEAD' => 'Blogs Listing <em>(WP 2.1 or later only)</em>',
+	'WPBLOGLIST_HEAD' => 'Blogs Listing</em>',
 	'WPBLOGLIST_TITLE' => 'Blogs listing on Index Page',
 	'WPBLOGLIST_EXPLAIN1' => 'If you select this option, a page will be created that automatically shows a nice list of users\' blogs, with various information such as avatars, last post, etc. If you are running WordPress 2.1, this page will be automatically set as your home page.',
 	'WPBLOGLIST_EXPLAIN2' => 'If you are giving users their own blogs, it is recommended that you turn this option on.',

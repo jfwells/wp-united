@@ -479,12 +479,17 @@ function wpu_phpbb_profile_link($wpID = '') {
  * @param int $wpID the WordPress ID, leave blank for currently logged-in user
  */
 function get_wpu_phpbb_profile_link($wpID = '') {
-	global $phpbbForum;
+	global $phpbbForum, $user_ID, $phpEx;
+	if(empty($wpID)) {
+		get_currentuserinfo();
+		$wpID = $user_ID;
+	}
 	$phpbb_usr_id = get_usermeta($wpID, 'phpbb_userid');
-	if (!empty($usr_data)) {
+	if (!empty($phpbb_usr_id)) {
 		$profile_path = "memberlist.$phpEx";
 		return add_trailing_slash($phpbbForum->url) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
 	}
+	return false;
 }
 
 /**
@@ -753,7 +758,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
  */
 function get_wpu_user_id($wp_userID = '') {
 	global $userdata, $user_ID;
-
+	
 	if (!$wp_userID ) { 
 		get_currentuserinfo();
 		$uID = $userdata->phpbb_userid;	
@@ -821,7 +826,7 @@ function wpu_useronlinelist($args = '') {
  * @example wpu_useronlinelist('before=<li>&after=</li>&showBreakdown=1&showRecord=1&showLegend=1');
  */
 function get_wpu_useronlinelist($args = '') {
-	global $phpbbForum, $template, $user, $auth, $db, $config;
+	global $phpbbForum, $template, $auth, $db, $config, $user;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>', 'showCurrent' => 1, 'showRecord' => 1, 'showLegend' => 1);
 	extract(_wpu_process_args($args, $defaults));
@@ -852,11 +857,11 @@ function get_wpu_useronlinelist($args = '') {
 				LEFT JOIN ' . USER_GROUP_TABLE . ' ug
 					ON (
 						g.group_id = ug.group_id
-						AND ug.user_id = ' . $user->data['user_id'] . '
+						AND ug.user_id = ' . $phpbbForum->get_userdata('user_id') . '
 						AND ug.user_pending = 0
 					)
 				WHERE g.group_legend = 1
-					AND (g.group_type <> ' . GROUP_HIDDEN . ' OR ug.user_id = ' . $user->data['user_id'] . ')
+					AND (g.group_type <> ' . GROUP_HIDDEN . ' OR ug.user_id = ' . $phpbbForum->get_userdata('user_id') . ')
 				ORDER BY g.group_name ASC';
 		}
 		$result = $db->sql_query($sql);
@@ -864,23 +869,25 @@ function get_wpu_useronlinelist($args = '') {
 		$legend = array();
 		while ($row = $db->sql_fetchrow($result)) {
 			$colour_text = ($row['group_colour']) ? ' style="color:#' . $row['group_colour'] . '"' : '';
-			$group_name = ($row['group_type'] == GROUP_SPECIAL) ? $user->lang['G_' . $row['group_name']] : $row['group_name'];
+			$group_name = ($row['group_type'] == GROUP_SPECIAL) ? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'];
 
-			if ($row['group_name'] == 'BOTS' || ($user->data['user_id'] != ANONYMOUS && !$auth->acl_get('u_viewprofile'))) {
+			if ($row['group_name'] == 'BOTS' || ($phpbbForum->get_userdata('user_id') != ANONYMOUS && !$auth->acl_get('u_viewprofile'))) {
 				$legend[] = '<span' . $colour_text . '>' . $group_name . '</span>';
 			} else {
 				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
 			}
 		}
 		$db->sql_freeresult($result);
-		$phpbbForum->leave();
+		
 
 		$legend = implode(', ', $legend);
 		$l_online_time = ($config['load_online_time'] == 1) ? 'VIEW_ONLINE_TIME' : 'VIEW_ONLINE_TIMES';
-		$l_online_time = sprintf($user->lang[$l_online_time], $config['load_online_time']);
-		$l_online_record = sprintf($user->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date']));
+		$l_online_time = sprintf($phpbbForum->lang[$l_online_time], $config['load_online_time']);
+		$l_online_record = sprintf($phpbbForum->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date']));
 		$l_online_users = $list['l_online_users'];
 		$theList = $list['online_userlist'];
+		
+		$phpbbForum->leave();	
 			
 	} 
 		
@@ -892,7 +899,7 @@ function get_wpu_useronlinelist($args = '') {
 	}
 	$ret .= "{$before}{$theList}{$after}";
 	if($showLegend) {
-		$ret .= "{$before}<em>{$user->lang['LEGEND']}: {$legend}</em>{$after}";
+		$ret .= "{$before}<em>{$phpbbForum->lang['LEGEND']}: {$legend}</em>{$after}";
 	}
 	
 	return $ret;
@@ -912,7 +919,7 @@ function wpu_login_user_info($args) {
  * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1");
  */
 function get_wpu_login_user_info($args) {
-	global $user_ID, $user, $db, $wpSettings, $auth, $phpbbForum, $wpSettings, $phpEx, $config;
+	global $user_ID, $db, $wpSettings, $auth, $phpbbForum, $wpSettings, $phpEx, $config;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
@@ -927,7 +934,7 @@ function get_wpu_login_user_info($args) {
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 
 
-			$ret .= $before . '<a href="' . $phpbbForum->url . 'ucp.php?i=164"><strong>' . $wpu_usr . '</strong></a>' . $after;
+			$ret .= $before . '<a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
 			$ret .= $before . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
 
 		if ( $showRankBlock ) {
@@ -939,9 +946,9 @@ function get_wpu_login_user_info($args) {
 		}
 
 		// Handle new PMs
-		if ($user->data['user_new_privmsg']) {
-			$l_message_new = ($user->data['user_new_privmsg'] == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
-			$l_privmsgs_text = sprintf($l_message_new, $user->data['user_new_privmsg']);
+		if ($phpbbForum->get_userdata('user_new_privmsg')) {
+			$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
+			$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
 			$ret .= $before. '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 		} else {
 			$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
@@ -958,9 +965,11 @@ function get_wpu_login_user_info($args) {
 			if (current_user_can('publish_posts')) {
 				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
+			$phpbbForum->enter();
 			if($auth->acl_get('a_')) {
-				$ret .= $before . '<a href="'.$phpbbForum->url . append_sid('adm/index.php') . '" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
+				$ret .= $before . '<a href="'.$phpbbForum->url . append_sid('adm/index.php', false, false, $GLOBALS['user']->session_id) . '" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
+			$phpbbForum->leave();
 		}
 		$ret .= $before . get_wp_loginout() . $after;
 	} else {

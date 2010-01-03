@@ -353,6 +353,8 @@ class acp_wp_united {
 			'S_WP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
 			'S_WPURI' => $wpSettings['wpUri'],
 			'S_WPPATH' => $wpSettings['wpPath'],
+			'S_USEFORUMPG_ENABLE' => ($wpSettings['useForumPage']) ? 'checked="checked"' : '',
+			'S_USEFORUMPG_DISABLE' => ($wpSettings['useForumPage']) ? '': 'checked="checked"',
 			'S_WPLOGIN_ENABLE' =>  ( $wpSettings['integrateLogin'] ) ? 'checked="checked"' : '',
 			'S_WPLOGIN_DISABLE' => ( $wpSettings['integrateLogin'] ) ? '' : 'checked="checked"',
 			'S_BLOGSURI' => $wpSettings['blogsUri'],		
@@ -480,6 +482,8 @@ class acp_wp_united {
 			'S_WPURI' => $wpSettings['wpUri'],
 			'S_WPPATH' => $wpSettings['wpPath'],
 			'S_BLOGSURI' => $wpSettings['blogsUri'],
+			'S_USEFORUMPG_ENABLE' => ($wpSettings['useForumPage']) ? 'checked="checked"' : '',
+			'S_USEFORUMPG_DISABLE' => ($wpSettings['useForumPage']) ? '': 'checked="checked"',
 			'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 2),
 			'L_WPWIZ_URITESTRESULT_NOAJAX' => $uriResult,
 			'L_WPWIZ_PATHTESTRESULT_NOAJAX' => $pathResult
@@ -814,6 +818,7 @@ class acp_wp_united {
 		$data['wpUri'] = $this->clean_path(request_var('txt_Uri', ''));
 		$data['wpPath'] = $this->clean_path(request_var('txt_Path', ''));
 		$data['blogsUri'] = $this->clean_path(request_var('txt_BlogsUri', ''));
+		$data['useForumPage'] = (int) request_var('rad_ForumPg', 1);
 		
 		if (($data['wpUri'] == "") || (strlen($data['wpUri']) < 3)) {
 			$wizShowError = TRUE;
@@ -1113,6 +1118,7 @@ class acp_wp_united {
 		$data['wpUri'] = $this->clean_path(request_var('txt_Uri', ''));
 		$data['wpPath'] = $this->clean_path(request_var('txt_Path', ''));
 		$data['blogsUri'] = $this->clean_path(request_var('txt_BlogsUri', ''));	
+		$data['useForumPage'] = (int) request_var('rad_ForumPg', 1);
 		$data['dtdSwitch'] = (int) request_var('rad_DTD', 0);
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
 		$data['cssMagic'] = (int) request_var('rad_cssm', 1);
@@ -2121,7 +2127,7 @@ class acp_wp_united {
 				
 				// Set up the reverse-integrated forum page
 				$forum_page_ID = get_option('wpu_set_forum');
-				if ( $wpSettings['showHdrFtr'] == 'REV' ) {
+				if ( !empty($wpSettings['useForumPage']) ) {
 					$content = '<!--wp-united-phpbb-forum-->';
 					$title = $phpbbForum->lang['FORUM'];
 					if ( !empty($forum_page_ID) ) {
@@ -2162,7 +2168,7 @@ class acp_wp_united {
 				} else {
 					if ( !empty($forum_page_ID) ) {
 						update_option('wpu_set_forum', '');
-						wp_delete_post($forum_page_ID);
+						@wp_delete_post($forum_page_ID);
 					}					
 				}
 				

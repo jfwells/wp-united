@@ -64,7 +64,8 @@ function get_db_schema() {
 		'xpostforce' => 'xpostforce',
 		'cssMagic' => 'cssmagic',
 		'templateVoodoo' => 'tempvoodoo',
-		'pluginFixes' => 'pluginfixes'
+		'pluginFixes' => 'pluginfixes',
+		'useForumPage' => 'useforumpage'
 	);
 	
 	return $dbSchema;
@@ -113,7 +114,8 @@ function set_default($setting_key) {
 		'xpostforce' => -1,
 		'cssMagic' => 1,
 		'templateVoodoo' => 1,
-		'pluginFixes' => 0	
+		'pluginFixes' => 0,
+		'useForumPage' => 1
 		
 	);
 	
