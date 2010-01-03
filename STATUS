@@ -11,7 +11,7 @@ TODO
 
 Get wpu_menuSettings() to use new buffered profile page for blog settings
 Remove all old redirects associated with profile editing
-Add phpBB general message to users.php
+
 
 -- General Error template->_tpl_load(): No file specified for handle body on registration complete
 
@@ -157,7 +157,8 @@ DONE / COMMITTED
 - Fixed new widget bugs due to new phpB lang
 - Fixed ACP link and logout in userinfo widget. However, in general this is failing because $_SID is not getting set, so append_sid() does nothing TODO: check
 - Editing posts using quick Edit now updates the cross-posted post too
-- Proper fix for editing of profile fields in phpBB & WP in progress
+- Proper fix for editing of profile fields in phpBB & WP in progress:
 -- Added links to edit phpBB profile or administer user in users.php if that user is integrated 
 -- Reinstated buffering of profile.php and user-edit.php when that user is integrated
 -- Added phpbb message to profile.php and user-edit.php if that user is integrated
+-- Added phpBB general message to users.php
