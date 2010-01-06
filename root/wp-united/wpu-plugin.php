@@ -126,34 +126,9 @@ function wpu_check_for_action() {
 			exit;
 		} elseif ('update-blog-profile' == $_GET['wpu_action']) {
 			check_admin_referer('update-blog-profile_' . $user_ID);
-			$errors = edit_user($user_ID);
-
-			//$errors behaves differently post-WP 2.1
-			if ( ((float) $wp_version) >= 2.1 ) {
-				//WordPress >= 2.1
-				if ( is_wp_error( $errors ) ) {
-					foreach( $errors->get_error_messages() as $message ) {
-						echo "<li>$message</li>";
-					}
-				}
-			} else {
-				//WP 2.0x
-				if ( is_array($errors) ) {
-					if (count($errors) != 0) {
-						foreach ($errors as $id => $error) {
-							echo $error . '<br/>';
-						}
-						exit;
-					}
-				}
-			}	
-			if ( !isset( $_POST['rich_editing'] ) )
-				$_POST['rich_editing'] = 'false';
-			update_user_option( $current_user->id, 'rich_editing', $_POST['rich_editing'], true );
-			
-			//
-			//	UPDATE BLOG DETAILS
-			//
+			/**
+			 * Update blog details
+			 */
 			$blog_title = $phpbbForum->lang['default_blogname'];
 			$blog_tagline = $phpbbForum->lang['default_blogdesc'];
 			if (isset ($_POST['blog_title']))
@@ -308,16 +283,8 @@ function wpu_adminmenu_init() {
 							add_submenu_page('wpu-plugin.' . $phpEx, $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts','wpu-plugin.' . $phpEx . '&wputab=themes', 'wpu_menuTopLevel');
 						}
 					} 
-		
-				//
 				}
 			} 
-			//Redirect the profile page if own blogs -- if not own blogs, it gets buffered anyway.
-			if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
-				if ( (current_user_can('publish_posts')) && ($wpSettings['usersOwnBlogs']==1) )  {
-					wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin']);
-				}
-			}
 		}
 	}
 }
@@ -347,128 +314,51 @@ function wpu_menuSettings() {
 	$bookmarklet_height= 440;
 	$wpuConnSettings = get_settings('wputd_connection');
 	$page_output = '';
-	if ( isset($_GET['updated']) ) { 
-		$page_output .= '<div id="message" class="updated fade">
-		<p><strong>' . __('Settings updated.') . '</strong></p>
-		</div>';
-	}
-	if ( !empty($wpSettings['usersOwnBlogs']) ) {
-		$pageTitle .= $phpbbForum->lang['wpu_blog_details'];
-	} else {
-		$pageTitle .= __('Your Profile');
-	}
-	$page_output .= '<div class="wrap">';
-	echo $page_output;
-	screen_icon();
-	$page_output = '<h2>' . wp_specialchars($pageTitle) . '</h2>';
 
-	$page_output .= '<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;wpu_action=update-blog-profile" method="post">' . "\n";
-	// have to use this, because wp_nonce_field echos. //wp_nonce_field('update-blog-profile_' . $user_ID);
-	// beginning of nonce fields
-	$page_output .= '<input type="hidden" name="' . attribute_escape('_wpnonce') . '" value="' . wp_create_nonce('update-blog-profile_'.$user_ID) . '" />';
-	$ref = attribute_escape($_SERVER['REQUEST_URI']);
-	$page_output .= '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
-	if ( wp_get_original_referer() ) {
-		$original_ref = attribute_escape(stripslashes(wp_get_original_referer()));
-		$page_output .= '<input type="hidden" name="_wp_original_http_referer" value="'. $original_ref . '" />';
-	}
-	// End of nonce fields
-	$page_output .= '<p>
-		<!--<input type="hidden" name="page" value="' . $wpuConnSettings['full_path_to_plugin'] . '" /> -->
-		<!--<input type="hidden" name="action" value="update-blog-profile" />-->
-		<!--<input type="hidden" name="from" value="blog_settings" /> -->
-		<input type="hidden" name="checkuser_id" value="' . 'echo $user_ID' . '" />
+	if ( isset($_GET['updated']) ):  ?>
+		<div id="message" class="updated fade">
+		<p><strong>  <?php _e('Settings updated.'); ?> </strong></p>
+		</div>
+	<?php endif; ?>
+	
+	<div class="wrap" id="profile-page">
+	<?php screen_icon('profile'); ?>
+	<h2> <?php echo $phpbbForum->lang['wpu_blog_details']?> </h2>
+	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=<?php echo $wpuConnSettings['full_path_to_plugin']; ?>&amp;wpu_action=update-blog-profile" method="post">
+	<?php wp_nonce_field('update-blog-profile_' . $user_ID); 	?>
+	<input type="hidden" name="_wp_http_referer" value="<?php echo attribute_escape($_SERVER['REQUEST_URI']); ?>" />
+	<?php if ( $ref = wp_get_original_referer() ): ?>
+		<input type="hidden" name="_wp_original_http_referer" value="<?php echo attribute_escape(stripslashes($ref)); ?>" />
+	<?php endif; ?>
+		<input type="hidden" name="checkuser_id" value="<?php echo $user_ID; ?>" />
 	</p>	
-	<fieldset>
-	<legend>' . __('Name') . '</legend>
 
-	<input type="hidden" name="user_login" value="' . $profileuser->user_login . '"  />
-
-
-	<p><label>' . __('First name:') . '<br />
-	<input type="text" name="first_name" value="' . $profileuser->first_name . '" /></label></p>
-
-	<p><label>' . ('Last name:') . '<br />
-	<input type="text" name="last_name"  value="' . $profileuser->last_name . '" /></label></p>
-
-	<p><label>' . __('Nickname:') . '<br />
-	<input type="text" name="nickname" value="' . $profileuser->nickname . '" /></label></p>
-
-	<p><label>' . __('Display name publicly as:') . '<br />
-	<select name="display_name">
-	<option value="' . $profileuser->display_name . '">' . $profileuser->display_name . '</option>
-	<option value="' . $profileuser->nickname . '">' . $profileuser->nickname . '</option>
-	<option value="' . $profileuser->user_login . '">' . $profileuser->user_login . '</option>';
-	if ( !empty( $profileuser->first_name ) ) {
-		$page_output .= '<option value="' . $profileuser->first_name . '">' . $profileuser->first_name . '</option>';
-	}
-	if ( !empty( $profileuser->last_name ) ) {
-		$page_output .= '<option value="' . $profileuser->last_name . '">' . $profileuser->last_name . '</option>';
-	}
-	if ( !empty( $profileuser->first_name ) && !empty( $profileuser->last_name ) ) {
-		$page_output .= '<option value="' . $profileuser->first_name . ' ' . $profileuser->last_name . '">' . $profileuser->first_name . ' ' . $profileuser->last_name . '</option>
-		<option value="' . $profileuser->last_name . ' ' . $profileuser->first_name . '">' . $profileuser->last_name . ' ' . $profileuser->first_name . '</option>';
-	}
-	$page_output .= '</select></label></p>
-	</fieldset>';
-	if ( !empty($wpSettings['usersOwnBlogs']) ) {
-		$page_output .= '<fieldset>
-		<legend>' . $phpbbForum->lang['wpu_blog_about'] . '</legend>
-		<input type="hidden" name="email" value="' . $profileuser->user_email . '" />';
-		// Retrieve blog options
+	
+	<h3><?php echo $phpbbForum->lang['wpu_blog_about']; ?></h3>
+		<input type="hidden" name="email" value="<?php echo $profileuser->user_email; ?>" />
+		<?php /* Retrieve blog options */
 		$blog_title = get_usermeta($user_ID, 'blog_title');
-		$blog_tagline = get_usermeta($user_ID, 'blog_tagline');
-		$page_output .= '<p><label>' . $phpbbForum->lang['wpu_blog_about_title'] . '<br />
-		<input type="text" name="blog_title" value="' . $blog_title . '" /></label></p>
-		<p><label>' . $phpbbForum->lang['wpu_blog_about_tagline'] . '<br />
-		<input type="text" name="blog_tagline" value="' . $blog_tagline . '"</label></p>
-		</fieldset>';
-	}
-	$page_output .= '<br clear="all" />
-	<fieldset> 
-	<legend>' . __('About yourself') . '</legend>
-	<p class="desc">' . __('Share a little biographical information to fill out your profile. This may be shown publicly.') . '</p>
-	<p><textarea name="description" rows="5" cols="30">' . $profileuser->description . '</textarea></p>
-	</fieldset>'; 
-	do_action('show_user_profile');
-	$richEditing = (get_user_option('rich_editing')) ? "checked='checked'" : "";
-	$page_output .= '<br clear="all" />	
-	<h3>' . __('Personal Options') . '</h3>
-	<p><label for="rich_editing"><input name="rich_editing" type="checkbox" id="rich_editing" value="true" ' . $richEditing .' />' .
-	__('Use the visual rich editor when writing') . '</label></p>';
-	do_action('profile_personal_options');
-	$page_output .= '<table width="99%"  border="0" cellspacing="2" cellpadding="3" class="editform">';
-	if(count($profileuser->caps) > count($profileuser->roles)) {
-	    $page_output .= '<tr>
-	    <th scope="row">' . __('Additional Capabilities:') . '</th>
-	    <td>'; 
-		$output = '';
-		foreach($profileuser->caps as $cap => $value) {
-			if(!$wp_roles->is_role($cap)) {
-				if($output != '') $output .= ', ';
-				$output .= $value ? $cap : "Denied: {$cap}";
-			}
-		}
-		$page_output .= $output . '
-		</td>
-	    </tr>';
-    }
-	$page_output .= '</table>
+		$blog_tagline = get_usermeta($user_ID, 'blog_tagline'); ?>
+		<table class="form-table">
+			<tr>
+				<th><label><?php echo $phpbbForum->lang['wpu_blog_about_title']; ?></label></th>
+				<td><input type="text" name="blog_title" value="<?php echo $blog_title; ?>" /></td>
+			</tr>
+			<tr>
+				<th><label><?php echo $phpbbForum->lang['wpu_blog_about_tagline']; ?></label></th>
+				<td><input type="text" name="blog_tagline" value="<?php echo $blog_tagline ; ?>" /> <span class="description"><?php _e('In a few words, explain what this blog is about.'); ?></span></td>
+			</tr>			
+		</table>
+
 	<p class="submit">
-	<input type="submit" value="' . __('Update Profile &raquo;') . '" name="submit" />
+		<input type="submit" class="button-primary" value="<?php  _e('Update Profile &raquo;'); ?>" name="submit" />
 	</p>
 	</form>
 		
-	</div>'; 
-	//What to do with this page we've just made?
-	if (defined('WPU_ALTER_PROFILE')) {
-		//replace profile page with it
-		return $page_output  . '<div id="footer">';
-	} else {
-		// display the page
-		echo $page_output;
-	}
+	</div>
+	<?php
 
+ 
 }
 
 /**
@@ -486,9 +376,7 @@ function wp_united_display_theme_menu() {
 	<div id="message2" class="updated fade"><p><?php sprintf($phpbbForum->lang['wpu_theme_activated'], '<a href="' . wpu_homelink('wpu-activate-theme') . '/">', '</a>'); ?></p></div>
 	<?php }
 	
-
 	$themes = get_themes();
-
 
 	$theme_names = array_keys($themes);
 	$user_theme = 'WordPress Default';
@@ -1322,7 +1210,7 @@ function wpu_admin_init( ) {
  */
 function wpu_buffer_profile($output) {
 	global $wpSettings, $phpbbForum, $phpEx, $profileuser;
-	if(($wpSettings['integrateLogin']) && ($id = get_wpu_user_id($profileuser->ID))) {
+	if(($wpSettings['integrateLogin']) && (($id = get_wpu_user_id($profileuser->ID)) || $isBlogSettings)) {
 		define('WPU_ALTER_PROFILE', TRUE);
 		
 		// We directly edit the profile page. We need to keep the e-mail field around, so hide it.
@@ -1330,7 +1218,7 @@ function wpu_buffer_profile($output) {
 		$output = preg_replace('/<h3>' . __('Contact Info') . '[\s\S]*<h3>/i', $emailField . '<h3>' , $output);
 		
 		
-		$profileLink = (IS_PROFILE_PAGE) ? $phpbbForum->url . 'ucp.' . $phpEx : get_wpu_phpbb_profile_link($profileuser->ID);
+		$profileLink = (IS_PROFILE_PAGE) ? $phpbbForum->url . 'ucp.' . $phpEx : get_wpu_phpbb_profile_link($ID);
 		
 		$forumString = (IS_PROFILE_PAGE) ? $phpbbForum->lang['wpu_profile_edit_use_phpbb'] : $phpbbForum->lang['wpu_user_edit_use_phpbb'];
 		
@@ -1628,12 +1516,14 @@ function wpu_fix_blank_username($user_login) {
 /**
 Stops the password fields from showing on the profile page if the user is integrated
 */
-function wpu_disable_passchange($state, $profileUser) {
+function wpu_disable_passchange($state, $profileUser = false) {
 	global $wpSettings;
-	if(($wpSettings['integrateLogin']) && (get_wpu_user_id($profileUser->ID))) {
-			return false;
+	if($profileUser) {
+		if(($wpSettings['integrateLogin']) && (get_wpu_user_id($profileUser->ID))) {
+				return false;
+		}
+		return $state;
 	}
-	return $state;
 }
 
 
