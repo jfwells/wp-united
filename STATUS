@@ -9,11 +9,8 @@ TODO
 --------
 
 
-Get wpu_menuSettings() to use new buffered profile page for blog settings
-Remove all old redirects associated with profile editing
-
-
--- General Error template->_tpl_load(): No file specified for handle body on registration complete
+Fix wpu blog menu using $submenu_file and $parent_file
+General Error template->_tpl_load(): No file specified for handle body on registration complete
 
 media page reported to be dying
 
@@ -162,3 +159,4 @@ DONE / COMMITTED
 -- Reinstated buffering of profile.php and user-edit.php when that user is integrated
 -- Added phpbb message to profile.php and user-edit.php if that user is integrated
 -- Added phpBB general message to users.php
+-- Fixed settings menu

@@ -38,12 +38,12 @@ function get_wpu_intro() {
 		
 		$isReg = $phpbbForum->get_userdata('is_registered');
 		if ( !empty($isReg) ) {
-			$wpuGetBlogIntro = ($phpbbForum->get_userdata('user_wpublog_id') > 0 ) ? $phpbbForum->lang('blog_intro_add') : $phpbbForum->lang['blog_intro_get'];
+			$wpuGetBlogIntro = ($phpbbForum->get_userdata('user_wpublog_id') > 0 ) ? $phpbbForum->lang['blog_intro_add'] : $phpbbForum->lang['blog_intro_get'];
 		} else {
 			$wpuGetBlogIntro =  ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['blog_intro_loginreg_ownblogs'] : $phpbbForum->lang['blog_intro_loginreg'];
 		}
 		
-		if ( ! $phbbForum->user_logged_in() ) {
+		if ( ! $phpbbForum->user_logged_in() ) {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro,'<a href="' . $phpbbForum->url . append_sid($reg_link) . '">', '</a>',  '<a href="'. $phpbbForum->url . $login_link . '">', '</a>') . '</p>';
 		} else {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro, '<a href="' . get_settings('siteurl') . '/wp-admin/">','</a>') . '</p>';
