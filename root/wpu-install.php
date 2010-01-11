@@ -31,13 +31,10 @@ $server = $config['server_protocol'] . add_trailing_slash($config['server_name']
 $scriptPath = add_trailing_slash($config['script_path']);
 $scriptPath= ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
 
-if ($user->data['user_type'] != USER_FOUNDER)
-{
-    if ($user->data['user_id'] == ANONYMOUS)
-    {
+if ($user->data['user_type'] != USER_FOUNDER) {
+    if ($user->data['user_id'] == ANONYMOUS) {
         login_box('');
     }
-
 	trigger_error('NOT_AUTHORISED');
 }
 
@@ -304,14 +301,10 @@ $bodyContent .= "You can control access to this tab via the 'Can manage WP-Unite
 $bodyContent .= "Please delete this file -- and enjoy WP-United!</strong>\n\n";
 
 page_header('WP-United Installer');
-/*$template->assign_vars(array(
-	'WORDPRESS_BODY' => $bodyContent,
-	'WP_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com" target="_blank">', '</a>')
-)); */
+
 define('PHPBB_EXIT_DISABLED', true);
 trigger_error($bodyContent, E_USER_NOTICE);
-//$template->set_filenames(array( 'body' => 'blog.html') ); 
-//page_footer();
+
 
 add_log('admin', 'WP_INSTALLED', 'Ran the WP-United Install Script');	
 
