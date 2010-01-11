@@ -34,7 +34,7 @@ require($phpbb_root_path . 'includes/functions_module.' . $phpEx);
 
 echo "Modifying USERS Table (Integration ID)... ";
 
-if  ( !array_key_exists('user_wpuint_id', $user->data()) ) {
+if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 		ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
 
@@ -48,7 +48,7 @@ if  ( !array_key_exists('user_wpuint_id', $user->data()) ) {
 
 echo "Modifying USERS Table (Blog ID)...";
 
-if  ( !array_key_exists('user_wpublog_id', $user->data()) ) {
+if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 		ADD user_wpublog_id VARCHAR(10) NULL DEFAULT NULL';
 	if (!$result = $db->sql_query($sql)) {
