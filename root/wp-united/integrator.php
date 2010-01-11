@@ -45,7 +45,7 @@ define('WP_UNITED_ENTRY', 1);
 
 // There are several variables we need to have around in the global scope. We only need to
 // do this if we are being called from a function, but for convenience, we just do it anyway
-global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $template, $latest, $wpu_page_title, $wp_version, $lDebug, $wpuPluginFixer, $phpbbForum;
+global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug, $wpuPluginFixer, $phpbbForum;
 global $innerHeadInfo, $innerContent;
 global $db, $config, $user, $auth, $config, $template;
 $lDebug = '';
@@ -286,7 +286,7 @@ require($phpbb_root_path . 'wp-united/template-integrator.' . $phpEx);
  * WordPress still appears inside the phpBB header/footer in these circumstances.
  */
 function wpu_complete() {
-	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
+	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
 	global $innerHeadInfo, $innerContent;
 	global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCache, $config, $auth;
 	

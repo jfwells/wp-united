@@ -66,7 +66,7 @@ function wpu_init(&$hook) {
 function wpu_execute(&$hook, $handle) {
 	global $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
 	// We only want this action to fire once
-	if ( (!$wpuRunning) &&  ($wpSettings['installLevel'] == 10) ) {
+	if ( (!$wpuRunning) &&  ($wpSettings['installLevel'] == 10) && (isset($template->filename[$handle])) ) {
 		$wpuRunning = true;
 		//$hook->remove_hook(array('template', 'display'));
 		
