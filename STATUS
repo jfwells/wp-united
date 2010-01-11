@@ -158,3 +158,5 @@ DONE / COMMITTED
 -- Fixed login debugging not showing up
 -- CSS Magic now checks filemtime
 -- Fixed style keys not available in style.php causing cache to be regenerated each time
+-- Fixed errors in wpu-install.php
+-- wpu-install.php npow only works for founder users, and uses the phpBB template system

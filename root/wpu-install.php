@@ -17,26 +17,34 @@
 define('IN_PHPBB', true);
 $phpbb_root_path = './'; 
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
+define('IN_INSTALL', true);
 include($phpbb_root_path . 'common.' . $phpEx);
-
-$user->session_begin();
-$auth->acl($user->data);
-$user->setup('mods/wp-united');
-
 require($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
 require($phpbb_root_path . 'includes/functions_module.' . $phpEx);
 
+$user->session_begin();
+$auth->acl($user->data);
+$user->setup('acp/common');
+$user->setup('mods/wp-united');
 
-?>
-<html>
-<head>
-<title>WP-United Installer</title>
-</head>
-<body>
-<?php
+$server = $config['server_protocol'] . add_trailing_slash($config['server_name']);
+$scriptPath = add_trailing_slash($config['script_path']);
+$scriptPath= ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
+
+if ($user->data['user_type'] != USER_FOUNDER)
+{
+    if ($user->data['user_id'] == ANONYMOUS)
+    {
+        login_box('');
+    }
+
+	trigger_error('NOT_AUTHORISED');
+}
 
 
-echo "Modifying USERS Table (Integration ID)... ";
+
+
+$bodyContent .= "Modifying USERS Table (Integration ID)... ";
 
 if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
@@ -45,12 +53,12 @@ if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
 	if (!$result = $db->sql_query($sql)) {
 		trigger_error('ERROR: Cannot add the integration column to the users table');
 	}
-	echo "Done!<br />\n\n";
+	$bodyContent .= "Done!<br />\n\n";
 } else {
-	echo "Already modified!<br />\n\n";
+	$bodyContent .= "Already modified!<br />\n\n";
 }
 
-echo "Modifying USERS Table (Blog ID)...";
+$bodyContent .= "Modifying USERS Table (Blog ID)...";
 
 if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
@@ -58,12 +66,12 @@ if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
 	if (!$result = $db->sql_query($sql)) {
 		trigger_error('ERROR: Cannot add blog ID column to users table');
 	}
-	echo "Done!<br />\n\n";
+	$bodyContent .= "Done!<br />\n\n";
 } else {
-	echo "Already modified!<br />\n\n";
+	$bodyContent .= "Already modified!<br />\n\n";
 }		
 
-echo "Modifying POSTS Table (Cross-Posting Link)... ";
+$bodyContent .= "Modifying POSTS Table (Cross-Posting Link)... ";
 
 $sql = 'SELECT * FROM ' . POSTS_TABLE;
 $result = $db->sql_query_limit($sql, 1);
@@ -77,14 +85,14 @@ if (!array_key_exists('post_wpu_xpost', $row) ) {
 	if (!$result = $db->sql_query($sql)) {
 		trigger_error('ERROR: Cannot add cross-posting column to posts table');
 	}
-	echo "Done!<br />\n\n";
+	$bodyContent .= "Done!<br />\n\n";
 } else {
-	echo "Already modified!<br />\n\n";
+	$bodyContent .= "Already modified!<br />\n\n";
 }
 
 $db->sql_freeresult($result);
 
-echo "Adding WP-United Permissions....<br />\n\n";
+$bodyContent .= "Adding WP-United Permissions....<br />\n\n";
 
 // Setup $auth_admin class so we can add permission options
 include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
@@ -98,7 +106,7 @@ $auth_admin->acl_add_option(array(
     'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator', 'a_wpu_manage')
 ));
 
-echo "granting access....<br />\n\n";
+$bodyContent .= "granting access....<br />\n\n";
 // give standard admins access
 $role = get_role_by_name('ROLE_ADMIN_STANDARD');
 if ($role) {
@@ -107,13 +115,13 @@ if ($role) {
 
 
 
-echo "Adding WP-United ACP Modules...<br />\n\n";
+$bodyContent .= "Adding WP-United ACP Modules...<br />\n\n";
 
 include($phpbb_root_path . 'includes/acp/acp_modules.' . $phpEx);
 $acp_modules = new acp_modules();
 $acp_modules->module_class = 'acp';
 
-echo "Adding main tab...\n\n";
+$bodyContent .= "Adding main tab...\n\n";
 
 $modData = array(
 	'module_basename'	=> '', // must be blank for category
@@ -127,7 +135,7 @@ $modData = array(
 );
 $tabId = wpu_add_acp_module($modData);
 
-echo "Adding main subcat...\n\n";
+$bodyContent .= "Adding main subcat...\n\n";
 $modData = array(
 	'module_basename'	=> '', // must be blank for category
 	'module_mode'		=> '', // must be blank for category
@@ -140,7 +148,7 @@ $modData = array(
 );
 $catMainId = wpu_add_acp_module($modData);
 
-echo "Adding setup subcat...\n\n";
+$bodyContent .= "Adding setup subcat...\n\n";
 $modData = array(
 	'module_basename'	=> '', // must be blank for category
 	'module_mode'		=> '', // must be blank for category
@@ -153,7 +161,7 @@ $modData = array(
 );
 $catSetupId = wpu_add_acp_module($modData);
 
-echo "Adding manage users subcat...\n\n";
+$bodyContent .= "Adding manage users subcat...\n\n";
 $modData = array(
 	'module_basename'	=> '', // must be blank for category
 	'module_mode'		=> '', // must be blank for category
@@ -166,7 +174,7 @@ $modData = array(
 );
 $catManageId = wpu_add_acp_module($modData);
 
-echo "Adding support subcat...\n\n";
+$bodyContent .= "Adding support subcat...\n\n";
 $modData = array(
 	'module_basename'	=> '', // must be blank for category
 	'module_mode'		=> '', // must be blank for category
@@ -179,7 +187,7 @@ $modData = array(
 );
 $catSupportId = wpu_add_acp_module($modData);
 
-echo "Adding 'other' subcat...\n\n";
+$bodyContent .= "Adding 'other' subcat...\n\n";
 $modData = array(
 	'module_basename'	=> '', // must be blank for category
 	'module_mode'		=> '', // must be blank for category
@@ -192,7 +200,7 @@ $modData = array(
 );
 $catOtherId = wpu_add_acp_module($modData);
 
-echo "Adding main page...";
+$bodyContent .= "Adding main page...";
 $modData = array(
 	'module_basename'	=> 'wp_united', // must be blank for category
 	'module_mode'		=> 'index', // must be blank for category
@@ -205,7 +213,7 @@ $modData = array(
 );
 $catMainPageId = wpu_add_acp_module($modData);
 
-echo "Adding setup wizard...";
+$bodyContent .= "Adding setup wizard...";
 $modData = array(
 	'module_basename'	=> 'wp_united', // must be blank for category
 	'module_mode'		=> 'wizard', // must be blank for category
@@ -218,7 +226,7 @@ $modData = array(
 );
 $catSetupWizId = wpu_add_acp_module($modData);
 
-echo "Adding settings-on-a-page...";
+$bodyContent .= "Adding settings-on-a-page...";
 $modData = array(
 	'module_basename'	=> 'wp_united', // must be blank for category
 	'module_mode'		=> 'detailed', // must be blank for category
@@ -236,7 +244,7 @@ $catDetailedId = wpu_add_acp_module($modData);
 // User Mapping Tool under catManageId  ((only applied by wizard/setup if user integration is turned on).
 
 
-echo "Adding ACP donate link...";
+$bodyContent .= "Adding ACP donate link...";
 $modData = array(
 	'module_basename'	=> 'wp_united', // must be blank for category
 	'module_mode'		=> 'donate', // must be blank for category
@@ -249,7 +257,7 @@ $modData = array(
 );
 $catDetailedId = wpu_add_acp_module($modData);
 
-echo "Adding uninstaller...";
+$bodyContent .= "Adding uninstaller...";
 $modData = array(
 	'module_basename'	=> 'wp_united', // must be blank for category
 	'module_mode'		=> 'uninstall', // must be blank for category
@@ -262,7 +270,7 @@ $modData = array(
 );
 $catDetailedId = wpu_add_acp_module($modData);
 
-echo "Adding reseter...";
+$bodyContent .= "Adding reseter...";
 $modData = array(
 	'module_basename'	=> 'wp_united', // must be blank for category
 	'module_mode'		=> 'reset', // must be blank for category
@@ -275,7 +283,7 @@ $modData = array(
 );
 $catDetailedId = wpu_add_acp_module($modData);
 
-echo "Adding debugging tool...";
+$bodyContent .= "Adding debugging tool...";
 $modData = array(
 	'module_basename'	=> 'wp_united', // must be blank for category
 	'module_mode'		=> 'debug', // must be blank for category
@@ -289,12 +297,21 @@ $modData = array(
 $catDetailedId = wpu_add_acp_module($modData);
 
 
-echo "<strong style=\"color: green;\">All done!<br />\n\n";
-echo "<hr /><br />";
-echo "To complete the setup, please run the Setup Wizard under your WP-United ACP tab. <br />\n\n";
-echo "You can control access to this tab via the 'Can manage WP-United options in the ACP' permission.<br /><hr /><br />\n\n";
-echo "Please delete this file -- and enjoy WP-United!</strong>\n\n";
-echo "</body></html>";
+$bodyContent .= "<strong style=\"color: green;\">All done!<br />\n\n";
+$bodyContent .= "<hr /><br />";
+$bodyContent .= "To complete the setup, please run the Setup Wizard under your WP-United ACP tab. <br />\n\n";
+$bodyContent .= "You can control access to this tab via the 'Can manage WP-United options in the ACP' permission.<br /><hr /><br />\n\n";
+$bodyContent .= "Please delete this file -- and enjoy WP-United!</strong>\n\n";
+
+page_header('WP-United Installer');
+/*$template->assign_vars(array(
+	'WORDPRESS_BODY' => $bodyContent,
+	'WP_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com" target="_blank">', '</a>')
+)); */
+define('PHPBB_EXIT_DISABLED', true);
+trigger_error($bodyContent, E_USER_NOTICE);
+//$template->set_filenames(array( 'body' => 'blog.html') ); 
+//page_footer();
 
 add_log('admin', 'WP_INSTALLED', 'Ran the WP-United Install Script');	
 
@@ -308,7 +325,7 @@ add_log('admin', 'WP_INSTALLED', 'Ran the WP-United Install Script');
 
 
 function wpu_add_acp_module(&$module_data) {
-	global $acp_modules, $cache;
+	global $acp_modules, $cache, $bodyContent;
 
 	$mod_id = module_exists($module_data['module_langname'], $module_data['parent_id']);
 	
@@ -326,13 +343,13 @@ function wpu_add_acp_module(&$module_data) {
 	$errors = $acp_modules->update_module_data($module_data, TRUE);
 	if (!sizeof($errors)) {
 		if ( !empty($mod_id) ) {
-			echo "Tab already exists!<br />\n\n";
+			$bodyContent .= "Tab already exists!<br />\n\n";
 		} else {
-			echo "Added item!<br />";
+			$bodyContent .= "Added item!<br />";
 		}
 		$acp_modules->remove_cache_file();
 	} else {
-		echo 'Could not add item!<br />' . implode('<br />', $errors);
+		$bodyContent .= 'Could not add item!<br />' . implode('<br />', $errors);
 	}
 	
 	$cache->destroy('_modules_');
