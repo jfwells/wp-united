@@ -38,10 +38,10 @@ if ($user->data['user_type'] != USER_FOUNDER) {
 	trigger_error('NOT_AUTHORISED');
 }
 
+$bodyContent = "<img src=\"{$server}{$scriptPath}wp-united/images/wp-united-logo.gif\" style=\"float: right;\" />";
 
 
-
-$bodyContent .= "Modifying USERS Table (Integration ID)... ";
+$bodyContent .= "<br />Modifying USERS Table (Integration ID)... ";
 
 if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
@@ -293,6 +293,7 @@ $modData = array(
 );
 $catDetailedId = wpu_add_acp_module($modData);
 
+$bodyContent = str_replace('<br />', "<br /><img src=\"{$server}{$scriptPath}wp-united/images/tiny.gif\" style=\"float: left; margin-right: 3px;\" />", $bodyContent);
 
 $bodyContent .= "<strong style=\"color: green;\">All done!<br />\n\n";
 $bodyContent .= "<hr /><br />";
@@ -301,6 +302,8 @@ $bodyContent .= "You can control access to this tab via the 'Can manage WP-Unite
 $bodyContent .= "Please delete this file -- and enjoy WP-United!</strong>\n\n";
 
 page_header('WP-United Installer');
+
+
 
 define('PHPBB_EXIT_DISABLED', true);
 trigger_error($bodyContent, E_USER_NOTICE);
