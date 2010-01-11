@@ -10,12 +10,6 @@ TODO
 
 
 Fix wpu blog menu using $submenu_file and $parent_file
-General Error template->_tpl_load(): No file specified for handle body on registration complete
--- caused by hook firing on assign_display as opposed to just display
--- hook only operates on $template so operates on empty $template causing error
--- no way to differentiate between these -- need to allow pre-displays to fire normally
--- ==> need to move capture event to later, after template display!
----- have added hack to check if $template is loaded. Error fixed, but needs further consideration
 
 media page reported to be dying
 
@@ -165,3 +159,4 @@ DONE / COMMITTED
 -- Fixed style keys not available in style.php causing cache to be regenerated each time
 -- Fixed errors in wpu-install.php
 -- wpu-install.php npow only works for founder users, and uses the phpBB template system
+-- Fixed error on user registration

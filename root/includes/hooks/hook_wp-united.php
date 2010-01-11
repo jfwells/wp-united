@@ -62,6 +62,7 @@ function wpu_init(&$hook) {
 
 /**
  * Capture the outputted page, and prevent phpBB for exiting
+ * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) {
 	global $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
