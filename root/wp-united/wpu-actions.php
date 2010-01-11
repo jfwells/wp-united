@@ -209,7 +209,7 @@ class WPU_Actions {
 	 */	
 	function css_magic($cssIn) {
 		
-		global $phpbb_root_path, $phpEx, $wpuCache;
+		global $phpbb_root_path, $phpEx, $wpuCache, $wpSettings;
 		
 		require($phpbb_root_path . 'wp-united/functions-css-magic.' . $phpEx);
 		

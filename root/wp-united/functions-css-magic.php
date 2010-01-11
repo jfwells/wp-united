@@ -150,8 +150,9 @@ function apply_template_voodoo(&$cssMagic, $tplVoodooKey) {
 	global $wpuCache;
 	
 	$templateVoodoo = $wpuCache->get_template_voodoo($tplVoodooKey);
+	
 
-	if(empty($templateVoodoo)) { 
+	if(empty($templateVoodoo)) {
 		return false;
 	}
 

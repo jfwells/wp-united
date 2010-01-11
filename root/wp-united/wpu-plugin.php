@@ -110,7 +110,7 @@ function wpu_modify_pagelink($permalink, $post) {
  * @todo Perhaps add additional perms check to see if we are allowed to switch theme/blog settings
  */
 function wpu_check_for_action() {
-	global $user_ID, $wp_version;
+	global $user_ID, $wp_version, $phpEx;
 
 	if ( isset($_GET['wpu_action']) ) {
 		if ('activate' == $_GET['wpu_action']) {
@@ -121,8 +121,7 @@ function wpu_check_for_action() {
 			
 			if ( isset($_GET['stylesheet']) )
 				update_usermeta($user_ID,'WPU_MyStylesheet',$_GET['stylesheet']);
-				$wpuConnSettings = get_settings('wputd_connection');
-				wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin'] . '&activated=true&wputab=themes');
+				wp_redirect("admin.php?page=wp-united.$phpEx&activated=true&wputab=themes");
 			exit;
 		} elseif ('update-blog-profile' == $_GET['wpu_action']) {
 			check_admin_referer('update-blog-profile_' . $user_ID);
@@ -138,8 +137,7 @@ function wpu_check_for_action() {
 			
 			update_usermeta($user_ID, 'blog_title', $blog_title);
 			update_usermeta($user_ID, 'blog_tagline', $blog_tagline);
-			$wpuConnSettings = get_settings('wputd_connection');
-			wp_redirect('admin.php?page=' . $wpuConnSettings['full_path_to_plugin'] . '&updated=true&wputab=bset');
+			wp_redirect("admin.php?page=wp-united.$phpEx&updated=true&wputab=bset");
 			exit;
 		}
 	}
@@ -243,7 +241,6 @@ function wpu_css() {
  */
 function wpu_adminmenu_init() {
 	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum;
-	$wpuConnSettings = get_settings('wputd_connection');
 	
 	//Check for action
 	if ( isset($_GET['wpu_action']) ) {
@@ -251,24 +248,22 @@ function wpu_adminmenu_init() {
 		exit();
 	}
 	global $menu, $wp_version;
-
-	$fullFilePath = $wpuConnSettings['path_to_plugin'];
 	
 	if (!empty($wpSettings['integrateLogin'])) {
 		if (function_exists('add_submenu_page')) {
 			if (current_user_can('publish_posts'))  {
 				if($wp_version < 2.7) {
 					if ( !empty($wpSettings['usersOwnBlogs']) ) {
-						add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'],$phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', $wpuConnSettings['full_path_to_plugin'], 'wpu_menuTopLevel');
+						add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'],$phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', "wp-united.$phpEx", 'wpu_menuTopLevel');
 					} 
 					if ( isset($_GET['page']) ) { // add submenus if we're under the blog main page
-					$wpuPage = ( $_GET['page'] == $wpuConnSettings['full_path_to_plugin'] ) ? TRUE : FALSE;
+					$wpuPage = ( $_GET['page'] == "wp-united.$phpEx" ) ? TRUE : FALSE;
 						if ( $wpuPage ) {
 							global $parent_file;
 							$parent_file = 'wpu';
-							add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=bset', 'wpu_menuTopLevel');
+							add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', "wp-united.$phpEx" . '&wputab=bset', 'wpu_menuTopLevel');
 							if ( !empty($wpSettings['allowStyleSwitch']) ) {
-								add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts', $wpuConnSettings['full_path_to_plugin'] . '&wputab=themes', 'wp_united_display_theme_menu');
+								add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts', "wp-united.$phpEx". '&wputab=themes', 'wp_united_display_theme_menu');
 							}
 						}
 					}
@@ -309,10 +304,9 @@ function wpu_menuTopLevel() {
  * 
  */
 function wpu_menuSettings() { 
-	global $wpSettings, $user_ID, $wp_roles, $phpbbForum;
+	global $wpSettings, $user_ID, $wp_roles, $phpbbForum, $phpEx;
 	$profileuser = get_user_to_edit($user_ID);
 	$bookmarklet_height= 440;
-	$wpuConnSettings = get_settings('wputd_connection');
 	$page_output = '';
 
 	if ( isset($_GET['updated']) ):  ?>
@@ -324,7 +318,7 @@ function wpu_menuSettings() {
 	<div class="wrap" id="profile-page">
 	<?php screen_icon('profile'); ?>
 	<h2> <?php echo $phpbbForum->lang['wpu_blog_details']?> </h2>
-	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=<?php echo $wpuConnSettings['full_path_to_plugin']; ?>&amp;wpu_action=update-blog-profile" method="post">
+	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=<?php echo "wp-united.$phpEx"; ?>&amp;wpu_action=update-blog-profile" method="post">
 	<?php wp_nonce_field('update-blog-profile_' . $user_ID); 	?>
 	<input type="hidden" name="_wp_http_referer" value="<?php echo attribute_escape($_SERVER['REQUEST_URI']); ?>" />
 	<?php if ( $ref = wp_get_original_referer() ): ?>
@@ -368,7 +362,6 @@ function wpu_menuSettings() {
 function wp_united_display_theme_menu() {
 
 	global $user_ID, $title, $parent_file, $wp_version, $phpEx, $phpbbForum;
-	$wpuConnSettings = get_settings('wputd_connection');
 	
 	if ( ! validate_current_theme() ) { ?>
 	<div id="message1" class="updated fade"><p><?php echo $phpBBForum->lang['wpu_theme_broken']; ?></p></div>
@@ -585,7 +578,7 @@ function wp_united_display_theme_menu() {
 			$author = $themes[$theme_name]['Author'];
 			$screenshot = $themes[$theme_name]['Screenshot'];
 			$stylesheet_dir = $themes[$theme_name]['Stylesheet Dir'];
-			$activate_link = wp_nonce_url('admin.php?page=' . $wpuConnSettings['full_path_to_plugin'] . '&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
+			$activate_link = wp_nonce_url("admin.php?page=wp-united.$phpEx&amp;noheader=true&amp;wpu_action=activate&amp;template=$template&amp;stylesheet=$stylesheet", 'wp-united-switch-theme_' . $template);
 		?>
 		<div class="available-theme">
 		<h3><a href="<?php echo $activate_link; ?>"><?php echo "$title $version"; ?></a></h3>
@@ -1299,7 +1292,6 @@ function wpu_prepare_admin_pages() {
 
 function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = 'avatar' ) { 
 	global $wpSwettings, $phpbbForum;
-	$connSettings = get_settings('wputd_connection');
 	if (empty($wpSettings['integrateLogin'])) { 
 		return $avatar;
 	}

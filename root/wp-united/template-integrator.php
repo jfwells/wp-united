@@ -355,10 +355,6 @@ if ($wpSettings['cssMagic']) {
 	$wpuOutputPostStr = '</div>';
 }
 
-// Add lDebug if requested
-if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
-	$wpuOutputPreStr = $lDebug . $wpuOutputPreStr;
-}
 
 
 // Substitute in content
@@ -483,7 +479,15 @@ function wpu_output_page(&$content) {
 	//Add title back
 	global $wpu_page_title;
 	$content = str_replace("[**PAGE_TITLE**]", $wpu_page_title, $content);
-	
+
+	// Add login debugging if requested
+	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
+		global $lDebug;
+		$content = str_replace('</body>', $lDebug . '</body>', $content);
+	}
+
+
+	// Add stats if requested
 	if(defined('WPU_SHOW_STATS') && WPU_SHOW_STATS) {
 		global $wpuScriptTime, $wpuCache;
 		$endTime = explode(' ', microtime());
@@ -493,8 +497,9 @@ function wpu_output_page(&$content) {
 		$memUsage = (function_exists('memory_get_peak_usage')) ? round(memory_get_peak_usage()/1024, 0) . "kB" : (function_exists('memory_get_usage')) ? round(memory_get_usage() / 1024, 0) . "kB" : "[Not supported on your server]";
 		$stats = "<p style='background-color: #999999;color: #ffffff !important;display: block;'><strong style='text-decoration: underline;'>WP-United Statistics </strong><br />Script Time: " . $pageLoad . "<br />Memory usage: " . $memUsage . "<br />" . $wpuCache->get_logged_actions() . "</p>";
 		$content = str_replace('</body>', $stats . '</body>', $content);
-	
 	}
+	
+
 	
 	//optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
 	// It is unnecessary for gzipped setups, and might be liable to kill some JS or CSS, so it is hidden in options.php

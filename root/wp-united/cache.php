@@ -378,7 +378,9 @@ class WPU_Cache {
 	function get_css_magic($fileName, $pos, $incTplVoodoo = -1) {
 		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
 		if(file_exists($cacheFileName)) {
-			return  $cacheFileName;
+			if(@filemtime($cacheFileName) > @filemtime($fileName)) {
+				return  $cacheFileName;
+			}
 		}
 		return false;
 	}
