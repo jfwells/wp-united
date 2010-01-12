@@ -1,6 +1,6 @@
-﻿WP-UNITED WordPress Integration Mod v0.7.0 RC1 for phpBB3
+﻿WP-UNITED WordPress Integration Mod v0.8.0 RC2 for phpBB3
 -----------------------------------------------
-Last updated: 12 June 2009, by John Wells
+Last updated: 12 January 2010, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -85,6 +85,40 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+v0.8.0 RELEASE CANDIDATE 2
+-- This is the biggest, most changed release yet, with new features, and the majority of the code 
+completely rewritten.
+-- Complete rewrite of main integration code for extensibility and clarity, all code refactored
+-- NEW: CSS Magic and Template Voodoo automatically correct style conflicts in template integration
+-- NEW: Automatic plugin workarounds fix problem plugins and themes
+-- NEW: Cache class handles caching for various calculations and template modifications
+-- NEW: WP-United Connection installed in background over AJAX panel to catch errors
+-- NEW: phpBB hook system used to reduce code edits and improve extensibility
+-- NEW: WP-United cache purged whenever phpBB cache is
+-- NEW: Improved cross-posting, with ability to force all posts to be cross-posted to a particular forum
+-- NEW: Cross-posted comments from cross-posted phpBB topic and WordPress comment form
+-- Big cleanup of widgets to remove unneeded markup and options
+-- NEW: Users online widget
+-- FIXED: template integration does not honour right-to-left layouts
+-- NEW forum page automatically created in WordPress to provide easy link to forum
+-- FIXED: full page reverse template integration works with new forum page to display better
+-- NEW: option in options.php to completely disable WP-United to prevent lock-outs
+-- FIXED: user mapping not creating phpBB users from WordPress users properly
+-- FIXED: login inaccessible when board is disabled
+-- FIXED: Editing posts using quick Edit now updates the cross-posted post too
+-- Profile fields and user-editing in dashboard now works properly (as it was before it was removed in v0.7.1)
+-- FIXED: Login debug didn't always show up (when requested)
+-- Removed unnecessary ACP options from Setup Wizard
+-- NEW plugin implementation, phpBB is always available
+-- NEW phpBB abstraction for use whenever in WP ($phpbbForum)
+-- Massive cleanup of ACP to remove phpBB2 compatibility
+-- NEW: wpu-install.php uses phpBB template system and enforces access control
+-- NEW: Fixed with WP 2.9
+-- FIXED: install.xml broken finds & broken subSilver finds
+-- NEW: All language strings in WordPress can now be translated in phpBB in one place
+-- NEW: wpuAbs abstraction class removed
+
 
 v0.7.1 (STILL RELEASE CANDIDATE 1!)
 -- NEW: Auto-linking of cross-posted posts' comments to the forum.
