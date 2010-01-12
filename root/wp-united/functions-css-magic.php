@@ -35,7 +35,7 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 	preg_match_all('/@import url\([^\)]+?\)/i', $headerInfo, $matches2);
 	preg_match_all('/@import "[^"]+?"/i', $headerInfo, $matches3);
 	$matches = array_merge($matches[0], $matches2[0], $matches3[0]);
-	$links = array(); $repl = array(); $cacheLinks = array();
+	$links = array(); $repl = array(); $keys = array();
 	if(is_array($matches)) {
 		$pos = "pos=" . $position;
 		foreach($matches as $match) {

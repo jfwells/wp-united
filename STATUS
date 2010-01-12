@@ -8,7 +8,9 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-Fix wpu blog menu selections (e.g. using $submenu_file and $parent_file)
+Last userblog entry not correct in blog intro list
+profile fields: Check nickname is not auto-erased
+
 CSS Magic: topic icons not showing in forum?
 CSS Magic: Add fixes for IE (6,7,8)
 Styles: Default padding a little off (?)
@@ -24,6 +26,7 @@ ACTIONS FOR RELEASE
 ------------------------------
 
 Fresh install test
+Remove pre 2.7 paths / update description
 Install to wp-united.com
 Update all file headers and copyrights
 Check no Windows line endings have crept in
@@ -155,3 +158,5 @@ DONE / COMMITTED
 - ACP: wpu-plugin copy reports success if filemtime of copied file is equal or newer -- no longer looks for magic variable in header
 - Now officially supports subdomains (or even completely different domains with the appropriate mod installed) -- warning wording changed in ACP
 - Plugin workarounds can now be enabled (or disabled) with one click on step 5 of the wizard if the install fails.
+- WP-United dashboard menu improved: submenus now selected properly
+- Fixed various errors in user blog theme panel

@@ -119,7 +119,7 @@ function wpu_check_for_action() {
 			
 			if ( isset($_GET['stylesheet']) )
 				update_usermeta($user_ID,'WPU_MyStylesheet',$_GET['stylesheet']);
-				wp_redirect("admin.php?page=wp-united.$phpEx&activated=true&wputab=themes");
+				wp_redirect("admin.php?page=wp-united-theme-menu&activated=true");
 			exit;
 		} elseif ('update-blog-profile' == $_GET['wpu_action']) {
 			check_admin_referer('update-blog-profile_' . $user_ID);
@@ -135,7 +135,7 @@ function wpu_check_for_action() {
 			
 			update_usermeta($user_ID, 'blog_title', $blog_title);
 			update_usermeta($user_ID, 'blog_tagline', $blog_tagline);
-			wp_redirect("admin.php?page=wp-united.$phpEx&updated=true&wputab=bset");
+			wp_redirect("admin.php?page=wp-united.$phpEx&updated=true");
 			exit;
 		}
 	}
@@ -250,52 +250,21 @@ function wpu_adminmenu_init() {
 	if (!empty($wpSettings['integrateLogin'])) {
 		if (function_exists('add_submenu_page')) {
 			if (current_user_can('publish_posts'))  {
-				if($wp_version < 2.7) {
-					if ( !empty($wpSettings['usersOwnBlogs']) ) {
-						add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'],$phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', "wp-united.$phpEx", 'wpu_menuTopLevel');
-					} 
-					if ( isset($_GET['page']) ) { // add submenus if we're under the blog main page
-					$wpuPage = ( $_GET['page'] == "wp-united.$phpEx" ) ? TRUE : FALSE;
-						if ( $wpuPage ) {
-							global $parent_file;
-							$parent_file = 'wpu';
-							add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', "wp-united.$phpEx" . '&wputab=bset', 'wpu_menuTopLevel');
-							if ( !empty($wpSettings['allowStyleSwitch']) ) {
-								add_submenu_page('wpu', $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts', "wp-united.$phpEx". '&wputab=themes', 'wp_united_display_theme_menu');
-							}
-						}
-					}
-				} else {
-				//	WP 2.7 ADMIN PANEL PAGE FOR OWN BLOGS
+				//	WP 2.7+ only
 			
-					if ( !empty($wpSettings['usersOwnBlogs']) ) {
-						$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wpu-plugin.' . $phpEx, 'wpu_menuTopLevel', $phpbbForum->url . 'wp-united/images/tiny.gif' );
-						
-						add_submenu_page('wpu-plugin.php', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', 'wpu-plugin.' . $phpEx , 'wpu_menuTopLevel');						
-						if ( !empty($wpSettings['allowStyleSwitch']) ) {
-							add_submenu_page('wpu-plugin.' . $phpEx, $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts','wpu-plugin.' . $phpEx . '&wputab=themes', 'wpu_menuTopLevel');
-						}
-					} 
-				}
+				if ( !empty($wpSettings['usersOwnBlogs']) ) {
+					$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wp-united', 'wpu_menuSettings', $phpbbForum->url . 'wp-united/images/tiny.gif' );
+					
+					add_submenu_page('wp-united', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', 'wp-united' , 'wpu_menuSettings');						
+					if ( !empty($wpSettings['allowStyleSwitch']) ) {
+						add_submenu_page('wp-united', $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts','wp-united-theme-menu', 'wp_united_display_theme_menu');
+					}
+				} 
 			} 
 		}
 	}
 }
  
- 
-/**
- * Displays the top-level menu for WP-United, "Your Blog".
- */
-function wpu_menuTopLevel() {
-	if ( isset($_GET['wputab']) ) {
-		$tab = ($_GET['wputab'] == 'themes') ? 'THEMES' : 'SETTINGS';
-	}
-	if ( 'THEMES' != $tab) { 
-		wpu_menuSettings();
-	} else { 
-		wp_united_display_theme_menu();
-	}
-}
 
 /**
  * Shows the "Your blog settings" menu
@@ -362,9 +331,9 @@ function wp_united_display_theme_menu() {
 	global $user_ID, $title, $parent_file, $wp_version, $phpEx, $phpbbForum;
 	
 	if ( ! validate_current_theme() ) { ?>
-	<div id="message1" class="updated fade"><p><?php echo $phpBBForum->lang['wpu_theme_broken']; ?></p></div>
+	<div id="message1" class="updated fade"><p><?php echo $phpbbForum->lang['wpu_theme_broken']; ?></p></div>
 	<?php } elseif ( isset($_GET['activated']) ) { ?>
-	<div id="message2" class="updated fade"><p><?php sprintf($phpbbForum->lang['wpu_theme_activated'], '<a href="' . wpu_homelink('wpu-activate-theme') . '/">', '</a>'); ?></p></div>
+	<div id="message2" class="updated fade"><p><?php echo sprintf($phpbbForum->lang['wpu_theme_activated'], '<a href="' . wpu_homelink('wpu-activate-theme') . '/">', '</a>'); ?></p></div>
 	<?php }
 	
 	$themes = get_themes();
@@ -399,6 +368,8 @@ function wp_united_display_theme_menu() {
 	$author = $themes[$user_theme]['Author'];
 	$screenshot = $themes[$user_theme]['Screenshot'];
 	$stylesheet_dir = $themes[$user_theme]['Stylesheet Dir'];
+	$theme_root = $themes[$theme_name]['Theme Root'];
+	$theme_root_uri = $themes[$theme_name]['Theme Root URI'];	
 	$tags = $themes[$user_theme]['Tags'];	
 
 	if ($wp_version > 2.50) {
@@ -427,17 +398,17 @@ function wp_united_display_theme_menu() {
 
 		$themes = array_slice( $themes, $start, $per_page );
 	
-		$pageTitle = $phpbbForum->lang['wpu_blog_your_theme'];
-		$parent_file = 'wpu-plugin.' . $phpEx . '&wputab=themes'; ?>
+		$pageTitle = $phpbbForum->lang['wpu_blog_your_theme']; ?>
 		
 		<div class="wrap">
-			<?php screen_icon(); ?>
+			<?php screen_icon('themes'); ?>
 			<h2><?php echo wp_specialchars( $pageTitle ); ?></h2>
 		<?php /* CURRENT THEME */ ?>
 			<h3><?php _e('Current Theme'); ?></h3>
 			<div id="current-theme">
 				<?php if ( $screenshot ) : ?>
-				<img src="<?php echo WP_CONTENT_URL . $stylesheet_dir . '/' . $screenshot; ?>" alt="<?php _e('Current theme preview'); ?>" />
+
+				<img src="<?php echo $theme_root_uri  . '/' . $stylesheet . '/' . $screenshot; ?>" alt="<?php _e('Current theme preview'); ?>" />
 				<?php endif; ?>
 				<h4><?php printf(_c('%1$s %2$s by %3$s|1: theme title, 2: theme version, 3: theme author'), $title, $version, $author) ; ?></h4>
 				<p class="description"><?php echo $description; ?></p>
@@ -499,17 +470,19 @@ function wp_united_display_theme_menu() {
 						$author = $themes[$theme_name]['Author'];
 						$screenshot = $themes[$theme_name]['Screenshot'];
 						$stylesheet_dir = $themes[$theme_name]['Stylesheet Dir'];
+						$theme_root = $themes[$theme_name]['Theme Root'];
+						$theme_root_uri = $themes[$theme_name]['Theme Root URI'];							
 						$preview_link = clean_url( get_option('home') . '/');
 						$preview_link = htmlspecialchars( add_query_arg( array('preview' => 1, 'template' => $template, 'stylesheet' => $stylesheet, 'TB_iframe' => 'true', 'width' => 600, 'height' => 400 ), $preview_link ) );
 						$preview_text = attribute_escape( sprintf( __('Preview of "%s"'), $title ) );
 						$tags = $themes[$theme_name]['Tags'];
 						$thickbox_class = 'thickbox';
-						$activate_link = wp_nonce_url('admin.php?page=wpu-plugin.' . $phpEx . '&amp;wputab=themes&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
+						$activate_link = wp_nonce_url('admin.php?page=wp-united-theme-menu&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
 						$activate_text = attribute_escape( sprintf( __('Activate "%s"'), $title ) );
 						?>
 						<?php if ( $screenshot ) { ?>
 							<a href="<?php echo $preview_link; ?>" title="<?php echo $preview_text; ?>" class="<?php echo $thickbox_class; ?> screenshot">
-								<img src="<?php echo WP_CONTENT_URL . $stylesheet_dir . '/' . $screenshot; ?>" alt="" />
+								<img src="<?php echo $theme_root_uri  . '/' . $stylesheet . '/' . $screenshot; ?>" alt="" />
 							</a>
 						<?php } ?>
 						<h3><a class="<?php echo $thickbox_class; ?>" href="<?php echo $activate_link; ?>"><?php echo $title; ?></a></h3>
@@ -826,7 +799,7 @@ function wpu_blogdesc($default) {
  * Returns the URL of the current user's blog
  */
 function wpu_homelink($default) {
-	global $wpSettings, $user_ID, $wpu_done_head, $altered_link, $wp_version, $wputab_altered_link; 
+	global $wpSettings, $user_ID, $wpu_done_head, $altered_link;
 	if ( ($wpu_done_head && !$altered_link) || ($default=="wpu-activate-theme")  ) {
 
 		if ( !empty($wpSettings['usersOwnBlogs']) ) {
@@ -840,12 +813,7 @@ function wpu_homelink($default) {
 			}
 			if ( !empty($authorID) ) { 
 				if(get_usernumposts($authorID)) { // only change URL if author has posts
-					if ( ((float) $wp_version) >= 2.1 ) {
-						//WP >= 2.1 branch
-						$blog_url = get_author_posts_url($authorID); 
-					} else {
-						$blog_url = get_author_link(false, $authorID, ''); 
-					}
+					$blog_url = get_author_posts_url($authorID); 
 					$blog_url = ( $blog_url[strlen($blog_url)-1] == "/" ) ? substr($blog_url, 0, -1) : $blog_url; //kill trailing slash
 				}
 				if ( empty($blog_url) ) {
@@ -1273,8 +1241,8 @@ function wpu_disable_wp_login() {
  * Add script to our user blog theme selection page
  */
 function wpu_prepare_admin_pages() {
-	if ( isset($_GET['wputab']) ) {
-		if ($_GET['wputab'] == 'themes') {
+	if ( isset($_GET['page']) ) {
+		if ($_GET['page'] == 'wp-united-theme-menu') {
 			add_thickbox();
 			wp_enqueue_script( 'theme-preview' );
 			
@@ -1564,8 +1532,8 @@ add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
 add_action('comment_form', 'wpu_print_smilies');
 add_action('wp_head', 'wpu_javascript');
 
-if ( isset($_GET['wputab']) ) {
-	if ($_GET['wputab'] == 'themes') {
+if ( isset($_GET['page']) ) {
+	if ($_GET['page'] == 'wp-united-theme-menu') {
 		add_action('admin_init', 'wpu_prepare_admin_pages');
 	}
 }
