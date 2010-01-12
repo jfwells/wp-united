@@ -135,7 +135,7 @@ function wpu_check_for_action() {
 			
 			update_usermeta($user_ID, 'blog_title', $blog_title);
 			update_usermeta($user_ID, 'blog_tagline', $blog_tagline);
-			wp_redirect("admin.php?page=wp-united.$phpEx&updated=true");
+			wp_redirect("admin.php?page=wp-united&updated=true");
 			exit;
 		}
 	}
@@ -285,7 +285,7 @@ function wpu_menuSettings() {
 	<div class="wrap" id="profile-page">
 	<?php screen_icon('profile'); ?>
 	<h2> <?php echo $phpbbForum->lang['wpu_blog_details']?> </h2>
-	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=<?php echo "wp-united.$phpEx"; ?>&amp;wpu_action=update-blog-profile" method="post">
+	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=wp-united&amp;wpu_action=update-blog-profile" method="post">
 	<?php wp_nonce_field('update-blog-profile_' . $user_ID); 	?>
 	<input type="hidden" name="_wp_http_referer" value="<?php echo attribute_escape($_SERVER['REQUEST_URI']); ?>" />
 	<?php if ( $ref = wp_get_original_referer() ): ?>
@@ -312,7 +312,7 @@ function wpu_menuSettings() {
 		</table>
 
 	<p class="submit">
-		<input type="submit" class="button-primary" value="<?php  _e('Update Profile &raquo;'); ?>" name="submit" />
+		<input type="submit" class="button-primary" value="<?php  echo $phpbbForum->lang['wpu_update_blog_details'] ?>" name="submit" />
 	</p>
 	</form>
 		

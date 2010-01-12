@@ -160,3 +160,4 @@ DONE / COMMITTED
 - Plugin workarounds can now be enabled (or disabled) with one click on step 5 of the wizard if the install fails.
 - WP-United dashboard menu improved: submenus now selected properly
 - Fixed various errors in user blog theme panel
+- Fixed blog settings panel, renamed to "Your blog details"
