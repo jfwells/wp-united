@@ -701,11 +701,14 @@ class acp_wp_united {
 		$this->tpl_name = 'acp_wp_united';		
 		$this->page_title =$user->lang['WPWIZARD_H1'];
 		
+		$wpSettings = get_integration_settings();
+		
 		// pass strings
 		$template->assign_vars(array(	
 			'L_WPWIZARD_STEP' => sprintf($user->lang['WP_Wizard_Step'], 5, $numWizardSteps),
 			'U_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
 			'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
+			'S_PLUGIN_STATE' => (!empty($wpSettings['pluginFixes'])) ? 'ENABLED' : 'DISABLED',
 			'L_WPBACK' => sprintf($user->lang['WP_Wizard_Back'], 4),
 			'L_WPNEXT' => sprintf($user->lang['WP_Wizard_Next'], 6)
 		));
@@ -724,7 +727,9 @@ class acp_wp_united {
 		
 		set_error_handler(array($this, 'step5_errorhandler'));
 		
-		
+		$data['pluginFixes'] = (request_var('plug', 'DISABLED') == 'ENABLED') ? 1 : 0;
+		set_integration_settings($data);
+
 		$wpSettings = get_integration_settings();
 
 		$connError = $this->install_wpuConnection();
@@ -739,14 +744,14 @@ class acp_wp_united {
 				$xmlData['result'] = "NOSAVE";
 				$xmlData['message'] = $user->lang['WPWIZ_DB_ERR_CONN_OK'];
 			} else {
-				$xmlData['result'] = "OK"; 
+				$xmlData['result'] = "OK";  
 				$xmlData['message'] = $user->lang['WPWIZ_INSTALLED_OK'];
 			}
 		} else {
 				$xmlData['result'] = "FAIL";
 				$xmlData['message'] = "<![CDATA[$wpu_debug]]>";
 		}
-		
+		$xmlData['pluginstate'] = (!empty($wpSettings['pluginFixes'])) ? 'ENABLED' : 'DISABLED';
 		$this->send_ajax($xmlData, 'installconn');
 		
 	}
@@ -1360,12 +1365,9 @@ class acp_wp_united {
 				'L_WP_PATHDETRESULT' => $pathDetResult,
 				'L_WP_WPEXISTCOLOUR' => $wpExistColour,
 				'L_WP_WPEXISTRESULT' => $wpExistResult,
+				'S_PLUGIN_STATE' => (!empty($wpSettings['pluginFixes'])) ? 'ENABLED' : 'DISABLED',
 				'U_WPAJAX_ACTION' => str_replace ('&amp;', '&', append_sid("index.$phpEx?i=wp_united")),
 				'S_WPWIZ_ACTION' => append_sid("index.$phpEx?i=wp_united"),
-				//'L_WP_WPCONNCOLOUR' => $wpConnColour,
-				//'L_WP_WPCONNRESULT' => $wpConnResult,
-				//'L_WP_WPSAVECOLOR' => $saveColour,
-				//'L_WP_WPSAVERESULT' => $saveResult,
 				'L_WPSETTINGS_RESULTMSG' => sprintf($user->lang['WP_Config_GoBack'], "<a href=\"" . append_sid("index.$phpEx?i=wp_united") . "\">", "</a>") ,
 			));
 			

@@ -100,6 +100,7 @@ completely rewritten.
 -- NEW: Cross-posted comments from cross-posted phpBB topic and WordPress comment form
 -- Big cleanup of widgets to remove unneeded markup and options
 -- NEW: Users online widget
+-- NEW: WP-United now supports forum & blog installation on different subdomains
 -- FIXED: template integration does not honour right-to-left layouts
 -- NEW forum page automatically created in WordPress to provide easy link to forum
 -- FIXED: full page reverse template integration works with new forum page to display better

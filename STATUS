@@ -20,8 +20,6 @@ test that adding phpBB user in user map still works
 
 Remove phpbbForum->err_msg with plan trigger_error or wp_die -- it is a throwback to wpuAbs
 
-Enable plugin fixes option if connection install fails
-
 ACTIONS FOR RELEASE
 ------------------------------
 
@@ -155,4 +153,5 @@ DONE / COMMITTED
 - Removed "Header fix" option from integrator and ACP
 - Removed "phpBB styles first?" option from ACP, split to two separate advanced options in options.php
 - ACP: wpu-plugin copy reports success if filemtime of copied file is equal or newer -- no longer looks for magic variable in header
-- Now offocially supports subdomains (or even completely different domains with the appropriate mod installed) -- warning wording changed in ACP
+- Now officially supports subdomains (or even completely different domains with the appropriate mod installed) -- warning wording changed in ACP
+- Plugin workarounds can now be enabled (or disabled) with one click on step 5 of the wizard if the install fails.
