@@ -7,7 +7,6 @@ The "DONE" section only contains changes in the final run-up to release
 
 TODO
 --------
-Overall architecture: Remove subdomain restrictions
 
 Fix wpu blog menu selections (e.g. using $submenu_file and $parent_file)
 CSS Magic: topic icons not showing in forum?
@@ -156,3 +155,4 @@ DONE / COMMITTED
 - Removed "Header fix" option from integrator and ACP
 - Removed "phpBB styles first?" option from ACP, split to two separate advanced options in options.php
 - ACP: wpu-plugin copy reports success if filemtime of copied file is equal or newer -- no longer looks for magic variable in header
+- Now offocially supports subdomains (or even completely different domains with the appropriate mod installed) -- warning wording changed in ACP

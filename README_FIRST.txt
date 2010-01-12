@@ -118,6 +118,7 @@ completely rewritten.
 -- FIXED: install.xml broken finds & broken subSilver finds
 -- NEW: All language strings in WordPress can now be translated in phpBB in one place
 -- NEW: wpuAbs abstraction class removed
+-- FIXED: Missing quick links in WordPress dashboard
 
 
 v0.7.1 (STILL RELEASE CANDIDATE 1!)
