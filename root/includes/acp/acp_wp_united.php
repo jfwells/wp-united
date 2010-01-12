@@ -371,13 +371,8 @@ class acp_wp_united {
 			'S_TV_OFF' => ( $wpSettings['templateVoodoo'] ) ? '' : 'checked="checked"',
 			'S_PLUGIN_FIXES_YES' => ( $wpSettings['pluginFixes'] ) ? 'checked="checked"' : '',
 			'S_PLUGIN_FIXES_NO' =>  ( $wpSettings['pluginFixes'] ) ? '' : 'checked="checked"',	
-			'S_PS_FIRST' => ($wpSettings['cssFirst'] == 'P') ? 'checked="checked"' : '' ,
-			'S_PS_NOTFIRST' => ($wpSettings['cssFirst'] == 'W') ? 'checked="checked"' : '',
-			'S_PS_NONE' => ($wpSettings['cssFirst'] == 'NONE') ? 'checked="checked"' : '' ,
 			'S_WPSIMPLE_YES' => ( $wpSettings['wpSimpleHdr'] ) ? 'checked="checked"' : '',
-			'S_WPSIMPLE_NO' =>  ( $wpSettings['wpSimpleHdr'] ) ? '' : 'checked="checked"',
-			'S_HDR_FIX_ENABLE'	=> ( $wpSettings['fixHeader'] ) ? '' : 'checked="checked"',
-			'S_HDR_FIX_DISABLE'	=> ( $wpSettings['fixHeader'] ) ? '' : 'checked="checked"',						
+			'S_WPSIMPLE_NO' =>  ( $wpSettings['wpSimpleHdr'] ) ? '' : 'checked="checked"',					
 			'S_WP_PADTOP' => ($padding[0] != '') ? (int)$padding[0] : '',
 			'S_WP_PADRIGHT' => ($padding[1] != '') ? (int)$padding[1] : '',
 			'S_WP_PADBOTTOM' => ($padding[2] != '') ? (int)$padding[2] : '',
@@ -597,13 +592,8 @@ class acp_wp_united {
 			'S_TV_OFF' => ( $wpSettings['templateVoodoo'] ) ? '' : 'checked="checked"',
 			'S_PLUGIN_FIXES_YES' => ( $wpSettings['pluginFixes'] ) ? 'checked="checked"' : '',
 			'S_PLUGIN_FIXES_NO' =>  ( $wpSettings['pluginFixes'] ) ? '' : 'checked="checked"',
-			'S_PS_FIRST' => ($wpSettings['cssFirst'] == 'P') ? 'checked="checked"' : '' ,
-			'S_PS_NOTFIRST' => ($wpSettings['cssFirst'] == 'W') ? 'checked="checked"' : '',
-			'S_PS_NONE' => ($wpSettings['cssFirst'] == 'NONE') ? 'checked="checked"' : '' ,
 			'S_WPSIMPLE_YES' => ( $wpSettings['wpSimpleHdr'] ) ? 'checked="checked"' : '',
 			'S_WPSIMPLE_NO' =>  ( $wpSettings['wpSimpleHdr'] ) ? '' : 'checked="checked"',
-			'S_HDR_FIX_ENABLE'	=> ( $wpSettings['fixHeader'] ) ? '' : 'checked="checked"',
-			'S_HDR_FIX_DISABLE'	=> ( $wpSettings['fixHeader'] ) ? '' : 'checked="checked"',
 			'S_WP_PADTOP' => ($padding[0] != '') ? (int)$padding[0] : '',
 			'S_WP_PADRIGHT' => ($padding[1] != '') ? (int)$padding[1] : '',
 			'S_WP_PADBOTTOM' => ($padding[2] != '') ? (int)$padding[2] : '',
@@ -976,10 +966,8 @@ class acp_wp_united {
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
 		$data['cssMagic'] = (int) request_var('rad_cssm', 1);
 		$data['templateVoodoo'] = (int) request_var('rad_tv', 1);
-		$data['fixHeader'] = (int) request_var('rad_fixhdr', 1);
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 0);
 		$data['wpPageName'] = request_var('txt_wpPage', '');
-		$data['cssFirst'] = (int) request_var('rad_pFirst', 0);
 		$data['phpbbCensor'] = (int) request_var('rad_Censor', 0);
 		$data['pluginFixes'] = (int) request_var('rad_Plugins', 0);
 		$data['phpbbSmilies'] = (int) request_var('rad_Smilies', 0);
@@ -1015,19 +1003,6 @@ class acp_wp_united {
 			$data['templateVoodoo'] = 1;
 		}
 
-		switch ( $data['cssFirst'] ) {
-		case '1':
-			$data['cssFirst'] = 'P';
-			break;
-		case '2';
-			$data['cssFirst'] = 'W';
-			break;
-		case '0';
-			default;
-			$data['cssFirst'] = 'NONE';
-			break;
-		}		
-		
 		//Save settings to db
 		if ( !(set_integration_settings($data)) ) {
 			$wizShowError = TRUE;
@@ -1123,9 +1098,7 @@ class acp_wp_united {
 		$data['showHdrFtr'] = request_var('rad_Inside', '');
 		$data['cssMagic'] = (int) request_var('rad_cssm', 1);
 		$data['templateVoodoo'] = (int) request_var('rad_tv', 1);
-		$data['fixHeader'] = (int) request_var('rad_fixhdr', 1);
 		$data['wpSimpleHdr'] = (int) request_var('rad_Simple', 1);
-		$data['cssFirst'] = (int) request_var('rad_pFirst', 1);	
 		$data['phpbbCensor'] = (int) request_var('rad_Censor', 1);
 		$data['pluginFixes'] = (int) request_var('rad_Plugins', 0);
 		$data['phpbbSmilies'] = (int) request_var('rad_Smilies', 1);
@@ -1161,21 +1134,7 @@ class acp_wp_united {
 			$data['templateVoodoo'] = 1;
 		}
 
-		switch ( $data['cssFirst'] ) {
-		case '1':
-			$data['cssFirst'] = 'P';
-			break;
-		case '2';
-			$data['cssFirst'] = 'W';
-			break;
-		case '0';
-			default;
-			$data['cssFirst'] = 'NONE';
-			break;
-		}			
 
-		
-		
 		$radWpLogin = (int) request_var('rad_Login', 0);
 		$ownBlogs = (int) request_var('rad_ownBlogs', 0);
 		$btnsProf = (int) request_var('rad_Prof', 0);
@@ -2058,6 +2017,7 @@ class acp_wp_united {
 			
 			//WP 2.3 and onwards doesn't allow directory traversal, so we need to ask user to copy the file instead
 			$wpPluginDir = $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))) . "wp-content/plugins/";
+			$copySuccess = false;
 			if (file_exists($wpPluginDir)) {
 				// we got the plugin directory correct, copy file over
 				$copySuccess = false;
@@ -2067,22 +2027,10 @@ class acp_wp_united {
 				if (file_exists($wpPluginDir . "wpu-plugin.{$phpEx}")) {
 					// Check to see that WPU-Plugin is the correct version
 					
-					$correctVerFile = file_get_contents($phpbb_root_path . "/wp-united/wpu-plugin.{$phpEx}");
-					$found = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $correctVerFile,  $correctVer);
-					unset($correctVerFile);
-					if ($found) {
-						$testVerFile = file_get_contents($wpPluginDir . "wpu-plugin.{$phpEx}");
-						$test = preg_match('/\|\|WPU-PLUGIN-VERSION=[0-9\.]*\|\|/', $testVerFile,  $testVer);
-						unset($testVerFile);
-						if ($test) {
-							if ( ($testVer[0] == $correctVer[0]) && (!empty($testVer[0])) ) {
-								$copySuccess = true;
-							}
-						}
-					}
+					$localFileTime = @filemtime("{$phpbb_root_path}wp-united/wpu-plugin.{$phpEx}");
+					$installedFileTime =@filemtime("{$wpPluginDir}wpu-plugin.{$phpEx}");
+					$copySuccess = ($localFileTime <= $installedFileTime);
 				}
-		
-				
 			}
 
 			if(!$copySuccess) { 

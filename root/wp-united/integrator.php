@@ -258,7 +258,7 @@ if ( $useCache || $connectSuccess ) {
 			$phpbbForum->enter();
 		} */
 		
-		if ( $wpSettings['cssFirst'] == 'P' ) {
+		if (!DISABLE_PHPBB_CSS && PHPBB_CSS_FIRST) {
 			$outerContent = str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $outerContent);
 		}
 

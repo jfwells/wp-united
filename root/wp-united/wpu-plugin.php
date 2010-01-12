@@ -5,7 +5,7 @@ Plugin URI: http://www.wp-united.com
 Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
 Version: v0.8.0 RC2 (phpBB3)
-Last Updated: 23 December 2009
+Last Updated: 12 January 2010
 Author URI: http://www.wp-united.com
 
 NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow phpBB mod conventions. Specifically:
@@ -13,8 +13,6 @@ NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow php
 	- different templating system
 	- WordPress hard-codes php extensions, so so do we
 
-DO NOT MODIFY THE BELOW LINE:
-||WPU-PLUGIN-VERSION=799||
 */ 
 /** 
 *
@@ -894,12 +892,12 @@ function wpu_get_author() {
 */
 function wpu_done_head() {
 	global $wpu_done_head, $wpSettings, $phpbbForum, $wp_the_query;
-	$wpu_done_head = true;
+	$wpu_done_head = true; 
 	//add the frontpage stylesheet, if needed: 
 	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {
 		echo '<link rel="stylesheet" href="' . $phpbbForum->url . 'wp-united/theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
-	if ( (defined('WPU_REVERSE_INTEGRATION')) && ($wpSettings['cssFirst'] == 'W') ) {
+	if ( (defined('WPU_REVERSE_INTEGRATION')) && (!PHPBB_CSS_FIRST) ) {
 		echo '<!--[**HEAD_MARKER**]-->';
 	}
 	

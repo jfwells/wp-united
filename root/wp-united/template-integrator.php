@@ -27,7 +27,7 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	//export header styles to template - before or after phpBB's CSS depending on wpSettings.
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later
-	$wpStyleLoc = ( $wpSettings['cssFirst'] == 'P' ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
+	$wpStyleLoc = ( PHPBB_CSS_FIRST ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
 	
 	$template->assign_vars(array(
 		$wpStyleLoc => '<!--[**HEAD_MARKER**]-->',
@@ -125,16 +125,6 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
 } 
 
 if (defined('WPU_REVERSE_INTEGRATION')) {
-	//Remove the phpBB header if required, preserving the search box. This still needs more work
-	if ( !empty($wpSettings['fixHeader']) && !DISABLE_HEADER_FIX ) {
-		global $pHeadRemSuccess, $srchBox;
-		if(preg_match('/<div id="search-box">[\s\S]*?<\/div>/', $innerContent, $srchBox)) {
-			$srchBox = $srchBox[0];
-		}
-		$token = '/<div class="headerbar">[\S\s]*?<div class="navbar">/';		$innerContent2 = preg_replace($token, '<br /><div class="navbar">', $innerContent);
-		$pHeadRemSuccess = ($innerContent2 != $innerContent); // count paramater to preg_replace only available in php5 :-(
-		$innerContent = $innerContent2; unset($innerContent2);
-	}
 	
 	// replace outer title with phpBB title
 	$outerContent = preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $outerContent);

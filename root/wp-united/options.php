@@ -92,18 +92,16 @@ define('WP_ROOT_COOKIE', FALSE);
  */
 define('WPU_SHOW_STATS', TRUE);
 
-
-
-//
-//  DO NOT MAKE ANY CHANGES PAST THIS POINT!
-//
-//
-
-// The "Remove header" option in the ACP kills too many templates. Rather than having to keep going back there
-// while developing, we can just force it off here
-define('DISABLE_HEADER_FIX', FALSE);
-
-
+/**
+ *  phpBB CSS?
+ * These options control whether phpBB CSS is displayed, and whether it comes before
+ * or after WordPress CSS.
+ * Unless you specifically want to disable all phpBB styles, or change the order, leave these at their
+ * default settings
+ * If you change these, you my need to purge the cache for them to take effect properly.
+ */
+define('DISABLE_PHPBB_CSS', FALSE);
+define('PHPBB_CSS_FIRST', TRUE);
 
 
 ?>

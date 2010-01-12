@@ -7,43 +7,35 @@ The "DONE" section only contains changes in the final run-up to release
 
 TODO
 --------
+Overall architecture: Remove subdomain restrictions
 
-
-Fix wpu blog menu using $submenu_file and $parent_file
-
-$_SID is not getting set, so append_sid() does nothing without forced param
-
-Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
-
-ACP: wpu-plugin copy doesn't need to look for magic version variable, just use filemtime instead.
-ACP: remove header fix, and split out "advanced" options to simplify install
-ACP: Remove stylesFirst option to options.php
-
-Plugin: Ensure WordPress' $user->display_name (= $user_identity) is being set by phpBB when logins are integrated (it should be).
-Plugin: JavaScript and CSS should be enqueued
-
-CSS Magic: Add fixes for IE (6,7,8)
+Fix wpu blog menu selections (e.g. using $submenu_file and $parent_file)
 CSS Magic: topic icons not showing in forum?
-
+CSS Magic: Add fixes for IE (6,7,8)
 Styles: Default padding a little off (?)
+Plugin: Ensure WordPress' $user->display_name (= $user_identity) is being set by phpBB when logins are integrated (it should be).
+$_SID is not getting set, so append_sid() does nothing without forced param
 
 Test logout and profile transfer
 test that adding phpBB user in user map still works
-User blogs: Check and improve dashboard
 
 Remove phpbbForum->err_msg with plan trigger_error or wp_die -- it is a throwback to wpuAbs
 
-============================================
+Enable plugin fixes option if connection install fails
 
-Under consideration for v0.8:
---------------------------------------
-Overall architecture: Remove subdomain restrictions
-Overall architecture: Plugin fixes extend more general compatibility class -- to allow for simple "compatibility slider" in v0.9
-Overall architecture: Script path, URL, etc. still too hard to calculate, messy
-To allow for redirects on logout, buffer ucp.php via proxy file
-Cache: Make core/template calls follow same structure as css magic / template voodoo
+ACTIONS FOR RELEASE
+------------------------------
 
-============================================
+Fresh install test
+Install to wp-united.com
+Update all file headers and copyrights
+Check no Windows line endings have crept in
+Switch SVN branch to release
+remove STATUS file
+Update release notes
+Plea for help with user manual
+Announce
+
 
 Deferred to v0.9:
 ----------------------
@@ -59,8 +51,12 @@ Widgets: Add AJAX backend framework
 style fixer: Try to pull page with fixed links from cache -- perhaps based on quick hash of header content? (unlikely)
 Template funcs: Move more phpBB code to phpBB abstraction
 Template tags / widget: phpBB "function bar"
-Plugin-fixes: Move class to base make-compatible class, and have plugins extend it. 
-  Then can move all edits in --  for now, the template-loader edits, but also leave ability to step into all WP code
+Overall architecture: Plugin fixes extend more general compatibility class -- to allow for simple "compatibility slider" in v0.9
+To allow for redirects on logout, buffer ucp.php via proxy file
+Cache: Make core/template calls follow same structure as css magic / template voodoo
+ ACP: split out "advanced" options to simplify install
+ Plugin: JavaScript and CSS should be enqueued
+ Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 
 
 =============================================
@@ -144,16 +140,19 @@ DONE / COMMITTED
 - Fixed ACP link and logout in userinfo widget. However, in general this is failing because $_SID is not getting set, so append_sid() does nothing TODO: check
 - Editing posts using quick Edit now updates the cross-posted post too
 - Proper fix for editing of profile fields in phpBB & WP in progress:
--- Added links to edit phpBB profile or administer user in users.php if that user is integrated 
--- Reinstated buffering of profile.php and user-edit.php when that user is integrated
--- Added phpbb message to profile.php and user-edit.php if that user is integrated
--- Added phpBB general message to users.php
--- Fixed settings menu
--- removed use of conn settings full_path_to_plugin
--- ACP: Removed unnecessary wpu connection parameters that we aren't using any more
--- Fixed login debugging not showing up
--- CSS Magic now checks filemtime
--- Fixed style keys not available in style.php causing cache to be regenerated each time
--- Fixed errors in wpu-install.php
--- wpu-install.php npow only works for founder users, and uses the phpBB template system
--- Fixed error on user registration
+- Added links to edit phpBB profile or administer user in users.php if that user is integrated 
+- Reinstated buffering of profile.php and user-edit.php when that user is integrated
+- Added phpbb message to profile.php and user-edit.php if that user is integrated
+- Added phpBB general message to users.php
+- Fixed settings menu
+- removed use of conn settings full_path_to_plugin
+- ACP: Removed unnecessary wpu connection parameters that we aren't using any more
+- Fixed login debugging not showing up
+- CSS Magic now checks filemtime
+- Fixed style keys not available in style.php causing cache to be regenerated each time
+- Fixed errors in wpu-install.php
+- wpu-install.php npow only works for founder users, and uses the phpBB template system
+- Fixed error on user registration
+- Removed "Header fix" option from integrator and ACP
+- Removed "phpBB styles first?" option from ACP, split to two separate advanced options in options.php
+- ACP: wpu-plugin copy reports success if filemtime of copied file is equal or newer -- no longer looks for magic variable in header

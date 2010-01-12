@@ -114,11 +114,11 @@
 				hideListingRows();
 			}
 			if (document.getElementById("insideFWD").checked == true) {
-				showAutoRows(); hideRevRows(); showFwdRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideRevRows(); showFwdRows(); 
 			} else if (document.getElementById("insideREV").checked == true) {
-				showAutoRows(); hideFwdRows(); showRevRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideFwdRows(); showRevRows(); 
 			} else {
-				hideAutoRows(); hideFwdRows(); hideRevRows(); document.getElementById("pStyleFirst").style.display = 'none';			
+				hideAutoRows(); hideFwdRows(); hideRevRows(); 
 			}
 			if (document.getElementById("ownBlogsYes").checked == true) {
 				showBlogRows();
@@ -142,7 +142,6 @@
 		if (enhanced) {
 
 			document.getElementById("revHead").style.display = 'none';
-			document.getElementById("fixHdr").style.display = 'none';
 			document.getElementById("wpSimple").style.display = 'none';
 			document.getElementById("pPadding").style.display = 'none';
 			hidePageRows();
@@ -157,7 +156,6 @@
 	function showRevRows() {
 		if (enhanced) {
 			document.getElementById("revHead").style.display = '';
-			document.getElementById("fixHdr").style.display = '';		
 			document.getElementById("wpSimple").style.display = '';
 			document.getElementById("pPadding").style.display = '';
 			if (document.getElementById("wpComplex").checked == true) {
@@ -390,21 +388,12 @@
 				<dt><label for="rad_tv">{L_TV_TITLE}</label><br /><span>{L_TV_EXPLAIN1}<br /><br />{L_TV_EXPLAIN2}</span></dt>
 				<dd><input type="radio" id="rad_tv" name="rad_tv" value="1" {S_TV_ON}/>{L_WP_YESREC}<br /><input type="radio" name="rad_tv" value="0" {S_TV_OFF}/>{L_WP_NO}</dd>			
 			</dl>			
-			<dl id="pStyleFirst">
-				<dt><label for="rad_pFirst">{L_PSTYLES_FIRST_TITLE}</label><br /><span>{L_PSTYLES_FIRST_EXPLAIN1}<br /><br />{L_PSTYLES_FIRST_EXPLAIN2}<br /><br />{L_PSTYLES_FIRST_EXPLAIN3}<br /><br />{L_PSTYLES_FIRST_EXPLAIN4}</span></dt>
-				<dd><input type="radio" id="rad_pFirst" name="rad_pFirst" value="1" onclick="rowState()" {S_PS_FIRST}/>{L_WP_YESREC}<br /><input type="radio" name="rad_pFirst" value="2" onclick="rowState()" {S_PS_NOTFIRST}/>{L_WP_NO}<br /><input type="radio" name="rad_pFirst" value="0" onclick="rowState()" {S_PS_NONE} />{L_PS_NONE}</dd>
-			</dl>
 		  	<h3 id="fwdHead" style="margin-bottom: 20px;">{L_WPWIZARD_WINP_TITLE}</h3>
 			<dl id="dtdRow">
 				<dt><label for="dtdYes">{L_WPDTD_TITLE}</label><br /><span>{L_WPDTD_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="dtdYes" name="rad_DTD" value="1" {S_WPDTD_ENABLE}/>{L_WP_YES}<br /><input type="radio" name="rad_DTD" value="0" {S_WPDTD_DISABLE} />{L_WP_NO}</dd>
 			</dl>			
-			<h3 id="revHead" style="margin-bottom: 20px;">{L_WPWIZARD_PINW_TITLE}</h3>
-
-			<dl id="fixHdr">
-				<dt><label for="rad_fixhdr">{L_WPFIX_HEADER_TITLE}</label><br /><span>{L_WPFIX_HEADER_EXPLAIN1}<br /><br />{L_WPFIX_HEADER_EXPLAIN2}</span></dt>
-				<dd><input type="radio" id="rad_fixhdr" name="rad_fixhdr" value="1"  {S_HDR_FIX_ENABLE}/>{L_WP_FIX}<br /><input type="radio"  name="rad_fixhdr" value="0" {S_HDR_FIX_DISABLE} />{L_WP_NOFIX}</dd>
-			</dl>	
+			<h3 id="revHead" style="margin-bottom: 20px;">{L_WPWIZARD_PINW_TITLE}</h3>	
 			
 			<dl id="pPadding">
 				<dt><label for="txt_padT">{L_WP_PADTITLE}</label><br /><span>{L_WP_PADEXPLAIN1}<br /><br />{L_WP_PADEXPLAIN2}<br /><br />{L_WP_PADEXPLAIN3}</span></dt>
@@ -998,16 +987,16 @@
 	function rowState() {
 		if (enhanced) {
 			if (document.getElementById("insideFWD").checked == true) {
-				showAutoRows(); hideRevRows(); showFwdRows(); hidePageRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideRevRows(); showFwdRows(); hidePageRows(); 
 			} else if (document.getElementById("insideREV").checked == true) {
-				showAutoRows(); hideFwdRows(); showRevRows(); document.getElementById("pStyleFirst").style.display = '';
+				showAutoRows(); hideFwdRows(); showRevRows(); 
 				if (document.getElementById("wpComplex").checked == true) {
 					showPageRows(); 
 				} else {
 					hidePageRows();
 				}
 			} else {
-				hideAutoRows(); hideFwdRows(); hideRevRows(); hidePageRows(); document.getElementById("pStyleFirst").style.display = 'none';		
+				hideAutoRows(); hideFwdRows(); hideRevRows(); hidePageRows(); 
 			}
 		}
 	}
@@ -1021,7 +1010,6 @@
 	function hideRevRows() {
 		if (enhanced) {
 			document.getElementById("revHead").style.display = 'none';
-			document.getElementById("fixHdr").style.display = 'none';
 			document.getElementById("wpSimple").style.display = 'none';
 			document.getElementById("pPadding").style.display = 'none';
 		}
@@ -1041,7 +1029,6 @@
 	function showRevRows() {
 		if (enhanced) {
 			document.getElementById("revHead").style.display = '';	
-			document.getElementById("fixHdr").style.display = '';	
 			document.getElementById("wpSimple").style.display = '';
 			document.getElementById("pPadding").style.display = '';
 		}
@@ -1119,11 +1106,7 @@
 			<dl id="tv">
 				<dt><label for="rad_tv">{L_TV_TITLE}</label><br /><span>{L_TV_EXPLAIN1}<br /><br />{L_TV_EXPLAIN2}</span></dt>
 				<dd><input type="radio" id="rad_tv" name="rad_tv" value="1" {S_TV_ON}/>{L_WP_YESREC}<br /><input type="radio" name="rad_tv" value="0" {S_TV_OFF}/>{L_WP_NO}</dd>			
-			</dl>		
-			<dl id="pStyleFirst">
-				<dt><label for="rad_pFirst">{L_PSTYLES_FIRST_TITLE}</label><br /><span>{L_PSTYLES_FIRST_EXPLAIN1}<br /><br />{L_PSTYLES_FIRST_EXPLAIN2}<br /><br />{L_PSTYLES_FIRST_EXPLAIN3}<br /><br />{L_PSTYLES_FIRST_EXPLAIN4}</span></dt>
-				<dd><input type="radio" id="rad_pFirst" name="rad_pFirst" value="1" onClick="rowState()" {S_PS_FIRST}/>{L_WP_YESREC}<br /><input type="radio" name="rad_pFirst" value="2" onClick="rowState()" {S_PS_NOTFIRST}/>{L_WP_NO}<br /><input type="radio" name="rad_pFirst" value="0" onClick="rowState()" {S_PS_NONE} />{L_PS_NONE}</dd>
-			</dl>			
+			</dl>				
 			<h3 id="fwdHead" style="margin-bottom: 20px;">{L_WPWIZARD_WINP_TITLE}</h3>
 			<dl id="dtdRow">
 				<dt><label for="dtdYes">{L_WPDTD_TITLE}</label><br /><span>{L_WPDTD_EXPLAIN}</span></dt>
@@ -1134,10 +1117,6 @@
 				<dt><label for="">{L_WPSIMPLE_TITLE}</label><br /><span>{L_WPSIMPLE_EXPLAIN1}<br /><br />{L_WPSIMPLE_EXPLAIN2}<br /><br />{L_WPSIMPLE_EXPLAIN3}</span></dt>
 				<dd><input type="radio" onClick="rowState()" id="rad_Simple" name="rad_Simple" value="1"  {S_WPSIMPLE_YES}/>{L_WP_SIMPLE}<br /><input type="radio" id="wpComplex" onClick="rowState()" name="rad_Simple" value="0" {S_WPSIMPLE_NO} />{L_WP_FULLPAGE}</dd>
 			</dl>
-			<dl id="fixHdr">
-				<dt><label for="rad_fixhdr">{L_WPFIX_HEADER_TITLE}</label><br /><span>{L_WPFIX_HEADER_EXPLAIN1}<br /><br />{L_WPFIX_HEADER_EXPLAIN2}</span></dt>
-				<dd><input type="radio" id="rad_fixhdr" name="rad_fixhdr" value="1"  {S_HDR_FIX_ENABLE}/>{L_WP_FIX}<br /><input type="radio"  name="rad_fixhdr" value="0" {S_HDR_FIX_DISABLE} />{L_WP_NOFIX}</dd>
-			</dl>	
 			<dl id="pPadding">
 				<dt><label for="txt_padT">{L_WP_PADTITLE}</label><br /><span>{L_WP_PADEXPLAIN1}<br /><br />{L_WP_PADEXPLAIN2}<br /><br />{L_WP_PADEXPLAIN3}</span></dt>
 				<dd>
