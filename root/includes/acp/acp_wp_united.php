@@ -1977,7 +1977,13 @@ class acp_wp_united {
 		if ($wpUtdInt->can_connect_to_wp()) {
 			//Enter Integration
 			$wpUtdInt->enter_wp_integration();
-			eval($wpUtdInt->exec());  
+			eval($wpUtdInt->exec());
+			
+			// If this is the first run, $phpbbForum is not set as the plugin is not running
+			if(!isset($phpbbForum)) {
+				require_once($phpbb_root_path . 'wp-united/phpbb.' . $phpEx);
+				$phpbbForum = new WPU_Phpbb();
+			}
 
 			// Find path  to adm
 			$thisPath = $this->add_trailing_slash($this->clean_path(realpath(getcwd())));
