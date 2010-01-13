@@ -390,7 +390,7 @@ class CSS_Magic {
 		$response = '';
 		foreach($this->css as $keyString => $cssCode) {
 			$keyString = str_replace('__ ', '', $keyString);
-			$cssCode = str_replace("}\\", '[TANTEK]', $cssCode);
+			$cssCode = str_replace('[TANTEK]', "}\\", $cssCode);
 			if($keyString == '[WPU_NESTED]') {
 				$response .= $this->nestedItems[(int)$cssCode];
 			} else {
