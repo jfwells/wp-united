@@ -4,7 +4,7 @@
 * WP-United WordPress template tags
 *
 * @package WP-United
-* @version $Id: v0.8.0 2009/12/22 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0 2010/01/13 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * 
@@ -60,7 +60,7 @@ function get_wpu_intro() {
  * @param int $maxEntries Maximum number to show per page. Defaults to 5.
  */
 function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
-	global $wpdb, $authordata, $phpbbForum, $wpSettings, $wp_version, $phpEx;
+	global $wpdb, $authordata, $phpbbForum, $wpSettings, $phpEx;
 	$start = 0;
 	$start = (integer)trim($_GET['start']);
 	$start = ($start < 0) ? 0 : $start;
@@ -90,7 +90,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 		$itern = 1;
 		$blogList = '';
 		foreach ( (array) $authors as $author ) {
-			$posts = 0; $_oldQuery = ''; $avatar = '';
+			$posts = 0;  $avatar = '';
 			$blogTitle = ''; $blogDesc = ''; $blogPath = '';
 			$path_to_profile = ''; $lastPostID = 0; $post = ''; 
 			$lastPostTitle = ''; $lastPostURL = ''; $time = ''; $lastPostTime = '';
@@ -106,13 +106,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 				$avatar = avatar_create_image($author); 
 				$blogTitle = ( empty($author->blog_title) ) ? $phpbbForum->lang['default_blogname'] : $author->blog_title;
 				$blogDesc = ( empty($author->blog_tagline) ) ? $phpbbForum->lang['default_blogdesc'] : $author->blog_tagline;
-				if ( ((float) $wp_version) >= 2.1 ) {
-					//WP >= 2.1 branch
-					$blogPath = get_author_posts_url($author->ID, $author->user_nicename);
-				} else {
-					//deprecated branch
-					$blogPath = get_author_link(false, $author->ID, $author->user_nicename); 
-				}
+				$blogPath = get_author_posts_url($author->ID, $author->user_nicename);
 				$wUsrName = sanitize_user($author->user_login, true);
 				if ( ($wUsrName == $author->user_login) ) {
 					$pUsrName = $author->user_login;
@@ -124,22 +118,17 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 				$rssLink = get_author_rss_link(0, $author->ID, $author->user_nicename);
 				$lastPostID = $author->wpu_last_post;
 				if ( empty($lastPostID) ) {
-					$_oldQuery = $GLOBALS['wp_query'];
-					query_posts('author=' . $author->ID . '&showposts=1');
-					if ( have_posts() ) {
-						the_post();
-						if ( ((float) $wp_version) >= 2.1 ) {
-							//WP >= 2.1 branch
-							$lastPostID = get_the_ID();
-						} else {
-							//deprecated branch
-							global $id;
-							$lastPostID = $id;
-						}
-						update_usermeta($author->ID, 'wpu_last_post', $lastPostID);
-					} 
-
-					$GLOBALS['wp_query'] = $_oldQuery;
+					global $wp_query, $post;
+					$_oldQuery = $wp_query;
+					$_oldPost = $post;
+					$lastPost = new WP_Query();
+					$lastPost->query('author=' . $author->ID . '&showposts=1&post_status=publish&orderby=date');
+					$lastPost->the_post();
+					$lastPostID = get_the_ID();
+					update_usermeta($author->ID, 'wpu_last_post', $lastPostID);
+					unset($wp_query); $wp_query = $_oldQuery;
+					unset($GLOBALS['post']);
+					$GLOBALS['post'] = $_oldPost;
 				}
 				$post = get_post($lastPostID);
 				$lastPostTitle = wpu_censor($post->post_title); 
@@ -159,7 +148,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 				$blogList .=  '<small class="wpublnumposts">' .$phpbbForum->lang['wpu_total_entries'] . $posts . "</small><br />\n\n";
 				$blogList .=  '<small class="wpublastpost">' . sprintf($phpbbForum->lang['wpu_last_entry'],  ' <a href="' . $lastPostURL . '">' . $lastPostTitle . '</a>',   $time) . "</small><br />\n\n";
 				if ( !empty($rssLink) ) {
-					$blogList .=  '<small class="wpublrss">' . $phpbbForum->lang['wpu_rss_feed'] . ' <a href="' . $rssLink . '">' . $phpbbForum->lang['Subscribe'] . "</a></small><br />\n\n";
+					$blogList .=  '<small class="wpublrss">' . $phpbbForum->lang['wpu_rss_feed'] . ' <a href="' . $rssLink . '">' . $phpbbForum->lang['wpu_rss_subscribe'] . "</a></small><br />\n\n";
 				}
 				$blogList .=  "<p class=\"wpublclr\">&nbsp;</p></div>\n\n";
 			}

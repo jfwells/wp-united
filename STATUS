@@ -8,19 +8,17 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-Last userblog entry not correct in blog intro list
-profile fields: Check nickname is not auto-erased
-
-CSS Magic: topic icons not showing in forum?
-CSS Magic: Add fixes for IE (6,7,8)
-Styles: Default padding a little off (?)
-Plugin: Ensure WordPress' $user->display_name (= $user_identity) is being set by phpBB when logins are integrated (it should be).
-$_SID is not getting set, so append_sid() does nothing without forced param
+profile fields: Check nickname is not auto-erased / Ensure WordPress' $user->display_name (= $user_identity) is being set by phpBB when logins are integrated (it should be).
 
 Test logout and profile transfer
 test that adding phpBB user in user map still works
 
 Remove phpbbForum->err_msg with plan trigger_error or wp_die -- it is a throwback to wpuAbs
+
+
+IN PROGRESS
+-----------------
+CSS Magic: Add fixes for IE (6,7,8)  -- largely done, to test with more themes (also check default padding)
 
 ACTIONS FOR RELEASE
 ------------------------------
@@ -57,7 +55,7 @@ Cache: Make core/template calls follow same structure as css magic / template vo
  ACP: split out "advanced" options to simplify install
  Plugin: JavaScript and CSS should be enqueued
  Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
-
+$_SID is not getting set, so append_sid() does nothing without forced param
 
 =============================================
 
@@ -161,3 +159,4 @@ DONE / COMMITTED
 - WP-United dashboard menu improved: submenus now selected properly
 - Fixed various errors in user blog theme panel
 - Fixed blog settings panel, renamed to "Your blog details"
+- Fixed userblog list last entry calculation and RSS feed lang string
