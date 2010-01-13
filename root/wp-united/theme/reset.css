@@ -1,12 +1,12 @@
-#wpucssmagic, #wpucssmagic * {height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static; line-height: normal;}
-#wpucssmagic {font-size: 16px;  color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
+#wpucssmagic, #wpucssmagic * {font-family: inherit; letter-spacing: normal; height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static; line-height: inherit;}
+#wpucssmagic {font-size: medium;  color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
 .wpucssmagic {text-align: inherit;}
-.wpucssmagic * {color: inherit;}
+.wpucssmagic * {color: inherit; font-size: inherit; font-weight: inherit;}
 .wpucssmagic * {height: auto; }
-.wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt, #wpucssmagic a  { font-weight: normal;}
+.wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt, #wpucssmagic a  { font-weight: inherit;}
 .wpucssmagic b, .wpucssmagic h1, .wpucssmagic h2, .wpucssmagic h3, .wpucssmagic strong, #wpucssmagic strong a, #wpucssmagic strong p {font-weight: bold;}
 #wpucssmagic u, #wpucssmagic a {text-decoration: underline;}
-#wpucssmagic  { line-height: 1;}
+#wpucssmagic  { line-height: normal;}
 #wpucssmagic ol, #wpucssmagic ul {height: auto; list-style: none; display: list-item;list-style-position: outside;}
 
 #wpucssmagic blockquote, q {quotes: none;}
@@ -25,7 +25,7 @@
 #wpucssmagic ol, #wpucssmagic p, #wpucssmagic ul, #wpucssmagic center,
 #wpucssmagic dir, #wpucssmagic menu, #wpucssmagic pre   { display: block; border: 0;}
 #wpucssmafic hr {display: block;}
-#wpucssmagic li              { display: list-item }
+#wpucssmagic li              { display: list-item; }
 #wpucssmagic table           { display: table; border-width: 0; }
 #wpucssmagic table *	{ border-width: 0;}
 #wpucssmagic tr              { display: table-row }
@@ -79,4 +79,5 @@
 #wpucssmagic :link, #wpucssmagic :visited { text-decoration: underline }
 #wpucssmagic :focus          { outline: thin dotted invert }
 
+* html #wpucssmagic .wpucssmagic ul.navlinks li a {font-weight: inherit;)
 
