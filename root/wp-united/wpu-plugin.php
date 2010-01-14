@@ -2,10 +2,10 @@
 /*
 Plugin Name: WP-United Connection 
 Plugin URI: http://www.wp-united.com
-Description: This is the "WP-United Connection" -- it handles the connection with phpBB from the WordPress side. This plugin should be enabled / disabled using the WP-United Setup Wizard, located in your phpBB3 Admin Control Panel. Do not deactivate it manually.
+Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
-Version: v0.8.0 RC2
-Last Updated: 14 January 2010
+Version: v0.8.0 RC2 (phpBB3)
+Last Updated: 12 January 2010
 Author URI: http://www.wp-united.com
 
 NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow phpBB mod conventions. Specifically:
@@ -712,12 +712,12 @@ function wpu_justediting() {
  */
 function wpu_newpost($post_ID, $post) {
 	global $wpSettings, $phpbbForum, $phpbb_root_path;
-	
+	$post = get_post($post_ID);
 	global $user_ID, $wpdb;
 	$did_xPost = false;
 	if ( $post->post_status == 'publish' ) { 
 		if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
-			update_usermeta($post->post_author, 'wpu_last_post', $post->post_author); 
+			update_usermeta($post->post_author, 'wpu_last_post', $post_ID); 
 		} 
 
 		if ( !empty($wpSettings['integrateLogin']))  {
@@ -1538,6 +1538,7 @@ add_filter('feed_link', 'wpu_feed_link');
 add_filter( 'comments_array', 'wpu_load_phpbb_comments', 10, 2);
 add_filter( 'get_comments_number', 'wpu_comments_count', 10, 2);
 add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
+add_action( 'comments_open', 'wpu_comments_open', 10, 2);
 
 add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
 

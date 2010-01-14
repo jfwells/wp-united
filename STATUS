@@ -9,7 +9,6 @@ TODO
 --------
 topic/post widgets/template tags must censor if required (http://www.wp-united.com/viewtopic.php?f=15&t=1901)
 Recent forum posts - check timezone (http://www.wp-united.com/viewtopic.php?f=15&t=1912)
-Cross-posting: Don't show comment box (hook into comments_open()) if impossible to xpost comment
 test that adding phpBB user in user map still works
 
 ACTIONS FOR RELEASE
@@ -18,12 +17,9 @@ ACTIONS FOR RELEASE
 Fresh install test
 Remove pre 2.7 paths / update description (IN PROGRESS)
 Install to wp-united.com
-Update all file headers and copyrights (DONE)
-Check no Windows line endings have crept in (DONE)
 Switch SVN branch to release
 Update release notes (IN PROGRESS)
 Remove outdated / unreleasable files (STATUS, latest-posts, phpbb2 upgrade, WP theme)
-
 Plea for help with user manual
 Announce
 
@@ -160,3 +156,6 @@ DONE / COMMITTED
 - User nickname, display_name and nicename are only set once, when the integrated account is created
 - Added topic locked / unapproved check for cross-posting comments
 - Removed phpbbForum->err_msg
+- Update all file headers and copyrights
+- Cross-posting: Don't show comment box if impossible to xpost comment
+- fixed incorrect recording of wpu_last_post

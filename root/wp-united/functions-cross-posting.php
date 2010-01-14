@@ -294,6 +294,7 @@ function wpu_comments_count($count, $postID) {
 	// else, get the details
 	if ( 
 		(empty($phpbb_root_path)) || 
+		(empty($wpSettings['integrateLogin'])) || 
 		(empty($wpSettings['xposting'])) || 
 		(empty($wpSettings['xpostautolink'])) 
 	) {
@@ -317,10 +318,11 @@ function wpu_comments_count($count, $postID) {
  * this catches posted comments and sends them to the forum
  */
 function wpu_comment_redirector($postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostedDetails;
 	
 	if ( 
 		(empty($phpbb_root_path)) || 
+		(empty($wpSettings['integrateLogin'])) || 
 		(empty($wpSettings['xposting'])) || 
 		(empty($wpSettings['xpostautolink'])) 
 	) {
@@ -391,6 +393,72 @@ function wpu_comment_redirector($postID) {
 	// We redirect back to the forum, because we cannot make a reliable WordPress comment link to redirect to.
 	$location = str_replace(array('&amp;', $phpbb_root_path), array('&', $phpbbForum->url), $postUrl);
 	wp_redirect($location); exit();
+}
+
+/**
+ * returns if the comments box should display or not
+ * 
+ */
+function wpu_comments_open($open, $postID) {
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $usePhpBBComments, $xPostDetails;
+	static $status;
+	if(isset($status)) {
+		return $status;
+	}
+	
+	if($postID == NULL) {
+		$postID = $GLOBALS['post']->ID;
+	}
+	
+	if ( 
+		(empty($phpbb_root_path)) || 
+		(empty($wpSettings['integrateLogin'])) || 
+		(empty($wpSettings['xposting'])) || 
+		(empty($wpSettings['xpostautolink'])) 
+	) {
+		$status = $open;
+		return $status;
+	}
+	
+	// if we already have the xposted details, use those
+	if ( !empty($usePhpBBComments) ) {
+		$dets = $xPostDetails;
+	} else {
+	// else, get the details
+	
+		$phpbbForum->enter();
+		if(!($dets = wpu_get_xposted_details($postID))) {
+			$phpbbForum->leave();
+			//global $post; print_r($post);
+			//print_r($dets);die('R' . $postID . 'P');
+			$status = false;
+			return $status;			
+		}
+		
+		if (
+			(empty($dets['topic_approved'])) || 
+			($dets['topic_status'] == ITEM_LOCKED)
+		) { 
+			$phpbbForum->leave();
+			$status = false;
+			return $status;
+		}
+		
+		$permissionsList = wpu_forum_xpost_list(); 
+		$phpbbForum->leave();
+		if ( !in_array($dets['forum_id'], (array)$permissionsList['forum_id']) ) { 
+			$status = false;
+			return $status;
+		}
+		
+		$status = true;
+		return $status;
+	}
+
+
+	
+	
+	
 }
 
 ?>
