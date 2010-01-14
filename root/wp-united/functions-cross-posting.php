@@ -129,7 +129,7 @@ function wpu_do_crosspost($postID, $post) {
 		if ( !empty($data['post_id']) ) {
 			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID . " WHERE post_id = {$data['post_id']}";
 			if (!$result = $db->sql_query($sql)) {
-				$phpbbForum->err_msg(CRITICAL_ERROR, $phpbbForum->lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
+				wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
 			}
 			$db->sql_freeresult($result);
 			$phpbbForum->leave(); 

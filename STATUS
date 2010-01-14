@@ -8,9 +8,8 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-Cross-posting: Don't show comment box if impossible to xpost comment
+Cross-posting: Don't show comment box (hook into comments_open()) if impossible to xpost comment
 test that adding phpBB user in user map still works
-Remove phpbbForum->err_msg with plan trigger_error or wp_die -- it is a throwback to wpuAbs
 
 ACTIONS FOR RELEASE
 ------------------------------
@@ -158,3 +157,4 @@ DONE / COMMITTED
 - Fixed broken DTD language strings
 - User nickname, display_name and nicename are only set once, when the integrated account is created
 - Added topic locked / unapproved check for cross-posting comments
+- Removed phpbbForum->err_msg

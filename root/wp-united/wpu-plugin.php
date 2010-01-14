@@ -732,7 +732,7 @@ function wpu_newpost($post_ID, $post) {
 			if ( !empty($post->post_author) ) {
 				$sql = 'UPDATE ' . USERS_TABLE . ' SET user_wpublog_id = ' . $post->post_author . " WHERE user_wpuint_id = '{$post->post_author}'";
 				if (!$result = $db->sql_query($sql)) {
-					$phpbbForum->err_msg(CRITICAL_ERROR, $phpbbForum->lang['WP_DBErr_Retrieve'], __LINE__, __FILE__, $sql);
+					wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
 				}
 				$db->sql_freeresult($result);
 			}
@@ -1032,7 +1032,7 @@ function wpu_clear_header_cache() {
  */
 function wpu_add_postboxes() {
 	global $can_xpost_forumlist, $already_xposted, $phpbbForum;
-
+?>
 	<div id="wpuxpostdiv" class="inside">
 	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
 	<label for="wpu_chkxpost" class="selectit">
@@ -1062,11 +1062,11 @@ function wpu_add_postboxes() {
  */
 function wpu_add_forcebox($forumName) {
 	global $forceXPosting, $phpbbForum;
-
+?>
 	<div id="wpuxpostdiv" class="inside">
 	<p> <?php echo sprintf($phpbbForum->lang['wpu_forcexpost_details'], $forceXPosting); ?></p>
 	</div>
-
+<?php
 }
 
 /**

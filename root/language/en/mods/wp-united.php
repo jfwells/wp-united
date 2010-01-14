@@ -171,8 +171,8 @@ $lang = array_merge($lang, array(
 	'wpu_online_panel_breakdown' => 'Show a breakdown of user types?',
 	'wpu_online_panel_record' => 'Show record number of users?',
 	'wpu_online_panel_legend' => 'Show legend?',
-	'edit_phpbb_details' => 'Edit forum details'
-	
+	'edit_phpbb_details' => 'Edit forum details',
+	'WP_DBErr_Retrieve' => 'Could not access the database. Please ensure that you ran wpu-install.php when installing WP-United.'
 
 ));
 

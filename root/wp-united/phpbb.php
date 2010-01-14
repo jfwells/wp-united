@@ -51,17 +51,6 @@ class WPU_Phpbb {
 		$this->was_out = false;
 		$this->seo = false;
 		
-
-		
-		
-		
-		
-		/**
-		 * error constats for $this->err_msg
-		 * todo use wp_die for most errors instead
-		 */
-		define('GENERAL_ERROR', 100);
-		define('CRITICAL_ERROR' , -100);
 	}	
 	
 	/**
@@ -203,7 +192,7 @@ class WPU_Phpbb {
 						FROM ' . USERS_TABLE .
 						' WHERE user_wpuint_id = ' . $userID;
 				if(!($result = $db->sql_query($sql))) {
-					$this->err_msg(GENERAL_ERROR, 'Could not query phpbb database', '', __LINE__, __FILE__, $sql);
+					wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
 				}
 				$usrData = $db->sql_fetchrow($result);
 		}
@@ -249,7 +238,7 @@ class WPU_Phpbb {
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
-			$this->err_msg(GENERAL_ERROR, 'Could not query phpbb database', '', __LINE__, __FILE__, $sql);
+			wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
 		}		
 
 		$posts = array();
@@ -271,26 +260,6 @@ class WPU_Phpbb {
 		return $posts;
 	}		
 	
-	/**
-	 * Displays a dying general error message
-	 * @todo clean up all error messages to use wp_die() if possible
-	 * Left here for compatibility while old errors still remain pending cleanup
-	 * @deprecated
-	 */
-	function err_msg($errType, $msg = '', $title = '', $line = '', $file = '', $sql = '') {
-		global $images, $wpUtdInt, $phpbb_root_path;
-		//Exit the WordPress environment
-		if ( isset($wpUtdInt) ) {
-			if ( $wpUtdInt->wpLoaded ) {
-				$this->enter();
-				$wpUtdInt->exit_wp_integration();
-			}
-		}
-		if ( $errType != CRITICAL_ERROR ) {
-			$msg = '<img src="' . $phpbb_root_path . 'wp-united/images/wp-united-logo.gif" style="float: left;" /><br />' . $msg;
-		}
-		trigger_error($msg);
-	}	
 	
 	/**
 	 * Calculates the URL to the forum
