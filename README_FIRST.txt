@@ -1,6 +1,6 @@
-﻿WP-UNITED WordPress Integration Mod v0.8.0 RC2 for phpBB3
+﻿WP-UNITED: WordPress Integration Mod v0.8.0 RC2 for phpBB3
 -----------------------------------------------
-Last updated: 12 January 2010, by John Wells
+Last updated: 14 January 2010, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -27,39 +27,47 @@ The  file will tell you which files to upload to your forum and where they shoul
 
 install.xml includes instructions for the prosilver template. If you are using the subSilver2 template, or other templates, you must also apply the mod to those. Instructions for subSilver2 are included in the contrib folder. For other templates, use the prosilver or subSilver2 directions as necessary.
 
-Some additional translations have been provided in the /languages folder -- open up the .xml file for your language to install them.
+Some additional translations may have been provided in the /languages folder -- open up the .xml file for your language to install them.
 
-If you need further help on what the directives mean, take a look at the phpBB forums -- http://www.phpbb.com/community/viewtopic.php?f=16&t=61611 . Make sure you back up your files before making any changes!
+If you need further help on what the directives mean, take a look at the phpBB forums -- http://www.phpbb.com/mods/installing/ . Make sure you back up your files before making any changes!
 
 Once you have installed the mod, you should visit http://your-forum-address/wpu-install.php . That will auo-install everything else you need. When done, delete the file wpu-install.php from your forum folder.
 
 You should then be able to run the WP-United Setup Wizard, located under the WP-United tab in the phpBB Admin Control Panel.
 
-The Setup Wizard will try to install a plugin into your WordPress wp-content/plugins folder. That folder is usually writable, but if it is not, please copy the file wpu-plugin from [phpbb]/wp-united there yourself (please remember to *copy* it, NOT move it!), and then continue or run the WP-United Setup Wizard again.
+The Setup Wizard will try to install a plugin into your WordPress wp-content/plugins folder. That folder is usually writable, but if it is not, please copy the file wpu-plugin from [phpbb]/wp-united there yourself (please remember to *copy* it, NOT move it!), and then continue or run the WP-United Setup Wizard again. Let the WP-United Setup Wizard activate the plugin, you don't need to do it yourself.
 
 
 PERMISSIONS & INTEGRATING USERS
 -------------------------------
 
-If you elect to integrate users, you need to visit your phpBB ACP permissions tab and choose which users / groups can integrate, and what level in WordPress they get.
+If you elect to integrate users, you need to visit your phpBB ACP permissions tab and choose which users / groups can integrate, and what level in WordPress they get (there is a WP-United tab in advanced user/group permissions).
 
 If you already have WordPress users set up, you can import them into phpBB using the included mapping tool, available under the WP-United ACP tab.
+
+If you want to allow users to cross-post blog posts to the forum, you need to give them the appropriate WP-United permission (there is a WP-United tab in advanced user/group forum permissions).
 
 UPGRADES
 -------------
 
-Instructions on converting from previous versions of WP-United, and all the way from phpBB2, are included in the contrib folder.
+Instructions on converting from previous versions of WP-United are included in the contrib folder.
 
-If your version is more recent that any of the upgrade files, just copy over all the files from /root, and then clear your phpBB cache and the WP-United/cache folder.
-
-Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/cache folder, run the WP-United setup Wizard again.
-
+Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/cache folder, and then run the WP-United setup Wizard again.
 
 
 UNINSTALLING  (Noooo)
 -----------------------------
 
 We can't understand why you'd want to do this... but just in case, here goes: Uninstalling is easy. Just click the uninstall link in the Admin Control Panel. 
+
+
+CONTINGENCIES
+-------------
+
+If you encounter errors that make your forums inaccessible, WP-United can be manually disabled temporarily, so that you can get into your phpBB ACP and change settings.
+
+To disable WP-United, open <phpbb>/wp-united/options.php, and set the option WPU_DISABLE to TRUE where indicated
+
 
 
 SUPPORT WP-UNITED   (*Please!*)
