@@ -2,9 +2,10 @@
 /** 
 *
 * @package WP-United
-* @version $Id: phpbb.php,v0.8.0 2009/06/23 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 *
 * phpBB status abstraction layer
 * When in WordPress, we often want to switch between phpBB & WordPress functions

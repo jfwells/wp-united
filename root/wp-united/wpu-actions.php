@@ -5,9 +5,10 @@
 * WP-United Mod Edits
 *
 * @package WP-United
-* @version $Id: v 0.8.0 2009/12/20 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 *
 * This is the file for accessing WordPress from inside phpBB pages. Most of this stuff is in flux, meaning that users had to constantly re-mod their phpBB.
 * Moving them off into this file is intended to alleviate that. 

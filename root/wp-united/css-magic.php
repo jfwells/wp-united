@@ -4,9 +4,10 @@
 * WP-United "CSS Magic" template integrator
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 *
 */
 

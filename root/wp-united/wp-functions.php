@@ -4,29 +4,14 @@
 * WP-United Modified Core Functions
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.5[phpBB2]/v 0.7.1[phpBB3] 2009/05/18 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 *
 */
 
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA  02110-1301, USA.
-//
-//
-// This file contains (in some cases) slightly modified WordPress functions, and (in other cases) WordPress functions that must be renamed due to a naming conflict with phpBB.
-// They have been changed as minimally as possible, and included in this file to facilitate the upgrading of WordPress.
-//
-
-if ( !defined('IN_PHPBB') )
-{
-	die("Hacking attempt");
+if (!defined('IN_PHPBB')) {
 	exit;
 }
 

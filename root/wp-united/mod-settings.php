@@ -4,9 +4,10 @@
 * WP-United Mod Settings
 *
 * @package WP-United
-* @version $Id: v0.8.0 2009/12/18 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 *
  * A few functions to write and retrieve the integration package settings from the DB
  * This is a bit messy & unneccesarily complex, a result of our previous simultaneous support for phpBB2 & phpBB3.

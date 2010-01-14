@@ -4,9 +4,10 @@
 * WP-United WordPress template tags
 *
 * @package WP-United
-* @version $Id: v0.8.0 2010/01/13 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 * 
 * WordPress template functions -- see the readme included in the mod download for how to use these.
 *

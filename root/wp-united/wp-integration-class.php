@@ -5,9 +5,9 @@
 * WP-United -- Integration class (the bit that talks to WordPress!)
 *
 * @package WP-United
-* @version $Id: v 0.8.0 2009/12/20 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
 */

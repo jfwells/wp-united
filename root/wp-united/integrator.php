@@ -4,9 +4,10 @@
 * WP-United Main Integration File -- where the magic happens
 *
 * @package WP-United
-* @version $Id: integrator.php,v0.8.0 2009/12/28 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2010 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 *
 
 This is the third incarnation of the main integration file (was wp-united.php, 

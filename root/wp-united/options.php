@@ -4,10 +4,12 @@
 * WP-United Extra Options
 *
 * @package WP-United
-* @version $Id: v0.8.0 2009/12/21 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 *
+*	You can change the options in this file -- they alter the way WP-United behaves.
 */
 
 
@@ -72,7 +74,7 @@ define('WPU_MAX_COMPRESS', FALSE);
  * Enabling the below option displays debug information that could be useful in tracking down problems with integrated logins
  * It should be left off on a production site!
  */
-define('WPU_DEBUG', TRUE);
+define('WPU_DEBUG', FALSE);
 
 /**
  * OVERRIDE WORDPRESS SITE COOKIE PATH?
@@ -90,7 +92,7 @@ define('WP_ROOT_COOKIE', FALSE);
  * This is a good way to gauge how various options affect server load.
  * It should be left OFF on production servers.
  */
-define('WPU_SHOW_STATS', TRUE);
+define('WPU_SHOW_STATS', FALSE);
 
 /**
  *  phpBB CSS?

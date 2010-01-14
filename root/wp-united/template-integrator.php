@@ -4,9 +4,10 @@
 * WP-United Main Integration  -- template portion
 *
 * @package WP-United
-* @version $Id: integrator.php,v0.8.0 2009/12/20 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2009 wp-united.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
 * 
 * Here we modify and integrate templates as necessary. When this file is called, we have the following:
 * WordPress only: WordPress is in $innerContent
