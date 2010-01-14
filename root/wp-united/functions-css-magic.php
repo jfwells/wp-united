@@ -75,7 +75,9 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 					// else: relative path
 					$cssLnk = $phpbb_root_path . $el;
 				}
-				
+				// remove query vars
+				$cssLnk = explode('?', $cssLnk);
+				$cssLnk = $cssLnk[0];
 				$cssLnk = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $cssLnk) : $cssLnk;
 				
 				if( file_exists($cssLnk) && (stristr($cssLnk, "http:") === false) ) { 

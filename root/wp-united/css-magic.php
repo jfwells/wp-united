@@ -274,9 +274,13 @@ class CSS_Magic {
 					}
 					// add prefix selector before each selector
 					if(!$foundBody) {
-						if($fixedKey[0] != "@") {
-							if((strpos($fixedKey, '* html') !== false)) {
+						if(($fixedKey[0] != "@") && (strlen(trim($fixedKey)))) {
+							if(strpos($fixedKey, '* html') !== false) { // ie hack
 								$fixedKey = str_replace('* html', '* html ' . $prefix . ' ', $fixedKey);
+							} elseif(strpos($fixedKey, '*+ html') !== false) { // ie7 hack
+								$fixedKey = str_replace('*+ html', '*+ html ' . $prefix . ' ', $fixedKey);
+							} elseif($fixedKey == 'html') {
+								$fixedKey = $prefix;
 							} else {
 								$fixedKey = "{$prefix} " . $fixedKey;
 							}
