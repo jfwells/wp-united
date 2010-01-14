@@ -11,6 +11,8 @@ topic/post widgets/template tags must censor if required (http://www.wp-united.c
 Recent forum posts - check timezone (http://www.wp-united.com/viewtopic.php?f=15&t=1912)
 test that adding phpBB user in user map still works
 
+cross-posting already-published wordpress posts? Date should be originally-published date, not now
+
 ACTIONS FOR RELEASE
 ------------------------------
 
