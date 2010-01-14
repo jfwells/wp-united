@@ -8,9 +8,7 @@ The "DONE" section only contains changes in the final run-up to release
 TODO
 --------
 
-Have forum page highlighted/selected when in phpBB-in-WordPress forum
-profile fields: Check nickname is not auto-erased / Ensure WordPress' $user->display_name (= $user_identity) is being set by phpBB when logins are integrated (it should be).
-Test logout and profile transfer
+Cross-posting: Don't show comment box if impossible to xpost comment
 test that adding phpBB user in user map still works
 Remove phpbbForum->err_msg with plan trigger_error or wp_die -- it is a throwback to wpuAbs
 
@@ -155,3 +153,8 @@ DONE / COMMITTED
 - Fixed blog settings panel, renamed to "Your blog details"
 - Fixed userblog list last entry calculation and RSS feed lang string
 - Various improvements and fixes to CSS Magic after testing cross-browser. More work will need to be done in future releases for 100% theme compatibility in shitty browsers.
+- Fixed error on blank permissionsList child arrays
+- Forum page is now properly selected on reverse integrated page, even with simple header/footer
+- Fixed broken DTD language strings
+- User nickname, display_name and nicename are only set once, when the integrated account is created
+- Added topic locked / unapproved check for cross-posting comments

@@ -66,6 +66,7 @@ function wpu_init_plugin() {
 		/**
 		 * Disable access to the blog if the forum is disabled -- otherwise too many variables
 		 * are off-limits
+		 * @todo: complete
 		 */
 		/*if(!is_admin()) {
 			$phpbbForum->enter();
@@ -155,7 +156,7 @@ function wpu_put_powered_text() {
 			if($wp_version < 2.5) {
 				echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . sprintf($phpbbForum->lang['wpu_write_blog_pre250'], '<strong>', '</strong>');
 			} else {
-				echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . sprintf($phpbbForum->lanf['wpu_write_blog'], '<strong>', '</strong> &rarr; <strong>', '</strong>');
+				echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . sprintf($phpbbForum->lang['wpu_write_blog'], '<strong>', '</strong> &rarr; <strong>', '</strong>');
 			}
 			if ( $wpSettings['allowStyleSwitch'] ) {	
 				echo '<br />' . sprintf($phpbbForum->lang['wpu_blog_intro_appearance'], '<strong>', '</strong>'); 
@@ -1030,16 +1031,9 @@ function wpu_clear_header_cache() {
  * Add box to the write/(edit) post page.
  */
 function wpu_add_postboxes() {
-	global $wp_version, $can_xpost_forumlist, $already_xposted, $phpbbForum;
+	global $can_xpost_forumlist, $already_xposted, $phpbbForum;
 
-	if ( $wp_version >= 2.5 ) { ?> 
-		<div id="wpuxpostdiv" class="inside">
-	<?php } else { ?>
-		<fieldset id="wpuxpostdiv" class="dbx-box">
-		<h3 class="dbx-handle"><?php echo $phpbbForum->lang['wpu_xpost_box_title']; ?></h3> 
-		<div class="dbx-content">
-	<?php } ?>
-		
+	<div id="wpuxpostdiv" class="inside">
 	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
 	<label for="wpu_chkxpost" class="selectit">
 		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1" />
@@ -1061,26 +1055,17 @@ function wpu_add_postboxes() {
 		</select>
 	</label>
 	</div>
-	<?php if ( $wp_version < 2.5 ) echo "</fieldset>";
-
+<?php
 }
 /**
  * Adds a "Force cross-posting" info box
  */
 function wpu_add_forcebox($forumName) {
-	global $wp_version, $forceXPosting, $phpbbForum;
+	global $forceXPosting, $phpbbForum;
 
-	if ( $wp_version >= 2.5 ) { ?> 
-		<div id="wpuxpostdiv" class="inside">
-	<?php } else { ?>
-		<fieldset id="wpuxpostdiv" class="dbx-box">
-		<h3 class="dbx-handle"><?php echo $phpbbForum->lang['wpu_forcexpost_box_title']; ?></h3> 
-		<div class="dbx-content">
-	<?php } ?>
-		
+	<div id="wpuxpostdiv" class="inside">
 	<p> <?php echo sprintf($phpbbForum->lang['wpu_forcexpost_details'], $forceXPosting); ?></p>
 	</div>
-	<?php if ( $wp_version < 2.5 ) echo "</fieldset>";
 
 }
 
@@ -1089,7 +1074,7 @@ function wpu_add_forcebox($forumName) {
  * For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the func now.
  */
 function wpu_add_meta_box() {
-	global $phpbbForum, $wpSettings, $wp_version, $can_xpost_forumlist, $already_xposted;
+	global $phpbbForum, $wpSettings, $can_xpost_forumlist, $already_xposted;
 	// this func is called early
 	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
@@ -1102,11 +1087,7 @@ function wpu_add_meta_box() {
 					global $forceXPosting;
 					$forceXPosting = wpu_get_forced_forum_name($wpSettings['xpostforce']);
 					if($forceXPosting !== false) {
-						if($wp_version >= 2.5) {
-							add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_forcexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
-						} else {
-							wpu_add_forcebox();
-						}
+						add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_forcexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
 					}
 				} else {	
 					// Add xposting choice box
@@ -1117,11 +1098,7 @@ function wpu_add_meta_box() {
 					$phpbbForum->leave();
 			
 					if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
-						if($wp_version >= 2.5) { 
-							add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_xpost_box_title'], 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
-						} else {
-							wpu_add_postboxes();
-						}
+						add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_xpost_box_title'], 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
 					}
 				}
 			}

@@ -485,7 +485,7 @@ Class WPU_Integration {
 				$newUserData = get_userdata($newUserID);
 
 				//Set usermeta options and check details consistency
-				$wpUpdateData =	$this->check_details_consistency($newUserData, $phpbbForum->get_userdata());
+				$wpUpdateData =	$this->check_details_consistency($newUserData, $phpbbForum->get_userdata(), true);
 				if ( $wpUpdateData ) {
 					wp_update_user($wpUpdateData);
 				}	
@@ -880,7 +880,7 @@ Class WPU_Integration {
 	 * @param mixed $pData phpBB user data
 	 * @return mixed array of fields to update
 	 */
-	function check_details_consistency($wpData, $pData) {	
+	function check_details_consistency($wpData, $pData, $newUser = false) {	
 
 		if ( !empty($wpData->ID) ) {
 			$wpMeta = get_usermeta($wpData->ID);
@@ -889,11 +889,15 @@ Class WPU_Integration {
 		if ($pData['user_id'] != $wpData->phpbb_userid) {
 			update_usermeta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
 		}
-		// We only update the user's nicename -- they're stuck with their username.
-		if ( (!($pData['username'] == $wpData->user_nicename)) &&  (!empty($pData['username'])) ) {
-			update_usermeta( $wpData->ID, 'phpbb_userLogin', $pData['username']);
-			$update['user_nicename'] = $pData['username'];
-			$doWpUpdate = true;
+		// We only update the user's nicename, etc. on the first run -- they can change it thereafter themselves
+		if($newUser) {
+			if ( (!($pData['username'] == $wpData->user_nicename)) &&  (!empty($pData['username'])) ) {
+				update_usermeta( $wpData->ID, 'phpbb_userLogin', $pData['username']);
+				$update['user_nicename'] = $pData['username'];
+				$update['nickname'] = $pData['username'];
+				$update['display_name'] = $pData['username'];
+				$doWpUpdate = true;
+			}
 		}
 	
 		$doWpUpdate = false;

@@ -18,10 +18,10 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 
 
 /**
- * Cross-posts a blog-post that was just added to the relevant forum
+ * Cross-posts a blog-post that was just added, to the relevant forum
  */
 function wpu_do_crosspost($postID, $post) {
-	global $wpSettings, $phpbbForum, $phpbb_root_path, $phpEx, $db, $wp_version;
+	global $wpSettings, $phpbbForum, $phpbb_root_path, $phpEx, $db;
 	
 	$forum_id = false;
 	if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
@@ -77,14 +77,11 @@ function wpu_do_crosspost($postID, $post) {
 		}
 	}
 	
-	// Get tags for WP >= 2.3
 	$tag_list = '';
-	if ( ((float) $wp_version) >= 2.3 ) {
-		 $tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
-		 if ($tag_list == "") {
-			$tag_list = __('No tags defined.');
-		 }
-	} 
+	$tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
+	if ($tag_list == "") {
+	$tag_list = __('No tags defined.');
+	}
 	
 	$tags = (!empty($tag_list)) ? "[b]{$phpbbForum->lang['blog_post_tags']}[/b]{$tag_list}\n" : '';
 	$cats = (!empty($cat_list)) ? "[b]{$phpbbForum->lang['blog_post_cats']}[/b]{$cat_list}\n" : '';
@@ -126,7 +123,7 @@ function wpu_do_crosspost($postID, $post) {
 	)); 
 
 	$topic_url = submit_post($mode, $subject, $phpbbForum->get_username(), POST_NORMAL, $poll, $data);
-		
+	
 	//Update the posts table with WP post ID so we can remain "in sync" with it.
 	if(($data !== false) && ($mode == 'post')) {
 		if ( !empty($data['post_id']) ) {
@@ -188,7 +185,7 @@ function wpu_get_xposted_details($postID = false) {
 	}
 	global $db;
 	
-	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, f.forum_name, t.topic_replies FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
+	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, f.forum_name, t.topic_replies, t.topic_approved, t.topic_status FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
 		"p.post_wpu_xpost = $postID AND " .
 		't.topic_id = p.topic_id and ' .
 		'f.forum_id = p.forum_id';
@@ -340,9 +337,17 @@ function wpu_comment_redirector($postID) {
 		$phpbbForum->leave();
 		return;
 	}
+	
+	if( empty($xPostDetails['topic_approved'])) {
+		wp_die($phpbbForum->lang['ITEM_LOCKED']);
+	}
+	
+	if( $xPostDetails['topic_status'] == ITEM_LOCKED) {
+		wp_die($phpbbForum->lang['TOPIC_LOCKED']);
+	}
 
 	$permissionsList = wpu_forum_xpost_list();  
-	if ( !in_array($xPostDetails['forum_id'], $permissionsList['forum_id']) ) { 
+	if ( !in_array($xPostDetails['forum_id'], (array)$permissionsList['forum_id']) ) { 
 		$phpbbForum->leave();
 		wp_die( __('You do not have permissions to comment in the forum'));
 	}

@@ -195,6 +195,13 @@ if ( $useCache || $connectSuccess ) {
 				$GLOBALS['inove_nosidebar'] = true;
 		
 				ob_start();
+				if(!empty($wpSettings['useForumPage'])) {
+					// set the page query so that the forum page is selected if in header
+					$forum_page_ID = get_option('wpu_set_forum');
+					if(!empty($forum_page_ID)) {
+						query_posts("showposts=1&page_id={$forum_page_ID}");
+					}
+				}
 				get_header();
 				$outerContent = ob_get_contents();
 				ob_end_clean();
@@ -229,12 +236,13 @@ if ( $useCache || $connectSuccess ) {
 			global $phpbbForum;
 			ob_start();
 			
-			$phpbbForum->leave();
-			$forum_page_ID = get_option('wpu_set_forum');
-			if(!empty($forum_page_ID)) {
-				query_posts("showposts=1&page_id={$forum_page_ID}");
+			if(!empty($wpSettings['useForumPage'])) {
+				// set the page query so that the forum page is selected if in header
+				$forum_page_ID = get_option('wpu_set_forum');
+				if(!empty($forum_page_ID)) {
+					query_posts("showposts=1&page_id={$forum_page_ID}");
+				}
 			}
-			$phpbbForum->enter();
 	
 			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpSettings['wpPageName']);
 			if ( !file_exists($wpTemplateFile) ) {
