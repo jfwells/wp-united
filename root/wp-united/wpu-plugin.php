@@ -1,4 +1,5 @@
 <?php
+
 /*
 Plugin Name: WP-United Connection 
 Plugin URI: http://www.wp-united.com
@@ -32,6 +33,7 @@ if ( !defined('ABSPATH') ) {
  * Initialise WP-United
  */
 function wpu_init_plugin() {
+	
 	global $phpbb_root_path, $phpEx, $phpbbForum;
 	
 	$wpuConnSettings = get_settings('wputd_connection');
@@ -53,11 +55,9 @@ function wpu_init_plugin() {
 
 		$phpbbForum->load($phpbb_root_path);
 
-		if(is_admin()) { // try not to let things like the mandigo theme, which invoke wordpress just to generate some CSS, load in our widgets.
-			require_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
-			require_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
-			add_action('widgets_init', 'wpu_widgets_init');	
-		}
+		require_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
+		require_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
+		add_action('widgets_init', 'wpu_widgets_init');	
 		
 	} else {
 		add_action('widgets_init', 'wpu_widgets_init');	
@@ -705,17 +705,69 @@ function wpu_justediting() {
 	define('suppress_newpost_action', TRUE);
 }
 
+/**
+ * Catches posts scheduled for future publishing
+ * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
+ */
+function wpu_capture_future_post($postID, $post) {
+	global $wpSettings, $phpbbForum;
+	
+	if ( ($post->post_status == 'future') && (!empty($wpSettings['integrateLogin'])) ) {
+		if ( ($phpbbForum->user_logged_in()) && (!empty($wpSettings['xposting'])) ) {
+			// If x-post forcing is turned on, we don't need to do anything
+			if( $wpSettings['xpostforce'] == -1) {
+				if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
+					
+					$forumID = (int)$_POST['sel_wpuxpost'];
+					
+					//only needs doing once
+					if(get_post_meta($postID, '_wpu_future_xpost', true) === $forumID) {
+						return;
+					}
+					
+					// Need to check authority here -- as we won't know for sure when the time comes to xpost
+					$phpbbForum->enter();
+					$can_crosspost_list = wpu_forum_xpost_list(); 
+					$phpbbForum->leave();
+					if ( !in_array($forumID, (array)$can_crosspost_list['forum_id']) ) { 
+						return;
+					}
+					update_post_meta($postID, '_wpu_future_xpost', $forumID);
+					update_post_meta($postID, '_wpu_future_ip', $phpbbForum->get_userip());
+				}
+			} else {
+				update_post_meta($postID, '_wpu_future_ip', $phpbbForum->get_userip());
+			}
+		}
+	}
+}
+
+/**
+ * Called when a post is transitioned from future to published
+ * Since wp-cron could be invoked by any user, we treat logged in status etc differently
+ */
+function wpu_future_to_published($post) {
+	global $wpSettings;
+	define("WPU_JUST_POSTED_{$postID}", TRUE);
+	wpu_newpost($post->ID, $post, true);
+}
+
 /*
  * Called whenever a new post is published.
  * Updates the phpBB user table with the latest author ID, to facilitate direct linkage via blog buttons
  * Also handles cross-posting
  */
-function wpu_newpost($post_ID, $post) {
+
+function wpu_newpost($post_ID, $post, $future=false) {
 	global $wpSettings, $phpbbForum, $phpbb_root_path;
-	$post = get_post($post_ID);
-	global $user_ID, $wpdb;
+	
+	if( (!$future) && (defined("WPU_JUST_POSTED_{$postID}")) ) {
+		return;
+	}
+	
 	$did_xPost = false;
-	if ( $post->post_status == 'publish' ) { 
+
+	if (($post->post_status == 'publish' ) || $future) { 
 		if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
 			update_usermeta($post->post_author, 'wpu_last_post', $post_ID); 
 		} 
@@ -736,9 +788,10 @@ function wpu_newpost($post_ID, $post) {
 				}
 				$db->sql_freeresult($result);
 			}
-
-			if ( ($phpbbForum->user_logged_in()) && (!empty($wpSettings['xposting'])) ) {
-				$did_xPost = wpu_do_crosspost($post_ID, $post);
+			
+			
+			if ( (($phpbbForum->user_logged_in()) || $future) && (!empty($wpSettings['xposting'])) ) {
+				$did_xPost = wpu_do_crosspost($post_ID, $post, $future);
 			} 
 
 			define('suppress_newpost_action', TRUE);
@@ -1547,13 +1600,15 @@ add_filter('logout_url', 'wpu_logout_url', 10, 2);
 add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
 
 
-//per-user cats in progress
+//per-user cats in progress -- deprecated
 //add_filter('wpu_cat_presave', 'category_save_pre');
 
 
 
 add_action('edit_post', 'wpu_justediting');
-add_action('publish_post', 'wpu_newpost', 10, 2); //updated 
+add_action('publish_post', 'wpu_newpost', 10, 2);
+add_action('wp_insert_post', 'wpu_capture_future_post', 10, 2); 
+add_action('future_to_publish', 'wpu_future_to_published', 10); 
 add_action('admin_menu', 'wpu_adminmenu_init');
 add_action('admin_footer', 'wpu_put_powered_text');
 add_action('admin_head', 'wpu_admin_init');
@@ -1565,18 +1620,15 @@ add_action('plugins_loaded', 'wpu_init_plugin');
 add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry'); 
 
+  
+add_action('admin_menu', 'wpu_add_meta_box'); 
 
-if ( $wp_version >= 2.5 ) {       
-	add_action('admin_menu', 'wpu_add_meta_box'); // <--- this is being called too early :-(
-} else {
-	add_action('dbx_post_sidebar', 'wpu_add_meta_box');
-}
 
 /**
  * @todo move $siteurl global declaration somewhere better and review usage
- */
+ 
 global $siteurl;
 $siteurl = get_option('siteurl');
-
+*/
 
 ?>

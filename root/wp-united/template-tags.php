@@ -105,8 +105,8 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 					$name = "{$author->first_name} {$author->last_name}";
 				}
 				$avatar = avatar_create_image($author); 
-				$blogTitle = ( empty($author->blog_title) ) ? $phpbbForum->lang['default_blogname'] : $author->blog_title;
-				$blogDesc = ( empty($author->blog_tagline) ) ? $phpbbForum->lang['default_blogdesc'] : $author->blog_tagline;
+				$blogTitle = ( empty($author->blog_title) ) ? $phpbbForum->lang['default_blogname'] : wpu_censor($author->blog_title);
+				$blogDesc = ( empty($author->blog_tagline) ) ? $phpbbForum->lang['default_blogdesc'] : wpu_censor($author->blog_tagline);
 				$blogPath = get_author_posts_url($author->ID, $author->user_nicename);
 				$wUsrName = sanitize_user($author->user_login, true);
 				if ( ($wUsrName == $author->user_login) ) {
@@ -684,7 +684,7 @@ function get_wpu_latest_phpbb_posts($args='') {
 			$class = ($i==0) ? 'class="wpufirst" ' : '';
 			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
 			$topic_link = ($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}";
-			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url. $topic_link . '" title="' . $row['topic_title'] . '">' . $row['topic_title'] . '</a>';
+			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url. $topic_link . '" title="' . wpu_censor($row['topic_title']) . '">' . wpu_censor($row['topic_title']) . '</a>';
 			$user_link = ($phpbbForum->seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
 			$user_link = '<a ' . $class . 'href="' . $phpbbForum->url . $user_link . '">' . $row['username'] .'</a>';
 			$ret .= $thisBefore . sprintf($phpbbForum->lang['wpu_phpbb_post_summary'],$topic_link, $user_link,  date($dateformat, $row['post_time']))  ."$after\n";
@@ -725,7 +725,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
 		foreach ($posts as $post) {
 			$class = ($i==0) ? 'class="wpufirst" ' : '';
 			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
-			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . $post['topic_title'] . '</a>';
+			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . wpu_censor($post['topic_title']) . '</a>';
 			$forum_link = '<a ' . $class . 'href="' . $phpbbForum->url . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
 			$user_link = '<a ' . $class . 'href="' . $phpbbForum->url . "$profile_path.$phpEx?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
 			$output .= $thisBefore . sprintf($phpbbForum->lang['wpu_phpbb_topic_summary'],$topic_link, $user_link, $forum_link)  ."$after\n";

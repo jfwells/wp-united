@@ -21,27 +21,36 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 /**
  * Cross-posts a blog-post that was just added, to the relevant forum
  */
-function wpu_do_crosspost($postID, $post) {
+function wpu_do_crosspost($postID, $post, $future=false) {
 	global $wpSettings, $phpbbForum, $phpbb_root_path, $phpEx, $db;
-	
 	$forum_id = false;
+	$found_future_xpost = false;
 	if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
 		$forum_id = (int)$_POST['sel_wpuxpost'];
-	} else if ($wpSettings['xpostforce'] > -1) {
+	} else if ( $wpSettings['xpostforce'] > -1 ) {
 		$forum_id = $wpSettings['xpostforce'];
+	} else if($future) {
+		$phpbbForum->leave();
+		$forum_id = get_post_meta($postID, '_wpu_future_xpost', true);
+		if ($forum_id === '')  {
+			$forum_id = false;
+		} else {
+			$forum_id = (int)$forum_id;
+			delete_post_meta($postID, '_wpu_future_xpost');
+		}
+		$phpbbForum->enter();
 	}
 
-	$phpbbForum->enter();
-	
-	$mode = 'post';
-	$subject = $phpbbForum->lang['blog_title_prefix'] . $post->post_title;
-	$data = array();
-	
+
 	// If this is already cross-posted, then edit the post
 	$details = wpu_get_xposted_details($postID);
 	if(($forum_id === false) && ($details === false)) {
 		return false;
 	}
+	
+	$mode = 'post';
+	$subject = $phpbbForum->lang['blog_title_prefix'] . $post->post_title;
+	$data = array();
 	
 	if($details !== false) {
 		if(isset($details['post_id'])) {
@@ -54,8 +63,20 @@ function wpu_do_crosspost($postID, $post) {
 		}
 	}
 	
-	//Check that we have the authority to cross-post there
+	// If this is a future xpost, authenticate as the user who made the post
+	if($future) {
+		// get phpBB user ID (from WP meta, so need to exit phpBB env)
+		$phpbbForum->leave();
+		$phpbbID = get_wpu_user_id($post->post_author);
+		$phpbbIP =  get_post_meta($postID, '_wpu_future_ip', true);
+		delete_post_meta($postID, '_wpu_future_ip');
+		$phpbbForum->enter();
+		$phpbbForum->transition_user($phpbbID, $phpbbIP);
+	}
+
+	//Check that user has the authority to cross-post there
 	$can_crosspost_list = wpu_forum_xpost_list(); 
+	
 	if ( !in_array($forum_id, (array)$can_crosspost_list['forum_id']) ) { 
 		return false;
 	}
@@ -103,6 +124,8 @@ function wpu_do_crosspost($postID, $post) {
 	generate_text_for_storage($excerpt, $uid, $bitfield, $options, true, true, true);
 		 
 	require_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
+	
+	
 	$data = array_merge($data, array(
 		'forum_id' => $forum_id,
 		'icon_id' => false,
@@ -125,13 +148,22 @@ function wpu_do_crosspost($postID, $post) {
 
 	$topic_url = submit_post($mode, $subject, $phpbbForum->get_username(), POST_NORMAL, $poll, $data);
 	
-	//Update the posts table with WP post ID so we can remain "in sync" with it.
+	// If this is a future xpost, switch back to current user
+	if($future) {
+		$phpbbForum->transition_user();
+	}
+	
+	
+	
+	//Update the posts table with WP post ID so we can remain "in sync" with it, and set the post time/date
 	if(($data !== false) && ($mode == 'post')) {
 		if ( !empty($data['post_id']) ) {
-			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID . " WHERE post_id = {$data['post_id']}";
+			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID . ', post_time = ' . strtotime($post->post_date) . " WHERE post_id = {$data['post_id']}";
 			if (!$result = $db->sql_query($sql)) {
 				wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
 			}
+			$sql = 'UPDATE ' . TOPICS_TABLE . ' SET topic_time = ' . strtotime($post->post_date) . " WHERE topic_id = {$data['topic_id']}";
+			$result = $db->sql_query($sql);			
 			$db->sql_freeresult($result);
 			$phpbbForum->leave(); 
 			return true;

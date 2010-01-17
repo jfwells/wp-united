@@ -7,11 +7,12 @@ The "DONE" section only contains changes in the final run-up to release
 
 TODO
 --------
-topic/post widgets/template tags must censor if required (http://www.wp-united.com/viewtopic.php?f=15&t=1901)
+
+if this specific user is integrated, skip login (go to dash if logged in, or phpbb login if logged out)
+multibyte charset in xposting
 Recent forum posts - check timezone (http://www.wp-united.com/viewtopic.php?f=15&t=1912)
 test that adding phpBB user in user map still works
 
-cross-posting already-published wordpress posts? Date should be originally-published date, not now
 
 ACTIONS FOR RELEASE
 ------------------------------
@@ -161,3 +162,6 @@ DONE / COMMITTED
 - Update all file headers and copyrights
 - Cross-posting: Don't show comment box if impossible to xpost comment
 - fixed incorrect recording of wpu_last_post
+- Added phpBB censoring (if selected) to phpBB forum posts + topics widgets, and user blog titles + taglines
+- When cross-posting scheduled or previously-published WP posts, date/time is now correct
+- scheduling a post that cross-posts now works -- and is now cross-posted by wp-cron with the correct user permissions

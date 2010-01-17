@@ -35,8 +35,12 @@ class WPU_Phpbb {
 	var $state;
 	var $lang;
 	var $was_out;
-	var $seo = false;
-	var $url = '';
+	var $seo;
+	var $url;
+	var $_transitioned_user;
+	var $_savedID;
+	var $_savedIP;
+	var $_savedAuth;
 	
 	/**
 	 * Class initialisation
@@ -51,6 +55,11 @@ class WPU_Phpbb {
 		}
 		$this->was_out = false;
 		$this->seo = false;
+		
+		$this->_transitioned_user = false;
+		$this->_savedID = -1;
+		$this->_savedIP = '';
+		$this->_savedAuth = NULL;
 		
 	}	
 	
@@ -90,7 +99,7 @@ class WPU_Phpbb {
 		 }
 		 
 		 $this->lang = $GLOBALS['user']->lang;
-		 
+
 		 $this->_calculate_url();
 		
 		$this->_backup_phpbb_state();
@@ -167,6 +176,16 @@ class WPU_Phpbb {
 		}
 		$this->_leave_if_just_entered();
 		return $result;		
+	}
+	
+	/**
+	 * Returns the user's IP address
+	 */
+	function get_userip() {
+		$this->_enter_if_out();
+		$result = $GLOBALS['user']->ip;
+		$this->_leave_if_just_entered();
+		return $result;			
 	}
 	
 	/**
@@ -259,7 +278,47 @@ class WPU_Phpbb {
 		$db->sql_freeresult($result);
 		$this->_leave_if_just_entered();
 		return $posts;
-	}		
+	}	
+	
+	/**
+	 * Transitions to/from the currently logged-in user
+	 */
+	 function transition_user($toID = false, $toIP = false) {
+		 global $auth, $user, $db;
+		 
+		 $this->_enter_if_out();
+		 
+		 if( ($toID === false) && ($this->_transitioned_user == true) ) {
+			  // Transition back to the currently logged-in user
+			$user->data = $this->_savedData;
+			$user->ip = $this->_savedIP;
+			$auth = $this->_savedAuth;
+			$this->_transitioned_user = false;
+		} else if(($toID !== false) && ($toID !== $user->data['user_id'])) {
+			// Transition to a new user
+			if($this->_transitioned == false) {
+				// backup current user
+				$this->_savedData= $user->data;
+				$this->_savedIP = $user->ip;
+				$this->_savedAuth = $auth;
+			}
+			$sql = 'SELECT *
+				FROM ' . USERS_TABLE . "
+				WHERE user_id = {$toID}";
+
+			$result = $db->sql_query($sql);
+			$row = $db->sql_fetchrow($result);
+			$db->sql_freeresult($result);
+			
+			$user->data = array_merge($user->data, $row);
+			$user->ip = $toIP;
+			$auth->acl($user->data);
+			$this->_transitioned_user = true;
+		}
+		
+		$this->_leave_if_just_entered();
+		 
+	}	
 	
 	
 	/**
