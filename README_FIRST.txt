@@ -106,6 +106,7 @@ completely rewritten.
 -- NEW: WP-United cache purged whenever phpBB cache is
 -- NEW: Improved cross-posting, with ability to force all posts to be cross-posted to a particular forum
 -- NEW: Cross-posted comments from cross-posted phpBB topic and WordPress comment form
+-- NEW: Cross-posting scheduled and old posts works, and shows the correct time and user info
 -- Big cleanup of widgets to remove unneeded markup and options
 -- NEW: Users online widget
 -- NEW: WP-United now supports forum & blog installation on different subdomains
@@ -128,6 +129,7 @@ completely rewritten.
 -- NEW: All language strings in WordPress can now be translated in phpBB in one place
 -- NEW: wpuAbs abstraction class removed
 -- FIXED: Missing quick links in WordPress dashboard
+-- And much, much more...
 
 
 v0.7.1 (STILL RELEASE CANDIDATE 1!)

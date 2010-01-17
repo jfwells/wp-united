@@ -1,20 +1,3 @@
-Actions remaining for release of v0.8
--------------------------------------------------
-This is more of a general todo list so that I (John) can prioritise changes 
-and (try to) stick to a release date. See code documentation for a full list of @todos. 
-Al full list of bugs is in the forum bug tracker.
-The "DONE" section only contains changes in the final run-up to release
-
-
-ACTIONS FOR RELEASE
-------------------------------
-
-Switch SVN branch to release
-Update release notes (IN PROGRESS)
-Remove outdated / unreleasable files (STATUS, latest-posts, phpbb2 upgrade, WP theme)
-Plea for help with user manual
-Announce
-
 
 Deferred to v0.9:
 ----------------------
