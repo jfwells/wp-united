@@ -3,7 +3,7 @@
 /** 
 *
 * @package WP-United
-* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0RC2 2010/01/16 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -316,8 +316,14 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
  * @param int $count a WordPress comment count to be returned if the post is not cross-posted
  * @param int $postID the WordPress post ID
  */
-function wpu_comments_count($count, $postID) {
+function wpu_comments_count($count, $postID = false) {
 	global $wp_query, $usePhpBBComments, $phpbbForum, $wpSettings, $phpbb_root_path;
+
+	// In WP < 2.9, $postID is not provided
+	if($postID === false) {
+		global $id;
+		$postID = (int) $id;
+	}
 
 	// if we already have the xposted details, use those
 	if ( !empty($usePhpBBComments) ) {

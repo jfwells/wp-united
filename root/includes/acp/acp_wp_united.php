@@ -4,7 +4,7 @@
 * WP-United ACP panels
 *
 * @package WP-United
-* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @version $Id: v0.8.0RC2 2010/01/16 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -2733,11 +2733,11 @@ class acp_wp_united {
 								" SET user_wpuint_id = NULL 
 								WHERE user_wpuint_id = $wpID";
 							if (!$pDel = $db->sql_query($sql)) {
-								trigger_error($user->lang['MAP_COULDNT_BREAK'] . '<br />' . $user->lang['DB_ERROR']);
+								trigger_error($phpbbForum->lang['MAP_COULDNT_BREAK'] . '<br />' . $phpbbForum->lang['DB_ERROR']);
 							}									
-							$status[] = '<li>'. sprintf($user->lang['MAP_BROKE_SUCCESS'], $wpID) . '</li>';
+							$status[] = '<li>'. sprintf($phpbbForum->lang['MAP_BROKE_SUCCESS'], $wpID) . '</li>';
 						} else {
-							$status[] = '<li>' . $user->lang['MAP_CANNOT_BREAK'] . '</li>';
+							$status[] = '<li>' . $phpbbForum->lang['MAP_CANNOT_BREAK'] . '</li>';
 						}
 					break;
 					case 'integrate':
@@ -2746,14 +2746,14 @@ class acp_wp_united {
 								" SET user_wpuint_id = $wpID 
 								WHERE user_id = $pID";
 							if (!$pInt = $db->sql_query($sql)) {
-								trigger_error($user->lang['MAP_COULDNT_INT'] . '<br />' . $user->lang['DB_ERROR']);
+								trigger_error($phpbbForum->lang['MAP_COULDNT_INT'] . '<br />' . $phpbbForum->lang['DB_ERROR']);
 							}
 							// Sync profiles
 							$sql = 	"SELECT *
 											FROM " . USERS_TABLE . " 
 											WHERE user_id = $pID";
 							if (!$pUserData = $db->sql_query($sql)) {
-								trigger_error($user->lang['MAP_COULDNT_INT'] . '<br />' . $user->lang['DB_ERROR']);
+								trigger_error($phpbbForum->lang['MAP_COULDNT_INT'] . '<br />' . $phpbbForum->lang['DB_ERROR']);
 							}
 							$data = $db->sql_fetchrow($pUserData);
 							$db->sql_freeresult($pUserData);
@@ -2780,26 +2780,26 @@ class acp_wp_united {
 							$wpUpdateData = $wpUtdInt->check_details_consistency($wpUsrData, $wpu_newDetails);
 							$phpbbForum->enter();
 							
-							$status[] = '<li>' . sprintf($user->lang['MAP_INT_SUCCESS'], $wpID, $pID) . '</li>';	
+							$status[] = '<li>' . sprintf($phpbbForum->lang['MAP_INT_SUCCESS'], $wpID, $pID) . '</li>';	
 						} else {
-							$status[] = '<li>' . $user->lang['MAP_CANNOT_INT'] . '</li>';
+							$status[] = '<li>' . $phpbbForum->lang['MAP_CANNOT_INT'] . '</li>';
 						}							
 					break;
 					case 'delete':
 						$phpbbForum->leave();
 						if ( !empty($wpID) ) {
 							wp_delete_user($wpID, $reassign = '0');
-							$status[] = '<li>' . sprintf($user->lang['MAP_WPDEL_SUCCESS'], $wpID) . '</li>';
+							$status[] = '<li>' . sprintf($phpbbForum->lang['MAP_WPDEL_SUCCESS'], $wpID) . '</li>';
 							$nextStart = $nextStart - 1;
 						} else {
-							$status[] = '<li>' . $user->lang['MAP_CANNOT_DEL'] . '</li>';
+							$status[] = '<li>' . $phpbbForum->lang['MAP_CANNOT_DEL'] . '</li>';
 						}
 						$phpbbForum->enter();
 					break;
 					case 'createP':
 						if (!$wpID || !$typedName) {
-							$status[] = '<li>' . $user->lang['MAP_CANNOT_CREATEP_ID'] . '</li>';
-						} else {
+							$status[] = '<li>' . $phpbbForum->lang['MAP_CANNOT_CREATEP_ID'] . '</li>';
+						} else { 
 							$phpbbForum->leave();
 							$wpUsr = get_userdata($wpID);
 							$phpbbForum->enter();
@@ -2808,7 +2808,7 @@ class acp_wp_united {
 								$password = substr_replace($password, '$H$', 0, 3);
 							}
 							
-							if ( validate_username($username) === FALSE ) {
+							if ( validate_username($typedName) === FALSE ) {
 								$userToAdd = array(
 									'username' => $typedName,
 									'user_password' => $password,
@@ -2817,19 +2817,19 @@ class acp_wp_united {
 									'group_id' => 2  //add to registered users group		
 								);
 								if (user_add($userToAdd)) {
-									$status[] = '<li>'. sprintf($user->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
+									$status[] = '<li>'. sprintf($phpbbForum->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
 								} else {
-									$status[] = '<li>' . $user->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
+									$status[] = '<li>' . $phpbbForum->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
 								}
 							}		
 						}
 					break;
 					default;
-						trigger_error($user->lang['MAP_INVALID_ACTION'] . '<br />' . $procAction);
+						trigger_error($phpbbForum->lang['MAP_INVALID_ACTION'] . '<br />' . $procAction);
 					break;
 				}
 			} else {
-				trigger_error($user->lang['MAP_EMPTY_ACTION'] . '<br />' . $procAction);
+				trigger_error($phpbbForum->lang['MAP_EMPTY_ACTION'] . '<br />' . $procAction);
 			}
 		}
 
@@ -2843,18 +2843,18 @@ class acp_wp_united {
 		
 		if (!empty($paged)) {
 			$template->assign_block_vars('switch_usermap_perform.switch_paged', array(
-				'L_MAP_NEXTPAGE' => $user->lang['MAP_NEXTPAGE']
+				'L_MAP_NEXTPAGE' => $phpbbForum->lang['MAP_NEXTPAGE']
 			));
 		} else {
 			$template->assign_block_vars('switch_usermap_perform.switch_unpaged', array(
-				'L_MAP_FINISHED' => sprintf($user->lang['MAP_FINISHED'], '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=index") . '">', '</a>', '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=usermap") . '">', '</a>' )
+				'L_MAP_FINISHED' => sprintf($phpbbForum->lang['MAP_FINISHED'], '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=index") . '">', '</a>', '<a href="' . append_sid("index.$phpEx?i=wp_united&amp;mode=usermap") . '">', '</a>' )
 			));
 		}
 		
 		$template->assign_vars(array(	
-			'L_MAP_TITLE'  =>	$user->lang['MAP_TITLE'],
+			'L_MAP_TITLE'  =>	$phpbbForum->lang['MAP_TITLE'],
 			'S_WPMAP_ACTION' => append_sid("index.$phpEx?i=wp_united"),
-			'L_MAP_PERFORM_INTRO' => $user->lang['MAP_PERFORM_INTRO'],
+			'L_MAP_PERFORM_INTRO' => $phpbbForum->lang['MAP_PERFORM_INTRO'],
 			'S_NEXTSTART' => $nextStart,
 			'S_NUMPERPAGE' => $numPerPage,
 		));		

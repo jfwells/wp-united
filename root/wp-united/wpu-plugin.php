@@ -6,7 +6,7 @@ Plugin URI: http://www.wp-united.com
 Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
 Version: v0.8.0 RC2 (phpBB3)
-Last Updated: 12 January 2010
+Last Updated: 16 January 2010
 Author URI: http://www.wp-united.com
 
 NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow phpBB mod conventions. Specifically:
@@ -34,7 +34,7 @@ if ( !defined('ABSPATH') ) {
  */
 function wpu_init_plugin() {
 	
-	global $phpbb_root_path, $phpEx, $phpbbForum;
+	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings;
 	
 	$wpuConnSettings = get_settings('wputd_connection');
 	
@@ -62,7 +62,18 @@ function wpu_init_plugin() {
 	} else {
 		add_action('widgets_init', 'wpu_widgets_init');	
 	}
-	
+
+	if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
+		global $user_ID;
+		get_currentuserinfo();
+		if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
+			wp_redirect(admin_url());
+		} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
+			$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . attribute_escape(admin_url()), false, false, $GLOBALS['user']->session_id);		
+			wp_redirect($phpbbForum->url . $login_link);
+		}
+	}
+
 		/**
 		 * Disable access to the blog if the forum is disabled -- otherwise too many variables
 		 * are off-limits
@@ -1203,7 +1214,7 @@ function wpu_buffer_profile($output) {
 		define('WPU_ALTER_PROFILE', TRUE);
 		
 		// We directly edit the profile page. We need to keep the e-mail field around, so hide it.
-		$emailField = '<input type="hidden" name="email" id="email" value="' .  esc_attr($profileuser->user_email) . '" />';
+		$emailField = '<input type="hidden" name="email" id="email" value="' .  attribute_escape($profileuser->user_email) . '" />';
 		$output = preg_replace('/<h3>' . __('Contact Info') . '[\s\S]*<h3>/i', $emailField . '<h3>' , $output);
 		
 		
@@ -1255,17 +1266,7 @@ function wpu_buffer_userspanel($panelContent) {
 	return $panelContent;
 }
 
-/**
- * disable access to wp-login.php if logins are integrated
- */
-function wpu_disable_wp_login() { 
-	global $phpbb_root_path, $phpEx, $wpSettings, $phpbbForum; 
-	if (preg_match('|/wp-login.php|', $_SERVER['REQUEST_URI'])) {	
-		if (!empty($wpSettings['integrateLogin'])) {
-			wp_redirect($phpbbForum->url . 'ucp.' . $phpEx);
-		}
-	}
-}
+
 
 /**
  * Add script to our user blog theme selection page
@@ -1295,7 +1296,7 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 	if ( false === $alt)
 		$safe_alt = '';
 	else
-		$safe_alt = esc_attr( $alt );
+		$safe_alt = attribute_escape( $alt );
 
 	if ( !is_numeric($size) )
 		$size = '96';
@@ -1506,12 +1507,18 @@ Stops the password fields from showing on the profile page if the user is integr
 */
 function wpu_disable_passchange($state, $profileUser = false) {
 	global $wpSettings;
-	if($profileUser) {
-		if(($wpSettings['integrateLogin']) && (get_wpu_user_id($profileUser->ID))) {
-				return false;
+	// for WP 2.8 and earlier, $profileUser is not passed
+	if(!$profileUser) {
+		$profileUser = $GLOBALS['profileuser'];
+	}	
+	if ( stripos($_SERVER['REQUEST_URI'], 'user-new.php') === false ) {
+		if($profileUser) {
+			if(($wpSettings['integrateLogin']) && (get_wpu_user_id($profileUser->ID))) {
+					return false;
+			}
 		}
-		return $state;
 	}
+	return $state;
 }
 
 
@@ -1567,11 +1574,7 @@ if ( isset($_GET['page']) ) {
 		add_action('admin_init', 'wpu_prepare_admin_pages');
 	}
 }
-/**
-if (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) {
-	add_action('init', 'wpu_disable_wp_login');
-}
-*/
+
 
 add_filter('template', 'wpu_get_template');
 add_filter('stylesheet', 'wpu_get_stylesheet');

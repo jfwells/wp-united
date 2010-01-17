@@ -57,17 +57,15 @@ define('WPU_CACHE_ENABLED', TRUE);
  */
 define('WPU_CORE_CACHE_ENABLED', TRUE);
 
-
 /**
- * COMPRESS HTML OUTPUT FURTHER?
- * This section does a bit of minor extra HTML compression by stripping white space, at the expense of a little processing time.
- * Doesn't yield much (about 5% reduction at the very most) if gzip is on. If gzip is off, it makes a significant difference. 
- * However, it CAN break some page output, especially uncompressed JavaScript in the page head. 
- * It's off by default, but you could turn it on by changing FALSE to TRUE.
- * Note that this will make your page source a little harder to read -- andis therefore not recommended if you're still building and debugging your site.
+ * DISABLE WORDPRESS WP-LOGIN?
+ * If all your users are integrated, you will want to disable access to wp-login.php. If you set this
+ * option to TRUE, users who access wp-login.php will be redirected to the phpBB login.
+ * 
+ * If this is set to FALSE, logged-in, integrated users will automatically be redirected to the WordPress
+ * dashboard, but since we don't know if logged-out users should be integrated, they will see the WordPress login form.
  */
-define('WPU_MAX_COMPRESS', FALSE);
-
+define('WPU_MUST_LOGIN', FALSE);
 
 /**
  * ENABLE LOGIN INTEGRATION DEBUG MODE?
@@ -93,6 +91,18 @@ define('WP_ROOT_COOKIE', FALSE);
  * It should be left OFF on production servers.
  */
 define('WPU_SHOW_STATS', FALSE);
+
+
+/**
+ * COMPRESS HTML OUTPUT FURTHER?
+ * This section does a bit of minor extra HTML compression by stripping white space, at the expense of a little processing time.
+ * Doesn't yield much (about 5% reduction at the very most) if gzip is on. If gzip is off, it makes a significant difference. 
+ * However, it CAN break some page output, especially uncompressed JavaScript in the page head. 
+ * It's off by default, but you could turn it on by changing FALSE to TRUE.
+ * Note that this will make your page source a little harder to read -- andis therefore not recommended if you're still building and debugging your site.
+ */
+define('WPU_MAX_COMPRESS', FALSE);
+
 
 /**
  *  phpBB CSS?

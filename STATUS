@@ -5,21 +5,10 @@ and (try to) stick to a release date. See code documentation for a full list of 
 Al full list of bugs is in the forum bug tracker.
 The "DONE" section only contains changes in the final run-up to release
 
-TODO
---------
-
-if this specific user is integrated, skip login (go to dash if logged in, or phpbb login if logged out)
-multibyte charset in xposting
-Recent forum posts - check timezone (http://www.wp-united.com/viewtopic.php?f=15&t=1912)
-test that adding phpBB user in user map still works
-
 
 ACTIONS FOR RELEASE
 ------------------------------
 
-Fresh install test
-Remove pre 2.7 paths / update description (IN PROGRESS)
-Install to wp-united.com
 Switch SVN branch to release
 Update release notes (IN PROGRESS)
 Remove outdated / unreleasable files (STATUS, latest-posts, phpbb2 upgrade, WP theme)
@@ -48,6 +37,7 @@ Cache: Make core/template calls follow same structure as css magic / template vo
  Plugin: JavaScript and CSS should be enqueued
  Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 $_SID is not getting set, so append_sid() does nothing without forced param
+Recent forum posts - check timezone (http://www.wp-united.com/viewtopic.php?f=15&t=1912)
 
 =============================================
 
@@ -165,3 +155,7 @@ DONE / COMMITTED
 - Added phpBB censoring (if selected) to phpBB forum posts + topics widgets, and user blog titles + taglines
 - When cross-posting scheduled or previously-published WP posts, date/time is now correct
 - scheduling a post that cross-posts now works -- and is now cross-posted by wp-cron with the correct user permissions
+- replaced redirection for wp-login -- behaviour can be set in options.php
+- Fixed phpBB user not created in user mapping tool
+- Made comments count backward compatible with WP 2.8 and earlier
+- Minor compatibility tweaks for WP 2.8x

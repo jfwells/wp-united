@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<?xml-stylesheet type="text/xsl" href="../../modx.prosilver.en.xsl"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
 <!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
 <mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.3.xsd">
   <header>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
-    <title lang="en-gb">WP-UNITED WordPress - phpBB Integration Mod</title>
+    <title lang="en-gb">WP-UNITED: WordPress - phpBB Integration Mod</title>
     <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
     <author-notes lang="en-gb">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
 Visit http://www.wp-united.com for more help or information.
@@ -105,43 +105,24 @@ Visit http://www.wp-united.com for more help or information.
       </edit>
     </open>
 
-     <diy-instructions lang="en-gb"><![CDATA[	
+      <diy-instructions lang="en-gb"><![CDATA[	
 
-THEME CHANGES
--------------
-If you need to install the template modifications for the subSilver2 template, use the subsilver2.xml file in the templates folder.
 
-if you are using another theme based on prosilver, make the above prosilver changes to your theme now.
+Note that during the upgrade procedure, portions of your site will produce errors or be inaccessible -- you should bring your site offline while upgrading.
 
-Remember to purge the phpBB template cache, and refresh your themes after making these changes.
+Before copying the files noted, first delete all files in your phpbb_root/wp-united folder.
 
-IMPORTANT NEXT STEPS
---------------------
+When copying, don't forget to overwrite your old blog.php, remembering that you may have moved or renamed it to a different location. After doing so, open it and provide the path back to phpBB where indicated.
 
-After making all the edits, you must complete the following steps:
+Then, perform the file edits indicated.
 
-1. Run the wpu-install.php script that you copied to your phpBB root folder, by accessing http://your-site-toot/wpu-install.php. When done, delete wpu-install.php.
+Afterwards, open the file wp-united/options.php, and find the option WPU_DISABLE, and change the option from FALSE to TRUE. This will temporarily disable WP-United so you can complete the upgrade.
 
-2. Make sure you have installed WordPress. If you need help, look at the instructions on the WordPress Codex, here: http://codex.wordpress.org/Installing_WordPress
+Following this, visit your phpBB Admin Control Panel, and purge your phpBB cache.  
 
-3. IMPORTANT: Copy the file wpu-plugin.php from your phpbb-root/wp-united folder to your WordPress plugins folder (wp-includes/plugins). (This was not required in older versions of WP-United)
+Then, run the WP-United Setup Wizard all the way through.
 
-4. Run the Setup Wizard, under the WP-United tab that will appear in your ACP.
-
-For more detailed instructions, please visit http://www.wp-united.com
-
-REPORTING BUGS / GETTING HELP
------------------------------
-
-Please remember, 95% of reported bugs are user error. If you encounter any problems, re-read the above steps carefully, and make sure you have done everything as instructed, and try installing the mod using AutoMod. 
-
-Check that your phpBB server settings (especially "script path") and WordPress settings are correct, then try re-running the WP-United install wizard (WP-United tab in the phpBB Admin Control Panel).
-
-If it still fails, please:
-(1) If you are getting blank pages, turn on PHP error reporting or look in your server log to find the underlying cause of the problem. We can't respond to any support requests referring to "blank pages" without accompanying error output.
-(2) Use "Debug Info To Post" function, located under the WP-United Admin Control Panel tab, to getrelevant debug information.
-
-Post this information, together with full details of any error, and what you did to generate the error, on http://www.wp-united.com , after performing a search for similar issues.
+Finally, open wp-united/options.php again, and re-enable WP-United.
 
 ]]></diy-instructions>
   </action-group>
