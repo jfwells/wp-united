@@ -37,6 +37,7 @@ FIXED / COMMITTED for v0.8.1:
 
 Deferred to v0.9:
 ----------------------
+wpu-plugin should be handling login/logout, rather than $wpUtdInt. wp-login redirects will then be more reliable
 Cache: WordPress version can be auto-filled -- and WPINC should be dynamic when calculating file path
 Use phpBB hook file to include WordPress first, making scope always global
 Remove need for blog.php by handling all function collisions is phpBB via the above
