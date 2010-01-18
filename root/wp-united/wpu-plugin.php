@@ -8,7 +8,10 @@ Author: John Wells
 Version: v0.8.0 RC2 (phpBB3)
 Last Updated: 16 January 2010
 Author URI: http://www.wp-united.com
+*/
 
+
+/**
 NOTE: This is a WordPress plugin, NOT a phpBB file and so it does not follow phpBB mod conventions. Specifically:
 	- different hacking attempt check
 	- different templating system

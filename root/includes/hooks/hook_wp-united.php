@@ -18,6 +18,7 @@ if ( !defined('IN_PHPBB') ) {
 	exit;
 }
 
+define('WPU_HOOK_ACTIVE', TRUE);
 require_once ($phpbb_root_path . 'wp-united/version.' . $phpEx);
 require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);

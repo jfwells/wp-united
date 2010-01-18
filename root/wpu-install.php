@@ -23,6 +23,12 @@ include($phpbb_root_path . 'common.' . $phpEx);
 require($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
 require($phpbb_root_path . 'includes/functions_module.' . $phpEx);
 
+// check our hook has been loaded
+$cache->purge();
+if(!defined('WPU_HOOK_ACTIVE')) {
+	require_once($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
+}
+
 $user->session_begin();
 $auth->acl($user->data);
 $user->setup('acp/common');

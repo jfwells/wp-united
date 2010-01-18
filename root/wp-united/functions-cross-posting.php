@@ -356,7 +356,7 @@ function wpu_comments_count($count, $postID = false) {
  * this catches posted comments and sends them to the forum
  */
 function wpu_comment_redirector($postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostedDetails;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostedDetails, $auth;
 	
 	if ( 
 		(empty($phpbb_root_path)) || 
@@ -387,8 +387,7 @@ function wpu_comment_redirector($postID) {
 		wp_die($phpbbForum->lang['TOPIC_LOCKED']);
 	}
 
-	$permissionsList = wpu_forum_xpost_list();  
-	if ( !in_array($xPostDetails['forum_id'], (array)$permissionsList['forum_id']) ) { 
+	if (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id']) ) { 
 		$phpbbForum->leave();
 		wp_die( __('You do not have permissions to comment in the forum'));
 	}
@@ -438,7 +437,7 @@ function wpu_comment_redirector($postID) {
  * 
  */
 function wpu_comments_open($open, $postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $usePhpBBComments, $xPostDetails;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $usePhpBBComments, $xPostDetails, $auth;
 	static $status;
 	if(isset($status)) {
 		return $status;
@@ -467,8 +466,6 @@ function wpu_comments_open($open, $postID) {
 		$phpbbForum->enter();
 		if(!($dets = wpu_get_xposted_details($postID))) {
 			$phpbbForum->leave();
-			//global $post; print_r($post);
-			//print_r($dets);die('R' . $postID . 'P');
 			$status = false;
 			return $status;			
 		}
@@ -482,12 +479,14 @@ function wpu_comments_open($open, $postID) {
 			return $status;
 		}
 		
-		$permissionsList = wpu_forum_xpost_list(); 
-		$phpbbForum->leave();
-		if ( !in_array($dets['forum_id'], (array)$permissionsList['forum_id']) ) { 
+		
+		if (!$auth->acl_get('f_noapprove', $dets['forum_id']) ) { 
+			$phpbbForum->leave();
 			$status = false;
 			return $status;
 		}
+		
+		$phpbbForum->leave();
 		
 		$status = true;
 		return $status;
