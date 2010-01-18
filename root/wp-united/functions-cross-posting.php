@@ -491,11 +491,6 @@ function wpu_comments_open($open, $postID) {
 		$status = true;
 		return $status;
 	}
-
-
-	
-	
-	
 }
 
 ?>
