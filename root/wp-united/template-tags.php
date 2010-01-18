@@ -727,7 +727,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
 			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
 			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url . "viewtopic.$phpEx?t=" . $post['topic_id'] . '">' . wpu_censor($post['topic_title']) . '</a>';
 			$forum_link = '<a ' . $class . 'href="' . $phpbbForum->url . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-			$user_link = '<a ' . $class . 'href="' . $phpbbForum->url . "$profile_path.$phpEx?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
+			$user_link = '<a ' . $class . 'href="' . $phpbbForum->url . "$profile_path?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
 			$output .= $thisBefore . sprintf($phpbbForum->lang['wpu_phpbb_topic_summary'],$topic_link, $user_link, $forum_link)  ."$after\n";
 			$i++;
 		}

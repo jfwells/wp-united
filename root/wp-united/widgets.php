@@ -404,7 +404,7 @@ function wpu_widgets_init() {
 			
 			$options = get_option('widget_wpulatestphpbbposts');
 			$title = $options['title'];
-			$dateformat = $options['dateformat'];
+			$dateFormat = $options['dateformat'];
 			$maxEntries = $options['max'];
 			
 			if ( !function_exists('wpu_latest_phpbb_posts') ) return false;
@@ -412,7 +412,7 @@ function wpu_widgets_init() {
 			echo $before_widget;
 			echo $before_title .$title. $after_title;
 			echo '<ul class="wpulatestposts">';
-			wpu_latest_phpbb_posts("limit={$limit}&seo={$seo}&dateformat={$dateformat}");
+			wpu_latest_phpbb_posts("limit={$maxEntries}&dateformat={$dateFormat}");
 			echo '</ul>';
 			echo $after_widget;
 		}

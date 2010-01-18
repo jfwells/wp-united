@@ -1,4 +1,38 @@
 
+
+Bug fixes for v0.8.1
+--------------------
+
+Latest forum posts widget timezone is incorrect 
+http://www.wp-united.com/viewtopic.php?f=15&t=1912
+
+xposted comments permission check incorrect
+http://www.wp-united.com/posting.php?mode=reply&f=14&t=1929
+
+Various login links broken
+http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
+
+Double slashes in front of smilies
+http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
+
+No redirect on updating phpBB profile in REV integration
+http://www.wp-united.com/viewtopic.php?f=15&t=1942&p=6226#p6226
+
+E_STRICT errors with instantiation of singleton classes
+http://www.wp-united.com/viewtopic.php?f=5&t=1922&p=6231#p6231
+
+
+
+FIXED / COMMITTED for v0.8.1:
+------------------------------
+
+- Forum posts widget link  has extra .php (http://www.wp-united.com/viewtopic.php?f=19&t=1938)
+- Latest forum posts widget shows all posts (http://www.wp-united.com/viewtopic.php?f=15&t=1940&p=6217#p6217)
+
+
+
+
+
 Deferred to v0.9:
 ----------------------
 Cache: WordPress version can be auto-filled -- and WPINC should be dynamic when calculating file path
@@ -20,11 +54,20 @@ Cache: Make core/template calls follow same structure as css magic / template vo
  Plugin: JavaScript and CSS should be enqueued
  Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 $_SID is not getting set, so append_sid() does nothing without forced param
-Recent forum posts - check timezone (http://www.wp-united.com/viewtopic.php?f=15&t=1912)
 
 =============================================
 
-DONE / COMMITTED
+
+
+
+
+
+
+
+
+
+
+DONE / COMMITTED (v0.8.0)
 -------
 
 - See SVN changelog for complete list
