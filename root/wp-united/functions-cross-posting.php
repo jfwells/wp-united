@@ -216,16 +216,30 @@ function wpu_get_xposted_details($postID = false) {
 	if(empty($postID)) {
 		return false;
 	}
-	global $db;
 	
-	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, f.forum_name, t.topic_replies, t.topic_approved, t.topic_status FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
+	global $phpbbForum, $db;
+	
+	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_approved, t.topic_status, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
 		"p.post_wpu_xpost = $postID AND " .
-		't.topic_id = p.topic_id and ' .
-		'f.forum_id = p.forum_id';
+		't.topic_id = p.topic_id AND (' .
+		'f.forum_id = p.forum_id OR ' .
+		'p.forum_id = 0)';
 	if ($result = $db->sql_query_limit($sql, 1)) {
 		$row = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
 		if ( (!empty($row['forum_id'])) && (!empty($row['forum_name'])) ) {
+			return $row;
+		} else if( ($row['forum_id'] == 0) && (!empty($row['post_id'])) ) {
+			// global topic
+			$row['forum_name'] = $phpbbForum->lang['VIEW_TOPIC_GLOBAL'];
+			// get any free forum ID
+			global $user, $auth;
+			$forumList = $auth->acl_get_list($user->data['user_id'], 'f_noapprove');
+			if ( sizeof($forumList) ) {
+				   $forumList = array_keys($forumList);
+				$row['forum_id'] = $forumList[0];
+				$row['permschecked'] = true;
+			}
 			return $row;
 		}
 	}
@@ -356,8 +370,7 @@ function wpu_comments_count($count, $postID = false) {
  * this catches posted comments and sends them to the forum
  */
 function wpu_comment_redirector($postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostedDetails, $auth;
-	
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth;
 	if ( 
 		(empty($phpbb_root_path)) || 
 		(empty($wpSettings['integrateLogin'])) || 
@@ -373,7 +386,6 @@ function wpu_comment_redirector($postID) {
 		$phpbbForum->leave();
 		return;
 	}	
-
 	if ( !$xPostDetails = wpu_get_xposted_details($postID) ) { 
 		$phpbbForum->leave();
 		return;
@@ -387,11 +399,10 @@ function wpu_comment_redirector($postID) {
 		wp_die($phpbbForum->lang['TOPIC_LOCKED']);
 	}
 
-	if (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id']) ) { 
+	if ( (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id'])) || ($xPostDetails['forum_id'] == 0) ) { 
 		$phpbbForum->leave();
 		wp_die( __('You do not have permissions to comment in the forum'));
 	}
-	
 	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
 	
 	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
@@ -437,7 +448,7 @@ function wpu_comment_redirector($postID) {
  * 
  */
 function wpu_comments_open($open, $postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $usePhpBBComments, $xPostDetails, $auth;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $auth;
 	static $status;
 	if(isset($status)) {
 		return $status;
@@ -457,40 +468,35 @@ function wpu_comments_open($open, $postID) {
 		return $status;
 	}
 	
-	// if we already have the xposted details, use those
-	if ( !empty($usePhpBBComments) ) {
-		$dets = $xPostDetails;
-	} else {
-	// else, get the details
+	$phpbbForum->enter();
+	if(!($dets = wpu_get_xposted_details($postID))) {
+		$phpbbForum->leave();
+		$status = $open;
+		return $status;			
+	}
+
+	if (
+		(empty($dets['topic_approved'])) || 
+		($dets['topic_status'] == ITEM_LOCKED)
+	) { 
+		$phpbbForum->leave();
+		$status = false;
+		return $status;
+	}
 	
-		$phpbbForum->enter();
-		if(!($dets = wpu_get_xposted_details($postID))) {
-			$phpbbForum->leave();
-			$status = false;
-			return $status;			
-		}
-		
-		if (
-			(empty($dets['topic_approved'])) || 
-			($dets['topic_status'] == ITEM_LOCKED)
-		) { 
-			$phpbbForum->leave();
-			$status = false;
-			return $status;
-		}
-		
-		
+
+	if(!isset($dets['permschecked'])) {
 		if (!$auth->acl_get('f_noapprove', $dets['forum_id']) ) { 
 			$phpbbForum->leave();
 			$status = false;
 			return $status;
 		}
-		
-		$phpbbForum->leave();
-		
-		$status = true;
-		return $status;
 	}
+
+	$phpbbForum->leave();
+	
+	$status = true;
+	return $status;
 }
 
 ?>

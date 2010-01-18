@@ -31,6 +31,7 @@ FIXED / COMMITTED for v0.8.1:
 - Latest forum posts widget shows too many posts (http://www.wp-united.com/viewtopic.php?f=15&t=1940&p=6217#p6217)
 - xposted comments permission check incorrect (http://www.wp-united.com/posting.php?mode=reply&f=14&t=1929)
 - force hook file to be loaded in wpu-install if cache has not been purged
+- cross-posted posts that later become global announcements can now be edited/commented on
 
 
 

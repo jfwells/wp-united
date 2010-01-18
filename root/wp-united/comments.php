@@ -37,7 +37,7 @@ class WPU_Comments {
 		 *  unfortunately xpost ID is in POSTS table rather than TOPICS table, so we need two queries :-(
 		 */
 		
-		$sql = 'SELECT topic_id from ' . POSTS_TABLE . ' WHERE post_wpu_xpost = ' . $wpPostID;
+		$sql = 'SELECT topic_id, forum_id from ' . POSTS_TABLE . ' WHERE post_wpu_xpost = ' . $wpPostID;
 
 		if($result = $db->sql_query_limit($sql, 1)) {
 			$dets = $db->sql_fetchrow($result);
@@ -49,6 +49,31 @@ class WPU_Comments {
 		
 		if(!isset($topicID)) {
 			$db->sql_freeresult($result);
+			$phpbbForum->leave();
+			return false;
+		}
+		
+		// check permissions
+		$canPost = false;
+		if($dets['forum_id'] == 0) {
+			// The topic has become a global announcement
+			global $user;
+			$forumList = $auth->acl_get_list($user->data['user_id'], 'f_noapprove');
+                        if ( sizeof($forumList) ) {
+                                $forumList = array_keys($forumList);
+                                if(!empty($forumList[0])) {
+					$canPost = true;
+				}
+                        }
+		} else {
+			$auth_f_read = array_keys($auth->acl_getf('f_read', true));
+			if(sizeof($auth_f_read)) {
+				if(in_array($dets['forum_id'], $auth_f_read)) {
+					$canPost = true;
+				}
+			}
+		}
+		if(!$canPost) {
 			$phpbbForum->leave();
 			return false;
 		}
@@ -82,8 +107,7 @@ class WPU_Comments {
 						t.topic_id = ' . $topicID . ' AND 
 						p.post_approved = 1 AND
 						t.topic_replies_real > 0 AND 
-						p.post_wpu_xpost IS NULL AND ' .
-						$db->sql_in_set('t.forum_id', $auth_f_read) . ' 
+						p.post_wpu_xpost IS NULL 
 						ORDER BY p.post_id ASC';
 
 				if(!($result = $db->sql_query($sql))) {
