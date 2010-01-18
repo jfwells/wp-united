@@ -500,7 +500,7 @@ function wpu_output_page(&$content) {
 		$content = preg_replace($search, $replace, $content);
 	}	
 	
-	echo $content;
+	echo $content; 
 	// Finally -- clean up
 	define('WPU_FINISHED', true);
 	garbage_collection();

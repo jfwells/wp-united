@@ -816,7 +816,7 @@ function wpu_useronlinelist($args = '') {
  * @example wpu_useronlinelist('before=<li>&after=</li>&showBreakdown=1&showRecord=1&showLegend=1');
  */
 function get_wpu_useronlinelist($args = '') {
-	global $phpbbForum, $template, $auth, $db, $config, $user;
+	global $phpbbForum, $template, $auth, $db, $config, $user, $phpEx;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>', 'showCurrent' => 1, 'showRecord' => 1, 'showLegend' => 1);
 	extract(_wpu_process_args($args, $defaults));

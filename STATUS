@@ -7,13 +7,7 @@ Bug fixes for v0.8.1
 Latest forum posts widget timezone is incorrect 
 http://www.wp-united.com/viewtopic.php?f=15&t=1912
 
-gzip handler not working
-http://www.wp-united.com/viewtopic.php?f=14&t=1939&p=6225#p6225
-
 Various login links broken
-http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
-
-Double slashes in front of smilies
 http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
 
 No redirect on updating phpBB profile in REV integration
@@ -32,8 +26,8 @@ FIXED / COMMITTED for v0.8.1:
 - xposted comments permission check incorrect (http://www.wp-united.com/posting.php?mode=reply&f=14&t=1929)
 - force hook file to be loaded in wpu-install if cache has not been purged
 - cross-posted posts that later become global announcements can now be edited/commented on
-
-
+- fixed missing .php in users online widget links
+- fixed gzip handler in reverse forum integration
 
 Deferred to v0.9:
 ----------------------

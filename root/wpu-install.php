@@ -308,12 +308,12 @@ $bodyContent .= "To complete the setup, please run the Setup Wizard under your W
 $bodyContent .= "You can control access to this tab via the 'Can manage WP-United options in the ACP' permission.<br /><hr /><br />\n\n";
 $bodyContent .= "Please delete this file -- and enjoy WP-United!</strong>\n\n";
 
-page_header('WP-United Installer');
+//page_header('WP-United Installer');
 
 
 
 define('PHPBB_EXIT_DISABLED', true);
-trigger_error($bodyContent, E_USER_NOTICE);
+trigger_error($bodyContent);
 
 
 add_log('admin', 'WP_INSTALLED', 'Ran the WP-United Install Script');	

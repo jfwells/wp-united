@@ -45,22 +45,21 @@ if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
  * Initialise WP-United variables and template strings
  */
 function wpu_init(&$hook) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user;
-	
-
+	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config;
 
 	if  ($wpSettings['installLevel'] == 10) {
 		//Do a reverse integration?
 		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
-			if (empty($gen_simple_header)) {
-				define('WPU_REVERSE_INTEGRATION', true);
-				ob_start();
+			define('WPU_REVERSE_INTEGRATION', true);
+			if ($config['gzip_compress']) {
+				if (@extension_loaded('zlib') && !headers_sent()) {
+					ob_start('ob_gzhandler');
+				}
 			}
+			ob_start();
 		}
 	} 	
 }
-
-
 
 /**
  * Capture the outputted page, and prevent phpBB for exiting
