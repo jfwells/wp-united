@@ -1387,7 +1387,7 @@ class acp_wp_united {
 	//***********************************************************************
 
 	function donate_show() {
-		global $user, $phpEx, $ignorePrompt;
+		global $user, $phpEx, $template, $ignorePrompt;
 		$this->page_title = $user->lang['ACP_WPU_INDEX_TITLE'];
 		$this->tpl_name = 'acp_wp_united';
 
