@@ -31,9 +31,11 @@ FIXED / COMMITTED for v0.8.1:
 - fixed error messages not being suppressed in installer backend (http://www.wp-united.com/viewtopic.php?f=5&t=1922&p=6231#p6231 , http://www.wp-united.com/viewtopic.php?f=14&t=1956)
 - Fixed missing $template in usermap when no mappable users
 - Fixed AJAX not catching all errors (http://www.wp-united.com/viewtopic.php?f=14&t=1956)
+- Improved outdated description and suggestions around simple/full reverse integration in ACP
 
 Deferred to v0.9:
 ----------------------
+Add proper timeouts to ACP AJAX
 Check that WP permalinks setting is commensurate with WP-United wpUri setting.
 wpu-plugin should be handling login/logout, rather than $wpUtdInt. wp-login redirects will then be more reliable
 Cache: WordPress version can be auto-filled -- and WPINC should be dynamic when calculating file path

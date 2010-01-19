@@ -1416,60 +1416,60 @@
 	}	
 	// process ajax response
 	function stateChange() {
-	    if (serverRequest.readyState == 4) {
-			fail = false;
-			document.getElementById("spinner").style.display = "none";
-	        var cs = document.getElementById("commstatus");
-	        if (serverRequest.status == 200) {
-	            var respXML = null;
-	            try {
-					respXML = serverRequest.responseXML;
-				} catch(e) { }
-				var respText = serverRequest.responseText;
-	            if(respXML==null) {
-					fail = true;
-					if (respText == "") {
-						cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_SERVER_BLANK_PAGE}</span>";
-					} else {
-						cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_SERVER_ERROR}<br /><span style=\"display: block; border: 1px solid #333333; background-color: #dedede; color: #000000; padding: 6px; margin: 6px;\">" + respText + "</span></span>";
-					}
-					document.getElementById("retr").style.display = "block";
-				} else {
-							var res, mesg;
-						try {
-							res = respXML.getElementsByTagName('result').item(0).firstChild.data;
-							mesg = respXML.getElementsByTagName('message').item(0).firstChild.data;
-							pluginState = (respXML.getElementsByTagName('pluginstate').item(0).firstChild.data == "ENABLED") ? "ENABLED" : "DISABLED";
-						} catch(e) {}
-						pluginText = (pluginState == "ENABLED") ? "{LA_PLUGIN_FIXES_DISABLED} <a href=\"#\" onclick=\"return doFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_ENABLED}</a>" : "{LA_PLUGIN_FIXES_ENABLED} <a href=\"#\" onclick=\"return dontFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_DISABLED}</a>";
-						if(res=="OK") {
-							cs.innerHTML = "<span style=\"display: block; color: green;\">{LA_WPWIZ_S5_SUCCESS}<br /></span>";
-							document.getElementById("btnnext").style.display= "block";
-						} else if(res == "NOSAVE") {
-							cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_DB_ERR_CONN_OK}<br /></span>";
-							fail = true;
-						} else { //FAIL
-							cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />" + mesg + "</span>";
-							fail = true;
+			if (serverRequest.readyState == 4) {
+				fail = false;
+				document.getElementById("spinner").style.display = "none";
+				var cs = document.getElementById("commstatus");
+				if (serverRequest.status == 200) {
+					var respXML = null;
+					try {
+						respXML = serverRequest.responseXML;
+					} catch(e) { }
+					var respText = serverRequest.responseText;
+					if(respXML==null) {
+						fail = true;
+						if (respText == "") {
+							cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_SERVER_BLANK_PAGE}</span>";
+						} else {
+							cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_SERVER_ERROR}<br /><span style=\"display: block; border: 1px solid #333333; background-color: #dedede; color: #000000; padding: 6px; margin: 6px;\">" + respText + "</span></span>";
 						}
+						document.getElementById("retr").style.display = "block";
+					} else {
+								var res, mesg;
+							try {
+								res = respXML.getElementsByTagName('result').item(0).firstChild.data;
+								mesg = respXML.getElementsByTagName('message').item(0).firstChild.data;
+								pluginState = (respXML.getElementsByTagName('pluginstate').item(0).firstChild.data == "ENABLED") ? "ENABLED" : "DISABLED";
+							} catch(e) {}
+							pluginText = (pluginState == "ENABLED") ? "{LA_PLUGIN_FIXES_DISABLED} <a href=\"#\" onclick=\"return doFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_ENABLED}</a>" : "{LA_PLUGIN_FIXES_ENABLED} <a href=\"#\" onclick=\"return dontFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_DISABLED}</a>";
+							if(res=="OK") {
+								cs.innerHTML = "<span style=\"display: block; color: green;\">{LA_WPWIZ_S5_SUCCESS}<br /></span>";
+								document.getElementById("btnnext").style.display= "block";
+							} else if(res == "NOSAVE") {
+								cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_DB_ERR_CONN_OK}<br /></span>";
+								fail = true;
+							} else { //FAIL
+								cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />" + mesg + "</span>";
+								fail = true;
+							}
+					}
+				} else {
+					cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WP_AJAX_RESPONSE_ERROR}: "  + serverRequest.statusText + " (" + serverRequest.status + ")</span>";
+					cs.innerHTML += "<span style=\"display: block; color: black;\">" + pluginText + "</span>";
+					fail = true;
 				}
-	        } else {
-				cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WP_AJAX_RESPONSE_ERROR}: "  + serverRequest.statusText + " (" + serverRequest.status + ")</span>";
-				cs.innerHTML += "<span style=\"display: block; color: black;\">" + pluginText + "</span>";
-				fail = true;
-	        }
-			if(fail) {
-				var pluginText;
-				pluginText = (pluginState == "DISABLED") ? "{LA_PLUGIN_FIXES_DISABLED} <a href=\"#\" onclick=\"return doFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_ENABLED}</a>" : "{LA_PLUGIN_FIXES_ENABLED} <a href=\"#\" onclick=\"return dontFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_DISABLED}</a>";
-				cs.innerHTML += "<span style=\"display: block; color: black;\">" + pluginText + "</span>";
-				document.getElementById("retr").style.display = "block";
+				if(fail) {
+					var pluginText;
+					pluginText = (pluginState == "DISABLED") ? "{LA_PLUGIN_FIXES_DISABLED} <a href=\"#\" onclick=\"return doFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_ENABLED}</a>" : "{LA_PLUGIN_FIXES_ENABLED} <a href=\"#\" onclick=\"return dontFixPlugins();\">{LA_PLUGIN_FIXES_TRYAGAIN_DISABLED}</a>";
+					cs.innerHTML += "<span style=\"display: block; color: black;\">" + pluginText + "</span>";
+					document.getElementById("retr").style.display = "block";
+				}
+				serverRequestInProgress = false;
+				//Hide spinner
+			} else {
+				//request is in progress.
 			}
-			serverRequestInProgress = false;
-			//Hide spinner
-	    } else {
-			//request is in progress.
 		}
-	}
 		function init () {
 			serverRequest = getXmlHttpObject();
 			useAjax = enhancePage(serverRequest);
