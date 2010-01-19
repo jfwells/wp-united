@@ -42,7 +42,7 @@ if ($user->data['user_type'] != USER_FOUNDER) {
     if ($user->data['user_id'] == ANONYMOUS) {
         login_box('');
     }
-	trigger_error('NOT_AUTHORISED');
+	trigger_error('NOT_AUTHORISED', E_USER_ERROR); exit();
 }
 
 $bodyContent = "<img src=\"{$server}{$scriptPath}wp-united/images/wp-united-logo.gif\" style=\"float: right;\" />";
@@ -55,7 +55,7 @@ if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
 		ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
 
 	if (!$result = $db->sql_query($sql)) {
-		trigger_error('ERROR: Cannot add the integration column to the users table');
+		trigger_error('ERROR: Cannot add the integration column to the users table', E_USER_ERROR); exit();
 	}
 	$bodyContent .= "Done!<br />\n\n";
 } else {
@@ -68,7 +68,7 @@ if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
  	$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 		ADD user_wpublog_id VARCHAR(10) NULL DEFAULT NULL';
 	if (!$result = $db->sql_query($sql)) {
-		trigger_error('ERROR: Cannot add blog ID column to users table');
+		trigger_error('ERROR: Cannot add blog ID column to users table', E_USER_ERROR); exit();
 	}
 	$bodyContent .= "Done!<br />\n\n";
 } else {
@@ -87,7 +87,7 @@ if (!array_key_exists('post_wpu_xpost', $row) ) {
 		ADD post_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
 
 	if (!$result = $db->sql_query($sql)) {
-		trigger_error('ERROR: Cannot add cross-posting column to posts table');
+		trigger_error('ERROR: Cannot add cross-posting column to posts table', E_USER_ERROR); exit();
 	}
 	$bodyContent .= "Done!<br />\n\n";
 } else {
@@ -312,8 +312,7 @@ $bodyContent .= "Please delete this file -- and enjoy WP-United!</strong>\n\n";
 
 
 
-define('PHPBB_EXIT_DISABLED', true);
-trigger_error($bodyContent);
+trigger_error($bodyContent, E_USER_NOTICE);
 
 
 add_log('admin', 'WP_INSTALLED', 'Ran the WP-United Install Script');	
@@ -369,7 +368,7 @@ function module_exists($modName, $parent = 0) {
 				WHERE parent_id = $parent
 				AND module_langname = '$modName'";
 	if (!$result = $db->sql_query($sql)) {
-		trigger_error('ERROR: Cannot get module details');
+		trigger_error("ERROR: Cannot get module $modName details", E_USER_ERROR); exit();
 	}
 	//there could be a duplicate module, but screw it -- just deal with the first one we find. Alternative is to abort and tell user we don't know what to do with dupes, which isn't better.
 	if ( $row = $db->sql_fetchrow($result) ) {
