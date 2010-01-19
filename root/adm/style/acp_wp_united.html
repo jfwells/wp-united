@@ -539,7 +539,8 @@
 			return false;
 		}
 	}
-		
+	
+	var plsWait = '{LA_WPWIZ_S5_EXPLAIN2}';
 	function getStatus() {
 		if (useAjax && !(serverRequestInProgress)) {
 				document.getElementById("commstatus").innerHTML = '{LA_WPWIZ_COMMSTATUS}';
@@ -551,6 +552,7 @@
 				serverRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 				serverRequest.send('action=connAjax&plug='+pluginState);
 				serverRequestInProgress = true;
+				document.getElementById("plswait").firstChild.nodeValue = plsWait;
 		}
 		return !useAjax;
 	}
@@ -571,6 +573,7 @@
 	    if (serverRequest.readyState == 4) {
 			fail = false;
 			document.getElementById("spinner").style.display = "none";
+			document.getElementById("plswait").firstChild.nodeValue = '\u00A0';
 	        var cs = document.getElementById("commstatus");
 	        if (serverRequest.status == 200) {
 	            var respXML = serverRequest.responseXML;
@@ -593,7 +596,7 @@
 						var mesg = respXML.getElementsByTagName('message').item(0).firstChild.data;
 						if(res=="OK") {
 							cs.innerHTML = "<span style=\"display: block; color: green;\">{LA_WPWIZ_S5_SUCCESS}<br /></span>";
-							document.getElementById("btnnext").style.display= "block";
+							document.getElementById("settresult").style.display= "block";
 						} else if(res == "NOSAVE") {
 							cs.innerHTML = "<span style=\"display: block; color: red;\">{LA_WPWIZ_S5_FAIL}<br />{LA_WPWIZ_DB_ERR_CONN_OK}<br /></span>";
 							fail = true;
@@ -614,7 +617,6 @@
 				document.getElementById("retr").style.display = "block";
 			}
 			serverRequestInProgress = false;
-			//Hide spinner
 	    } else {
 			//request is in progress.
 		}
@@ -645,7 +647,7 @@
 	
 
 	<p>{L_WPWIZ_S5_EXPLAIN1}</p>
-	<p>{L_WPWIZ_S5_EXPLAIN2}</p>
+	<p id="plswait">{L_WPWIZ_S5_EXPLAIN2}</p>
 	
 	
 	<fieldset>
@@ -1387,6 +1389,7 @@
 		}
 	}
 		
+	var plsWait = '{LA_WPWIZ_S5_EXPLAIN2}';
 	function getStatus() {
 		if (useAjax && !(serverRequestInProgress)) {
 				document.getElementById("commstatus").innerHTML = '{LA_WPWIZ_COMMSTATUS}';
@@ -1398,6 +1401,7 @@
 				serverRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 				serverRequest.send('action=connAjax&plug='+pluginState);
 				serverRequestInProgress = true;
+				document.getElementById("plswait").firstChild.nodeValue = plsWait;
 		}
 		return !useAjax;
 	}
@@ -1419,6 +1423,7 @@
 			if (serverRequest.readyState == 4) {
 				fail = false;
 				document.getElementById("spinner").style.display = "none";
+				document.getElementById("plswait").firstChild.nodeValue = '\u00A0';
 				var cs = document.getElementById("commstatus");
 				if (serverRequest.status == 200) {
 					var respXML = null;
@@ -1496,7 +1501,7 @@
 	<!-- END switch_wp_error -->
 	<p><strong>{L_WPWIZ_S5_TITLE2}</strong></p>
 	<p>{L_WPWIZ_S5_EXPLAIN1}</p>
-	<p>{L_WPWIZ_S5_EXPLAIN2}</p>
+	<p id="plswait">{L_WPWIZ_S5_EXPLAIN2}</p>
 	
 	
 	<fieldset>
@@ -1612,9 +1617,9 @@
 	<form action="{S_WPWIZ_ACTION}" method="post">
 		<input type="hidden" name="mode" value="uninstall" />
 		<fieldset>
-			<legend>{L_UNINSTALL_TITLE}</legend>
+			<legend>{L_WP_UNINSTALL_TITLE}</legend>
 			<dl>
-				<dt><label for="btnUninstall">{L_UNINSTALL_TITLE}</label><br /><span>{L_UNINSTALL_EXPLAIN}</span></dt>
+				<dt><label for="btnUninstall">{L_WP_UNINSTALL_TITLE}</label><br /><span>{L_WP_UNINSTALL_EXPLAIN}</span></dt>
 				<dd>
 					<input type="submit" id="btnUninstall" name="uninstallaction" value="{L_WP_UNINSTALL}"  class="button1" />	
 				</dd>

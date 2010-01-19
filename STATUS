@@ -28,6 +28,9 @@ FIXED / COMMITTED for v0.8.1:
 - Fixed login redirect link in widget / template tag
 - Fixed missing user ID in comment author url of cross-posted comment
 - Fixed trigger_error in wpu_install.php
+- Improved "please wait" behaviour in ACP step 5 / settings
+- Removed extraneous colons in Debug Info to Post
+- Fixed missing uninstall strings
 
 Deferred to v0.9:
 ----------------------

@@ -1579,7 +1579,7 @@ class acp_wp_united {
 		$wpSettings = get_integration_settings(TRUE);
 		$debug_info = '<strong style="text-decoration: underline;">[b][u]' . $user->lang['DEBUG_SETTINGS_SECTION'] . '[/u][/b]</strong><br /><br />';
 		foreach ($wpSettings as $setting_name => $setting_value) {
-			$debug_info .= '[b]<strong>: ' . $setting_name . ':</strong>[/b] ' . $setting_value . "<br />\n";
+			$debug_info .= '[b]<strong>' . $setting_name . ':</strong>[/b] ' . $setting_value . "<br />\n";
 		}
 		
 		$debug_info .= '<br /><strong style="text-decoration: underline;">[b][u]' . $user->lang['DEBUG_PHPBB_SECTION'] . '[/u][/b]</strong><br /><br />';
