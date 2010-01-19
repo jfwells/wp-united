@@ -1,10 +1,5 @@
 
 
-Bug fixes for v0.8.1
---------------------
-- missing $template in theme activation reported (can't reproduce -- to defer)
-
-
 FIXED / COMMITTED for v0.8.1:
 ------------------------------
 
@@ -33,6 +28,10 @@ FIXED / COMMITTED for v0.8.1:
 - Added check for missing hook in blog.php, tries to auto-purge cache.
 - Fixed broken ACP donate page
 - Fixed broken phpBB avatars
+- Fixed missing $template object on theme change in WP dashboard
+
+
+
 
 Deferred to v0.9:
 ----------------------
