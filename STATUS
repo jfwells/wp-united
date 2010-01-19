@@ -19,7 +19,7 @@ http://www.wp-united.com/viewtopic.php?f=14&t=1956
 
 trigger_error error handler borked in wpu-install (and potentially about profile redirect)?
 
-Review unsetting $template -- add to $PhpbbForum instead?
+$template still missing in ACP http://www.wp-united.com/viewtopic.php?f=14&t=1962&p=6358#p6358
 
 
 
