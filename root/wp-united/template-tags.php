@@ -35,7 +35,8 @@ function get_wpu_intro() {
 	global $wpSettings, $phpEx, $wpuGetBlogIntro, $phpbbForum;
 	if ( (!empty($wpSettings['useBlogHome'])) && (!empty($wpSettings['usersOwnBlogs'])) ) {
 		$reg_link =  'ucp.'.$phpEx.'?mode=register';
-		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;redirect='. attribute_escape($_SERVER["REQUEST_URI"]);	
+		$redir = _wpu_get_redirect_link();
+		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;redirect='. $redir;	
 		
 		$isReg = $phpbbForum->get_userdata('is_registered');
 		if ( !empty($isReg) ) {
@@ -963,7 +964,8 @@ function get_wpu_login_user_info($args) {
 		$ret .= $before . get_wp_loginout() . $after;
 	} else {
 		if ( $showLoginForm ) {
-			$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=http://' . $_SERVER['SERVER_NAME'] .''. attribute_escape($_SERVER["REQUEST_URI"]));
+			$redir = _wpu_get_redirect_link();
+			$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=' . $redir;
 			$ret .= '<form class="wpuloginform" method="post" action="' . $phpbbForum->url . $login_link . '">';
 			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
 			$ret .= $before . '<label for="phpbb_password">' . $phpbbForum->lang['PASSWORD'] . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
@@ -1007,6 +1009,24 @@ function wpu_comment_number () {
 /**
  * Helper / Private functions
  */
+
+/**
+ * Returns a URL suitable for sending as a redirect instruction to phpBB
+ */
+function _wpu_get_redirect_link() {
+	global $phpbbForum;
+	if(!empty( $_SERVER['REQUEST_URI'])) {
+		$protocol = empty($_SERVER['HTTPS']) ? 'http:' : ((strtolower($_SERVER["HTTPS"]) == 'on') ? 'https:' : 'http:');
+		$protocol = ($_SERVER['SERVER_PORT'] == '80') ? $protocol : $protocol . $_SERVER['SERVER_PORT'];
+		$link = $protocol . '//' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+	} else {
+		$link = get_option('home');
+	}
+	$phpbbForum->enter();
+	$link = reapply_sid($link);
+	$phpbbForum->leave();
+	return urlencode(attribute_escape($link));
+}
 
 /**
  * In order to make the comment link a consistent template tag, and split to get_/echo
