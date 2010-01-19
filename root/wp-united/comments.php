@@ -96,6 +96,7 @@ class WPU_Comments {
 						t.topic_replies AS all_replies,
 						t.topic_replies_real AS replies, 
 						u.username,
+						u.user_wpuint_id,
 						u.user_email 
 					FROM ' . 
 						TOPICS_TABLE . ' AS t , ' .
@@ -133,6 +134,7 @@ class WPU_Comments {
 						'comment_approved' => 1,
 						'comment_agent' => 'phpBB forum',
 						'comment_type' => '',
+						'user_id' => $comment['user_wpuint_id'],
 						'phpbb_id' => $comment['poster_id']
 					);
 					$this->comments[] = new WPU_Comment($args);
@@ -161,6 +163,7 @@ class WPU_Comment {
 	var $comment_approved;
 	var $comment_agent;
 	var $comment_type;
+	var $phpbb_id;
 	var $user_id;
 	
 	/**

@@ -28,6 +28,7 @@ FIXED / COMMITTED for v0.8.1:
 - cross-posted posts that later become global announcements can now be edited/commented on
 - fixed missing .php in users online widget links
 - fixed gzip handler in reverse forum integration
+- Added WordPress user ID to cross-posted comment metadata so that avatar tags, etc. can work
 
 Deferred to v0.9:
 ----------------------
