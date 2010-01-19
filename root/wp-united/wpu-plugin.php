@@ -648,9 +648,10 @@ function wpu_get_stylesheet($default) {
 function wpu_loginoutlink($loginLink) {
 	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		$phpbbForum->enter(); 
+		$phpbbForum->enter();
+		$redir = _wpu_get_redirect_link();
 		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout', false, false, $GLOBALS['user']->session_id);
-		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . attribute_escape($_SERVER["REQUEST_URI"]), false, false, $GLOBALS['user']->session_id);		
+		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . $redir, false, false, $GLOBALS['user']->session_id);		
 		$phpbbForum->leave();
 		if ( $phpbbForum->user_logged_in() ) {
 			$u_login_logout = $phpbbForum->url . $logout_link;

@@ -119,7 +119,7 @@ class WPU_Comments {
 				
 				while ($comment = $db->sql_fetchrow($result)) {
 					
-					$link = $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['user_id'];
+					$link = $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
 					$args = array(
 						'comment_ID' => $comment['post_id'],
 						'comment_post_ID' => $wpPostID,

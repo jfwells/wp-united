@@ -3,7 +3,7 @@
 Bug fixes for v0.8.1
 --------------------
 
-- comments link broken http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
+- login link in comments broken http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
 - trigger_error error handler borked in wpu-install
 - test avatars
 - Die if hook not loaded in blog.php
@@ -27,6 +27,8 @@ FIXED / COMMITTED for v0.8.1:
 - Fixed template cache not blocked, preventing template showing on profile update, on simple reverse integration (http://www.wp-united.com/viewtopic.php?f=15&t=1942&p=6226#p6226)
 - Latest forum posts widget now uses phpBB time format / timezone  http://www.wp-united.com/viewtopic.php?f=15&t=1912
 - Fixed login redirect link in widget / template tag
+- Fixed missing user ID in comment author url of cross-posted comment
+
 
 Deferred to v0.9:
 ----------------------
