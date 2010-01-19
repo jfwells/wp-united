@@ -2,8 +2,7 @@
 
 Bug fixes for v0.8.1
 --------------------
-
-- login link in comments broken http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
+- missing $template in theme activation reported (can't reproduce -- to defer)
 - test avatars, reports of not working
 - Die if hook not loaded in blog.php
 
@@ -31,6 +30,7 @@ FIXED / COMMITTED for v0.8.1:
 - Improved "please wait" behaviour in ACP step 5 / settings
 - Removed extraneous colons in Debug Info to Post
 - Fixed missing uninstall strings
+- Fixed comments login link login link in comments broken http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
 
 Deferred to v0.9:
 ----------------------

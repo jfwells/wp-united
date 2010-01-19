@@ -72,10 +72,14 @@ function wpu_init_plugin() {
 		if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
 			wp_redirect(admin_url());
 		} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
-			$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . attribute_escape(admin_url()), false, false, $GLOBALS['user']->session_id);		
+			$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(attribute_escape(admin_url())), false, false, $GLOBALS['user']->session_id);		
 			wp_redirect($phpbbForum->url . $login_link);
 		}
 	}
+	
+	// This variable is used in phpBB template integrator
+	global $siteUrl;
+	$siteUrl = get_option('siteurl');
 
 		/**
 		 * Disable access to the blog if the forum is disabled -- otherwise too many variables
@@ -664,6 +668,17 @@ function wpu_loginoutlink($loginLink) {
 	} else {
 		return $loginLink;
 	}
+}
+
+/**
+ * Catches more general WP login links
+ */
+function wpu_login_url($loginLink, $redirect) {
+	global $wpSettings, $phpbbForum, $phpEx;
+	if ( (!empty($wpSettings['integrateLogin'])) && (!$phpbbForum->user_logged_in()) ) {
+		$loginLink = append_sid('ucp.'.$phpEx.'?mode=login', false, false, $GLOBALS['user']->session_id) . '&amp;redirect=' . urlencode($redirect);
+	}
+	return $loginLink;
 }
 
 /**
@@ -1258,7 +1273,6 @@ function wpu_buffer_userspanel($panelContent) {
 	if(preg_match_all($token, $panelContent, $matches)) {
 		foreach($matches[2] as $key => $id) {
 			if($pLink = get_wpu_phpbb_profile_link($id)){
-				 // $phpbbForum->url . 'ucp.' . $phpEx ;
 				$replace = $matches[1][$key] . '</a> | </span><span class="edit"><a href="' . $pLink . '">' . $phpbbForum->lang['edit_phpbb_details'];
 				$panelContent= str_replace($matches[1][$key], $replace, $panelContent);
 			}
@@ -1595,22 +1609,17 @@ add_filter('get_next_post_where', 'wpu_prev_next_post');
 add_filter('upload_dir', 'wpu_user_upload_dir');
 add_filter('feed_link', 'wpu_feed_link');
 
-add_filter( 'comments_array', 'wpu_load_phpbb_comments', 10, 2);
-add_filter( 'get_comments_number', 'wpu_comments_count', 10, 2);
-add_action( 'pre_comment_on_post', 'wpu_comment_redirector');
-add_action( 'comments_open', 'wpu_comments_open', 10, 2);
-
+add_filter('comments_array', 'wpu_load_phpbb_comments', 10, 2);
+add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
+add_action('pre_comment_on_post', 'wpu_comment_redirector');
+add_action('comments_open', 'wpu_comments_open', 10, 2);
 add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
-
 add_filter('logout_url', 'wpu_logout_url', 10, 2);
-
 add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
-
+add_filter('login_url', 'wpu_login_url', 10, 2);
 
 //per-user cats in progress -- deprecated
 //add_filter('wpu_cat_presave', 'category_save_pre');
-
-
 
 add_action('edit_post', 'wpu_justediting');
 add_action('publish_post', 'wpu_newpost', 10, 2);
@@ -1629,13 +1638,5 @@ add_action('loop_start', 'wpu_loop_entry');
 
   
 add_action('admin_menu', 'wpu_add_meta_box'); 
-
-
-/**
- * @todo move $siteurl global declaration somewhere better and review usage
- 
-global $siteurl;
-$siteurl = get_option('siteurl');
-*/
 
 ?>

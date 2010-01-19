@@ -80,13 +80,13 @@ $innerContent = $innerContent . $copy;
 $$wpContentVar = str_replace(".$phpEx/?",  ".$phpEx?", $$wpContentVar);
 $$wpContentVar = str_replace(".$phpEx/\"",  ".$phpEx\"", $$wpContentVar);
 
-// re-point login/out links
+// re-point unintegrated login/out links
 if ( !empty($wpSettings['integrateLogin']) ) {
 	$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
-
-	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
-	$$wpContentVar = str_replace("$siteurl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
-	$$wpContentVar = str_replace("$siteurl/wp-login.php?action=logout", $phpbbForum->url . $logout_link, $$wpContentVar);
+	global $siteUrl;
+	$$wpContentVar = str_replace("$siteUrl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
+	$$wpContentVar = str_replace("$siteUrl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
+	$$wpContentVar = str_replace("$siteUrl/wp-login.php?action=logout", $phpbbForum->url . $logout_link, $$wpContentVar);
 }
 
 /**
