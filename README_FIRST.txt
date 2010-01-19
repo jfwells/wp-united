@@ -1,6 +1,6 @@
-﻿WP-UNITED: WordPress Integration Mod v0.8.0 RC2 for phpBB3
+﻿WP-UNITED: WordPress Integration Mod v0.8.1 RC2 for phpBB3
 -----------------------------------------------
-Last updated: 14 January 2010, by John Wells
+Last updated: 20 January 2010, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -93,6 +93,19 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+v 0.8.1 RELEASE CANDIDATE 2
+- Fixed error preventing integrated users from commenting on WordPress posts
+- Fixed errors with forum posts and users online widgets
+- cross-posted posts that later become global announcements can now be edited/commented on
+- Fixed broken redirects and login links that occur in some circumstances
+- fixed gzip handler in reverse forum integration
+- Added WordPress user ID to cross-posted comment metadata so that avatar tags, etc. can work
+- fixed error messages not being suppressed in installer backend
+- Fixed ACP errors on user mapping, uninstall and donate pages
+- Fixed template cache not blocked, preventing template showing on profile update, on simple reverse integration
+- Fixed missing $template object on theme change in WP dashboard
+- Many other minor bug fixes 
 
 v0.8.0 RELEASE CANDIDATE 2
 -- This is the biggest, most changed release yet, with new features, and the majority of the code 
