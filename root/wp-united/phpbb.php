@@ -70,8 +70,14 @@ class WPU_Phpbb {
 		global $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
 		global $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 		
+
 		$this->_backup_wp_conflicts();
 		
+		// WordPress admin could be using the $template var, but we don't want to unset it in general
+		if(isset($template)) {
+			$_template = $template;
+		}
+
 		define('IN_PHPBB', TRUE);
 		
 		$phpbb_root_path = $rootPath;
@@ -88,20 +94,24 @@ class WPU_Phpbb {
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);		
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		
-		 //fix phpBB SEO mod
-		 global $phpbb_seo;
-		 if (!empty($phpbb_seo) ) {
-			 if(file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx)) {
+		//fix phpBB SEO mod
+		global $phpbb_seo;
+		if (!empty($phpbb_seo) ) {
+			if(file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx)) {
 				require_once($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
 				$phpbb_seo = new phpbb_seo();
 				$this->seo = true;
 			}
-		 }
+		}
 		 
-		 $this->lang = $GLOBALS['user']->lang;
+		$this->lang = $GLOBALS['user']->lang;
 
-		 $this->_calculate_url();
+		$this->_calculate_url();
 		
+		 if(isset($_template)) {
+			$template = $_template;
+		}
+
 		$this->_backup_phpbb_state();
 		$this->_switch_to_wp_db();
 		$this->_restore_wp_conflicts();
