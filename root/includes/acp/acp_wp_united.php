@@ -765,7 +765,8 @@ class acp_wp_united {
 				echo sprintf($user->lang['WPWIZ_CAUGHT_ERROR'], $errNo, $errFile, $errLine, $errStr). '<br />';
 				break;
 			default:
-				return false;
+				// true suppresses the default error handler
+				return true;
         }
 		
 	}
@@ -2266,7 +2267,7 @@ class acp_wp_united {
 		// set the page section to show
 		$template->assign_block_vars('switch_usermap_main', array());        
 
-		// Eventually this will be in a dropdown.
+		// Eventually this will be properly paginated
 		$action = request_var('mapaction', '');
 		if($action == $user->lang['MAP_CHANGE_PERPAGE']) {
 			$wpStart = (int)request_var('oldstart', 0);
@@ -2283,179 +2284,185 @@ class acp_wp_united {
 		require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 		$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 		define('USE_THEMES', FALSE);
-		if ($wpUtdInt->can_connect_to_wp()) {
-			$wpUtdInt->enter_wp_integration();
-			eval($wpUtdInt->exec()); 
+		
+		if (!$wpUtdInt->can_connect_to_wp()) {
+			die($user->lang['MAP_CANT_CONNECT']);
+		}
+		
+		$wpUtdInt->enter_wp_integration();
+		eval($wpUtdInt->exec()); 
 
-			$sql = "SELECT count(*) AS total
-				FROM {$wpdb->users} 
-				WHERE {$wpdb->users}.user_login <> 'admin'";
-			
-			$countEntries = $wpdb->get_results($sql);
-			$numWpResults = $countEntries[0]->total;
-			//$thisEnd = ($thisEnd > $numWpResults) ? $numWpResults : $thisEnd
-			$numPages = ceil($numWpResults / $numResults);
-			$curPage = ceil(($wpStart/$numResults) + 1);
-			$sql = "SELECT ID, user_login, user_nicename 
-				FROM {$wpdb->users}
-				WHERE user_login<>'admin'
-				ORDER BY user_login
-				LIMIT $wpStart, $thisEnd";
-			//execute sql
-			$results = $wpdb->get_results($sql);
+		$sql = "SELECT count(*) AS total
+			FROM {$wpdb->users} 
+			WHERE {$wpdb->users}.user_login <> 'admin'";
+		
+		$countEntries = $wpdb->get_results($sql);
+		$numWpResults = $countEntries[0]->total;
+		//$thisEnd = ($thisEnd > $numWpResults) ? $numWpResults : $thisEnd
+		$numPages = ceil($numWpResults / $numResults);
+		$curPage = ceil(($wpStart/$numResults) + 1);
+		$sql = "SELECT ID, user_login, user_nicename 
+			FROM {$wpdb->users}
+			WHERE user_login<>'admin'
+			ORDER BY user_login
+			LIMIT $wpStart, $thisEnd";
+		//execute sql
+		$results = $wpdb->get_results($sql);
 
-			if ( count($results) > 0 ) {
-				//output table with results
+		//output table with results
+		if ( count($results) > 0 ) {
+		
+			$itn = 0; $x=2;
+
+			foreach ((array) $results as $result) {
+				$optCre = '';
+				$posts = get_usernumposts($result->ID);
+				//TODO: show number of comments
+				if ( empty($result->ID) ) {
+					$wpUtdInt->exit_wp_integration();
+					trigger_error($user->lang['NO_WP_ID'] . '<br />' . $user->lang['NO_WP_ID_ERR']);
+					exit();
+				}
+				$phpBBMappedName = get_usermeta($result->ID, 'phpbb_userLogin');
+				if ( empty($phpBBMappedName) ) {
+					$phpBBMappedName = $result->user_login;
+				}
+				$wpUtdInt->exit_wp_integration();
+				
 				if ( $numPages > 1 ) {
 					$template->assign_block_vars('switch_usermap_main.switch_multipage', array());
 				}
-				$itn = 0; $x=2;
-
-				foreach ((array) $results as $result) {
-					$optCre = '';
-					$posts = get_usernumposts($result->ID);
-					//TODO: show number of comments
-					if ( empty($result->ID) ) {
-						trigger_error($user->lang['NO_WP_ID'] . '<br />' . $user->lang['NO_WP_ID_ERR']);
-					}
-					$phpBBMappedName = get_usermeta($result->ID, 'phpbb_userLogin');
-					if ( empty($phpBBMappedName) ) {
-						$phpBBMappedName = $result->user_login;
-					}
-					$phpbbForum->enter();
-					$pUsername = '';
-					$pID = '';
-					$class = '';
-					$pStatus = $user->lang['MAP_NOT_INTEGRATED'];
-					$intText = $user->lang['MAP_INTEGRATE'];
-					$selInt = ''; $selBrk = ''; $selDel = '';
-					$alreadyID = ''; $alreadyUN = ''; $mustBrk = 'FALSE';
-					
-					//First let's see if they are already integrated
-					$sql = 	"SELECT username, user_id FROM " . USERS_TABLE .
-					" WHERE user_wpuint_id = '{$result->ID}'";
-					if ( $pFirstResults = $db->sql_query($sql) ) {	
-						$numResults = 0; $pRes = '';
-						if ($pResNew = $db->sql_fetchrow($pFirstResults)) {
-							//We found an integration ID...
-							$ctr = 1;
-							while ( $pResNew ) {
-								$pID .= ($numResults > 1) ? ', ' . $pResNew['user_id'] :  $pResNew['user_id'];
-								$pUsername .= ($numResults > 1) ? ', ' . $pResNew['username'] :  $pResNew['username'];
-								$pRes = $pResNew;
-								$pResNew = $db->sql_fetchrow($pFirstResults);
-								$numResults++;
-							}
-							if ($numResults > 1) {
-								$pStatus = $user->lang['MAP_ERROR_MULTIACCTS'];
-								$breakOrLeave = $user->lang['MAP_BRK_MULTI'];
-								$selBrk = 'selected="selected"';
-								$mustBrk = 'TRUE';
-								$class = "mustbrk";
-							} else {
-								$pStatus = $user->lang['MAP_ALREADYINT']; 
-								$breakOrLeave = $user->lang['MAP_BRK'];
-								$selInt = 'selected="selected"';
-								$intText = $user->lang['MAP_LEAVE_INT'];
-								$alreadyID = $pRes['user_id'];
-								$alreadyUN = $pRes['username'];
-								$class = "alreadyint";			
-							}
+				
+				$pUsername = '';
+				$pID = '';
+				$class = '';
+				$pStatus = $user->lang['MAP_NOT_INTEGRATED'];
+				$intText = $user->lang['MAP_INTEGRATE'];
+				$selInt = ''; $selBrk = ''; $selDel = '';
+				$alreadyID = ''; $alreadyUN = ''; $mustBrk = 'FALSE';
+				
+				//First let's see if they are already integrated
+				$sql = 	"SELECT username, user_id FROM " . USERS_TABLE .
+				" WHERE user_wpuint_id = '{$result->ID}'";
+				if ( $pFirstResults = $db->sql_query($sql) ) {	
+					$numResults = 0; $pRes = '';
+					if ($pResNew = $db->sql_fetchrow($pFirstResults)) {
+						//We found an integration ID...
+						$ctr = 1;
+						while ( $pResNew ) {
+							$pID .= ($numResults > 1) ? ', ' . $pResNew['user_id'] :  $pResNew['user_id'];
+							$pUsername .= ($numResults > 1) ? ', ' . $pResNew['username'] :  $pResNew['username'];
+							$pRes = $pResNew;
+							$pResNew = $db->sql_fetchrow($pFirstResults);
+							$numResults++;
+						}
+						if ($numResults > 1) {
+							$pStatus = $user->lang['MAP_ERROR_MULTIACCTS'];
+							$breakOrLeave = $user->lang['MAP_BRK_MULTI'];
+							$selBrk = 'selected="selected"';
+							$mustBrk = 'TRUE';
+							$class = "mustbrk";
 						} else {
-							//No Integration ID... so let's search for a match
-							
-							//User may want to create a phpBB user
-							$optCre = '<option value="Cre">'. $user->lang['MAP_CREATEP'] .'</option>'; 
-							
-							if ( !empty($phpBBMappedName) ) {
-								$sql = 	"SELECT username, user_id, user_wpuint_id FROM " . USERS_TABLE .
-								" WHERE username = '" . $phpBBMappedName . "'
-										LIMIT 1";
-								if (!$pResults = $db->sql_query($sql)) {
-									trigger_error($user->lang['WP_DBErr_Retrieve']  . '<br />' . $user->lang['MAP_CANTCONNECTP']);
-								}
-								if ($pResults = $db->sql_fetchrow($pResults))  {
-									//OK, so we found a username match... but show only if they're not already integrated to another acct.
-									if ( empty($pResults['user_wpuint_id']) ) {
-										if ( (!empty($pResults['username'])) && (!empty($pResults['user_id'])) ) {
-											$pUsername = $pResults['username'];
-											$pID = $pResults['user_id'];
-											$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
-											$pStatus = $user->lang['MAP_UNINT_FOUND'];
-											$selInt = 'selected="selected"';
-											$class = 'unintfound';
-										}
-									} else {
+							$pStatus = $user->lang['MAP_ALREADYINT']; 
+							$breakOrLeave = $user->lang['MAP_BRK'];
+							$selInt = 'selected="selected"';
+							$intText = $user->lang['MAP_LEAVE_INT'];
+							$alreadyID = $pRes['user_id'];
+							$alreadyUN = $pRes['username'];
+							$class = "alreadyint";			
+						}
+					} else {
+						//No Integration ID... so let's search for a match
+						
+						//User may want to create a phpBB user
+						$optCre = '<option value="Cre">'. $user->lang['MAP_CREATEP'] .'</option>'; 
+						
+						if ( !empty($phpBBMappedName) ) {
+							$sql = 	"SELECT username, user_id, user_wpuint_id FROM " . USERS_TABLE .
+							" WHERE username = '" . $phpBBMappedName . "'
+									LIMIT 1";
+							if (!$pResults = $db->sql_query($sql)) {
+								trigger_error($user->lang['WP_DBErr_Retrieve']  . '<br />' . $user->lang['MAP_CANTCONNECTP']);
+							}
+							if ($pResults = $db->sql_fetchrow($pResults))  {
+								//OK, so we found a username match... but show only if they're not already integrated to another acct.
+								if ( empty($pResults['user_wpuint_id']) ) {
+									if ( (!empty($pResults['username'])) && (!empty($pResults['user_id'])) ) {
+										$pUsername = $pResults['username'];
+										$pID = $pResults['user_id'];
 										$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
-										$selBrk = 'selected="selected"';
-										$pStatus = sprintf($user->lang['MAP_UNINT_FOUNDBUT'], $pResults['username'], $pResults['username'], $pResults['user_wpuint_id']);
-										$class = 'unintfoundbut';
-									}	
+										$pStatus = $user->lang['MAP_UNINT_FOUND'];
+										$selInt = 'selected="selected"';
+										$class = 'unintfound';
+									}
 								} else {
-									// Offer to create the user
-									$optCre = '<option value="Cre" selected="selected">'. $user->lang['MAP_CREATEP'] .'</option>'; 
-									$pStatus = $user->lang['MAP_UNINT_NOTFOUND']; 										
-									$pUsername = $phpBBMappedName;
-									$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
-									$class = 'unintnotfound';
-									/*
 									$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
 									$selBrk = 'selected="selected"';
-									$pStatus = $user->lang['MAP_UNINT_NOTFOUND'] ; */
+									$pStatus = sprintf($user->lang['MAP_UNINT_FOUNDBUT'], $pResults['username'], $pResults['username'], $pResults['user_wpuint_id']);
+									$class = 'unintfoundbut';
 								}	
-							}
-						}	
-					} else {
-						trigger_error($user->lang['WP_DBErr_Retrieve'] . '<br />' . $user->lang['WP_DBErr_Retrieve']);
-					}
-					if ( empty($phpBBMappedName) ) {
-						$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
-						$selDel = 'selected="selected"';
-						$pStatus = $user->lang['MAP_ERROR_BLANK'];
-						$class = "maperror";
-					}
-					$wpUtdInt->exit_wp_integration();
-					$bg = ($mustBrk == 'FALSE' ) ? 'none' : 'red';		
-					$x = ( $x == 1 ) ? 2 : 1;
-
-					$template->assign_block_vars('switch_usermap_main.maplist_row', array(
-						'CLASS' => $class,
-						'EVERY_OTHER' => $x,				
-						'BGCOLOUR' => $bg,
-						'ROW_NUM' => $itn,
-						'WP_ID' => $result->ID,
-						'WP_LOGIN' => $result->user_login,
-						'WP_NICENAME' => $result->user_nicename,
-						'WP_NUMPOSTS' => $posts,
-						'ALREADY_USERNAME' => $alreadyUN,
-						'P_USERNAME' => $pUsername,
-						'ALREADY_ID' => $alreadyID,
-						'P_ID' => $pID,
-						'P_STATUS' => $pStatus,
-						'S_INTEGRATED_SELECTED' => $selInt,
-						'S_BREAK_SELECTED' => $selBrk,
-						'S_DEL_SELECTED' => $selDel,
-						'L_SEL_INTEGRATE' => $intText,
-						'L_SEL_BREAK_OR_LEAVE' => $breakOrLeave,
-						'S_MUST_BREAK' => $mustBrk,
-						'S_OPT_CREATE' => $optCre,
-					));
-					
-					$itn++;
+							} else {
+								// Offer to create the user
+								$optCre = '<option value="Cre" selected="selected">'. $user->lang['MAP_CREATEP'] .'</option>'; 
+								$pStatus = $user->lang['MAP_UNINT_NOTFOUND']; 										
+								$pUsername = $phpBBMappedName;
+								$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
+								$class = 'unintnotfound';
+								/*
+								$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
+								$selBrk = 'selected="selected"';
+								$pStatus = $user->lang['MAP_UNINT_NOTFOUND'] ; */
+							}	
+						}
+					}	
+				} else {
+					trigger_error($user->lang['WP_DBErr_Retrieve'] . '<br />' . $user->lang['WP_DBErr_Retrieve']);
 				}
-				if ( $thisEnd < $numWpResults ) {
-					$template->assign_block_vars('switch_usermap_main.next_page_data', array(
-						'MAP_SKIPNEXT' => $user->lang['MAP_SKIPNEXT'],
-					));
-				} 
+				if ( empty($phpBBMappedName) ) {
+					$breakOrLeave = $user->lang['MAP_LEAVE_UNINT'];
+					$selDel = 'selected="selected"';
+					$pStatus = $user->lang['MAP_ERROR_BLANK'];
+					$class = "maperror";
+				}
+				$bg = ($mustBrk == 'FALSE' ) ? 'none' : 'red';		
+				$x = ( $x == 1 ) ? 2 : 1;
 
-			} else {
-				$template->assign_block_vars('switch_usermap_main.switch_no_results', array(
-					'MAP_NOUSERS' => $user->lang['MAP_NOUSERS'],
+				$template->assign_block_vars('switch_usermap_main.maplist_row', array(
+					'CLASS' => $class,
+					'EVERY_OTHER' => $x,				
+					'BGCOLOUR' => $bg,
+					'ROW_NUM' => $itn,
+					'WP_ID' => $result->ID,
+					'WP_LOGIN' => $result->user_login,
+					'WP_NICENAME' => $result->user_nicename,
+					'WP_NUMPOSTS' => $posts,
+					'ALREADY_USERNAME' => $alreadyUN,
+					'P_USERNAME' => $pUsername,
+					'ALREADY_ID' => $alreadyID,
+					'P_ID' => $pID,
+					'P_STATUS' => $pStatus,
+					'S_INTEGRATED_SELECTED' => $selInt,
+					'S_BREAK_SELECTED' => $selBrk,
+					'S_DEL_SELECTED' => $selDel,
+					'L_SEL_INTEGRATE' => $intText,
+					'L_SEL_BREAK_OR_LEAVE' => $breakOrLeave,
+					'S_MUST_BREAK' => $mustBrk,
+					'S_OPT_CREATE' => $optCre,
 				));
+				
+				$itn++;
 			}
+			if ( $thisEnd < $numWpResults ) {
+				$template->assign_block_vars('switch_usermap_main.next_page_data', array(
+					'MAP_SKIPNEXT' => $user->lang['MAP_SKIPNEXT'],
+				));
+			} 
+
 		} else {
-			die($user->lang['MAP_CANT_CONNECT']);
+			$wpUtdInt->exit_wp_integration();
+			$template->assign_block_vars('switch_usermap_main.switch_no_results', array(
+				'MAP_NOUSERS' => $user->lang['MAP_NOUSERS'],
+			));
 		}
 		
 		$template->assign_vars(array(	
@@ -2825,11 +2832,15 @@ class acp_wp_united {
 						}
 					break;
 					default;
+						$wpUtdInt->exit_wp_integration();
 						trigger_error($phpbbForum->lang['MAP_INVALID_ACTION'] . '<br />' . $procAction);
+						exit();
 					break;
 				}
 			} else {
+				$wpUtdInt->exit_wp_integration();
 				trigger_error($phpbbForum->lang['MAP_EMPTY_ACTION'] . '<br />' . $procAction);
+				exit();
 			}
 		}
 
