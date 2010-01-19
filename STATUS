@@ -13,8 +13,13 @@ http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
 No redirect on updating phpBB profile in REV integration
 http://www.wp-united.com/viewtopic.php?f=15&t=1942&p=6226#p6226
 
-E_STRICT errors with instantiation of singleton classes
-http://www.wp-united.com/viewtopic.php?f=5&t=1922&p=6231#p6231
+E_STRICT / E_DEPRECATED errors with assigning new by reference (&instantiation of singleton classes?)
+http://www.wp-united.com/viewtopic.php?f=5&t=1922&p=6231#p6231]
+http://www.wp-united.com/viewtopic.php?f=14&t=1956
+
+trigger_error error handler borked in wpu-install (and potentially about profile redirect)?
+
+Review unsetting $template -- add to $PhpbbForum instead?
 
 
 
@@ -29,6 +34,7 @@ FIXED / COMMITTED for v0.8.1:
 - fixed missing .php in users online widget links
 - fixed gzip handler in reverse forum integration
 - Added WordPress user ID to cross-posted comment metadata so that avatar tags, etc. can work
+- Fixed missing base href in users online widget links
 
 Deferred to v0.9:
 ----------------------

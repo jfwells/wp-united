@@ -816,7 +816,7 @@ function wpu_useronlinelist($args = '') {
  * @example wpu_useronlinelist('before=<li>&after=</li>&showBreakdown=1&showRecord=1&showLegend=1');
  */
 function get_wpu_useronlinelist($args = '') {
-	global $phpbbForum, $template, $auth, $db, $config, $user, $phpEx;
+	global $phpbbForum, $template, $auth, $db, $config, $user, $phpEx, $phpbb_root_path;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>', 'showCurrent' => 1, 'showRecord' => 1, 'showLegend' => 1);
 	extract(_wpu_process_args($args, $defaults));
@@ -864,7 +864,7 @@ function get_wpu_useronlinelist($args = '') {
 			if ($row['group_name'] == 'BOTS' || ($phpbbForum->get_userdata('user_id') != ANONYMOUS && !$auth->acl_get('u_viewprofile'))) {
 				$legend[] = '<span' . $colour_text . '>' . $group_name . '</span>';
 			} else {
-				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
+				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbbForum->url}memberlist.$phpEx", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
 			}
 		}
 		$db->sql_freeresult($result);
@@ -875,7 +875,7 @@ function get_wpu_useronlinelist($args = '') {
 		$l_online_time = sprintf($phpbbForum->lang[$l_online_time], $config['load_online_time']);
 		$l_online_record = sprintf($phpbbForum->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date']));
 		$l_online_users = $list['l_online_users'];
-		$theList = $list['online_userlist'];
+		$theList = str_replace($phpbb_root_path, $phpbbForum->url, $list['online_userlist']);
 		
 		$phpbbForum->leave();	
 			
