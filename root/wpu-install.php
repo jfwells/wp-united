@@ -26,7 +26,7 @@ require($phpbb_root_path . 'includes/functions_module.' . $phpEx);
 // check our hook has been loaded
 $cache->purge();
 if(!defined('WPU_HOOK_ACTIVE')) {
-	require_once($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
+	trigger_error($user->lang['wpu_hook_error'], E_USER_ERROR);
 }
 
 $user->session_begin();

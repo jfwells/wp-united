@@ -74,6 +74,10 @@ if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 	$user->setup('mods/wp-united');
 	
 	
+	if(!defined('WPU_HOOK_ACTIVE')) {
+		$cache->purge();
+		trigger_error($user->lang['wpu_hook_error'], E_USER_ERROR);
+	}
 	
 
 	include ($phpbb_root_path . 'wp-united/integrator.php');

@@ -172,7 +172,8 @@ $lang = array_merge($lang, array(
 	'wpu_online_panel_record' => 'Show record number of users?',
 	'wpu_online_panel_legend' => 'Show legend?',
 	'edit_phpbb_details' => 'Edit forum details',
-	'WP_DBErr_Retrieve' => 'Could not access the database. Please ensure that you ran wpu-install.php when installing WP-United.'
+	'WP_DBErr_Retrieve' => 'Could not access the database. Please ensure that you ran wpu-install.php when installing WP-United.',
+	'wpu_hook_error' => 'The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it is missing, or you need to clear the phpBB cache. <br /><br />Attempted to automatically clear the phpBB cache. Try <a href="#" onclick="document.location.reload(); return false;">refreshing the page</a> to see if it worked. <br /><br />If this error persists, check that includes/hooks/hook_wp-united.php exists, and try manually purging your phpBB cache.'
 
 ));
 

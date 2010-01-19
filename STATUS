@@ -4,7 +4,6 @@ Bug fixes for v0.8.1
 --------------------
 - missing $template in theme activation reported (can't reproduce -- to defer)
 - test avatars, reports of not working
-- Die if hook not loaded in blog.php
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------
@@ -31,6 +30,7 @@ FIXED / COMMITTED for v0.8.1:
 - Removed extraneous colons in Debug Info to Post
 - Fixed missing uninstall strings
 - Fixed comments login link login link in comments broken http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
+- Added check for missing hook in blog.php, tries to auto-purge cache.
 
 Deferred to v0.9:
 ----------------------
