@@ -637,14 +637,13 @@ function wpu_latest_phpbb_posts($args='') {
 /**
  * Returns a nice list of latest phpBB forum posts without displaying them
  * @author Japgalaxy & John Wells
- * @example: get_wpu_latest_phpbb_posts('limit=10&forum=1,2,3&before=<li>&after=</li>&dateformat=Y-m-j')
- * @todo dateformat to use phpBB format
- * Modified for v0.8 to use proper WP widget styling and args
+ * @example: get_wpu_latest_phpbb_posts('limit=10&forum=1,2,3&before=<li>&after=</li>')
+ * Modified for v0.8x to use proper WP widget styling and args, and date format
  */
 function get_wpu_latest_phpbb_posts($args='') {
-	global $phpbbForum, $db, $auth, $phpEx;
+	global $phpbbForum, $db, $auth, $phpEx, $user;
 	
-	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '', 'dateformat' => 'Y-m-j');
+	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '');
 	
 	extract(_wpu_process_args($args, $defaults));
 	$limit = ($limit > 50 ) ? 50 : $limit;
@@ -661,7 +660,7 @@ function get_wpu_latest_phpbb_posts($args='') {
 		$phpbbForum->leave();
 		return $before. $phpbbForum->lang['wpu_no_access'] . $after;
 	}	
-	$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, post_time, topic_title, f.forum_name, p.poster_id, u.username, f.forum_id
+	$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, f.forum_name, p.poster_id, u.username, f.forum_id
             FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f, ' . USERS_TABLE . ' AS u
 			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
 			AND  p.topic_id = t.topic_id
@@ -687,7 +686,7 @@ function get_wpu_latest_phpbb_posts($args='') {
 			$topic_link = '<a ' . $class . 'href="' . $phpbbForum->url. $topic_link . '" title="' . wpu_censor($row['topic_title']) . '">' . wpu_censor($row['topic_title']) . '</a>';
 			$user_link = ($phpbbForum->seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
 			$user_link = '<a ' . $class . 'href="' . $phpbbForum->url . $user_link . '">' . $row['username'] .'</a>';
-			$ret .= $thisBefore . sprintf($phpbbForum->lang['wpu_phpbb_post_summary'],$topic_link, $user_link,  date($dateformat, $row['post_time']))  ."$after\n";
+			$ret .= $thisBefore . sprintf($phpbbForum->lang['wpu_phpbb_post_summary'],$topic_link, $user_link,  $user->format_date($row['post_time']))  ."$after\n";
 			$i++;
 		}
 	}
@@ -864,7 +863,7 @@ function get_wpu_useronlinelist($args = '') {
 			if ($row['group_name'] == 'BOTS' || ($phpbbForum->get_userdata('user_id') != ANONYMOUS && !$auth->acl_get('u_viewprofile'))) {
 				$legend[] = '<span' . $colour_text . '>' . $group_name . '</span>';
 			} else {
-				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbbForum->url}memberlist.$phpEx", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
+				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbbForum->url}memberlist.{$phpEx}", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
 			}
 		}
 		$db->sql_freeresult($result);

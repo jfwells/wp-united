@@ -404,7 +404,6 @@ function wpu_widgets_init() {
 			
 			$options = get_option('widget_wpulatestphpbbposts');
 			$title = $options['title'];
-			$dateFormat = $options['dateformat'];
 			$maxEntries = $options['max'];
 			
 			if ( !function_exists('wpu_latest_phpbb_posts') ) return false;
@@ -412,7 +411,7 @@ function wpu_widgets_init() {
 			echo $before_widget;
 			echo $before_title .$title. $after_title;
 			echo '<ul class="wpulatestposts">';
-			wpu_latest_phpbb_posts("limit={$maxEntries}&dateformat={$dateFormat}");
+			wpu_latest_phpbb_posts("limit={$maxEntries}");
 			echo '</ul>';
 			echo $after_widget;
 		}
@@ -426,13 +425,12 @@ function wpu_widgets_init() {
 		$options = get_option('widget_wpulatestphpbbposts');
 		
 		if ( !is_array($options) ) {
-			$options = array('title'=>$phpbbForum->lang['wpu_forumposts_panel_title'], 'limit'=>20, 'dateformat'=>"Y-m-j", 'seo'=>0);
+			$options = array('title'=>$phpbbForum->lang['wpu_forumposts_panel_title'], 'limit'=>20);
 		}
 		// handle form submission
 		if ( $_POST['widget_wpu_lpp'] ) {
 			$options['title'] = strip_tags(stripslashes($_POST['wpu-lpp-title']));
 			$options['max'] = (int) strip_tags(stripslashes($_POST['wpu-lpp-limit']));
-			$options['dateformat'] = strip_tags(stripslashes($_POST['wpu-lpp-gtm']));
 			update_option('widget_wpulatestphpbbposts', $options);
 		}
 
@@ -447,7 +445,6 @@ function wpu_widgets_init() {
 		// Show form
 		echo '<p style="text-align:right;"><label for="wpu-lpp-title">' . $phpbbForum->lang['wpu_panel_heading'] . '</label> <input style="width: 200px;" id="wpu-lpp-title" name="wpu-lpp-title" type="text" value="'.$title.'" /></p>';
 		echo '<p style="text-align:right;"><label for="wpu-lpp-limit">' . $phpbbForum->lang['wpu_panel_max_entries'] . '</label> <input style="width: 50px;" id="wpu-lpp-limit" name="wpu-lpp-limit" type="text" value="'.$max.'" /></p>';
-		echo '<p style="text-align:right;"><label for="wpu-lpp-gtm">' . $phpbbForum->lang['wpu_forumposts_panel_date'] . '</label> <input style="width: 90px;" id="wpu-lpp-gtm" name="wpu-lpp-gtm" type="text" value="'.$dateformat.'" /></p>';
 
 		echo '<input type="hidden" id="widget_wpu_lpp" name="widget_wpu_lpp" value="1" />';
 	}	
