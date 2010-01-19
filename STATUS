@@ -3,7 +3,7 @@
 Bug fixes for v0.8.1
 --------------------
 - missing $template in theme activation reported (can't reproduce -- to defer)
-- test avatars, reports of not working
+
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------
@@ -32,6 +32,7 @@ FIXED / COMMITTED for v0.8.1:
 - Fixed comments login link login link in comments broken http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
 - Added check for missing hook in blog.php, tries to auto-purge cache.
 - Fixed broken ACP donate page
+- Fixed broken phpBB avatars
 
 Deferred to v0.9:
 ----------------------

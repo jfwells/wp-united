@@ -1305,16 +1305,13 @@ function wpu_prepare_admin_pages() {
 * @since WP-United 0.7.0
 */
 
-function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = 'avatar' ) { 
-	global $wpSwettings, $phpbbForum;
+function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
+	global $wpSettings, $phpbbForum;
 	if (empty($wpSettings['integrateLogin'])) { 
 		return $avatar;
 	}
 
-	if ( false === $alt)
-		$safe_alt = '';
-	else
-		$safe_alt = attribute_escape( $alt );
+	$safe_alt = attribute_escape( $phpbbForum->lang['USER_AVATAR'] );
 
 	if ( !is_numeric($size) )
 		$size = '96';
