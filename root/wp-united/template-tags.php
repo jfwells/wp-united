@@ -4,7 +4,7 @@
 * WP-United WordPress template tags
 *
 * @package WP-United
-* @version $Id: v0.8.0RC2 2010/01/14 John Wells (Jhong) Exp $
+* @version $Id: v0.8.1RC2 2010/01/20 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -1012,6 +1012,7 @@ function wpu_comment_number () {
 
 /**
  * Returns a URL suitable for sending as a redirect instruction to phpBB
+  * @ since v0.8.1
  */
 function _wpu_get_redirect_link() {
 	global $phpbbForum;

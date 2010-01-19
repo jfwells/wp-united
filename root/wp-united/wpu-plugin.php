@@ -5,8 +5,8 @@ Plugin Name: WP-United Connection
 Plugin URI: http://www.wp-united.com
 Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
-Version: v0.8.0 RC2 (phpBB3)
-Last Updated: 16 January 2010
+Version: v0.8.1 RC2 (phpBB3)
+Last Updated: 20 January 2010
 Author URI: http://www.wp-united.com
 */
 
