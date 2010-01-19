@@ -109,6 +109,9 @@ class WPU_Cache {
 		if ( !defined('WPU_REVERSE_INTEGRATION') ) {
 			return false;
 		}
+		if ( defined('WPU_PERFORM_ACTIONS') ) {
+			return false;
+		}
 		if(!$this->template_cache_enabled()) {
 			return false;
 		}

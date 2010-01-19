@@ -120,6 +120,7 @@ $useCache = false;
 if ( defined('WPU_REVERSE_INTEGRATION') ) { 
 	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
 	if ( !empty($wpSettings['wpSimpleHdr']) ) {
+		// we also don't use the cache if WPU_PERFORM_ACTIONS is set, as we need to perform pending actions in WordPress anyway.
 		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) { 
 			$useCache = true; 
 			$wpuCache->use_template_cache();

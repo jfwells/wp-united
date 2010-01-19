@@ -53,9 +53,7 @@ class WPU_Actions {
 	 */
 	function profile_update($mode, $phpbb_id, $integration_id, $data) {
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $db, $user, $wpuCache;
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
-		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
 		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {	
 			
 			// check that integration ID has been provided

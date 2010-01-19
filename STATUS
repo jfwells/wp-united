@@ -9,10 +9,8 @@ http://www.wp-united.com/viewtopic.php?f=15&t=1912
 Various login links broken
 http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
 
-No redirect on updating phpBB profile in REV integration
-http://www.wp-united.com/viewtopic.php?f=15&t=1942&p=6226#p6226
 
-trigger_error error handler borked in wpu-install (and potentially about profile redirect)?
+trigger_error error handler borked in wpu-install
 
 
 
@@ -32,6 +30,7 @@ FIXED / COMMITTED for v0.8.1:
 - Fixed missing $template in usermap when no mappable users
 - Fixed AJAX not catching all errors (http://www.wp-united.com/viewtopic.php?f=14&t=1956)
 - Improved outdated description and suggestions around simple/full reverse integration in ACP
+- Fixed template cache not blocked, preventing template showing on profile update, on simple reverse integration (http://www.wp-united.com/viewtopic.php?f=15&t=1942&p=6226#p6226)
 
 Deferred to v0.9:
 ----------------------

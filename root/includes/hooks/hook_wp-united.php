@@ -78,7 +78,7 @@ function wpu_execute(&$hook, $handle) {
 		));  
 		
 		
-		if (defined('WPU_REVERSE_INTEGRATION')) {
+		if (defined('WPU_REVERSE_INTEGRATION') ) {
 			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 
