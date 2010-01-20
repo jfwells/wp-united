@@ -913,8 +913,7 @@ function get_wpu_login_user_info($args) {
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>');
 	extract(_wpu_process_args($args, $defaults));
-	
-	
+
 	$ret = '';
 	
 	get_currentuserinfo();
@@ -1023,9 +1022,9 @@ function _wpu_get_redirect_link() {
 	} else {
 		$link = get_option('home');
 	}
-	$phpbbForum->enter();
+	$phpbbForum->_enter_if_out();
 	$link = reapply_sid($link);
-	$phpbbForum->leave();
+	$phpbbForum->_leave_if_just_entered();
 	return urlencode(attribute_escape($link));
 }
 
