@@ -182,7 +182,7 @@ function get_integration_settings($setAdminDefaults = FALSE) {
  * Completely removes all traces of WP-united settings
  */
 function clear_integration_settings() {
-	global $db;
+	global $db, $config;
 	
 	$config_fields = get_db_schema();
 	$key_names = array();
@@ -193,6 +193,12 @@ function clear_integration_settings() {
 	$sql = 'DELETE FROM ' . CONFIG_TABLE . '
 			WHERE ' . $db->sql_in_set('config_name', $key_names);
 	$db->sql_query($sql);
+	
+	if(isset($config['wpu_style_keys_1'])) {
+	$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+		WHERE config_name LIKE \'wpu_style_keys_%\'';
+	$db->sql_query($sql);
+}
 
 }
 

@@ -69,6 +69,22 @@ function wpu_execute(&$hook, $handle) {
 	global $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
 	// We only want this action to fire once
 	if ( (!$wpuRunning) &&  ($wpSettings['installLevel'] == 10) && (isset($template->filename[$handle])) ) {
+		
+		if($handle != 'body') {
+			return;
+		}
+		
+		/**
+		 * An additional check to ensure we don't act on an assign_display event, or
+		 * if a mod is doing weird things with $template
+		 */
+		if(defined('WPU_REVERSE_INTEGRATION')) {
+			if(wpu_am_i_buffered()) {
+				define('WPU_VERY_BUFFERED', TRUE);
+				return;
+			}
+		}
+		
 		$wpuRunning = true;
 		//$hook->remove_hook(array('template', 'display'));
 		
@@ -99,11 +115,33 @@ function wpu_execute(&$hook, $handle) {
 }
 
 /**
+ * This is the last line of defence against mods which might be buffering everything without
+ * us knowing
+ */
+function wpu_am_i_buffered() {
+	global $config;
+	
+		$level = ($config['gzip_compress'] && @extension_loaded('zlib')) ? 2 : 1;
+		if(ob_get_level() > $level) {
+			return true;
+		}
+		return false;
+}
+
+/**
  * Prevent phpBB from exiting
  */
 function wpu_continue(&$hook) {
 	if (defined('PHPBB_EXIT_DISABLED') && !defined('WPU_FINISHED')) {
 		return "";
+	} else if ( defined('WPU_VERY_BUFFERED') ) {
+		/** if someone else (e.g. a mod) was buffering the page and are now asking to exit,
+		 * wpu_execute won't have run yet
+		 */
+		while(wpu_am_i_buffered()) {
+			ob_end_flush();
+		}
+		wpu_execute($hook, 'body');
 	}
 }
 

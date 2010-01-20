@@ -1,4 +1,18 @@
 
+TO FIX FOR v0.8.2
+------------------------
+
+- Logout from WP links not working any more
+- $template bug on style switch still not fixed
+
+
+FIXED / COMMITTED for v0.8.2:
+----------------------------------------
+
+
+- Fixed display of Style Keys in Debug Info to Post via auto JS dropdown
+- Style Keys are now purged with the cache (they have the tendency to grow huge with CSS magic on and lots of templates)
+- Added additional checks to hook to try to ensure we only act upon a true page $template in a reverse integration
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------

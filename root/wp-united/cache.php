@@ -469,7 +469,16 @@ class WPU_Cache {
 					}
 				}
 			}
+			// purge style keys
+			global $config, $wpSettings, $db;
+			if(isset($config['wpu_style_keys_1'])) {
+				$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+					WHERE config_name LIKE \'wpu_style_keys_%\'';
+				@$db->sql_query($sql);
+			}
+			$wpSettings['styleKeys'] = array();
 	}
+
 	
 	/** 
 	 * Clears the cache of template files. Used when a new template is selected.
