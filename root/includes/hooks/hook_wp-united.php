@@ -62,7 +62,7 @@ function wpu_init(&$hook) {
 }
 
 /**
- * Capture the outputted page, and prevent phpBB for exiting
+ * Capture the outputted page, and prevent phpBB from exiting
  * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) {

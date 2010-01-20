@@ -195,7 +195,7 @@ Class WPU_Integration {
 		require($this->phpbb_root . 'wp-united/plugin-fixer.' . $this->phpEx);
 		
 		// Several library functions are required, and might not have been included if this is called directly from a phpBB function
-		// (e.g. suring setup)
+		// (e.g. during setup)
 		require_once($this->phpbb_root . 'wp-united/functions-general.' . $this->phpEx);
 	}
 	
