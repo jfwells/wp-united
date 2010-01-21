@@ -652,9 +652,9 @@ function wpu_get_stylesheet($default) {
 function wpu_loginoutlink($loginLink) {
 	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		$phpbbForum->enter();
 		$redir = _wpu_get_redirect_link();
-		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout', false, false, $GLOBALS['user']->session_id);
+		$phpbbForum->enter();
+		$logout_link = append_sid("ucp.$phpEx", 'mode=logout', true, $GLOBALS['user']->session_id);
 		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . $redir, false, false, $GLOBALS['user']->session_id);		
 		$phpbbForum->leave();
 		if ( $phpbbForum->user_logged_in() ) {
@@ -676,7 +676,7 @@ function wpu_loginoutlink($loginLink) {
 function wpu_login_url($loginLink, $redirect) {
 	global $wpSettings, $phpbbForum, $phpEx;
 	if ( (!empty($wpSettings['integrateLogin'])) && (!$phpbbForum->user_logged_in()) ) {
-		$loginLink = append_sid('ucp.'.$phpEx.'?mode=login', false, false, $GLOBALS['user']->session_id) . '&amp;redirect=' . urlencode($redirect);
+		$loginLink = append_sid("ucp.$phpEx", 'mode=login', true, false, $GLOBALS['user']->session_id) . '&amp;redirect=' . urlencode($redirect);
 	}
 	return $loginLink;
 }
@@ -1443,6 +1443,7 @@ function wpu_print_smilies() {
 
 /**
  * Function 'wpu_javascript' inserts the javascript code required by smilies' function.
+ * This is intentionally terse -- comments in php only
  * @since WP-United 0.7.0
  * @todo enqueue
  */
@@ -1451,24 +1452,40 @@ function wpu_javascript () {
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
 
 		echo "
-<script language=\"javascript\">
+<script type=\"text/javascript\">
 	//<![CDATA[
-	funct" . "ion insert_text(text, spaces, popup) {
-		var tb = document.getElementById('comment');
-		if (document.selection) { // IE
-			tb.focus();
-			sel = document.selection.createRange();
-			sel.text = ' ' + text + ' ';
-		} else if (tb.selectionStart || tb.selectionStart == 0) { //compliant browsers
-			tb.value = tb.value.substring(0, tb.selectionStart) + ' ' + text + ' ' + tb.value.substring(tb.selectionEnd,tb.value.length);
-		} else { //fallback
-		 tb.value += ' ' + text + ' ';
-		}
+	";
+	// insert smiley
+	echo "funct" . "ion insert_text(text,spaces,popup){
+		var tas,ta,tb;ta=null;";
+		// We try to detect the comment textarea
+		echo "tas=document.getElementsByTagName('textarea');
+		if(tas.length>1){
+			for(var i=0;i<tas.length;i++) {
+				if(tas[i].id=='comment')ta=tas[i];
+				else if((tas[i].name=='comment')&&(ta==null))ta=tas[i];
+				else if((tas[i].className=='comment')&&(ta == null))ta=tas[i];
+			}
+			if(ta==null)for(i=0;i<tas.length;i++)try{if(tas[i].gotFocus)ta=tas[i];} catch(e){}
+			if(ta==null)ta=tas[0];
+		} else if(tas.length==1)	ta=tas[0];
+		if(ta==null) {alert('" . sprintf($phpbbForum->lang['wpu_smiley_error'], "'+text+'") . "');return false;}";
+		// We now have a text area
+		// for IE
+		echo "if (document.selection){
+			ta.focus();
+			sel=document.selection.createRange();
+			sel.text=' '+ text+' ';";
+		// for decent browsers
+		echo "} else if (ta.selectionStart || ta.selectionStart == 0) ta.value=ta.value.substring(0, ta.selectionStart)+' '+text+' '+ ta.value.substring(ta.selectionEnd,ta.value.length);";
+		// fall back to just dumping the smiley at the end
+		echo "else ta.value+= ' '+text+' ';
 		return false;
-	}
+	}";
 
-	funct" . "ion moreSmilies() {
-		document.getElementById('wpu-smiley-more').style.display = 'inline';
+	// show / hide additional smilies
+	echo "funct" . "ion moreSmilies() {
+		document.getElementById('wpu-smiley-more').style.display='inline';
 		var toggle = document.getElementById('wpu-smiley-toggle');
 		toggle.setAttribute(\"onclick\", \"return lessSmilies();\");
 		toggle.firstChild.nodeValue =\"\\u00AB\\u00A0" . $phpbbForum->lang['wpu_less_smilies'] . "\"
@@ -1476,7 +1493,7 @@ function wpu_javascript () {
 	}
     
 	funct" . "ion lessSmilies() {
-		document.getElementById('wpu-smiley-more').style.display = 'none';
+		document.getElementById('wpu-smiley-more').style.display='none';
 		var toggle = document.getElementById('wpu-smiley-toggle');
 		toggle.setAttribute(\"onclick\", \"return moreSmilies();\");
 		toggle.firstChild.nodeValue =\"" . $phpbbForum->lang['wpu_more_smilies'] . "\\u00A0\\u00BB\";

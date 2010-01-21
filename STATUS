@@ -3,6 +3,8 @@ TO FIX FOR v0.8.2
 ------------------------
 
 - check comment post times
+- login link from comments still not working -- now regressed to having blog.php in path
+
 
 
 FIXED / COMMITTED for v0.8.2:
@@ -14,6 +16,7 @@ FIXED / COMMITTED for v0.8.2:
 - Added additional checks to hook to try to ensure we only act upon a true page $template in a reverse integration
 - Fixed $redir breaks append_sid missing for logout links
 - Fixed buffer check not working with php.ini zlib compression
+- Fixed smilies insertion JS. Now makes intelligent guess about location of textarea, and is minified better
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------
