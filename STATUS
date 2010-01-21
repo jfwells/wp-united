@@ -18,6 +18,7 @@ FIXED / COMMITTED for v0.8.2:
 - Fixed buffer check not working with php.ini zlib compression
 - Fixed smilies insertion JS. Now makes intelligent guess about location of textarea, and is minified better
 - Fixed error on RSS feed page when feeds disabled
+- Fix for object elements with height attribute set being borked by CSS magic
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------

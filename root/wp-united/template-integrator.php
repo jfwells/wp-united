@@ -329,6 +329,10 @@ if (!empty($wpSettings['cssMagic'])) {
 	if ($wpSettings['templateVoodoo']) {
 		$outerContent = str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $outerContent);
 	}
+	
+	//Youtube BBCode fix
+	$innerContent = preg_replace('/(<object[^>]*height\s?=\s?[\'"]?([0-9]+)\s?[\'"])/', '${1} style="height: ${2}px !important;"', $innerContent);
+	
 }
 
 
