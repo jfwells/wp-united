@@ -2,7 +2,7 @@
 TO FIX FOR v0.8.2
 ------------------------
 
-- $template bug on style switch (apparently) still not fixed
+- check comment post times
 
 
 FIXED / COMMITTED for v0.8.2:
@@ -13,6 +13,7 @@ FIXED / COMMITTED for v0.8.2:
 - Style Keys are now purged with the cache (they have the tendency to grow huge with CSS magic on and lots of templates)
 - Added additional checks to hook to try to ensure we only act upon a true page $template in a reverse integration
 - Fixed $redir breaks append_sid missing for logout links
+- Fixed buffer check not working with php.ini zlib compression
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------

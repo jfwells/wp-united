@@ -69,7 +69,7 @@ function wpu_init(&$hook) {
  */
 function wpu_execute(&$hook, $handle) {
 	global $wpuBuffered, $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
-	// We only want this action to fire once
+	// We only want this action to fire once, and only on a real $template->display('body') event
 	if ( (!$wpuRunning) &&  ($wpSettings['installLevel'] == 10) && (isset($template->filename[$handle])) ) {
 		
 		if($handle != 'body') {
@@ -77,8 +77,8 @@ function wpu_execute(&$hook, $handle) {
 		}
 		
 		/**
-		 * An additional check to ensure we don't act on an assign_display('body') event, or
-		 * if a mod is doing weird things with $template
+		 * An additional check to ensure we don't act on a $template->assign_display('body') event --
+		 * if a mod is doing weird things with $template instead of creating their own $template object
 		 */
 		if(defined('WPU_REVERSE_INTEGRATION')) {
 			if($wpuBuffered = wpu_am_i_buffered()) {
