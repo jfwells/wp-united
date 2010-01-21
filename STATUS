@@ -4,7 +4,7 @@ TO FIX FOR v0.8.2
 
 - check comment post times
 - login link from comments still not working -- now regressed to having blog.php in path
-
+- New idea: auto-log-out of WP  after setup wizard first install if user selected integration
 
 
 FIXED / COMMITTED for v0.8.2:
@@ -17,6 +17,7 @@ FIXED / COMMITTED for v0.8.2:
 - Fixed $redir breaks append_sid missing for logout links
 - Fixed buffer check not working with php.ini zlib compression
 - Fixed smilies insertion JS. Now makes intelligent guess about location of textarea, and is minified better
+- Fixed error on RSS feed page when feeds disabled
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------

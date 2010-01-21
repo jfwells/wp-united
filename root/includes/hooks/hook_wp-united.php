@@ -36,12 +36,11 @@ if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {
 		$phpbb_hook->register('exit_handler', 'wpu_continue');
 	}
 	
+} else if (ADMIN_START) {
+	$user->add_lang('mods/wp-united');
 }
 
-// Add lang strings if this isn't blog.php
-if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
-	$user->add_lang('mods/wp-united');
-}	
+
 
 /**
  * Initialise WP-United variables and template strings
@@ -50,6 +49,14 @@ function wpu_init(&$hook) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config;
 
 	if  ($wpSettings['installLevel'] == 10) {
+		
+		// Add lang strings if this isn't blog.php
+		if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
+			$user->add_lang('mods/wp-united');
+		}	
+		
+		
+		
 		//Do a reverse integration?
 		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 			define('WPU_REVERSE_INTEGRATION', true);
