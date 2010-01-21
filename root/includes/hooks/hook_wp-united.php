@@ -27,6 +27,8 @@ require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 $wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
+wpu_set_buffering_init_level();
+
 if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {  
 	if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) {  
 		$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
@@ -66,7 +68,7 @@ function wpu_init(&$hook) {
  * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) {
-	global $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
+	global $wpuBuffered, $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
 	// We only want this action to fire once
 	if ( (!$wpuRunning) &&  ($wpSettings['installLevel'] == 10) && (isset($template->filename[$handle])) ) {
 		
@@ -75,12 +77,11 @@ function wpu_execute(&$hook, $handle) {
 		}
 		
 		/**
-		 * An additional check to ensure we don't act on an assign_display event, or
+		 * An additional check to ensure we don't act on an assign_display('body') event, or
 		 * if a mod is doing weird things with $template
 		 */
 		if(defined('WPU_REVERSE_INTEGRATION')) {
-			if(wpu_am_i_buffered()) {
-				define('WPU_VERY_BUFFERED', TRUE);
+			if($wpuBuffered = wpu_am_i_buffered()) {
 				return;
 			}
 		}
@@ -115,33 +116,51 @@ function wpu_execute(&$hook, $handle) {
 }
 
 /**
- * This is the last line of defence against mods which might be buffering everything without
- * us knowing
+ * This is the last line of defence against mods which might be calling $template->assign_display('body')
+ *
+ * We err on the side of caution -- only intervening if we are undoubtedly buffered. As a result,
+ * This may on occasion return false negative
+ * 
  */
 function wpu_am_i_buffered() {
-	global $config;
-	
-		$level = ($config['gzip_compress'] && @extension_loaded('zlib')) ? 2 : 1;
-		if(ob_get_level() > $level) {
-			return true;
-		}
-		return false;
+	global $config, $wpuBufferLevel;
+	// + 1 to account for reverse integration buffer
+	$level = ((int)($config['gzip_compress'] && @extension_loaded('zlib') && !headers_sent())) + 1;
+	if(ob_get_level() > ($wpuBufferLevel + $level)) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Find base level of buffering -- e.g. if php.ini buffering is taking place
+ * this ensures wpu_am_i_buffered detection is correct
+ */
+function wpu_set_buffering_init_level() {
+	global $wpuBufferLevel;
+	$wpuBufferLevel = ob_get_level();
 }
 
 /**
  * Prevent phpBB from exiting
  */
 function wpu_continue(&$hook) {
+	global $wpuRunning, $wpuBuffered;
 	if (defined('PHPBB_EXIT_DISABLED') && !defined('WPU_FINISHED')) {
 		return "";
-	} else if ( defined('WPU_VERY_BUFFERED') ) {
-		/** if someone else (e.g. a mod) was buffering the page and are now asking to exit,
+	} else if ( $wpuBuffered && (!$wpuRunning) ) {
+		/** if someone else was buffering the page and are now asking to exit,
 		 * wpu_execute won't have run yet
 		 */
+		$buff = false;
+		// flush the buffer until we get to our reverse integrated layer
 		while(wpu_am_i_buffered()) {
 			ob_end_flush();
+			$buff = true;
 		}
-		wpu_execute($hook, 'body');
+		if($buff) {
+			wpu_execute($hook, 'body');
+		}
 	}
 }
 
