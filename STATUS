@@ -19,6 +19,8 @@ FIXED / COMMITTED for v0.8.2:
 - Fixed smilies insertion JS. Now makes intelligent guess about location of textarea, and is minified better
 - Fixed error on RSS feed page when feeds disabled
 - Fix for object elements with height attribute set being borked by CSS magic
+- New, improved regex for fixing height attribute -- now fixed any html elements it finds, and works with existing style attributes
+- Added default options to login/user info template tag
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------

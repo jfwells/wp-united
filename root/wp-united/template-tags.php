@@ -911,7 +911,7 @@ function wpu_login_user_info($args) {
 function get_wpu_login_user_info($args) {
 	global $user_ID, $db, $wpSettings, $auth, $phpbbForum, $wpSettings, $phpEx, $config;
 	
-	$defaults = array('before' => '<li>', 'after' => '</li>');
+	$defaults = array('before' => '<li>', 'after' => '</li>', 'showLoginForm' => 1, 'showRankBlock' => 1, 'showNewPosts' => 1, 'showWriteLink' => 1, 'showAdminLinks' => 1);
 	extract(_wpu_process_args($args, $defaults));
 
 	$ret = '';

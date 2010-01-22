@@ -330,8 +330,22 @@ if (!empty($wpSettings['cssMagic'])) {
 		$outerContent = str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $outerContent);
 	}
 	
-	//Youtube BBCode fix
-	$innerContent = preg_replace('/(<object[^>]*height\s?=\s?[\'"]?([0-9]+)\s?[\'"])/', '${1} style="height: ${2}px !important;"', $innerContent);
+	/**
+	 * Elements (mainly third-party BBCodes) with height="" cannot override the height CSS rule set in CSS Magic's reset.css
+	 * This adds an inline CSS style attribute to any such elements
+	 * If the element already has an inline style attribute, the height rule will be appended to it
+	 */
+	$innerContent = preg_replace_callback(
+		'/((<[^>]+\b)(?=height\s?=\s?[\'"]?\s?([0-9]+)\s?[\'"]?)([^>]*))(\/?>)/',
+		create_function(
+			'$m',
+			'if(preg_match(\'/(style\s?=\s?[\\\'"]([^\\\'"]+))([\\\'"])/\', $m[1], $r)) 
+				return  str_replace($r[0], "{$r[1]};height:{$m[3]}px;{$r[3]}", $m[1]) . $m[5];
+			return $m[1] . \' style="height:\' . $m[3] . \'px;" \' . $m[5];'
+		),
+		$innerContent
+	);
+
 	
 }
 
