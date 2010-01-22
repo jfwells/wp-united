@@ -138,6 +138,7 @@ function wpu_fix_css_urls($filePath, &$css) {
 				$out = str_replace("url(", "", $url);
 				$out = str_replace(")", "", $out);
 				$out = str_replace("'", "", $out);
+				$out = str_replace('"', '', $out);
 				if ($out[0] != "/") {
 					$replace = true;
 				}
