@@ -67,7 +67,7 @@ class WPU_Phpbb {
 	 * Loads the phpBB environment if it is not already
 	 */
 	function load($rootPath) {
-		global $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
+		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
 		global $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 		
 
@@ -76,8 +76,8 @@ class WPU_Phpbb {
 		// WordPress admin could be using the $template var, but we don't want to unset it in general
 		if(isset($template)) {
 			$_template = $template;
+			$template = null;
 		}
-
 		define('IN_PHPBB', TRUE);
 		
 		$phpbb_root_path = $rootPath;

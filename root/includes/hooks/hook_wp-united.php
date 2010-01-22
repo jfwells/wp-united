@@ -36,7 +36,7 @@ if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {
 		$phpbb_hook->register('exit_handler', 'wpu_continue');
 	}
 	
-} else if (ADMIN_START) {
+} else if (defined('ADMIN_START')) {
 	$user->add_lang('mods/wp-united');
 }
 
