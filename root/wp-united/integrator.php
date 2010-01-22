@@ -152,9 +152,10 @@ if ( !$wpuCache->use_template_cache() ) {
 		// analyses and modifies WordPress core files as appropriate
 		$wpUtdInt->enter_wp_integration();
 				
+		
 		// This generates the code for integrating logins, synchronising user profiles, and managing WordPress permissions.
 		// integrate_login handles whether logins should be integrated or not, so we can just call it without checking.
-		if (!$latest) {
+		if (!$latest && !defined('WPU_BOARD_DISABLED')) {
 			$wpUtdInt->integrate_login();
 		} 
 		

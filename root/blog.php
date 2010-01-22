@@ -69,10 +69,18 @@ define('WPU_BLOG_PAGE', 1);
 if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 	include($phpbb_root_path . 'common.' . $phpEx);
 
-	$user->session_begin();
+	$user->session_begin(); 	
 	$auth->acl($user->data);
-	$user->setup('mods/wp-united');
-	
+
+	if ($config['board_disable'] && !defined('IN_LOGIN') && !$auth->acl_gets('a_', 'm_') && !$auth->acl_getf_global('m_')) {
+		// board is disabled. 
+		$user->add_lang('common');
+		define('WPU_BOARD_DISABLED', (!empty($config['board_disable_msg'])) ? '<strong>' . $user->lang['BOARD_DISABLED'] . '</strong><br /><br />' . $config['board_disable_msg'] : $user->lang['BOARD_DISABLE']);
+	} else {
+		require_once($phpbb_root_path . 'wp-united/phpbb.'.$phpEx);
+		$user->setup('mods/wp-united');
+	}
+
 	
 	if(!defined('WPU_HOOK_ACTIVE')) {
 		$cache->purge();

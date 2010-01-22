@@ -46,7 +46,7 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	$template->assign_vars(array(
 		'WORDPRESS_BODY' => '<!--[**INNER_CONTENT**]-->',
 		'WP_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com" target="_blank">', '</a>')
-		)); 
+	)); 
 	
 	//Stop phpBB from exiting
 	define('PHPBB_EXIT_DISABLED', true);

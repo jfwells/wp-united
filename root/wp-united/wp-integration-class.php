@@ -290,111 +290,119 @@ Class WPU_Integration {
 			$this->prepare('$beforeVars = array_keys(get_defined_vars());');
 		}
 		
-		//finally, prepare the code for accessing WordPress:
-			
-		if ( !$this->wpLoaded ) {
 		
-			$this->wpLoaded = true;
-			
-			//Which version of WordPress are we about to load?
-			global $wp_version;
-			require($this->wpu_settings['wpPath'] . 'wp-includes/version.php');
-			$this->wpVersion = $wp_version;
-			
-			// A few WordPress functions that we have changed - all in a separate file for easy updating.
-			require($this->phpbb_root . 'wp-united/wp-functions.' . $this->phpEx);
-			
-			// Load widgets
-			require($this->phpbb_root . 'wp-united/widgets.' . $this->phpEx);
-			
-			
-			
-			global $user;
-			// Added realpath to account for symlinks -- 
-			//otherwise it is inconsistent with __FILE__ in WP, which causes plugin inconsistencies.
-			$realAbsPath = realpath($this->wpu_settings['wpPath']);
-			$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
-			define('ABSPATH',$realAbsPath);
-
-			if (!$this->core_cache_ready()) { 
-				
-				// Now wp-config can be moved one level up, so we try that as well:
-				$wpConfigLoc = (!file_exists($this->wpu_settings['wpPath'] . 'wp-config.php')) ? $this->wpu_settings['wpPath'] . '../wp-config.php' : $this->wpu_settings['wpPath'] . 'wp-config.php';
-
-				$cConf = file_get_contents($wpConfigLoc);
-				$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
-				//Handle the make clickable conflict
-				if (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/formatting.php')) {
-					$fName='formatting.php';  //WP >= 2.1
-				} elseif (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/functions-formatting.php')) {
-					$fName='functions-formatting.php';  //WP< 2.1
-				} else {
-					trigger_error($user->lang['Function_Duplicate']);
-				}
-				$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
-				$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php ';
-				$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
-				unset ($cFor);
-				
-				// Fix plugins
-				if(!empty($this->wpu_settings['pluginFixes'])) {
-					$strCompat = ($this->wpu_compat) ? "true" : "false";
-					// MU Plugins
-					$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
-					$cSet = str_replace('include_once( WPMU_PLUGIN_DIR . \'/\' . $plugin );', ' include_once($wpuMuPluginFixer->fix(WPMU_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
-					
-					//WP Plugins
-					$cSet = preg_replace('/(get_option\(\s?\'active_plugins\'\s?\)\s?\)?;)/', '$1global $wpuPluginFixer; $wpuPluginFixer = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
-					$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($wpuPluginFixer->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
-					
-					// Theme functions
-					$cSet = str_replace('// Load functions for active theme.', 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'styles\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
-					$cSet = str_replace('include(STYLESHEETPATH . \'/functions.php\');', ' include_once($wpuStyleFixer->fix(STYLESHEETPATH . \'/functions.php\', true));', $cSet);
-					$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', ' include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', $cSet);
-					
-					// Predeclare globals for all 
-					if (!$this->wpu_compat) {
-						$cSet = str_replace('do_action(\'muplugins_loaded\');', 'eval($wpuMuPluginFixer->get_globalString()); unset($wpuMuPluginFixer); do_action(\'muplugins_loaded\');', $cSet);
-						$cSet = str_replace('do_action(\'plugins_loaded\');', 'eval($wpuPluginFixer->get_globalString()); unset($wpuPluginFixer); do_action(\'plugins_loaded\');', $cSet);
-						$cSet = str_replace('include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', 'include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));' . "\n\n" . 'eval($wpuStyleFixer->get_globalString()); unset($wpuStyleFixer);' . "\n" . 'eval($wpuThemeFixer->get_globalString()); unset($wpuThemeFixer);', $cSet);
-					}
-				}
-				
-			
-				//here we handle references to objects that need to be available in the global scope when we're not.
-				if (!$this->wpu_compat) {
-					foreach ( $this->globalRefs as $gloRef ) {
-						$cSet = str_replace('$'. $gloRef . ' ', '$GLOBALS[\'' . $gloRef . '\'] ',$cSet);
-						$cSet = str_replace('$'. $gloRef . '->', '$GLOBALS[\'' . $gloRef . '\']->',$cSet);
-						$cSet = str_replace('=& $'. $gloRef . ';', '=& $GLOBALS[\'' . $gloRef . '\'];',$cSet);
-					}
-				}
-
-				
-				$cSet = '?'.'>'.trim($cSet).'<'.'?php ';
-				$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
-				$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php ');
-				unset ($cConf, $cSet);
-
-				if ( $wpuCache->core_cache_enabled()) {
-					$wpuCache->save_to_core_cache($content, $this->wpVersion, $this->wpu_compat);
-				}
-			} else {
-				$this->prepare('require_once(\'' . $wpuCache->coreCacheLoc . '\');');
-			}
-			if ( defined('WPU_PERFORM_ACTIONS') ) {
-				$this->prepare($GLOBALS['wpu_add_actions']);
-			}
-			
-			if ( !$this->wpu_compat ) {
-				$this->prepare('$newVars = array_diff(array_keys(get_defined_vars()), $beforeVars);');
-				$this->prepare('foreach($newVars as $newVar) { if ($newVar != \'beforeVars\') $GLOBALS[$newVar] =& $$newVar;}');
-			}
-			return TRUE;
-		} else {
+		// do nothing if WP is already loaded
+		if ($this->wpLoaded ) {
 			$this->prepare('$wpUtdInt->switch_db(\'TO_W\');');
 			return FALSE;
 		}
+		
+		$this->wpLoaded = true;
+		
+		//Which version of WordPress are we about to load?
+		global $wp_version;
+		require($this->wpu_settings['wpPath'] . 'wp-includes/version.php');
+		$this->wpVersion = $wp_version;
+		
+		// A few WordPress functions that we have changed - all in a separate file for easy updating.
+		require($this->phpbb_root . 'wp-united/wp-functions.' . $this->phpEx);
+		
+		// Load widgets
+		require($this->phpbb_root . 'wp-united/widgets.' . $this->phpEx);
+		
+		
+		
+		global $user;
+		// Added realpath to account for symlinks -- 
+		//otherwise it is inconsistent with __FILE__ in WP, which causes plugin inconsistencies.
+		$realAbsPath = realpath($this->wpu_settings['wpPath']);
+		$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
+		define('ABSPATH',$realAbsPath);
+
+		if (!$this->core_cache_ready()) { 
+			
+			// Now wp-config can be moved one level up, so we try that as well:
+			$wpConfigLoc = (!file_exists($this->wpu_settings['wpPath'] . 'wp-config.php')) ? $this->wpu_settings['wpPath'] . '../wp-config.php' : $this->wpu_settings['wpPath'] . 'wp-config.php';
+
+			$cConf = file_get_contents($wpConfigLoc);
+			$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
+			//Handle the make clickable conflict
+			if (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/formatting.php')) {
+				$fName='formatting.php';  //WP >= 2.1
+			} elseif (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/functions-formatting.php')) {
+				$fName='functions-formatting.php';  //WP< 2.1
+			} else {
+				trigger_error($user->lang['Function_Duplicate']);
+			}
+			$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
+			$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php ';
+			$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
+			unset ($cFor);
+			
+			// Fix plugins
+			if(!empty($this->wpu_settings['pluginFixes'])) {
+				$strCompat = ($this->wpu_compat) ? "true" : "false";
+				// MU Plugins
+				$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
+				$cSet = str_replace('include_once( WPMU_PLUGIN_DIR . \'/\' . $plugin );', ' include_once($wpuMuPluginFixer->fix(WPMU_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
+				
+				//WP Plugins
+				$cSet = preg_replace('/(get_option\(\s?\'active_plugins\'\s?\)\s?\)?;)/', '$1global $wpuPluginFixer; $wpuPluginFixer = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+				$cSet = str_replace('include_once(WP_PLUGIN_DIR . \'/\' . $plugin);', ' include_once($wpuPluginFixer->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
+				
+				// Theme functions
+				$cSet = str_replace('// Load functions for active theme.', 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'styles\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
+				$cSet = str_replace('include(STYLESHEETPATH . \'/functions.php\');', ' include_once($wpuStyleFixer->fix(STYLESHEETPATH . \'/functions.php\', true));', $cSet);
+				$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', ' include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', $cSet);
+				
+				// Predeclare globals for all 
+				if (!$this->wpu_compat) {
+					$cSet = str_replace('do_action(\'muplugins_loaded\');', 'eval($wpuMuPluginFixer->get_globalString()); unset($wpuMuPluginFixer); do_action(\'muplugins_loaded\');', $cSet);
+					$cSet = str_replace('do_action(\'plugins_loaded\');', 'eval($wpuPluginFixer->get_globalString()); unset($wpuPluginFixer); do_action(\'plugins_loaded\');', $cSet);
+					$cSet = str_replace('include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', 'include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));' . "\n\n" . 'eval($wpuStyleFixer->get_globalString()); unset($wpuStyleFixer);' . "\n" . 'eval($wpuThemeFixer->get_globalString()); unset($wpuThemeFixer);', $cSet);
+				}
+			}
+			
+		
+			//here we handle references to objects that need to be available in the global scope when we're not.
+			if (!$this->wpu_compat) {
+				foreach ( $this->globalRefs as $gloRef ) {
+					$cSet = str_replace('$'. $gloRef . ' ', '$GLOBALS[\'' . $gloRef . '\'] ',$cSet);
+					$cSet = str_replace('$'. $gloRef . '->', '$GLOBALS[\'' . $gloRef . '\']->',$cSet);
+					$cSet = str_replace('=& $'. $gloRef . ';', '=& $GLOBALS[\'' . $gloRef . '\'];',$cSet);
+				}
+			}
+
+			
+			$cSet = '?'.'>'.trim($cSet).'<'.'?php ';
+			$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
+			$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php ');
+			unset ($cConf, $cSet);
+
+			if ( $wpuCache->core_cache_enabled()) {
+				$wpuCache->save_to_core_cache($content, $this->wpVersion, $this->wpu_compat);
+			}
+		} else {
+			$this->prepare('require_once(\'' . $wpuCache->coreCacheLoc . '\');');
+		}
+		
+		if(defined('WPU_BOARD_DISABLED')) {
+			$this->prepare('wp_die(\'' . WPU_BOARD_DISABLED . '\', \'' . $GLOBALS['user']->lang['BOARD_DISABLED'] . '\');');
+		}
+		
+		if ( defined('WPU_PERFORM_ACTIONS') ) {
+			$this->prepare($GLOBALS['wpu_add_actions']);
+		}
+		
+		if ( !$this->wpu_compat ) {
+			$this->prepare('$newVars = array_diff(array_keys(get_defined_vars()), $beforeVars);');
+			$this->prepare('foreach($newVars as $newVar) { if ($newVar != \'beforeVars\') $GLOBALS[$newVar] =& $$newVar;}');
+		}
+		
+		
+		return TRUE;
+
+		
 		
 	}
 	/**
