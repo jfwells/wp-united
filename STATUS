@@ -22,6 +22,7 @@ FIXED / COMMITTED for v0.8.2:
 - New, improved regex for fixing height attribute -- now fixed any html elements it finds, and works with existing style attributes
 - Added default options to login/user info template tag
 - Changed behaviour when board disabled: blog.php always calls wp_die when disabled, as there is no other reliale way to integrate templates or pull info
+- Fixed $user->add_lang firing too often
 
 FIXED / COMMITTED for v0.8.1:
 ------------------------------
