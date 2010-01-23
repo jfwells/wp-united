@@ -54,17 +54,15 @@ function wpu_init_plugin() {
 	
 	if ( !defined('IN_PHPBB') ) {
 		define('WPU_PHPBB_IS_EMBEDDED', TRUE);
-		
 
 		$phpbbForum->load($phpbb_root_path);
 
 		require_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
 		require_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
-		add_action('widgets_init', 'wpu_widgets_init');	
-		
-	} else {
-		add_action('widgets_init', 'wpu_widgets_init');	
 	}
+		
+	add_action('widgets_init', 'wpu_widgets_init');	
+
 
 	if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
 		global $user_ID;
@@ -676,7 +674,7 @@ function wpu_loginoutlink($loginLink) {
 function wpu_login_url($loginLink, $redirect) {
 	global $wpSettings, $phpbbForum, $phpEx;
 	if ( (!empty($wpSettings['integrateLogin'])) && (!$phpbbForum->user_logged_in()) ) {
-		$loginLink = append_sid("ucp.$phpEx", 'mode=login', true, false, $GLOBALS['user']->session_id) . '&amp;redirect=' . urlencode($redirect);
+		$loginLink = $phpbbForum->url . append_sid("ucp.$phpEx", 'mode=login', true, false, $GLOBALS['user']->session_id) . '&amp;redirect=' . urlencode($redirect);
 	}
 	return $loginLink;
 }
@@ -1631,6 +1629,7 @@ add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
 add_filter('logout_url', 'wpu_logout_url', 10, 2);
 add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
 add_filter('login_url', 'wpu_login_url', 10, 2);
+add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
 
 //per-user cats in progress -- deprecated
 //add_filter('wpu_cat_presave', 'category_save_pre');

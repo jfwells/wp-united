@@ -468,6 +468,14 @@ function wpu_comments_open($open, $postID) {
 		return $status;
 	}
 	
+	/** if user is logged out, we need to return default wordpress comment status
+	 * Then the template can display "you need to log in", as opposed to "comments are closed"
+	 */
+	if(!$phpbbForum->user_logged_in()) {
+		$status = $open;
+		return $status;
+	}
+	
 	$phpbbForum->enter();
 	if(!($dets = wpu_get_xposted_details($postID))) {
 		$phpbbForum->leave();
@@ -497,6 +505,20 @@ function wpu_comments_open($open, $postID) {
 	
 	$status = true;
 	return $status;
+}
+
+/**
+ * This short-circuits the WordPress get_option('comment_registration')
+ * We only want to intervene if we are in the midst of a cross-posted comment
+ * If we return false, get_option does its thing.
+ */
+function wpu_no_guest_comment_posting() {
+	global $usePhpBBComments;
+	
+	if($usePhpBBComments) {
+		return true;
+	}
+	return false;
 }
 
 ?>
