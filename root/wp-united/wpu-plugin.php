@@ -650,7 +650,7 @@ function wpu_get_stylesheet($default) {
 function wpu_loginoutlink($loginLink) {
 	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		$redir = _wpu_get_redirect_link();
+		$redir = wpu_get_redirect_link();
 		$phpbbForum->enter();
 		$logout_link = append_sid("ucp.$phpEx", 'mode=logout', true, $GLOBALS['user']->session_id);
 		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . $redir, false, false, $GLOBALS['user']->session_id);		
@@ -1597,6 +1597,7 @@ add_filter('comment_text', 'wpu_censor');
 add_filter('comment_text', 'wpu_smilies');
 add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
 add_action('comment_form', 'wpu_print_smilies');
+add_action('comment_form', 'wpu_comment_redir_field');
 add_action('wp_head', 'wpu_javascript');
 
 if ( isset($_GET['page']) ) {
@@ -1630,6 +1631,8 @@ add_filter('logout_url', 'wpu_logout_url', 10, 2);
 add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
 add_filter('login_url', 'wpu_login_url', 10, 2);
 add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
+add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
+add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
 
 //per-user cats in progress -- deprecated
 //add_filter('wpu_cat_presave', 'category_save_pre');

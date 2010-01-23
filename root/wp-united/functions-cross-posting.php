@@ -438,9 +438,70 @@ function wpu_comment_redirector($postID) {
 
 	$phpbbForum->leave();
 	
-	// We redirect back to the forum, because we cannot make a reliable WordPress comment link to redirect to.
-	$location = str_replace(array('&amp;', $phpbb_root_path), array('&', $phpbbForum->url), $postUrl);
+	
+/**
+ * Redirect back to WP if we can.
+ * NOTE: if the comment was the first on a new page, this will redirect to the old page, rather than the new
+ * one. 
+ * @todo: increment page var if necessary, or remove it if comment order is reversed, by adding hidden field with # of comments
+ */
+	if (!empty($_POST['wpu-comment-redirect'])) {
+		$location  = urldecode($_POST['wpu-comment-redirect']) . '#comment-' . $data['post_id'];
+	} else if(!empty($_POST['redirect_to'])) {
+		$location = $_POST['redirect_to'] . '#comment-' . $data['post_id'];
+	} else {
+		$location = str_replace(array('&amp;', $phpbb_root_path), array('&', $phpbbForum->url), $postUrl);
+	}
 	wp_redirect($location); exit();
+}
+
+/**
+ * Creates a redirect field for the comments box if the post is cross-posted and comments are to be.
+ * This is the only way we can know how to get back here when posting.
+ */
+function wpu_comment_redir_field() {
+		global $usePhpBBComments, $wp_query;
+	
+	if($usePhpBBComments) {
+		$commID =  sizeof($wp_query->comments) + 1;
+		$redir =  wpu_get_redirect_link(); // . '#comment-' $commID;
+		echo '<input type="hidden" name="wpu-comment-redirect" value="' . $redir . '" />';
+	}
+	
+}
+
+/**
+ * Modifies the "(Edit)" comment links and text for cross-posted comments
+ * Checking whether the user can edit individual posts is too onerous
+ * So we change the link to a "View in forum" one
+ */
+function wpu_edit_comment_link($link, $comment_ID) {
+	global $phpbbForum,  $usePhpBBComments, $phpbbCommentLinks;
+	
+	if($usePhpBBComments) {
+		if(!isset($phpbbCommentLinks[$comment_ID])) {
+			return $link;
+		}
+		$href = $phpbbCommentLinks[$comment_ID];
+		return '<a class="comment-edit-link" href="' . $href . '" title="' . $phpbbForum->lang['wpu_comment_view_link'] . '">' . $phpbbForum->lang['wpu_comment_view_link'] . '</a>';
+
+	}
+	
+	return $link;
+	
+}
+/**
+ * Returns the general coment link -- points to the forum if the comment is cross-posted
+ */
+function wpu_comment_link($url, $comment, $args) {
+	global $phpbbForum,  $usePhpBBComments, $phpbbCommentLinks;
+
+	if($usePhpBBComments) {
+		if(isset($phpbbCommentLinks[$comment->comment_ID])) {
+			return $phpbbCommentLinks[$comment->comment_ID];
+		}
+	}
+	return $url;
 }
 
 /**

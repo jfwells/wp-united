@@ -27,7 +27,7 @@ class WPU_Comments {
 
 	function populate($wpPostID) {
 		
-		global $phpbbForum, $auth, $db, $phpEx, $user;
+		global $phpbbForum, $phpbbCommentLinks, $auth, $db, $phpEx, $user;
 		
 		$phpbbForum->enter();
 		
@@ -93,6 +93,7 @@ class WPU_Comments {
 						p.bbcode_bitfield, 
 						p.bbcode_uid, 
 						p.post_edit_locked,
+						p.topic_id,
 						t.topic_replies AS all_replies,
 						t.topic_replies_real AS replies, 
 						u.username,
@@ -116,7 +117,7 @@ class WPU_Comments {
 					$phpbbForum->leave();
 					return false;
 				} 
-				
+				$phpbbCommentLinks = array();
 				while ($comment = $db->sql_fetchrow($result)) {
 					
 					$link = $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
@@ -137,6 +138,9 @@ class WPU_Comments {
 						'user_id' => $comment['user_wpuint_id'],
 						'phpbb_id' => $comment['poster_id']
 					);
+					$phpbbCommentLinks[$comment['post_id']] = $phpbbForum->url;
+					$phpbbCommentLinks[$comment['post_id']] .= ($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}";
+					
 					$this->comments[] = new WPU_Comment($args);
 				}
 				$db->sql_freeresult($result);

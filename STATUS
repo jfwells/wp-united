@@ -2,6 +2,7 @@
 TO FIX FOR v0.8.2
 ------------------------
 
+- comment edit links incorrect
 - check comment post times -- timezone of cross-post different from timezone of comment
 (comment OK [utc], x-post not [utc +8])
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in /var/www/wp-united/buildenv/wpu-buildenv/sources/wordpress/wp-includes/registration.php on line 53
@@ -9,8 +10,7 @@ TO FIX FOR v0.8.2
 - $template error still exists
 - htmlspecialchars_decode error
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
-- Cross-posted comments redirect back to WP
-- should be easy way to check if user is integrated, e.g. phpbbForum->user_is_integrated()
+
 
 
 FIXED / COMMITTED for v0.8.2:
@@ -33,6 +33,9 @@ FIXED / COMMITTED for v0.8.2:
 - return default wordpress status for comments_open if user is logged out
 - Override option for comment_registration for cross-posted comments
 - Fixed login link for comments page
+- Cross-posted comments now redirect back to WP 
+- (Edit) links in cross-posted comments now point to forum
+- Comment title links now point to forum
 
 
 FIXED / COMMITTED for v0.8.1:
@@ -70,6 +73,7 @@ FIXED / COMMITTED for v0.8.1:
 
 Deferred to v0.9:
 ----------------------
+Comment redirect should take into account comment order and page (see @todo in comments.php)
 Add proper timeouts to ACP AJAX
 Check that WP permalinks setting is commensurate with WP-United wpUri setting.
 wpu-plugin should be handling login/logout, rather than $wpUtdInt. wp-login redirects will then be more reliable
@@ -92,6 +96,7 @@ Cache: Make core/template calls follow same structure as css magic / template vo
  Plugin: JavaScript and CSS should be enqueued
  Plugin bugs: have_comments() is returning false when yaapc comments are enabled. Same issue when wpu-plugin is disabled, so may not be a wpu issue.
 $_SID is not getting set, so append_sid() does nothing without forced param
+should be easy way to check if user is integrated, e.g. phpbbForum->user_is_integrated()
 
 =============================================
 

@@ -35,7 +35,7 @@ function get_wpu_intro() {
 	global $wpSettings, $phpEx, $wpuGetBlogIntro, $phpbbForum;
 	if ( (!empty($wpSettings['useBlogHome'])) && (!empty($wpSettings['usersOwnBlogs'])) ) {
 		$reg_link =  'ucp.'.$phpEx.'?mode=register';
-		$redir = _wpu_get_redirect_link();
+		$redir = wpu_get_redirect_link();
 		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;redirect='. $redir;	
 		
 		$isReg = $phpbbForum->get_userdata('is_registered');
@@ -963,7 +963,7 @@ function get_wpu_login_user_info($args) {
 		$ret .= $before . get_wp_loginout() . $after;
 	} else {
 		if ( $showLoginForm ) {
-			$redir = _wpu_get_redirect_link();
+			$redir = wpu_get_redirect_link();
 			$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=' . $redir;
 			$ret .= '<form class="wpuloginform" method="post" action="' . $phpbbForum->url . $login_link . '">';
 			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
@@ -1013,7 +1013,7 @@ function wpu_comment_number () {
  * Returns a URL suitable for sending as a redirect instruction to phpBB
   * @ since v0.8.1
  */
-function _wpu_get_redirect_link() {
+function wpu_get_redirect_link() {
 	global $phpbbForum;
 	if(!empty( $_SERVER['REQUEST_URI'])) {
 		$protocol = empty($_SERVER['HTTPS']) ? 'http:' : ((strtolower($_SERVER["HTTPS"]) == 'on') ? 'https:' : 'http:');
