@@ -87,6 +87,10 @@ class WPU_Phpbb {
 		
 		require_once($phpbb_root_path . 'common.' . $phpEx);
 		
+		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
+		// so we just set it global here
+		$GLOBALS['template'] = &$template;
+		
 		$user->session_begin();
 		$auth->acl($user->data);
 		$user->setup('mods/wp-united');
