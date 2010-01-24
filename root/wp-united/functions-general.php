@@ -113,7 +113,7 @@ function clean_path($value) {
 /**
  * Calculates a relative path from the current location to a given absolute file path
  */
-function wpu_compute_path_difference($filePath, $currPath = false) {
+function wpu_compute_path_difference($filePath, $currLoc = false) {
 	
 	$absFileLoc = clean_path(realpath($filePath));
 	

@@ -38,6 +38,8 @@ FIXED / COMMITTED for v0.8.2:
 - stopped phpBB's deregister_globals() from unregistering $template on theme change.
 - New Swedish translation
 - Seed $data['topic_title'] in cross-posted comment, otherwise truncate_string calls WP's version of htmlspecialchars_decode on empty string in PHP4, which triggers error.
+- Fixed default currLoc option in wpu_compute_path_difference
+
 
 
 FIXED / COMMITTED for v0.8.1:
