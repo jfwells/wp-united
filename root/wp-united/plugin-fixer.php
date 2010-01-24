@@ -43,7 +43,7 @@ class WPU_WP_Plugins {
 		$this->compat = $compat;
 		$this->wpuVer = $wpuVer;
 		$this->wpVer = $wpVer;
-		$this->strCompat = ($this->wpu_compat) ? "true" : "false";
+		$this->strCompat = ($this->compat) ? "true" : "false";
 		$this->mainEntry = false;
 		$this->type = $type;
 		$this->globals = get_option("wpu_{$this->type}_globals", array());

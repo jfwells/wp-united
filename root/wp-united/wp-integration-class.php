@@ -268,7 +268,9 @@ Class WPU_Integration {
 		// This is not strictly necessary, but it cleans up the vars we know are important to WP, or unsets variables we want to explicity get rid of.
 		$toUnset=array_merge( $this->varsToUnsetAndRestore, $this->varsToUnset);
 		foreach ( $toUnset as $varNames) {
-			unset($GLOBALS[$varNames]);
+			if(isset($GLOBALS[$varNames])) {
+				unset($GLOBALS[$varNames]);
+			}
 		} 
 		
 
