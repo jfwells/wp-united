@@ -405,7 +405,7 @@ function wpu_comment_redirector($postID) {
 	}
 	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
 	
-	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
+	wpu_html_to_bbcode($content); 
 	$content = utf8_normalize_nfc($content);
 	$uid = $poll = $bitfield = $options = ''; 
 	generate_text_for_storage($content, $uid, $bitfield, $options, true, true, true);
@@ -432,6 +432,7 @@ function wpu_comment_redirector($postID) {
 		'post_time' 		=> 0,
 		'forum_name'		=> '',
 		'enable_indexing'	=> true,
+		'topic_title' => $subject
 	); 
 
 	$postUrl = submit_post('reply', $subject, $phpbbForum->get_username(), POST_NORMAL, $poll, $data);

@@ -2,12 +2,12 @@
 TO FIX FOR v0.8.2
 ------------------------
 
-- Include Swedish translation
+
 - check comment post times -- timezone of cross-post different from timezone of comment
 (comment OK [utc], x-post not [utc +8])
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in /var/www/wp-united/buildenv/wpu-buildenv/sources/wordpress/wp-includes/registration.php on line 53
 - characters too few error on cross-post reported
-- htmlspecialchars_decode error
+
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
 
 
@@ -36,6 +36,8 @@ FIXED / COMMITTED for v0.8.2:
 - (Edit) links in cross-posted comments now point to forum
 - Comment title links now point to forum
 - stopped phpBB's deregister_globals() from unregistering $template on theme change.
+- New Swedish translation
+- Seed $data['topic_title'] in cross-posted comment, otherwise truncate_string calls WP's version of htmlspecialchars_decode on empty string in PHP4, which triggers error.
 
 
 FIXED / COMMITTED for v0.8.1:

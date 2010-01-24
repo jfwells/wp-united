@@ -40,7 +40,7 @@ function add_http($path) {
  * Several changes and fixes for WP-United
  * @author DeViAnThans3
  */
-function wpu_html_to_bbcode(&$string, $uid) { 
+function wpu_html_to_bbcode(&$string, $uid = '123456') { 
     // Strip slashes ! 
 	$string = stripslashes($string); 
 	$string = strip_tags($string, '<p><a><img><br><strong><em><blockquote><b><u><i><ul><ol><li><code>');
@@ -96,7 +96,7 @@ function wpu_html_to_bbcode(&$string, $uid) {
 	$string = str_replace('&amp;', '&', $string); 
 	
 
-	$string = str_replace(':' . $uid, '', $string);
+	$string = str_replace(':' . $uid . ']', ']', $string);
 } 
 
 
