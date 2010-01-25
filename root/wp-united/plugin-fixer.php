@@ -38,8 +38,8 @@ class WPU_WP_Plugins {
 	 * @param string $wpVer WordPress version
 	 * @param string $compat True if WordPress is in global scope
 	 */
-	function WPU_WP_Plugins($type, $wpPluginDir, $wpuVer, $wpVer, $compat) {
-		$this->pluginDir =  add_trailing_slash(realpath($wpPluginDir));
+	function WPU_WP_Plugins($wpPluginDir, $type, $wpuVer, $wpVer, $compat) {
+		$this->pluginDir =  add_trailing_slash(realpath($wpPluginDir)); 
 		$this->compat = $compat;
 		$this->wpuVer = $wpuVer;
 		$this->wpVer = $wpVer;
@@ -60,19 +60,29 @@ class WPU_WP_Plugins {
 	 * Returns compiled plugin file to execute
 	 * @param string $plugin The full path to the plugin
 	 */
-	function fix($plugin, $mainEntry = false) {
+	function fix($plugin, $mainEntry = false, $workingDir = false) {
 		global $wpuCache;
+		
+		if($workingDir === false) {
+			$workingDir = $this->pluginDir;
+		} else {
+			$workingDir = add_trailing_slash($workingDir);
+		}
 		
 		$this->mainEntry = $mainEntry;
 		
 		if (stripos($plugin, 'wpu-plugin') === false) {
+			if( !file_exists($plugin) ) {
+				// plugin file not found -- not an absolute path. Look in plugin folder
+				$plugin = $workingDir . $plugin; 
+			}
 			if(file_exists($plugin)) {
 				$cached = $wpuCache->get_plugin($plugin, $this->wpVer, $this->strCompat);
 				if (!$cached) {
 					if(!$cached = $this->process_file($plugin)) {
 						$cached = $plugin;
 					}
-				}
+				} 
 				return $cached;
 			}
 		}
@@ -130,11 +140,12 @@ class WPU_WP_Plugins {
 		$pluginContent = str_replace('__FILE__', "'" . $pluginLoc . "'", $pluginContent);
 	
 		// identify all includes and redirect to plugin fixer cache, if appropriate
-		preg_match_all('/\n[\s]*((include|require)(_once)?[\s]*[\(]?([;\n]*\.(' . $phpEx . '|php)[^\);\n]*)(\n|;))/', $pluginContent, $includes);
+		preg_match_all('/\s*((include|require)(_once)?\s*(\(?[^;\n]*\.(' . $phpEx . '|php)[^;\n]*))(\n|;)/', $pluginContent, $includes); 
+
 		foreach($includes[4] as $key => $value) {	
 			if(!empty($includes[4][$key])) {
 				$finalChar = ($includes[6][$key] == ';') ? ';' : '';
-				$pluginContent = str_replace($includes[1][$key], $includes[2][$key] . $includes[3][$key] . '($GLOBALS[\'wpuPluginFixer\']->fix(' . "{$value})){$finalChar}", $pluginContent);
+				$pluginContent = str_replace($includes[0][$key], $includes[2][$key] . $includes[3][$key] . '($GLOBALS[\'wpuPluginFixer\']->fix(' . "{$value}, false, '" . dirname($pluginLoc) . "')){$finalChar}", $pluginContent);
 			}
 		}
 	

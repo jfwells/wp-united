@@ -2,7 +2,7 @@
 TO FIX FOR v0.8.2
 ------------------------
 
-
+- PHP 5.3 deprecated errors
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in /var/www/wp-united/buildenv/wpu-buildenv/sources/wordpress/wp-includes/registration.php on line 53
 - characters too few error on cross-post reported
 
@@ -40,6 +40,7 @@ FIXED / COMMITTED for v0.8.2:
 - Cross-post timezone not set correctly -- fixed by setting storage date to UTC
 - Fixed naming of $compat assignment in plugin class
 - Integration class: Check var is set before unsetting
+- Plugin fixer was not stepping into all fixable files. Fixed
 
 
 FIXED / COMMITTED for v0.8.1:
