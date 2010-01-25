@@ -1320,13 +1320,14 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 	$email = '';
 	if ( is_numeric($id_or_email) ) {
 		$id = (int) $id_or_email;
+		$user = get_userdata($id);
 	} elseif ( is_object($id_or_email) ) {
 		if ( !empty($id_or_email->user_id) ) {
-			$id = (int) $id_or_email->user_id;
+			$user = $id_or_email;
 		} 
 	}
 		
-	if($id) {
+	if($user) {
 		// use default WordPress or WP-United image
 		if(!$image = avatar_create_image($id)) { 
 			if(stripos($default, 'blank.gif') !== FALSE) {
