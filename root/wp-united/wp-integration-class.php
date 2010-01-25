@@ -755,7 +755,7 @@ Class WPU_Integration {
 		global $phpbbForum;
 		
 		$phpbbForum->enter();
-		
+
 		// We previously here mopped up all the WP vars that had been created... but it is a waste of CPU and usually unnecessary
 
 		//reinstate all the phpBB variables that we've put "on ice", let them overwrite any variables that were claimed by WP.

@@ -48,12 +48,14 @@ class WPU_Phpbb {
 	 * Class initialisation
 	 */
 	function WPU_Phpbb() {
-		if(defined('IN_PHPBB')) {
-			$this->state = 'phpbb';
+		if(defined('IN_PHPBB')) { 
 			$this->lang = $GLOBALS['user']->lang;
-			
+			$this->state = 'wp';
+			$this->phpbbTemplate = $GLOBALS['template'];
+			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
+			$this->phpbbUser = $GLOBALS['user'];
+			$this->phpbbCache = $GLOBALS['cache'];
 			$this->_calculate_url();
-
 		}
 		$this->was_out = false;
 		$this->seo = false;
@@ -368,6 +370,7 @@ class WPU_Phpbb {
 	 */	
 	function _backup_wp_conflicts() {
 		global $table_prefix, $user, $cache, $template;
+		
 		
 		$this->wpTemplate = $template;
 		$this->wpTablePrefix = $table_prefix;
