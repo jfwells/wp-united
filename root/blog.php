@@ -68,7 +68,6 @@ $phpEx = substr(strrchr(__FILE__, '.'), 1);
 define('WPU_BLOG_PAGE', 1);
 if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 		
-	define('PHPBB_MSG_HANDLER', 'wpu_msg_handler');
 	include($phpbb_root_path . 'common.' . $phpEx);
 
 	$user->session_begin(); 	

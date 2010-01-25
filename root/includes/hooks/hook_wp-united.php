@@ -25,6 +25,9 @@ require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 
 require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
+
+set_error_handler('wpu_msg_handler');
+
 $wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
 wpu_set_buffering_init_level();
