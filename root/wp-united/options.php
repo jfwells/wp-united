@@ -92,7 +92,6 @@ define('WP_ROOT_COOKIE', FALSE);
  */
 define('WPU_SHOW_STATS', FALSE);
 
-
 /**
  * COMPRESS HTML OUTPUT FURTHER?
  * This section does a bit of minor extra HTML compression by stripping white space, at the expense of a little processing time.
@@ -115,5 +114,12 @@ define('WPU_MAX_COMPRESS', FALSE);
 define('DISABLE_PHPBB_CSS', FALSE);
 define('PHPBB_CSS_FIRST', TRUE);
 
+
+/**
+ * WordPress debug options
+ * Set to FALSE for live sites!
+ */
+define('WP_DEBUG', FALSE);
+define('WP_DEBUG_DISPLAY', FALSE);
 
 ?>

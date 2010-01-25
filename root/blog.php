@@ -67,6 +67,8 @@ $phpbb_root_path = './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 define('WPU_BLOG_PAGE', 1);
 if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
+		
+	define('PHPBB_MSG_HANDLER', 'wpu_msg_handler');
 	include($phpbb_root_path . 'common.' . $phpEx);
 
 	$user->session_begin(); 	
@@ -99,5 +101,6 @@ if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 		If you have moved blog.php from its standard location, you need to open it and provide the path back to phpBB where indicated. Please do this now and then run the WP-United Setup Wizard again.</p>
 		</body></html>";
 }
+
 
 ?>

@@ -83,6 +83,7 @@ $$wpContentVar = str_replace(".$phpEx/\"",  ".$phpEx\"", $$wpContentVar);
 // re-point unintegrated login/out links
 if ( !empty($wpSettings['integrateLogin']) ) {
 	$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
+	$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout') . '&amp;redirect=';
 	global $siteUrl;
 	$$wpContentVar = str_replace("$siteUrl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);
 	$$wpContentVar = str_replace("$siteUrl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $$wpContentVar);

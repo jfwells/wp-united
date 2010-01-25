@@ -32,6 +32,8 @@ class WPU_Phpbb {
 	var $phpbbUser;
 	var $phpbbCache;
 	var $phpbbDbName;
+	var $phpbbTemplate;
+	var $wpTemplate;
 	var $state;
 	var $lang;
 	var $was_out;
@@ -73,11 +75,7 @@ class WPU_Phpbb {
 
 		$this->_backup_wp_conflicts();
 		
-		// WordPress admin could be using the $template var, but we don't want to unset it in general
-		if(isset($template)) {
-			$_template = $template;
-			$template = null;
-		}
+		
 		define('IN_PHPBB', TRUE);
 		
 		$phpbb_root_path = $rootPath;
@@ -85,6 +83,7 @@ class WPU_Phpbb {
 		
 		$this->_make_phpbb_env();
 		
+		define('PHPBB_MSG_HANDLER', 'wpu_msg_handler');
 		require_once($phpbb_root_path . 'common.' . $phpEx);
 		
 		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
@@ -112,10 +111,6 @@ class WPU_Phpbb {
 
 		$this->_calculate_url();
 		
-		 if(isset($_template)) {
-			$template = $_template;
-		}
-
 		$this->_backup_phpbb_state();
 		$this->_switch_to_wp_db();
 		$this->_restore_wp_conflicts();
@@ -126,7 +121,7 @@ class WPU_Phpbb {
 	 * Enters the phpBB environment
 	 */
 	function enter() { 
-		$this->lang = (sizeof($this->phpbbUser->lang)) ? $this->phpbbUser->lang : $this->lang;
+		$this->lang = (isset($this->phpbbUser->lang)) ? $this->phpbbUser->lang : $this->lang;
 		if($this->state != 'phpbb') {
 			$this->_backup_wp_conflicts();
 			$this->_restore_phpbb_state();
@@ -372,8 +367,9 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	function _backup_wp_conflicts() {
-		global $table_prefix, $user, $cache;
+		global $table_prefix, $user, $cache, $template;
 		
+		$this->wpTemplate = $template;
 		$this->wpTablePrefix = $table_prefix;
 		$this->wpUser = (isset($user)) ? $user: '';
 		$this->wpCache = (isset($cache)) ? $cache : '';
@@ -383,8 +379,9 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	function _backup_phpbb_state() {
-		global $table_prefix, $user, $cache, $dbname;
+		global $table_prefix, $user, $cache, $dbname, $template;
 
+		$this->phpbbTemplate = $template;
 		$this->phpbbTablePrefix = $table_prefix;
 		$this->phpbbUser = (isset($user)) ? $user: '';
 		$this->phpbbCache = (isset($cache)) ? $cache : '';
@@ -395,8 +392,9 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	function _restore_wp_conflicts() {
-		global $table_prefix, $user, $cache;
+		global $table_prefix, $user, $cache, $template;
 		
+		$template = $this->wpTemplate;
 		$user = $this->wpUser;
 		$cache = $this->wpCache;
 		$table_prefix = $this->wpTablePrefix;
@@ -406,8 +404,9 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	function _restore_phpbb_state() {
-		global $table_prefix, $user, $cache;
+		global $table_prefix, $user, $cache, $template;
 		
+		$template = $this->phpbbTemplate;
 		$table_prefix = $this->phpbbTablePrefix;
 		$user = $this->phpbbUser;
 		$cache = $this->phpbbCache;

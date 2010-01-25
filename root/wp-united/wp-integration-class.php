@@ -32,7 +32,7 @@ Class WPU_Integration {
 	/**
 	 * This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated, and restore them later. 
 	 */
-	var $varsToUnsetAndRestore = array('table_prefix', 'userdata', 'search', 'error', 'author', 'template');
+	var $varsToUnsetAndRestore = array('table_prefix', 'userdata', 'search', 'error', 'author');
 	
 	/**
 	 * More vars that phpBB or MODS could use, that MUST be unset before WP runs

@@ -1,8 +1,7 @@
 
-TO FIX FOR v0.8.2
+TO FIX FOR v0.8.3+
 ------------------------
 
-- PHP 5.3 deprecated errors
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in /var/www/wp-united/buildenv/wpu-buildenv/sources/wordpress/wp-includes/registration.php on line 53
 - characters too few error on cross-post reported
 
@@ -42,6 +41,7 @@ FIXED / COMMITTED for v0.8.2:
 - Integration class: Check var is set before unsetting
 - Plugin fixer was not stepping into all fixable files. Fixed
 - Fixed default avatar options in built-in avatars. 
+- Added error handler arbitrator to suppress notices in WordPress. Tested in php 5.3
 
 
 FIXED / COMMITTED for v0.8.1:

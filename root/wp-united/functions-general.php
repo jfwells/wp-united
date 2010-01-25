@@ -142,6 +142,16 @@ function wpu_compute_path_difference($filePath, $currLoc = false) {
 	return $relPath;
 }
 
+/**
+ * General error handler for arbitrating phpBB & WordPress errors.
+ */
+function wpu_msg_handler($errno, $msg_text, $errfile, $errline) {
+	global $phpbbForum, $IN_WORDPRESS;
+	if(!$IN_WORDPRESS) {
+		return msg_handler($errno, $msg_text, $errfile, $errline);
+	}
+	 return false;
+}
 
 
 
