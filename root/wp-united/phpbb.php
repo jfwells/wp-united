@@ -85,7 +85,7 @@ class WPU_Phpbb {
 		
 		$this->_make_phpbb_env();
 		
-		define('PHPBB_MSG_HANDLER', 'wpu_msg_handler');
+		
 		require_once($phpbb_root_path . 'common.' . $phpEx);
 		
 		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
