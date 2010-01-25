@@ -41,6 +41,7 @@ FIXED / COMMITTED for v0.8.2:
 - Fixed naming of $compat assignment in plugin class
 - Integration class: Check var is set before unsetting
 - Plugin fixer was not stepping into all fixable files. Fixed
+- Fixed default avatar options in built-in avatars. 
 
 
 FIXED / COMMITTED for v0.8.1:

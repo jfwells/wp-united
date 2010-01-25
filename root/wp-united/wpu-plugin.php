@@ -1320,33 +1320,27 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 	$email = '';
 	if ( is_numeric($id_or_email) ) {
 		$id = (int) $id_or_email;
-		$user = get_userdata($id);
-		if ($user) $email = $user->user_email;
 	} elseif ( is_object($id_or_email) ) {
 		if ( !empty($id_or_email->user_id) ) {
 			$id = (int) $id_or_email->user_id;
-			$user = get_userdata($id);
-			if ($user) $email = $user->user_email;
-		} elseif ( !empty($id_or_email->comment_author_email) ) {
-			$email = $id_or_email->comment_author_email;
-		}
-	} else {
-		$email = $id_or_email;
-   	}
-
-	
+		} 
+	}
 		
-	if($user) {
+	if($id) {
 		// use default WordPress or WP-United image
-		if(!$image = avatar_create_image($user)) { 
-			if(empty($default)) {
-				$image = $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
+		if(!$image = avatar_create_image($id)) { 
+			if(stripos($default, 'blank.gif') !== FALSE) {
+				$image = $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
 			} else {
 				return $avatar;
 			}
 		} 
 	} else {
-	       $image = $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
+		if(stripos($default, 'blank.gif') !== FALSE) {
+	       $image = $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
+	    } else {
+			return $default;
+		}
 	}
 	return "<img alt='{$safe_alt}' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
 } 
