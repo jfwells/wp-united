@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /** 
 *
@@ -547,7 +547,7 @@ Class WPU_Integration {
 						
 						$this->exit_wp_integration();
 						$this->lDebug('Failed, aborting (' . $error .')', 1);
-						trigger_error('WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message', 'WordPress Integration Error');
+						trigger_error('WordPress Integration Error: WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message');
 					}
 				}
 			}
@@ -574,7 +574,7 @@ Class WPU_Integration {
 			
 			if ( !($loggedInUser->ID == $integratedID) ) {
 				//ID mismatch. something is heavily borked.
-				trigger_error('Integration Mismatch Error with your account! Please contact an administrator.', 'WordPress Integration Error');
+				trigger_error('WordPress Integration Error: Integration Mismatch Error with your account! Please contact an administrator.');
 			}
 			
 		}
@@ -821,7 +821,7 @@ Class WPU_Integration {
 		//Switch back to the WP DB:
 		$phpbbForum->leave();
 		if ( !$updated ) {
-			trigger_error('WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.', 'Could not update integration data');
+			trigger_error('Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.');
 		}
 	}	
 	

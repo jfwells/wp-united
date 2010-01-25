@@ -147,9 +147,9 @@ class WPU_Phpbb {
 	 * Passes content through the phpBB word censor
 	 */
 	function censor($content) {
-		$this->_enter_if_out();
+		$this->enter_if_out();
 		$content = censor_text($content);
-		$this->_leave_if_just_entered();
+		$this->leave_if_just_entered();
 		return $content;
 	}
 	
@@ -157,9 +157,9 @@ class WPU_Phpbb {
 	 * Returns if the current user is logged in
 	 */
 	function user_logged_in() {
-		$this->_enter_if_out();
+		$this->enter_if_out();
 		$result = ( empty($GLOBALS['user']->data['is_registered']) ) ? FALSE : TRUE;
-		$this->_leave_if_just_entered();
+		$this->leave_if_just_entered();
 		return $result;
 	}
 	
@@ -167,9 +167,9 @@ class WPU_Phpbb {
 	 * Returns the currently logged-in user's username
 	 */
 	function get_username() {
-		$this->_enter_if_out();
+		$this->enter_if_out();
 		$result = $GLOBALS['user']->data['username'];
-		$this->_leave_if_just_entered();
+		$this->leave_if_just_entered();
 		return $result;
 	}
 	
@@ -177,13 +177,13 @@ class WPU_Phpbb {
 	 * Returns something from $user->userdata
 	 */
 	function get_userdata($key = '') {
-		$this->_enter_if_out();
+		$this->enter_if_out();
 		if ( !empty($key) ) {
 			$result = $GLOBALS['user']->data[$key];
 		} else {
 			$result = $GLOBALS['user']->data;
 		}
-		$this->_leave_if_just_entered();
+		$this->leave_if_just_entered();
 		return $result;		
 	}
 	
@@ -191,9 +191,9 @@ class WPU_Phpbb {
 	 * Returns the user's IP address
 	 */
 	function get_userip() {
-		$this->_enter_if_out();
+		$this->enter_if_out();
 		$result = $GLOBALS['user']->ip;
-		$this->_leave_if_just_entered();
+		$this->leave_if_just_entered();
 		return $result;			
 	}
 	
@@ -210,7 +210,7 @@ class WPU_Phpbb {
 	 */
 	function get_user_rank_info($userID = '') {
 		global $db;
-		$this->_enter_if_out();
+		$this->enter_if_out();
 		
 		if (!$userID ) {
 			if( $this->user_logged_in() ) {
@@ -233,7 +233,7 @@ class WPU_Phpbb {
 				$rank = array();
 				$rank['text'] = $rank['image_tag'] = $rank['image']  = '';
 				get_user_rank($usrData['user_rank'], $usrData['user_posts'], $rank['text'], $rank['image_tag'], $rank['image']);
-				$this->_leave_if_just_entered();
+				$this->leave_if_just_entered();
 				return $rank;
 		}
 		$this->leave();
@@ -247,7 +247,7 @@ class WPU_Phpbb {
 	function get_recent_topics($forum_list = '', $limit = 50) {
 		global $db, $auth;
 		
-		$this->_enter_if_out();
+		$this->enter_if_out();
 
 		$forum_list = (empty($forum_list)) ? array() :  explode(',', $forum_list); //forums to explicitly check
 		$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true))); //forums authorised to read posts in
@@ -285,7 +285,7 @@ class WPU_Phpbb {
 			$i++;
 		}
 		$db->sql_freeresult($result);
-		$this->_leave_if_just_entered();
+		$this->leave_if_just_entered();
 		return $posts;
 	}	
 	
@@ -295,7 +295,7 @@ class WPU_Phpbb {
 	 function transition_user($toID = false, $toIP = false) {
 		 global $auth, $user, $db;
 		 
-		 $this->_enter_if_out();
+		 $this->enter_if_out();
 		 
 		 if( ($toID === false) && ($this->_transitioned_user == true) ) {
 			  // Transition back to the currently logged-in user
@@ -325,7 +325,7 @@ class WPU_Phpbb {
 			$this->_transitioned_user = true;
 		}
 		
-		$this->_leave_if_just_entered();
+		$this->leave_if_just_entered();
 		 
 	}	
 	
@@ -433,27 +433,25 @@ class WPU_Phpbb {
 	/**
 	 * Enters phpBB if we were out
 	 * This is the same as the normal enter() function, but it records that we didn't have to enter
-	 * Subsequent calls to _leave_if_just_entered ensure we don't leave.
+	 * Subsequent calls to leave_if_just_entered ensure we don't leave.
 	 * @access private
 	 */
-	function _enter_if_out() {
+	function enter_if_out() {
 		$this->was_out = ($this->state != 'phpbb');
 		if($this->was_out) {
 			$this->enter();
 		}
 	}
 	/**
-	 * Leaves phpBB only if _enter_if_out actually did something
-	 * MUST be preceded by a _leave_if_just_entered in the same call, or will be meaningless
+	 * Leaves phpBB only if enter_if_out actually did something
+	 * MUST be preceded by a enter_if_out in the same function, or will be meaningless
 	 * @access private
 	 */
-	function _leave_if_just_entered() {
+	function leave_if_just_entered() {
 		if($this->was_out) {
 			$this->leave();
 		}
 		$this->was_out = false;	
 	}	
-
-
 
 }

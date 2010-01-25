@@ -42,6 +42,8 @@ FIXED / COMMITTED for v0.8.2:
 - Plugin fixer was not stepping into all fixable files. Fixed
 - Fixed default avatar options in built-in avatars. 
 - Added error handler arbitrator to suppress notices in WordPress. Tested in php 5.3
+- stop unsetting $template in wpUtdInt
+- Fixed broken trigger_errors in wp-integration-class
 
 
 FIXED / COMMITTED for v0.8.1:
@@ -73,6 +75,7 @@ FIXED / COMMITTED for v0.8.1:
 - Fixed broken ACP donate page
 - Fixed broken phpBB avatars
 - Fixed missing $template object on theme change in WP dashboard
+- Made naming of enter_if_out and Leave_if_just_entered public, since we are using them that way already (but their use should be restricted)
 
 
 

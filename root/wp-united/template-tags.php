@@ -1022,9 +1022,9 @@ function wpu_get_redirect_link() {
 	} else {
 		$link = get_option('home');
 	}
-	$phpbbForum->_enter_if_out();
+	$phpbbForum->enter_if_out();
 	$link = reapply_sid($link);
-	$phpbbForum->_leave_if_just_entered();
+	$phpbbForum->leave_if_just_entered();
 	return urlencode(attribute_escape($link));
 }
 
