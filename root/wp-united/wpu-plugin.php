@@ -5,8 +5,8 @@ Plugin Name: WP-United Connection
 Plugin URI: http://www.wp-united.com
 Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
-Version: v0.8.1 RC2 (phpBB3)
-Last Updated: 20 January 2010
+Version: v0.8.2 RC2 (phpBB3)
+Last Updated: 25 January 2010
 Author URI: http://www.wp-united.com
 */
 
@@ -1320,14 +1320,13 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 	$email = '';
 	if ( is_numeric($id_or_email) ) {
 		$id = (int) $id_or_email;
-		$user = get_userdata($id);
 	} elseif ( is_object($id_or_email) ) {
 		if ( !empty($id_or_email->user_id) ) {
-			$user = $id_or_email;
+			$id = (int) $id_or_email->user_id;
 		} 
 	}
 		
-	if($user) {
+	if($id) {
 		// use default WordPress or WP-United image
 		if(!$image = avatar_create_image($id)) { 
 			if(stripos($default, 'blank.gif') !== FALSE) {
