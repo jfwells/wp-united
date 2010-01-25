@@ -1304,47 +1304,47 @@ function wpu_prepare_admin_pages() {
 */
 
 function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
-	global $wpSettings, $phpbbForum;
-	if (empty($wpSettings['integrateLogin'])) { 
-		return $avatar;
-	}
+   global $wpSettings, $phpbbForum;
+   if (empty($wpSettings['integrateLogin'])) { 
+      return $avatar;
+   }
 
-	$safe_alt = attribute_escape( $phpbbForum->lang['USER_AVATAR'] );
+   $safe_alt = attribute_escape( $phpbbForum->lang['USER_AVATAR'] );
 
-	if ( !is_numeric($size) )
-		$size = '96';
+   if ( !is_numeric($size) )
+      $size = '96';
 
-	if ( !is_numeric($size) )
-		$size = '96';
-	// Figure out if this is an ID or e-mail --sourced from WP's pluggables.php
-	$email = '';
-	if ( is_numeric($id_or_email) ) {
-		$id = (int) $id_or_email;
-	} elseif ( is_object($id_or_email) ) {
-		if ( !empty($id_or_email->user_id) ) {
-			$id = (int) $id_or_email->user_id;
-		} 
-	}
-		
-	if($id) {
-		// use default WordPress or WP-United image
-		if(!$image = avatar_create_image($id)) { 
-			if(stripos($default, 'blank.gif') !== FALSE) {
-				$image = $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
-			} else {
-				return $avatar;
-			}
-		} 
-	} else {
-		if(stripos($default, 'blank.gif') !== FALSE) {
-	       $image = $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
-	    } else {
-			return $default;
-		}
-	}
-	return "<img alt='{$safe_alt}' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
-} 
-
+   if ( !is_numeric($size) )
+      $size = '96';
+   // Figure out if this is an ID or e-mail --sourced from WP's pluggables.php
+   $email = '';
+   if ( is_numeric($id_or_email) ) {
+      $id = (int) $id_or_email;
+      $user = get_userdata($id);
+   } elseif ( is_object($id_or_email) ) {
+      if ( !empty($id_or_email->user_id) ) {
+         $user = $id_or_email;
+      } 
+   }
+      
+   if($user) {
+      // use default WordPress or WP-United image
+      if(!$image = avatar_create_image($user)) { 
+         if(stripos($default, 'blank.gif') !== FALSE) {
+            $image = $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
+         } else {
+            return $avatar;
+         }
+      } 
+   } else {
+      if(stripos($default, 'blank.gif') !== FALSE) {
+          $image = $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
+       } else {
+         return $default;
+      }
+   }
+   return "<img alt='{$safe_alt}' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
+}
 
 
 /**
