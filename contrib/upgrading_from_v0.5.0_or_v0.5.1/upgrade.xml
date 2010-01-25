@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.3.xsd">
+  <header>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
+    <title lang="en-gb">WP-United: Upgrade from v0.5.0 or v0.5.1</title>
+    <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
+    <author-notes lang="en-gb">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
+Visit http://www.wp-united.com for more help or information.
+</author-notes>
+    <author-group>
+      <author>
+        <realname>John Wells</realname>
+        <email>admin@wp-united.com</email>
+        <username>Jhong</username>
+        <homepage>www.wp-united.com</homepage>
+        <contributions />
+      </author>
+    </author-group>
+    <mod-version>0.8.2RC2</mod-version>
+    <installation>
+      <level>intermediate</level>
+      <time>1200</time>
+      <target-version>3.0.6</target-version>
+    </installation>
+    <link-group>
+	<link type="parent" href="../../install.xml" lang="en">Main install file</link>
+	<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
+	<link type="language" href="languages/sv.xml" lang="sv">Swedish</link>
+	<link type="contrib" href="contrib/upgrading_from_v0.8.0_or_later/upgrade.xml" lang="en">Upgrading from WP-United v0.8.0 or later</link>
+	<link type="contrib" href="contrib/upgrading_from_v0.5.5_v0.6x_or_v0.7x/upgrade.xml" lang="en">Upgrading from WP-United v0.5.5, v0.6x or v0.7x</link>
+	<link type="contrib" href="contrib/upgrading_from_v0.5.0_or_v0.5.1/upgrade.xml" lang="en">Upgrading from WP-United v0.5.0 or v0.5.1</link>	
+  </link-group>
+  </header>
+  <action-group>
+    <copy>
+      <file from="/root/blog.php" to="/blog.php" />
+      <file from="/root/wpu-install.php" to="/wpu-install.php" />
+      <file from="/root/adm/style/acp_wp_united.html" to="/adm/style/acp_wp_united.html" />
+      <file from="/root/includes/hooks/hook_wp-united.php" to="/includes/hooks/hook_wp-united.php" />
+      <file from="/root/includes/acp/acp_wp_united.php" to="/includes/acp/acp_wp_united.php" />
+      <file from="/root/includes/acp/info/acp_wp_united.php" to="/includes/acp/info/acp_wp_united.php" />
+      <file from="/root/language/en/mods/admin_wp-united.php" to="/language/en/mods/admin_wp-united.php" />
+      <file from="/root/language/en/mods/permissions_wp-united.php" to="/language/en/mods/permissions_wp-united.php" />
+      <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
+      <file from="/root/styles/prosilver/template/blog.html" to="/styles/prosilver/template/blog.html" />
+      <file from="/root/styles/subsilver2/template/blog.html" to="/styles/subsilver2/template/blog.html" />
+      <file from="/root/wp-united/" to="/wp-united/" />
+    </copy>
+    
+    <open src="includes/functions.php">
+      <edit>
+        <find><![CDATA[	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->do_tail();
+	]]></find>
+        <action type="replace-with"></action>
+        <comment lang="en-gb">Delete the lines you added for a previous version of WP-United.</comment>
+      </edit>
+      <edit>
+        <find><![CDATA[
+	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->do_head($template);
+]]></find>
+        <action type="replace-with"></action>
+        <comment lang="en-gb">Delete the lines you added for a previous version of WP-United.</comment>
+      </edit>      
+    </open>
+        
+    <open src="language/en/common.php">
+      <edit>
+        <find><![CDATA[//WP-United
+	'BLOG'			=> 	'WordPress Blog',
+	'VISIT_BLOG'		=>	'Visit User\'s Blog',
+	'ACP_WP_UNITED' 	=> 	'WP-United',
+	'ACP_WPU_MAINPAGE'	=>	'WP-United Administration',
+	'ACP_WPU_CATMAIN'	=> 	'WP-United Admin',
+	'ACP_WPU_CATSETUP'	=>	'Set Up WP-United',
+	'ACP_WPU_CATMANAGE'	=>	'Manage User Integration',
+	'ACP_WPU_CATSUPPORT'	=>	'Support WP-United',
+	'ACP_WPU_CATOTHER'	=>	'Other',
+	'ACP_WPU_MAINTITLE'	=>	'Main Page',
+	'ACP_WPU_DETAILED'	=>	'All Settings On A Page',
+	'ACP_WPU_WIZARD'	=> 	'Setup Wizard',
+	'ACP_WPU_USERMAP'	=> 	'User Integration Mapping Tool',
+	'ACP_WPU_PERMISSIONS'	=> 	'Administer permissions',		
+	'ACP_WPU_DONATE'	=> 	'Donate to WP-United',
+	'ACP_WPU_UNINSTALL'	=> 	'Uninstall WP-United',
+	'ACP_WPU_RESET'		=> 	'Reset WP-United',]]>
+		</find>
+      </edit>
+      <action type="replace-with"></action>
+        <comment lang="en-gb">Delete any lines you added for a previous version of WP-United.</comment>
+		   
+    </open>
+        <open src="includes/acp/acp_main.php">
+      <edit>
+        <find><![CDATA[						$cache->purge();]]></find>
+        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+						$wpuCache = WPU_Cache::getInstance();
+						$wpuCache->purge();]]></action>
+      </edit>
+    </open>
+
+      <diy-instructions lang="en-gb"><![CDATA[	
+
+
+Note that during the upgrade procedure, portions of your site will produce errors or be inaccessible -- you should bring your site offline while upgrading.
+
+Before copying the files noted, first delete all files in your phpbb_root/wp-united folder.
+
+When copying, don't forget to overwrite your old blog.php, remembering that you may have moved or renamed it to a different location. After doing so, open it and provide the path back to phpBB where indicated.
+
+Then, perform the file edits indicated.
+
+Afterwards, open the file wp-united/options.php, and find the option WPU_DISABLE, and change the option from FALSE to TRUE. This will temporarily disable WP-United so you can complete the upgrade.
+
+Following this, visit your phpBB Admin Control Panel, and purge your phpBB cache.  
+
+Then, run the WP-United Setup Wizard all the way through.
+
+Finally, open wp-united/options.php again, and re-enable WP-United.
+
+]]></diy-instructions>
+  </action-group>
+</mod>
