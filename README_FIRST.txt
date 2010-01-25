@@ -1,6 +1,6 @@
-﻿WP-UNITED: WordPress Integration Mod v0.8.1 RC2 for phpBB3
+﻿WP-UNITED: WordPress Integration Mod v0.8.2 RC2 for phpBB3
 -----------------------------------------------
-Last updated: 20 January 2010, by John Wells
+Last updated: 25 January 2010, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -46,6 +46,7 @@ If you elect to integrate users, you need to visit your phpBB ACP permissions ta
 If you already have WordPress users set up, you can import them into phpBB using the included mapping tool, available under the WP-United ACP tab.
 
 If you want to allow users to cross-post blog posts to the forum, you need to give them the appropriate WP-United permission (there is a WP-United tab in advanced user/group forum permissions).
+
 
 UPGRADES
 -------------
@@ -94,7 +95,31 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
-v 0.8.1 RELEASE CANDIDATE 2
+v0.8.2 RELEASE CANDIDATE 2
+- New Swedish translation (Thanks Oz)
+- Fixed broken template integration when viewing custom fields, attachments, etc.
+- Fixed missing sid on some  integrated logout links, fixed login link on comments page
+- Fixed board does not display correctly in some cases when Gzip compresssion is on
+- Improved reliability of insertion of smilies in WordPress
+- Fixed error on RSS feed page when feeds disabled
+- Fix for some styles and BBCodes with height attribute under CSS Magic
+- Added default options to login/user info template tag
+- Changed behaviour when board disabled: blog.php always calls wp_die when disabled, as there is no other reliale way to integrate templates or pull info
+- Fixed CSS Magic not resolving image URLs in stylesheets under some circumstances
+- Improved comments_open and comment_registration behaviour for cross-posted comments
+- Redirect back to WP, if possible, after cross-posting comments
+- Cross-posted comment title and Edit links now point to forum
+- Fixed bugs due to missing $template when register_globals is on
+- Fixed htmlspecialchars_decode error on comment posting
+- Fixed time zone of cross-posts
+- Improved plugin fixes -- they now enter plugin subdirectories under more circumstances
+- Fixed default avatar options in built-in avatars. 
+- Added error handler arbitrator to suppress notices in WordPress. 
+- Improved Debug Info To Post display
+- CSS Magic Style Keys are now purged with the cache
+- Many other minor bug fixes
+
+v0.8.1 RELEASE CANDIDATE 2
 - Fixed error preventing integrated users from commenting on WordPress posts
 - Fixed errors with forum posts and users online widgets
 - cross-posted posts that later become global announcements can now be edited/commented on
