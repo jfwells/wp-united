@@ -46,7 +46,6 @@ class WPU_Comments {
 			}
 		} 
 		
-		
 		if(!isset($topicID)) {
 			$db->sql_freeresult($result);
 			$phpbbForum->leave();

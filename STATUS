@@ -2,11 +2,30 @@
 TO FIX FOR v0.8.3+
 ------------------------
 
+
+BOM in functions file reported
+plugin fixes kill google xml sitemaps and post template.
+Forum not showing on arras theme full page
+
+
+Potential changes / Watch issues
+-------------------------------------------
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in /var/www/wp-united/buildenv/wpu-buildenv/sources/wordpress/wp-includes/registration.php on line 53
 - characters too few error on cross-post reported
 
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
 - When grepping <title>, check if more than one exists. If so, ignore any commented ones.
+
+
+FIXED / COMMITTED for v0.8.3:
+----------------------------------------
+
+- Slight cleanup of wp-integration-class.php user arbitration, to remove logged error notices
+- Cleaned up notices
+- Fixed plugin fixes sometimes move fixed include path onto comment line
+- Fixed comments should not try to load if $post is blank
+- Fixed default WP avatar broken
+- Fixed avatar syncing for integrated users
 
 
 FIXED / COMMITTED for v0.8.2:

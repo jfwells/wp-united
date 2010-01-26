@@ -107,6 +107,8 @@ class CSS_Magic {
 	 * @return The number of CSS keys stored
 	 */
 	function parseString($str) {
+		$keys = '';
+		
 		$Instr = $str;
 		// Remove comments
 		$str = preg_replace("/\/\*(.*)?\*\//Usi", "", $str);

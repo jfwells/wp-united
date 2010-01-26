@@ -318,11 +318,13 @@ function avatar_create_image($user) {
 	if ( !empty($user->ID) ) {
 		global $phpbbForum, $phpbb_root_path, $phpEx;
 		
-		if ($user->wpu_avatar_type && $user->wpu_avatar) {
-			require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
-			$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
-			$avatar = explode('"', $avatar);
-			$avatar = str_replace($phpbb_root_path, $phpbbForum->url, $avatar[1]); //stops trailing slashes in URI from killing avatars
+		if(isset($user->wpu_avatar)) {
+			if ($user->wpu_avatar_type && $user->wpu_avatar) {
+				require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
+				$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
+				$avatar = explode('"', $avatar);
+				$avatar = str_replace($phpbb_root_path, $phpbbForum->url, $avatar[1]); //stops trailing slashes in URI from killing avatars
+			}
 		}
 
 	} 
@@ -722,6 +724,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
 	if ($posts = $phpbbForum->get_recent_topics($forum, $limit)) {
 		$profile_path = "memberlist.$phpEx";
 		$i=0;
+		$output = '';
 		foreach ($posts as $post) {
 			$class = ($i==0) ? 'class="wpufirst" ' : '';
 			$thisBefore = (($i==0)  && ($before == '<li>')) ? '<li class="wpufirst">' : $before;
@@ -917,7 +920,6 @@ function get_wpu_login_user_info($args) {
 	$ret = '';
 	
 	get_currentuserinfo();
-	$title =  (!empty($user_ID)) ? $titleLoggedIn : $titleLoggedOut;
 	$loggedIn = (!empty($user_ID)) ? true: false;
 	
 	if($loggedIn) {

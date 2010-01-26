@@ -1323,24 +1323,25 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
       $user = get_userdata($id);
    } elseif ( is_object($id_or_email) ) {
       if ( !empty($id_or_email->user_id) ) {
-         $user = $id_or_email;
+		  // $id_or_email is probably a comment object
+         $user = get_userdata($id_or_email->user_id);
       } 
    }
-      
+
    if($user) {
       // use default WordPress or WP-United image
       if(!$image = avatar_create_image($user)) { 
-         if(stripos($default, 'blank.gif') !== FALSE) {
+         if(stripos($avatar, 'blank.gif') !== false) {
             $image = $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
          } else {
             return $avatar;
          }
       } 
    } else {
-      if(stripos($default, 'blank.gif') !== FALSE) {
+      if(stripos($avatar, 'blank.gif') !== false) {
           $image = $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
        } else {
-         return $default;
+         return $avatar;
       }
    }
    return "<img alt='{$safe_alt}' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";

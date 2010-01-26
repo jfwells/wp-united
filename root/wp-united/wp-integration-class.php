@@ -894,11 +894,22 @@ Class WPU_Integration {
 
 		if ( !empty($wpData->ID) ) {
 			$wpMeta = get_usermeta($wpData->ID);
+			
+			// initialise wp-united meta fields to prevent PHP notices later on
+			$wpuSpecialFields = array('wpu_avatar_width', 'wpu_avatar_height', 'wpu_avatar_type', 'wpu_avatar');
+			foreach($wpuSpecialFields as $key) {
+				if(!isset($wpMeta[$key])) {
+					$wpMeta[$key] = '';
+				}
+			}
 		}
+		
 		// we use this so we can direct to their phpBB profile without faffing around
 		if ($pData['user_id'] != $wpData->phpbb_userid) {
 			update_usermeta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
 		}
+		
+		$doWpUpdate = false;
 		// We only update the user's nicename, etc. on the first run -- they can change it thereafter themselves
 		if($newUser) {
 			if ( (!($pData['username'] == $wpData->user_nicename)) &&  (!empty($pData['username'])) ) {
@@ -909,8 +920,18 @@ Class WPU_Integration {
 				$doWpUpdate = true;
 			}
 		}
+		
+		// When items are not set, the WP User object variables are non-existent.
+		// So we cast the object to an array with all fields set
+		$fields = array('user_email', 'user_pass', 'user_url', 'aim', 'yim', 'jabber');
+		foreach($fields as $field) {
+			if(isset($wpData->$field)) {
+				$wpDataArr[$field] = $wpData->$field;
+			} else {
+				$wpDataArr[$field] = '';
+			}
+		}
 	
-		$doWpUpdate = false;
 		if ( (!($pData['user_email'] == $wpData->user_email)) && (!empty($pData['user_email'])) ) {
 			$update['user_email'] = $pData['user_email'];
 			$doWpUpdate = true;
@@ -921,32 +942,32 @@ Class WPU_Integration {
 			$pData['user_password'] = substr_replace($pData['user_password'], '$P$', 0, 3);
 		}
 		
-		if ( (!($pData['user_password'] == $wpData->user_pass)) && (!empty($pData['user_password'])) ) {
+		if ( ($pData['user_password'] != $wpDataArr['user_pass']) && (!empty($pData['user_password'])) ) {
 			$update['user_pass'] = $pData['user_password']; 
 			$doWpUpdate = true;
 		}
-		if ( (!($pData['user_website'] == $wpData->user_url)) && (!empty($pData['user_website'])) ) {
+		if ( (!($pData['user_website'] == $wpDataArr['user_url'])) && (!empty($pData['user_website'])) ) {
 			$update['user_url'] = $pData['user_website'];
 			$doWpUpdate = true;
 		}
-		if ( (!($pData['user_aim'] == $wpData->aim)) && (!empty($pData['user_aim'])) ) {
+		if ( ($pData['user_aim'] != $wpDataArr['aim']) && (!empty($pData['user_aim'])) ) {
 			$update['aim'] = $pData['user_aim'];
 			$doWpUpdate = true;
 		}
-		if ( (!($pData['user_yim'] == $wpData->yim)) && (!empty($pData['user_yim'])) ) {
+		if ( ($pData['user_yim'] != $wpDataArr['yim']) && (!empty($pData['user_yim'])) ) {
 			$update['yim'] = $pData['user_yim'];
 			$doWpUpdate = true;
 		}
-		if ( (!($pData['user_jabber'] == $wpData->jabber)) && (!empty($pData['user_jabber'])) ) {
+		if ( ($pData['user_jabber'] != $wpDataArr['jabber']) && (!empty($pData['user_jabber'])) ) {
 			$update['jabber'] = $pData['user_jabber'];
 			$doWpUpdate = true;
 		}		
-		if ( (!($pData['user_avatar_type'] == $wpMeta['wpu_avatar_type'])) && (!empty($pData['user_avatar_type'])) ) {
+		if ( ($pData['user_avatar_type'] != $wpMeta['wpu_avatar_type']) && (!empty($pData['user_avatar_type'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar_type', $pData['user_avatar_type']);
 			}
 		}
-		if ( (!($pData['user_avatar'] == $wpMeta['wpu_avatar'])) && (!empty($pData['user_avatar'])) ) {
+		if ( ($pData['user_avatar'] != $wpMeta['wpu_avatar']) && (!empty($pData['user_avatar'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar', $pData['user_avatar']);
 			}

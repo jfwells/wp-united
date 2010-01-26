@@ -243,7 +243,7 @@ if ( $useCache || $connectSuccess ) {
 				// set the page query so that the forum page is selected if in header
 				$forum_page_ID = get_option('wpu_set_forum');
 				if(!empty($forum_page_ID)) {
-					query_posts("showposts=1&page_id={$forum_page_ID}");
+					query_posts("showposts=1&page_id={$forum_page_ID}"); 
 				}
 			}
 	

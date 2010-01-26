@@ -292,7 +292,8 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 	if ( 
 		(empty($phpbb_root_path)) || 
 		(empty($wpSettings['xposting'])) || 
-		(empty($wpSettings['xpostautolink'])) 
+		(empty($wpSettings['xpostautolink'])) ||
+		(empty($postID))
 	) {
 		return $commentArray;
 	}
@@ -301,7 +302,7 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 
 	$phpBBComments = new WPU_Comments();
 	if ( !$phpBBComments->populate($postID) ) {
-		$usePhpBBComments = false;
+		$usePhpBBComments = false; 
 		return $commentArray;
 	}
 

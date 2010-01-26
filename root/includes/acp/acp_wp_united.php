@@ -758,7 +758,7 @@ class acp_wp_united {
 	}
 	
 	function step5_errorhandler($errNo, $errStr, $errFile, $errLine) {
-		global $user;
+		global $user; 
 		switch ($errNo) {
 			case E_ERROR:
 			case E_USER_ERROR:
@@ -766,7 +766,7 @@ class acp_wp_united {
 				break;
 			default:
 				// true suppresses the default error handler
-				return true;
+				return TRUE;
         }
 		
 	}
