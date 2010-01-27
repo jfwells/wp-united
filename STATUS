@@ -1,15 +1,15 @@
 
-TO FIX FOR v0.8.3+
+TO FIX FOR v0.8.3
 ------------------------
 
-
-BOM in functions file reported
-plugin fixes kill google xml sitemaps and post template.
-Forum not showing on arras theme full page
+- Hook flow still not correct -- for WP-in-phpBB, no exit prevention needed on phpBB pages
+- phpBB displaying too many notices
+- Gzip either fires twice or not at all on fwd plain phpBB page
 
 
 Potential changes / Watch issues
 -------------------------------------------
+- comment time reported to be incorrect
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in /var/www/wp-united/buildenv/wpu-buildenv/sources/wordpress/wp-includes/registration.php on line 53
 - characters too few error on cross-post reported
 
@@ -26,6 +26,8 @@ FIXED / COMMITTED for v0.8.3:
 - Fixed comments should not try to load if $post is blank
 - Fixed default WP avatar broken
 - Fixed avatar syncing for integrated users
+- Fixed RSS feeds not showing correctly for WordPress-in-phpBB
+- Fixed comment  links on non-cross-posted comments
 
 
 FIXED / COMMITTED for v0.8.2:

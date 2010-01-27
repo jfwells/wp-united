@@ -472,6 +472,7 @@ function wpu_comment_redir_field() {
 	
 }
 
+
 /**
  * Modifies the "(Edit)" comment links and text for cross-posted comments
  * Checking whether the user can edit individual posts is too onerous

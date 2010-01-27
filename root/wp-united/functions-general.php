@@ -147,6 +147,12 @@ function wpu_compute_path_difference($filePath, $currLoc = false) {
  */
 function wpu_msg_handler($errno, $msg_text, $errfile, $errline) {
 	global $phpbbForum, $IN_WORDPRESS;
+	switch ($errno) {
+		case E_NOTICE:
+		case E_WARNING:
+			return false;
+		break;
+	}
 	if(!$IN_WORDPRESS) {
 		return msg_handler($errno, $msg_text, $errfile, $errline);
 	}

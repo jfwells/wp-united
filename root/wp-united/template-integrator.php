@@ -20,6 +20,14 @@
 * 
 */
 
+
+/**
+ *  Just output WordPress if $wpuNoHead
+ */
+if($wpuNoHead) {
+	wpu_output_page($$wpContentVar);
+}
+
 /**
  * Get phpBB header/footer
  */
@@ -90,9 +98,6 @@ if ( !empty($wpSettings['integrateLogin']) ) {
 	$$wpContentVar = str_replace("$siteUrl/wp-login.php?action=logout", $phpbbForum->url . $logout_link, $$wpContentVar);
 }
 
-/**
- * @todo wpuNoHead for embedding in portals should be dealt with here
- */
 
 
 /**
@@ -485,20 +490,21 @@ function process_body(&$pageContent) {
  * @param string $content The fully integrated page.
  */
 function wpu_output_page(&$content) {
-
+	global $wpuNoHead;
+	
 	//Add title back
 	global $wpu_page_title;
 	$content = str_replace("[**PAGE_TITLE**]", $wpu_page_title, $content);
 
 	// Add login debugging if requested
-	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
+	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) && !$wpuNoHead ) {
 		global $lDebug;
 		$content = str_replace('</body>', $lDebug . '</body>', $content);
 	}
 
 
 	// Add stats if requested
-	if(defined('WPU_SHOW_STATS') && WPU_SHOW_STATS) {
+	if(defined('WPU_SHOW_STATS') && WPU_SHOW_STATS && !$wpuNoHead) {
 		global $wpuScriptTime, $wpuCache;
 		$endTime = explode(' ', microtime());
 		$endTime = $endTime[1] + $endTime[0];
@@ -513,7 +519,7 @@ function wpu_output_page(&$content) {
 	
 	//optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
 	// It is unnecessary for gzipped setups, and might be liable to kill some JS or CSS, so it is hidden in options.php
-	if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) ) {
+	if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) && !$wpuNoHead ) {
 		$search = array('/\>[^\S ]+/s',	'/[^\S ]+\</s','/(\s)+/s');
 		$replace = array('>', '<', '\\1');
 		$content = preg_replace($search, $replace, $content);

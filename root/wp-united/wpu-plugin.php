@@ -1587,7 +1587,6 @@ add_filter('pre_user_login', 'wpu_fix_blank_username');
 
 
 add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
-add_action('comment_author_link', 'wpu_comment_author_link');
 add_filter('comment_text', 'wpu_censor');
 add_filter('comment_text', 'wpu_smilies');
 add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);

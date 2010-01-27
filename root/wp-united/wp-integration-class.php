@@ -649,6 +649,7 @@ Class WPU_Integration {
 		$wpuTemplate = file_get_contents(ABSPATH . WPINC . '/template-loader.php');
 		$finds = array(
 			'return;',
+			'do_feed',
 			'do_action(\'do_robots\');',
 			'if ( is_trackback() ) {',
 			'} else if ( is_author()',
@@ -656,6 +657,7 @@ Class WPU_Integration {
 		);
 		$repls = array(
 			'',
+			'$wpuNoHead = true; do_feed',
 			'$wpuNoHead = true; do_action(\'do_robots\');',
 			'if (is_trackback()) {$wpuNoHead=true;',
 			'}else if(is_author()&& !empty($wpSettings[\'usersOwnBlogs\']) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',

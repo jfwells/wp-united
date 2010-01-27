@@ -26,9 +26,12 @@ require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 
-set_error_handler('wpu_msg_handler');
+if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
+	set_error_handler('wpu_msg_handler');
+}
 
 $wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
 
 wpu_set_buffering_init_level();
 
@@ -58,16 +61,18 @@ function wpu_init(&$hook) {
 			$user->add_lang('mods/wp-united');
 		}	
 		
-		
-		
-		//Do a reverse integration?
-		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
-			define('WPU_REVERSE_INTEGRATION', true);
+		if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] != 'REV'))) {
 			if ($config['gzip_compress']) {
 				if (@extension_loaded('zlib') && !headers_sent()) {
 					ob_start('ob_gzhandler');
 				}
-			}
+			}	
+		}	
+		
+		//Do a reverse integration?
+		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
+			define('WPU_REVERSE_INTEGRATION', true);
+
 			ob_start();
 		}
 	} 	
@@ -158,7 +163,7 @@ function wpu_continue(&$hook) {
 	global $wpuRunning, $wpuBuffered;
 	if (defined('PHPBB_EXIT_DISABLED') && !defined('WPU_FINISHED')) {
 		return "";
-	} else if ( $wpuBuffered && (!$wpuRunning) ) {
+	} else if ( $wpuBuffered && (!$wpuRunning) && defined('WPU_REVERSE_INTEGRATION') ) {
 		/** if someone else was buffering the page and are now asking to exit,
 		 * wpu_execute won't have run yet
 		 */

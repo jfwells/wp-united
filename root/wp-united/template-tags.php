@@ -776,15 +776,22 @@ function wpu_user_id($wp_userID = '') {
  * @author John Wells
  * @since v0.7.0
  */
-function wpu_get_comment_author_link() {
+function wpu_get_comment_author_link($link = '') {
 global $comment, $phpbb_root_path, $phpbbForum;
- 
+	
+	// comment URL could already be filled by cross-posted comments
+	if(!empty($comment->phpbb_id) && !empty($link)) {
+		return $link;
+	}
+	
+	if(empty($comment->user_id)) {
+		return (empty($link)) ? '<a href="' . $comment->comment_author_url . '" rel="nofollow">' . $comment->comment_author . '</a>' : $link;
+	}
 	$uID = get_wpu_user_id($comment->user_id);
 	
 	if (empty($uID)) { 
-		return $wpu_link = get_comment_author();
+		return (empty($link)) ? '<a href="' . $comment->comment_author_url . '" rel="nofollow">' . $comment->comment_author . '</a>' : $link;
 	} else {
-		
 		if ($phpbbForum->seo) {
 			return $wpu_link = '<a href="' . $phpbbForum->url . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
 		} else {
