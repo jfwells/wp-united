@@ -2,9 +2,7 @@
 TO FIX FOR v0.8.3
 ------------------------
 
-- Hook flow still not correct -- for WP-in-phpBB, no exit prevention needed on phpBB pages
-- phpBB displaying too many notices
-- Gzip either fires twice or not at all on fwd plain phpBB page
+editing cross-posted post that has becoem global sets forum id.
 
 
 Potential changes / Watch issues
@@ -28,6 +26,9 @@ FIXED / COMMITTED for v0.8.3:
 - Fixed avatar syncing for integrated users
 - Fixed RSS feeds not showing correctly for WordPress-in-phpBB
 - Fixed comment  links on non-cross-posted comments
+- Prevented phpBB from trying to do gzip compression twice.
+- Suppressed PHP timezone warnings under PHP 5.3 by setting default timezone in phpBB, since WP does it anyway
+
 
 
 FIXED / COMMITTED for v0.8.2:

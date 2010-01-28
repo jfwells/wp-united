@@ -51,6 +51,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	$mode = 'post';
 	$subject = $phpbbForum->lang['blog_title_prefix'] . $post->post_title;
 	$data = array();
+	$data['post_time'] = 0;
 	
 	if($details !== false) {
 		if(isset($details['post_id'])) {
@@ -60,6 +61,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			$data['topic_id'] = $details['topic_id'];
 			$data['post_id'] = $details['post_id'];
 			$data['poster_id'] = $details['poster_id'];
+			$data['post_time'] = $details['post_time'];
 		}
 	}
 	
@@ -141,7 +143,6 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		'topic_title'		=> $subject,
 		'notify_set'		=> false,
 		'notify'			=> false,
-		'post_time' 		=> 0,
 		'forum_name'		=> '',
 		'enable_indexing'	=> true,
 	)); 
@@ -219,7 +220,7 @@ function wpu_get_xposted_details($postID = false) {
 	
 	global $phpbbForum, $db;
 	
-	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_approved, t.topic_status, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
+	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_status, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
 		"p.post_wpu_xpost = $postID AND " .
 		't.topic_id = p.topic_id AND (' .
 		'f.forum_id = p.forum_id OR ' .

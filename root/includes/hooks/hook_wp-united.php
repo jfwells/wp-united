@@ -46,6 +46,15 @@ if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {
 	$user->add_lang('mods/wp-united');
 }
 
+/**
+ * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB
+ * too, for wordpress users who might think it's an error in WP-United.
+ * @todo: In future phpBB releases (> 3.0.6), see if the devs hav added this to phpBB, and remove if so
+ */
+if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
+	date_default_timezone_set('UTC');
+}
+
 
 
 /**
@@ -61,10 +70,14 @@ function wpu_init(&$hook) {
 			$user->add_lang('mods/wp-united');
 		}	
 		
-		if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] != 'REV'))) {
+		// Since we will buffer the page, we need to start doing so after the gzip handler is set
+		// to prevent phpBB from setting the handler twice, we unset the option.
+		if(!defined('ADMIN_START') ) { //&& (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))
 			if ($config['gzip_compress']) {
 				if (@extension_loaded('zlib') && !headers_sent()) {
 					ob_start('ob_gzhandler');
+					$config['wpu_gzip_compress'] = 1;
+					$config['gzip_compress'] = 0;
 				}
 			}	
 		}	
@@ -72,7 +85,6 @@ function wpu_init(&$hook) {
 		//Do a reverse integration?
 		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 			define('WPU_REVERSE_INTEGRATION', true);
-
 			ob_start();
 		}
 	} 	
@@ -109,7 +121,7 @@ function wpu_execute(&$hook, $handle) {
 			'S_BLOG'	=>	TRUE,
 		));  
 		
-		
+
 		if (defined('WPU_REVERSE_INTEGRATION') ) {
 			$template->display($handle);
 			$innerContent = ob_get_contents();
@@ -126,7 +138,7 @@ function wpu_execute(&$hook, $handle) {
 			$db = ''; $cache = '';
 			
 			return "";
-		} // else display as normal
+		} 
 	}
 }
 
@@ -140,7 +152,7 @@ function wpu_execute(&$hook, $handle) {
 function wpu_am_i_buffered() {
 	global $config, $wpuBufferLevel;
 	// + 1 to account for reverse integration buffer
-	$level = ((int)($config['gzip_compress'] && @extension_loaded('zlib') && !headers_sent())) + 1;
+	$level = ((int)($config['wpu_gzip_compress'] && @extension_loaded('zlib') && !headers_sent())) + 1;
 	if(ob_get_level() > ($wpuBufferLevel + $level)) {
 		return true;
 	}
