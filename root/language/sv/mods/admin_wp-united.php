@@ -42,7 +42,7 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'ACP_WPU_INDEX_TITLE'	=> 'WP-United',
 	    
-	'WPU_Default_Version' => 'v0.8.2-RC2',
+	'WPU_Default_Version' => 'v0.8.3-RC2',
 	'WP_Version_Text' => 'WP-United %s',
 
 	//  Wizard and Settings Page

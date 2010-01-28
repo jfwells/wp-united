@@ -1,6 +1,6 @@
-﻿WP-UNITED: WordPress Integration Mod v0.8.2 RC2 for phpBB3
+﻿WP-UNITED: WordPress Integration Mod v0.8.3 RC2 for phpBB3
 -----------------------------------------------
-Last updated: 25 January 2010, by John Wells
+Last updated: 28 January 2010, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -94,6 +94,19 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+v0.8.3 RELEASE CANDIDATE 2
+- Slight cleanup of wp-integration-class.php 
+- Cleaned up notices
+- Fixed plugin fixes sometimes move fixed include path onto comment line
+- Fixed comments should not try to load if $post is blank
+- Fixed default WP avatar broken
+- Fixed avatar syncing for integrated users
+- Fixed RSS feeds not showing correctly for WordPress-in-phpBB
+- Fixed comment  links on non-cross-posted comments
+- Prevented phpBB from trying to do gzip compression twice.
+- Suppressed PHP timezone warnings under PHP 5.3 by setting default timezone in phpBB, since WP does it anyway
+- Editing cross-posts that have become sticky or announcements now preserves their status
 
 v0.8.2 RELEASE CANDIDATE 2
 - New Swedish translation (Thanks Oz)
