@@ -2,7 +2,6 @@
 TO FIX FOR v0.8.3
 ------------------------
 
-editing cross-posted post that has becoem global sets forum id.
 
 
 Potential changes / Watch issues
@@ -28,7 +27,7 @@ FIXED / COMMITTED for v0.8.3:
 - Fixed comment  links on non-cross-posted comments
 - Prevented phpBB from trying to do gzip compression twice.
 - Suppressed PHP timezone warnings under PHP 5.3 by setting default timezone in phpBB, since WP does it anyway
-
+- Editing cross-posts that have become sticky or announcements now preserves their status
 
 
 FIXED / COMMITTED for v0.8.2:

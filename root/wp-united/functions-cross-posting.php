@@ -22,7 +22,7 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
  * Cross-posts a blog-post that was just added, to the relevant forum
  */
 function wpu_do_crosspost($postID, $post, $future=false) {
-	global $wpSettings, $phpbbForum, $phpbb_root_path, $phpEx, $db;
+	global $wpSettings, $phpbbForum, $phpbb_root_path, $phpEx, $db, $auth;
 	$forum_id = false;
 	$found_future_xpost = false;
 	if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
@@ -62,6 +62,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			$data['post_id'] = $details['post_id'];
 			$data['poster_id'] = $details['poster_id'];
 			$data['post_time'] = $details['post_time'];
+			$data['topic_type'] = $details['topic_type'];
 		}
 	}
 	
@@ -77,10 +78,29 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	}
 
 	//Check that user has the authority to cross-post there
-	$can_crosspost_list = wpu_forum_xpost_list(); 
+	// If we are editing a post, check other permissions if it has been made global/sticky etc.
+	if($mode == 'edit') {
+		if( ($data['topic_type'] == POST_GLOBAL)  && (!$auth->acl_getf('f_announce', 0)) )  {
+			wp_die(__('You do not have permissions to edit global announcements'));
+			return false;			
+		}
+		
+		if( ($data['topic_type'] == POST_ANNOUNCE) && (!$auth->acl_getf('f_announce', $forum_id)) )  {
+			wp_die(__('You do not have permissions to edit this announcement'));
+			return false;
+		}
+		if( ($data['topic_type'] == POST_STICKY) && (!$auth->acl_getf('f_sticky', $forum_id)) ) {
+			wp_die(__('You do not have permissions to edit stickies'));
+			return false;
+		}
+	}
 	
-	if ( !in_array($forum_id, (array)$can_crosspost_list['forum_id']) ) { 
-		return false;
+	if($forum_id > 0) {
+		$can_crosspost_list = wpu_forum_xpost_list(); 
+		
+		if ( !in_array($forum_id, (array)$can_crosspost_list['forum_id']) ) { 
+			return false;
+		}
 	}
 
 	// Get the post excerpt
@@ -127,7 +147,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		 
 	require_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 	
-	
+
 	$data = array_merge($data, array(
 		'forum_id' => $forum_id,
 		'icon_id' => false,
@@ -143,7 +163,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		'topic_title'		=> $subject,
 		'notify_set'		=> false,
 		'notify'			=> false,
-		'forum_name'		=> '',
+		//'forum_name'		=> '',
 		'enable_indexing'	=> true,
 	)); 
 
@@ -157,8 +177,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	
 	
 	//Update the posts table with WP post ID so we can remain "in sync" with it, and set the post time/date
-	if(($data !== false) && ($mode == 'post')) {
-		if ( !empty($data['post_id']) ) {
+	if(($data !== false) && ($mode == 'post') && (!empty($data['post_id'])) ) {
 			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID . ', post_time = ' . strtotime($post->post_date_gmt) . " WHERE post_id = {$data['post_id']}";
 			if (!$result = $db->sql_query($sql)) {
 				wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
@@ -166,9 +185,11 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			$sql = 'UPDATE ' . TOPICS_TABLE . ' SET topic_time = ' . strtotime($post->post_date_gmt) . " WHERE topic_id = {$data['topic_id']}";
 			$result = $db->sql_query($sql);			
 			$db->sql_freeresult($result);
-			$phpbbForum->leave(); 
 			return true;
-		}
+	} else if ( ($mode == 'edit') && (!empty($data['topic_id'])) ) {
+		$sql = 'UPDATE ' . TOPICS_TABLE . ' SET topic_type = ' . $data['topic_type'] . " WHERE topic_id = {$data['topic_id']}";
+			$result = $db->sql_query($sql);			
+			$db->sql_freeresult($result);
 	}
 	$phpbbForum->leave(); 
 }
@@ -220,7 +241,7 @@ function wpu_get_xposted_details($postID = false) {
 	
 	global $phpbbForum, $db;
 	
-	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_status, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
+	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_type, t.topic_status, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
 		"p.post_wpu_xpost = $postID AND " .
 		't.topic_id = p.topic_id AND (' .
 		'f.forum_id = p.forum_id OR ' .
@@ -228,21 +249,15 @@ function wpu_get_xposted_details($postID = false) {
 	if ($result = $db->sql_query_limit($sql, 1)) {
 		$row = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
-		if ( (!empty($row['forum_id'])) && (!empty($row['forum_name'])) ) {
-			return $row;
-		} else if( ($row['forum_id'] == 0) && (!empty($row['post_id'])) ) {
-			// global topic
-			$row['forum_name'] = $phpbbForum->lang['VIEW_TOPIC_GLOBAL'];
-			// get any free forum ID
-			global $user, $auth;
-			$forumList = $auth->acl_get_list($user->data['user_id'], 'f_noapprove');
-			if ( sizeof($forumList) ) {
-				   $forumList = array_keys($forumList);
-				$row['forum_id'] = $forumList[0];
-				$row['permschecked'] = true;
+		
+		
+		if(!empty($row['post_id'])) {
+			if($row['topic_type'] == POST_GLOBAL) {
+				$row['forum_name'] = $phpbbForum->lang['VIEW_TOPIC_GLOBAL'];
 			}
 			return $row;
 		}
+
 	}
 	return false;
 }
