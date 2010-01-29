@@ -532,6 +532,4 @@ function wpu_output_page(&$content) {
 	exit_handler();
 }
 
-
-
 ?>

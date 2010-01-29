@@ -458,3 +458,5 @@ class WPU_Phpbb {
 	}	
 
 }
+
+?>

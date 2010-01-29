@@ -101,5 +101,4 @@ if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 		</body></html>";
 }
 
-
 ?>

@@ -1,4 +1,4 @@
-﻿WP-UNITED: WordPress Integration Mod v0.8.3 RC2 for phpBB3
+WP-UNITED: WordPress Integration Mod v0.8.3 RC2 for phpBB3
 -----------------------------------------------
 Last updated: 28 January 2010, by John Wells
 

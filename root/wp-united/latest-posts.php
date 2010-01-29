@@ -108,6 +108,4 @@ if ( defined('GET_PORTAL_CONTENT') ) {
 	}
 }	
 
-
-
 ?>

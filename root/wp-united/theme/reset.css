@@ -78,5 +78,4 @@
 #wpucssmagic :link, #wpucssmagic :visited { text-decoration: underline }
 #wpucssmagic :focus          { outline: thin dotted invert }
 
-* html #wpucssmagic .wpucssmagic ul.navlinks li a {font-weight: inherit;)
-
+* html #wpucssmagic .wpucssmagic ul.navlinks li a {font-weight: inherit;}
