@@ -1,9 +1,4 @@
 
-TO FIX FOR v0.8.3
-------------------------
-
-- User mapping tool: Strings btoken & repeated
-
 
 Potential changes / Watch issues
 -------------------------------------------
@@ -29,7 +24,7 @@ FIXED / COMMITTED for v0.8.3:
 - Prevented phpBB from trying to do gzip compression twice.
 - Suppressed PHP timezone warnings under PHP 5.3 by setting default timezone in phpBB, since WP does it anyway
 - Editing cross-posts that have become sticky or announcements now preserves their status
-
+- Fixed missing "delete from WordPress" option in user mapper, broken "next page" button and repeated text.
 
 FIXED / COMMITTED for v0.8.2:
 ----------------------------------------

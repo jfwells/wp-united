@@ -2315,6 +2315,13 @@ class acp_wp_united {
 		//$thisEnd = ($thisEnd > $numWpResults) ? $numWpResults : $thisEnd
 		$numPages = ceil($numWpResults / $numResults);
 		$curPage = ceil(($wpStart/$numResults) + 1);
+		
+		if ( $numPages > 1 ) {
+			$phpbbForum->enter();
+			$template->assign_block_vars('switch_usermap_main.switch_multipage', array());
+			$phpbbForum->leave();
+		}
+		
 		$sql = "SELECT ID, user_login, user_nicename 
 			FROM {$wpdb->users}
 			WHERE user_login<>'admin'
@@ -2322,7 +2329,8 @@ class acp_wp_united {
 			LIMIT $wpStart, $thisEnd";
 		//execute sql
 		$results = $wpdb->get_results($sql);
-
+		
+		
 		//output table with results
 		if ( count($results) > 0 ) {
 		
@@ -2343,10 +2351,7 @@ class acp_wp_united {
 				}
 				$wpUtdInt->exit_wp_integration();
 				
-				if ( $numPages > 1 ) {
-					$template->assign_block_vars('switch_usermap_main.switch_multipage', array());
-				}
-				
+			
 				$pUsername = '';
 				$pID = '';
 				$class = '';
@@ -2459,6 +2464,7 @@ class acp_wp_united {
 					'S_BREAK_SELECTED' => $selBrk,
 					'S_DEL_SELECTED' => $selDel,
 					'L_SEL_INTEGRATE' => $intText,
+					'L_MAP_DEL_FROM_WP' => $user->lang['MAP_DEL_FROM_WP'],
 					'L_SEL_BREAK_OR_LEAVE' => $breakOrLeave,
 					'S_MUST_BREAK' => $mustBrk,
 					'S_OPT_CREATE' => $optCre,
