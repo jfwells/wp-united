@@ -173,8 +173,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	if($future) {
 		$phpbbForum->transition_user();
 	}
-	
-	
+
 	
 	//Update the posts table with WP post ID so we can remain "in sync" with it, and set the post time/date
 	if(($data !== false) && ($mode == 'post') && (!empty($data['post_id'])) ) {

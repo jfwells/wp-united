@@ -35,6 +35,8 @@ function wpu_init_plugin() {
 	
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings;
 	
+	$wpuConnSettings = get_option('wputd_connection');
+	
 	if ( !defined('IN_PHPBB') ) {
 		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);

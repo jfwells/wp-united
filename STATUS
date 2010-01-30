@@ -7,6 +7,7 @@ details sync reported not working after password change -- receive double-sync-n
 
 
 Enhancements:
+On install, if blank page or server 500, automatically run again with wp_debug options turned on
 Add forum selection option to widget control panel for latest posts and topics widgets
 user blogs: show only my posts for author or below: http://www.wp-united.com/viewtopic.php?f=9&t=2063
 WP dashboard recent comments integration with xposted comments
