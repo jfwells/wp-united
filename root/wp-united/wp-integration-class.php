@@ -756,7 +756,10 @@ Class WPU_Integration {
 	function exit_wp_integration() {
 		global $phpbbForum;
 		
-		$phpbbForum->enter();
+		// check, in case user has deactivated wpu-plugin
+		if(isset($phpbbForum)) {
+			$phpbbForum->enter();
+		}
 
 		// We previously here mopped up all the WP vars that had been created... but it is a waste of CPU and usually unnecessary
 

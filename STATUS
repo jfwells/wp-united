@@ -1,8 +1,8 @@
-On The List (may be v0.84... or v0.9x)
+To fix for v0.8.4
 ---------------------
 timing of cross-posts still reported to be off in some circumstances http://www.wp-united.com/viewtopic.php?f=14&t=2078
-phpbbForum->enter in exit_wp_integration should check to see if phpbbForum class successfully loaded
 Comments closed for global announcements when they shouldn't be. wpu_comments_open() using old permschecked code, but phpBB api still isn't clear on how to determine global announcemnt privileges
+details sync reported not working after password change -- receive double-sync-no-success error
 
 
 Enhancements:
@@ -22,9 +22,21 @@ Potential changes / Watch issues
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
 
 
-FIXED / COMMITTED for v0.8.3:
+FIXED/COMMITTED FOR v0.8.4
 ----------------------------------------
+- Check phpbbForum outside WP before accessing class in case user deactivated wpu-plugin
 
+
+
+
+
+
+
+
+
+
+FIXED / COMMITTED for v0.8.3:
+-------------------------------------------
 - Slight cleanup of wp-integration-class.php user arbitration, to remove logged error notices
 - Cleaned up notices
 - Fixed plugin fixes sometimes move fixed include path onto comment line
@@ -39,9 +51,7 @@ FIXED / COMMITTED for v0.8.3:
 - Fixed missing "delete from WordPress" option in user mapper, broken "next page" button and repeated text.
 
 FIXED / COMMITTED for v0.8.2:
-----------------------------------------
-
-
+-----------------------------------------
 - Fixed display of Style Keys in Debug Info to Post via auto JS dropdown
 - Style Keys are now purged with the cache (they have the tendency to grow huge with CSS magic on and lots of templates)
 - Added additional checks to hook to try to ensure we only act upon a true page $template in a reverse integration
@@ -77,8 +87,7 @@ FIXED / COMMITTED for v0.8.2:
 - Made naming of enter_if_out and Leave_if_just_entered public, since we are using them that way already (but their use should be restricted)
 
 FIXED / COMMITTED for v0.8.1:
-------------------------------
-
+----------------------------------------
 - Forum posts widget link  has extra .php (http://www.wp-united.com/viewtopic.php?f=19&t=1938)
 - Latest forum posts widget shows too many posts (http://www.wp-united.com/viewtopic.php?f=15&t=1940&p=6217#p6217)
 - xposted comments permission check incorrect (http://www.wp-united.com/posting.php?mode=reply&f=14&t=1929)
@@ -103,7 +112,6 @@ FIXED / COMMITTED for v0.8.1:
 - Fixed comments login link login link in comments broken http://www.wp-united.com/viewtopic.php?f=14&t=1935&p=6199#p6199
 - Added check for missing hook in blog.php, tries to auto-purge cache.
 - Fixed broken ACP donate page
-
 
 
 
@@ -149,8 +157,7 @@ should be easy way to check if user is integrated, e.g. phpbbForum->user_is_inte
 
 
 DONE / COMMITTED (v0.8.0)
--------
-
+--------------------------------------
 - See SVN changelog for complete list
 - Plugin-fixes: Recursive includes should only operate on files under wpu-plugin
 - Plugin-fixes: Dynamic global variables detection
