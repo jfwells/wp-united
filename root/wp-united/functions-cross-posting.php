@@ -173,7 +173,6 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	if($future) {
 		$phpbbForum->transition_user();
 	}
-
 	
 	//Update the posts table with WP post ID so we can remain "in sync" with it, and set the post time/date
 	if(($data !== false) && ($mode == 'post') && (!empty($data['post_id'])) ) {
@@ -386,7 +385,7 @@ function wpu_comments_count($count, $postID = false) {
  * this catches posted comments and sends them to the forum
  */
 function wpu_comment_redirector($postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user;
 	if ( 
 		(empty($phpbb_root_path)) || 
 		(empty($wpSettings['integrateLogin'])) || 
@@ -417,9 +416,17 @@ function wpu_comment_redirector($postID) {
 		wp_die($phpbbForum->lang['TOPIC_LOCKED']);
 	}
 
-	if ( (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id'])) || ($xPostDetails['forum_id'] == 0) ) { 
-		$phpbbForum->leave();
-		wp_die( __('You do not have permission to comment in this forum'));
+	if ($xPostDetails['forum_id'] == 0) {
+		// global announcement
+		if(!$auth->acl_getf_global('f_noapprove') ) {
+			$phpbbForum->leave();
+			wp_die( __('You do not have permission to respond to this announcement'));			
+		}
+	} else {
+		if (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id'])) { 
+			$phpbbForum->leave();
+			wp_die( __('You do not have permission to comment in this forum'));
+		}
 	}
 	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
 	
@@ -529,7 +536,7 @@ function wpu_comment_link($url, $comment, $args) {
  * 
  */
 function wpu_comments_open($open, $postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $auth;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user;
 	static $status;
 	if(isset($status)) {
 		return $status;
@@ -573,9 +580,15 @@ function wpu_comments_open($open, $postID) {
 		return $status;
 	}
 	
-
-	if(!isset($dets['permschecked'])) {
-		if (!$auth->acl_get('f_noapprove', $dets['forum_id']) ) { 
+	if($dets['forum_id'] == 0) {
+		// global announcement
+		if(!$auth->acl_getf_global('f_noapprove')) {
+			$phpbbForum->leave();
+			$status = false;
+			return $status;			
+		}
+	} else {
+		if (!$auth->acl_get('f_reply', $dets['forum_id']) ) { 
 			$phpbbForum->leave();
 			$status = false;
 			return $status;
