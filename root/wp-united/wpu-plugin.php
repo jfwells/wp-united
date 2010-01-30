@@ -657,7 +657,7 @@ function wpu_loginoutlink($loginLink) {
 			$u_login_logout = $phpbbForum->url . $login_link;
 			$l_login_logout = $phpbbForum->lang['LOGIN'];
 		}
-		return '<a href="' . $u_login_logout . '">' . $l_login_logout . '</a>';
+		return '<a href="' . $u_login_logout . '" class="wpulogoutlink"><span class="wpulogoutlink">' . $l_login_logout . '</span></a>';
 	} else {
 		return $loginLink;
 	}
