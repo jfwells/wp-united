@@ -17,7 +17,7 @@ Author URI: http://www.wp-united.com
 /** 
 *
 * @package WP-United Connection Plugin
-* @version $Id: wp-united.php,v0.8.0 2009/12/20 John Wells (Jhong) Exp $
+* @version $Id: wp-united.php,v0.8.0 2010/01/29 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2009 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * @author John Wells
@@ -34,9 +34,6 @@ if ( !defined('ABSPATH') ) {
 function wpu_init_plugin() {
 	
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings;
-	
-	$wpuConnSettings = get_settings('wputd_connection');
-	
 	
 	if ( !defined('IN_PHPBB') ) {
 		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
@@ -1577,72 +1574,79 @@ function wpu_validate_username_conflict($wpValdUser, $username) {
  * here we add all the hooks and filters
  */
 
+$wpuConnSettings = get_option('wputd_connection');
+	if(isset($wpuConnSettings['path_to_phpbb'])) {
 
-add_filter('pre_user_login', 'wpu_fix_blank_username');
-//add_filter('validate_username', 'wpu_validate_username_conflict');
 
+	add_filter('pre_user_login', 'wpu_fix_blank_username');
+	//add_filter('validate_username', 'wpu_validate_username_conflict');
 
-add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
-add_filter('comment_text', 'wpu_censor');
-add_filter('comment_text', 'wpu_smilies');
-add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
-add_action('comment_form', 'wpu_print_smilies');
-add_action('comment_form', 'wpu_comment_redir_field');
-add_action('wp_head', 'wpu_javascript');
+	add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
+	add_filter('comment_text', 'wpu_censor');
+	add_filter('comment_text', 'wpu_smilies');
+	add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
+	add_action('comment_form', 'wpu_print_smilies');
+	add_action('comment_form', 'wpu_comment_redir_field');
+	add_action('wp_head', 'wpu_javascript');
 
-if ( isset($_GET['page']) ) {
-	if ($_GET['page'] == 'wp-united-theme-menu') {
-		add_action('admin_init', 'wpu_prepare_admin_pages');
+	add_filter('template', 'wpu_get_template');
+	add_filter('stylesheet', 'wpu_get_stylesheet');
+	add_filter('loginout', 'wpu_loginoutlink');
+	add_filter('register', 'wpu_registerlink');
+	add_filter('option_blogname', 'wpu_blogname');
+	add_filter('option_blogdescription', 'wpu_blogdesc');
+	add_filter('option_home', 'wpu_homelink');
+	add_filter('the_content', 'wpu_content_parse_check' );
+	add_filter('the_title', 'wpu_censor');
+	add_filter('the_excerpt', 'wpu_censor');
+	add_filter('get_previous_post_where', 'wpu_prev_next_post');
+	add_filter('get_next_post_where', 'wpu_prev_next_post');
+	add_filter('upload_dir', 'wpu_user_upload_dir');
+	add_filter('feed_link', 'wpu_feed_link');
+
+	add_filter('comments_array', 'wpu_load_phpbb_comments', 10, 2);
+	add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
+	add_action('pre_comment_on_post', 'wpu_comment_redirector');
+	add_action('comments_open', 'wpu_comments_open', 10, 2);
+	add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
+	add_filter('logout_url', 'wpu_logout_url', 10, 2);
+	add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
+	add_filter('login_url', 'wpu_login_url', 10, 2);
+	add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
+	add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
+	add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
+
+	//per-user cats in progress -- deprecated
+	//add_filter('wpu_cat_presave', 'category_save_pre');
+
+	add_action('edit_post', 'wpu_justediting');
+	add_action('publish_post', 'wpu_newpost', 10, 2);
+	add_action('wp_insert_post', 'wpu_capture_future_post', 10, 2); 
+	add_action('future_to_publish', 'wpu_future_to_published', 10); 
+	add_action('admin_menu', 'wpu_adminmenu_init');
+	add_action('admin_footer', 'wpu_put_powered_text');
+	add_action('admin_head', 'wpu_admin_init');
+	add_action('wp_head', 'wpu_done_head');
+	add_action('upload_files_browse', 'wpu_browse_attachments');
+	add_action('upload_files_browse-all', 'wpu_browse_attachments');
+	//add_action('template_redirect', 'wpu_must_integrate'); disabled @todo check action
+	add_action('plugins_loaded', 'wpu_init_plugin');
+	add_action('switch_theme', 'wpu_clear_header_cache');
+	add_action('loop_start', 'wpu_loop_entry'); 
+
+	  
+	add_action('admin_menu', 'wpu_add_meta_box'); 
+} else {
+	if(!is_admin()) {
+		wp_die(__('You must run the WP-United Setup Wizard before enabling the WP-United plugin. Please visit your dashboard and disable the plugin.'));
 	}
 }
 
+	if ( isset($_GET['page']) ) {
+		if ($_GET['page'] == 'wp-united-theme-menu') {
+			add_action('admin_init', 'wpu_prepare_admin_pages');
+		}
+	}
 
-add_filter('template', 'wpu_get_template');
-add_filter('stylesheet', 'wpu_get_stylesheet');
-add_filter('loginout', 'wpu_loginoutlink');
-add_filter('register', 'wpu_registerlink');
-add_filter('option_blogname', 'wpu_blogname');
-add_filter('option_blogdescription', 'wpu_blogdesc');
-add_filter('option_home', 'wpu_homelink');
-add_filter('the_content', 'wpu_content_parse_check' );
-add_filter('the_title', 'wpu_censor');
-add_filter('the_excerpt', 'wpu_censor');
-add_filter('get_previous_post_where', 'wpu_prev_next_post');
-add_filter('get_next_post_where', 'wpu_prev_next_post');
-add_filter('upload_dir', 'wpu_user_upload_dir');
-add_filter('feed_link', 'wpu_feed_link');
-
-add_filter('comments_array', 'wpu_load_phpbb_comments', 10, 2);
-add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
-add_action('pre_comment_on_post', 'wpu_comment_redirector');
-add_action('comments_open', 'wpu_comments_open', 10, 2);
-add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
-add_filter('logout_url', 'wpu_logout_url', 10, 2);
-add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
-add_filter('login_url', 'wpu_login_url', 10, 2);
-add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
-add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
-add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
-
-//per-user cats in progress -- deprecated
-//add_filter('wpu_cat_presave', 'category_save_pre');
-
-add_action('edit_post', 'wpu_justediting');
-add_action('publish_post', 'wpu_newpost', 10, 2);
-add_action('wp_insert_post', 'wpu_capture_future_post', 10, 2); 
-add_action('future_to_publish', 'wpu_future_to_published', 10); 
-add_action('admin_menu', 'wpu_adminmenu_init');
-add_action('admin_footer', 'wpu_put_powered_text');
-add_action('admin_head', 'wpu_admin_init');
-add_action('wp_head', 'wpu_done_head');
-add_action('upload_files_browse', 'wpu_browse_attachments');
-add_action('upload_files_browse-all', 'wpu_browse_attachments');
-//add_action('template_redirect', 'wpu_must_integrate'); disabled @todo check action
-add_action('plugins_loaded', 'wpu_init_plugin');
-add_action('switch_theme', 'wpu_clear_header_cache');
-add_action('loop_start', 'wpu_loop_entry'); 
-
-  
-add_action('admin_menu', 'wpu_add_meta_box'); 
 
 ?>

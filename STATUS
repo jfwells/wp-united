@@ -18,13 +18,21 @@ Potential changes / Watch issues
 - comment time reported to be incorrect. Cannot reproduce -- waiting for additional bug reports
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in wp-includes/registration.php on line 53
 - characters too few error on cross-post reported. Cannot reproduce - -waiting for additional reports
-
+- override of "must log in" relies on themes checking WP's "must log in to post comment" option (e.g. Arras doesn't).
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
+
+For Site Update:
+---------------------
+Arras theme does not check WordPress' "Users must be registered and logged in to comment" option
+Create simple forum page
+
 
 
 FIXED/COMMITTED FOR v0.8.4
 ----------------------------------------
 - Check phpbbForum outside WP before accessing class in case user deactivated wpu-plugin
+- When cross-posting comment if logged out, comment was silently going to WordPress
+- Added better error catching for people who don't instal the mod properly (e.g. if they activate the plugin without installing/setting up, or run it without the plugin)
 
 
 

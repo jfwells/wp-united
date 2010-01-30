@@ -164,6 +164,11 @@ if ( !$wpuCache->use_template_cache() ) {
 
 		// finally do the integration, execute all the prepared code.	
 		eval($wpUtdInt->exec()); 
+
+		if(!isset($phpbbForum)) {
+			wp_die($user->lang['WP_Not_Installed_Yet'] . ' (Error type: plugin missing)');
+		}
+		
 		$connectSuccess = true;
 		
 	} else {

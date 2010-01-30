@@ -394,19 +394,21 @@ function wpu_comment_redirector($postID) {
 		(empty($wpSettings['xposting'])) || 
 		(empty($wpSettings['xpostautolink'])) 
 	) {
-		return false;
+		return;
 	}
 
 	$phpbbForum->enter();	
 
-	if(!$phpbbForum->user_logged_in()) {
-		$phpbbForum->leave();
-		return;
-	}	
+
 	if ( !$xPostDetails = wpu_get_xposted_details($postID) ) { 
 		$phpbbForum->leave();
 		return;
 	}
+	
+	if(!$phpbbForum->user_logged_in()) {
+		$phpbbForum->leave();
+		wp_die( __('You must be logged in to comment in the forum'));
+	}	
 	
 	if( empty($xPostDetails['topic_approved'])) {
 		wp_die($phpbbForum->lang['ITEM_LOCKED']);
@@ -418,7 +420,7 @@ function wpu_comment_redirector($postID) {
 
 	if ( (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id'])) || ($xPostDetails['forum_id'] == 0) ) { 
 		$phpbbForum->leave();
-		wp_die( __('You do not have permissions to comment in the forum'));
+		wp_die( __('You do not have permission to comment in this forum'));
 	}
 	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
 	

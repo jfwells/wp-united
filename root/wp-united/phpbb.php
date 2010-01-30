@@ -207,7 +207,7 @@ class WPU_Phpbb {
 	}
 	
 	
-		/**
+	/**
 	 * Returns rank info for currently logged in, or specified, user.
 	 */
 	function get_user_rank_info($userID = '') {
@@ -370,7 +370,6 @@ class WPU_Phpbb {
 	 */	
 	function _backup_wp_conflicts() {
 		global $table_prefix, $user, $cache, $template;
-		
 		
 		$this->wpTemplate = $template;
 		$this->wpTablePrefix = $table_prefix;

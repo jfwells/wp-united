@@ -426,6 +426,10 @@ Class WPU_Integration {
 		}
 		
 		global $phpbbForum;
+		
+		if(!isset($phpbbForum)) {
+			return false;
+		}
 
 		$loggedInUser = '';
 		$newWpUser = '';
