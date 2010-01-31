@@ -1,6 +1,8 @@
 To fix for v0.8.4
 ---------------------
 
+move wpu-install in
+
 timing of cross-posts still reported to be off in some circumstances http://www.wp-united.com/viewtopic.php?f=14&t=2078
 
 details sync reported not working after password change -- receive double-sync-no-success error
