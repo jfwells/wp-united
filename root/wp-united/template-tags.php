@@ -455,7 +455,7 @@ function get_wpu_phpbb_username() {
 	if ( $phpbbForum->user_logged_in() ) {
 		$usrName = $phpbbForum->get_username();
 	} 
-	return ($usrName == '') ? $phpbbForum->lang['Guest'] : $usrName;
+	return ($usrName == '') ? $phpbbForum->lang['GUEST'] : $usrName;
 }
 
 /**
@@ -927,7 +927,7 @@ function get_wpu_login_user_info($args) {
 	$ret = '';
 	
 	get_currentuserinfo();
-	$loggedIn = (!empty($user_ID)) ? true: false;
+	$loggedIn = $phpbbForum->user_logged_in();
 	
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 

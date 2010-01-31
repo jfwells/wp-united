@@ -1,7 +1,6 @@
 To fix for v0.8.4
 ---------------------
 
-
 timing of cross-posts still reported to be off in some circumstances http://www.wp-united.com/viewtopic.php?f=14&t=2078
 
 details sync reported not working after password change -- receive double-sync-no-success error
@@ -25,6 +24,7 @@ Potential changes / Watch issues
 - characters too few error on cross-post reported. Cannot reproduce - -waiting for additional reports
 - override of "must log in" relies on themes checking WP's "must log in to post comment" option (e.g. Arras doesn't).
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
+- Fixd loginuserinfo template tag not showing logged out status properly
 
 For Site Update:
 ---------------------
