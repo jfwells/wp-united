@@ -1414,6 +1414,7 @@ class acp_wp_united {
 		
 		$wpSettings = get_integration_settings();
 		
+			
 		$do_uninstall = request_var('uninstallaction', '');
 			
 		// pass strings	
@@ -1460,9 +1461,17 @@ class acp_wp_united {
 							update_option('show_on_front', 'posts');
 							wp_delete_post($post_ID);
 						}
+						
+						// delete forum page, if set
+						$post_ID = get_option('wpu_set_frontpage');
+						if ( !empty($post_ID) ) {
+							wp_delete_post($post_ID);
+						}
+							
 						//delete the options we set
 						delete_option('wputd_connection');
 						delete_option('wpu_set_frontpage');
+						delete_option('wpu_set_forum');
 						
 						// Remove the WP-United Connection
 						$current = get_settings('active_plugins'); 
@@ -1488,12 +1497,12 @@ class acp_wp_united {
 				}				
 
 				//drop mappng data
-				if  (array_key_exists('user_wpuint_id', $user->data()) ) {
+				if  (array_key_exists('user_wpuint_id', $user->data) ) {
  					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 								DROP user_wpuint_id';
 				}
 				$db->sql_query($sql);
-				if  (array_key_exists('user_wpublog_id', $user->data()) ) {
+				if  (array_key_exists('user_wpublog_id', $user->data) ) {
  					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 								DROP user_wpublog_id';
 				}				
@@ -1529,13 +1538,23 @@ class acp_wp_united {
 				$db->sql_freeresult();
 				$cache->destroy('acl_options');
 				$auth->acl_clear_prefetch();				
-		
+				
+					
+				
 				//now reset settings
 				clear_integration_settings();				
 				$cache->destroy('_modules_');
 				$cache->destroy('_sql_', MODULES_TABLE);
 				$cache->purge();	
-				add_log('admin', 'WP_UNINSTALLED', $user->lang['WP_UNINSTALL_LOG']);				
+				
+				$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+					WHERE config_name = \'wpu_install_fingerprint\'';
+				$db->sql_query($sql);
+				
+				add_log('admin', 'WP_UNINSTALLED', 'WP_UNINSTALL_LOG');
+				
+				
+							
 				redirect(append_sid("index.$phpEx"));
 			} else {
 				confirm_box(false,$user->lang['WP_UNINSTALL_CONFIRM'], build_hidden_fields(array(
@@ -1545,6 +1564,7 @@ class acp_wp_united {
 					)));
 			}
 		}
+		
 		
 		// set the page section to show
 		$template->assign_block_vars('switch_uninstall', array());

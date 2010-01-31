@@ -146,26 +146,28 @@ function get_integration_settings($setAdminDefaults = FALSE) {
 	 * Handle style keys for CSS Magic
 	 * We load them here so that we can auto-remove them if CSS Magic is disabled
 	 */
-	$key = 1;
-	if(!empty($wpSettings['cssMagic'])) {
-		$fullKey = '';
-		while(isset( $config["wpu_style_keys_{$key}"])) {
-			$fullKey .= $config["wpu_style_keys_{$key}"];
-			$key++;
-		}
-		if(!empty($fullKey)) {
-			$wpSettings['styleKeys'] = unserialize(base64_decode($fullKey));
+	if(sizeof($wpSettings)) {
+		$key = 1;
+		if(!empty($wpSettings['cssMagic'])) {
+			$fullKey = '';
+			while(isset( $config["wpu_style_keys_{$key}"])) {
+				$fullKey .= $config["wpu_style_keys_{$key}"];
+				$key++;
+			}
+			if(!empty($fullKey)) {
+				$wpSettings['styleKeys'] = unserialize(base64_decode($fullKey));
+			} else {
+				$wpSettings['styleKeys'] = array();
+			}
 		} else {
+			// Clear out the config keys
+			if(isset($config['wpu_style_keys_1'])) {
+				$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+					WHERE config_name LIKE \'wpu_style_keys_%\'';
+				$db->sql_query($sql);
+			}
 			$wpSettings['styleKeys'] = array();
 		}
-	} else {
-		// Clear out the config keys
-		if(isset($config['wpu_style_keys_1'])) {
-			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
-				WHERE config_name LIKE \'wpu_style_keys_%\'';
-			$db->sql_query($sql);
-		}
-		$wpSettings['styleKeys'] = array();
 	}
 	
 	

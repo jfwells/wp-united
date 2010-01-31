@@ -19,43 +19,71 @@ if ( !defined('IN_PHPBB') ) {
 }
 
 define('WPU_HOOK_ACTIVE', TRUE);
-require_once ($phpbb_root_path . 'wp-united/version.' . $phpEx);
-require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
-require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 
-require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
+// If the user has deleted the wp-united directory, do nothing
+if(file_exists($phpbb_root_path . 'wp-united/')) {
+	require_once ($phpbb_root_path . 'wp-united/version.' . $phpEx);
+	require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
+	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 
-if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
-	set_error_handler('wpu_msg_handler');
-}
-
-$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+	require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
 
 
-wpu_set_buffering_init_level();
 
-if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {  
-	if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) {  
-		$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
-		$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
-		$phpbb_hook->register('exit_handler', 'wpu_continue');
+	if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
+		set_error_handler('wpu_msg_handler');
+	}
+
+	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
+
+
+
+	wpu_set_buffering_init_level();
+
+	if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {  
+		if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) {  
+			$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
+			$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
+			$phpbb_hook->register('exit_handler', 'wpu_continue');
+		}
+		
+	} else if (defined('ADMIN_START')) {
+		$user->add_lang('mods/wp-united');
+		
+		//decide if we need to run the installer
+		// If there is no fingerprint, and WPU_UNINSTALL is not set to true, we run it.
+		// Alternatively, if a fingerprint exists and ==2 to indicate that WP-United was uninstalled,
+		// and WPU_REINSTALL is set, then we run
+
+		// Run the installer if WP-United hasn't been set up, and the user is a founder admin, and in the ACP
+		if(!isset($config['wpu_install_fingerprint']) &&  defined('WPU_UNINSTALL') && !WPU_UNINSTALL){
+			$phpbb_hook->register('phpbb_user_session_handler', 'installer_run');
+		}
+	}
+
+	/**
+	 * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB
+	 * too, for wordpress users who might think it's an error in WP-United.
+	 * @todo: In future phpBB releases (> 3.0.6), see if the devs hav added this to phpBB, and remove if so
+	 */
+	if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
+		date_default_timezone_set('UTC');
+	}
+
+	/**
+	 * Auto-run the installer the first time the ACP is accessed after installing
+	 */
+	function installer_run(&$hook) {
+		global $wpSettings, $phpbb_root_path, $phpEx, $user;
+		
+		if ($user->data['user_type'] == USER_FOUNDER) {
+			require_once($phpbb_root_path . 'wp-united/installer.' . $phpEx);
+		}
 	}
 	
-} else if (defined('ADMIN_START')) {
-	$user->add_lang('mods/wp-united');
 }
-
-/**
- * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB
- * too, for wordpress users who might think it's an error in WP-United.
- * @todo: In future phpBB releases (> 3.0.6), see if the devs hav added this to phpBB, and remove if so
- */
-if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
-	date_default_timezone_set('UTC');
-}
-
-
 
 /**
  * Initialise WP-United variables and template strings

@@ -32,10 +32,18 @@ if ( !defined('IN_PHPBB') ) {
  * Temporarily change this to TRUE to completely disable the integration so that you can log in and
  * get to the ACP. 
  * 
- * To permanently remove WP-United, use the uninstall option in the ACP, not this.
+ * To permanently remove WP-United do not use this: use the uninstall option below
  */
 define('WPU_DISABLE', FALSE);
 
+/**
+ *UNINSTALL WP-UNITED
+ * If you want to uninstall WP-United, you need to set this to TRUE, and then run the "Uninstall WP-United"
+ * option in the WP-United tab in the phpBB ACP.
+ * 
+ * If you change your mind, set this back to FALSE and WP-United will re-install itself
+ */
+define('WPU_UNINSTALL', FALSE);
 
 /**
  * USE TEMPLATE CACHE?
