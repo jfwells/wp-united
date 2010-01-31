@@ -240,7 +240,7 @@ $lang = array_merge($lang, array(
 	//Uninstall
 	'WP_UNINSTALL_TILE' => 'Avinstallera WP-United',
 	'WP_UNINSTALL_TILE' => 'Avinstallera',
-	
+	'WP_UNINSTALL_EXPLAIN' => '<br /><strong style="color: red;">Read all this information carefully before continuing:</strong><br /><br />Uninstalling WP-United removes ALL aspect of the mod, from WordPress and phpBB, apart from the file edits and copies that were performed when you installed it (you do not need to remove these). All user mapping data will be lost -- if your phpBB users have accounts in WordPress, those accounts will continue to exist, but they will not be mapped to phpBB, and can only be re-mapped if you re-install WP-United and re-map manually with the user mapping tool.<br /><br /> The uninstaller will try to contact WordPress, and remove any WP-United settings, including all WP-United per-user options such as blog settings. <br /><br /><strong style="color: red;">Before you run this, open your wp-united/options.php file, and set the "WPU_UNINSTALL" option to TRUE. <em>do that now</em>, then come back here and click the button.</strong><br /><br />Most people will NOT need to use this &ndash; only do so if you are sure you want to lose ALL WP-United settings! You should back up your database before continuing!',
 	'WP_UNINSTALL_CONFIRM' => 'Är du säker på att du vill avinstallera WP-United?',		
 	'WP_UNINSTALL_LOG' => 'WP-United borttagen helt och hållet',
 	
@@ -402,7 +402,8 @@ $lang = array_merge($lang, array(
 	'WPWizard_Connection_Fail_Explain2' => 'Filen [phpbb]/wp-united/wpu-plugin.php kunde inte kopieras till din WordPress plugins mapp. Vänligen kopiera den dit nu, eller se till att dina WordPress plugins mapp är inte skrivskyddad. Efter kopieringen, du borde ha en kopia av wpu-plugin.php i [phpbb]/wp-united och i din WordPress plugins mapp. När det är klart, uppdatera denna sida eller kör guiden igen.',
 
 	// New:
-	'WP_UNINSTALL_EXPLAIN' => '<br /><strong style="color: red;">Read all this information carefully before continuing:</strong><br /><br />Uninstalling WP-United removes ALL aspect of the mod, from WordPress and phpBB, apart from the file edits and copies that were performed when you installed it (you do not need to remove these). All user mapping data will be lost -- if your phpBB users have accounts in WordPress, those accounts will continue to exist, but they will not be mapped to phpBB, and can only be re-mapped if you re-install WP-United and re-map manually with the user mapping tool.<br /><br /> The uninstaller will try to contact WordPress, and remove any WP-United settings, including all WP-United per-user options such as blog settings. <br /><br /><strong style="color: red;">Before you run this, open your wp-united/options.php file, and set the "WPU_UNINSTALL" option to TRUE. <em>do that now</em>, then come back here and click the button.</strong><br /><br />Most people will NOT need to use this &ndash; only do so if you are sure you want to lose ALL WP-United settings! You should back up your database before continuing!',
+	// WP_UNINSTALL_EXPLAIN
+	// WP_RESET_EXPLAIN
 
 
 ));
