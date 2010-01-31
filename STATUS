@@ -1,8 +1,6 @@
 To fix for v0.8.4
 ---------------------
 
-move wpu-install in
-
 timing of cross-posts still reported to be off in some circumstances http://www.wp-united.com/viewtopic.php?f=14&t=2078
 
 details sync reported not working after password change -- receive double-sync-no-success error
@@ -42,8 +40,8 @@ FIXED/COMMITTED FOR v0.8.4
 - Added better error catching for people who don't install the mod properly (e.g. if they activate the plugin without installing/setting up, or run it without the plugin)
 - Fixed comments closed for global announcements when they shouldn't be. wpu_comments_open() using old permschecked code, but phpBB api still isn't clear on how to determine global announcemnt privileges
 - Fixed unreliable comment display date/time by converting to MySQL datetime from phpBB
-
-
+- wpu-install.php removed. Actions moved to wp-united/installer.php, and are run automatically for founder users
+- Force comments closed for forum page
 
 
 

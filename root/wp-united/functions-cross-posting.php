@@ -542,6 +542,11 @@ function wpu_comments_open($open, $postID) {
 		return $status;
 	}
 	
+	if(defined('WPU_REVERSE_INTEGRATION')) {
+		$status = false;
+		return $status;
+	}
+	
 	if($postID == NULL) {
 		$postID = $GLOBALS['post']->ID;
 	}
@@ -612,6 +617,9 @@ function wpu_no_guest_comment_posting() {
 	if($usePhpBBComments) {
 		return true;
 	}
+	
+
+	
 	return false;
 }
 

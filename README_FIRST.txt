@@ -31,7 +31,7 @@ Some additional translations may have been provided in the /languages folder -- 
 
 If you need further help on what the directives mean, take a look at the phpBB forums -- http://www.phpbb.com/mods/installing/ . Make sure you back up your files before making any changes!
 
-Once you have installed the mod, you should visit http://your-forum-address/wpu-install.php . That will auo-install everything else you need. When done, delete the file wpu-install.php from your forum folder.
+Once you have installed the mod, you should visit the phpBB Admin Control Panel ("ACP"), logged in as an administrator with *founder* permissions. WP-United will automatically add a "WP-United" tab to the ACP. If you don't see it, it is because either: (1) you are not a founder user, or (2) some other error -- look in the phpBB Administrator actions log, and look for the "Installed WP-United" information.
 
 You should then be able to run the WP-United Setup Wizard, located under the WP-United tab in the phpBB Admin Control Panel.
 
@@ -59,7 +59,10 @@ Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/
 UNINSTALLING  (Noooo)
 -----------------------------
 
-We can't understand why you'd want to do this... but just in case, here goes: Uninstalling is easy. Just click the uninstall link in the Admin Control Panel. 
+Uninstalling is easy:
+
+1. open wp-united/options.php, find the WPU_UNINSTALL option, and set it to TRUE
+2. Click the uninstall link under the WP-United tab in the Admin Control Panel. 
 
 
 CONTINGENCIES
