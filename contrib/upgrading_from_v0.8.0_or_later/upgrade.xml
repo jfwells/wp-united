@@ -18,7 +18,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.3RC2</mod-version>
+    <mod-version>0.8.4RC2</mod-version>
     <installation>
       <level>intermediate</level>
       <time>912</time>
@@ -44,7 +44,6 @@ Then, run the WP-United Setup Wizard all the way through.
 ]]></diy-instructions>
     <copy>
       <file from="/root/blog.php" to="/blog.php" />
-      <file from="/root/wpu-install.php" to="/wpu-install.php" />
       <file from="/root/adm/style/acp_wp_united.html" to="/adm/style/acp_wp_united.html" />
       <file from="/root/includes/hooks/hook_wp-united.php" to="/includes/hooks/hook_wp-united.php" />
       <file from="/root/includes/acp/acp_wp_united.php" to="/includes/acp/acp_wp_united.php" />
