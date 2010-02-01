@@ -41,6 +41,7 @@ FIXED/COMMITTED FOR v0.8.4
 - wpu-install.php removed. Actions moved to wp-united/installer.php, and are run automatically for founder users
 - Force comments closed for forum page
 - Timezone issues with cross-posts fixed -- again -- finally
+- Fixed blog list template tag dying when it should paginate
 
 
 
