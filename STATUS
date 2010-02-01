@@ -42,6 +42,7 @@ FIXED/COMMITTED FOR v0.8.4
 - Force comments closed for forum page
 - Timezone issues with cross-posts fixed -- again -- finally
 - Fixed blog list template tag dying when it should paginate
+- Fixed unfriendly error if WP path is incorrect
 
 
 

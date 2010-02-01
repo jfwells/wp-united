@@ -2112,7 +2112,7 @@ class acp_wp_united {
 			
 				//Set up WordPress the way we want
 				update_option('home', $blogUri);
-				global $wpdb, $phpbbForum;
+				global $wpdb;
 				
 				// Set up the reverse-integrated forum page
 				$forum_page_ID = get_option('wpu_set_forum');
@@ -2238,6 +2238,9 @@ class acp_wp_united {
 				}
 			} // end if copy success
 			
+			$wpUtdInt->exit_wp_integration();
+			$wpUtdInt = null; unset ($wpUtdInt);
+			
 		} else { // can't connect to WP
 			$connError = TRUE;
 			$debugPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
@@ -2247,8 +2250,7 @@ class acp_wp_united {
 			$wpu_debug .= 'Path To WP: ' . $wpSettings['wpPath'] . '<br />';
 			
 		}
-		$wpUtdInt->exit_wp_integration();
-		$wpUtdInt = null; unset ($wpUtdInt);
+		
 		
 		$wpuCache->purge();
 		
