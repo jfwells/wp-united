@@ -1,8 +1,6 @@
 To fix for v0.8.4
 ---------------------
 
-timing of cross-posts still reported to be off in some circumstances http://www.wp-united.com/viewtopic.php?f=14&t=2078
-
 details sync reported not working after password change -- receive double-sync-no-success error
 wpu-plugin should halt if installLevel is < 10, or if version doesn't match, to prevent users from using WP-United  at all if they haven't got past Step 5 of the Setup Wizard.
 wpu_get_xposted_details called multiple times on page view (comments_open, comment load). Result should be cached.
@@ -42,6 +40,7 @@ FIXED/COMMITTED FOR v0.8.4
 - Fixed unreliable comment display date/time by converting to MySQL datetime from phpBB
 - wpu-install.php removed. Actions moved to wp-united/installer.php, and are run automatically for founder users
 - Force comments closed for forum page
+- Timezone issues with cross-posts fixed -- again -- finally
 
 
 

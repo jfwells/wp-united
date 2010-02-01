@@ -161,8 +161,10 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 		$blogList .= "</div>\n";
 	}
 	if ( $numAuthors > $maxEntries ) { 
+		$phpbbForum->enter();
 		$base_url = append_sid(strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) . '://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING']);
 		$pagination = generate_pagination($base_url, $numAuthors, $maxEntries, $start, TRUE);
+		$phpbbForum->leave();
 		$blogList .= '<p class="wpublpages">' . $pagination . '</p>';
 	}
 

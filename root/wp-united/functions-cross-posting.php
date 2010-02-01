@@ -176,12 +176,22 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	
 	//Update the posts table with WP post ID so we can remain "in sync" with it, and set the post time/date
 	if(($data !== false) && ($mode == 'post') && (!empty($data['post_id'])) ) {
-			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID . ', post_time = ' . strtotime($post->post_date_gmt) . " WHERE post_id = {$data['post_id']}";
+			
+			// Get timestamp for WP's gmt date. the fallback options won't give correct timezones, but should
+			// only get used if the WP time is really unexpected (e.g. broken by a plugin).
+			// We need to set this because this could be a past or a future post
+			$utcTime = strtotime($post->post_date_gmt . ' UTC');
+			$utcTime = 		($utcTime === false) 	? 	strtotime($post->post_date) : $utcTime;
+			$utcTimeSql = 	($utcTime !== false) 	?  ', post_time =' . $utcTime 		: '' ;
+			
+			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID .  "{$utcTimeSql} WHERE post_id = {$data['post_id']}";
 			if (!$result = $db->sql_query($sql)) {
 				wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
 			}
-			$sql = 'UPDATE ' . TOPICS_TABLE . ' SET topic_time = ' . strtotime($post->post_date_gmt) . " WHERE topic_id = {$data['topic_id']}";
-			$result = $db->sql_query($sql);			
+			if($utcTime !== false) {
+				$sql = 'UPDATE ' . TOPICS_TABLE . " SET topic_time = {$utcTime} WHERE topic_id = {$data['topic_id']}";
+				$result = $db->sql_query($sql);		
+			}	
 			$db->sql_freeresult($result);
 			return true;
 	} else if ( ($mode == 'edit') && (!empty($data['topic_id'])) ) {
