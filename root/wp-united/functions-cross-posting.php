@@ -345,6 +345,8 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 		$overridden_cpage = TRUE;
 	}
 
+	// remove the WP make clickable filter, smilies, etc, as we've already done it
+	remove_filter('comment_text', 'make_clickable', 9);
 	
 	return $comments;
 }
@@ -632,5 +634,6 @@ function wpu_no_guest_comment_posting() {
 	
 	return false;
 }
+
 
 ?>

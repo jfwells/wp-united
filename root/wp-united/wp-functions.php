@@ -113,8 +113,9 @@ function get_phpbb_userdata($uid) {
  */
 if (!function_exists('make_clickable')) {
 	function make_clickable($text, $server_url = false, $class = 'postlink') { //$server_url is for phpBB3 only $class is for later phpBB3 only
-		global $IN_WORDPRESS;
-		if ($IN_WORDPRESS) {
+		global $IN_WORDPRESS, $usePhpBBComments;
+
+		if ($IN_WORDPRESS && !$usePhpBBComments) {
 			return wp_make_clickable($text); //WP version
 		} else { //phpBB version
 			if ($server_url === false) {

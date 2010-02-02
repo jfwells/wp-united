@@ -119,6 +119,10 @@ class WPU_Comments {
 				$phpbbCommentLinks = array();
 				while ($comment = $db->sql_fetchrow($result)) {
 					
+					$comment['bbcode_options'] = (($comment['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
+						(($comment['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
+						(($comment['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
+					
 					$link = $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
 					$args = array(
 						'comment_ID' => $comment['post_id'],
@@ -129,7 +133,7 @@ class WPU_Comments {
 						'comment_author_IP' => $comment['poster_ip'],
 						'comment_date' => $user->format_date($comment['post_time'], "Y-m-d H:i:s"), //Convert phpBB timestamp to mySQL datestamp
 						'comment_date_gmt' =>  $user->format_date($comment['post_time'] - ($user->timezone + $user->dst), "Y-m-d H:i:s"), 
-						'comment_content' => generate_text_for_display($comment['post_text'], $comment['bbcode_uid'], $comment['bbcode_bitfield'], $comment['enable_bbcode']),
+						'comment_content' => generate_text_for_display($comment['post_text'], $comment['bbcode_uid'], $comment['bbcode_bitfield'], $comment['bbcode_options']),
 						'comment_karma' => 0,
 						'comment_approved' => 1,
 						'comment_agent' => 'phpBB forum',
@@ -137,6 +141,7 @@ class WPU_Comments {
 						'user_id' => $comment['user_wpuint_id'],
 						'phpbb_id' => $comment['poster_id']
 					);
+
 					$phpbbCommentLinks[$comment['post_id']] = $phpbbForum->url;
 					$phpbbCommentLinks[$comment['post_id']] .= ($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}";
 					

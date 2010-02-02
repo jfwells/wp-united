@@ -32,6 +32,7 @@ function wpu_widgets_init() {
 	 * Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
 	 */
 	function widget_wpu_login_user_info($args) {
+		global $phpbbForum;
 		/**
 		 *  these is_admin() switches should not be necessary, but users are reporting wp-admin errors,
 		 * which can be traced back to widgets. Our widgets are not intended to be run from wp-admin.
@@ -52,9 +53,7 @@ function wpu_widgets_init() {
 			// wpu_template_funcs.php MUST be available!
 			if ( !function_exists('wpu_login_user_info') ) return;
 			
-			global $user_ID;
-			get_currentuserinfo();
-			$title =  (!empty($user_ID)) ? $titleLoggedIn : $titleLoggedOut;
+			$title =  ($phpbbForum->user_logged_in()) ? $titleLoggedIn : $titleLoggedOut;
 			$loggedIn = (!empty($user_ID)) ? '1' : '0';
 			echo $before_widget . $before_title . $title . $after_title;
 			echo '<ul class="wpulogininfo">';

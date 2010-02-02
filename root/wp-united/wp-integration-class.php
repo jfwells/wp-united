@@ -788,16 +788,24 @@ Class WPU_Integration {
 	 * @param string $direction Set to 'TO_P' to switch to phpBB, or 'TO_W' to switch to WordPress.
 	 */
 	function switch_db ($direction = 'TO_P') {
-		//global $wpdb;
-		//we originally used $wpdb->select here, but it doesn't seem to work in all circumstances
 		if ( ($this->wpLoaded) && (!$this->phpbb_db_name != DB_NAME) ) {
 			switch ( $direction ) {
-				case 'TO_P':
-					mysql_select_db($this->phpbb_db_name);
+				case 'TO_P':			
+					global $db, $dbms;
+					if(!empty($db->db_connect_id)) {
+						if($dbms=='mysqli') {
+							@mysqli_select_db($this->phpbb_db_name, $db->db_connect_id);
+						} else if($dbms=='mysql') {
+							@mysql_select_db($this->phpbb_db_name, $db->db_connect_id);
+						}
+					}
 					break;
 				case 'TO_W':
 				default;
-					mysql_select_db(DB_NAME);
+					global $wpdb;
+					if(!empty($wpdb->dbh)) {
+						@mysql_select_db(DB_NAME, $wpdb->dbh);
+					} 				
 					break;
 			}
 		}

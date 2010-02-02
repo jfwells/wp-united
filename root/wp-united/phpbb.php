@@ -418,18 +418,24 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	function _switch_to_wp_db() {
-		if (!$this->phpbbDbName != DB_NAME) {
-			mysql_select_db(DB_NAME);
-		}		
+		global $wpdb;
+		if (($this->phpbbDbName != DB_NAME) && (!empty($wpdb->dbh))) {
+			@mysql_select_db(DB_NAME, $wpdb->dbh);
+		}      
 	}
 	
 	/**
 	 * @access private
 	 */	
 	function _switch_to_phpbb_db() {
-		if (!$this->phpbbDbName != DB_NAME) {
-			mysql_select_db($this->phpbbDbName);
-		}			
+		global $db, $dbms;
+		if (($this->phpbbDbName != DB_NAME) && (!empty($db->db_connect_id))) {
+			if($dbms=='mysqli') {
+				@mysqli_select_db($this->phpbbDbName, $db->db_connect_id);
+			} else if($dbms=='mysql') {
+				@mysql_select_db($this->phpbbDbName, $db->db_connect_id);
+			}
+		}
 	}
 	
 	/**
