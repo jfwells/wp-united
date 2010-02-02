@@ -1,7 +1,7 @@
 To fix for v0.8.4
 ---------------------
 
-Username links in comments not urlencoded
+author permalinks not working if author permalink with space in username
 post edit perms
 
 

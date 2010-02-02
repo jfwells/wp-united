@@ -133,9 +133,6 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	$phpbbForum->leave();
 	$excerpt = sprintf($phpbbForum->lang['blog_post_intro'], '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $excerpt . "\n\n" . $tags . $cats;
 
-	sprintf($phpbbForum->lang['read_more'], '[url=' . get_permalink($postID) . ']', '[/url]');
-	
-	
 	$excerpt = utf8_normalize_nfc($excerpt, '', true);
 	$subject = utf8_normalize_nfc($subject, '', true);
 	
