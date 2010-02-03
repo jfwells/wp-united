@@ -7,7 +7,6 @@ post edit perms
 
 
 
-
 details sync reported not working after password change -- receive double-sync-no-success error
 wpu-plugin should halt if installLevel is < 10, or if version doesn't match, to prevent users from using WP-United  at all if they haven't got past Step 5 of the Setup Wizard.
 wpu_get_xposted_details called multiple times on page view (comments_open, comment load). Result should be cached.
@@ -55,7 +54,7 @@ FIXED/COMMITTED FOR v0.8.4
 - Refined phpbb/WP database switching to remove PHP notices that occur under some circumstances
 - Improved BBCode & magic URL checking
 - Stop double-pass of make clickable
-
+- Updated old SQL in blog list to ensure correct pagination after posts have been deleted
 
 
 

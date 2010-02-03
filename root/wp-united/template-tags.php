@@ -67,23 +67,28 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 	$start = (integer)trim($_GET['start']);
 	$start = ($start < 0) ? 0 : $start;
 	//get total count
-	$sql = "SELECT count(DISTINCT {$wpdb->users}.ID) AS total
-			FROM {$wpdb->users} 
-			INNER JOIN {$wpdb->posts}
-			ON {$wpdb->users}.ID={$wpdb->posts}.post_author
-			WHERE {$wpdb->users}.user_login <> 'admin'";
+	$sql = "SELECT count(DISTINCT u.ID) AS total
+			FROM {$wpdb->users} AS u 
+			INNER JOIN {$wpdb->posts} AS p
+			ON p.ID = p.post_author
+			WHERE u.user_login <> 'admin' 
+			AND p.post_type = 'post' 
+			AND p.post_status = 'publish'
+			";
 	$count = $wpdb->get_results($sql);
 	$numAuthors = $count[0]->total;
 	
 	$maxEntries = ($maxEntries < 1) ? 5 : $maxEntries;
 	//pull the data we want to display -- this doesn't appear to be very efficient, but it is the same method as  the built-in WP function
 	// wp_list_authors uses. Let's hope the data gets cached!
-	$sql = "SELECT DISTINCT {$wpdb->users}.ID, {$wpdb->users}.user_login, {$wpdb->users}.user_nicename 
-			FROM {$wpdb->users}
-			INNER JOIN {$wpdb->posts} 
-			ON {$wpdb->users}.ID={$wpdb->posts}.post_author 
-			WHERE {$wpdb->users}.user_login<>'admin' 
-			ORDER BY {$wpdb->users}.display_name LIMIT $start, $maxEntries";
+	$sql = "SELECT DISTINCT u.ID, u.user_login, u.user_nicename 
+			FROM {$wpdb->users} AS u
+			INNER JOIN {$wpdb->posts} AS p 
+			ON u.ID=p.post_author 
+			WHERE u.user_login<>'admin' 
+			AND p.post_type = 'post' 
+			AND p.post_status = 'publish'
+			ORDER BY u.display_name LIMIT $start, $maxEntries";
 	$authors= $wpdb->get_results($sql);
 
 	if ( count($authors) > 0 ) {
