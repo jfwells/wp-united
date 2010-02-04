@@ -342,7 +342,7 @@ if (!empty($wpSettings['cssMagic'])) {
 	 * If the element already has an inline style attribute, the height rule will be appended to it
 	 */
 	$innerContent = preg_replace_callback(
-		'/((<[^>]+\b)(?=height\s?=\s?[\'"]?\s?([0-9]+)\s?[\'"]?)([^>]*))(\/?>)/',
+		'/((<[^>]+\b)(?=height\s?=\s?[\'"]?\s?([0-9]+)\s?[\'"]?)([^>]*?))(\/?\s*>)/',
 		create_function(
 			'$m',
 			'if(preg_match(\'/(style\s?=\s?[\\\'"]([^\\\'"]+))([\\\'"])/\', $m[1], $r)) 

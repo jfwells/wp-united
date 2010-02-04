@@ -32,6 +32,7 @@ Potential changes / Watch issues
 - Fixd loginuserinfo template tag not showing logged out status properly
 
 
+
 For Site Update:
 ---------------------
 Arras theme does not check WordPress' "Users must be registered and logged in to comment" option
@@ -55,7 +56,7 @@ FIXED/COMMITTED FOR v0.8.4
 - Improved BBCode & magic URL checking
 - Stop double-pass of make clickable
 - Updated old SQL in blog list to ensure correct pagination after posts have been deleted
-
+- Fixed breaking validation of IMG tags with bbcode fix in image magic turned on
 
 
 
