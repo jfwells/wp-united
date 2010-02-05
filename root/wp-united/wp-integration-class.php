@@ -542,13 +542,11 @@ Class WPU_Integration {
 					//It must work now....
 					$wpUser = get_userdata($integratedID);
 					$wpUserName = $wpUser->user_login;
-					
+
 					if($this->wpSignIn($wpUserName,  $phpbbForum->get_userdata['user_password'])) {
 						$loggedInUser = wp_set_current_user($wpUser->ID);
 						$this->lDebug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
 					} else {
-						//Unbelievable.... something is clearly wrong. Sound apologetic.
-						
 						$this->exit_wp_integration();
 						$this->lDebug('Failed, aborting (' . $error .')', 1);
 						trigger_error('WordPress Integration Error: WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message');
@@ -948,7 +946,7 @@ Class WPU_Integration {
 				$wpDataArr[$field] = '';
 			}
 		}
-	
+		
 		if ( (!($pData['user_email'] == $wpData->user_email)) && (!empty($pData['user_email'])) ) {
 			$update['user_email'] = $pData['user_email'];
 			$doWpUpdate = true;

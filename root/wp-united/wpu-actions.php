@@ -136,7 +136,7 @@ class WPU_Actions {
 						if ($wpUtdInt->can_connect_to_wp()) {
 							//enter the integration
 							$wpUtdInt->enter_wp_integration();
-							$wpUtdInt->integrate_login();
+							/// No user integration here as we can't log in with the new credentials yet
 							eval($wpUtdInt->exec());  
 							$wpUtdInt->exit_wp_integration();
 							$wpUtdInt = null; unset($wpUtdInt);

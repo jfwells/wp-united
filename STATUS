@@ -2,11 +2,6 @@ To fix for v0.8.4
 ---------------------
 
 author permalinks not working if author permalink with space in username
-rank yes/no in widget; only process options selected
-
-
-details sync reported not working after password change -- receive double-sync-no-success error
-
 
 wpu-plugin should halt if installLevel is < 10, or if version doesn't match, to prevent users from using WP-United  at all if they haven't got past Step 5 of the Setup Wizard.
 wpu_get_xposted_details called multiple times on page view (comments_open, comment load). Result should be cached.
@@ -59,7 +54,8 @@ FIXED/COMMITTED FOR v0.8.4
 - Fixed breaking validation of IMG tags with bbcode fix in image magic turned on
 - Fixed spurious cache error on post edit
 - Post editing permissions now fixed: username is not transferred to user doing the editing. Edit permissions checked in the forum
-
+- When calling login_userinfo template tag, it can now be called multiple times with different options without wasting resources
+- Fixed integration error after updating password or username
 
 
 FIXED / COMMITTED for v0.8.3:
