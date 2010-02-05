@@ -5,8 +5,8 @@ Plugin Name: WP-United Connection
 Plugin URI: http://www.wp-united.com
 Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
-Version: v0.8.3 RC2 (phpBB3)
-Last Updated: 27 January 2010
+Version: v0.8.4 RC2 (phpBB3)
+Last Updated: 6 February 2010
 Author URI: http://www.wp-united.com
 * 
 * If you are reading this from the WordPress plugin editor, please note that this file is only a small
@@ -657,7 +657,7 @@ function wpu_loginoutlink($loginLink) {
 			$u_login_logout = $phpbbForum->url . $login_link;
 			$l_login_logout = $phpbbForum->lang['LOGIN'];
 		}
-		return '<a href="' . $u_login_logout . '" class="wpulogoutlink"><span class="wpulogoutlink">' . $l_login_logout . '</span></a>';
+		return '<a href="' . $u_login_logout . '">' . $l_login_logout . '</a>';
 	} else {
 		return $loginLink;
 	}
@@ -1064,7 +1064,7 @@ function wpu_attachments_where($where) {
  */
 function wpu_feed_link($link) {
 	global $wpSettings;
-	if ( !empty($wpSettings['usersOwnBlogs']) ) { //only works if not in admin.
+	if ( !empty($wpSettings['usersOwnBlogs']) ) { 
 		$authorID = wpu_get_author();
 		if ( (!strstr($link, 'comment')) ) {
 			$link = get_author_rss_link(FALSE, $authorID, '');
