@@ -367,7 +367,7 @@ class WPU_Cache {
 	 */
 	function _generate_style_key($fileName) {
 		global $wpSettings;
-		$key = array_search($fileName, $wpSettings['styleKeys']);
+		$key = array_search($fileName, (array)$wpSettings['styleKeys']);
 		if($key === false) {
 			$wpSettings['styleKeys'][] = $fileName;
 			$key = sizeof($wpSettings['styleKeys']) - 1;

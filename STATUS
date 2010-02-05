@@ -57,7 +57,7 @@ FIXED/COMMITTED FOR v0.8.4
 - Stop double-pass of make clickable
 - Updated old SQL in blog list to ensure correct pagination after posts have been deleted
 - Fixed breaking validation of IMG tags with bbcode fix in image magic turned on
-
+- Fixed spurious cache error on post edit
 
 
 
