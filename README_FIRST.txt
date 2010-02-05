@@ -1,6 +1,6 @@
-WP-UNITED: WordPress Integration Mod v0.8.3 RC2 for phpBB3
+WP-UNITED: WordPress Integration Mod v0.8.4 RC2 for phpBB3
 -----------------------------------------------
-Last updated: 28 January 2010, by John Wells
+Last updated: 6 February 2010, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -97,6 +97,19 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+v0.8.4 RELEASE CANDIDATE 2
+
+- NEW: wpu-install.php removed, replaced by auto-installer
+- Fixed comments closed for global announcements when they shouldn't be.
+- Fixed unreliable display of comment date/time
+- Added better error catching for people who don't install the mod properly (e.g. if they activate the plugin without installing/setting up, or run it without the plugin)
+- Fixed various unfriendly error messages
+- Fixed timezone of cross-posts
+- Improved BBCode & magic URL checking, stopped double-pass of make clickable
+- Fixed errors with user blogs list, and improved login_userinfo
+- Fixed username incorrect when editing cross-posted posts
+- Fixed integration error message after updating password or username under some circumstances
 
 v0.8.3 RELEASE CANDIDATE 2
 - Slight cleanup of wp-integration-class.php 

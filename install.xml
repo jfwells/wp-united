@@ -18,7 +18,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.3RC2</mod-version>
+    <mod-version>0.8.4RC2</mod-version>
     <installation>
       <level>intermediate</level>
       <time>1200</time>
@@ -250,7 +250,7 @@ IMPORTANT NEXT STEPS
 
 After making all the edits, you must complete the following steps. For more detailed information, make sure you read the README_FIRST.txt file that was included with WP-United.
 
-1. Log into the phpBB Administration Control Panel as a *founder* administrator. This is the administrator with founder permissions. The WP-United installer will automatically run, and a WP-United tab will appear in the ACP.
+1. Log into the phpBB Administration Control Panel as a *founder* administrator. This is the administrator with founder permissions. The WP-United installer will automatically run, and a WP-United tab will appear in the ACP. If it does not, try purging the phpBB cache.
 
 2. Make sure you have installed WordPress. If you need help, look at the instructions on the WordPress Codex, here: http://codex.wordpress.org/Installing_WordPress
 
