@@ -52,7 +52,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	$subject = $phpbbForum->lang['blog_title_prefix'] . $post->post_title;
 	$data = array();
 	$data['post_time'] = 0;
-	
+	$topicUsername = $phpbbForum->get_username();
 	if($details !== false) {
 		if(isset($details['post_id'])) {
 			$mode = 'edit';
@@ -63,6 +63,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			$data['poster_id'] = $details['poster_id'];
 			$data['post_time'] = $details['post_time'];
 			$data['topic_type'] = $details['topic_type'];
+			$topicUsername = $details['topic_first_poster_name'];
 		}
 	}
 	
@@ -81,18 +82,24 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	// If we are editing a post, check other permissions if it has been made global/sticky etc.
 	if($mode == 'edit') {
 		if( ($data['topic_type'] == POST_GLOBAL)  && (!$auth->acl_getf('f_announce', 0)) )  {
-			wp_die(__('You do not have permissions to edit global announcements'));
+			wp_die(__('You do not have permission required to edit global announcements'));
 			return false;			
 		}
 		
 		if( ($data['topic_type'] == POST_ANNOUNCE) && (!$auth->acl_getf('f_announce', $forum_id)) )  {
-			wp_die(__('You do not have permissions to edit this announcement'));
+			wp_die(__('You do not have the permission required to edit this announcement'));
 			return false;
 		}
 		if( ($data['topic_type'] == POST_STICKY) && (!$auth->acl_getf('f_sticky', $forum_id)) ) {
-			wp_die(__('You do not have permissions to edit stickies'));
+			wp_die(__('You do not have the permission required to edit stickies'));
 			return false;
 		}
+		
+		if(!$auth->acl_getf('f_edit', $forum_id)) {
+			wp_die(__('You do not have the permission required to edit posts in this forum'));
+			return false;			
+		}
+		
 	}
 	
 	if($forum_id > 0) {
@@ -160,11 +167,10 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		'topic_title'		=> $subject,
 		'notify_set'		=> false,
 		'notify'			=> false,
-		//'forum_name'		=> '',
 		'enable_indexing'	=> true,
 	)); 
 
-	$topic_url = submit_post($mode, $subject, $phpbbForum->get_username(), POST_NORMAL, $poll, $data);
+	$topic_url = submit_post($mode, $subject, $topicUsername, POST_NORMAL, $poll, $data);
 	
 	// If this is a future xpost, switch back to current user
 	if($future) {
@@ -246,7 +252,7 @@ function wpu_get_xposted_details($postID = false) {
 	
 	global $phpbbForum, $db;
 	
-	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_type, t.topic_status, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
+	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_type, t.topic_status, t.topic_first_poster_name, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
 		"p.post_wpu_xpost = $postID AND " .
 		't.topic_id = p.topic_id AND (' .
 		'f.forum_id = p.forum_id OR ' .
