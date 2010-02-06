@@ -31,6 +31,9 @@ Potential changes / Watch issues
 FIXED/COMMITTED FOR v0.8.5
 ----------------------------------------
 - Added f query var to post links in latest topics widget
+- dbms needs to be global when invoking phpBB
+
+
 
 FIXED/COMMITTED FOR v0.8.4
 ----------------------------------------

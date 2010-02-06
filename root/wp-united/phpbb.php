@@ -72,7 +72,7 @@ class WPU_Phpbb {
 	 */
 	function load($rootPath) {
 		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
-		global $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
+		global $dbms, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 		
 
 		$this->_backup_wp_conflicts();

@@ -21,6 +21,6 @@ global $phpbb_version;
 $phpbb_version = 'PHPBB3';
 
 global $wpuVersion;
-$wpuVersion = '0.8.4';
+$wpuVersion = '0.8.4.1';
 
 ?>
