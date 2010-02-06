@@ -110,6 +110,7 @@ v0.8.4 RELEASE CANDIDATE 2
 - Fixed errors with user blogs list, and improved login_userinfo
 - Fixed username incorrect when editing cross-posted posts
 - Fixed integration error message after updating password or username under some circumstances
+- ... and several other minor bug fixes
 
 v0.8.3 RELEASE CANDIDATE 2
 - Slight cleanup of wp-integration-class.php 

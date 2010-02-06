@@ -1,7 +1,8 @@
-To fix for v0.8.4
+To fix for v0.8.5
 ---------------------
 
-author permalinks not working if author permalink with space in username
+
+? author permalinks not working if author permalink with space in username
 
 wpu-plugin should halt if installLevel is < 10, or if version doesn't match, to prevent users from using WP-United  at all if they haven't got past Step 5 of the Setup Wizard.
 wpu_get_xposted_details called multiple times on page view (comments_open, comment load). Result should be cached.
@@ -13,27 +14,23 @@ Add forum selection option to widget control panel for latest posts and topics w
 user blogs: show only my posts for author or below: http://www.wp-united.com/viewtopic.php?f=9&t=2063
 WP dashboard recent comments integration with xposted comments
 When grepping <title>, check if more than one exists. If so, ignore any commented ones.
-Widget logout status: checks phpBB status rather than WordPress status
+
 
 
 
 Potential changes / Watch issues
 -------------------------------------------
-
+- one user reports getting logged out upon leaving comment in WP
+- one user reports broken "reply" links in theme.
 - received transient error on first xpost(updated post to be forced xpost not previously xposted): Fatal error: Cannot redeclare validate_username() (previously declared in /var/www/wp-united/buildenv/wpu-buildenv/workspace/phpbb/includes/functions_user.php:1452) in wp-includes/registration.php on line 53
 - characters too few error on cross-post reported. Cannot reproduce - -waiting for additional reports
 - override of "must log in" relies on themes checking WP's "must log in to post comment" option (e.g. Arras doesn't).
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
-- Fixd loginuserinfo template tag not showing logged out status properly
 
 
-
-For Site Update:
----------------------
-Arras theme does not check WordPress' "Users must be registered and logged in to comment" option
-Create simple forum page
-
-
+FIXED/COMMITTED FOR v0.8.5
+----------------------------------------
+- Added f query var to post links in latest topics widget
 
 FIXED/COMMITTED FOR v0.8.4
 ----------------------------------------
@@ -56,6 +53,8 @@ FIXED/COMMITTED FOR v0.8.4
 - Post editing permissions now fixed: username is not transferred to user doing the editing. Edit permissions checked in the forum
 - When calling login_userinfo template tag, it can now be called multiple times with different options without wasting resources
 - Fixed integration error after updating password or username
+- Widget logout status: checks phpBB status rather than WordPress status
+- Fixd loginuserinfo template tag not showing logged out status properly
 
 
 FIXED / COMMITTED for v0.8.3:
