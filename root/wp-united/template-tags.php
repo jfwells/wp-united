@@ -932,18 +932,18 @@ function get_wpu_login_user_info($args) {
 	extract(_wpu_process_args($args, $defaults));
 
 	$ret = '';
-	
+
 	get_currentuserinfo();
 	$loggedIn = $phpbbForum->user_logged_in();
 	
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 
 
-			$ret .= $before . '<a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
-			$ret .= $before . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
+			$ret .= _wpu_add_class($before, 'wpu-widget-lu- username'). '<a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
+			$ret .= _wpu_add_class($before, 'wpu-widget-lu-avatar') . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
 
 		if ( $showRankBlock ) {
-			$ret .= $before . get_wpu_phpbb_rankblock() . $after;
+			$ret .= _wpu_add_class($before, 'wpu-widget-lu-rankblock') . get_wpu_phpbb_rankblock() . $after;
 		}
 
 		if ( $showNewPosts ) {
@@ -1000,6 +1000,7 @@ function get_wpu_login_user_info($args) {
 	
 	return $ret;
 }
+
 
 
 /**
@@ -1076,6 +1077,27 @@ if(!function_exists('get_wp_loginout')) {
 		ob_end_clean();
 		return $link;
 	}
+}
+
+/**
+ * Adds a classname to an element if it doesn't already exist
+ * @since v0.8.5/v0.9.0
+ * @param string $el the element in which to add a class
+ * @param string $class the name of the class to insert
+ * @access private
+ */
+function _wpu_add_class($el, $class) {
+	$find = '>';
+	$repl = ' class="%s">';
+	if(stristr($el, 'class="') > 0) {
+		$find = 'class="';
+		$repl = 'class="%s ';
+	} else if(stristr($el, "class='") > 0) {
+		$find = "class='";
+		$repl = "class='%s ";
+	}
+	return str_replace($find, sprintf($repl, $class), $el);
+	
 }
 
 

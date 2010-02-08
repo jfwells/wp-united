@@ -47,6 +47,8 @@ FIXED/COMMITTED FOR v0.8.5
 ----------------------------------------
 - Suppress errors during path detection, etc, for people with open_basedir restrictions
 - If forum and blog are both in root directory, add explicit "index.php" to the forum link.
+- added _wpu_add_class -- a way to add class names to widget elements
+- Added more classes to the login / userinfo widget to facilitate styling.
 
 
 FIXED/COMMITTED FOR v0.8.4.1
