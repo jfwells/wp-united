@@ -1109,7 +1109,7 @@ function wpu_clear_header_cache() {
  * Add box to the write/(edit) post page.
  */
 function wpu_add_postboxes() {
-	global $can_xpost_forumlist, $already_xposted, $phpbbForum;
+	global $can_xpost_forumlist, $already_xposted, $phpbbForum, $wpSettings;
 ?>
 	<div id="wpuxpostdiv" class="inside">
 	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
@@ -1129,7 +1129,20 @@ function wpu_add_postboxes() {
 					echo ">{$can_xpost_forumlist['forum_name'][$key]}</option>";
 				}
 			}
-		?>
+			 if($wpSettings['xposttype'] == 'ASKME') {
+				$excerptState = 'checked="checked"';
+				$fullState = '';
+				if (isset($_GET['post'])) {
+					$postID = (int)$_GET['post'];
+					if(get_post_meta($postID, '_wpu_posttype', true) != 'excerpt') {
+						$fullState = 'checked="checked"';
+						$excerptState = '';
+					}
+				}
+				echo '<input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
+			} ?>
+		
 		</select>
 	</label>
 	</div>
@@ -1139,10 +1152,23 @@ function wpu_add_postboxes() {
  * Adds a "Force cross-posting" info box
  */
 function wpu_add_forcebox($forumName) {
-	global $forceXPosting, $phpbbForum;
+	global $forceXPosting, $phpbbForum, $wpSettings;
 ?>
 	<div id="wpuxpostdiv" class="inside">
 	<p> <?php echo sprintf($phpbbForum->lang['wpu_forcexpost_details'], $forceXPosting); ?></p>
+	<?php if($wpSettings['xposttype'] == 'ASKME') {
+				$excerptState = 'checked="checked"';
+				$fullState = '';
+				if (isset($_GET['post'])) {
+					$postID = (int)$_GET['post'];
+					if(get_post_meta($postID, '_wpu_posttype', true) != 'excerpt') {
+						$fullState = 'checked="checked"';
+						$excerptState = '';
+					}
+				}
+				echo '<input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
+			} ?>
 	</div>
 <?php
 }

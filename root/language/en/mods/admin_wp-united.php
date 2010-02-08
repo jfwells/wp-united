@@ -102,6 +102,13 @@ $lang = array_merge($lang, array(
 	'WPXPOST_EXPLAIN' => 'If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the "can cross-post" permission for the users/groups/forums combinations you need.',
 	'WPXPOST_OPTTITLE' => 'You can set the following options if you integrate logins',
 	'WPXPOSTAL_OPTTITLE' => 'You can set the following options if you allow cross-posting',
+	
+	'WPXPOSTTYPE' => 'Type of cross-post',
+	'WPXPOSTTYPE_EXPLAIN' => 'Choose how the post should appear in phpBB. WP-United can post an excerpt, the full post, or give you an option to select when posting each post.',
+	'WP_EXCERPT' => 'Excerpt',
+	'WP_FULLPOST' => 'Full Post',
+	'WP_ASKME' => 'Ask Me',
+	
 	'WPXPOST_AUTOLINKING_TITLE' => 'phpBB manages comments on cross-posted posts?',
 	'WPXPOST_AUTOLINKING_EXPLAIN' => 'Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.',
 	'WPXPOST_MUST_XPOST_TITLE' => 'Force all blog posts to be cross-posted?',

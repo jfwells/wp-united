@@ -217,6 +217,7 @@
 			document.getElementById("xpostRow").style.display = 'none';
 			document.getElementById("xpostal").style.display = 'none';
 			document.getElementById("xpostal2").style.display = 'none';
+			document.getElementById("xpostType").style.display = 'none';
 			document.getElementById("xpostalhead").style.display = 'none';
 			document.getElementById("xPostHead").style.display = 'none';			
 			//document.getElementById("wpRow1").style.display = 'none';
@@ -237,6 +238,7 @@
 			//document.getElementById("wpRowH").style.display = '';
 			document.getElementById("xpostRow").style.display = '';
 			if (document.getElementById("xpostYes").checked == true) {
+				document.getElementById("xpostType").style.display = '';
 				document.getElementById("xpostal").style.display = '';
 				document.getElementById("xpostalhead").style.display = '';
 				document.getElementById("xpostal2").style.display = '';
@@ -354,6 +356,14 @@
 				<dt><label for="xpostYes">{L_WPXPOST_TITLE}</label><br /><span>{L_WPXPOST_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="xpostYes" name="rad_xPost" value="1" {S_WPXPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xPost" value="0" {S_WPXPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
 			</dl>
+			<dl id="xpostType">
+				<dt><label for="xpostExcerpt">{L_WPXPOSTTYPE}</label><br /><span>{L_WPXPOSTTYPE_EXPLAIN}</span></dt>
+				<dd>
+					<input type="radio" id="xpostExcerpt" name="rad_xpost_type" value="excerpt" {S_WPXPOSTTYPE_EXCERPT} />{L_WP_EXCERPT}<br />
+					<input type="radio" name="rad_xpost_type" value="fullpost" {S_WPXPOSTTYPE_FULLPOST} />{L_WP_FULLPOST}<br />
+					<input type="radio" name="rad_xpost_type" value="askme" {S_WPXPOSTTYPE_ASKME} />{L_WP_ASKME}
+				</dd>
+			</dl>			
 			<h3 id="xpostalhead" style="margin-bottom: 20px;">{L_WPXPOSTAL_OPTTITLE}</h3>		
 			<dl id="xpostal">
 				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>
@@ -920,6 +930,7 @@
 			document.getElementById("xpostRow").style.display = 'none';
 			document.getElementById("xPostHead").style.display = 'none';
 			document.getElementById("xpostal").style.display = 'none';
+			document.getElementById("xpostType").style.display = 'none';
 			document.getElementById("xpostal2").style.display = 'none';
 			document.getElementById("xpostalhead").style.display = 'none';
 		}
@@ -930,6 +941,7 @@
 			document.getElementById("xpostRow").style.display = '';
 			document.getElementById("xPostHead").style.display = '';
 			if (document.getElementById("xpostYes").checked == true) {
+				document.getElementById("xpostType").style.display = '';
 				document.getElementById("xpostal").style.display = '';
 				document.getElementById("xpostal2").style.display = '';
 				document.getElementById("xpostalhead").style.display = '';
@@ -975,6 +987,14 @@
 				<dt><label for="xpostYes">{L_WPXPOST_TITLE}</label><br /><span>{L_WPXPOST_EXPLAIN}</span></dt>
 				<dd><input type="radio" id="xpostYes" name="rad_xPost" value="1" {S_WPXPOST_ENABLE} onclick="rowState()"/>{L_WP_YES}&nbsp; &nbsp;<input type="radio" name="rad_xPost" value="0" {S_WPXPOST_DISABLE} onclick="rowState()" />{L_WP_NO}</dd>
 			</dl>	
+			<dl id="xpostType">
+				<dt><label for="xpostExcerpt">{L_WPXPOSTTYPE}</label><br /><span>{L_WPXPOSTTYPE_EXPLAIN}</span></dt>
+				<dd>
+					<input type="radio" id="xpostExcerpt" name="rad_xpost_type" value="excerpt" {S_WPXPOSTTYPE_EXCERPT} />{L_WP_EXCERPT}<br />
+					<input type="radio" name="rad_xpost_type" value="fullpost" {S_WPXPOSTTYPE_FULLPOST} />{L_WP_FULLPOST}<br />
+					<input type="radio" name="rad_xpost_type" value="askme" {S_WPXPOSTTYPE_ASKME} />{L_WP_ASKME}
+				</dd>
+			</dl>				
 			<h3 id="xpostalhead" style="margin-bottom: 20px;">{L_WPXPOSTAL_OPTTITLE}</h3>		
 			<dl id="xpostal">
 				<dt><label for="al_xpostYes">{L_WPXPOST_AUTOLINKING_TITLE}</label><br /><span>{L_WPXPOST_AUTOLINKING_EXPLAIN}</span></dt>

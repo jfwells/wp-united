@@ -40,8 +40,9 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		}
 		$phpbbForum->enter();
 	}
+	
 
-
+	
 	// If this is already cross-posted, then edit the post
 	$details = wpu_get_xposted_details($postID);
 	if(($forum_id === false) && ($details === false)) {
@@ -109,15 +110,29 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			return false;
 		}
 	}
-
-	// Get the post excerpt
-	if (!$excerpt = $post->post_excerpt) {
-		$excerpt = $post->post_content;
-		if ( preg_match('/<!--more(.*?)?-->/', $excerpt, $matches) ) {
-			$excerpt = explode($matches[0], $excerpt, 2);
-			$excerpt = $excerpt[0];
+	
+	$content = $post->post_content;
+	
+	// should we post an excerpt, or a full post?
+	$postType = 'excerpt';
+	if($wpSettings['xposttype'] == 'ASKME') { 
+		if (isset($_POST['rad_xpost_type'])) {
+			$postType = ($_POST['rad_xpost_type'] == 'fullpost') ? 'fullpost' : 'excerpt';
 		}
-	}	
+	} else if($wpSettings['xposttype'] == 'FULLPOST') {
+		$postType = 'fullpost';
+	}
+	update_post_meta($postID, '_wpu_posttype', $postType);
+	
+	// Get the post excerpt
+	if($postType == 'excerpt') {
+		if (!$excerpt = $post->post_excerpt) {
+			if ( preg_match('/<!--more(.*?)?-->/', $content, $matches) ) {
+				$excerpt = explode($matches[0], $content, 2);
+				$content = $excerpt[0];
+			}
+		}	
+	}
 							
 	$cats = array(); $tags = array();
 	$tag_list = ''; $cat_list = '';
@@ -138,16 +153,16 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	$cats = (!empty($cat_list)) ? "[b]{$phpbbForum->lang['blog_post_cats']}[/b]{$cat_list}\n" : '';
 	
 	$phpbbForum->leave();
-	$excerpt = sprintf($phpbbForum->lang['blog_post_intro'], '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $excerpt . "\n\n" . $tags . $cats;
+	$content = sprintf($phpbbForum->lang['blog_post_intro'], '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
 
-	$excerpt = utf8_normalize_nfc($excerpt, '', true);
+	$content = utf8_normalize_nfc($content, '', true);
 	$subject = utf8_normalize_nfc($subject, '', true);
 	
 	$phpbbForum->enter(); 
 	
-	wpu_html_to_bbcode($excerpt, 0); //$uid=0, but will get removed)
+	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
 	$uid = $poll = $bitfield = $options = ''; 
-	generate_text_for_storage($excerpt, $uid, $bitfield, $options, true, true, true);
+	generate_text_for_storage($content, $uid, $bitfield, $options, true, true, true);
 		 
 	require_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 	
@@ -159,8 +174,8 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		'enable_smilies' => true,
 		'enable_urls' => true,
 		'enable_sig' => true,
-		'message' => $excerpt,
-		'message_md5' => md5($excerpt),
+		'message' => $content,
+		'message_md5' => md5($content),
 		'bbcode_bitfield' => $bitfield,
 		'bbcode_uid' => $uid,
 		'post_edit_locked'	=> ITEM_LOCKED,

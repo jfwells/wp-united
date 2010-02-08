@@ -361,6 +361,9 @@ class acp_wp_united {
 			'S_BLOGSURI' => $wpSettings['blogsUri'],		
 			'S_WPXPOST_ENABLE' => ( $wpSettings['xposting'] ) ? 'checked="checked"' : '',
 			'S_WPXPOST_DISABLE' => ( $wpSettings['xposting'] ) ? '' : 'checked="checked"',
+			'S_WPXPOSTTYPE_EXCERPT' => ( $wpSettings['xposttype'] == 'EXCERPT') ? 'checked="checked"' : '',
+			'S_WPXPOSTTYPE_FULLPOST' => ( $wpSettings['xposttype'] == 'FULLPOST') ? 'checked="checked"' : '',
+			'S_WPXPOSTTYPE_ASKME' => ( $wpSettings['xposttype'] == 'ASKME') ? 'checked="checked"' : '',
 			'S_WPXAL_ENABLE' => ( $wpSettings['xpostautolink'] ) ? 'checked="checked"' : '',
 			'S_WPXAL_DISABLE' => ( $wpSettings['xpostautolink'] ) ? '' : 'checked="checked"',
 			'S_WPINP' => ($wpSettings['showHdrFtr'] == 'FWD') ? 'checked="checked"' : '',
@@ -544,6 +547,9 @@ class acp_wp_united {
 			'S_WPLOGIN_DISABLE' => ( $wpSettings['integrateLogin'] ) ? '' : 'checked="checked"',
 			'S_WPXPOST_ENABLE' => ( $wpSettings['xposting'] ) ? 'checked="checked"' : '',
 			'S_WPXPOST_DISABLE' => ( $wpSettings['xposting'] ) ? '' : 'checked="checked"' ,
+			'S_WPXPOSTTYPE_EXCERPT' => ( $wpSettings['xposttype'] == 'EXCERPT') ? 'checked="checked"' : '',
+			'S_WPXPOSTTYPE_FULLPOST' => ( $wpSettings['xposttype'] == 'FULLPOST') ? 'checked="checked"' : '',
+			'S_WPXPOSTTYPE_ASKME' => ( $wpSettings['xposttype'] == 'ASKME') ? 'checked="checked"' : '',			
 			'S_WPXAL_ENABLE' => ( $wpSettings['xpostautolink'] ) ? 'checked="checked"' : '',
 			'S_WPXAL_DISABLE' => ( $wpSettings['xpostautolink'] ) ? '' : 'checked="checked"' ,
 			'L_WPBACK' => sprintf($user->lang['WP_Wizard_Back'], 1),
@@ -875,6 +881,16 @@ class acp_wp_united {
 			$data['xpostautolink'] = (int) request_var('rad_xpost_al', 0);
 			$data['xpostforce'] = (int) request_var('al_xpost_must', -1);
 			$data['integrateLogin'] = 1;
+			
+			$data['xposttype'] = request_var('rad_xpost_type', 'excerpt');
+			
+			if($data['xposttype'] == 'fullpost') {
+				$data['xposttype']  = 'FULLPOST';
+			} else if($data['xposttype'] == 'askme') {
+				$data['xposttype']  = 'ASKME';
+			} else {
+				$data['xposttype'] = 'EXCERPT';
+			}
 
 			// Add phpBB3 modules
 			if ($tab = $this->module_exists('ACP_WP_UNITED')) {
@@ -1159,6 +1175,17 @@ class acp_wp_united {
 			$data['xposting'] = (int) request_var('rad_xPost', 0);
 			$data['xpostautolink'] = (int) request_var('rad_xpost_al', 0);
 			$data['xpostforce'] = (int) request_var('al_xpost_must', -1);
+			
+			$data['xposttype'] = request_var('rad_xpost_type', 'excerpt');
+			
+			if($data['xposttype'] == 'fullpost') {
+				$data['xposttype']  = 'FULLPOST';
+			} else if($data['xposttype'] == 'askme') {
+				$data['xposttype']  = 'ASKME';
+			} else {
+				$data['xposttype'] = 'EXCERPT';
+			}
+
 			
 			// Add phpBB3 modules
 			if ($tab = $this->module_exists('ACP_WP_UNITED')) {
