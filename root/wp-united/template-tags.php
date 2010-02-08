@@ -939,7 +939,7 @@ function get_wpu_login_user_info($args) {
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 
 
-			$ret .= _wpu_add_class($before, 'wpu-widget-lu- username'). '<a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
+			$ret .= _wpu_add_class($before, 'wpu-widget-lu-username'). '<a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
 			$ret .= _wpu_add_class($before, 'wpu-widget-lu-avatar') . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
 
 		if ( $showRankBlock ) {
@@ -955,11 +955,11 @@ function get_wpu_login_user_info($args) {
 			if ($phpbbForum->get_userdata('user_new_privmsg')) {
 				$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
 				$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
-				$ret .= $before. '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 			} else {
 				$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
 				$s_privmsg_new = false;
-				$ret .= $before . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 			}	
 		}
 
