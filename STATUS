@@ -3,6 +3,8 @@ To fix/change for v0.8.5
 
 - Allow guest commenting
 - Give choice to cross-post excerpts or full posts
+- add username colours to topics, posts & loginuserinfo widget
+- forum tag cloud
 
 for potential replacement of $_SERVER['DOCUMENT_ROOT'], to see if we can get data when open_basedir
 //////
