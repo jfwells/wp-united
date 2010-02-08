@@ -260,6 +260,7 @@ if ( $useCache || $connectSuccess ) {
 					$wpTemplateFile = TEMPLATEPATH . "/index.php";
 				}
 			}
+
 			include($wpTemplateFile);
 	
 			$outerContent = ob_get_contents();

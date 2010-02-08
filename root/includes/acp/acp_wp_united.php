@@ -2022,16 +2022,16 @@ class acp_wp_united {
 			}
 
 			// Find path  to adm
-			$thisPath = $this->add_trailing_slash($this->clean_path(realpath(getcwd())));
+			$thisPath = $this->add_trailing_slash($this->clean_path(@realpath(getcwd())));
 			$wpu_debug .= 'DEBUG (to post if you need help):<br />';
 			$wpu_debug .= 'Current Path ' . $thisPath . '<br />';
 			
 			$thisPath =  explode("/", $thisPath );
 			array_pop($thisPath); array_pop($thisPath);
 			//get the filepath to WordPress
-			$wpLoc = explode ("/", $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))));
+			$wpLoc = explode ("/", $this->add_trailing_slash($this->clean_path(@realpath($wpSettings['wpPath']))));
 			
-			$wpu_debug .= 'Path to WP: ' . $wpSettings['wpPath'] . ' <br />Realpath to WP: ' . $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))) . '<br />';
+			$wpu_debug .= 'Path to WP: ' . $wpSettings['wpPath'] . ' <br />Realpath to WP: ' . $this->add_trailing_slash($this->clean_path(@realpath($wpSettings['wpPath']))) . '<br />';
 			
 			//ditch common parent dirs from the paths
 			$pathsComputed = FALSE;
@@ -2060,15 +2060,15 @@ class acp_wp_united {
 			$fromW = $adminFromW . "../";
 			
 			//WP 2.3 and onwards doesn't allow directory traversal, so we need to ask user to copy the file instead
-			$wpPluginDir = $this->add_trailing_slash($this->clean_path(realpath($wpSettings['wpPath']))) . "wp-content/plugins/";
+			$wpPluginDir = $this->add_trailing_slash($this->clean_path(@realpath($wpSettings['wpPath']))) . "wp-content/plugins/";
 			$copySuccess = false;
-			if (file_exists($wpPluginDir)) {
+			if (@file_exists($wpPluginDir)) {
 				// we got the plugin directory correct, copy file over
 				$copySuccess = false;
 				if(!@copy($phpbb_root_path . "/wp-united/wpu-plugin.{$phpEx}", $wpPluginDir . "wpu-plugin.{$phpEx}")) {
 					// Copy failed
 				} 
-				if (file_exists($wpPluginDir . "wpu-plugin.{$phpEx}")) {
+				if (@file_exists($wpPluginDir . "wpu-plugin.{$phpEx}")) {
 					// Check to see that WPU-Plugin is the correct version
 					
 					$localFileTime = @filemtime("{$phpbb_root_path}wp-united/wpu-plugin.{$phpEx}");
@@ -2093,7 +2093,7 @@ class acp_wp_united {
 				$wpu_debug .= 'Final Calculated Path: ' . $pluginPath . '<br />'; 
 			
 				//And the path we'll use to access the phpBB root from the WordPress admin dir is:
-				$WPU_Connection['path_to_phpbb'] = $this->add_trailing_slash(realpath($phpbb_root_path));
+				$WPU_Connection['path_to_phpbb'] = $this->add_trailing_slash(@realpath($phpbb_root_path));
 				$wpu_debug .= 'Path back to phpBB: ' . $WPU_Connection['path_to_phpbb'] . '<br />';
 				
 				// We'll also want to have the full scriptPath in wp-admin for playing with URLs
@@ -2215,7 +2215,7 @@ class acp_wp_united {
 				}	
 			
 				//Activate the Connection
-				if ( file_exists(ABSPATH . 'wp-content/plugins/' . $pluginPath) ) {
+				if ( @file_exists(ABSPATH . 'wp-content/plugins/' . $pluginPath) ) {
 					$current = get_settings('active_plugins'); 
 					//remove any existing entries to prevent duplicates
 					$arrPlugins = array();
@@ -2243,7 +2243,7 @@ class acp_wp_united {
 			
 		} else { // can't connect to WP
 			$connError = TRUE;
-			$debugPath = $this->add_trailing_slash($this->clean_path(realpath(dirname(__FILE__))));
+			$debugPath = $this->add_trailing_slash($this->clean_path(@realpath(dirname(__FILE__))));
 			$wpu_debug .= "<br />" . $user->lang['NO_CONNECT_WP_GEN'] . "<br />";
 			$wpu_debug .= $user->lang['WPWizard_Connection_Fail_Explain1'];
 			$wpu_debug .=  'DEBUG (to post if you need help):<br />Current Path: ' . $debugPath . ' <br />';
@@ -2759,7 +2759,7 @@ class acp_wp_united {
 		$wpUtdInt->enter_wp_integration();
 		eval($wpUtdInt->exec()); 
 		
-		if (file_exists($wpSettings['wpPath'] .'wp-admin/includes/user.php')) {  //WP >= 2.3
+		if (@file_exists($wpSettings['wpPath'] .'wp-admin/includes/user.php')) {  //WP >= 2.3
 			require_once($wpSettings['wpPath'] .'wp-admin/includes/user.php');
 		} else {
 			require_once($wpSettings['wpPath'] .'wp-admin/admin-db.php'); //WP < 2.3
@@ -3031,7 +3031,7 @@ class acp_wp_united {
 		$wpPath = $this->add_trailing_slash($wpPath);
 		$wpPath = str_replace('http://', '', $wpPath); // urls sometimes return true on php 5.. this makes sure they don't.
 		$pathToWpSettings = $wpPath . "wp-settings.php";
-		return (file_exists($pathToWpSettings));
+		return (@file_exists($pathToWpSettings));
 	}
 
 

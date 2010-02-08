@@ -5,7 +5,7 @@ Plugin Name: WP-United Connection
 Plugin URI: http://www.wp-united.com
 Description: This is the "WP-United Connection" -- it handles the connection with phpBB fro mthe WordPress side.
 Author: John Wells
-Version: v0.8.4 RC2 (phpBB3)
+Version: v0.8.4.1 RC2 (phpBB3)
 Last Updated: 6 February 2010
 Author URI: http://www.wp-united.com
 * 
@@ -101,12 +101,14 @@ function wpu_init_plugin() {
  * If it is, replace it with the real forum link
  */
 function wpu_modify_pagelink($permalink, $post) {
-	global $wpSettings, $phpbbForum;
+	global $wpSettings, $phpbbForum, $phpEx;
 	
 	if ( !empty($wpSettings['useForumPage']) ) {
 		$forumPage = get_option('wpu_set_forum');
 		if(!empty($forumPage) && ($forumPage == $post)) {
-			return $phpbbForum->url;
+			// If the forum and blog are both in root, add index.php to the end
+			$forumPage = ($phpbbForum->url == $wpsettings['blogsUri']) ? $phpbbForum->url . 'index.' . $phpEx : $phpbbForum->url;
+			return $forumPage; 
 		}
 	}
 	

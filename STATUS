@@ -1,5 +1,20 @@
-To fix for v0.8.5
+To fix/change for v0.8.5
 ---------------------
+
+- Allow guest commenting
+- Give choice to cross-post excerpts or full posts
+
+for potential replacement of $_SERVER['DOCUMENT_ROOT'], to see if we can get data when open_basedir
+//////
+		$docRootNum = explode($this->add_trailing_slash($config['script_path']));
+		$docRootNum = sizeof($docRootNum) - 2;
+		$docRootNum = ($docRootNum < 0) ? 0 : $docRootNum;
+		for($i=0;$i<=$docRootNum;$i++) {
+			$docRoot = $docRoot . '../';
+		}
+		$docRoot = @realpath(dirname(__FILE__)) . '../../' . $docRoot;
+		$docRoot = @realpath($docRoot);
+///////		
 
 
 ? author permalinks not working if author permalink with space in username
@@ -30,8 +45,15 @@ Potential changes / Watch issues
 
 FIXED/COMMITTED FOR v0.8.5
 ----------------------------------------
+- Suppress errors during path detection, etc, for people with open_basedir restrictions
+- If forum and blog are both in root directory, add explicit "index.php" to the forum link.
+
+
+FIXED/COMMITTED FOR v0.8.4.1
+----------------------------------------
 - Added f query var to post links in latest topics widget
 - dbms needs to be global when invoking phpBB
+
 
 
 

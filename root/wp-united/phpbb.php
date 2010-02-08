@@ -2,7 +2,7 @@
 /** 
 *
 * @package WP-United
-* @version $Id: v0.8.4RC2 2010/02/06 John Wells (Jhong) Exp $
+* @version $Id: v0.8.4.1RC2 2010/02/06 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -428,7 +428,7 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	function _switch_to_phpbb_db() {
-		global $db, $dbms;
+		global $db, $dbms; 
 		if (($this->phpbbDbName != DB_NAME) && (!empty($db->db_connect_id))) {
 			if($dbms=='mysqli') {
 				@mysqli_select_db($this->phpbbDbName, $db->db_connect_id);
