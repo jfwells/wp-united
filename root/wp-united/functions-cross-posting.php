@@ -146,7 +146,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	$tag_list = '';
 	$tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
 	if ($tag_list == "") {
-	$tag_list = __('No tags defined.');
+		$tag_list = __('No tags defined.');
 	}
 	
 	$tags = (!empty($tag_list)) ? "[b]{$phpbbForum->lang['blog_post_tags']}[/b]{$tag_list}\n" : '';

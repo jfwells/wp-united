@@ -51,7 +51,7 @@ FIXED/COMMITTED FOR v0.8.5 / v0.9
 - added _wpu_add_class -- a way to add class names to widget elements
 - Added more classes to the login / userinfo widget to facilitate styling.
 - New option: cross-post excerpts or full posts. Three choices: Excerpt / full post / ask each time
-
+- Removed inline JavaScript for smilies -- only inline JS needed is for language strings. All WP-United JS moved to wp-united/js/wpu-min.js
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------

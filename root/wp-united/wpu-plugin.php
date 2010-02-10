@@ -73,6 +73,12 @@ function wpu_init_plugin() {
 	// This variable is used in phpBB template integrator
 	global $siteUrl;
 	$siteUrl = get_option('siteurl');
+	
+	// enqueue any JS we need
+	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
+		wp_enqueue_script('wp-united', $phpbbForum->url . 'wp-united/js/wpu-min.js', array(), false, true);
+	}
+
 
 		/**
 		 * Disable access to the blog if the forum is disabled -- otherwise too many variables
@@ -1430,6 +1436,7 @@ function wpu_print_smilies() {
 		$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' GROUP BY emotion ORDER BY smiley_order ', 3600);
 
 		$i = 0;
+		echo '<span id="wpusmls">';
 		while ($row = $db->sql_fetchrow($result)) {
 			if (empty($row['code'])) {
 				continue;
@@ -1438,7 +1445,7 @@ function wpu_print_smilies() {
 				echo '<span id="wpu-smiley-more" style="display:none">';
 			}
 		
-			echo '<a href="#" onclick = "return insert_text(\''.$row['code'].'\')"><img src="'.$phpbbForum->url.'/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" class="wpu_smile" /></a> ';
+			echo '<a href="#"><img src="'.$phpbbForum->url.'images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /></a> ';
 			$i++;
 		}
 		$db->sql_freeresult($result);
@@ -1449,75 +1456,28 @@ function wpu_print_smilies() {
 		if($i >= 20) {
 			echo '</span>';
 			if($i>20) {
-				echo '<a id="wpu-smiley-toggle" href="#" onclick="return moreSmilies();">' . $phpbbForum->lang['wpu_more_smilies'] . '&nbsp;&raquo;</a></span>';
+				echo '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . $phpbbForum->lang['wpu_more_smilies'] . '&nbsp;&raquo;</a></span>';
 			}
 		}
+		echo '</span>';
 	}
 }
 
-
-
 /**
- * Function 'wpu_javascript' inserts the javascript code required by smilies' function.
- * This is intentionally terse -- comments in php only
- * @since WP-United 0.7.0
- * @todo enqueue
+ * Adds any required inline JS (for language strings)
  */
-function wpu_javascript () {
+function wpu_inline_js() {
 	global $wpSettings, $phpbbForum;
+	
+	// Rather than outputting the script, we just signpost any language strings we will need
+	// The scripts themselves are already enqueud.
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
-
-		echo "
-<script type=\"text/javascript\">
-	//<![CDATA[
-	";
-	// insert smiley
-	echo "funct" . "ion insert_text(text,spaces,popup){
-		var tas,ta,tb;ta=null;";
-		// We try to detect the comment textarea
-		echo "tas=document.getElementsByTagName('textarea');
-		if(tas.length>1){
-			for(var i=0;i<tas.length;i++) {
-				if(tas[i].id=='comment')ta=tas[i];
-				else if((tas[i].name=='comment')&&(ta==null))ta=tas[i];
-				else if((tas[i].className=='comment')&&(ta == null))ta=tas[i];
-			}
-			if(ta==null)for(i=0;i<tas.length;i++)try{if(tas[i].gotFocus)ta=tas[i];} catch(e){}
-			if(ta==null)ta=tas[0];
-		} else if(tas.length==1)	ta=tas[0];
-		if(ta==null) {alert('" . sprintf($phpbbForum->lang['wpu_smiley_error'], "'+text+'") . "');return false;}";
-		// We now have a text area
-		// for IE
-		echo "if (document.selection){
-			ta.focus();
-			sel=document.selection.createRange();
-			sel.text=' '+ text+' ';";
-		// for decent browsers
-		echo "} else if (ta.selectionStart || ta.selectionStart == 0) ta.value=ta.value.substring(0, ta.selectionStart)+' '+text+' '+ ta.value.substring(ta.selectionEnd,ta.value.length);";
-		// fall back to just dumping the smiley at the end
-		echo "else ta.value+= ' '+text+' ';
-		return false;
-	}";
-
-	// show / hide additional smilies
-	echo "funct" . "ion moreSmilies() {
-		document.getElementById('wpu-smiley-more').style.display='inline';
-		var toggle = document.getElementById('wpu-smiley-toggle');
-		toggle.setAttribute(\"onclick\", \"return lessSmilies();\");
-		toggle.firstChild.nodeValue =\"\\u00AB\\u00A0" . $phpbbForum->lang['wpu_less_smilies'] . "\"
-		return false;
-	}
-    
-	funct" . "ion lessSmilies() {
-		document.getElementById('wpu-smiley-more').style.display='none';
-		var toggle = document.getElementById('wpu-smiley-toggle');
-		toggle.setAttribute(\"onclick\", \"return moreSmilies();\");
-		toggle.firstChild.nodeValue =\"" . $phpbbForum->lang['wpu_more_smilies'] . "\\u00A0\\u00BB\";
-		return false;
-	}
-	// ]]>
-</script>
-";
+		echo "\n<script type=\"text/javascript\">//<![CDATA[\nvar wpuLang ={";
+		$langStrings = array('wpu_more_smilies', 'wpu_less_smilies', 'wpu_smiley_error');
+		foreach($langStrings as $lang) {
+			echo "'{$lang}': '" . str_replace("\\\\'", "\\'", str_replace("'", "\\'",  $phpbbForum->lang[$lang])) . "',";
+		}
+		echo "} // ]]>\n</script>";
 	}
 }
 
@@ -1617,7 +1577,7 @@ $wpuConnSettings = get_option('wputd_connection');
 	add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
 	add_action('comment_form', 'wpu_print_smilies');
 	add_action('comment_form', 'wpu_comment_redir_field');
-	add_action('wp_head', 'wpu_javascript');
+	add_action('wp_head', 'wpu_inline_js');
 
 	add_filter('template', 'wpu_get_template');
 	add_filter('stylesheet', 'wpu_get_stylesheet');
