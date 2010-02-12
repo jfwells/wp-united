@@ -161,8 +161,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	
 	$content = utf8_normalize_nfc($content, '', true);
 	$subject = utf8_normalize_nfc($subject, '', true);
-	
-	
+		
 	
 	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
 	$uid = $poll = $bitfield = $options = ''; 
