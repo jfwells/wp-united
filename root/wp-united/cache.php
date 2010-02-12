@@ -435,7 +435,8 @@ class WPU_Cache {
 	 * Prepares content for saving to cache -- ensuring it can't be called directly, and that it can be properly eval()d
 	 */
 	function prepare_content($content, $addPHP = '') {
-		return '<' ."?php\n\n if(!defined('IN_PHPBB')){exit();}\n\n$addPHP\n\n$content\n\n?" . '>';
+		$addPHP = (!empty($addPHP)) ? "\n\n$addPHP" : '';
+		return '<' ."?php\n\n if(!defined('IN_PHPBB')){exit();}$addPHP\n\n$content\n\n?" . '>';
 	}
 
 
