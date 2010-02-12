@@ -271,11 +271,11 @@ class WPU_Cache {
 	 * @param string $pluginPath Full path to plugin
 	 * @param bool $compat Whether the plugin should be run in compatibility (slow) mode or not.
 	 */
-	function save_plugin($content, $pluginPath, $wpVer, $compat) {
+	function save_plugin($content, $pluginPath, $wpVer, $compat, $addPHP = '') {
 		global $phpEx;
 		$compat = ($compat) ? "_fast" : "_slow";
 		$fnDest = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
-		$content = $this->prepare_content($content); 
+		$content = $this->prepare_content($content, $addPHP); 
 		$this->save($content, $fnDest);
 		$this->_log("Generated plugin cache: $fnDest");	
 		// update plugin compile time
@@ -434,8 +434,8 @@ class WPU_Cache {
 	/**
 	 * Prepares content for saving to cache -- ensuring it can't be called directly, and that it can be properly eval()d
 	 */
-	function prepare_content($content) {
-		return '<' ."?php\n\n if(!defined('IN_PHPBB')){exit();}\n\n$content\n\n?" . '>';
+	function prepare_content($content, $addPHP = '') {
+		return '<' ."?php\n\n if(!defined('IN_PHPBB')){exit();}\n\n$addPHP\n\n$content\n\n?" . '>';
 	}
 
 

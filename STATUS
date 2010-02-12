@@ -44,6 +44,8 @@ FIXED/COMMITTED FOR v0.8.5 / v0.9
 - New option: cross-post excerpts or full posts. Three choices: Excerpt / full post / ask each time
 - Removed inline JavaScript for smilies -- only inline JS needed is for language strings. All WP-United JS moved to wp-united/js/wpu-min.js
 - Fixed tags/categories not showing up properly on cross-posted posts
+- Added class names for each forum ID in latest topic/posts widgets.
+- Fixed plugin_fixer globals setter not working when global value assigned early.
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------

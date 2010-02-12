@@ -96,6 +96,8 @@ class WPU_WP_Plugins {
 	function process_file($pluginLoc) {
 		global $phpEx, $wpuCache;
 		
+		$prefixContent = '';
+		
 		// We only process files in the plugins directory, unless that file is a known problem
 		$thisLoc = add_trailing_slash(dirname(realpath($pluginLoc)));
 		if(strpos($thisLoc, $this->pluginDir) === false) {
@@ -124,12 +126,19 @@ class WPU_WP_Plugins {
 			if(sizeof($globs)) {
 				if(is_array($this->globals)) {
 					if(sizeof($this->globals)) {
-						$globs = array_merge($this->globals, $globs);
+						$newGlobals = array_merge($this->globals, $globs);
 					}
 				}
-				$globs = array_merge(array_unique($globs));
-				$this->globals = $globs;
+				$newGlobals = array_merge(array_unique($newGlobals));
+				$this->globals = $newGlobals;
+
+				/** 
+				 * We make the globals global in the wordpress base scope, 
+				 * but we also need to add them to the beginning of the file
+				 */
+				$prefixContent = 'global $' . implode(', $', $globs) . ';';
 			}
+	
 		}
 		
 		// prevent including files which WP-United has already processed and included
@@ -156,7 +165,7 @@ class WPU_WP_Plugins {
 	
 		$pluginContent = $startToken. trim($pluginContent) . $endToken;
 	
-		return $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpVer, $this->strCompat);
+		return $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpVer, $this->strCompat, $prefixContent);
 
 	}
 	
