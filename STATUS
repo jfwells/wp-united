@@ -1,6 +1,11 @@
 To fix/change for v0.8.5
 ---------------------
 
+- account for logged in user keeps being created in usermapper, immediately after account break?
+- when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
+- relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
+
+- Migrate widgets to new syntax
 - Last post time reported different from topic time (? to confirm)
 - Cross-posted post reported not read, even after reading (? to confirm)
 
@@ -35,7 +40,7 @@ Potential changes / Watch issues
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
 
 
-FIXED/COMMITTED FOR v0.8.5 / v0.9
+FIXED/COMMITTED FOR v0.8.5
 ----------------------------------------
 - Suppress errors during path detection, etc, for people with open_basedir restrictions
 - If forum and blog are both in root directory, add explicit "index.php" to the forum link.
