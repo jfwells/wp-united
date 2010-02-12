@@ -1,23 +1,14 @@
-To fix/change for v0.8.5+
+To fix/change for v0.8.5
 ---------------------
 
+- Last post time reported different from topic time (? to confirm)
+- Cross-posted post reported not read, even after reading (? to confirm)
+
+- Move authentication out to module, check with WP Super Cache
 - Allow guest commenting
 - add username colours to topics, posts & loginuserinfo widget
-- forum tag cloud
 
-for potential replacement of $_SERVER['DOCUMENT_ROOT'], to see if we can get data when open_basedir
-//////
-		$docRootNum = explode($this->add_trailing_slash($config['script_path']));
-		$docRootNum = sizeof($docRootNum) - 2;
-		$docRootNum = ($docRootNum < 0) ? 0 : $docRootNum;
-		for($i=0;$i<=$docRootNum;$i++) {
-			$docRoot = $docRoot . '../';
-		}
-		$docRoot = @realpath(dirname(__FILE__)) . '../../' . $docRoot;
-		$docRoot = @realpath($docRoot);
-///////		
-
-
+$_SERVER['DOCUMENT_ROOT'] unreliable as source for path computation on open_basedir restricted servers
 ? author permalinks not working if author permalink with space in username
 
 wpu-plugin should halt if installLevel is < 10, or if version doesn't match, to prevent users from using WP-United  at all if they haven't got past Step 5 of the Setup Wizard.
@@ -52,6 +43,7 @@ FIXED/COMMITTED FOR v0.8.5 / v0.9
 - Added more classes to the login / userinfo widget to facilitate styling.
 - New option: cross-post excerpts or full posts. Three choices: Excerpt / full post / ask each time
 - Removed inline JavaScript for smilies -- only inline JS needed is for language strings. All WP-United JS moved to wp-united/js/wpu-min.js
+- Fixed tags/categories not showing up properly on cross-posted posts
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------

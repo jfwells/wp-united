@@ -111,6 +111,8 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		}
 	}
 	
+	$phpbbForum->leave();
+	
 	$content = $post->post_content;
 	
 	// should we post an excerpt, or a full post?
@@ -152,13 +154,15 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	$tags = (!empty($tag_list)) ? "[b]{$phpbbForum->lang['blog_post_tags']}[/b]{$tag_list}\n" : '';
 	$cats = (!empty($cat_list)) ? "[b]{$phpbbForum->lang['blog_post_cats']}[/b]{$cat_list}\n" : '';
 	
-	$phpbbForum->leave();
+	
 	$content = sprintf($phpbbForum->lang['blog_post_intro'], '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
 
+	$phpbbForum->enter(); 	
+	
 	$content = utf8_normalize_nfc($content, '', true);
 	$subject = utf8_normalize_nfc($subject, '', true);
 	
-	$phpbbForum->enter(); 
+	
 	
 	wpu_html_to_bbcode($content, 0); //$uid=0, but will get removed)
 	$uid = $poll = $bitfield = $options = ''; 
