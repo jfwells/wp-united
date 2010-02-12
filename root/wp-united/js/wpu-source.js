@@ -2,7 +2,7 @@
  * 
  * This is the source file for WP-United JavaScript
  * Currently there isn't a lot of JS used by WP-United, but it is likely to increase in the future
- * By default, this file is ignored -- the minified wou-min.js is called instead when needed.
+ * By default, this file is ignored -- the minified wpu-min.js is called instead when needed.
  * This file is just here for your convenience should you want to modify WP-United.
  * If you want to have this file load during development, just rename it to wpu-min.js.
  */
