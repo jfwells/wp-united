@@ -5,9 +5,10 @@ To fix/change for v0.8.5
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
 
+- post to blog button
 - Migrate widgets to new syntax
-- Last post time reported different from topic time (? to confirm)
-- Cross-posted post reported not read, even after reading (? to confirm)
+- Last post time reported different from topic time
+- Cross-posted post reported not read, even after reading
 
 - Move authentication out to module, check with WP Super Cache
 - Allow guest commenting
@@ -50,7 +51,7 @@ FIXED/COMMITTED FOR v0.8.5
 - Removed inline JavaScript for smilies -- only inline JS needed is for language strings. All WP-United JS moved to wp-united/js/wpu-min.js
 - Fixed tags/categories not showing up properly on cross-posted posts
 - Added class names for each forum ID in latest topic/posts widgets.
-- Fixed plugin_fixer globals setter not working when global value assigned early.
+- Fixed plugin_fixer globals assigner
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------

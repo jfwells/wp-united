@@ -131,12 +131,6 @@ class WPU_WP_Plugins {
 				}
 				$newGlobals = array_merge(array_unique($newGlobals));
 				$this->globals = $newGlobals;
-
-				/** 
-				 * We make the globals global in the wordpress base scope, 
-				 * but we also need to add them to the beginning of the file
-				 */
-				$prefixContent = 'global $' . implode(', $', $globs) . ';';
 			}
 	
 		}
@@ -169,9 +163,21 @@ class WPU_WP_Plugins {
 
 	}
 	
+	/**
+	 * remove any blanks, and remove anything that could wreck global references
+	 */
+	function clean_globals($globs = false) {
+		if($globs === false) {
+			$globs = $this->globals;
+		}
+		if(!sizeof($globs)) {
+			return array();
+		}
+		return array_diff((array)$globs, array_merge(array(''), $GLOBALS['wpUtdInt']->globalRefs));
+	}
+	
 	function save_globals() {
-		// remove any blanks, and remove anything that could wreck global references
-		$this->globals = array_diff($this->globals, array_merge(array(''), $GLOBALS['wpUtdInt']->globalRefs));
+		$this->globals = $this->clean_globals();
 		if($this->globals != $this->oldGlobals) {
 			update_option("wpu_{$this->type}_globals", $this->globals);
 		}
@@ -179,9 +185,16 @@ class WPU_WP_Plugins {
 	
 	function get_globalString() {
 		if(!$this->compat) {
+			$ret = '';
+			foreach($this->globals as $g) {
+				if(!isset($GLOBALS[$g])) {
+					$ret .= '$GLOBALS[\'' . $g . '\'] = $' . $g . ';';
+					
+				}
+			}
 			if(sizeof($this->globals) && (is_array($this->globals))) {
 				$this->save_globals();
-				return 'global $' . implode(', $', $this->globals) . ';';
+				return $ret; //$ret; //global $' . implode(', $', $this->globals) . ';';
 			}
 		}
 		return '';
