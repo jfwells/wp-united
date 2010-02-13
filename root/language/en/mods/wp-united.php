@@ -124,6 +124,7 @@ $lang = array_merge($lang, array(
 	'wpu_already_xposted' => 'Already cross-posted (Topic ID = %s)',
 	'wpu_forcexpost_box_title' => 'Forum Posting',
 	'wpu_forcexpost_details' => 'This post will be cross-posted to the forum: \'%s\'',
+	'wpu_forcexpost_update' => 'This post is already cross-posted. It will be edited in forum \'%s\'',
 	'wpu_user_edit_use_phpbb' => '<strong>NOTE:</strong> Most of this user\'s  information can be administered using the forum. %1sClick here to view/edit%2s.',
 	'wpu_profile_edit_use_phpbb' => '<strong>NOTE:</strong> Most of your  information can be edited in your forum profile. %1sClick here to view/edit%2s.',
 	'wpu_userpanel_use_phpbb' => '<strong>NOTE:</strong> Integrated users\'  information can and should be edited using the forum using the links below.',

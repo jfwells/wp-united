@@ -1159,9 +1159,13 @@ function wpu_add_postboxes() {
  */
 function wpu_add_forcebox($forumName) {
 	global $forceXPosting, $phpbbForum, $wpSettings;
+	
+	$phpbbForum->enter();
+	$showText =  (wpu_get_xposted_details()) ? $phpbbForum->lang['wpu_forcexpost_update'] : $phpbbForum->lang['wpu_forcexpost_details'];
+
 ?>
 	<div id="wpuxpostdiv" class="inside">
-	<p> <?php echo sprintf($phpbbForum->lang['wpu_forcexpost_details'], $forceXPosting); ?></p>
+	<p> <?php echo sprintf($showText, $forceXPosting); ?></p>
 	<?php if($wpSettings['xposttype'] == 'ASKME') {
 				$excerptState = 'checked="checked"';
 				$fullState = '';

@@ -5,8 +5,11 @@ To fix/change for v0.8.5
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
 
+- test capturing server 500 errors and display nicer message on connection install
+
 - post to blog button
 - Migrate widgets to new syntax
+- add option to show post excerpt to posts / topics widget/tag
 - Last post time reported different from topic time
 - Cross-posted post reported not read, even after reading
 
@@ -52,6 +55,7 @@ FIXED/COMMITTED FOR v0.8.5
 - Fixed tags/categories not showing up properly on cross-posted posts
 - Added class names for each forum ID in latest topic/posts widgets.
 - Fixed plugin_fixer globals assigner
+- show "cross-post" in past tense in force xpost box if already xposted.
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------
