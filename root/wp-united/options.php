@@ -122,6 +122,18 @@ define('WPU_MAX_COMPRESS', FALSE);
 define('DISABLE_PHPBB_CSS', FALSE);
 define('PHPBB_CSS_FIRST', TRUE);
 
+/**
+ * Show blog link
+ * This is a quick way to remove the blog link from the top of all your phpBB styles. If you want to temporarily hide it,
+ * Set this to false.
+ */
+define('SHOW_BLOG_LINK', TRUE);
+
+/**
+ * WordPress-in-phpBB use default style only?
+ * Set this to true to stick to the board default style on WordPress-in-phpBB pages.
+ */
+define('WPU_INTEG_DEFAULT_STYLE', FALSE);
 
 /**
  * WordPress debug options

@@ -1,10 +1,12 @@
 To fix/change for v0.8.5
 ---------------------
-
+- uncategorized checked when selecting cross-posting
+- avatar not synced when deleted by user in UCP
+- main install / upgrade file contains subsilver file copies -- remove and check
 - account for logged in user keeps being created in usermapper, immediately after account break?
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
-
+- add ability to show first 20 words of post in posts widget
 - test capturing server 500 errors and display nicer message on connection install
 
 - post to blog button
@@ -56,6 +58,7 @@ FIXED/COMMITTED FOR v0.8.5
 - Added class names for each forum ID in latest topic/posts widgets.
 - Fixed plugin_fixer globals assigner
 - show "cross-post" in past tense in force xpost box if already xposted.
+- added two new options, SHOW_BLOG_LINK, and WPU_INTEG_DEFAULT_STYLE -- full info in options.php
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------

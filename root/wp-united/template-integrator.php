@@ -32,7 +32,6 @@ if($wpuNoHead) {
  * Get phpBB header/footer
  */
 if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REVERSE_INTEGRATION')) ) {
-
 	//export header styles to template - before or after phpBB's CSS depending on wpSettings.
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later

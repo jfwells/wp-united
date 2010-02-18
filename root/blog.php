@@ -79,7 +79,12 @@ if (file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 		define('WPU_BOARD_DISABLED', (!empty($config['board_disable_msg'])) ? '<strong>' . $user->lang['BOARD_DISABLED'] . '</strong><br /><br />' . $config['board_disable_msg'] : $user->lang['BOARD_DISABLE']);
 	} else {
 		require_once($phpbb_root_path . 'wp-united/phpbb.'.$phpEx);
-		$user->setup('mods/wp-united');
+		if(($wpSettings['showHdrFtr'] == 'FWD') && (defined('WPU_INTEG_DEFAULT_STYLE') && WPU_INTEG_DEFAULT_STYLE)) {
+			// This option forces the default phpBB style in a forward integration
+			$user->setup('mods/wp-united', $config['default_style']);
+		} else {
+			$user->setup('mods/wp-united');
+		}
 	}
 
 	

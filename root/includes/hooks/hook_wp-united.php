@@ -109,7 +109,7 @@ function wpu_init(&$hook) {
 				}
 			}	
 		}	
-		
+
 		//Do a reverse integration?
 		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 			define('WPU_REVERSE_INTEGRATION', true);
@@ -143,11 +143,12 @@ function wpu_execute(&$hook, $handle) {
 		
 		$wpuRunning = true;
 		//$hook->remove_hook(array('template', 'display'));
-		
-		$template->assign_vars(array(
-			'U_BLOG'	 =>	append_sid($wpSettings['blogsUri'], false, false, $GLOBALS['user']->session_id),
-			'S_BLOG'	=>	TRUE,
-		));  
+		if(defined('SHOW_BLOG_LINK') && SHOW_BLOG_LINK) {
+			$template->assign_vars(array(
+				'U_BLOG'	 =>	append_sid($wpSettings['blogsUri'], false, false, $GLOBALS['user']->session_id),
+				'S_BLOG'	=>	TRUE,
+			)); 
+		}
 		
 
 		if (defined('WPU_REVERSE_INTEGRATION') ) {
