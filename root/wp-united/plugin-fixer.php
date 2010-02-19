@@ -113,7 +113,7 @@ class WPU_WP_Plugins {
 		$pluginContent = preg_replace(array('/[;\s]exit;/', '/[;\s]exit\(/'), array('wpu_complete(); exit;', 'wpu_complete(); exit('), $pluginContent);
 	
 		// identify all global vars
-		if (!$this->compat) {
+		if (!$this->compat) { 
 			preg_match_all('/\n[\s]*global[\s]*([^\n^\r^;^:]*)(;|:|\r|\n)/', $pluginContent, $glVars);
 		
 			$globs = array();
@@ -126,11 +126,11 @@ class WPU_WP_Plugins {
 			if(sizeof($globs)) {
 				if(is_array($this->globals)) {
 					if(sizeof($this->globals)) {
-						$newGlobals = array_merge($this->globals, $globs);
+						$globs = array_merge($this->globals, $globs);
 					}
 				}
-				$newGlobals = array_merge(array_unique($newGlobals));
-				$this->globals = $newGlobals;
+				$globs = array_merge(array_unique($globs));
+				$this->globals = $globs;
 			}
 	
 		}
@@ -189,12 +189,11 @@ class WPU_WP_Plugins {
 			foreach($this->globals as $g) {
 				if(!isset($GLOBALS[$g])) {
 					$ret .= '$GLOBALS[\'' . $g . '\'] = $' . $g . ';';
-					
 				}
 			}
 			if(sizeof($this->globals) && (is_array($this->globals))) {
 				$this->save_globals();
-				return $ret; //$ret; //global $' . implode(', $', $this->globals) . ';';
+				return $ret; 
 			}
 		}
 		return '';
