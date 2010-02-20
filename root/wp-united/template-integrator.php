@@ -471,8 +471,10 @@ function process_body(&$pageContent) {
 	//Process the body section for integrated page
 
 	// With our Base HREF set, any relative links will point to the wrong location. Let's fix them.
-	$fullWpURL = strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) . '://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING'];
-	$pageContent = str_replace("a href=\"#", "a href=\"$fullWpURL#", $pageContent);
+	if(defined('WPU_BLOG_PAGE')) {
+		$fullWpURL = strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) . '://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING'];
+		$pageContent = str_replace("a href=\"#", "a href=\"$fullWpURL#", $pageContent);
+	}
 
 	//cut out any </body> and </html> tags
 	$pageContent = str_replace("</body>", "", $pageContent);
