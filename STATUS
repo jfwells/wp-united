@@ -2,17 +2,16 @@ To fix/change for v0.8.5
 ---------------------
 - avatar not synced when deleted by user in UCP
 - WP header and footer appearing in phpBB ajax chatboxes
-- Contact Form 7 reported breaking things
 - main install / upgrade file contains subsilver file copies -- remove and check
 - account for logged in user keeps being created in usermapper, immediately after account break?
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
-- add ability to show first 20 words of post in posts widget
+- add option to show post excerpt to posts / topics widget/tag (first 20 words)
 - test capturing server 500 errors and display nicer message on connection install
 
 - post to blog button
 - Migrate widgets to new syntax
-- add option to show post excerpt to posts / topics widget/tag
+
 - Last post time reported different from topic time
 - Cross-posted post reported not read, even after reading
 
