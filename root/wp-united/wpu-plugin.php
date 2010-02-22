@@ -1120,10 +1120,10 @@ function wpu_add_postboxes() {
 	<div id="wpuxpostdiv" class="inside">
 	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
 	<label for="wpu_chkxpost" class="selectit">
-		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1" />
+		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1001" />
 		<?php echo $phpbbForum->lang['wpu_xpost_box_title']; ?><br />
 	</label><br />
-	<label for="wpu_selxpost">Select Forum:<br />
+	<label for="wpu_selxpost">Select Forum:</label><br />
 		<select name="sel_wpuxpost" id="wpu_selxpost" <?php if ($already_xposted) echo 'disabled="disabled"'; ?>> 
 		<?php
 			if ($already_xposted) {
@@ -1134,8 +1134,10 @@ function wpu_add_postboxes() {
 					echo ($key == 0) ? 'selected="selected"' : '';
 					echo ">{$can_xpost_forumlist['forum_name'][$key]}</option>";
 				}
-			}
-			 if($wpSettings['xposttype'] == 'ASKME') {
+			} ?>
+			</select>
+	
+			 <?php if($wpSettings['xposttype'] == 'ASKME') {
 				$excerptState = 'checked="checked"';
 				$fullState = '';
 				if (isset($_GET['post'])) {
@@ -1145,12 +1147,10 @@ function wpu_add_postboxes() {
 						$excerptState = '';
 					}
 				}
-				echo '<input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
 				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
 			} ?>
-		
-		</select>
-	</label>
+
 	</div>
 <?php
 }
@@ -1159,7 +1159,7 @@ function wpu_add_postboxes() {
  */
 function wpu_add_forcebox($forumName) {
 	global $forceXPosting, $phpbbForum, $wpSettings;
-	
+
 	$phpbbForum->enter();
 	$showText =  (wpu_get_xposted_details()) ? $phpbbForum->lang['wpu_forcexpost_update'] : $phpbbForum->lang['wpu_forcexpost_details'];
 
@@ -1176,7 +1176,7 @@ function wpu_add_forcebox($forumName) {
 						$excerptState = '';
 					}
 				}
-				echo '<input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
 				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
 			} ?>
 	</div>
@@ -1190,7 +1190,7 @@ function wpu_add_forcebox($forumName) {
 function wpu_add_meta_box() {
 	global $phpbbForum, $wpSettings, $can_xpost_forumlist, $already_xposted;
 	// this func is called early
-	if ( (preg_match('|/wp-admin/post.php|', $_SERVER['REQUEST_URI'])) || (preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) ) {
+	if (preg_match('/\/wp-admin\/(post.php|post-new.php|press-this.php)/', $_SERVER['REQUEST_URI'])) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to

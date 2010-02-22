@@ -1,7 +1,7 @@
 To fix/change for v0.8.5
 ---------------------
-- uncategorized checked when selecting cross-posting
 - avatar not synced when deleted by user in UCP
+- WP header and footer appearing in phpBB ajax chatboxes
 - Contact Form 7 reported breaking things
 - main install / upgrade file contains subsilver file copies -- remove and check
 - account for logged in user keeps being created in usermapper, immediately after account break?
@@ -46,7 +46,6 @@ Potential changes / Watch issues
 - override of "must log in" relies on themes checking WP's "must log in to post comment" option (e.g. Arras doesn't).
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
 
-
 FIXED/COMMITTED FOR v0.8.5
 ----------------------------------------
 - Suppress errors during path detection, etc, for people with open_basedir restrictions
@@ -60,6 +59,12 @@ FIXED/COMMITTED FOR v0.8.5
 - Fixed plugin_fixer globals assigner
 - show "cross-post" in past tense in force xpost box if already xposted.
 - added two new options, SHOW_BLOG_LINK, and WPU_INTEG_DEFAULT_STYLE -- full info in options.php
+- Fixed problem links in reverse integration, e.g. on phpBB FAQ page
+- fixed uncategorized checked when selecting cross-posting
+- changed <br /> and <p> BBCode translations to \n rather than [br]
+- Stopped allowing submission of blank xposted comments
+- Fixed smiley path in cross-posted comments sometimes not correct (http://www.wp-united.com/posting.php?mode=edit&f=15&p=8352)
+
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------
