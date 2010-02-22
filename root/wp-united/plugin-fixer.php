@@ -154,7 +154,7 @@ class WPU_WP_Plugins {
 	
 		
 	
-		$startToken = (preg_match('/^[\s]*<\?php/', $pluginContent)) ? '?'.'>' : '';
+		$startToken = (preg_match('/^[\s]*<\?/', $pluginContent)) ? '?'.'>' : '';
 		$endToken = (preg_match('/\?' . '>[\s]*$/', $pluginContent)) ? '<'.'?php ' : ''; 
 	
 		$pluginContent = $startToken. trim($pluginContent) . $endToken;
