@@ -100,16 +100,6 @@ define('WP_ROOT_COOKIE', FALSE);
  */
 define('WPU_SHOW_STATS', FALSE);
 
-/**
- * COMPRESS HTML OUTPUT FURTHER?
- * This section does a bit of minor extra HTML compression by stripping white space, at the expense of a little processing time.
- * Doesn't yield much (about 5% reduction at the very most) if gzip is on. If gzip is off, it makes a significant difference. 
- * However, it CAN break some page output, especially uncompressed JavaScript in the page head. 
- * It's off by default, but you could turn it on by changing FALSE to TRUE.
- * Note that this will make your page source a little harder to read -- andis therefore not recommended if you're still building and debugging your site.
- */
-define('WPU_MAX_COMPRESS', FALSE);
-
 
 /**
  *  phpBB CSS?
@@ -130,10 +120,29 @@ define('PHPBB_CSS_FIRST', TRUE);
 define('SHOW_BLOG_LINK', TRUE);
 
 /**
+ * Show tags & categories in crossed-posts?
+ * Set this to false to suppress the display of tags & categories in blog posts cross-posted to the forum
+ */
+define('WPU_SHOW_TAGCATS', TRUE);
+
+/**
  * WordPress-in-phpBB use default style only?
  * Set this to true to stick to the board default style on WordPress-in-phpBB pages.
  */
 define('WPU_INTEG_DEFAULT_STYLE', FALSE);
+
+
+
+/**
+ * COMPRESS HTML OUTPUT FURTHER?
+ * This section does a bit of minor extra HTML compression by stripping white space, at the expense of a little processing time.
+ * Doesn't yield much (about 5% reduction at the very most) if gzip is on. If gzip is off, it makes a significant difference. 
+ * However, it CAN break some page output, especially uncompressed JavaScript in the page head. 
+ * It's off by default, but you could turn it on by changing FALSE to TRUE.
+ * Note that this will make your page source a little harder to read -- andis therefore not recommended if you're still building and debugging your site.
+ */
+define('WPU_MAX_COMPRESS', FALSE);
+
 
 /**
  * WordPress debug options

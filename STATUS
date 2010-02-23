@@ -64,6 +64,7 @@ FIXED/COMMITTED FOR v0.8.5
 - Stopped allowing submission of blank xposted comments
 - Fixed smiley path in cross-posted comments sometimes not correct (http://www.wp-united.com/posting.php?mode=edit&f=15&p=8352)
 - User mapper is now case insensitive when looking for suggested phpBB username matches
+- Added new option, WPU_SHOW_TAGCATS, to suppress display of categories & tags in cross-posts
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------

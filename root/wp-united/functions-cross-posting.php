@@ -133,24 +133,28 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			}
 		}	
 	}
-							
-	$cats = array(); $tags = array();
-	$tag_list = ''; $cat_list = '';
-	$cats = get_the_category($postID);
-	if (sizeof($cats)) {
-		foreach ($cats as $cat) {
-			$cat_list .= (empty($cat_list)) ? $cat->cat_name :  ', ' . $cat->cat_name;
+	
+	if(defined('WPU_SHOW_TAGCATS') && WPU_SHOW_TAGCATS) {
+		$cat_list = $tag_list = '';
+	} else {				
+		$cats = array(); $tags = array();
+		$tag_list = ''; $cat_list = '';
+		$cats = get_the_category($postID);
+		if (sizeof($cats)) {
+			foreach ($cats as $cat) {
+				$cat_list .= (empty($cat_list)) ? $cat->cat_name :  ', ' . $cat->cat_name;
+			}
 		}
+		
+		$tag_list = '';
+		$tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
+		if ($tag_list == "") {
+			$tag_list = __('No tags defined.');
+		}
+		
+		$tags = (!empty($tag_list)) ? "[b]{$phpbbForum->lang['blog_post_tags']}[/b]{$tag_list}\n" : '';
+		$cats = (!empty($cat_list)) ? "[b]{$phpbbForum->lang['blog_post_cats']}[/b]{$cat_list}\n" : '';
 	}
-	
-	$tag_list = '';
-	$tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
-	if ($tag_list == "") {
-		$tag_list = __('No tags defined.');
-	}
-	
-	$tags = (!empty($tag_list)) ? "[b]{$phpbbForum->lang['blog_post_tags']}[/b]{$tag_list}\n" : '';
-	$cats = (!empty($cat_list)) ? "[b]{$phpbbForum->lang['blog_post_cats']}[/b]{$cat_list}\n" : '';
 	
 	$phpbbForum->leave();
 	$content = sprintf($phpbbForum->lang['blog_post_intro'], '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
