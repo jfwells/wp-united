@@ -2447,7 +2447,7 @@ class acp_wp_united {
 						
 						if ( !empty($phpBBMappedName) ) {
 							$sql = 	"SELECT username, user_id, user_wpuint_id FROM " . USERS_TABLE .
-							" WHERE username = '" . $phpBBMappedName . "'
+							" WHERE UCASE(username) = UCASE('" . $phpBBMappedName . "')
 									LIMIT 1";
 							if (!$pResults = $db->sql_query($sql)) {
 								trigger_error($user->lang['WP_DBErr_Retrieve']  . '<br />' . $user->lang['MAP_CANTCONNECTP']);
