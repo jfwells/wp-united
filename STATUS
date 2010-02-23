@@ -1,13 +1,13 @@
 To fix/change for v0.8.5
 ---------------------
+- add option to hide tags / categories
 - avatar not synced when deleted by user in UCP
 - WP header and footer appearing in phpBB ajax chatboxes
 - main install / upgrade file contains subsilver file copies -- remove and check
-- account for logged in user keeps being created in usermapper, immediately after account break?
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
 - add option to show post excerpt to posts / topics widget/tag (first 20 words)
-- test capturing server 500 errors and display nicer message on connection install
+- WP Super Cache is looking for WP cookie -- get it to check for phpBB cookie too, or set WP cookie on phpBB cookie set?
 
 - post to blog button
 - Migrate widgets to new syntax
