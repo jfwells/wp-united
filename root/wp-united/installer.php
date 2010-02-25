@@ -325,6 +325,10 @@ if ($user->data['user_type'] != USER_FOUNDER) {
 	// we set a marker that WP-United has been installed. 
 	set_config("wpu_install_fingerprint", 1, true);
 
+	$cache->destroy('_modules_');
+	$cache->destroy('_sql_', MODULES_TABLE);
+	$cache->purge();
+	
 
 	redirect(append_sid("index.$phpEx"));
 

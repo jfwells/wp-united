@@ -1,7 +1,6 @@
 To fix/change for v0.8.5
 ---------------------
 - duplicate stylekeys config entries error
-- auto-purge cache on install
 - main install / upgrade file contains subsilver file copies -- remove and check
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
