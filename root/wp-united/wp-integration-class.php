@@ -947,7 +947,7 @@ Class WPU_Integration {
 			}
 		}
 		
-		if ( (!($pData['user_email'] == $wpData->user_email)) && (!empty($pData['user_email'])) ) {
+		if ( (!($pData['user_email'] == $wpData->user_email)) && (isset($pData['user_email'])) ) {
 			$update['user_email'] = $pData['user_email'];
 			$doWpUpdate = true;
 		} 
@@ -957,43 +957,43 @@ Class WPU_Integration {
 			$pData['user_password'] = substr_replace($pData['user_password'], '$P$', 0, 3);
 		}
 		
-		if ( ($pData['user_password'] != $wpDataArr['user_pass']) && (!empty($pData['user_password'])) ) {
+		if ( ($pData['user_password'] != $wpDataArr['user_pass']) && (!empty($pData['user_password'])) && (isset($pData['user_password'])) ) {
 			$update['user_pass'] = $pData['user_password']; 
 			$doWpUpdate = true;
 		}
-		if ( (!($pData['user_website'] == $wpDataArr['user_url'])) && (!empty($pData['user_website'])) ) {
+		if ( (!($pData['user_website'] == $wpDataArr['user_url'])) && (isset($pData['user_website'])) ) {
 			$update['user_url'] = $pData['user_website'];
 			$doWpUpdate = true;
 		}
-		if ( ($pData['user_aim'] != $wpDataArr['aim']) && (!empty($pData['user_aim'])) ) {
+		if ( ($pData['user_aim'] != $wpDataArr['aim']) && (isset($pData['user_aim'])) ) {
 			$update['aim'] = $pData['user_aim'];
 			$doWpUpdate = true;
 		}
-		if ( ($pData['user_yim'] != $wpDataArr['yim']) && (!empty($pData['user_yim'])) ) {
+		if ( ($pData['user_yim'] != $wpDataArr['yim']) && (isset($pData['user_yim'])) ) {
 			$update['yim'] = $pData['user_yim'];
 			$doWpUpdate = true;
 		}
-		if ( ($pData['user_jabber'] != $wpDataArr['jabber']) && (!empty($pData['user_jabber'])) ) {
+		if ( ($pData['user_jabber'] != $wpDataArr['jabber']) && (isset($pData['user_jabber'])) ) {
 			$update['jabber'] = $pData['user_jabber'];
 			$doWpUpdate = true;
-		}		
-		if ( ($pData['user_avatar_type'] != $wpMeta['wpu_avatar_type']) && (!empty($pData['user_avatar_type'])) ) {
+		}
+		if ( ($pData['user_avatar_type'] != $wpMeta['wpu_avatar_type']) && (isset($pData['user_avatar_type'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar_type', $pData['user_avatar_type']);
 			}
 		}
-		if ( ($pData['user_avatar'] != $wpMeta['wpu_avatar']) && (!empty($pData['user_avatar'])) ) {
+		if ( ($pData['user_avatar'] != $wpMeta['wpu_avatar']) && (isset($pData['user_avatar'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar', $pData['user_avatar']);
 			}
 		}
 
-		if ( (!($pData['user_avatar_width'] == $wpMeta['wpu_avatar_width'])) && (!empty($pData['user_avatar_width'])) ) {
+		if ( (!($pData['user_avatar_width'] == $wpMeta['wpu_avatar_width'])) && (isset($pData['user_avatar_width'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar_width', $pData['user_avatar_width']);
 			}
 		}	
-		if ( (!($pData['user_avatar_height'] == $wpMeta['wpu_avatar_height'])) && (!empty($pData['user_avatar_height'])) ) {
+		if ( (!($pData['user_avatar_height'] == $wpMeta['wpu_avatar_height'])) && (isset($pData['user_avatar_height'])) ) {
 			if ( !empty($wpData->ID) ) {
 				update_usermeta( $wpData->ID, 'wpu_avatar_height', $pData['user_avatar_height']);
 			}

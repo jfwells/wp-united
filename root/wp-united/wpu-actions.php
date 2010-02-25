@@ -99,6 +99,7 @@ class WPU_Actions {
 							'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
 							'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''
 						);
+					break;
 					case 'all':
 					default;
 						$GLOBALS['wpu_newDetails'] = array(

@@ -1,13 +1,27 @@
 To fix/change for v0.8.5
 ---------------------
-- add option to hide tags / categories
-- avatar not synced when deleted by user in UCP
+- duplicate stylekeys config entries error
 - WP header and footer appearing in phpBB ajax chatboxes
 - main install / upgrade file contains subsilver file copies -- remove and check
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
+
+
+
 - add option to show post excerpt to posts / topics widget/tag (first 20 words)
 - WP Super Cache is looking for WP cookie -- get it to check for phpBB cookie too, or set WP cookie on phpBB cookie set?
+
+
+potential comment filtering scheme:
+$commentdata = compact('comment_post_ID', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_content', 'comment_type', 'comment_parent', 'user_ID');
+//$commentdata = wp_filter_comment($commentdata);
+$commentdata['comment_approved'] = wp_allow_comment($commentdata);
+
+
+
+
+
+
 
 - post to blog button
 - Migrate widgets to new syntax
@@ -45,6 +59,7 @@ Potential changes / Watch issues
 - override of "must log in" relies on themes checking WP's "must log in to post comment" option (e.g. Arras doesn't).
 - New idea: auto-log-out of WP  after setup wizard first install if user selected integration
 
+
 FIXED/COMMITTED FOR v0.8.5
 ----------------------------------------
 - Suppress errors during path detection, etc, for people with open_basedir restrictions
@@ -65,6 +80,7 @@ FIXED/COMMITTED FOR v0.8.5
 - Fixed smiley path in cross-posted comments sometimes not correct (http://www.wp-united.com/posting.php?mode=edit&f=15&p=8352)
 - User mapper is now case insensitive when looking for suggested phpBB username matches
 - Added new option, WPU_SHOW_TAGCATS, to suppress display of categories & tags in cross-posts
+- avatar not synced when deleted by user in UCP
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------
