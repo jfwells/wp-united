@@ -18,7 +18,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.4RC2</mod-version>
+    <mod-version>0.8.5RC2</mod-version>
     <installation>
       <level>intermediate</level>
       <time>912</time>
@@ -27,7 +27,6 @@ Visit http://www.wp-united.com for more help or information.
   <link-group>
 	<link type="parent" href="../../install.xml" lang="en">Main install file</link>
 	<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
-	<link type="language" href="languages/sv.xml" lang="sv">Swedish</link>
 	<link type="contrib" href="contrib/upgrading_from_v0.8.0_or_later/upgrade.xml" lang="en">Upgrading from WP-United v0.8.0 or later</link>
 	<link type="contrib" href="contrib/upgrading_from_v0.5.5_v0.6x_or_v0.7x/upgrade.xml" lang="en">Upgrading from WP-United v0.5.5, v0.6x or v0.7x</link>
 	<link type="contrib" href="contrib/upgrading_from_v0.5.0_or_v0.5.1/upgrade.xml" lang="en">Upgrading from WP-United v0.5.0 or v0.5.1</link>	
@@ -65,7 +64,6 @@ Finally, open wp-united/options.php again, and re-enable WP-United.
       <file from="/root/language/en/mods/permissions_wp-united.php" to="/language/en/mods/permissions_wp-united.php" />
       <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
       <file from="/root/styles/prosilver/template/blog.html" to="/styles/prosilver/template/blog.html" />
-      <file from="/root/styles/subsilver2/template/blog.html" to="/styles/subsilver2/template/blog.html" />
       <file from="/root/wp-united/" to="/wp-united/" />
     </copy>
     

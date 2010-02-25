@@ -1,4 +1,4 @@
-To fix/change for v0.8.5
+To fix/change for v0.8.6
 ---------------------
 - duplicate stylekeys config entries error
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
