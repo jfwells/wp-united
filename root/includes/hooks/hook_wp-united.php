@@ -162,7 +162,7 @@ function wpu_execute(&$hook, $handle) {
 			if(in_array($template->filename[$handle], (array)$GLOBALS['WPU_NOT_INTEGRATED_TPLS'])) {
 				//Don't reverse-integrate pages we know don't want header/foote
 				echo $innerContent;
-			} else { echo $template->filename[$handle]; 
+			} else {
 				//insert phpBB into a wordpress page
 				include ($phpbb_root_path . 'wp-united/integrator.' . $phpEx);
 			}
