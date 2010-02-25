@@ -1,7 +1,7 @@
 To fix/change for v0.8.5
 ---------------------
 - duplicate stylekeys config entries error
-- WP header and footer appearing in phpBB ajax chatboxes
+- auto-purge cache on install
 - main install / upgrade file contains subsilver file copies -- remove and check
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
@@ -80,7 +80,8 @@ FIXED/COMMITTED FOR v0.8.5
 - Fixed smiley path in cross-posted comments sometimes not correct (http://www.wp-united.com/posting.php?mode=edit&f=15&p=8352)
 - User mapper is now case insensitive when looking for suggested phpBB username matches
 - Added new option, WPU_SHOW_TAGCATS, to suppress display of categories & tags in cross-posts
-- avatar not synced when deleted by user in UCP
+- Fixed avatar not synced when deleted by user in UCP
+- Added option in options.php to define templates on which the WordPress header/footer should not appear, and pre-filled it with some shoutboxes.
 
 FIXED/COMMITTED FOR v0.8.4.1
 ----------------------------------------

@@ -131,6 +131,8 @@ function wpu_execute(&$hook, $handle) {
 			return;
 		}
 		
+		
+	
 		/**
 		 * An additional check to ensure we don't act on a $template->assign_display('body') event --
 		 * if a mod is doing weird things with $template instead of creating their own $template object
@@ -155,8 +157,17 @@ function wpu_execute(&$hook, $handle) {
 			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 
-			//insert phpBB into a wordpress page
-			include ($phpbb_root_path . 'wp-united/integrator.' . $phpEx);
+			
+			
+			if(in_array($template->filename[$handle], (array)$GLOBALS['WPU_NOT_INTEGRATED_TPLS'])) {
+				//Don't reverse-integrate pages we know don't want header/foote
+				echo $innerContent;
+			} else { echo $template->filename[$handle]; print_r(WPU_NOT_INTEGRATED_TPLS);
+				//insert phpBB into a wordpress page
+				include ($phpbb_root_path . 'wp-united/integrator.' . $phpEx);
+			}
+			
+		
 		} elseif (defined('PHPBB_EXIT_DISABLED')) {
 			/**
 			 * page_footer was called, but we don't want to close the DB connection & cache yet
