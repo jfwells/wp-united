@@ -1,6 +1,6 @@
-WP-UNITED: WordPress Integration Mod v0.8.4 RC2 for phpBB3
+WP-UNITED: WordPress Integration Mod v0.8.5 RC2 for phpBB3
 -----------------------------------------------
-Last updated: 6 February 2010, by John Wells
+Last updated: 25 February 2010, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -98,7 +98,29 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
-v0.8.4 RELEASE CANDIDATE 2
+v0.8.5 RELEASE CANDIDATE 2
+- Fixed plugin fixer not covering all global variables
+- Fixed plugin fixer not working with plugins tha use PHP short tags
+- Suppress errors during path detection, etc, for people with open_basedir restrictions
+- Fixed: If forum and blog are both in root directory, add explicit "index.php" to the forum link
+- Added more classes to the login / userinfo widget to facilitate styling.
+- New option: cross-post excerpts or full posts. Three choices: Excerpt / full post / ask each time
+- Removed inline JavaScript for smilies. All WP-United JS moved to wp-united/js/wpu-min.js
+- Fixed tags/categories not showing up properly on cross-posted posts
+- show "cross-post" in past tense in force xpost box if already xposted.
+- added two new options, SHOW_BLOG_LINK, and WPU_INTEG_DEFAULT_STYLE -- full info in options.php
+- Fixed problem links in reverse integration, e.g. on phpBB FAQ page
+- fixed uncategorized checked when selecting cross-posting
+- changed <br /> and <p> BBCode translations to \n rather than [br]
+- Stopped allowing submission of blank cross-posted comments
+- Fixed smiley path in cross-posted comments sometimes not correct
+- User mapper is now case insensitive when looking for suggested phpBB username matches
+- Added new option, WPU_SHOW_TAGCATS, to suppress display of categories & tags in cross-posts
+- Fixed avatar and other details not synced when deleted by user in UCP
+- Added option in options.php to define templates on which the WordPress header/footer should not appear, and pre-filled it with some shoutboxes.
+- Installer auto-purges cache again when finished to ensure WP-United tab appears
+
+v0.8.4.1 RELEASE CANDIDATE 2
 
 - NEW: wpu-install.php removed, replaced by auto-installer
 - Fixed comments closed for global announcements when they shouldn't be.
