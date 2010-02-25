@@ -18,7 +18,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.4RC2</mod-version>
+    <mod-version>0.8.5RC2</mod-version>
     <installation>
       <level>intermediate</level>
       <time>1200</time>
@@ -44,7 +44,6 @@ Visit http://www.wp-united.com for more help or information.
       <file from="/root/language/en/mods/permissions_wp-united.php" to="/language/en/mods/permissions_wp-united.php" />
       <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
       <file from="/root/styles/prosilver/template/blog.html" to="/styles/prosilver/template/blog.html" />
-      <file from="/root/styles/subsilver2/template/blog.html" to="/styles/subsilver2/template/blog.html" />
       <file from="/root/wp-united/" to="/wp-united/" />
     </copy>
 	<open src="includes/functions_content.php">

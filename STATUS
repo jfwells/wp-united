@@ -1,7 +1,6 @@
 To fix/change for v0.8.5
 ---------------------
 - duplicate stylekeys config entries error
-- main install / upgrade file contains subsilver file copies -- remove and check
 - when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
 - relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
 
@@ -113,6 +112,7 @@ FIXED/COMMITTED FOR v0.8.4
 - Fixed integration error after updating password or username
 - Widget logout status: checks phpBB status rather than WordPress status
 - Fixd loginuserinfo template tag not showing logged out status properly
+- Fixed missing subSilver2 file copy instruction; removed from main install file
 
 
 FIXED / COMMITTED for v0.8.3:

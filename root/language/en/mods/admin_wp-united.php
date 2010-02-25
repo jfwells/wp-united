@@ -4,7 +4,7 @@
 * WP-United [English]
 *
 * @package WP-United
-* @version $Id: v0.8.4RC2 2010/02/06 John Wells (Jhong) Exp $
+* @version $Id: v0.8.5RC2 2010/02/06 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -43,7 +43,7 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'ACP_WPU_INDEX_TITLE'	=> 'WP-United',
 	    
-	'WPU_Default_Version' => 'v0.8.4.1-RC2',
+	'WPU_Default_Version' => 'v0.8.5-RC2',
 	'WP_Version_Text' => 'WP-United %s',
 
 	//  Wizard and Settings Page
