@@ -37,7 +37,10 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 
 	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
-
+	// set up login integration
+	if(!empty($wpSettings['integrateLogin'])) {
+		require_once($phpbb_root_path . 'wp-united/login-integrator.' .$phpEx);
+	}
 
 
 	wpu_set_buffering_init_level();

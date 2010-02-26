@@ -98,6 +98,53 @@ Visit http://www.wp-united.com for more help or information.
 						$wpuCache->purge();]]></action>
       </edit>
     </open>
+    
+        <open src="includes/functions_user.php">
+      <edit>
+		<find><![CDATA[function validate_username($username, $allowed_username = false)]]></find>
+		<action type="replace-with"><![CDATA[if(!function_exists('validate_username') && (!defined('WPU_BLOG_PAGE')))
+{
+	function validate_username($username, $allowed_username = false)
+	{
+		phpbb_validate_username($username, $allowed_username);
+	}
+}
+function phpbb_validate_username($username, $allowed_username = false)]]></action>
+
+      </edit>
+     </open>
+     
+     <open src="includes/functions_content.php">
+      <edit>
+        <find><![CDATA[if (!function_exists('make_clickable'))
+{
+function make_clickable($text, $server_url = false, $class = 'postlink')
+{
+
+	global $IN_WORDPRESS;
+	if ($IN_WORDPRESS)
+	{
+		return wp_make_clickable($text); //WP version
+	} else {//phpBB version]]></find>
+	 <action type="replace-with"><![CDATA[if (!function_exists('make_clickable'))
+{
+	function make_clickable($text, $server_url = false, $class = 'postlink') 
+	{
+		phpbb_make_clickable($text, $server_url, $class);
+	}
+}
+function phpbb_make_clickable($text, $server_url = false, $class = 'postlink')
+{]]></action>
+</edit>
+<edit>
+<find><![CDATA[	return preg_replace($magic_url_match, $magic_url_replace, $text);
+}
+	}
+}]]></find>
+<action type="replace-with"><![CDATA[	return preg_replace($magic_url_match, $magic_url_replace, $text);
+}]]></action>
+</edit>
+</open> 
 
       <diy-instructions lang="en-gb"><![CDATA[	
 

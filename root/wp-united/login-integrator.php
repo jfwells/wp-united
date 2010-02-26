@@ -20,9 +20,13 @@ if ( !defined('IN_PHPBB') ) {
 
 
 function wpu_integrate_logins() {
-	global $wpSettings, $phpbbForum;
+	global $wpSettings, $phpbbForum, $latest;
 	
 	if ( empty($wpSettings['integrateLogin']) ) {
+		return false;
+	}
+	
+	if ($latest || defined('WPU_BOARD_DISABLED')) {
 		return false;
 	}
 		
@@ -103,7 +107,6 @@ function wpu_integrate_logins() {
 			//Set usermeta options and check details consistency
 			$wpUpdateData =	wpu_check_details_consistency($newUserData, $phpbbForum->get_userdata(), true);
 			if ( $wpUpdateData ) {
-				define('PASSWORD_ALREADY_HASHED', TRUE);
 				wp_update_user($wpUpdateData);
 			}	
 		}
@@ -456,27 +459,6 @@ function wpu_check_userlevels ($ID, $usrLevel) {
 }
 
 
-if ( !function_exists('wp_hash_password') ) :
-/**
- * Override of WP hash password function
- * if the password is already hashed by phpBB, we leave it as is.
- * @todo: subst $H$ with $P$ here.
- */
-function wp_hash_password($password) {
-	global $wp_hasher;
-	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
-		return $password;
-	} else {
-		if ( empty($wp_hasher) ) {
-			require_once( ABSPATH . 'wp-includes/class-phpass.php');
-			// By default, use the portable hash from phpass
-			$wp_hasher = new PasswordHash(8, TRUE);
-		}
-
-		return $wp_hasher->HashPassword($password);
-	}
-}
-endif;
 
 
 
