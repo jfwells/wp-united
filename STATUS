@@ -4,9 +4,9 @@ In progress
 Migrate login integration to login-integrator.php
 TODO:
 - search for all $wpUtdInt->integrate_logins and remove (done)
+- Remove reliance on overridden wp functions
 - a define can be set for bypassing integrated login -- we don't want it to happen in user mapper, etc.
 - fix login debug, move to new debugger class
-- Remove reliance on overridden wp functions
 - move wp_change_username somewhere better
 
 
@@ -53,4 +53,4 @@ Fixed/Committed for vNext
 ------------------------------------
 
 Check that function update_option exists when installing connection -- if not, balk
-
+Internalising of integrated login into wordpress -- in progress
