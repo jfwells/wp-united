@@ -155,9 +155,9 @@ if ( !$wpuCache->use_template_cache() ) {
 		
 		// This generates the code for integrating logins, synchronising user profiles, and managing WordPress permissions.
 		// integrate_login handles whether logins should be integrated or not, so we can just call it without checking.
-		if (!$latest && !defined('WPU_BOARD_DISABLED')) {
-			$wpUtdInt->integrate_login();
-		} 
+		//if (!$latest && !defined('WPU_BOARD_DISABLED')) {
+			//$wpUtdInt->integrate_login();
+		//} 
 		
 		// We pass the name of the variable to populate as a string to be added to the invoked code.
 		$wpUtdInt->get_wp_page($wpContentVar);

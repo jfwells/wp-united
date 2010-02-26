@@ -1475,6 +1475,11 @@ class acp_wp_united {
 						$wpUtdInt->enter_wp_integration();
 						eval($wpUtdInt->exec());  
 						
+						if(!function_exists('update_option')) {
+							die('ERROR: WordPress could not be run. Please check it is installed properly and that you provided the correct paths.');
+						}
+						
+						
 						// reset the Blog Uri
 						if (!empty($wpSettings['wpUri'])) {
 							update_option('home', $wpSettings['wpUri']);
