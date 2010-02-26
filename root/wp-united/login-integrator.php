@@ -91,7 +91,10 @@ function wpu_integrate_logins() {
 			$newWpUser->user_login = $signUpName;
 			$newWpUser->user_pass = $phpbbForum->get_userdata('user_password');
 			$newWpUser->user_email = $phpbbForum->get_userdata('user_email');
+			
+			define('PASSWORD_ALREADY_HASHED', TRUE);
 			$newUserID = wp_insert_user(get_object_vars($newWpUser));
+			
 			$integratedID = $newUserID;
 			wpu_update_int_ID($phpbbForum->get_userdata('user_id'), $integratedID);
 			wpu_login_debug('Created a user with ID = ' . $integratedID);
@@ -100,6 +103,7 @@ function wpu_integrate_logins() {
 			//Set usermeta options and check details consistency
 			$wpUpdateData =	wpu_check_details_consistency($newUserData, $phpbbForum->get_userdata(), true);
 			if ( $wpUpdateData ) {
+				define('PASSWORD_ALREADY_HASHED', TRUE);
 				wp_update_user($wpUpdateData);
 			}	
 		}
@@ -136,6 +140,7 @@ function wpu_integrate_logins() {
 				// they couldn't log in... so let's just change their password
 				$wpUpdateData =	wpu_check_details_consistency($wpUser,  $phpbbForum->get_userdata()); 
 				if ( $wpUpdateData ) {
+					define('PASSWORD_ALREADY_HASHED', TRUE);
 					wp_update_user($wpUpdateData);
 				}
 				//It must work now....
@@ -161,6 +166,7 @@ function wpu_integrate_logins() {
 			$wpUpdateData =	wpu_check_details_consistency($userdata, $phpbbForum->get_userdata());					
 			if ( $wpUpdateData ) {
 				wpu_login_debug('Synchronising Profiles');
+				define('PASSWORD_ALREADY_HASHED', TRUE);
 				$loggedInID = wp_update_user($wpUpdateData);
 				$loggedInUser = wp_set_current_user($loggedInID);
 				$loggedInUser = get_userdata($loggedInUser->ID);
@@ -450,7 +456,27 @@ function wpu_check_userlevels ($ID, $usrLevel) {
 }
 
 
-add_action('init', wpu_integrate_logins, 10);
+if ( !function_exists('wp_hash_password') ) :
+/**
+ * Override of WP hash password function
+ * if the password is already hashed by phpBB, we leave it as is.
+ * @todo: subst $H$ with $P$ here.
+ */
+function wp_hash_password($password) {
+	global $wp_hasher;
+	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
+		return $password;
+	} else {
+		if ( empty($wp_hasher) ) {
+			require_once( ABSPATH . 'wp-includes/class-phpass.php');
+			// By default, use the portable hash from phpass
+			$wp_hasher = new PasswordHash(8, TRUE);
+		}
+
+		return $wp_hasher->HashPassword($password);
+	}
+}
+endif;
 
 
 
