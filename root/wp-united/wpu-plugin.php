@@ -82,10 +82,7 @@ function wpu_init_plugin() {
 
 	// set up login integration
 	if(!empty($wpSettings['integrateLogin'])) {
-		global $latest;
-		if (!$latest && !defined('WPU_BOARD_DISABLED')) {
-			require_once($phpbb_root_path . 'wp-united/login-integrator.' .$phpEx);
-		}
+		add_action('init', 'wpu_integrate_logins', 10);
 	}
 
 
@@ -1542,7 +1539,75 @@ function wpu_disable_passchange($state, $profileUser = false) {
 	return $state;
 }
 
+if ( !function_exists('wp_hash_password') ) :
+/**
+ * Override of WP hash password function
+ * if the password is already hashed by phpBB, we leave it as is.
+ * @todo: subst $H$ with $P$ here.
+ */
+function wp_hash_password($password) {
+	global $wp_hasher;
+	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
+		return $password;
+	} else {
+		if ( empty($wp_hasher) ) {
+			require_once( ABSPATH . 'wp-includes/class-phpass.php');
+			// By default, use the portable hash from phpass
+			$wp_hasher = new PasswordHash(8, TRUE);
+		}
 
+		return $wp_hasher->HashPassword($password);
+	}
+}
+endif;
+
+/**
+ * We need to override WordPress password hash checking, as the password we have to log into wordpress is already hashed.
+ */
+function wp_check_password($password, $hash, $user_id = '') {
+	global $wp_hasher;
+	
+	// Here phpBB has already handled authentication, so the inbound password is hashed and we just need to check it against the database.
+	// IMPORTANT -- This should not be defined anywhere other than integration-class.php, otherwise it allows an attacker
+	// who has gained access to the DB to log into wordpress without having to crack passwords.
+	if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
+		// We can convert hashes from phpBB-type to WordPress-type
+		if(substr($password, 0, 3) == '$H$') {
+			$password = substr_replace($password, '$P$', 0, 3);
+			$check = ($password == $hash);
+			return apply_filters('check_password', $check, $password, $hash, $user_id);
+		}
+	} else { 
+		// This is not an incoming phpBB/WP-United request, so this file will not be called.
+		// Handle the request in wpu-plugin.php, in a filter.
+	}
+
+
+	// If the hash is still md5...
+	if ( strlen($hash) <= 32 ) {
+		$check = ( $hash == md5($password) );
+		if ( $check && $user_id ) {
+			// Rehash using new hash.
+			wp_set_password($password, $user_id);
+			$hash = wp_hash_password($password);
+		}
+
+		return apply_filters('check_password', $check, $password, $hash, $user_id);
+	}
+
+	// If the stored hash is longer than an MD5, presume the
+	// new style phpass portable hash.
+	if ( empty($wp_hasher) ) {
+		require_once( ABSPATH . 'wp-includes/class-phpass.php');
+		// By default, use the portable hash from phpass
+		$wp_hasher = new PasswordHash(8, TRUE);
+	}
+
+	$check = $wp_hasher->CheckPassword($password, $hash);
+
+
+	return apply_filters('check_password', $check, $password, $hash, $user_id);
+}
 
 /**
 * Under consideration for future rewrite: Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
