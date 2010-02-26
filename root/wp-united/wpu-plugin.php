@@ -78,6 +78,15 @@ function wpu_init_plugin() {
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
 		wp_enqueue_script('wp-united', $phpbbForum->url . 'wp-united/js/wpu-min.js', array(), false, true);
 	}
+	
+
+	// set up login integration
+	if(!empty($wpSettings['integrateLogin'])) {
+		global $latest;
+		if (!$latest && !defined('WPU_BOARD_DISABLED')) {
+			require_once($phpbb_root_path . 'wp-united/login-integrator.' .$phpEx);
+		}
+	}
 
 
 		/**
