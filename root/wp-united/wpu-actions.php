@@ -122,8 +122,9 @@ class WPU_Actions {
 				if (!empty($GLOBALS['wpu_newDetails'])) {
 					$GLOBALS['wpu_add_actions'] = '
 						$wpUsrData = get_userdata(' . $integration_id . ');
-						$wpUpdateData =	$wpUtdInt->check_details_consistency($wpUsrData, $GLOBALS[\'wpu_newDetails\']);
+						$wpUpdateData =	wpu_check_details_consistency($wpUsrData, $GLOBALS[\'wpu_newDetails\']);
 						if ( $wpUpdateData ) {
+							require_once( ABSPATH . WPINC . \'/registration.php\');
 							wp_update_user($wpUpdateData);
 						}
 					';	

@@ -2,17 +2,9 @@ In progress
 --------------
 
 Kill blog.php:
-Migrate login integration to login-integrator.php
+
 TODO:
-- search for all $wpUtdInt->integrate_logins and remove (done)
-- Remove reliance on overridden wp functions:
-	-- move hasher to login-integrator (done)
-			- TODO: instead of multiple defines, set once (reduced as much as possible)
-			- TODO: check that hasher override overrides in time. (done, moved)
-			- TODO: remove registration.php stuff from wp-functions. (done) HOWEVER: need to handle validate_username conflict
-					- Can just rename phpBB's validate_username if a marker is set (done)
-	-- kill make_clickable from wp-functions: rename it in phpBB and add alias function if not defined. (done)
-			- consider manually doing make_clickable() on comment text
+	
 
 - $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define			
 - Check wp_check_password override!
@@ -20,6 +12,7 @@ TODO:
 
 - fix login debug, move to new debugger class
 - move wp_change_username somewhere better
+- consider manually doing make_clickable() on xposted comment text
 
 - Can now begin removal of blog.php, moving defines and options from blog.php to phpbb.php, and allowing execution in hook file. (set marker wpu_blog_page for validate_username conflict)
 - remove blog.html if required
@@ -71,3 +64,12 @@ Fixed/Committed for vNext
 
 Check that function update_option exists when installing connection -- if not, balk
 Internalising of integrated login into wordpress -- in progress
+- search for all $wpUtdInt->integrate_logins and remove (done)
+- Remove reliance on overridden wp functions: (DONE)
+	-- move hasher to login-integrator (done)
+			- TODO: instead of multiple defines, set once (reduced as much as possible)
+			- TODO: check that hasher override overrides in time. (done, moved)
+			- TODO: remove registration.php stuff from wp-functions. (done) HOWEVER: need to handle validate_username conflict
+					- Can just rename phpBB's validate_username if a marker is set (done)
+	-- kill make_clickable from wp-functions: rename it in phpBB and add alias function if not defined. (done)
+		

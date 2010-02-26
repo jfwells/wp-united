@@ -2858,7 +2858,7 @@ class acp_wp_united {
 							);
 							$phpbbForum->leave();
 							$wpUsrData = get_userdata($wpID);
-							$wpUpdateData = $wpUtdInt->check_details_consistency($wpUsrData, $wpu_newDetails);
+							$wpUpdateData = wpu_check_details_consistency($wpUsrData, $wpu_newDetails);
 							$phpbbForum->enter();
 							
 							$status[] = '<li>' . sprintf($phpbbForum->lang['MAP_INT_SUCCESS'], $wpID, $pID) . '</li>';	
