@@ -60,6 +60,7 @@ function wpu_integrate_logins() {
 		}
 		//SECTION TO CREATE INTEGRATED ACCOUNT
 		if ( empty($integratedID) ) {
+			require_once( ABSPATH . WPINC . '/registration.php');
 			// The user hasn't integrated an account yet. If they're logged in for some reason, assume it is suspicious and log them out
 			wpu_wp_logout();
 			wp_set_current_user(0, 0);
@@ -144,6 +145,7 @@ function wpu_integrate_logins() {
 				$wpUpdateData =	wpu_check_details_consistency($wpUser,  $phpbbForum->get_userdata()); 
 				if ( $wpUpdateData ) {
 					define('PASSWORD_ALREADY_HASHED', TRUE);
+					require_once( ABSPATH . WPINC . '/registration.php');
 					wp_update_user($wpUpdateData);
 				}
 				//It must work now....
@@ -168,6 +170,7 @@ function wpu_integrate_logins() {
 			wp_set_current_user($userdata->ID);
 			$wpUpdateData =	wpu_check_details_consistency($userdata, $phpbbForum->get_userdata());					
 			if ( $wpUpdateData ) {
+				require_once( ABSPATH . WPINC . '/registration.php');
 				wpu_login_debug('Synchronising Profiles');
 				define('PASSWORD_ALREADY_HASHED', TRUE);
 				$loggedInID = wp_update_user($wpUpdateData);
