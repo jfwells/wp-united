@@ -20,7 +20,7 @@ if ( !defined('IN_PHPBB') ) {
 
 
 function wpu_integrate_logins() {
-	global $wpSettings, $phpbbForum, $latest;
+	global $wpSettings, $phpbbForum, $latest, $phpbb_root_path, $phpEx;
 	
 	if ( empty($wpSettings['integrateLogin']) ) {
 		return false;
@@ -32,6 +32,12 @@ function wpu_integrate_logins() {
 		
 	if(!isset($phpbbForum)) {
 		return false;
+	}
+
+	if(defined('WPU_DEBUG')) {
+		require_once($phpbb_root_path . 'wp-united/debug.' . $phpEx);
+		global $lDebug;
+		$lDebug = new WPU_Debug();
 	}
 
 	$loggedInUser = '';
@@ -47,7 +53,7 @@ function wpu_integrate_logins() {
 	// Integrate only if logged in, and user level is mapped to integrate
 	if (  (!$phpbbForum->user_logged_in()) || ($user_level === false) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) )  {
 		//log them out of WP, and look needlessly suspicious
-		wpu_login_debug('Not logged in'); 
+		$lDebug->add('Not logged in'); 
 		wpu_wp_logout();
 		wp_set_current_user(0, 0);
 	} else {
@@ -56,7 +62,7 @@ function wpu_integrate_logins() {
 			$integratedID = 0;
 			wpu_update_int_ID($phpbbForum->get_userdata('user_id'), $integratedID);
 		} else {
-			wpu_login_debug('Logged into phpBB, username=' .  $phpbbRawUser . '(' . $phpbbUserName . ',' . $integratedID . ')');
+			$lDebug->add('Logged into phpBB, username=' .  $phpbbRawUser . '(' . $phpbbUserName . ',' . $integratedID . ')');
 		}
 		//SECTION TO CREATE INTEGRATED ACCOUNT
 		if ( empty($integratedID) ) {
@@ -66,7 +72,7 @@ function wpu_integrate_logins() {
 			wp_set_current_user(0, 0);
 			$loggedInUser = '';
 			
-			wpu_login_debug('No WP Account Detected, Creating.');
+			$lDebug->add('No WP Account Detected, Creating.');
 			// No user reaching this point has an integrated account. So let's create one.
 			$tryThisName = $phpbbUserName;
 			
@@ -90,7 +96,7 @@ function wpu_integrate_logins() {
 			}
 			$signUpName = $tryThisName;
 			
-			wpu_login_debug('Found a suitable WP username: '.$signUpName);
+			$lDebug->add('Found a suitable WP username: '.$signUpName);
 			
 			//Now we have a unique signup name.. let's create the user.
 			$newWpUser->user_login = $signUpName;
@@ -102,7 +108,7 @@ function wpu_integrate_logins() {
 			
 			$integratedID = $newUserID;
 			wpu_update_int_ID($phpbbForum->get_userdata('user_id'), $integratedID);
-			wpu_login_debug('Created a user with ID = ' . $integratedID);
+			$lDebug->add('Created a user with ID = ' . $integratedID);
 			$newUserData = get_userdata($newUserID);
 
 			//Set usermeta options and check details consistency
@@ -117,7 +123,7 @@ function wpu_integrate_logins() {
 		
 		// Check that they're not already logged into the wrong account (weird stuff happens)
 		if ($loggedInUser->ID !== $integratedID && ($loggedInUser->ID)) {
-			wpu_login_debug('You are logged into the wrong account! (WP ID = ' . $loggedInUser->ID . ', integrated ID = ' . $integratedID . '). Logging out!');
+			$lDebug->add('You are logged into the wrong account! (WP ID = ' . $loggedInUser->ID . ', integrated ID = ' . $integratedID . '). Logging out!');
 			wpu_wp_logout();
 			wp_set_current_user(0, 0);
 			$loggedInUser = wp_get_current_user();
@@ -131,16 +137,16 @@ function wpu_integrate_logins() {
 			//user isn't logged in
 			$wpUser = get_userdata($integratedID);
 			$wpUserName = $wpUser->user_login;
-			wpu_login_debug('WP account detected, logging into account (ID=' . $integratedID . ',Username=' . $wpUserName . ')');
+			$lDebug->add('WP account detected, logging into account (ID=' . $integratedID . ',Username=' . $wpUserName . ')');
 			//see if user can log into WP (need to double-hash password)  
 			// This authentication is really unneccessary at this point.... but we need them to have a strong password in a WP cookie for Admin panel access
 			
 
 			if(wpu_sign_in($wpUserName,  $phpbbForum->get_userdata('user_password'))) {					
 				$loggedInUser = wp_set_current_user($wpUser->ID);
-				wpu_login_debug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
+				$lDebug->add('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
 			} else {
-				wpu_login_debug('Could not authenticate. (' . $error .') Synchronising password.');
+				$lDebug->add('Could not authenticate. (' . $error .') Synchronising password.');
 				// they couldn't log in... so let's just change their password
 				$wpUpdateData =	wpu_check_details_consistency($wpUser,  $phpbbForum->get_userdata()); 
 				if ( $wpUpdateData ) {
@@ -154,24 +160,24 @@ function wpu_integrate_logins() {
 
 				if(wpu_sign_in($wpUserName,  $phpbbForum->get_userdata['user_password'])) {
 					$loggedInUser = wp_set_current_user($wpUser->ID);
-					wpu_login_debug('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
+					$lDebug->add('Logged in successfully. Cookie set. Current user=' . $GLOBALS['current_user']->ID);
 				} else {
 					$phpbbForum->enter();
-					wpu_login_debug('Failed, aborting (' . $error .')', 1);
+					$lDebug->add('Failed, aborting (' . $error .')', 1);
 					trigger_error('WordPress Integration Error: WP-United has encountered an unknown integration error. We tried twice to log you in and it didn\'t work. Sorry! Please inform an administrator of this message');
 				}
 			}
 		}
 						
 		if ( !empty($loggedInUser->ID) ) {
-			wpu_login_debug('Checking Profile Consistency');
+			$lDebug->add('Checking Profile Consistency');
 			$userdata = wpu_check_userlevels($loggedInUser->ID, $user_level);
 			$userdata = get_userdata($userdata->ID);
 			wp_set_current_user($userdata->ID);
 			$wpUpdateData =	wpu_check_details_consistency($userdata, $phpbbForum->get_userdata());					
 			if ( $wpUpdateData ) {
 				require_once( ABSPATH . WPINC . '/registration.php');
-				wpu_login_debug('Synchronising Profiles');
+				$lDebug->add('Synchronising Profiles');
 				define('PASSWORD_ALREADY_HASHED', TRUE);
 				$loggedInID = wp_update_user($wpUpdateData);
 				$loggedInUser = wp_set_current_user($loggedInID);
@@ -181,7 +187,7 @@ function wpu_integrate_logins() {
 			//The login integration has failed. Log them out of WP just in case, and raise a stink.
 			wpu_wp_logout();
 			$phpbbForum->enter();
-			wpu_login_debug('Failed, aborting2', 1);
+			$lDebug->add('Failed, aborting2', 1);
 			trigger_error('Integration Error with your account! Please contact an administrator.');
 		}
 		
@@ -191,7 +197,6 @@ function wpu_integrate_logins() {
 		}
 		
 	}
-	wpu_login_debug('',1);
 
 	
 }
@@ -232,29 +237,10 @@ function wpu_get_userlevel($phpbb_userdata) {
 		$user_level = 'administrator'; 
 		$debug .= '[' . $user_level . ']';
 	}			
-	wpu_login_debug($debug);
-	wpu_login_debug('User level set to: ' . $user_level);
+	$lDebug->add($debug);
+	$lDebug->add('User level set to: ' . $user_level);
 
 	return $user_level;
-}
-
-function wpu_login_debug($add_to_debug, $end_debug_now = 0) {
-	static $debugBuffer, $debugBufferFull;
-	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) ) {
-		if ( empty($debugBuffer) ) {
-			$debugBuffer = '<!-- wpu-debug --><div style="border: 1px solid #8f1fff; background-color: #cc99ff; padding: 3px; margin: 6px; color: #ffff99;"><strong>DEBUG</strong><br />WP Version = ' . $GLOBALS['wp_version'] . '<br />';
-			$debugBufferFull = FALSE;	
-		}
-		if ( !empty($add_to_debug) ) {
-			$debugBuffer .= $add_to_debug . '<br />';
-		}
-		if ($end_debug_now) {
-			global $lDebug;
-			$lDebug = $debugBuffer . '</div><!-- /wpu-debug -->';
-			$debugBufferFull = TRUE;				
-		}
-
-	}	
 }
 
 /**

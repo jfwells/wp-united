@@ -10,7 +10,6 @@ TODO:
 - Check wp_check_password override!
 - a define can be set for bypassing integrated login -- we don't want it to happen in user mapper, etc. (search for all ->exec())
 
-- fix login debug, move to new debugger class
 - move wp_change_username somewhere better
 - consider manually doing make_clickable() on xposted comment text
 
@@ -72,4 +71,4 @@ Internalising of integrated login into wordpress -- in progress
 			- TODO: remove registration.php stuff from wp-functions. (done) HOWEVER: need to handle validate_username conflict
 					- Can just rename phpBB's validate_username if a marker is set (done)
 	-- kill make_clickable from wp-functions: rename it in phpBB and add alias function if not defined. (done)
-		
+	Login debug moved to new generic debugger class
