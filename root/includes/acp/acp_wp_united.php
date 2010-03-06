@@ -1472,6 +1472,7 @@ class acp_wp_united {
 					$connError = FALSE;
 					if ($wpUtdInt->can_connect_to_wp()) {
 						//Enter Integration
+						define('WPU_DISABLE_LOGIN_INT', TRUE);
 						$wpUtdInt->enter_wp_integration();
 						eval($wpUtdInt->exec());  
 						
@@ -2044,6 +2045,7 @@ class acp_wp_united {
 		$connError = FALSE;
 		if ($wpUtdInt->can_connect_to_wp()) {
 			//Enter Integration
+			define('WPU_DISABLE_LOGIN_INT', TRUE);
 			$wpUtdInt->enter_wp_integration();
 			eval($wpUtdInt->exec());
 			
@@ -2356,7 +2358,7 @@ class acp_wp_united {
 		if (!$wpUtdInt->can_connect_to_wp()) {
 			die($user->lang['MAP_CANT_CONNECT']);
 		}
-		
+		define('WPU_DISABLE_LOGIN_INT', TRUE);
 		$wpUtdInt->enter_wp_integration();
 		eval($wpUtdInt->exec()); 
 
@@ -2788,6 +2790,7 @@ class acp_wp_united {
 		if (!$wpUtdInt->can_connect_to_wp()) {
 			die($user->lang['MAP_CANT_CONNECT']);
 		}
+		define('WPU_DISABLE_LOGIN_INT', TRUE);
 		$wpUtdInt->enter_wp_integration();
 		eval($wpUtdInt->exec()); 
 		

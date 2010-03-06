@@ -40,6 +40,7 @@ class WPU_Actions {
 			require_once($phpbb_root_path . 'wp-united/wp-integration-class.' . $phpEx);
 			$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 				if ($wpUtdInt->can_connect_to_wp()) { 
+					define('WPU_DISABLE_LOGIN_INT', TRUE);
 					$wpUtdInt->enter_wp_integration();
 					$wpUtdInt->wp_logout();
 					eval($wpUtdInt->exec()); 
@@ -137,8 +138,9 @@ class WPU_Actions {
 						$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
 						if ($wpUtdInt->can_connect_to_wp()) {
 							//enter the integration
-							$wpUtdInt->enter_wp_integration();
 							/// No user integration here as we can't log in with the new credentials yet
+							define('WPU_DISABLE_LOGIN_INT', TRUE);
+							$wpUtdInt->enter_wp_integration();
 							eval($wpUtdInt->exec());  
 							$wpUtdInt->exit_wp_integration();
 							$wpUtdInt = null; unset($wpUtdInt);

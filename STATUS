@@ -5,10 +5,9 @@ Kill blog.php:
 
 TODO:
 	
-
+- make_clickable removal still needs to run on rev int pages, conn install, etc.
 - $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define			
 - Check wp_check_password override!
-- a define can be set for bypassing integrated login -- we don't want it to happen in user mapper, etc. (search for all ->exec())
 
 - move wp_change_username somewhere better
 - consider manually doing make_clickable() on xposted comment text
@@ -72,3 +71,4 @@ Internalising of integrated login into wordpress -- in progress
 					- Can just rename phpBB's validate_username if a marker is set (done)
 	-- kill make_clickable from wp-functions: rename it in phpBB and add alias function if not defined. (done)
 	Login debug moved to new generic debugger class
+- Set define (WPU_DISABLE_LOGIN_INT) for bypassing integrated login -- we don't want it to happen in user mapper, etc. 

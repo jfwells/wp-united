@@ -81,8 +81,11 @@ function wpu_init_plugin() {
 	
 
 	// set up login integration
-	if(!empty($wpSettings['integrateLogin'])) {
-		add_action('init', 'wpu_integrate_logins', 10);
+	// @todo: review for wp-admin
+	if(!empty($wpSettings['integrateLogin']) && !is_admin()) {
+		if(!(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT)) {
+			add_action('init', 'wpu_integrate_logins', 10);
+		}
 	}
 
 

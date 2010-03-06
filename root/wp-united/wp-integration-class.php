@@ -325,7 +325,7 @@ Class WPU_Integration {
 
 			$cConf = file_get_contents($wpConfigLoc);
 			$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
-			/* //Handle the make clickable conflict
+			 //Handle the make clickable conflict
 			if (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/formatting.php')) {
 				$fName='formatting.php';  //WP >= 2.1
 			} elseif (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/functions-formatting.php')) {
@@ -336,7 +336,7 @@ Class WPU_Integration {
 			$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
 			$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php ';
 			$cSet = str_replace('require (ABSPATH . WPINC . ' . "'/$fName","$cFor // ",$cSet);	
-			unset ($cFor); */
+			unset ($cFor); 
 			
 			// Fix plugins
 			if(!empty($this->wpu_settings['pluginFixes'])) {

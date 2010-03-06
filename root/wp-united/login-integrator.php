@@ -34,11 +34,11 @@ function wpu_integrate_logins() {
 		return false;
 	}
 
-	if(defined('WPU_DEBUG')) {
-		require_once($phpbb_root_path . 'wp-united/debug.' . $phpEx);
+	//if(defined('WPU_DEBUG')) {
+		require_once($phpbb_root_path . 'wp-united/debugger.' . $phpEx);
 		global $lDebug;
 		$lDebug = new WPU_Debug();
-	}
+	//}
 
 	$loggedInUser = '';
 	$newWpUser = '';
@@ -206,15 +206,14 @@ function wpu_integrate_logins() {
  */
 function wpu_get_userlevel($phpbb_userdata) {
 
-	global $db, $phpbbForum;
+	global $db, $phpbbForum, $auth, $user, $lDebug;
 	
 	$user_level = FALSE;
 	
 	if ( (!$phpbbForum->user_logged_in()) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) ) {
 		return FALSE;
 	}
-	
-	global $auth, $user;
+
 	$auth->acl($user->data);
 	$debug = 'Checking permissions: ';
 	if ( $auth->acl_get('u_wpu_subscriber') ) {
