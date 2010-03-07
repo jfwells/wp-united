@@ -1,6 +1,8 @@
-WP-UNITED: WordPress Integration Mod v0.8.5 RC2 for phpBB3
+WP-UNITED: WordPress Integration Mod v0.9.0 RC3 for phpBB3
 -----------------------------------------------
-Last updated: 25 February 2010, by John Wells
+Last updated: <> 2010, by John Wells
+
+This software is PRE-RELEASE and UNDER CONSTRUCTION. Use on a test board only until we near the final releae of v0.9!
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -25,7 +27,7 @@ An install.xml file has been included. To read this properly, unpack the archive
 
 The  file will tell you which files to upload to your forum and where they should go, and will give instructions on which files to modify and how. 
 
-install.xml includes instructions for the prosilver template. If you are using the subSilver2 template, or other templates, you must also apply the mod to those. Instructions for subSilver2 are included in the contrib folder. For other templates, use the prosilver or subSilver2 directions as necessary.
+install.xml includes instructions for the prosilver template. If you are using the subSilver2 template, or other templates, you must also apply the mod to those. Instructions for subSilver2 are included in the templates folder. For other templates, use the prosilver or subSilver2 directions as necessary.
 
 Some additional translations may have been provided in the /languages folder -- open up the .xml file for your language to install them.
 
