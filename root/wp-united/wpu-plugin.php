@@ -75,7 +75,7 @@ function wpu_init_plugin() {
 	$siteUrl = get_option('siteurl');
 	
 	// enqueue any JS we need
-	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
+	if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
 		wp_enqueue_script('wp-united', $phpbbForum->url . 'wp-united/js/wpu-min.js', array(), false, true);
 	}
 	
@@ -1487,8 +1487,11 @@ function wpu_inline_js() {
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
 		echo "\n<script type=\"text/javascript\">//<![CDATA[\nvar wpuLang ={";
 		$langStrings = array('wpu_more_smilies', 'wpu_less_smilies', 'wpu_smiley_error');
-		foreach($langStrings as $lang) {
-			echo "'{$lang}': '" . str_replace("\\\\'", "\\'", str_replace("'", "\\'",  $phpbbForum->lang[$lang])) . "',";
+		for($i=0; $i<sizeof($langStrings);$i++) {
+			if($i>0) {
+				echo ',';
+			}
+			echo "'{$langStrings[$i]}': '" . str_replace("\\\\'", "\\'", str_replace("'", "\\'",  $phpbbForum->lang[$langStrings[$i]])) . "'";
 		}
 		echo "} // ]]>\n</script>";
 	}
