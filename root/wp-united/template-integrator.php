@@ -67,6 +67,9 @@ if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REV
 	
 	$outerContent = ob_get_contents();
 	
+	//kill absolute paths that should be URIs
+	$outerContent = str_replace($phpbb_root_path, $phpbbForum->url, $outerContent);
+	
 	ob_end_clean();
 }
 

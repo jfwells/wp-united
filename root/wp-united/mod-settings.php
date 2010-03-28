@@ -33,7 +33,6 @@ if ( !defined('IN_PHPBB') ) {
 function get_db_schema() {
 
 	$dbSchema = array( 
-		'blogsUri' => 'blogsEntry',
 		'wpUri' => 'fullUri' ,
 		'wpPath' => 'fullPath', 
 		'integrateLogin' => 'wpLogin', 
@@ -75,15 +74,10 @@ function get_db_schema() {
  * Set default values for WPU settings
  */
 function set_default($setting_key) {
-	global $phpEx, $config, $phpbb_root_path, $phpEx, $user;
+	global $user;
 
-	$server = add_http(add_trailing_slash($config['server_name']));
-	$scriptPath = add_trailing_slash($config['script_path']);
-	$scriptPath = ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
-	$defaultBlogUri = $server . $scriptPath . "blog." . $phpEx;
 	
 	$defaults = array(
-		'blogsUri' => $defaultBlogUri,
 		'wpUri' => '' ,
 		'wpPath' => '', 
 		'integrateLogin' => 0, 

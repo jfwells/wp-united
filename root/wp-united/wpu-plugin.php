@@ -41,17 +41,21 @@ function wpu_init_plugin() {
 		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	}
-	
+
 	require_once($phpbb_root_path . 'wp-united/phpbb.'.$phpEx);
 	$phpbbForum = new WPU_Phpbb();
 	
 	require_once($phpbb_root_path . 'wp-united/functions-cross-posting.'.$phpEx);
 	
 	if ( !defined('IN_PHPBB') ) {
-		define('WPU_PHPBB_IS_EMBEDDED', TRUE);
+		if(is_admin()) {
+			define('WPU_PHPBB_IS_EMBEDDED', TRUE);
+		} else {
+			define('WPU_BLOG_PAGE', 1);
+		}
 
 		$phpbbForum->load($phpbb_root_path);
-
+		
 		require_once($phpbb_root_path . 'wp-united/widgets.' .$phpEx);
 		require_once($phpbb_root_path . 'wp-united/template-tags.' .$phpEx);
 	}

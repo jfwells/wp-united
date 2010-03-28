@@ -1,9 +1,15 @@
 In progress
 --------------
 
-Kill blog.php:
+TODO
 
-TODO:
+clean up wp-runner / integrator split
+logout etc to use comms frame
+ACP to move to WP
+
+TODO -- remaining from killing blog.php:
+	
+	
 	
 - make_clickable removal still needs to run on rev int pages, conn install, etc.
 - $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define			
@@ -12,9 +18,6 @@ TODO:
 - move wp_change_username somewhere better
 - consider manually doing make_clickable() on xposted comment text
 
-- Can now begin removal of blog.php, moving defines and options from blog.php to phpbb.php, and allowing execution in hook file. (set marker wpu_blog_page for validate_username conflict)
-- remove blog.html if required
-- remove blogsUri option
 - add upgrade instructions for people using blog.php
 
 
@@ -72,3 +75,7 @@ Internalising of integrated login into wordpress -- in progress
 	-- kill make_clickable from wp-functions: rename it in phpBB and add alias function if not defined. (done)
 	Login debug moved to new generic debugger class
 - Set define (WPU_DISABLE_LOGIN_INT) for bypassing integrated login -- we don't want it to happen in user mapper, etc. 
+- Removed blog.php, blogsUri option
+- forward template integration now works again without blog.php
+- Fixed absolute phpbb_root_path breaks phpBB URLs in forward template integration
+- wordpress now always run in global scope for reverse integration (but header/footer called locally)

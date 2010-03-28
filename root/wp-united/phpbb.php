@@ -55,7 +55,6 @@ class WPU_Phpbb {
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
 			$this->phpbbUser = $GLOBALS['user'];
 			$this->phpbbCache = $GLOBALS['cache'];
-			$this->_calculate_url();
 		}
 		$this->was_out = false;
 		$this->seo = false;
@@ -88,16 +87,40 @@ class WPU_Phpbb {
 		
 		require_once($phpbb_root_path . 'common.' . $phpEx);
 		
+		$this->_calculate_url();
+		
 		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
 		// so we just set it global here
 		$GLOBALS['template'] = &$template;
 		
 		$user->session_begin();
 		$auth->acl($user->data);
-		$user->setup('mods/wp-united');
-
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);		
-		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+		if(!is_admin()) {
+			if ($config['board_disable'] && !defined('IN_LOGIN') && !$auth->acl_gets('a_', 'm_') && !$auth->acl_getf_global('m_')) {
+				// board is disabled. 
+				$user->add_lang('common');
+				define('WPU_BOARD_DISABLED', (!empty($config['board_disable_msg'])) ? '<strong>' . $user->lang['BOARD_DISABLED'] . '</strong><br /><br />' . $config['board_disable_msg'] : $user->lang['BOARD_DISABLE']);
+			} else {
+				if(($wpSettings['showHdrFtr'] == 'FWD') && (defined('WPU_INTEG_DEFAULT_STYLE') && WPU_INTEG_DEFAULT_STYLE)) {
+					// This option forces the default phpBB style in a forward integration
+					$user->setup('mods/wp-united', $config['default_style']);
+				} else {
+					$user->setup('mods/wp-united');
+				}
+			}
+		} else {	
+			$user->setup('mods/wp-united');
+		}
+		
+		if(defined('WPU_BLOG_PAGE') && !defined('WPU_HOOK_ACTIVE')) {
+			$cache->purge();
+			trigger_error($user->lang['wpu_hook_error'], E_USER_ERROR);
+		}
+		
+		if(!defined('WPU_BLOG_PAGE')) {
+			require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);		
+			$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+		}
 		
 		//fix phpBB SEO mod
 		global $phpbb_seo;
@@ -341,7 +364,7 @@ class WPU_Phpbb {
 			$server = $config['server_protocol'] . add_trailing_slash($config['server_name']);
 			$scriptPath = add_trailing_slash($config['script_path']);
 			$scriptPath= ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
-			$this->url = $server . $scriptPath;	
+			$this->url = $server . $scriptPath;
 	}
 	
 	

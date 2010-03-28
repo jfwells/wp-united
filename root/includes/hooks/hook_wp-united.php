@@ -50,6 +50,18 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 			$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
 			$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
 			$phpbb_hook->register('exit_handler', 'wpu_continue');
+		
+		
+			/**
+			 * New add for global scope 
+			 */
+			if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
+				define('WPU_REVERSE_INTEGRATION', true);
+				//ob_start(); // to capture errors
+				require_once($phpbb_root_path . 'wp-united/wordpress-runner.' .$phpEx);
+		}
+		
+		
 		}
 		
 	} else if (defined('ADMIN_START')) {
@@ -113,12 +125,30 @@ function wpu_init(&$hook) {
 			}	
 		}	
 
-		//Do a reverse integration?
+		/** 
+		 * Do a template integration?
+		 * @TODO: Clean up, remove defines
+		 */
 		if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 			define('WPU_REVERSE_INTEGRATION', true);
 			ob_start();
 		}
+		if (($wpSettings['showHdrFtr'] == 'FWD') && defined('WPU_BLOG_PAGE') ) {
+			define('WPU_FWD_INTEGRATION', true);
+			ob_start();
+			register_shutdown_function('wpu_wp_shutdown');
+		}
 	} 	
+}
+
+function wpu_wp_shutdown() {
+	global $innerContent, $phpbb_root_path, $phpEx, $phpbbForum;
+	if (defined('WPU_FWD_INTEGRATION') ) {
+		$innerContent = ob_get_contents();
+		ob_end_clean(); 
+		$phpbbForum->enter();
+		include ($phpbb_root_path . 'wp-united/integrator.' . $phpEx);
+	}
 }
 
 /**
@@ -133,14 +163,12 @@ function wpu_execute(&$hook, $handle) {
 		if($handle != 'body') {
 			return;
 		}
-		
-		
-	
+
 		/**
 		 * An additional check to ensure we don't act on a $template->assign_display('body') event --
 		 * if a mod is doing weird things with $template instead of creating their own $template object
 		 */
-		if(defined('WPU_REVERSE_INTEGRATION')) {
+		if(defined('WPU_FWD_INTEGRATION')) {
 			if($wpuBuffered = wpu_am_i_buffered()) {
 				return;
 			}
@@ -150,7 +178,7 @@ function wpu_execute(&$hook, $handle) {
 		//$hook->remove_hook(array('template', 'display'));
 		if(defined('SHOW_BLOG_LINK') && SHOW_BLOG_LINK) {
 			$template->assign_vars(array(
-				'U_BLOG'	 =>	append_sid($wpSettings['blogsUri'], false, false, $GLOBALS['user']->session_id),
+				'U_BLOG'	 =>	append_sid($wpSettings['wpUri'], false, false, $GLOBALS['user']->session_id),
 				'S_BLOG'	=>	TRUE,
 			)); 
 		}

@@ -73,11 +73,11 @@ if ( defined('GET_PORTAL_CONTENT') ) {
 			);
 		} 
 	$template->assign_vars(array(
-		'LATEST_BLOG_POSTS' => $user->lang['Latest_Blog_Posts'),
-		'ARTICLE_BY' => $user->lang['Article_By'),
-		'WP_CATEGORY' => $user->lang['WP_Category'),
-		'WP_POSTED_ON' => $user->lang['WP_Posted_On'))
-	);
+		'LATEST_BLOG_POSTS' => $user->lang['Latest_Blog_Posts'],
+		'ARTICLE_BY' => $user->lang['Article_By'],
+		'WP_CATEGORY' => $user->lang['WP_Category'],
+		'WP_POSTED_ON' => $user->lang['WP_Posted_On']
+	));
 	}
 	
 

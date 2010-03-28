@@ -213,7 +213,7 @@ function wpu_get_userlevel($phpbb_userdata) {
 	if ( (!$phpbbForum->user_logged_in()) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) ) {
 		return FALSE;
 	}
-
+	$phpbbForum->enter_if_out();
 	$auth->acl($user->data);
 	$debug = 'Checking permissions: ';
 	if ( $auth->acl_get('u_wpu_subscriber') ) {
@@ -238,7 +238,8 @@ function wpu_get_userlevel($phpbb_userdata) {
 	}			
 	$lDebug->add($debug);
 	$lDebug->add('User level set to: ' . $user_level);
-
+	
+	$phpbbForum->leave_if_just_entered();
 	return $user_level;
 }
 
