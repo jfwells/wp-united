@@ -41,7 +41,8 @@ function wpu_init_plugin() {
 		$phpbb_root_path = $wpuConnSettings['path_to_phpbb'];
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	}
-
+	require_once($phpbb_root_path . 'wp-united/acp.'.$phpEx);
+	
 	require_once($phpbb_root_path . 'wp-united/phpbb.'.$phpEx);
 	$phpbbForum = new WPU_Phpbb();
 	
@@ -285,7 +286,7 @@ function wpu_adminmenu_init() {
 			if (current_user_can('publish_posts'))  {
 				//	WP 2.7+ only
 			
-				if ( !empty($wpSettings['usersOwnBlogs']) ) {
+				if (!empty($wpSettings['usersOwnBlogs']) ) {
 					$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wp-united', 'wpu_menuSettings', $phpbbForum->url . 'wp-united/images/tiny.gif' );
 					
 					add_submenu_page('wp-united', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', 'wp-united' , 'wpu_menuSettings');						
