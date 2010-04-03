@@ -54,13 +54,13 @@ function wp_united_settings() { ?>
 				<p>You <strong>must set</strong> the privileges for each user using the WP-United permissions under the phpBB3 Users' and Groups' permissions settings.</p>
 				<input type="checkbox" id="wpuloginint" /><label for="wpuloginint">Enable Login Integration?</label>		
 				
-				<div id="wpusetingsxpost" style="display: none; margin-left: 80px;border-top: 1px solid #ffffff;">
+				<div id="wpusettingsxpost" class="subsettings">
 					<h4>Enable cross-posting?</h4>
 					<p>If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.</p>
 					<input type="checkbox" id="wpuxpost" /><label for="wpuxpost">Enable Cross-Posting?</label>		
 					
 					
-					<div id="wpusetingsxpostxtra" style="display: none; margin-left: 80px;border-top: 1px solid #ffffff;">
+					<div id="wpusettingsxpostxtra" class="subsettings">
 						<h4>Type of cross-posting?</h4>
 						<p>Choose how the post should appear in phpBB. WP-United can post an excerpt, the full post, or give you an option to select when posting each post.</p>
 						<input type="radio" name="rad_xpost_type" value="excerpt" id="wpuxpexc"  /><label for="wpuxpexc">Excerpt</label>
@@ -84,7 +84,7 @@ function wp_united_settings() { ?>
 				<h3>Integrate templates?</h3>
 				<p>WP-United can integrate your phpBB &amp; WordPress templates.</p>
 				<input type="checkbox" id="wputplint" /><label for="wputplint">Enable Template Integration</label>
-				<div id="wpusettingstpl" style="display: none; margin-left: 80px;border-top: 1px solid #ffffff;">
+				<div id="wpusettingstpl" class="subsettings">
 					<h4>Integration Mode</h4>
 					<p>Do you want WordPress to appear inside your phpBB template, or phpBB to appear inside your WordPress template?</p>
 					<input type="radio" name="rad_tpl" value="fwd" id="wputplfwd"  /><label for="wputplfwd">WordPress inside phpBB</label>
@@ -94,61 +94,64 @@ function wp_united_settings() { ?>
 					
 					<p>WP-United can automatically fix CSS conflicts between your phpBB and WordPress templates. Set the slider to "maximum compatibility" to fix most problems. If you prefer to fix CSS conflicts by hand, or if the automatic changes cause problems, try reducing the level.</p>
 					
-					<p style="height: 11px;"><span style="float: left;">Off</span><span style="float: right;">Maximum Compatibility (Recommended)</span></p>
-					<div id="wpucssmlvl"></div>
+					<div style="padding: 0 100px;">
+						<p style="height: 11px;"><span style="float: left;">Off</span><span style="float: right;">Maximum Compatibility (Recommended)</span></p>
+						<div id="wpucssmlvl"></div>
+						<div style="background-color: #343434;" id="cssmdesc"><p><strong>Current Level: <span id="cssmlvltitle">xxx</span></strong><br /></p><p id="cssmlvldesc">xxx</p></div>
+					</div>
 					
-					<p><strong>Current Level: <span id="cssmlvltitle">xxx</span></strong><br /><span id="cssmlvldesc">xxx</span></p><br />
+					<p><a href="#" onclick="return tplAdv();">Advanced Settings <span id="wutpladvshow">+</span><span id="wutpladvhide" style="display: none;">-</span></a></p>
 					
-					
-					<h4>Advanced Settings</h4>
-					
-					<p><strong>Use full page?</strong>
-						<a href="#" onclick="alert('Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slower.'); return false;">What is this?</a>
-					</p>
-					<select id="wpuhdrftrspl" name="wpuhdrftrspl">
-						<option value="0">-- Simple Header &amp; Footer (recommended) --</option>
-						<option value="1">page.php</option>
-					</select>
-					
-					<p><strong>Padding around phpBB</strong>
-						<a href="#" onclick="alert('phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not \'0\'), and style the \'phpbbforum\' DIV in your stylesheet.'); return false;">What is this?</a>
-					</p>
-						<table>
-							<tr>
-								<td>
-									<label for="wpupadtop">Top:</label><br />
-								</td>
-								<td>
-									<input type="text" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="6" />px<br />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="wpupadright">Right:</label><br />
-								</td>
-								<td>
-									<input type="text" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="12" />px<br />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="wpupadbtm">Bottom:</label><br />
-								</td>
-								<td>
-									<input type="text" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="6" />px<br />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="wpupadleft">Left:</label><br />
-								</td>
-								<td>
-									<input type="text" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="12" />px<br />
-								</td>
-							</tr>
-							</table>
-						<p><a href="#" onclick="return false;">Reset to defaults</a></p>
+					<div id="wpusettingstpladv" class="subsettings">
+						<h4>Advanced Settings</h4>
 						
+						<p><strong>Use full page?</strong>
+							<a href="#" onclick="alert('Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slower.'); return false;">What is this?</a>
+						</p>
+						<select id="wpuhdrftrspl" name="wpuhdrftrspl">
+							<option value="0">-- Simple Header &amp; Footer (recommended) --</option>
+							<option value="1">page.php</option>
+						</select>
+						
+						<p><strong>Padding around phpBB</strong>
+							<a href="#" onclick="alert('phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not \'0\'), and style the \'phpbbforum\' DIV in your stylesheet.'); return false;">What is this?</a>
+						</p>
+							<table>
+								<tr>
+									<td>
+										<label for="wpupadtop">Top:</label><br />
+									</td>
+									<td>
+										<input type="text" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="6" />px<br />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label for="wpupadright">Right:</label><br />
+									</td>
+									<td>
+										<input type="text" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="12" />px<br />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label for="wpupadbtm">Bottom:</label><br />
+									</td>
+									<td>
+										<input type="text" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="6" />px<br />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label for="wpupadleft">Left:</label><br />
+									</td>
+									<td>
+										<input type="text" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="12" />px<br />
+									</td>
+								</tr>
+								</table>
+							<p><a href="#" onclick="return false;">Reset to defaults</a></p>
+						</div>
 						
 				
 				</div>
@@ -172,20 +175,22 @@ function wp_united_settings() { ?>
 		<script type="text/javascript">
 		// <![CDATA[
 			jQuery(document).ready(function($) { 
+				
 				$('#wputabs').tabs();
-				if($('#wpuxpost').val()) $('#wpusetingsxpostxtra').show();
-				if($('#wpuloginint').val()) $('#wpusetingsxpost').show();
-				if($('#wputplint').val()) $('#wpusetingstpl').show();
+				
+				if($('#wpuxpost')[0].value) $('#wpusettingsxpostxtra').show();
+				if($('#wpuloginint')[0].value) $('#wpusettingsxpost').show();
+				if($('#wputplint')[0].value) $('#wpusettingstpl').show();
+				
 				$('#wpuloginint').change(function() {
-						$('#wpusetingsxpost').toggle("slide", "slow");
+						$('#wpusettingsxpost').toggle("slide", "slow");
 				});
 				$('#wpuxpost').change(function() {
-						$('#wpusetingsxpostxtra').toggle("slide", "slow");
+						$('#wpusettingsxpostxtra').toggle("slide", "slow");
 				});
 				$('#wputplint').change(function() {
 						$('#wpusettingstpl').toggle("slide", "slow");
 				});	
-				
 				
 				setCSSMLevel(2);
 				$("#wpucssmlvl").slider({
@@ -214,7 +219,16 @@ function wp_united_settings() { ?>
 					desc = "CSS Magic and Template Voodoo are enabled:<ul><li>Styles are reset to stop outer styles applying to the inner part of the page.</li><li>Inner CSS is made more specific so it does affect the outer portion of the page.</li><li>HTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.</li></ul>";							
 				}
 				$("#cssmlvltitle").html(lvl);
-				$("#cssmlvldesc").html(desc);				
+				$("#cssmlvldesc").html(desc);
+				$("#cssmdesc").effect("highlight");
+			}
+			
+			function tplAdv() {
+				//var type = ($('#xxxx')[0].value) ? 'W' : 'P';
+				$('#wpusettingstpladv').toggle('slide');
+				$('#wutpladvshow').toggle()
+				$('#wutpladvhide').toggle();
+				return false;
 			}
 		
 		// ]]>
