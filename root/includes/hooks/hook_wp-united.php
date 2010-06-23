@@ -62,7 +62,7 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 				
 				}
 				
-			} else if (defined('ADMIN_START')) {
+			} /* else if (defined('ADMIN_START')) {
 				$user->add_lang('mods/wp-united');
 				
 				//decide if we need to run the installer
@@ -74,7 +74,7 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 				if(!isset($config['wpu_install_fingerprint']) &&  defined('WPU_UNINSTALL') && !WPU_UNINSTALL){
 					$phpbb_hook->register('phpbb_user_session_handler', 'installer_run');
 				}
-			}
+			} */
 		}
 	}
 

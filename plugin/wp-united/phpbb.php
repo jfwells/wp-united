@@ -361,12 +361,96 @@ class WPU_Phpbb {
 	 * transmits new settings from the WP settings panel to phpBB
 	 */
 	function synchronise_settings($settings) {
-		global $wpSettings;
+		global $wpSettings, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
 		$this->enter_if_out();
 		if(is_array($settings)) {
 			if(sizeof($settings)) {
+				
+				// generate unique ID for details ID
+				$randSeed = rand(0, 99999);
+
+				$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdetails' . $randSeed . '">';
+				$bodyContent .= "Sending settings from WordPress to phpBB<br />\n\n";
+				if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
+					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
+						  ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
+
+					if (!$result = $db->sql_query($sql)) {
+						trigger_error('ERROR: Cannot add the integration column to the users table', E_USER_ERROR); exit();
+					}
+					$bodyContent .= "Modified USERS Table (Integration ID)<br />\n\n";
+				}
+				
+				if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
+					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
+						ADD user_wpublog_id VARCHAR(10) NULL DEFAULT NULL';
+					if (!$result = $db->sql_query($sql)) {
+						trigger_error('ERROR: Cannot add blog ID column to users table', E_USER_ERROR); exit();
+					}
+					$bodyContent .= "Modified USERS Table (Blog ID)<br />\n\n";
+				}
+				
+				$sql = 'SELECT * FROM ' . POSTS_TABLE;
+				$result = $db->sql_query_limit($sql, 1);
+
+				$row = (array)$db->sql_fetchrow($result);
+
+				if (!array_key_exists('post_wpu_xpost', $row) ) {
+					$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
+						ADD post_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
+
+					if (!$result = $db->sql_query($sql)) {
+						trigger_error('ERROR: Cannot add cross-posting column to posts table', E_USER_ERROR); exit();
+					}
+					$bodyContent .= "Modified POSTS Table (Cross-Posting Link)<br />\n\n";
+				}
+				
+				$db->sql_freeresult($result);
+
+				$bodyContent .= "Adding WP-United Permissions....<br />\n\n";
+				
+				
+				// Setup $auth_admin class so we can add permission options
+				include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
+
+
+				$auth_admin = new auth_admin();
+
+				// Add permissions
+				$auth_admin->acl_add_option(array(
+					'local'      => array('f_wpu_xpost'),
+					'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
+				));
+
+				$bodyContent .= '</div>';
+				$ln = "<script type=\"text/javascript\">
+				// <![CDATA[
+				function toggleWpuLog{$randSeed}() {
+					var lg = document.getElementById('wpulogdetails{$randSeed}');
+					var lgP = document.getElementById('wpulogexpand{$randSeed}');
+					if(lg.style.display == 'none') {
+						lg.style.display='block';
+						lgP.firstChild.nodeValue = '-';
+					} else {
+						lg.style.display='none';
+						lgP.firstChild.nodeValue = '+';			
+					}
+					return false;
+				}
+				// ]]>
+				</script>";
+				
+				$ln .= '*}<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">Changed WP-United Settings (click for details)<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '{*';
+
+				add_log('admin', $ln);
+				
+				$cache->purge();
+				
+
 				set_integration_settings($settings);
 				$wpSettings = $settings;
+				
+
 				$this->leave_if_just_entered();
 				return true;
 			}
@@ -482,6 +566,90 @@ class WPU_Phpbb {
 			}
 		}
 	}
+	
+	/**
+	 * Originally by Poyntesm
+	 * http://www.phpbb.com/community/viewtopic.php?f=71&t=545415&p=3026305
+	 * @access private
+	 */
+	function _get_role_by_name($name) {
+	   global $db;
+	   $data = null;
+
+	   $sql = "SELECT *
+		  FROM " . ACL_ROLES_TABLE . "
+		  WHERE role_name = '$name'";
+	   $result = $db->sql_query($sql);
+	   $data = $db->sql_fetchrow($result);
+	   $db->sql_freeresult($result);
+
+	   return $data;
+	}
+	
+	/**
+	* Set role-specific ACL options without deleting enter existing options. If option already set it will NOT be updated.
+	* 
+	* @param int $role_id role id to update (a role_id has to be specified)
+	* @param mixed $auth_options auth_options to grant (a auth_option has to be specified)
+	* @param ACL_YES|ACL_NO|ACL_NEVER $auth_setting defines the mode acl_options are getting set with
+	* @access private
+	*
+	*/
+	function _acl_update_role($role_id, $auth_options, $auth_setting = ACL_YES) {
+	   global $db, $cache, $auth;
+
+		$acl_options_ids = $this->_get_acl_option_ids($auth_options);
+
+		$role_options = array();
+		$sql = "SELECT auth_option_id
+			FROM " . ACL_ROLES_DATA_TABLE . "
+			WHERE role_id = " . (int) $role_id . "
+			GROUP BY auth_option_id";
+		$result = $db->sql_query($sql);
+		while ($row = $db->sql_fetchrow($result))	{
+			$role_options[] = $row;
+		}
+		$db->sql_freeresult($result);
+
+		$sql_ary = array();
+		foreach($acl_options_ids as $option)	{
+			if (!in_array($option, $role_options)) {
+				$sql_ary[] = array(
+					'role_id'      		=> (int) $role_id,
+					'auth_option_id'	=> (int) $option['auth_option_id'],
+					'auth_setting'      => $auth_setting
+				);	
+			}
+		}
+
+	   $db->sql_multi_insert(ACL_ROLES_DATA_TABLE, $sql_ary);
+
+	   $cache->destroy('acl_options');
+	   $auth->acl_clear_prefetch();
+	}
+
+	/**
+	* Get ACL option ids
+	*
+	* @param mixed $auth_options auth_options to grant (a auth_option has to be specified)
+	* @access private
+	*/
+	function _get_acl_option_ids($auth_options) {
+	   global $db;
+
+	   $data = array();
+	   $sql = "SELECT auth_option_id
+		  FROM " . ACL_OPTIONS_TABLE . "
+		  WHERE " . $db->sql_in_set('auth_option', $auth_options) . "
+		  GROUP BY auth_option_id";
+	   $result = $db->sql_query($sql);
+	   while ($row = $db->sql_fetchrow($result))  {
+		  $data[] = $row;
+	   }
+	   $db->sql_freeresult($result);
+
+	   return $data;
+	}	
 	
 	/**
 	 * Enters phpBB if we were out

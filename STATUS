@@ -9,6 +9,13 @@ TODO
 -- change hook flow
 -- uninstall and/or disable buttons
 
+MIGRATION ACTIONS:
+- remove old settings in WP & phpBB
+- remove old widget options
+- remove a_wpu_manage permission
+- remove ACP modules
+
+
 
 clean up wp-runner / integrator split
 logout etc to use comms frame
