@@ -76,13 +76,17 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 	$useTV = request_var('tv', -1);
 }
 
+require($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
+if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
+	die('not setup properly');
+}
 
 // We load the bare minimum to get our data
 require($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
 
-require($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
 
 require($phpbb_root_path . 'wp-united/version.' . $phpEx);
 require($phpbb_root_path . 'wp-united/cache.' . $phpEx);

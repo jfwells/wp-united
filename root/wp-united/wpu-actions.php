@@ -215,10 +215,14 @@ class WPU_Actions {
 		
 		global $phpbb_root_path, $phpEx, $wpuCache, $wpSettings;
 		
-		require_once($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
-		
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+		
+		if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
+			return $cssIn; 
+		}
+		
+		require_once($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
 
 		require_once($phpbb_root_path . 'wp-united/version.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
