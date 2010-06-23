@@ -3,6 +3,15 @@ WP-UNITED: WordPress Integration Mod v0.9.0 RC3 for phpBB3
 Last updated: <> 2010, by John Wells
 
 This software is PRE-RELEASE and UNDER CONSTRUCTION. Use on a test board only until we near the final releae of v0.9!
+**************************************
+NOTE: TO INSTALL THIS PRE-RELEASE VERSION, DO NOT USE THE WP-UNITED ACP TAB!! INSTALL THE MOD AS NORMAL, THEN COPY ALL FILES in PLUGIN/ TO YOUE WORDPRESS PLUGIN FOLDER
+THEN ACTIVATE THE NEW WP-UNITED PLUGIN AND VISIT THE SETTINGS PAGE.
+
+*MANY* THINGS ARE TEMPORARILY BROKEN AND ON THE FLOOR
+
+
+**************************************
+
 
 Check http://www.wp-united.com for latest versions, and for faster support
 

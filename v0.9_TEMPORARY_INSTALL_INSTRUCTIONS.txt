@@ -1,0 +1,13 @@
+v0.9 pre-alpha testing
+
+NOTE: TO INSTALL THIS PRE-RELEASE VERSION, DO NOT USE THE WP-UNITED ACP TAB!! 
+
+To install:
+
+- Install the phpBB MOD Using the install.xml file as normal
+- visit the phpBB ACP to ensure the WP-United ACP install actions have taken place *BUT DO NOT USE THE WP-UNITED ACP TAB*
+- copy the wp-united folder in plugin/ to your WordPress plugins folder
+- Activate the new "WP-United" plugin
+- Visit the "WP-United Settings" page and fill in the information.
+
+*MANY* THINGS ARE TEMPORARILY BROKEN AND ON THE FLOOR
