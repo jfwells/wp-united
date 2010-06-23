@@ -38,6 +38,8 @@ function wpu_init_plugin() {
 	$wpuConnSettings = get_option('wpu-settings');
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
 
+	require_once($wpuPath . 'functions-general.php');
+
 	if ( function_exists('plugins_url') ) {
 			$wpuUrl = plugins_url('wp-united') . '/';
 	} else {

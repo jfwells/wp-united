@@ -10,7 +10,7 @@
 * Generic WP-United functions that don't have anywhere better to go (yet).
 */
 
-if ( !defined('IN_PHPBB') ) {
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 	exit;
 }
 

@@ -544,7 +544,7 @@ function wpu_process_settings() {
 	$data = array_merge($data, array(
 		'wpUri' => add_trailing_slash(get_option('home')),
 		'wpPath' => ABSPATH,
-		'wpPluginPath' => ABSPATH.'wp-content/plugins/' . plugin_basename(dirname(__FILE__)) . '/',
+		'wpPluginPath' => ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/',
 		'wpPluginUrl' => $wpuUrl
 	));
 	
