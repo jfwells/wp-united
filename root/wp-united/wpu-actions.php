@@ -264,7 +264,7 @@ class WPU_Actions {
 		}
 		
 		// Apply or load css magic
-		include($phpbb_root_path . 'wp-united/css-magic.' . $phpEx);
+		include($wpSettings['wpPluginPath'] . 'css-magic.' . $phpEx);
 		$cssMagic = CSS_Magic::getInstance();
 		if(!$cssMagic->parseString($cssIn)) {
 			return $cssIn;

@@ -34,10 +34,11 @@ if($connectSuccess) {
 			if (!defined('WPU_REVERSE_INTEGRATION')) {
 				global $wpuNoHead, $wpSetngs;
 				eval($wpUtdInt->fix_template_loader());
-			} else {
-				include($phpbb_root_path . 'wp-united/latest-posts.' . $phpEx);
 			}
+		} else {
+			include($wpSettings['wpPluginPath'] . 'wp-united/latest-posts.' . $phpEx);
 		}
+		
 		$wpContentVar = ob_get_contents();
 		ob_end_clean();
 	

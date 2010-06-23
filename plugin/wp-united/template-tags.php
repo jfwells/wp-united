@@ -297,12 +297,13 @@ function avatar_reader($default = true) {
 function get_avatar_reader($default = true) {
 	global $images, $phpbbForum, $userdata, $user_ID;
 	get_currentuserinfo();
+	$image = false;
 	if ( !empty($user_ID) ) {
 		$image = avatar_create_image($userdata);
 	}
 	if ( !empty($image) ) {
 		return $image;
-	} elseif ( $image === FALSE ) {
+	} elseif ( $image === false ) {
 		if ( $default ) {
 			return $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
 		}

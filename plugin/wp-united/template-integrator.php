@@ -158,7 +158,7 @@ if (defined('WPU_REVERSE_INTEGRATION')) {
  */
 if (!empty($wpSettings['cssMagic'])) {
 
-	require($phpbb_root_path . 'wp-united/css-magic.' . $phpEx);
+	require($wpSettings['wpPluginPath'] . 'css-magic.' . $phpEx);
 	require($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
 
 	/** 

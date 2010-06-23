@@ -123,7 +123,7 @@ if(file_exists($cssFileToFix)) {
 	
 	// Load and CSS-Magic-ify the CSS file. If an outer file, just cache it
 	if(empty($css)) {
-		require($phpbb_root_path . 'wp-united/css-magic.' . $phpEx);
+		require($wpSettings['wpPluginPath'] . 'css-magic.' . $phpEx);
 		$cssMagic = CSS_Magic::getInstance();
 		if($cssMagic->parseFile($cssFileToFix)) {
 

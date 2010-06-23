@@ -146,7 +146,7 @@ function wpu_modify_pagelink($permalink, $post) {
 		$forumPage = get_option('wpu_set_forum');
 		if(!empty($forumPage) && ($forumPage == $post)) {
 			// If the forum and blog are both in root, add index.php to the end
-			$forumPage = ($phpbbForum->url == $wpSettings['blogsUri']) ? $phpbbForum->url . 'index.' . $phpEx : $phpbbForum->url;
+			$forumPage = ($phpbbForum->url == get_option('siteurl')) ? $phpbbForum->url . 'index.' . $phpEx : $phpbbForum->url;
 			return $forumPage; 
 		}
 	}
