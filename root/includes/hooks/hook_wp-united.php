@@ -24,49 +24,57 @@ define('WPU_HOOK_ACTIVE', TRUE);
 if(file_exists($phpbb_root_path . 'wp-united/')) {
 	require_once ($phpbb_root_path . 'wp-united/version.' . $phpEx);
 	require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
-	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 
 	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 
 	if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
 		set_error_handler('wpu_msg_handler');
 	}
+	
 
 	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 	
-	wpu_set_buffering_init_level();
+	if(isset($wpSettings['wpPluginPath'])) {
+		if(file_exists($wpSettings['wpPluginPath'])) {
 
-	if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {  
-		if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) {  
-			$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
-			$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
-			$phpbb_hook->register('exit_handler', 'wpu_continue');
-		
-		
-			/**
-			 * New add for global scope 
-			 */
-			if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
-				define('WPU_REVERSE_INTEGRATION', true); 
-				//ob_start(); // to capture errors
-				require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+			require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
+
+	
+			wpu_set_buffering_init_level();
+
+			if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {  
+				if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) {  
+					$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
+					$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
+					$phpbb_hook->register('exit_handler', 'wpu_continue');
 				
-			}
-		
-		
-		}
-		
-	} else if (defined('ADMIN_START')) {
-		$user->add_lang('mods/wp-united');
-		
-		//decide if we need to run the installer
-		// If there is no fingerprint, and WPU_UNINSTALL is not set to true, we run it.
-		// Alternatively, if a fingerprint exists and ==2 to indicate that WP-United was uninstalled,
-		// and WPU_REINSTALL is set, then we run
+				
+					/**
+					 * New add for global scope 
+					 */
+					if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
+						define('WPU_REVERSE_INTEGRATION', true); 
+						//ob_start(); // to capture errors
+						require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+						
+					}
+				
+				
+				}
+				
+			} else if (defined('ADMIN_START')) {
+				$user->add_lang('mods/wp-united');
+				
+				//decide if we need to run the installer
+				// If there is no fingerprint, and WPU_UNINSTALL is not set to true, we run it.
+				// Alternatively, if a fingerprint exists and ==2 to indicate that WP-United was uninstalled,
+				// and WPU_REINSTALL is set, then we run
 
-		// Run the installer if WP-United hasn't been set up, and the user is a founder admin, and in the ACP
-		if(!isset($config['wpu_install_fingerprint']) &&  defined('WPU_UNINSTALL') && !WPU_UNINSTALL){
-			$phpbb_hook->register('phpbb_user_session_handler', 'installer_run');
+				// Run the installer if WP-United hasn't been set up, and the user is a founder admin, and in the ACP
+				if(!isset($config['wpu_install_fingerprint']) &&  defined('WPU_UNINSTALL') && !WPU_UNINSTALL){
+					$phpbb_hook->register('phpbb_user_session_handler', 'installer_run');
+				}
+			}
 		}
 	}
 
