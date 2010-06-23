@@ -18,11 +18,11 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.5RC2</mod-version>
+    <mod-version>0.9.0RC3</mod-version>
     <installation>
       <level>intermediate</level>
       <time>1200</time>
-      <target-version>3.0.6</target-version>
+      <target-version>3.0.7</target-version>
     </installation>
     <link-group>
 		<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
@@ -34,10 +34,7 @@ Visit http://www.wp-united.com for more help or information.
 
   <action-group>
     <copy>
-      <file from="/root/adm/style/acp_wp_united.html" to="/adm/style/acp_wp_united.html" />
       <file from="/root/includes/hooks/hook_wp-united.php" to="/includes/hooks/hook_wp-united.php" />
-      <file from="/root/includes/acp/acp_wp_united.php" to="/includes/acp/acp_wp_united.php" />
-      <file from="/root/includes/acp/info/acp_wp_united.php" to="/includes/acp/info/acp_wp_united.php" />
       <file from="/root/language/en/mods/admin_wp-united.php" to="/language/en/mods/admin_wp-united.php" />
       <file from="/root/language/en/mods/permissions_wp-united.php" to="/language/en/mods/permissions_wp-united.php" />
       <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
@@ -133,9 +130,8 @@ function phpbb_validate_username($username, $allowed_username = false)]]></actio
     <open src="includes/acp/acp_main.php">
       <edit>
         <find><![CDATA[						$cache->purge();]]></find>
-        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
-						$wpuCache = WPU_Cache::getInstance();
-						$wpuCache->purge();]]></action>
+        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->purge_cache();]]></action>
       </edit>
     </open>
     <open src="includes/acp/acp_users.php">

@@ -34,7 +34,7 @@ class WPU_Actions {
 		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);	
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {
-			require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+			require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
 			$wpuCache = WPU_Cache::getInstance();
 			require_once($wpSettings['wpPluginPath'] . 'wp-integration-class.' . $phpEx);
 			$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
@@ -131,7 +131,7 @@ class WPU_Actions {
 					define('WPU_PERFORM_ACTIONS', TRUE);
 					if ( $wpSettings['showHdrFtr'] != 'REV' ) { // if reverse integration, we'll do it later
 						require_once($wpSettings['wpPluginPath'] . 'wp-integration-class.' . $phpEx);
-						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+						require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
 						$wpuCache = WPU_Cache::getInstance();
 						
 						$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
@@ -221,7 +221,7 @@ class WPU_Actions {
 		
 		require_once($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
 
-		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
+		require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
 		$wpuCache = WPU_Cache::getInstance();
 
 		if(!isset($_GET['usecssm'])) {
@@ -287,6 +287,17 @@ class WPU_Actions {
 		$wpuCache->save_css_magic($css, $cssIdentifier, $pos, $useTV);
 		
 		return $css;
+	}
+	
+	
+	/**
+	 * Simple call to cache purge. We include it here so that phpBB core edits are static
+	 */
+	function purge_cache() {
+		global $wpSettings, $phpEx;
+		require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+		$wpuCache = WPU_Cache::getInstance();
+		$wpuCache->purge();
 	}
 			
 	

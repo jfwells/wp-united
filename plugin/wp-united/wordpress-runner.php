@@ -12,13 +12,8 @@
 */
 
 
-// More required files
-require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
-
 $amIGlobal = true;
 
-//Initialise the cache
-$wpuCache = WPU_Cache::getInstance();
 
 // Our Mod Settings should have been loaded by now. If not, either WP-United hasn't been set up, or something
 // is seriously screwed.
@@ -28,6 +23,9 @@ if  ( $wpSettings == FALSE ) {
 	trigger_error($user->lang['WP_Not_Installed_Yet']);
 }
 
+//Initialise the cache
+require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+$wpuCache = WPU_Cache::getInstance();
 
 // redirect to login if not logged in and blogs are private
 if ( (empty($user->data['is_registered'])) && ($wpSettings['mustLogin'])  && (!defined('WPU_REVERSE_INTEGRATION')) ) {

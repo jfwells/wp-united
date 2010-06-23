@@ -18,11 +18,11 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.5RC2</mod-version>
+    <mod-version>0.9.0RC3</mod-version>
     <installation>
       <level>intermediate</level>
       <time>912</time>
-      <target-version>3.0.6</target-version>
+      <target-version>3.0.7</target-version>
     </installation>
   <link-group>
 	<link type="parent" href="../../install.xml" lang="en">Main install file</link>
@@ -124,14 +124,13 @@ Finally, open wp-united/options.php again, and re-enable WP-United.
       </edit>
     </open> 
     
-        <open src="includes/acp/acp_main.php">
-      <edit>
-        <find><![CDATA[						$cache->purge();]]></find>
-        <action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
-						$wpuCache = WPU_Cache::getInstance();
-						$wpuCache->purge();]]></action>
-      </edit>
-    </open> 
+	<open src="includes/acp/acp_main.php">
+	  <edit>
+		<find><![CDATA[						$cache->purge();]]></find>
+		<action type="after-add"><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->purge_cache();]]></action>
+	  </edit>
+	</open> 
         <open src="includes/functions_user.php">
       <edit>
 		<find><![CDATA[function validate_username($username, $allowed_username = false)]]></find>
