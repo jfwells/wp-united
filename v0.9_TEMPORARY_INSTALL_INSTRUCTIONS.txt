@@ -1,6 +1,5 @@
 v0.9 pre-alpha testing
 
-NOTE: TO INSTALL THIS PRE-RELEASE VERSION, DO NOT USE THE WP-UNITED ACP TAB!! 
 
 To install:
 
