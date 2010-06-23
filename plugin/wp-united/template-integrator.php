@@ -328,7 +328,7 @@ if (!empty($wpSettings['cssMagic'])) {
 	$wpuCache->update_style_keys();
 	
 	// add link to reset stylesheet
-	$reset = "<link href=\"{$phpbbForum->url}wp-united/theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
+	$reset = "<link href=\"{$wpSettings['wpPluginUrl']}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
 	$innerHeadInfo = $reset . $innerHeadInfo;
 
 	//write out the modified stylesheet links

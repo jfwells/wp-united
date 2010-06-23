@@ -977,11 +977,11 @@ function wpu_get_author() {
  * template integration when WordPress CSS is first.
 */
 function wpu_done_head() {
-	global $wpu_done_head, $wpSettings, $phpbbForum, $wp_the_query;
+	global $wpu_done_head, $wpSettings, $wp_the_query;
 	$wpu_done_head = true; 
 	//add the frontpage stylesheet, if needed: 
 	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {
-		echo '<link rel="stylesheet" href="' . $phpbbForum->url . 'wp-united/theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
+		echo '<link rel="stylesheet" href="' . $wpSettings['wpPluginUrl'] . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
 	if ( (defined('WPU_REVERSE_INTEGRATION')) && (!PHPBB_CSS_FIRST) ) {
 		echo '<!--[**HEAD_MARKER**]-->';
