@@ -31,7 +31,6 @@ class WPU_Actions {
 	 */
 	function do_logout() { 
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);	
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {
 			require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
@@ -155,7 +154,6 @@ class WPU_Actions {
 	 */
 	function generate_profile_link($bloglink_id, &$template) {
 		global $wpSettings, $phpbb_root_path, $phpEx;
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);	
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if  ( $wpSettings != FALSE ) {
 			if (!empty($wpSettings['buttonsProfile'])) {
@@ -179,8 +177,6 @@ class WPU_Actions {
 	 */
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
 		global $wpSettings, $phpbb_root_path, $phpEx;
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);	
-		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if  ( $wpSettings['installLevel'] == 10 ) { 
 			if (!empty($wpSettings['buttonsPost'])) {
 				if ((!isset($user_cache[$poster_id])) && !empty($bloglink_id)) {
@@ -211,8 +207,9 @@ class WPU_Actions {
 	function css_magic($cssIn) {
 		
 		global $phpbb_root_path, $phpEx, $wpuCache, $wpSettings;
-		
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
+		define('WPU_STYLE_FIXER', true);
+		require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
+
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		
 		if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {

@@ -118,7 +118,6 @@ class WPU_Phpbb {
 		}
 		
 		if(!defined('WPU_BLOG_PAGE')) {
-			require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);		
 			$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		}
 		

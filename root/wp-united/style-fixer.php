@@ -15,6 +15,7 @@
 * @ignore
 */
 define('IN_PHPBB', true);
+define('WPU_STYLE_FIXER', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : '../';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 
@@ -50,6 +51,8 @@ require($phpbb_root_path . 'includes/db/' . $dbms . '.' . $phpEx);
 require($phpbb_root_path . 'includes/constants.' . $phpEx);
 require($phpbb_root_path . 'includes/functions.' . $phpEx);
 
+require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
+
 $db = new $sql_db();
 $cache = new cache();
 
@@ -76,7 +79,6 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 	$useTV = request_var('tv', -1);
 }
 
-require($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 $wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
 if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
