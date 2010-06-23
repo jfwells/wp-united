@@ -224,7 +224,6 @@ class WPU_Actions {
 		
 		require_once($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
 
-		require_once($phpbb_root_path . 'wp-united/version.' . $phpEx);
 		require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 		$wpuCache = WPU_Cache::getInstance();
 

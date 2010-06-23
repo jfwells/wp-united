@@ -87,8 +87,6 @@ if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath
 require($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
 
 
-
-require($phpbb_root_path . 'wp-united/version.' . $phpEx);
 require($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 $wpuCache = WPU_Cache::getInstance();
 

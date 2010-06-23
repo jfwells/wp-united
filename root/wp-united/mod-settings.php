@@ -172,7 +172,11 @@ function get_integration_settings($setAdminDefaults = FALSE) {
 	/**
 	 * Load the version number
 	 */
-	require_once($phpbb_root_path . 'wp-united/version.' . $phpEx);
+	if(isset($wpSettings['wpPluginPath'])) {
+		if(file_exists($wpSettings['wpPluginPath'])) {
+			require_once ($wpSettings['wpPluginPath'] . 'version.' . $phpEx);
+		}
+	}
 	
 	return $wpSettings;	
 	

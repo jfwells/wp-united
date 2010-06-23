@@ -22,7 +22,7 @@ define('WPU_HOOK_ACTIVE', TRUE);
 
 // If the user has deleted the wp-united directory, do nothing
 if(file_exists($phpbb_root_path . 'wp-united/')) {
-	require_once ($phpbb_root_path . 'wp-united/version.' . $phpEx);
+	
 	require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
 
 	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
@@ -36,7 +36,7 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 	
 	if(isset($wpSettings['wpPluginPath'])) {
 		if(file_exists($wpSettings['wpPluginPath'])) {
-
+			
 			require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
 
 	

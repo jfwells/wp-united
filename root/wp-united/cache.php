@@ -52,7 +52,7 @@ class WPU_Cache {
 		$this->_useCoreCache = 'UNKNOWN';
 		$this->baseCacheLoc = $phpbb_root_path . 'wp-united/cache/';
 		$this->themePath = $wpSettings['wpPath'] . 'wp-content/themes/';
-		$this->wpVersionLoc = $wpSettings['wpPath'] . "wp-includes/version.$phpEx";
+		$this->wpVersionLoc = $wpSettings['wpPluginPath'] . "version.$phpEx";
 		$this->fullPage =  !(bool)$wpSettings['wpSimpleHdr'];
 		
 		$this->initialise_salt();
