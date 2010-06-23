@@ -22,8 +22,6 @@ if($connectSuccess) {
 	
 	// get the page
 	ob_start();
-	require_once($phpbb_root_path . 'wp-united/template-tags.' . $phpEx);
-
 		if ( $GLOBALS['latest']) {
 			define("WP_USE_THEMES", false);
 		} else {

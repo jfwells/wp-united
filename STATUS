@@ -3,9 +3,16 @@ In progress
 
 TODO
 
+-- simplify mod-settings into single array
+-- Set enabled / disabled -- do not enter phpBB unless "enabled" or $_GET--transmit are set
+-- disable submit button until path is chosen
+-- change hook flow
+-- uninstall and/or disable buttons
+
+
 clean up wp-runner / integrator split
 logout etc to use comms frame
-ACP to move to WP
+
 
 TODO -- remaining from killing blog.php:
 	
@@ -78,3 +85,5 @@ Internalising of integrated login into wordpress -- in progress
 - forward template integration now works again without blog.php
 - Fixed absolute phpbb_root_path breaks phpBB URLs in forward template integration
 - wordpress now always run in global scope for reverse integration (but header/footer called locally)
+- Moved ACP panel to wordpress. Settings not yet transferred --need to repackage mod and transfer over settings
+- settings now being transferred to phpBB. TODO: simplify mod-settings into single array

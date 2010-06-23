@@ -27,22 +27,13 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 	require_once($phpbb_root_path . 'wp-united/functions-general.' . $phpEx);
 
 	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-	require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
-
-
 
 	if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
 		set_error_handler('wpu_msg_handler');
 	}
 
 	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-
-	// set up login integration
-	if(!empty($wpSettings['integrateLogin'])) {
-		require_once($phpbb_root_path . 'wp-united/login-integrator.' .$phpEx);
-	}
-
-
+	
 	wpu_set_buffering_init_level();
 
 	if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {  
@@ -56,10 +47,11 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 			 * New add for global scope 
 			 */
 			if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
-				define('WPU_REVERSE_INTEGRATION', true);
+				define('WPU_REVERSE_INTEGRATION', true); 
 				//ob_start(); // to capture errors
-				require_once($phpbb_root_path . 'wp-united/wordpress-runner.' .$phpEx);
-		}
+				require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+				
+			}
 		
 		
 		}
@@ -142,12 +134,12 @@ function wpu_init(&$hook) {
 }
 
 function wpu_wp_shutdown() {
-	global $innerContent, $phpbb_root_path, $phpEx, $phpbbForum;
+	global $wpSettings, $innerContent, $phpbb_root_path, $phpEx, $phpbbForum;
 	if (defined('WPU_FWD_INTEGRATION') ) {
 		$innerContent = ob_get_contents();
-		ob_end_clean(); 
+		ob_end_clean();  
 		$phpbbForum->enter();
-		include ($phpbb_root_path . 'wp-united/integrator.' . $phpEx);
+		include ($wpSettings['wpPluginPath'] . 'integrator.' . $phpEx);
 	}
 }
 
@@ -195,7 +187,7 @@ function wpu_execute(&$hook, $handle) {
 				echo $innerContent;
 			} else {
 				//insert phpBB into a wordpress page
-				include ($phpbb_root_path . 'wp-united/integrator.' . $phpEx);
+				include ($wpSettings['wpPluginPath'] .'integrator.' . $phpEx);
 			}
 			
 		

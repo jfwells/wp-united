@@ -35,6 +35,7 @@ function get_db_schema() {
 	$dbSchema = array( 
 		'wpUri' => 'fullUri' ,
 		'wpPath' => 'fullPath', 
+		'wpPluginPath' => 'wpPluginPath', 
 		'integrateLogin' => 'wpLogin', 
 		'showHdrFtr' => 'showInside',
 		'wpSimpleHdr' => 'wpHdrSimple',
@@ -80,6 +81,7 @@ function set_default($setting_key) {
 	$defaults = array(
 		'wpUri' => '' ,
 		'wpPath' => '', 
+		'wpPluginPath' => '', 
 		'integrateLogin' => 0, 
 		'showHdrFtr' => 'FWD',
 		'wpSimpleHdr' => 1,

@@ -124,7 +124,7 @@ class WPU_Phpbb {
 		
 		//fix phpBB SEO mod
 		global $phpbb_seo;
-		if (!empty($phpbb_seo) ) {
+		if (empty($phpbb_seo) ) {
 			if(file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx)) {
 				require_once($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
 				$phpbb_seo = new phpbb_seo();
@@ -159,7 +159,9 @@ class WPU_Phpbb {
 	 * Returns to WordPress
 	 */
 	function leave() { 
-		$this->lang = (sizeof($GLOBALS['user']->lang)) ? $GLOBALS['user']->lang : $this->lang;
+		if(!isset($GLOBALS['user'])) {
+			$this->lang = (sizeof($GLOBALS['user']->lang)) ? $GLOBALS['user']->lang : $this->lang;
+		}
 		if($this->state == 'phpbb') {
 			$this->_backup_phpbb_state();
 			$this->_switch_to_wp_db();
