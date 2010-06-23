@@ -23,8 +23,6 @@ define('WPU_HOOK_ACTIVE', TRUE);
 // If the user has deleted the wp-united directory, do nothing
 if(file_exists($phpbb_root_path . 'wp-united/')) {
 	
-	require_once ($phpbb_root_path . 'wp-united/options.' . $phpEx);
-
 	require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 
 	if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {

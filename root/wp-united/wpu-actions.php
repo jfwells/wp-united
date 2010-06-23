@@ -31,8 +31,7 @@ class WPU_Actions {
 	 */
 	function do_logout() { 
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
+		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);	
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {
 			require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
@@ -156,8 +155,7 @@ class WPU_Actions {
 	 */
 	function generate_profile_link($bloglink_id, &$template) {
 		global $wpSettings, $phpbb_root_path, $phpEx;
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
+		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);	
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if  ( $wpSettings != FALSE ) {
 			if (!empty($wpSettings['buttonsProfile'])) {
@@ -181,8 +179,7 @@ class WPU_Actions {
 	 */
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
 		global $wpSettings, $phpbb_root_path, $phpEx;
-		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
-		require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);		
+		require_once($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);	
 		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 		if  ( $wpSettings['installLevel'] == 10 ) { 
 			if (!empty($wpSettings['buttonsPost'])) {

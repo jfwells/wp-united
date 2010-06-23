@@ -13,7 +13,6 @@
 
 
 // More required files
-require_once($phpbb_root_path . 'wp-united/options.' . $phpEx);
 require_once($phpbb_root_path . 'wp-united/cache.' . $phpEx);
 
 $amIGlobal = true;

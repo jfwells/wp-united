@@ -175,6 +175,7 @@ function get_integration_settings($setAdminDefaults = FALSE) {
 	if(isset($wpSettings['wpPluginPath'])) {
 		if(file_exists($wpSettings['wpPluginPath'])) {
 			require_once ($wpSettings['wpPluginPath'] . 'version.' . $phpEx);
+			require_once ($wpSettings['wpPluginPath'] . 'options.' . $phpEx);
 		}
 	}
 	
