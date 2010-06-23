@@ -79,7 +79,7 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 
 
 // We load the bare minimum to get our data
-require($phpbb_root_path . 'wp-united/functions-css-magic.' . $phpEx);
+require($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
 
 require($phpbb_root_path . 'wp-united/mod-settings.' . $phpEx);
 $wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
