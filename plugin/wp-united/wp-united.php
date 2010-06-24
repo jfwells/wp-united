@@ -35,7 +35,7 @@ function wpu_init_plugin() {
 
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings, $wpuUrl, $wpuPath;
 	
-	$wpuConnSettings = get_option('wpu-settings');
+	$wpSettings = get_option('wpu-settings');
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
 
 	require_once($wpuPath . 'functions-general.php');
@@ -50,13 +50,13 @@ function wpu_init_plugin() {
 	}
 	
 	
+	$wpSettings['status'] = 0;
 	
 	
-	
-	if(isset($wpuConnSettings['phpbb_path'])) {
-	
+	if(isset($wpSettings['phpbb_path'])) {
+		
 		if ( !defined('IN_PHPBB') ) {
-			$phpbb_root_path = $wpuConnSettings['phpbb_path'];
+			$phpbb_root_path = $wpSettings['phpbb_path'];
 			$phpEx = substr(strrchr(__FILE__, '.'), 1);
 		}
 		
@@ -74,6 +74,13 @@ function wpu_init_plugin() {
 
 			$phpbbForum->load($phpbb_root_path);
 
+		}
+
+		if(file_exists($wpSettings['phpbb_path'])) {
+			$wpSettings['status'] = 1;
+			if(defined('WPU_HOOK_ACTIVE')) {
+				$wpSettings['status'] = 2;
+			}
 		}
 		
 		require_once($wpuPath . 'widgets.php');
@@ -1674,8 +1681,8 @@ function wpu_validate_username_conflict($wpValdUser, $username) {
  * here we add all the hooks and filters
  */
 
-$wpuConnSettings = get_option('wputd_connection');
-	if(isset($wpuConnSettings['path_to_phpbb'])) {
+$wpSettings = get_option('wputd_connection');
+	if(isset($wpSettings['path_to_phpbb'])) {
 
 
 	add_filter('pre_user_login', 'wpu_fix_blank_username');

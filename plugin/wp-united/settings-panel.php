@@ -81,7 +81,7 @@ function wpu_settings_page() {
 	if(isset($_POST['wpusettings-submit'])) {
 		// process form
 		if(check_admin_referer( 'wp-united-settings')) {
-			wpu_process_settings();
+			wpu_process_settings('setup');
 		}
 	} else {
 			wpu_show_settings_menu();
@@ -92,7 +92,7 @@ function wpu_settings_page() {
 /**
  * Decide whether to show the setup panel, or process inbound settings
  */
-function wpu_setup_menu() {
+function wpu_setup_menu() { 
 	?>
 		<div class="wrap" id="wp-united-setup">
 		<?php screen_icon('options-general'); ?>
@@ -102,7 +102,7 @@ function wpu_setup_menu() {
 	if(isset($_POST['wpusetup-submit'])) {
 		// process form
 		if(check_admin_referer( 'wp-united-setup')) {
-			wpu_process_setup();
+			wpu_process_setup(); 
 		}
 	} else {
 			wpu_show_setup_menu();
@@ -563,7 +563,7 @@ function wpu_show_settings_menu() {
 /**
  * Process settings
  */
-function wpu_process_settings() {
+function wpu_process_settings($type) {
 	global $wpuUrl, $wpuPath;
 	
 	$data = array();
@@ -753,8 +753,11 @@ function wpu_process_settings() {
 		// ]]>
 		</script>
 	 <?php
-	 
-	 wpu_show_settings_menu();
+	 if($type=='setup') {
+		 wpu_show_setup_menu();
+	} else {
+		wpu_show_settings_menu();
+	}
 	
 }
 
@@ -776,7 +779,7 @@ function wpu_transmit_settings() {
  * Retrieve stored WP-United settings or set defaults
  */
 function wpu_get_settings() {
-	
+	global $wpSettings;
 	$settings = get_option('wpu-settings');
 	
 	$defaults = array(
@@ -784,7 +787,7 @@ function wpu_get_settings() {
 	'wpUri' => '' ,
 	'wpPath' => '', 
 	'integrateLogin' => 0, 
-	'showHdrFtr' => 'FWD',
+	'showHdrFtr' => 'NONE',
 	'wpSimpleHdr' => 1,
 	'dtdSwitch' => 0,
 	//'installLevel' => 0,
@@ -816,11 +819,37 @@ function wpu_get_settings() {
 );
 	$settings = array_merge($defaults, $settings);
 	
-	
-	
-	//print_r($settings);
+	if(isset($wpSettings)) {
+		$settings = array_merge($settings, $wpSettings);
+	}
 	
 	return $settings;
+	
+}
+
+function wpu_process_setup() {
+	global $wpuPath;
+	$data = wpu_get_settings();
+	
+	if(!isset($_POST['wpu-path'])) {
+		wpu_setup_error('ERROR: You must specify a valid path for phpBB\'s config.php');
+		return;
+	}
+	$wpuPhpbbPath = (string)$_POST['wpu-path'];
+	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
+	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
+	if(!file_exists($wpuPath))  {
+		wpu_setup_error('ERROR: The path you selected for phpBB\'s config.php is not valid');
+		return;
+	}
+	if(!file_exists($wpuPhpbbPath . 'config.php'))  {
+		wpu_setup_error('ERROR: phpBB\'s config.php could not be found at the location you chose');
+		return;
+	}
+		
+	$data['phpbb_path'] = $wpuPhpbbPath;
+	
+	wpu_show_setup_menu();
 	
 }
 
@@ -830,6 +859,13 @@ function wpu_settings_error($text) {
 	
 	echo '<p style="color: red;">' . $text . '</p>';
 	wpu_show_settings_menu();
+	
+}
+
+function wpu_setup_error($text) {
+	
+	echo '<p style="color: red;">' . $text . '</p>';
+	wpu_show_setup_menu();
 	
 }
 
