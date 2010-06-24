@@ -30,7 +30,7 @@ function wpu_settings_menu() {
 	if ( function_exists('add_submenu_page') ) {
 		
 		if(isset($_GET['page'])) {
-			if($_GET['page'] == 'wp-united-settings') {
+			if( ($_GET['page'] == 'wp-united-settings') || ($_GET['page'] == 'wp-united-setup') ) {
 				wp_deregister_script( 'jquery' );
 				wp_deregister_script( 'jquery-ui-core' );				
 				
@@ -49,7 +49,7 @@ function wpu_settings_menu() {
 				add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
 					// if integrated logins
 					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu_user_mapper', 'wpu_user_mapper');
-				add_submenu_page('wp-united-advanced', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wp-united-settings', 'wpu_advanced_options');
+				add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu_advanced_options', 'wpu_advanced_options');
 			} 
 		}
 
@@ -71,6 +71,7 @@ function wpu_settings_css() {
  * Decide whether to show the settings panel, or process inbound settings
  */
 function wpu_settings_page() {  
+	global $wpuUrl; 
 	?>
 		<div class="wrap" id="wp-united-settings">
 		<?php screen_icon('options-general'); ?>
@@ -113,6 +114,7 @@ function wpu_setup_menu() {
  * Decide whether to show the advanced options, or save them
  */
 function wpu_advanced_options() {
+	global $wpuUrl; 
 	?>
 		<div class="wrap" id="wp-united-advoptions">
 		<?php screen_icon('options-general'); ?>
@@ -132,29 +134,29 @@ function wpu_advanced_options() {
 }
 
 function wpu_show_setup_menu() {
-
-		$settings = wpu_get_settings();
-		$status = (isset($settings['status'])) ? $settings['status'] : 0;
-		switch($status) {
-			case 2:
-				$statusText = __('OK');
-				$statusColour = "green";
-				$statusDesc = sprintf(__('WP-United is connected and working. To disable the connection, %sclick here%s. or press &quot;Disable&quot;, below.'), '<a href=\"#\" onclick="return wpuDisableConnection();">', '</a>');
-				break;
-			case 1:
-				$statusText = __('Connected, but not ready');
-				$statusColor = "orange";
-				$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, %7$sclick here%8$s to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>', '<a href="#">', '</a>');
-				break;
-			case 0:
-			default:
-				$statusText = __('Not Connected');
-				$statusColor = "red";
-				$statusDesc = _('WP-United is not connected yet. Select your forum location below and click &quot;Submit&quot;');
-		}
-				
-		echo "<h3 style=\"display: block; color: #ffffff; border: 1px solid #cccccc; background-color: $statusColour\">" . sprintf(__('Current Status: %s'), $statusText) . '</h3>';
-		echo "<p>$statusDesc</p>";
+	global $wpuUrl; 
+	$settings = wpu_get_settings();
+	$status = (isset($settings['status'])) ? $settings['status'] : 0;
+	switch($status) {
+		case 2:
+			$statusText = __('OK');
+			$statusColour = "green";
+			$statusDesc = sprintf(__('WP-United is connected and working. To disable the connection, %sclick here%s. or press &quot;Disable&quot;, below.'), '<a href=\"#\" onclick="return wpuDisableConnection();">', '</a>');
+			break;
+		case 1:
+			$statusText = __('Connected, but not ready');
+			$statusColour = "orange";
+			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, %7$sclick here%8$s to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>', '<a href="#">', '</a>');
+			break;
+		case 0:
+		default:
+			$statusText = __('Not Connected');
+			$statusColour = "red";
+			$statusDesc = _('WP-United is not connected yet. Select your forum location below and click &quot;Submit&quot;');
+	}
+			
+	echo "<h3 style=\"display: block; color: #ffffff; border: 1px solid #cccccc; background-color: $statusColour;\">" . sprintf(__('Current Status: %s'), $statusText) . '</h3>';
+	echo "<p>$statusDesc</p>";
 		
 	?>
 	<h3><?php _e('phpBB Location') ?></h3>
@@ -177,7 +179,7 @@ function wpu_show_setup_menu() {
 		jQuery(document).ready(function($) { 
 			$('#phpbbpath').fileTree({ 
 				root: '/',
-				script: '<?php echo $phpbbForum->url . 'wp-united/js/filetree.php'; ?>',
+				script: '<?php echo $wpuUrl . 'js/filetree.php'; ?>',
 				multiFolder: false,
 				loadMessage: "Loading..."
 			}, function(file) {
@@ -245,7 +247,7 @@ function wpu_user_mapper() {
  */	
 function wpu_show_settings_menu() {	
 	
-	global $phpbbForum; 
+	global $phpbbForum, $wpuUrl; 
 	$settings = wpu_get_settings();
 	?>
 		
@@ -432,7 +434,7 @@ function wpu_show_settings_menu() {
 			
 				$('#phpbbpath').fileTree({ 
 					root: '/',
-					script: '<?php echo $phpbbForum->url . 'wp-united/js/filetree.php'; ?>',
+					script: '<?php echo $wpuUrl . '/js/filetree.php'; ?>',
 					multiFolder: false,
 					loadMessage: "Loading..."
 				}, function(file) {
