@@ -4,7 +4,7 @@
  * Add menu option for WP-United Settings panel
  */
 function wpu_settings_menu() {
-	global $wpuUrl;
+	global $wpuUrl, $phpbbForum;
 	
 	if(isset($_POST['wpusettings-transmit'])) {
 		if(check_ajax_referer( 'wp-united-transmit')) {
@@ -25,10 +25,20 @@ function wpu_settings_menu() {
 				wp_enqueue_script('jquery-ui', $wpuUrl . 'js/jqueryui-wpu-min.js', array(), false, true);
 				wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array(), false, true);				
 			}
-		}		
+		}	
+		
+		if (function_exists('add_submenu_page')) {
+			if (current_user_can('manage_options'))  {
+		
+				$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpuUrl . 'images/tiny.gif' );
+				add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
+				add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
+				add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu_user_mapper', 'wpu_user_mapper');
+				
+			} 
+		}
 
-
-		add_submenu_page('plugins.php', "WP-United Settings", "WP-United Settings", 'manage_options','wp-united-settings', 'wpu_settings_page');
+		
 	}
 }
 
@@ -40,6 +50,7 @@ function wpu_settings_css() {
 	wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
 }
+
 
 /**
  * Decide whether to show the settings panel, or process inbound settings
@@ -62,6 +73,14 @@ function wpu_settings_page() {
 	
 	?></div> <?php
 	
+}
+
+function wpu_setup_menu() {
+	echo "MAIN INSTALL MENU";
+}
+
+function wpu_user_mapper() {
+	echo "USER MAPPER";
 }
 	
 /**
