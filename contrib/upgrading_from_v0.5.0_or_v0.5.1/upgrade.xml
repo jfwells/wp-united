@@ -105,7 +105,7 @@ Visit http://www.wp-united.com for more help or information.
 {
 	function validate_username($username, $allowed_username = false)
 	{
-		phpbb_validate_username($username, $allowed_username);
+		return phpbb_validate_username($username, $allowed_username);
 	}
 }
 function phpbb_validate_username($username, $allowed_username = false)]]></action>

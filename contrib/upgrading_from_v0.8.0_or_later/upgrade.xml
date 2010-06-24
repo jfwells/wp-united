@@ -61,7 +61,7 @@ Then, run the WP-United Setup Wizard all the way through.
 {
 	function validate_username($username, $allowed_username = false)
 	{
-		phpbb_validate_username($username, $allowed_username);
+		return phpbb_validate_username($username, $allowed_username);
 	}
 }
 function phpbb_validate_username($username, $allowed_username = false)]]></action>
