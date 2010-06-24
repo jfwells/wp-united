@@ -1,4 +1,17 @@
 <?php
+/** 
+*
+* WP-United Plugin Fixer
+*
+* @package WP-United
+* @version $Id: v0.9.0RC3 2010/07/01 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
+*
+*	The plugin settings panels.
+* 
+*/
 
 /**
  * Add menu option for WP-United Settings panel
@@ -32,9 +45,11 @@ function wpu_settings_menu() {
 		
 				$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpuUrl . 'images/tiny.gif' );
 				add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
+				// if setup OK
 				add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
-				add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu_user_mapper', 'wpu_user_mapper');
-				
+					// if integrated logins
+					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu_user_mapper', 'wpu_user_mapper');
+				add_submenu_page('wp-united-advanced', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wp-united-settings', 'wpu_advanced_options');
 			} 
 		}
 
@@ -59,7 +74,7 @@ function wpu_settings_page() {
 	?>
 		<div class="wrap" id="wp-united-settings">
 		<?php screen_icon('options-general'); ?>
-		<h2> <?php echo 'WP-United Settings'; ?> </h2>
+		<h2> <?php _e('WP-United Settings'); ?> </h2>
 	<?php
 	
 	if(isset($_POST['wpusettings-submit'])) {
@@ -70,13 +85,155 @@ function wpu_settings_page() {
 	} else {
 			wpu_show_settings_menu();
 	}
-	
 	?></div> <?php
-	
 }
 
+/**
+ * Decide whether to show the setup panel, or process inbound settings
+ */
 function wpu_setup_menu() {
-	echo "MAIN INSTALL MENU";
+	?>
+		<div class="wrap" id="wp-united-setup">
+		<?php screen_icon('options-general'); ?>
+		<h2> <?php _e('WP-United Setup / Status<br />[UNDER CONSTRUCTION - USE SETTINGS PAGE FOR NOW]'); ?> </h2>
+		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.') ?></p>
+	<?php
+	if(isset($_POST['wpusetup-submit'])) {
+		// process form
+		if(check_admin_referer( 'wp-united-setup')) {
+			wpu_process_setup();
+		}
+	} else {
+			wpu_show_setup_menu();
+	}
+	?></div> <?php
+}
+
+/**
+ * Decide whether to show the advanced options, or save them
+ */
+function wpu_advanced_options() {
+	?>
+		<div class="wrap" id="wp-united-advoptions">
+		<?php screen_icon('options-general'); ?>
+		<h2> <?php _e('WP-United Advanced Options<br />[UNDER CONSTRUCTION - USE SETTINGS PAGE FOR NOW]'); ?> </h2>
+		<p><?php _e('Here you can set advanced options that control WP-United by editing the options.php file. You should not normally have to edit these.') ?></p>
+		<p><?php _e('Note that these options could be overwritten during a WP-United upgrade.') ?></p>
+	<?php
+	if(isset($_POST['wpuadvanced-submit'])) {
+		// process form
+		if(check_admin_referer( 'wp-united-advanced')) {
+			wpu_process_advanced_options();
+		}
+	} else {
+			wpu_show_advanced_options();
+	}
+	?></div> <?php
+}
+
+function wpu_show_setup_menu() {
+
+		$settings = wpu_get_settings();
+		$status = (isset($settings['status'])) ? $settings['status'] : 0;
+		switch($status) {
+			case 2:
+				$statusText = __('OK');
+				$statusColour = "green";
+				$statusDesc = sprintf(__('WP-United is connected and working. To disable the connection, %sclick here%s. or press &quot;Disable&quot;, below.'), '<a href=\"#\" onclick="return wpuDisableConnection();">', '</a>');
+				break;
+			case 1:
+				$statusText = __('Connected, but not ready');
+				$statusColor = "orange";
+				$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, %7$sclick here%8$s to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>', '<a href="#">', '</a>');
+				break;
+			case 0:
+			default:
+				$statusText = __('Not Connected');
+				$statusColor = "red";
+				$statusDesc = _('WP-United is not connected yet. Select your forum location below and click &quot;Submit&quot;');
+		}
+				
+		echo "<h3 style=\"display: block; color: #ffffff; border: 1px solid #cccccc; background-color: $statusColour\">" . sprintf(__('Current Status: %s'), $statusText) . '</h3>';
+		echo "<p>$statusDesc</p>";
+		
+	?>
+	<h3><?php _e('phpBB Location') ?></h3>
+	<form name="wpu-setup" id="wpusetup" action="plugins.php?page=wp-united-setup" method="post">
+		<?php wp_nonce_field('wp-united-setup'); ?>
+		
+		<p>WP-United needs to know where your phpBB is installed on your server. <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
+		<div id="phpbbpath" style="height: 200px; border: 1px solid #ffffff; background-color: #bcbcbc; overflow-y: auto;">&nbsp;</div>
+		<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;">Change Location &raquo;</a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();">Cancel Change</a></p>
+		<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
+	
+		<p class="submit">
+			<input type="submit" class="button-primary" value="<?php  _e('Submit') ?>" name="wpusetup-submit" />
+			<input type="submit" class="button-secondary" value="<?php  _e('Disable') ?>" name="wpusetup-submit" />
+		</p>
+	</form>
+		
+	<script type="text/javascript">
+	// <![CDATA[
+		jQuery(document).ready(function($) { 
+			$('#phpbbpath').fileTree({ 
+				root: '/',
+				script: '<?php echo $phpbbForum->url . 'wp-united/js/filetree.php'; ?>',
+				multiFolder: false,
+				loadMessage: "Loading..."
+			}, function(file) {
+				var parts = file.split('/');
+				if ((parts.length) > 1) {
+					file = parts.pop();
+				}
+				if(file=='config.php') {
+					var pth = parts.join('/') + '/';
+					$("#phpbbpathshow").html(pth).css('color', 'green');
+					$("#wpupathfield").val(pth);
+					$('#phpbbpath').hide('slide');
+					$('#txtchangepath').show();
+					$('#txtselpath').hide();
+					$('#wpucancelchange').hide();
+					$('#phpbbpathchooser').show('slide');
+				}
+			});
+			
+		<?php if(isset($settings['phpbb_path'])) { ?>
+				$('#phpbbpath').hide();
+				$('#phpbbpathchooser').show();
+				$("#phpbbpathshow").html('<?php echo $settings['phpbb_path']; ?>').css('color', 'green');
+				$("#wpupathfield").val('<?php echo $settings['phpbb_path']; ?>');
+				$('#txtchangepath').show();
+				$('#txtselpath').hide();
+				
+		<?php } ?>
+			
+						
+		});
+		
+		function wpuChangePath() {
+			$('#phpbbpath').show('slide');
+			$('#phpbbpathchooser').hide('slide');
+			$('#txtchangepath').hide();
+			$('#txtselpath').show();
+			$('#wpucancelchange').show();
+			return false;
+		}
+		
+		function wpuCancelChange() {
+			$('#phpbbpath').hide('slide');
+			$('#phpbbpathchooser').show('slide');
+			$('#txtchangepath').show();
+			$('#txtselpath').hide();
+			$('#wpucancelchange').hide();				
+			return false;
+		}
+
+	// ]]>
+	</script>
+
+		
+<?php
+
 }
 
 function wpu_user_mapper() {
@@ -92,7 +249,8 @@ function wpu_show_settings_menu() {
 	$settings = wpu_get_settings();
 	?>
 		
-		<p>Introductory text here.</p></p>
+		<p><?php _e('WP-United is modular; You can enable or disable any of the four major features below: User Integration, Theme Integration, Behaviour Integration and User Blogs.') ?></p>
+		<p><?php _e('Visit each of the tabs to select the settings, then hit Submit when done.') ?></p>
 		<form name="wpu-settings" id="wpusettings" action="plugins.php?page=wp-united-settings" method="post">
 			
 			<?php wp_nonce_field('wp-united-settings'); ?>
@@ -261,7 +419,7 @@ function wpu_show_settings_menu() {
 			</div>
 			
 		<p class="submit">
-			<input type="submit" class="button-primary" value="<?php  echo 'Submit' ?>" name="wpusettings-submit" />
+			<input type="submit" class="button-primary" value="<?php _e('Submit') ?>" name="wpusettings-submit" />
 		</p>
 	</form>
 		
@@ -620,6 +778,7 @@ function wpu_get_settings() {
 	$settings = get_option('wpu-settings');
 	
 	$defaults = array(
+	'status' => 0,
 	'wpUri' => '' ,
 	'wpPath' => '', 
 	'integrateLogin' => 0, 
@@ -670,6 +829,33 @@ function wpu_settings_error($text) {
 	echo '<p style="color: red;">' . $text . '</p>';
 	wpu_show_settings_menu();
 	
+}
+
+
+function wpu_show_advanced_options() {	
+	
+	global $phpbbForum; 
+	?>
+
+		<form name="wpu-advoptions" id="wpuoptions" action="plugins.php?page=wp-united-advanced" method="post">
+		
+		_EDITOR_HERE_
+		
+		<?php wp_nonce_field('wp-united-advanced'); ?>
+		
+		<p class="submit">
+			<input type="submit" class="button-primary" value="<?php  _e('Save') ?>" name="wpuadvanced-submit" />
+		</p>
+		
+		</form>
+		
+	<?php
+
+}
+
+function wpu_process_advanced_options() {	
+	echo "SAVED";
+	wpu_show_advanced_options();
 }
 
 

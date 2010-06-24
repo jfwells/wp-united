@@ -2,7 +2,7 @@ In progress
 --------------
 
 TODO
-
+-- once settings panels are ready, split into separate files in subfolder
 -- simplify mod-settings into single array
 -- Set enabled / disabled -- do not enter phpBB unless "enabled" or $_GET--transmit are set
 -- disable submit button until path is chosen
