@@ -219,7 +219,6 @@ function wpu_setup_menu() {
 			$('#phpbbpath').hide('slide');
 			$('#phpbbpathchooser').show('slide');
 			$('#txtchangepath').show();
-			$('#txtchangepath').button();
 			$('#txtselpath').hide();
 			$('#wpucancelchange').hide();
 			$('#wpusetup-submit').hide();			
@@ -339,7 +338,7 @@ function wpu_settings_page() {
 						<h3>Path to phpBB3</h3>
 						<p>WP-United needs to know where phpBB is installed on your server. You can change the location on the &quot;Setup / Status&quot; page.</p>
 					
-						<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a href="admin.php?page=wp-united-setup">Change Location &raquo;</a></p>
+						<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a href="admin.php?page=wp-united-setup" id="phpbbpathchange">Change Location &raquo;</a></p>
 						<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
 						<h3>Forum Page</h3>
 						<p>Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum.</p>
@@ -379,9 +378,9 @@ function wpu_settings_page() {
 					</div>		
 					
 					<div id="wputab-theme">
-						<h3>Integrate templates?</h3>
+						<h3>Integrate themes?</h3>
 						<p>WP-United can integrate your phpBB &amp; WordPress templates.</p>
-						<input type="checkbox" id="wputplint" name="wputplint" <?php if($settings['showHdrFtr'] != 'NONE') { ?>checked="checked" <?php } ?> /><label for="wputplint">Enable Template Integration</label>
+						<input type="checkbox" id="wputplint" name="wputplint" <?php if($settings['showHdrFtr'] != 'NONE') { ?>checked="checked" <?php } ?> /><label for="wputplint">Enable Theme Integration</label>
 						<div id="wpusettingstpl" class="subsettings">
 							<h4>Integration Mode</h4>
 							<p>Do you want WordPress to appear inside your phpBB template, or phpBB to appear inside your WordPress template?</p>
@@ -398,13 +397,13 @@ function wpu_settings_page() {
 								<div id="cssmdesc"><p><strong>Current Level: <span id="cssmlvltitle">xxx</span></strong><br /></p><p id="cssmlvldesc">xxx</p></div>
 							</div>
 							<input type="hidden" id="wpucssmlvlfield" name="wpucssmlevel" value="notset"></input>
-							<p><a href="#" onclick="return tplAdv();">Advanced Settings <span id="wutpladvshow">+</span><span id="wutpladvhide" style="display: none;">-</span></a></p>
+							<p><a id="wputpladvancedstgs" href="#" onclick="return tplAdv();"><span id="wutpladvshow">Show Advanced Settings &raquo;</span><span id="wutpladvhide" style="display: none;">&laquo; Hide Advanced Settings</span></a></p>
 							
 							<div id="wpusettingstpladv" class="subsettings">
 								<h4>Advanced Settings</h4>
 								
 								<p><strong>Use full page?</strong>
-									<a href="#" onclick="alert('Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slower.'); return false;">What is this?</a>
+									<a class="wpuwhatis" href="#" title="Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try 'full page'. This option could be a little slower.">What is this?</a>
 								</p>
 								<select id="wpuhdrftrspl" name="wpuhdrftrspl">
 									<option value="0">-- Simple Header &amp; Footer (recommended) --</option>
@@ -422,7 +421,7 @@ function wpu_settings_page() {
 								</select>
 								
 								<p><strong>Padding around phpBB</strong>
-									<a href="#" onclick="alert('phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not \'0\'), and style the \'phpbbforum\' DIV in your stylesheet.'); return false;">What is this?</a>
+									<a class="wpuwhatis" href="#" title="phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not '0'), and style the 'phpbbforum' DIV in your stylesheet.">What is this?</a>
 								</p>
 									<table>
 										<tr>
@@ -462,7 +461,7 @@ function wpu_settings_page() {
 									
 									<p>
 										<input type="checkbox" id="wpudtd" name="wpudtd" /> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
-										<a href="#" onclick="alert('The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3\'s prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional DTD. In most cases, this doesn\'t matter -- however, If you want to use WordPress\' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed.'); return false;">What is this?</a>
+										<a class="wpuwhatis" href="#" title="The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3's prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional  or XHTML 5 DTD. In most cases, this doesn't matter -- however, If you want to use WordPress' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed.">What is this?</a>
 									</p>
 								</div>
 						</div>
@@ -493,12 +492,21 @@ function wpu_settings_page() {
 				<input type="submit" class="button-primary" value="<?php _e('Submit') ?>" name="wpusettings-submit" />
 			</p>
 		</form>
+		
+		<div id="wpu-dialog" title="What is this?" style="display: none;">
+			<p id="wpu-desc">&nbsp;</p>
+		
+		</div>
+		
 	</div>
 		<script type="text/javascript">
 		// <![CDATA[
 			jQuery(document).ready(function($) { 
 
 				$('#wputabs').tabs();	
+				$('#phpbbpathchange').button();	
+				$('#wputpladvancedstgs').button();	
+				$('.wpuwhatis').button();	
 				
 	
 			<?php if(isset($settings['phpbb_path'])) { ?>
@@ -506,6 +514,19 @@ function wpu_settings_page() {
 					$("#wpupathfield").val('<?php echo $settings['phpbb_path']; ?>');
 										
 			<?php } ?>
+				
+				$('.wpuwhatis').click(function() {
+					$('#wpu-desc').text($(this).attr('title'));
+					$("#wpu-dialog").dialog({
+						modal: true,
+						buttons: {
+							Ok: function() {
+								$(this).dialog('close');
+							}
+						}
+					});
+					return false;
+				});
 				
 
 				if($('#wpuxpost').is(':checked')) $('#wpusettingsxpostxtra').show();
@@ -519,7 +540,7 @@ function wpu_settings_page() {
 						$('#wpusettingsxpostxtra').toggle("slide", "slow");
 				});
 				
-				$('#txtchangepath').button();
+	
 
 				<?php 
 					$cssmVal = 0;
