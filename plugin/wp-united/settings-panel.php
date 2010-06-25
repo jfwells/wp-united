@@ -48,8 +48,8 @@ function wpu_settings_menu() {
 				// if setup OK
 				add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
 					// if integrated logins
-					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu_user_mapper', 'wpu_user_mapper');
-				add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu_advanced_options', 'wpu_advanced_options');
+					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu-user-mapper', 'wpu_user_mapper');
+				add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
 			} 
 		}
 
@@ -573,18 +573,18 @@ function wpu_process_settings($type) {
 	 */
 	
 	if(!isset($_POST['wpu-path'])) {
-		wpu_settings_error('ERROR: You must specify a valid path for phpBB\'s config.php');
+		wpu_panel_error('settings', 'ERROR: You must specify a valid path for phpBB\'s config.php');
 		return;
 	}
 	$wpuPhpbbPath = (string)$_POST['wpu-path'];
 	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
 	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
 	if(!file_exists($wpuPath))  {
-		wpu_settings_error('ERROR: The path you selected for phpBB\'s config.php is not valid');
+		wpu_panel_error('settings', 'ERROR: The path you selected for phpBB\'s config.php is not valid');
 		return;
 	}
 	if(!file_exists($wpuPhpbbPath . 'config.php'))  {
-		wpu_settings_error('ERROR: phpBB\'s config.php could not be found at the location you chose');
+		wpu_panel_error('settings', 'ERROR: phpBB\'s config.php could not be found at the location you chose');
 		return;
 	}
 		
@@ -680,7 +680,7 @@ function wpu_process_settings($type) {
 					$data['wpSimpleHdr'] = 0;
 					$data['wpPageName'] = $simpleHeader;
 				} else {
-					wpu_settings_error('ERROR: You chose a full page template file that does not exist!');
+					wpu_panel_error('settings', 'ERROR: You chose a full page template file that does not exist!');
 					return;
 				}
 			} 
@@ -832,18 +832,18 @@ function wpu_process_setup() {
 	$data = wpu_get_settings();
 	
 	if(!isset($_POST['wpu-path'])) {
-		wpu_setup_error('ERROR: You must specify a valid path for phpBB\'s config.php');
+		wpu_panel_error('setup', 'ERROR: You must specify a valid path for phpBB\'s config.php');
 		return;
 	}
 	$wpuPhpbbPath = (string)$_POST['wpu-path'];
 	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
 	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
 	if(!file_exists($wpuPath))  {
-		wpu_setup_error('ERROR: The path you selected for phpBB\'s config.php is not valid');
+		wpu_panel_error('setup', 'ERROR: The path you selected for phpBB\'s config.php is not valid');
 		return;
 	}
 	if(!file_exists($wpuPhpbbPath . 'config.php'))  {
-		wpu_setup_error('ERROR: phpBB\'s config.php could not be found at the location you chose');
+		wpu_panel_error('setup', 'ERROR: phpBB\'s config.php could not be found at the location you chose');
 		return;
 	}
 		
@@ -855,17 +855,14 @@ function wpu_process_setup() {
 
 
 
-function wpu_settings_error($text) {
+function wpu_panel_error($type, $text) {
 	
-	echo '<p style="color: red;">' . $text . '</p>';
-	wpu_show_settings_menu();
-	
-}
-
-function wpu_setup_error($text) {
-	
-	echo '<p style="color: red;">' . $text . '</p>';
-	wpu_show_setup_menu();
+	echo '<div id="message class="error"><p>' . $text . '</p></div>';
+	if($type=='settings') {
+		wpu_show_settings_menu();
+	} else {
+		wpu_show_setup_menu();
+	}
 	
 }
 
