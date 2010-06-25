@@ -35,6 +35,8 @@ function wpu_init_plugin() {
 
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings, $wpuUrl, $wpuPath;
 	
+	
+
 	$wpSettings = get_option('wpu-settings');
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
 
@@ -49,74 +51,84 @@ function wpu_init_plugin() {
 		require_once($wpuPath . 'settings-panel.php');
 	}
 	
+	if(isset($_POST['wpusettings-transmit'])) {
+		if(check_ajax_referer( 'wp-united-transmit')) {
+			wpu_process_settings();
+		}
+	}	
+	
+	
 	
 	$wpSettings['status'] = 0;
+	if(file_exists($wpSettings['phpbb_path'])) {
+		$wpSettings['status'] = 1;
+	}
 	
+	require_once($wpuPath .  'phpbb.php');
+	$phpbbForum = new WPU_Phpbb();
 	
-	if(isset($wpSettings['phpbb_path'])) {
+	if(isset($wpSettings['phpbb_path']) && isset($wpSettings['enabled'])) {
 		
-		if ( !defined('IN_PHPBB') ) {
-			$phpbb_root_path = $wpSettings['phpbb_path'];
-			$phpEx = substr(strrchr(__FILE__, '.'), 1);
-		}
+		if($wpSettings['enabled'] == true) {
 		
-		require_once($wpuPath .  'phpbb.php');
-		$phpbbForum = new WPU_Phpbb();
+			if ( !defined('IN_PHPBB') ) {
+				$phpbb_root_path = $wpSettings['phpbb_path'];
+				$phpEx = substr(strrchr(__FILE__, '.'), 1);
+			}
+			
+			require_once($wpuPath . 'functions-cross-posting.php');
+			
+			if ( !defined('IN_PHPBB') ) {
+				if(is_admin()) {
+					define('WPU_PHPBB_IS_EMBEDDED', TRUE);
+				} else {
+					define('WPU_BLOG_PAGE', 1);
+				}
 
-		require_once($wpuPath . 'functions-cross-posting.php');
-		
-		if ( !defined('IN_PHPBB') ) {
-			if(is_admin()) {
-				define('WPU_PHPBB_IS_EMBEDDED', TRUE);
-			} else {
-				define('WPU_BLOG_PAGE', 1);
+				$phpbbForum->load($phpbb_root_path);
+
 			}
 
-			$phpbbForum->load($phpbb_root_path);
-
-		}
-
-		if(file_exists($wpSettings['phpbb_path'])) {
-			$wpSettings['status'] = 1;
 			if(defined('WPU_HOOK_ACTIVE')) {
 				$wpSettings['status'] = 2;
 			}
-		}
-		
-		require_once($wpuPath . 'widgets.php');
-		require_once($wpuPath . 'widgets2.php');
-		require_once($wpuPath . 'template-tags.php');
 			
-		add_action('widgets_init', 'wpu_widgets_init_old');	
-		add_action('widgets_init', 'wpu_widgets_init');	
+			require_once($wpuPath . 'widgets.php');
+			require_once($wpuPath . 'widgets2.php');
+			require_once($wpuPath . 'template-tags.php');
+				
+			add_action('widgets_init', 'wpu_widgets_init_old');	
+			add_action('widgets_init', 'wpu_widgets_init');	
 
-		if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
-			global $user_ID;
-			get_currentuserinfo();
-			if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
-				wp_redirect(admin_url());
-			} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
-				$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(attribute_escape(admin_url())), false, false, $GLOBALS['user']->session_id);		
-				wp_redirect($phpbbForum->url . $login_link);
+			if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
+				global $user_ID;
+				get_currentuserinfo();
+				if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
+					wp_redirect(admin_url());
+				} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
+					$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(attribute_escape(admin_url())), false, false, $GLOBALS['user']->session_id);		
+					wp_redirect($phpbbForum->url . $login_link);
+				}
 			}
-		}
-		
-		// This variable is used in phpBB template integrator
-		global $siteUrl;
-		$siteUrl = get_option('siteurl');
-		
-		// enqueue any JS we need
-		if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
-			wp_enqueue_script('wp-united', $phpbbForum->url . 'wp-united/js/wpu-min.js', array(), false, true);
-		}
-		
+			
+			
+			// This variable is used in phpBB template integrator
+			global $siteUrl;
+			$siteUrl = get_option('siteurl');
+			
+			// enqueue any JS we need
+			if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
+				wp_enqueue_script('wp-united', $phpbbForum->url . 'wp-united/js/wpu-min.js', array(), false, true);
+			}
+			
 
-		// set up login integration
-		// @todo: review for wp-admin
-		if(!empty($wpSettings['integrateLogin']) && !is_admin()) {
-			if(!(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT)) {
-				require_once($wpuPath . 'login-integrator.' .$phpEx);
-				add_action('init', 'wpu_integrate_logins', 10);
+			// set up login integration
+			// @todo: review for wp-admin
+			if(!empty($wpSettings['integrateLogin']) && !is_admin()) {
+				if(!(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT)) {
+					require_once($wpuPath . 'login-integrator.' .$phpEx);
+					add_action('init', 'wpu_integrate_logins', 10);
+				}
 			}
 		}
 	}
@@ -142,6 +154,19 @@ function wpu_init_plugin() {
 		}*/
 
 	
+}
+
+function wpu_disable_connection() {
+	global $wpSettings;
+	$wpSettings['enabled'] = false;
+	update_option('wpu-settings', $wpSettings);
+	if($wpSettings['status'] == 0) {
+		die(__('WP-United could not find phpBB at the selected path. WP-United has been disconnected.'));
+	} elseif($wpSettings['status'] == 1) {
+		die(__('WP-United could successfully run phpBB at the selected path. WP-United has been disconnected.'));
+	} else {
+		die(__('WP-United could successfully run phpBB without errors. WP-United has been disconnected.'));
+	}
 }
 
 /**

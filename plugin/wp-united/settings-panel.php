@@ -16,9 +16,8 @@
 /**
  * Add menu option for WP-United Settings panel
  */
-function wpu_settings_menu() {
+function wpu_settings_menu() {  
 	global $wpuUrl, $phpbbForum;
-	
 	if(isset($_POST['wpusettings-transmit'])) {
 		if(check_ajax_referer( 'wp-united-transmit')) {
 			wpu_transmit_settings();
@@ -68,28 +67,6 @@ function wpu_settings_css() {
 
 
 /**
- * Decide whether to show the settings panel, or process inbound settings
- */
-function wpu_settings_page() {  
-	global $wpuUrl; 
-	?>
-		<div class="wrap" id="wp-united-settings">
-		<?php screen_icon('options-general'); ?>
-		<h2> <?php _e('WP-United Settings'); ?> </h2>
-	<?php
-	
-	if(isset($_POST['wpusettings-submit'])) {
-		// process form
-		if(check_admin_referer( 'wp-united-settings')) {
-			wpu_process_settings('setup');
-		}
-	} else {
-			wpu_show_settings_menu();
-	}
-	?></div> <?php
-}
-
-/**
  * Decide whether to show the setup panel, or process inbound settings
  */
 function wpu_setup_menu() { 
@@ -102,7 +79,7 @@ function wpu_setup_menu() {
 	if(isset($_POST['wpusetup-submit'])) {
 		// process form
 		if(check_admin_referer( 'wp-united-setup')) {
-			wpu_process_setup(); 
+			wpu_process_settings('setup'); 
 		}
 	} else {
 			wpu_show_setup_menu();
@@ -137,30 +114,30 @@ function wpu_show_setup_menu() {
 	global $wpuUrl; 
 	$settings = wpu_get_settings();
 	$status = (isset($settings['status'])) ? $settings['status'] : 0;
+	
 	switch($status) {
 		case 2:
 			$statusText = __('OK');
-			$statusColour = "green";
+			$statusColour = "updated allok";
 			$statusDesc = sprintf(__('WP-United is connected and working. To disable the connection, %sclick here%s. or press &quot;Disable&quot;, below.'), '<a href=\"#\" onclick="return wpuDisableConnection();">', '</a>');
 			break;
 		case 1:
 			$statusText = __('Connected, but not ready');
-			$statusColour = "orange";
+			$statusColour = "updated highlight allok";
 			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, %7$sclick here%8$s to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>', '<a href="#">', '</a>');
 			break;
 		case 0:
 		default:
 			$statusText = __('Not Connected');
-			$statusColour = "red";
+			$statusColour = "error";
 			$statusDesc = _('WP-United is not connected yet. Select your forum location below and click &quot;Submit&quot;');
 	}
 			
-	echo "<h3 style=\"display: block; color: #ffffff; border: 1px solid #cccccc; background-color: $statusColour;\">" . sprintf(__('Current Status: %s'), $statusText) . '</h3>';
-	echo "<p>$statusDesc</p>";
+	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p></p><strong>" . sprintf(__('Current Status: %s'), $statusText) . "</strong><br />$statusDesc</p></div>";
 		
 	?>
 	<h3><?php _e('phpBB Location') ?></h3>
-	<form name="wpu-setup" id="wpusetup" action="plugins.php?page=wp-united-setup" method="post">
+	<form name="wpu-setup" id="wpusetup" action="admin.php?page=wp-united-setup" method="post">
 		<?php wp_nonce_field('wp-united-setup'); ?>
 		
 		<p>WP-United needs to know where your phpBB is installed on your server. <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
@@ -245,186 +222,211 @@ function wpu_user_mapper() {
 /**
  * The main WP-United settings panel
  */	
-function wpu_show_settings_menu() {	
+function wpu_settings_page() {	
 	
 	global $phpbbForum, $wpuUrl; 
 	$settings = wpu_get_settings();
+	
 	?>
-		
-		<p><?php _e('WP-United is modular; You can enable or disable any of the four major features below: User Integration, Theme Integration, Behaviour Integration and User Blogs.') ?></p>
-		<p><?php _e('Visit each of the tabs to select the settings, then hit Submit when done.') ?></p>
-		<form name="wpu-settings" id="wpusettings" action="plugins.php?page=wp-united-settings" method="post">
+	
+	<div class="wrap" id="wp-united-settings">
+		<?php screen_icon('options-general'); ?>
+		<h2> <?php _e('WP-United Settings'); ?> </h2>
+	
+			<div style="display: none; border: 1px solid #cccccc; border-left-width: 0; border-right-width: 0;padding: 6px; width: 100%; height: 120px; height: auto !important; max-height: 120px; overflow-y: auto;" id="wputransmit"><img src="<?php echo $wpuUrl ?>/images/wpuldg.gif" style="float: left;" />Transmitting settings to phpBB...</div>
 			
-			<?php wp_nonce_field('wp-united-settings'); ?>
-			
-			<div id="wputabs">
-				<ul>
-					<li><a href="#wputab-basic">Basic Settings</a></li>
-					<li><a href="#wputab-user">User Integration</a></li>
-					<li><a href="#wputab-theme">Theme Integration</a></li>
-					<li><a href="#wputab-behav">Behaviour Integration</a></li>
-				<!--	<li><a href="#wputab-blogs">User Blogs</a></li>-->
-				</ul>
-
-				<div id="wputab-basic">
-					<h3>Path to phpBB3</h3>
-					<p>WP-United needs to know where your phpBB is installed on your server. <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
-					<div id="phpbbpath" style="height: 200px; border: 1px solid #ffffff; background-color: #bcbcbc; overflow-y: auto;">&nbsp;</div>
-					<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;">Change Location &raquo;</a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();">Cancel Change</a></p>
-					<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
-					<h3>Forum Page</h3>
-					<p>Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum.</p>
-					<input type="checkbox" id="wpuforumpage" name="wpuforumpage" <?php if(!empty($settings['useForumPage'])) { ?>checked="checked"<?php } ?> /><label for="wpuforumpage">Enable Forum Page</label>		
-				</div>
-				
-				<div id="wputab-user">
-					<h3>Integrate logins?</h3>
-					<p>If you turn this option on, phpBB will create a WordPress account the first time each phpBB user <strong>with appropriate permissions</strong> visits the blog. If this WordPress install will be non-interactive (e.g., a blog by a single person, a portal page, or an information library with commenting disabled), you may want to turn this option off, as readers may not need accounts. You can also map existing WordPress users to phpBB users, using the mapping tool that will appear after you turn on this option.</p>
-					<p>You <strong>must set</strong> the privileges for each user using the WP-United permissions under the phpBB3 Users' and Groups' permissions settings.</p>
-					<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if(!empty($settings['integrateLogin'])) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
-					
-					<div id="wpusettingsxpost" class="subsettings">
-						<h4>Enable cross-posting?</h4>
-						<p>If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.</p>
-						<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if(!empty($settings['xposting'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
-						
-						
-						<div id="wpusettingsxpostxtra" class="subsettings">
-							<h4>Type of cross-posting?</h4>
-							<p>Choose how the post should appear in phpBB. WP-United can post an excerpt, the full post, or give you an option to select when posting each post.</p>
-							<input type="radio" name="rad_xpost_type" value="excerpt" id="wpuxpexc"  <?php if($settings['xposttype'] == 'excerpt') { ?>checked="checked"<?php } ?>  /><label for="wpuxpexc">Excerpt</label>
-							<input type="radio" name="rad_xpost_type" value="fullpost" id="wpuxpfp" <?php if($settings['xposttype'] == 'fullpost') { ?>checked="checked"<?php } ?>  /><label for="wpuxpfp">Full Post</label>
-							<input type="radio" name="rad_xpost_type" value="askme" id="wpuxpask" <?php if($settings['xposttype'] == 'askme') { ?>checked="checked"<?php } ?>  /><label for="wpuxpask">Ask Me</label>
-							
-							<h4>phpBB manages comments on crossed posts?</h4>
-							<p>Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.</p>
-							<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if(!empty($settings['xpostautolink'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments">phpBB manages comments</label>		
-							
-							<h4>Force all blog posts to be cross-posted?</h4>
-							<p>Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place.</p>
-							<select id="wpuxpostforce" name="wpuxpostforce">
-								<option value="0">-- Disabled --</option>
-							</select>
-						</div>				
-					</div>
-				</div>		
-				
-				<div id="wputab-theme">
-					<h3>Integrate templates?</h3>
-					<p>WP-United can integrate your phpBB &amp; WordPress templates.</p>
-					<input type="checkbox" id="wputplint" name="wputplint" <?php if($settings['showHdrFtr'] != 'NONE') { ?>checked="checked" <?php } ?> /><label for="wputplint">Enable Template Integration</label>
-					<div id="wpusettingstpl" class="subsettings">
-						<h4>Integration Mode</h4>
-						<p>Do you want WordPress to appear inside your phpBB template, or phpBB to appear inside your WordPress template?</p>
-						<input type="radio" name="rad_tpl" value="fwd" id="wputplfwd" <?php if($settings['integrateLogin'] == 'FWD') { ?>checked="checked" <?php } ?>  /><label for="wputplfwd">WordPress inside phpBB</label>
-						<input type="radio" name="rad_tpl" value="rev" id="wputplrev"  <?php if($settings['integrateLogin'] != 'FWD') { ?>checked="checked" <?php } ?> /><label for="wputplrev">phpBB inside WordPress</label>
-					
-						<h4>Automatic CSS Integration</h4>
-						
-						<p>WP-United can automatically fix CSS conflicts between your phpBB and WordPress templates. Set the slider to "maximum compatibility" to fix most problems. If you prefer to fix CSS conflicts by hand, or if the automatic changes cause problems, try reducing the level.</p>
-						
-						<div style="padding: 0 100px;">
-							<p style="height: 11px;"><span style="float: left;">Off</span><span style="float: right;">Maximum Compatibility (Recommended)</span></p>
-							<div id="wpucssmlvl"></div>
-							<div style="background-color: #343434;" id="cssmdesc"><p><strong>Current Level: <span id="cssmlvltitle">xxx</span></strong><br /></p><p id="cssmlvldesc">xxx</p></div>
+			<?php
+				if(isset($_GET['msg'])) {
+					if($_GET['msg'] == 'success') {
+			?>
+						<div id="wpustatus" class="updated"><p><?php _e('Settings applied successfully.'); ?></p></div>
+			<?php
+				} elseif($_GET['msg'] == 'fail') {
+			?>
+					<div id="wpustatus" class="error">
+						<p><?php _e('An error occurred. The error details are below. Please check your settings or try disabling plugins.'); ?></p>
+						<div style="margin-bottom: 8px;" id="wpuerrordets">
+							<?php echo $_GET['msgerr']; ?>
 						</div>
-						<input type="hidden" id="wpucssmlvlfield" name="wpucssmlevel" value="notset"></input>
-						<p><a href="#" onclick="return tplAdv();">Advanced Settings <span id="wutpladvshow">+</span><span id="wutpladvhide" style="display: none;">-</span></a></p>
+					</div>
+			<?php
+				}
+			}
+			?>
+			
+			<p><?php _e('WP-United is modular; You can enable or disable any of the four major features below: User Integration, Theme Integration, Behaviour Integration and User Blogs.') ?></p>
+			<p><?php _e('Visit each of the tabs to select the settings, then hit Submit when done.') ?></p>
+					
+			<form name="wpu-settings" id="wpusettings" method="post" onsubmit="return wpu_transmit('wp-united-settings', this.id);">
+				
+				<div id="wputabs">
+					<ul>
+						<li><a href="#wputab-basic">Basic Settings</a></li>
+						<li><a href="#wputab-user">User Integration</a></li>
+						<li><a href="#wputab-theme">Theme Integration</a></li>
+						<li><a href="#wputab-behav">Behaviour Integration</a></li>
+					<!--	<li><a href="#wputab-blogs">User Blogs</a></li>-->
+					</ul>
+
+					<div id="wputab-basic">
+						<h3>Path to phpBB3</h3>
+						<p>WP-United needs to know where your phpBB is installed on your server. <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
+						<div id="phpbbpath" style="height: 200px; border: 1px solid #ffffff; background-color: #bcbcbc; overflow-y: auto;">&nbsp;</div>
+						<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;">Change Location &raquo;</a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();">Cancel Change</a></p>
+						<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
+						<h3>Forum Page</h3>
+						<p>Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum.</p>
+						<input type="checkbox" id="wpuforumpage" name="wpuforumpage" <?php if(!empty($settings['useForumPage'])) { ?>checked="checked"<?php } ?> /><label for="wpuforumpage">Enable Forum Page</label>		
+					</div>
+					
+					<div id="wputab-user">
+						<h3>Integrate logins?</h3>
+						<p>If you turn this option on, phpBB will create a WordPress account the first time each phpBB user <strong>with appropriate permissions</strong> visits the blog. If this WordPress install will be non-interactive (e.g., a blog by a single person, a portal page, or an information library with commenting disabled), you may want to turn this option off, as readers may not need accounts. You can also map existing WordPress users to phpBB users, using the mapping tool that will appear after you turn on this option.</p>
+						<p>You <strong>must set</strong> the privileges for each user using the WP-United permissions under the phpBB3 Users' and Groups' permissions settings.</p>
+						<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if(!empty($settings['integrateLogin'])) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 						
-						<div id="wpusettingstpladv" class="subsettings">
-							<h4>Advanced Settings</h4>
+						<div id="wpusettingsxpost" class="subsettings">
+							<h4>Enable cross-posting?</h4>
+							<p>If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.</p>
+							<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if(!empty($settings['xposting'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
 							
-							<p><strong>Use full page?</strong>
-								<a href="#" onclick="alert('Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slower.'); return false;">What is this?</a>
-							</p>
-							<select id="wpuhdrftrspl" name="wpuhdrftrspl">
-								<option value="0">-- Simple Header &amp; Footer (recommended) --</option>
-								<?php
-									$files = scandir(TEMPLATEPATH);
-									print_r($files); 
-									if(sizeof($files)) {
-										foreach($files as $file) {
-											if(stristr($file, '.php')) {
-												echo '<option value="' . $file . '">Full Page: ' . $file . '</option>';
+							
+							<div id="wpusettingsxpostxtra" class="subsettings">
+								<h4>Type of cross-posting?</h4>
+								<p>Choose how the post should appear in phpBB. WP-United can post an excerpt, the full post, or give you an option to select when posting each post.</p>
+								<input type="radio" name="rad_xpost_type" value="excerpt" id="wpuxpexc"  <?php if($settings['xposttype'] == 'excerpt') { ?>checked="checked"<?php } ?>  /><label for="wpuxpexc">Excerpt</label>
+								<input type="radio" name="rad_xpost_type" value="fullpost" id="wpuxpfp" <?php if($settings['xposttype'] == 'fullpost') { ?>checked="checked"<?php } ?>  /><label for="wpuxpfp">Full Post</label>
+								<input type="radio" name="rad_xpost_type" value="askme" id="wpuxpask" <?php if($settings['xposttype'] == 'askme') { ?>checked="checked"<?php } ?>  /><label for="wpuxpask">Ask Me</label>
+								
+								<h4>phpBB manages comments on crossed posts?</h4>
+								<p>Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.</p>
+								<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if(!empty($settings['xpostautolink'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments">phpBB manages comments</label>		
+								
+								<h4>Force all blog posts to be cross-posted?</h4>
+								<p>Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place.</p>
+								<select id="wpuxpostforce" name="wpuxpostforce">
+									<option value="0">-- Disabled --</option>
+								</select>
+							</div>				
+						</div>
+					</div>		
+					
+					<div id="wputab-theme">
+						<h3>Integrate templates?</h3>
+						<p>WP-United can integrate your phpBB &amp; WordPress templates.</p>
+						<input type="checkbox" id="wputplint" name="wputplint" <?php if($settings['showHdrFtr'] != 'NONE') { ?>checked="checked" <?php } ?> /><label for="wputplint">Enable Template Integration</label>
+						<div id="wpusettingstpl" class="subsettings">
+							<h4>Integration Mode</h4>
+							<p>Do you want WordPress to appear inside your phpBB template, or phpBB to appear inside your WordPress template?</p>
+							<input type="radio" name="rad_tpl" value="fwd" id="wputplfwd" <?php if($settings['integrateLogin'] == 'FWD') { ?>checked="checked" <?php } ?>  /><label for="wputplfwd">WordPress inside phpBB</label>
+							<input type="radio" name="rad_tpl" value="rev" id="wputplrev"  <?php if($settings['integrateLogin'] != 'FWD') { ?>checked="checked" <?php } ?> /><label for="wputplrev">phpBB inside WordPress</label>
+						
+							<h4>Automatic CSS Integration</h4>
+							
+							<p>WP-United can automatically fix CSS conflicts between your phpBB and WordPress templates. Set the slider to "maximum compatibility" to fix most problems. If you prefer to fix CSS conflicts by hand, or if the automatic changes cause problems, try reducing the level.</p>
+							
+							<div style="padding: 0 100px;">
+								<p style="height: 11px;"><span style="float: left;">Off</span><span style="float: right;">Maximum Compatibility (Recommended)</span></p>
+								<div id="wpucssmlvl"></div>
+								<div style="background-color: #343434;" id="cssmdesc"><p><strong>Current Level: <span id="cssmlvltitle">xxx</span></strong><br /></p><p id="cssmlvldesc">xxx</p></div>
+							</div>
+							<input type="hidden" id="wpucssmlvlfield" name="wpucssmlevel" value="notset"></input>
+							<p><a href="#" onclick="return tplAdv();">Advanced Settings <span id="wutpladvshow">+</span><span id="wutpladvhide" style="display: none;">-</span></a></p>
+							
+							<div id="wpusettingstpladv" class="subsettings">
+								<h4>Advanced Settings</h4>
+								
+								<p><strong>Use full page?</strong>
+									<a href="#" onclick="alert('Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try \'full page\'. This option could be a little slower.'); return false;">What is this?</a>
+								</p>
+								<select id="wpuhdrftrspl" name="wpuhdrftrspl">
+									<option value="0">-- Simple Header &amp; Footer (recommended) --</option>
+									<?php
+										$files = scandir(TEMPLATEPATH);
+										print_r($files); 
+										if(sizeof($files)) {
+											foreach($files as $file) {
+												if(stristr($file, '.php')) {
+													echo '<option value="' . $file . '">Full Page: ' . $file . '</option>';
+												}
 											}
 										}
-									}
-								?>
-							</select>
-							
-							<p><strong>Padding around phpBB</strong>
-								<a href="#" onclick="alert('phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not \'0\'), and style the \'phpbbforum\' DIV in your stylesheet.'); return false;">What is this?</a>
-							</p>
-								<table>
-									<tr>
-										<td>
-											<label for="wpupadtop">Top:</label><br />
-										</td>
-										<td>
-											<input type="text" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="6" />px<br />
-										</td>
-									</tr>
-									<tr>
-										<td>
-											<label for="wpupadright">Right:</label><br />
-										</td>
-										<td>
-											<input type="text" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="12" />px<br />
-										</td>
-									</tr>
-									<tr>
-										<td>
-											<label for="wpupadbtm">Bottom:</label><br />
-										</td>
-										<td>
-											<input type="text" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="6" />px<br />
-										</td>
-									</tr>
-									<tr>
-										<td>
-											<label for="wpupadleft">Left:</label><br />
-										</td>
-										<td>
-											<input type="text" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="12" />px<br />
-										</td>
-									</tr>
-									</table>
-								<p><a href="#" onclick="return false;">Reset to defaults</a></p>
+									?>
+								</select>
 								
-								<p>
-									<input type="checkbox" id="wpudtd" name="wpudtd" /> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
-									<a href="#" onclick="alert('The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3\'s prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional DTD. In most cases, this doesn\'t matter -- however, If you want to use WordPress\' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed.'); return false;">What is this?</a>
+								<p><strong>Padding around phpBB</strong>
+									<a href="#" onclick="alert('phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not \'0\'), and style the \'phpbbforum\' DIV in your stylesheet.'); return false;">What is this?</a>
 								</p>
-							</div>
+									<table>
+										<tr>
+											<td>
+												<label for="wpupadtop">Top:</label><br />
+											</td>
+											<td>
+												<input type="text" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="6" />px<br />
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<label for="wpupadright">Right:</label><br />
+											</td>
+											<td>
+												<input type="text" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="12" />px<br />
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<label for="wpupadbtm">Bottom:</label><br />
+											</td>
+											<td>
+												<input type="text" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="6" />px<br />
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<label for="wpupadleft">Left:</label><br />
+											</td>
+											<td>
+												<input type="text" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="12" />px<br />
+											</td>
+										</tr>
+										</table>
+									<p><a href="#" onclick="return false;">Reset to defaults</a></p>
+									
+									<p>
+										<input type="checkbox" id="wpudtd" name="wpudtd" /> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
+										<a href="#" onclick="alert('The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3\'s prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional DTD. In most cases, this doesn\'t matter -- however, If you want to use WordPress\' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed.'); return false;">What is this?</a>
+									</p>
+								</div>
+						</div>
 					</div>
+					
+					<div id="wputab-behav">
+					
+						<h3>Use phpBB Word Censor?</h3>
+						<p>Turn this option on if you want WordPress posts to be passed through the phpBB word censor.</p>
+						<input type="checkbox" id="wpucensor" name="wpucensor" /><label for="wpucensor">Enable word censoring in WordPress</label>
+						
+						<h3>Use phpBB smilies?</h3>
+						<p>Turn this option on if you want to use phpBB smilies in WordPress comments and posts.</p>
+						<input type="checkbox" id="wpucensor" name="wpusmilies" /><label for="wpusmilies">Enable phpBB smilies in WordPress</label>	
+						
+						<h3>Make Blogs Private?</h3>
+						<p>If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility.</p>
+						<input type="checkbox" id="wpucensor" name="wpusmilies" /><label for="wpusmilies">Make blogs private</label>							
+						
+					</div>
+					
+					<!--<div id="wputab-blogs">
+						User Blogs - options being revamped
+					</div>-->
 				</div>
 				
-				<div id="wputab-behav">
-				
-					<h3>Use phpBB Word Censor?</h3>
-					<p>Turn this option on if you want WordPress posts to be passed through the phpBB word censor.</p>
-					<input type="checkbox" id="wpucensor" name="wpucensor" /><label for="wpucensor">Enable word censoring in WordPress</label>
-					
-					<h3>Use phpBB smilies?</h3>
-					<p>Turn this option on if you want to use phpBB smilies in WordPress comments and posts.</p>
-					<input type="checkbox" id="wpucensor" name="wpusmilies" /><label for="wpusmilies">Enable phpBB smilies in WordPress</label>	
-					
-					<h3>Make Blogs Private?</h3>
-					<p>If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility.</p>
-					<input type="checkbox" id="wpucensor" name="wpusmilies" /><label for="wpusmilies">Make blogs private</label>							
-					
-				</div>
-				
-				<!--<div id="wputab-blogs">
-					User Blogs - options being revamped
-				</div>-->
-			</div>
-			
-		<p class="submit">
-			<input type="submit" class="button-primary" value="<?php _e('Submit') ?>" name="wpusettings-submit" />
-		</p>
-	</form>
-		
+			<p class="submit">
+				<input type="submit" class="button-primary" value="<?php _e('Submit') ?>" name="wpusettings-submit" />
+			</p>
+		</form>
+	</div>
 		<script type="text/javascript">
 		// <![CDATA[
 			jQuery(document).ready(function($) { 
@@ -552,212 +554,212 @@ function wpu_show_settings_menu() {
 				$('#wutpladvhide').toggle();
 				return false;
 			}
+			
+			function wpu_transmit(type, formID) {
+				$('#wpustatus').hide();
+				$('#wputransmit').show();
+				var formData;
+				
+				formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
+				$.post('admin.php?page='+type, formData, function(response) {
+					if(response=='OK') {
+						window.location = window.location.href + '&msg=success';
+					} else { 
+						var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
+						window.location = window.location.href + '&msg=fail&wpudiable=1&disableNonce=' + disableNonce + '&msgerr=' + escape(response);
+					}
+				});
+				return false;
+			}
 		
 		// ]]>
 		</script>
-		
 
 <?php }
+
+
 
 
 /**
  * Process settings
  */
-function wpu_process_settings($type) {
-	global $wpuUrl, $wpuPath;
+function wpu_process_settings() {
+	global $wpuUrl, $wpuPath, $wpSettings;
+	
+	$type = 'setup';
+	if(isset($_GET['wp-united-settings'])) {
+		$type = 'settings';
+	}
 	
 	$data = array();
 	
 	/**
 	 * First process path to phpBB
 	 */
-	
 	if(!isset($_POST['wpu-path'])) {
-		wpu_panel_error('settings', 'ERROR: You must specify a valid path for phpBB\'s config.php');
-		return;
+		die('ERROR: You must specify a valid path for phpBB\'s config.php');
 	}
 	$wpuPhpbbPath = (string)$_POST['wpu-path'];
 	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
 	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
 	if(!file_exists($wpuPath))  {
-		wpu_panel_error('settings', 'ERROR: The path you selected for phpBB\'s config.php is not valid');
+		die('ERROR:The path you selected for phpBB\'s config.php is not valid');
 		return;
 	}
 	if(!file_exists($wpuPhpbbPath . 'config.php'))  {
-		wpu_panel_error('settings', 'ERROR: phpBB\'s config.php could not be found at the location you chose');
+		die('ERROR: phpBB\'s config.php could not be found at the location you chose');
 		return;
 	}
 		
 	$data['phpbb_path'] = $wpuPhpbbPath;
 	
-	/**
-	 * Process 'use forum page'
-	 */
-	$data['useForumPage'] = isset($_POST['wpuforumpage']) ? 1 : 0;
+	if($type=='setup') {
+		$data = array_merge($wpSettings, $data);
+	}
 	
-	
-	
-	/** 
-	 * Process login integration settings
-	 */
-	$data['integrateLogin'] = isset($_POST['wpuloginint']) ? 1 : 0;
-	
-	if($data['integrateLogin']) {
-		$data['xposting'] = isset($_POST['wpuxpost']) ? 1 : 0;
+	if($type == 'settings') {
+		/**
+		 * Process 'use forum page'
+		 */
+		$data['useForumPage'] = isset($_POST['wpuforumpage']) ? 1 : 0;
 		
-		if($data['xposting'] ) { 
+		
+		
+		/** 
+		 * Process login integration settings
+		 */
+		$data['integrateLogin'] = isset($_POST['wpuloginint']) ? 1 : 0;
+		
+		if($data['integrateLogin']) {
+			$data['xposting'] = isset($_POST['wpuxpost']) ? 1 : 0;
 			
-			$xpostType = (!isset($_POST['rad_xpost_type'])) ? 'excerpt' : $_POST['rad_xpost_type'];
-			if($xpostType == 'askme') {
-				$data['xposttype'] ='askme';
-			} else if($xpostType == 'fullpost') {
-				$data['xposttype'] ='fullpost';
+			if($data['xposting'] ) { 
+				
+				$xpostType = (!isset($_POST['rad_xpost_type'])) ? 'excerpt' : $_POST['rad_xpost_type'];
+				if($xpostType == 'askme') {
+					$data['xposttype'] ='askme';
+				} else if($xpostType == 'fullpost') {
+					$data['xposttype'] ='fullpost';
+				} else {
+					$data['xposttype'] ='excerpt';
+				}
+				
+				$data['xpostautolink'] =(isset($_POST['wpuxpostcomments'])) ? 1 : 0;
+				$data['xpostforce'] =( isset($_POST['wpuxpostforce'])) ? (int) $_POST['wpuxpostforce'] : 0;
 			} else {
-				$data['xposttype'] ='excerpt';
+				//cross-posting disabled, set to default
+				$data = array_merge($data, array(
+					'xposttype' 					=> 'excerpt',
+					'wpuxpostcomments'	=> 0,
+					'xpostforce' 				=> 0
+				));
 			}
-			
-			$data['xpostautolink'] =(isset($_POST['wpuxpostcomments'])) ? 1 : 0;
-			$data['xpostforce'] =( isset($_POST['wpuxpostforce'])) ? (int) $_POST['wpuxpostforce'] : 0;
 		} else {
-			//cross-posting disabled, set to default
+			// logins not integrated, set to default
 			$data = array_merge($data, array(
+				'xposting' 					=> 0,
 				'xposttype' 					=> 'excerpt',
 				'wpuxpostcomments'	=> 0,
 				'xpostforce' 				=> 0
 			));
 		}
-	} else {
-		// logins not integrated, set to default
-		$data = array_merge($data, array(
-			'xposting' 					=> 0,
-			'xposttype' 					=> 'excerpt',
-			'wpuxpostcomments'	=> 0,
-			'xpostforce' 				=> 0
-		));
-	}
+			
+			
+		/**
+		 * Process 'theme integration' settings
+		 */
 		
-		
-	/**
-	 * Process 'theme integration' settings
-	 */
-	
-	 $tplInt = isset($_POST['wputplint']) ? 1 : 0;
+		 $tplInt = isset($_POST['wputplint']) ? 1 : 0;
 
-	if($tplInt) {
-		$tplDir = isset($_POST['rad_tpl']) ? (string) $_POST['rad_tpl'] : 'fwd';
-		
-		if($tplDir == 'rev') {
-			$data['showHdrFtr'] = 'REV';
-		} else {
-			$data['showHdrFtr'] = 'FWD';
-		}
-		
-		$cssmLevel = isset($_POST['wpucssmlevel']) ? (int) $_POST['wpucssmlevel'] : 2;
-		switch($cssmLevel) {
-			case 0:
-				$data['cssMagic'] = 0;
-				$data['templateVoodoo'] = 0;
-				break;
-			case 1:
-				$data['cssMagic'] = 1;
-				$data['templateVoodoo'] = 0;
-				break;
-			default:
-				$data['cssMagic'] = 1;
-				$data['templateVoodoo'] = 1;	
-		}
-		
-		$simpleHeader = (isset($_POST['wpuhdrftrspl'])) ?  $_POST['wpuhdrftrspl'] : 0;
-		
-		// set defaults
-		$data['wpSimpleHdr'] = 1;
-		$data['wpPageName'] = 'page.php';	
-		
-		if($simpleHeader != 0) {
-			$simpleHeader = (string)$_POST['wpuhdrftrspl'];
-			if(!empty($simpleHeader)) {
-				if (file_exists(add_trailing_slash(TEMPLATEPATH) . $simpleHeader))  {
-					$data['wpSimpleHdr'] = 0;
-					$data['wpPageName'] = $simpleHeader;
-				} else {
-					wpu_panel_error('settings', 'ERROR: You chose a full page template file that does not exist!');
-					return;
-				}
-			} 
-		}
-		
-		$padT = isset($_POST['wpupadtop']) ? $_POST['wpupadtop'] : '';
-		$padR = isset($_POST['wpupadright']) ? $_POST['wpupadright'] : '';
-		$padB = isset($_POST['wpupadbtm']) ? $_POST['wpupadbtm'] : '';
-		$padL = isset($_POST['wpupadleft']) ? $_POST['wpupadleft'] : '';
-
-		if ( ($padT == '') && ($padR == '') && ($padB == '') && ($padL == '') ) {
-			$data['phpbbPadding'] = 'NOT_SET';
-		} else {
-			$data['phpbbPadding'] = (int)$padT . '-' . (int)$padR . '-' . (int)$padB . '-' . (int)$padL;
-		}
-		
-		$data['dtdSwitch'] =(isset($_POST['wpudtd'])) ? 1 : 0;
-		
-	} else {
-		$data = array_merge($data, array(
-			'showHdrFtr' 			=> 'NONE',
-			'cssMagic' 				=> 0,
-			'templateVoodoo' 	=> 0,
-			'wpSimpleHdr' 		=> 1,
-			'wppageName' 		=> 'page.php',
-			'phpbbPadding' 		=>  '6-12-6-12',
-			'dtdSwitch' 				=> 0
-		));
-	}
-	
-	/**
-	 * Process 'behaviour' settings
-	 */
-	$data = array_merge($data, array(
-		'phpbbCensor' 	=> (isset($_POST['phpbbCensor'])) ? 1 : 0,
-		'phpbbSmilies' 	=> (isset($_POST['phpbbSmilies'])) ? 1 : 0,
-		'mustLogin' 		=> (isset($_POST['mustLogin'])) ? 1 : 0
-	));
-	
-	$data = array_merge($data, array(
-		'wpUri' => add_trailing_slash(get_option('home')),
-		'wpPath' => ABSPATH,
-		'wpPluginPath' => ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/',
-		'wpPluginUrl' => $wpuUrl
-	));
-	
-		
-	update_option('wpu-settings', $data);
-	
-	// now we've saved the setting, we try to transmit them to phpBB
-	
-	$nonce= wp_create_nonce ('wp-united-transmit');
-	?> 
-		<div style="border: 1px solid #cccccc; border-left-width: 0; border-right-width: 0;padding: 6px; width: 100%; height: 120px; height: auto !important; max-height: 120px; overflow-y: auto;" id="wputransmit"><span id="wputransmitting"><img src="<?php echo $wpuUrl ?>/images/wpuldg.gif" style="float: left;" />Transmitting settings to phpBB...</span><br /><div id="wputransmitresult">&nbsp;</div></div>
-		<p id="wpusuccess" style="display: none;">Settings applied successfully.</p>
-		<p id="wpufailure" style="display: none;">An error occurred. The error details are above. Please check your settings or try disabling plugins.</p>
-		<script type="text/javascript">
-		// <![CDATA[
-		
-		$('#wputransmitresult').load('plugins.php?page=wp-united-settings', {'wpusettings-transmit': 1, '_ajax_nonce': '<?php echo $nonce; ?>'}, function(response) {
-			$('#wputransmitting').hide();
-			if(response=='OK') {
-				$('#wpusuccess').show();
-				$('#wputransmit').hide();
+		if($tplInt) {
+			$tplDir = isset($_POST['rad_tpl']) ? (string) $_POST['rad_tpl'] : 'fwd';
+			
+			if($tplDir == 'rev') {
+				$data['showHdrFtr'] = 'REV';
 			} else {
-				$('#wpufailure').show();
+				$data['showHdrFtr'] = 'FWD';
 			}
-		});
+			
+			$cssmLevel = isset($_POST['wpucssmlevel']) ? (int) $_POST['wpucssmlevel'] : 2;
+			switch($cssmLevel) {
+				case 0:
+					$data['cssMagic'] = 0;
+					$data['templateVoodoo'] = 0;
+					break;
+				case 1:
+					$data['cssMagic'] = 1;
+					$data['templateVoodoo'] = 0;
+					break;
+				default:
+					$data['cssMagic'] = 1;
+					$data['templateVoodoo'] = 1;	
+			}
+			
+			$simpleHeader = (isset($_POST['wpuhdrftrspl'])) ?  $_POST['wpuhdrftrspl'] : 0;
+			
+			// set defaults
+			$data['wpSimpleHdr'] = 1;
+			$data['wpPageName'] = 'page.php';	
+			
+			if($simpleHeader != 0) {
+				$simpleHeader = (string)$_POST['wpuhdrftrspl'];
+				if(!empty($simpleHeader)) {
+					if (file_exists(add_trailing_slash(TEMPLATEPATH) . $simpleHeader))  {
+						$data['wpSimpleHdr'] = 0;
+						$data['wpPageName'] = $simpleHeader;
+					} else {
+						die('ERROR: You chose a full page template file that does not exist!');
+						return;
+					}
+				} 
+			}
+			
+			$padT = isset($_POST['wpupadtop']) ? $_POST['wpupadtop'] : '';
+			$padR = isset($_POST['wpupadright']) ? $_POST['wpupadright'] : '';
+			$padB = isset($_POST['wpupadbtm']) ? $_POST['wpupadbtm'] : '';
+			$padL = isset($_POST['wpupadleft']) ? $_POST['wpupadleft'] : '';
+
+			if ( ($padT == '') && ($padR == '') && ($padB == '') && ($padL == '') ) {
+				$data['phpbbPadding'] = 'NOT_SET';
+			} else {
+				$data['phpbbPadding'] = (int)$padT . '-' . (int)$padR . '-' . (int)$padB . '-' . (int)$padL;
+			}
+			
+			$data['dtdSwitch'] =(isset($_POST['wpudtd'])) ? 1 : 0;
+			
+		} else {
+			$data = array_merge($data, array(
+				'showHdrFtr' 			=> 'NONE',
+				'cssMagic' 				=> 0,
+				'templateVoodoo' 	=> 0,
+				'wpSimpleHdr' 		=> 1,
+				'wppageName' 		=> 'page.php',
+				'phpbbPadding' 		=>  '6-12-6-12',
+				'dtdSwitch' 				=> 0
+			));
+		}
 		
-		// ]]>
-		</script>
-	 <?php
-	 if($type=='setup') {
-		 wpu_show_setup_menu();
-	} else {
-		wpu_show_settings_menu();
+		/**
+		 * Process 'behaviour' settings
+		 */
+		$data = array_merge($data, array(
+			'phpbbCensor' 	=> (isset($_POST['phpbbCensor'])) ? 1 : 0,
+			'phpbbSmilies' 	=> (isset($_POST['phpbbSmilies'])) ? 1 : 0,
+			'mustLogin' 		=> (isset($_POST['mustLogin'])) ? 1 : 0
+		));
+		
 	}
+	
+		$data = array_merge($data, array(
+			'wpUri' => add_trailing_slash(get_option('home')),
+			'wpPath' => ABSPATH,
+			'wpPluginPath' => ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/',
+			'wpPluginUrl' => $wpuUrl,
+			'enabled' => true
+		));
+	
+
+	update_option('wpu-settings', $data);
 	
 }
 
@@ -791,7 +793,7 @@ function wpu_get_settings() {
 	'wpSimpleHdr' => 1,
 	'dtdSwitch' => 0,
 	//'installLevel' => 0,
-	//'usersOwnBlogs' => 0,
+	'usersOwnBlogs' => 0,
 	//'buttonsProfile' => 0,
 	//'buttonsPost' => 0,
 	//'allowStyleSwitch' => 0,
@@ -827,39 +829,11 @@ function wpu_get_settings() {
 	
 }
 
-function wpu_process_setup() {
-	global $wpuPath;
-	$data = wpu_get_settings();
-	
-	if(!isset($_POST['wpu-path'])) {
-		wpu_panel_error('setup', 'ERROR: You must specify a valid path for phpBB\'s config.php');
-		return;
-	}
-	$wpuPhpbbPath = (string)$_POST['wpu-path'];
-	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
-	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
-	if(!file_exists($wpuPath))  {
-		wpu_panel_error('setup', 'ERROR: The path you selected for phpBB\'s config.php is not valid');
-		return;
-	}
-	if(!file_exists($wpuPhpbbPath . 'config.php'))  {
-		wpu_panel_error('setup', 'ERROR: phpBB\'s config.php could not be found at the location you chose');
-		return;
-	}
-		
-	$data['phpbb_path'] = $wpuPhpbbPath;
-	
-	wpu_show_setup_menu();
-	
-}
-
-
-
 function wpu_panel_error($type, $text) {
 	
-	echo '<div id="message class="error"><p>' . $text . '</p></div>';
+	echo '<div id="message" class="error"><p>' . $text . '</p></div>';
 	if($type=='settings') {
-		wpu_show_settings_menu();
+		wpu_settings_page();
 	} else {
 		wpu_show_setup_menu();
 	}
@@ -872,7 +846,7 @@ function wpu_show_advanced_options() {
 	global $phpbbForum; 
 	?>
 
-		<form name="wpu-advoptions" id="wpuoptions" action="plugins.php?page=wp-united-advanced" method="post">
+		<form name="wpu-advoptions" id="wpuoptions" action="admin.php?page=wp-united-advanced" method="post">
 		
 		_EDITOR_HERE_
 		

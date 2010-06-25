@@ -84,8 +84,20 @@ class WPU_Phpbb {
 		
 		$this->_make_phpbb_env();
 		
-		
+		if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
+			wpu_disable_connection();
+		}
 		require_once($phpbb_root_path . 'common.' . $phpEx);
+		
+		if(!isset($user)) {
+			wpu_disable_connection();
+		}
+		
+		if(!is_object($user)) {
+			wpu_disable_connection();
+		}
+		
+		
 		
 		$this->_calculate_url();
 		
