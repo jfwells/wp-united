@@ -48,26 +48,43 @@ function wpu_init_plugin() {
 		require_once($wpuPath . 'settings-panel.php');
 	}
 	
+	// the settings page has detected an error and asked to abort
+	if(isset($_POST['wpudisable'])) {
+		if(check_ajax_referer( 'wp-united-disable')) {
+			wpu_disable_connection('server-error'); 
+		}
+	}	
+	
+	// the user wants to manually disable
+	if(isset($_POST['wpudisableman'])) {
+		if(check_ajax_referer( 'wp-united-disable')) {
+			wpu_disable_connection('manual');
+		}
+	}		
+	
+	
 	if(isset($_POST['wpusettings-transmit'])) {
 		if(check_ajax_referer( 'wp-united-transmit')) {
 			wpu_process_settings();
+			$wpSettings = get_option('wpu-settings');
 		}
 	}	
 	
 	
 	
 	$wpSettings['status'] = 0;
-	if(file_exists($wpSettings['phpbb_path'])) {
-		$wpSettings['status'] = 1;
-	}
 	
+
 	require_once($wpuPath .  'phpbb.php');
 	$phpbbForum = new WPU_Phpbb();
-	
+
 	if(isset($wpSettings['phpbb_path']) && isset($wpSettings['enabled'])) {
 		
-		if($wpSettings['enabled'] == true) {
+		if(file_exists($wpSettings['phpbb_path']) && $wpSettings['enabled'] !=  'disabled') {
+			$wpSettings['status'] = 1;
+		}
 		
+		if($wpSettings['enabled'] == 'enabled') {
 			if ( !defined('IN_PHPBB') ) {
 				$phpbb_root_path = $wpSettings['phpbb_path'];
 				$phpEx = substr(strrchr(__FILE__, '.'), 1);
@@ -93,9 +110,9 @@ function wpu_init_plugin() {
 			require_once($wpuPath . 'widgets.php');
 			require_once($wpuPath . 'widgets2.php');
 			require_once($wpuPath . 'template-tags.php');
-				
-			add_action('widgets_init', 'wpu_widgets_init_old');	
-			add_action('widgets_init', 'wpu_widgets_init');	
+			
+			add_action('widgets_init', 'wpu_widgets_init_old');
+			add_action('widgets_init', 'wpu_widgets_init');
 
 			if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
 				global $user_ID;
@@ -153,17 +170,31 @@ function wpu_init_plugin() {
 	
 }
 
-function wpu_disable_connection() {
+function wpu_disable_connection($type) {
 	global $wpSettings;
-	$wpSettings['enabled'] = false;
+	
+
+	$wpSettings['enabled'] = ($type == 'manual') ? 'disabled' : 'errored';
+
 	update_option('wpu-settings', $wpSettings);
-	if($wpSettings['status'] == 0) {
-		die(__('WP-United could not find phpBB at the selected path. WP-United has been disconnected.'));
-	} elseif($wpSettings['status'] == 1) {
-		die(__('WP-United could successfully run phpBB at the selected path. WP-United has been disconnected.'));
-	} else {
-		die(__('WP-United could successfully run phpBB without errors. WP-United has been disconnected.'));
+	
+	if($type == 'error') {
+				
+		if($wpSettings['status'] == 0) {
+			die('[ERROR]' . __('WP-United could not find phpBB at the selected path. WP-United is not connected.'));
+		} elseif($wpSettings['status'] == 1) {
+			die('[ERROR]' . __('WP-United could not successfully run phpBB at the selected path. WP-United is halted.'));
+		} else {
+			die('[ERROR]' . __('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.'));
+		}
+	} elseif($type=='server-error') {
+		die('OK');
+	} elseif($type=='manual') {
+		die(__('WP-United Disabled Successfully'));
 	}
+	
+	_e('WP-United Disabled');
+	return;
 }
 
 /**

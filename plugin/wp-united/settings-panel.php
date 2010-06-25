@@ -1,7 +1,7 @@
 <?php
 /** 
 *
-* WP-United Plugin Fixer
+* WP-United Settings Panels
 *
 * @package WP-United
 * @version $Id: v0.9.0RC3 2010/07/01 John Wells (Jhong) Exp $
@@ -14,10 +14,19 @@
 */
 
 /**
- * Add menu option for WP-United Settings panel
+ * Add menu options for WP-United Settings panel
  */
 function wpu_settings_menu() {  
-	global $wpuUrl, $phpbbForum;
+	global $wpuUrl, $wpSettings;
+	
+	if (!current_user_can('manage_options'))  {
+		return;
+	}
+	
+	if (!function_exists('add_submenu_page')) {
+		return;
+	}	
+	
 	if(isset($_POST['wpusettings-transmit'])) {
 		if(check_ajax_referer( 'wp-united-transmit')) {
 			wpu_transmit_settings();
@@ -25,67 +34,40 @@ function wpu_settings_menu() {
 		}
 	}	
 
-	wpu_settings_css();
-	if ( function_exists('add_submenu_page') ) {
-		
-		if(isset($_GET['page'])) {
-			if( ($_GET['page'] == 'wp-united-settings') || ($_GET['page'] == 'wp-united-setup') ) {
-				wp_deregister_script( 'jquery' );
-				wp_deregister_script( 'jquery-ui-core' );				
-				
-				wp_enqueue_script('jquery', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, true);
-				wp_enqueue_script('jquery-ui', $wpuUrl . 'js/jqueryui-wpu-min.js', array(), false, true);
-				wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array(), false, true);				
-			}
-		}	
-		
-		if (function_exists('add_submenu_page')) {
-			if (current_user_can('manage_options'))  {
-		
-				$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpuUrl . 'images/tiny.gif', 2 );
-				add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
-				// if setup OK
-				add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
-					// if integrated logins
-					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu-user-mapper', 'wpu_user_mapper');
-				add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
-			} 
-		}
-
-		
-	}
-}
-
-/**
- * Enqueue page CSS associated with WP-United settings panel
- */
-function wpu_settings_css() {
-	global $wpuUrl;
 	wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
-}
-
-
-/**
- * Decide whether to show the setup panel, or process inbound settings
- */
-function wpu_setup_menu() { 
-	?>
-		<div class="wrap" id="wp-united-setup">
-		<?php screen_icon('options-general'); ?>
-		<h2> <?php _e('WP-United Setup / Status<br />[UNDER CONSTRUCTION - USE SETTINGS PAGE FOR NOW]'); ?> </h2>
-		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.') ?></p>
-	<?php
-	if(isset($_POST['wpusetup-submit'])) {
-		// process form
-		if(check_admin_referer( 'wp-united-setup')) {
-			wpu_process_settings('setup'); 
+		
+	if(isset($_GET['page'])) {
+		if( ($_GET['page'] == 'wp-united-settings') || ($_GET['page'] == 'wp-united-setup') ) {
+			wp_deregister_script( 'jquery' );
+			wp_deregister_script( 'jquery-ui-core' );				
+			
+			wp_enqueue_script('jquery', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, true);
+			wp_enqueue_script('jquery-ui', $wpuUrl . 'js/jqueryui-wpu-min.js', array(), false, true);
+			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array(), false, true);				
 		}
-	} else {
-			wpu_show_setup_menu();
+	}	
+		
+	$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpuUrl . 'images/tiny.gif', 2 );
+	add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
+		
+		
+	$status = (isset($wpSettings['status'])) ? $wpSettings['status'] : 0;
+	
+	// only show other menu items if WP-United is set up
+	if($status == 2) {
+		add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
+
+			if(isset($wpSettings['integrateLogin'])) {
+				if($wpSettings['integrateLogin']) {
+					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu-user-mapper', 'wpu_user_mapper');
+				}
+			}
+		add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
 	}
-	?></div> <?php
+	
 }
+
 
 /**
  * Decide whether to show the advanced options, or save them
@@ -110,44 +92,76 @@ function wpu_advanced_options() {
 	?></div> <?php
 }
 
-function wpu_show_setup_menu() {
+function wpu_setup_menu() {
 	global $wpuUrl; 
 	$settings = wpu_get_settings();
+	
+	?>
+		<div class="wrap" id="wp-united-setup">
+		<?php screen_icon('options-general'); ?>
+		<h2> <?php _e('WP-United Setup / Status'); ?> </h2>
+		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.') ?></p>
+	
+	
+		<div id="wputransmit"><img src="<?php echo $wpuUrl ?>/images/wpuldg.gif" style="float: left;" />Contacting phpBB...</div>
+	
+	<?php
+	
+	$msg = '';
+	if(isset($_GET['msg'])) {
+		if($_GET['msg'] == 'fail') {
+			$msg = (string)stripslashes($_GET['msgerr']);
+		}
+	}
+				
 	$status = (isset($settings['status'])) ? $settings['status'] : 0;
+	
+	$buttonDisplay = 'display: block;';
 	
 	switch($status) {
 		case 2:
 			$statusText = __('OK');
 			$statusColour = "updated allok";
-			$statusDesc = sprintf(__('WP-United is connected and working. To disable the connection, %sclick here%s. or press &quot;Disable&quot;, below.'), '<a href=\"#\" onclick="return wpuDisableConnection();">', '</a>');
+			$statusDesc =  __('WP-United is connected and working.');
+			$buttonDisplay = 'display: none;';
 			break;
 		case 1:
 			$statusText = __('Connected, but not ready');
 			$statusColour = "updated highlight allok";
-			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, %7$sclick here%8$s to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>', '<a href="#">', '</a>');
+			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
 			break;
 		case 0:
 		default:
 			$statusText = __('Not Connected');
 			$statusColour = "error";
-			$statusDesc = _('WP-United is not connected yet. Select your forum location below and click &quot;Submit&quot;');
+			$statusDesc = _('WP-United is not connected yet. Select your forum location below and then click &quot;Connect&quot;') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.');
+			$buttonDisplay = (isset($settings['phpbb_path'])) ? 'display: block;' : 'display: none;';
 	}
+	
+	
 			
-	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . "</strong><br />$statusDesc</p></div>";
+	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . '</strong>';
+	if($status == 2) {
+		echo '<button style="float: right;margin-bottom: 6px;" class="button-secondary" onclick="return wpu_manual_disable(\'wp-united-setup\');">Disable</button>';
+	}
+	echo "<br /><br />$statusDesc";
+	if(!empty($msg)) {
+		echo '<br /><br /><strong>' . __('The server returned the following information:') . "</strong><br />$msg";
+	}
+	echo '</p></div>';
 		
 	?>
 	<h3><?php _e('phpBB Location') ?></h3>
-	<form name="wpu-setup" id="wpusetup" action="admin.php?page=wp-united-setup" method="post">
-		<?php wp_nonce_field('wp-united-setup'); ?>
+	<form name="wpu-setup" id="wpusetup" method="post" onsubmit="return wpu_transmit('wp-united-setup', this.id);">
+		<?php wp_nonce_field('wp-united-setup');  ?>
 		
-		<p>WP-United needs to know where your phpBB is installed on your server. <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
-		<div id="phpbbpath" style="height: 200px; border: 1px solid #ffffff; background-color: #bcbcbc; overflow-y: auto;">&nbsp;</div>
+		<p><?php _e('WP-United needs to know where phpBB is installed on your server.'); ?> <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
+		<div id="phpbbpath">&nbsp;</div>
 		<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;">Change Location &raquo;</a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();">Cancel Change</a></p>
 		<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
 	
 		<p class="submit">
-			<input type="submit" class="button-primary" value="<?php  _e('Submit') ?>" name="wpusetup-submit" />
-			<input type="submit" class="button-secondary" value="<?php  _e('Disable') ?>" name="wpusetup-submit" />
+			<input type="submit" style="<?php echo $buttonDisplay; ?>"; class="button-primary" value="<?php  _e('Connect') ?>" name="wpusetup-submit" id="wpusetup-submit" />
 		</p>
 	</form>
 		
@@ -159,13 +173,13 @@ function wpu_show_setup_menu() {
 				script: '<?php echo $wpuUrl . 'js/filetree.php'; ?>',
 				multiFolder: false,
 				loadMessage: "Loading..."
-			}, function(file) {
+			}, function(file) { 
 				var parts = file.split('/');
 				if ((parts.length) > 1) {
 					file = parts.pop();
 				}
 				if(file=='config.php') {
-					var pth = parts.join('/') + '/';
+					var pth = parts.join('/') + '/'; 
 					$("#phpbbpathshow").html(pth).css('color', 'green');
 					$("#wpupathfield").val(pth);
 					$('#phpbbpath').hide('slide');
@@ -173,19 +187,20 @@ function wpu_show_setup_menu() {
 					$('#txtselpath').hide();
 					$('#wpucancelchange').hide();
 					$('#phpbbpathchooser').show('slide');
+					$('#wpusetup-submit').show();
+					window.scrollTo(0,0);
 				}
 			});
 			
-		<?php if(isset($settings['phpbb_path'])) { ?>
+		<?php if(isset($settings['phpbb_path'])) { ?> 
 				$('#phpbbpath').hide();
+				$('#phpbbpathchooser').button();
 				$('#phpbbpathchooser').show();
 				$("#phpbbpathshow").html('<?php echo $settings['phpbb_path']; ?>').css('color', 'green');
 				$("#wpupathfield").val('<?php echo $settings['phpbb_path']; ?>');
 				$('#txtchangepath').show();
 				$('#txtselpath').hide();
-				
 		<?php } ?>
-			
 						
 		});
 		
@@ -195,6 +210,8 @@ function wpu_show_setup_menu() {
 			$('#txtchangepath').hide();
 			$('#txtselpath').show();
 			$('#wpucancelchange').show();
+			$('#wpucancelchange').button();
+			$('#wpusetup-submit').show();
 			return false;
 		}
 		
@@ -202,9 +219,59 @@ function wpu_show_setup_menu() {
 			$('#phpbbpath').hide('slide');
 			$('#phpbbpathchooser').show('slide');
 			$('#txtchangepath').show();
+			$('#txtchangepath').button();
 			$('#txtselpath').hide();
-			$('#wpucancelchange').hide();				
+			$('#wpucancelchange').hide();
+			$('#wpusetup-submit').hide();			
 			return false;
+		}
+		
+		var transmitMessage;
+		function wpu_transmit(type, formID) {
+			$('#wpustatus').hide();
+			window.scrollTo(0,0);
+			$('#wputransmit').show();
+			var formData;
+			
+			formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
+			$.post('admin.php?page='+type, formData, function(response) {
+				if(response=='OK') {
+					// the settings were applied
+					window.location = window.location.href + '&msg=success';
+					return;
+				}
+				
+				transmitMessage = response;
+				// there was an uncatchable error, send a disable request
+				if  (transmitMessage.indexOf('[ERROR]') == -1) {
+					var disable = 'wpudisable=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
+					$.post('admin.php?page='+type, disable, function(response) {
+						// the connection has been disabled, redirect
+						if(transmitMessage == '') {
+							transmitMessage = '<?php _e('Blank page received: check your error log.'); ?>';
+						}
+						window.location = 'admin.php?page='+type + '&msg=fail&msgerr=' + escape(transmitMessage);
+					});
+				} else {
+					// we caught the error, redirect
+					transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
+					window.location = 'admin.php?page='+type + '&msg=fail &msgerr=' + escape(transmitMessage);
+				}
+
+			});
+			return false;
+		}
+		
+		function wpu_manual_disable(type) {
+			
+			var disable = 'wpudisableman=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
+			$.post('admin.php?page='+type, disable, function(response) {
+				// the connection has been disabled, redirect
+				window.location = 'admin.php?page='+type;
+			});
+			
+			return false;
+			
 		}
 
 	// ]]>
@@ -233,20 +300,20 @@ function wpu_settings_page() {
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Settings'); ?> </h2>
 	
-			<div style="display: none; border: 1px solid #cccccc; border-left-width: 0; border-right-width: 0;padding: 6px; width: 100%; height: 120px; height: auto !important; max-height: 120px; overflow-y: auto;" id="wputransmit"><img src="<?php echo $wpuUrl ?>/images/wpuldg.gif" style="float: left;" />Transmitting settings to phpBB...</div>
+			<div id="wputransmit"><img src="<?php echo $wpuUrl ?>/images/wpuldg.gif" style="float: left;" />Transmitting settings to phpBB...</div>
 			
 			<?php
 				if(isset($_GET['msg'])) {
 					if($_GET['msg'] == 'success') {
 			?>
-						<div id="wpustatus" class="updated"><p><?php _e('Settings applied successfully.'); ?></p></div>
+			<div id="wpustatus" class="updated"><p><?php _e('Settings applied successfully.'); ?></p></div>
 			<?php
 				} elseif($_GET['msg'] == 'fail') {
 			?>
 					<div id="wpustatus" class="error">
 						<p><?php _e('An error occurred. The error details are below. Please check your settings or try disabling plugins.'); ?></p>
 						<div style="margin-bottom: 8px;" id="wpuerrordets">
-							<?php echo $_GET['msgerr']; ?>
+							<?php echo (string)stripslashes($_GET['msgerr']); ?>
 						</div>
 					</div>
 			<?php
@@ -270,9 +337,9 @@ function wpu_settings_page() {
 
 					<div id="wputab-basic">
 						<h3>Path to phpBB3</h3>
-						<p>WP-United needs to know where your phpBB is installed on your server. <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
-						<div id="phpbbpath" style="height: 200px; border: 1px solid #ffffff; background-color: #bcbcbc; overflow-y: auto;">&nbsp;</div>
-						<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;">Change Location &raquo;</a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();">Cancel Change</a></p>
+						<p>WP-United needs to know where phpBB is installed on your server. You can change the location on the &quot;Setup / Status&quot; page.</p>
+					
+						<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a href="admin.php?page=wp-united-setup">Change Location &raquo;</a></p>
 						<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
 						<h3>Forum Page</h3>
 						<p>Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum.</p>
@@ -433,36 +500,11 @@ function wpu_settings_page() {
 
 				$('#wputabs').tabs();	
 				
-				$('#phpbbpath').fileTree({ 
-					root: '/',
-					script: '<?php echo $wpuUrl . '/js/filetree.php'; ?>',
-					multiFolder: false,
-					loadMessage: "Loading..."
-				}, function(file) {
-					var parts = file.split('/');
-					if ((parts.length) > 1) {
-						file = parts.pop();
-					}
-					if(file=='config.php') {
-						var pth = parts.join('/') + '/';
-						$("#phpbbpathshow").html(pth).css('color', 'green');
-						$("#wpupathfield").val(pth);
-						$('#phpbbpath').hide('slide');
-						$('#txtchangepath').show();
-						$('#txtselpath').hide();
-						$('#wpucancelchange').hide();
-						$('#phpbbpathchooser').show('slide');
-					}
-				});
-				
+	
 			<?php if(isset($settings['phpbb_path'])) { ?>
-					$('#phpbbpath').hide();
-					$('#phpbbpathchooser').show();
 					$("#phpbbpathshow").html('<?php echo $settings['phpbb_path']; ?>').css('color', 'green');
 					$("#wpupathfield").val('<?php echo $settings['phpbb_path']; ?>');
-					$('#txtchangepath').show();
-					$('#txtselpath').hide();
-					
+										
 			<?php } ?>
 				
 
@@ -476,6 +518,8 @@ function wpu_settings_page() {
 				$('#wpuxpost').change(function() {
 						$('#wpusettingsxpostxtra').toggle("slide", "slow");
 				});
+				
+				$('#txtchangepath').button();
 
 				<?php 
 					$cssmVal = 0;
@@ -510,24 +554,6 @@ function wpu_settings_page() {
 							
 			});
 			
-			function wpuChangePath() {
-				$('#phpbbpath').show('slide');
-				$('#phpbbpathchooser').hide('slide');
-				$('#txtchangepath').hide();
-				$('#txtselpath').show();
-				$('#wpucancelchange').show();
-				return false;
-			}
-			
-			function wpuCancelChange() {
-				$('#phpbbpath').hide('slide');
-				$('#phpbbpathchooser').show('slide');
-				$('#txtchangepath').show();
-				$('#txtselpath').hide();
-				$('#wpucancelchange').hide();				
-				return false;
-			}
-			
 			function setCSSMLevel(level) {
 				var lvl, desc;
 				if(level == 0) {
@@ -553,23 +579,41 @@ function wpu_settings_page() {
 				return false;
 			}
 			
-			function wpu_transmit(type, formID) {
-				$('#wpustatus').hide();
-				window.scrollTo(0,0);
-				$('#wputransmit').show();
-				var formData;
+		var transmitMessage;
+		function wpu_transmit(type, formID) {
+			$('#wpustatus').hide();
+			window.scrollTo(0,0);
+			$('#wputransmit').show();
+			var formData;
+			
+			formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
+			$.post('admin.php?page='+type, formData, function(response) {
+				if(response=='OK') {
+					// the settings were applied
+					window.location = window.location.href + '&msg=success';
+					return;
+				}
 				
-				formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
-				$.post('admin.php?page='+type, formData, function(response) {
-					if(response=='OK') {
-						window.location = window.location.href + '&msg=success';
-					} else { 
-						var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
-						window.location = window.location.href + '&msg=fail&wpudiable=1&disableNonce=' + disableNonce + '&msgerr=' + escape(response);
-					}
-				});
-				return false;
-			}
+				transmitMessage = response;
+				// there was an uncatchable error, send a disable request
+				if  (transmitMessage.indexOf('[ERROR]') == -1) {
+					var disable = 'wpudisable=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
+					$.post('admin.php?page='+type, disable, function(response) {
+						// the connection has been disabled, redirect
+						if(transmitMessage == '') {
+							transmitMessage = '<?php _e('Blank page received: check your error log.'); ?>';
+						}
+						window.location = 'admin.php?page='+type + '&msg=fail&msgerr=' + escape(transmitMessage);
+					});
+				} else {
+					// we caught the error, redirect
+					transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
+					window.location = 'admin.php?page='+type + '&msg=fail &msgerr=' + escape(transmitMessage);
+				}
+
+			});
+			return false;
+		}
 		
 		// ]]>
 		</script>
@@ -596,24 +640,24 @@ function wpu_process_settings() {
 	 * First process path to phpBB
 	 */
 	if(!isset($_POST['wpu-path'])) {
-		die('ERROR: You must specify a valid path for phpBB\'s config.php');
+		die('[ERROR] ERROR: You must specify a valid path for phpBB\'s config.php');
 	}
 	$wpuPhpbbPath = (string)$_POST['wpu-path'];
 	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
 	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
 	if(!file_exists($wpuPath))  {
-		die('ERROR:The path you selected for phpBB\'s config.php is not valid');
+		die('[ERROR] ERROR:The path you selected for phpBB\'s config.php is not valid');
 		return;
 	}
 	if(!file_exists($wpuPhpbbPath . 'config.php'))  {
-		die('ERROR: phpBB\'s config.php could not be found at the location you chose');
+		die('[ERROR] ERROR: phpBB\'s config.php could not be found at the location you chose');
 		return;
 	}
 		
 	$data['phpbb_path'] = $wpuPhpbbPath;
 	
 	if($type=='setup') {
-		$data = array_merge($wpSettings, $data);
+		$data = array_merge((array)$wpSettings, $data);
 	}
 	
 	if($type == 'settings') {
@@ -754,7 +798,7 @@ function wpu_process_settings() {
 			'wpPath' => ABSPATH,
 			'wpPluginPath' => ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/',
 			'wpPluginUrl' => $wpuUrl,
-			'enabled' => true
+			'enabled' => 'enabled'
 		));
 	
 
@@ -781,7 +825,7 @@ function wpu_transmit_settings() {
  */
 function wpu_get_settings() {
 	global $wpSettings;
-	$settings = get_option('wpu-settings');
+	$settings = (array)get_option('wpu-settings');
 	
 	$defaults = array(
 	'status' => 0,

@@ -85,16 +85,16 @@ class WPU_Phpbb {
 		$this->_make_phpbb_env();
 		
 		if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
-			wpu_disable_connection();
+			wpu_disable_connection('error');
 		}
 		require_once($phpbb_root_path . 'common.' . $phpEx);
 		
 		if(!isset($user)) {
-			wpu_disable_connection();
+			wpu_disable_connection('error');
 		}
 		
 		if(!is_object($user)) {
-			wpu_disable_connection();
+			wpu_disable_connection('error');
 		}
 		
 		
