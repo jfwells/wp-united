@@ -42,7 +42,7 @@ function wpu_settings_menu() {
 		if (function_exists('add_submenu_page')) {
 			if (current_user_can('manage_options'))  {
 		
-				$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpuUrl . 'images/tiny.gif' );
+				$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpuUrl . 'images/tiny.gif', 2 );
 				add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
 				// if setup OK
 				add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
@@ -133,7 +133,7 @@ function wpu_show_setup_menu() {
 			$statusDesc = _('WP-United is not connected yet. Select your forum location below and click &quot;Submit&quot;');
 	}
 			
-	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p></p><strong>" . sprintf(__('Current Status: %s'), $statusText) . "</strong><br />$statusDesc</p></div>";
+	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . "</strong><br />$statusDesc</p></div>";
 		
 	?>
 	<h3><?php _e('phpBB Location') ?></h3>
@@ -328,7 +328,7 @@ function wpu_settings_page() {
 							<div style="padding: 0 100px;">
 								<p style="height: 11px;"><span style="float: left;">Off</span><span style="float: right;">Maximum Compatibility (Recommended)</span></p>
 								<div id="wpucssmlvl"></div>
-								<div style="background-color: #343434;" id="cssmdesc"><p><strong>Current Level: <span id="cssmlvltitle">xxx</span></strong><br /></p><p id="cssmlvldesc">xxx</p></div>
+								<div id="cssmdesc"><p><strong>Current Level: <span id="cssmlvltitle">xxx</span></strong><br /></p><p id="cssmlvldesc">xxx</p></div>
 							</div>
 							<input type="hidden" id="wpucssmlvlfield" name="wpucssmlevel" value="notset"></input>
 							<p><a href="#" onclick="return tplAdv();">Advanced Settings <span id="wutpladvshow">+</span><span id="wutpladvhide" style="display: none;">-</span></a></p>
@@ -431,9 +431,8 @@ function wpu_settings_page() {
 		// <![CDATA[
 			jQuery(document).ready(function($) { 
 
-				$('#wputabs').tabs();				
+				$('#wputabs').tabs();	
 				
-			
 				$('#phpbbpath').fileTree({ 
 					root: '/',
 					script: '<?php echo $wpuUrl . '/js/filetree.php'; ?>',
@@ -466,10 +465,10 @@ function wpu_settings_page() {
 					
 			<?php } ?>
 				
-				
-				if($('#wpuxpost')[0].value) $('#wpusettingsxpostxtra').show();
-				if($('#wpuloginint')[0].value) $('#wpusettingsxpost').show();
-				if($('#wputplint')[0].value) $('#wpusettingstpl').show();
+
+				if($('#wpuxpost').is(':checked')) $('#wpusettingsxpostxtra').show();
+				if($('#wpuloginint').is(':checked')) $('#wpusettingsxpost').show();
+				if($('#wputplint').is(':checked')) $('#wpusettingstpl').show();
 				
 				$('#wpuloginint').change(function() {
 						$('#wpusettingsxpost').toggle("slide", "slow");
@@ -477,7 +476,7 @@ function wpu_settings_page() {
 				$('#wpuxpost').change(function() {
 						$('#wpusettingsxpostxtra').toggle("slide", "slow");
 				});
-				
+
 				<?php 
 					$cssmVal = 0;
 					if(!empty($settings['cssMagic'])){
@@ -548,7 +547,6 @@ function wpu_settings_page() {
 			}
 			
 			function tplAdv() {
-				//var type = ($('#xxxx')[0].value) ? 'W' : 'P';
 				$('#wpusettingstpladv').toggle('slide');
 				$('#wutpladvshow').toggle()
 				$('#wutpladvhide').toggle();
@@ -557,6 +555,7 @@ function wpu_settings_page() {
 			
 			function wpu_transmit(type, formID) {
 				$('#wpustatus').hide();
+				window.scrollTo(0,0);
 				$('#wputransmit').show();
 				var formData;
 				

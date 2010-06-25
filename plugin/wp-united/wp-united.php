@@ -3,14 +3,11 @@
 /*
 Plugin Name: WP-United
 Plugin URI: http://www.wp-united.com
-Description: This is the "WP-United Connection" -- it handles the connection with phpBB from the WordPress side.
+Description: WP-United connects to your phpBB forum and integrates user sign-on, behaviour and theming. Once your forum is up and running, you should not disable this plugin.
 Author: John Wells
 Version: v0.9.0 RC3 
 Last Updated: 6 February 2010
 Author URI: http://www.wp-united.com
-* 
-* If you are reading this from the WordPress plugin editor, please note that this file is only a small
-* part of WP-United. Most of the core files are under your <phpBB forum directory> /wp-united.
 * 
 */
 
@@ -236,22 +233,6 @@ function wpu_check_for_action() {
 function wpu_put_powered_text() {
 	global $wp_version, $wpSettings, $phpbbForum;
 	echo '<p  id="poweredby">' . sprintf($phpbbForum->lang['wpu_dash_copy'], '<a href="http://www.wp-united.com">', '</a>') . '</p>';
-
-	if ( current_user_can('publish_posts') ) {	
-		if ( $wpSettings['usersOwnBlogs'] ) {
-			if($wp_version < 2.5) {
-				echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . sprintf($phpbbForum->lang['wpu_write_blog_pre250'], '<strong>', '</strong>');
-			} else {
-				echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . sprintf($phpbbForum->lang['wpu_write_blog'], '<strong>', '</strong> &rarr; <strong>', '</strong>');
-			}
-			if ( $wpSettings['allowStyleSwitch'] ) {	
-				echo '<br />' . sprintf($phpbbForum->lang['wpu_blog_intro_appearance'], '<strong>', '</strong>'); 
-			}
-			echo '</p>';
-		} else {
-			echo '<p  id="welcome1">' . $phpbbForum->lang['wpu_welcome'] . '</p>';
-		}
-	}
 }
 
 
@@ -261,16 +242,8 @@ function wpu_put_powered_text() {
  * @todo enqueue from stylesheet once we have proper url
  */
 function wpu_css() {
-	global $wpSettings, $wp_version;
-
-	$top = ( $wpSettings['usersOwnBlogs'] && $wpSettings['allowStyleSwitch'] ) ? "0.3" : "1";
-		
-	if ($wp_version >= 2.5) {
-		echo '
+	echo '
 			<style type="text/css">
-			#user_info {
-			/*	display: none !important;*/
-			}
 			#poweredby {
 				text-align: center;
 				font-style: italic;
@@ -285,39 +258,9 @@ function wpu_css() {
 				color: #ccc; 
 				text-decoration: none;
 			}
-			#welcome1 {
-				position: relative; /* ie6 bug */
-				position: absolute;
-				top: ' . $top . 'em;
-				margin: 4px 380px 0 0;
-				padding: 0;
-				right: 1em;
-				color: #f1f1f1;
-			}
 			</style>
-			';
-	} else {
-		echo '
-			<style type="text/css">
-			#user_info {
-				/*display: none !important;*/
-			}
-			#poweredby {
-				text-align: center;
-				font-weight: bold;
-			}
-			#welcome1 {
-				position: absolute;
-				top: ' . $top . 'em;
-				margin: 0;
-				padding: 0;
-				right: 1em;
-				color: #f1f1f1;
-			}
-			</style>
-			';	
+		';
 	}
-}
 
 /**
  * Initialises the dashboard options

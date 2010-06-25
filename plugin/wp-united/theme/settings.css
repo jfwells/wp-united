@@ -487,3 +487,22 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 ----------------------------------*/
 .ui-progressbar { height:2em; text-align: left; }
 .ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; }
+
+div.subsettings {
+	background-color: #eeeeee;
+	padding: 3px 8px 8px 8px;
+	margin: 30px 0 6px 20px;
+	border: 1px solid #cccccc;
+	display: none;
+}
+
+div.subsettings div.subsettings {
+	background-color: #dddddd;
+}
+
+#cssmdesc {
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	padding: 3px;
+	
+}
