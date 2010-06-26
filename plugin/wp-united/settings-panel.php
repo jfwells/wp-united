@@ -241,6 +241,7 @@ function wpu_setup_menu() {
 				disabled: true,
 				closeOnEscape: false,
 				resizable: false,
+				show: 'puff'
 			});
 			$('.ui-dialog-titlebar').hide();
 			var formData;
@@ -284,6 +285,7 @@ function wpu_setup_menu() {
 				disabled: true,
 				closeOnEscape: false,
 				resizable: false,
+				show: 'puff'
 			});
 			$('.ui-dialog-titlebar').hide();
 			var disable = 'wpudisableman=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
@@ -662,6 +664,7 @@ function wpu_settings_page() {
 				disabled: true,
 				closeOnEscape: false,
 				resizable: false,
+				show: 'puff'
 			});
 			$('.ui-dialog-titlebar').hide();
 			var formData;
