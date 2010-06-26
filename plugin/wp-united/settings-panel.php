@@ -28,7 +28,7 @@ function wpu_settings_menu() {
 	}	
 	
 	if(isset($_POST['wpusettings-transmit'])) {
-		if(check_ajax_referer( 'wp-united-transmit')) {
+		if(check_ajax_referer( 'wp-united-transmit')) {			
 			wpu_transmit_settings();
 			die();
 		}
@@ -384,8 +384,10 @@ function wpu_settings_page() {
 						<div id="wpusettingstpl" class="subsettings">
 							<h4>Integration Mode</h4>
 							<p>Do you want WordPress to appear inside your phpBB template, or phpBB to appear inside your WordPress template?</p>
-							<input type="radio" name="rad_tpl" value="fwd" id="wputplfwd" <?php if($settings['integrateLogin'] == 'FWD') { ?>checked="checked" <?php } ?>  /><label for="wputplfwd">WordPress inside phpBB</label>
-							<input type="radio" name="rad_tpl" value="rev" id="wputplrev"  <?php if($settings['integrateLogin'] != 'FWD') { ?>checked="checked" <?php } ?> /><label for="wputplrev">phpBB inside WordPress</label>
+							
+							<input type="radio" name="rad_tpl" value="rev" id="wputplrev"  <?php if($settings['showHdrFtr'] != 'FWD') { ?>checked="checked" <?php } ?> /><label for="wputplrev">phpBB inside WordPress</label>
+							<input type="radio" name="rad_tpl" value="fwd" id="wputplfwd" <?php if($settings['showHdrFtr'] == 'FWD') { ?>checked="checked" <?php } ?>  /><label for="wputplfwd">WordPress inside phpBB</label>
+							
 						
 							<h4>Automatic CSS Integration</h4>
 							
@@ -651,8 +653,10 @@ function wpu_process_settings() {
 	global $wpuUrl, $wpuPath, $wpSettings;
 	
 	$type = 'setup';
-	if(isset($_GET['wp-united-settings'])) {
-		$type = 'settings';
+	if(isset($_GET['page'])) {
+		if($_GET['page'] == 'wp-united-settings') {
+			$type = 'settings';
+		}
 	}
 	
 	$data = array();
@@ -674,13 +678,12 @@ function wpu_process_settings() {
 		die('[ERROR] ERROR: phpBB\'s config.php could not be found at the location you chose');
 		return;
 	}
-		
-	$data['phpbb_path'] = $wpuPhpbbPath;
-	
 	if($type=='setup') {
-		$data = array_merge((array)$wpSettings, $data);
+		$data['phpbb_path'] = $wpuPhpbbPath;
 	}
 	
+	$data = array_merge((array)$wpSettings, $data);
+
 	if($type == 'settings') {
 		/**
 		 * Process 'use forum page'
