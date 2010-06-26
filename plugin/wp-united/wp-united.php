@@ -79,7 +79,7 @@ function wpu_init_plugin() {
 	$phpbbForum = new WPU_Phpbb();
 
 	if(isset($wpSettings['phpbb_path']) && isset($wpSettings['enabled'])) {
-		
+
 		if(file_exists($wpSettings['phpbb_path']) && $wpSettings['enabled'] !=  'disabled') {
 			$wpSettings['status'] = 1;
 		}
@@ -132,7 +132,7 @@ function wpu_init_plugin() {
 			
 			// enqueue any JS we need
 			if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
-				wp_enqueue_script('wp-united', $phpbbForum->url . 'wp-united/js/wpu-min.js', array(), false, true);
+				wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 			}
 			
 
@@ -299,22 +299,19 @@ function wpu_css() {
  * @todo neaten wp 2.7/2.8+
  */
 function wpu_adminmenu_init() {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum;
+	global $wpSettings, $phpbbForum;
 	
 	//Check for action
 	if ( isset($_GET['wpu_action']) ) {
 		wpu_check_for_action();
 		exit();
 	}
-	global $menu, $wp_version;
 	
 	if (!empty($wpSettings['integrateLogin'])) {
 		if (function_exists('add_submenu_page')) {
 			if (current_user_can('publish_posts'))  {
-				//	WP 2.7+ only
-			
 				if (!empty($wpSettings['usersOwnBlogs']) ) {
-					$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wp-united', 'wpu_menuSettings', $phpbbForum->url . 'wp-united/images/tiny.gif' );
+					$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wp-united', 'wpu_menuSettings', $wpSettings['wpPluginUrl'] . 'images/tiny.gif' );
 					
 					add_submenu_page('wp-united', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', 'wp-united' , 'wpu_menuSettings');						
 					if ( !empty($wpSettings['allowStyleSwitch']) ) {
@@ -1406,14 +1403,14 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
       // use default WordPress or WP-United image
       if(!$image = avatar_create_image($user)) { 
          if(stripos($avatar, 'blank.gif') !== false) {
-            $image = $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
+            $image = $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
          } else {
             return $avatar;
          }
       } 
    } else {
       if(stripos($avatar, 'blank.gif') !== false) {
-          $image = $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
+          $image = $wpSettings['wpPluginUrl'] . 'images/wpu_unregistered.gif';
        } else {
          return $avatar;
       }

@@ -224,7 +224,7 @@ function avatar_commenter($default = true, $id = '') {
  * @author John Wells
  */
 function get_avatar_commenter($default=TRUE, $id = '') {
-global $comment, $images, $phpbbForum;
+global $comment, $images, $wpSettings;
 
 	if ( empty($id) ) {
 		if ( !empty($comment) ) {
@@ -232,7 +232,7 @@ global $comment, $images, $phpbbForum;
 		} 
 		if ( empty($id) ) {
 			if ( $default ) {
-				return $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
+				return $wpSettings['wpPluginUrl'] . 'images/wpu_unregistered.gif';
 			}
 			return '';
 		}
@@ -244,7 +244,7 @@ global $comment, $images, $phpbbForum;
 		return $image;
 	} 
 	if ( $default ) {
-		return $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
+		return $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -272,7 +272,7 @@ function get_avatar_poster($default = true) {
 		return $image;
 	} 
 	if ( $default ) {
-		return $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
+		return $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -295,7 +295,7 @@ function avatar_reader($default = true) {
  * @author John Wells
  */
 function get_avatar_reader($default = true) {
-	global $images, $phpbbForum, $userdata, $user_ID;
+	global $images, $wpSettings, $userdata, $user_ID;
 	get_currentuserinfo();
 	$image = false;
 	if ( !empty($user_ID) ) {
@@ -305,11 +305,11 @@ function get_avatar_reader($default = true) {
 		return $image;
 	} elseif ( $image === false ) {
 		if ( $default ) {
-			return $phpbbForum->url . 'wp-united/images/wpu_unregistered.gif';
+			return  $wpSettings['wpPluginUrl'] . 'images/wpu_unregistered.gif';
 		}
 	}
 	if ( $default ) {
-		return $phpbbForum->url . 'wp-united/images/wpu_no_avatar.gif';
+		return  $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
