@@ -93,7 +93,7 @@ function wpu_advanced_options() {
 }
 
 function wpu_setup_menu() {
-	global $wpuUrl; 
+	global $wpuUrl, $wpuPath; 
 	$settings = wpu_get_settings();
 	
 	?>
@@ -138,6 +138,9 @@ function wpu_setup_menu() {
 			$buttonDisplay = (isset($settings['phpbb_path'])) ? 'display: block;' : 'display: none;';
 	}
 	
+	if(!is_writable($wpuPath . 'cache/')) {
+		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpuPath . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
+	}
 	
 			
 	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . '</strong>';

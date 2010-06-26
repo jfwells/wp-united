@@ -50,7 +50,7 @@ class WPU_Cache {
 		
 		$this->_useTemplateCache = 'UNKNOWN';
 		$this->_useCoreCache = 'UNKNOWN';
-		$this->baseCacheLoc = $phpbb_root_path . 'wp-united/cache/';
+		$this->baseCacheLoc = $wpSettings['wpPluginPath'] . 'cache/';
 		$this->themePath = $wpSettings['wpPath'] . 'wp-content/themes/';
 		$this->wpVersionLoc = $wpSettings['wpPluginPath'] . "version.$phpEx";
 		$this->fullPage =  !(bool)$wpSettings['wpSimpleHdr'];
