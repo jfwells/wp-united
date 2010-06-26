@@ -250,7 +250,7 @@ function wpu_widgets_init_old() {
 	 */
 	
 	global $wpSettings, $phpbbForum;
-	
+	//print_r($phpbbForum->lang);
 
 	register_sidebar_widget(array($phpbbForum->lang['wpu_stats_desc'], 'widgets'), 'widget_wpustats');
 	register_sidebar_widget(array($phpbbForum->lang['wpu_online_desc'], 'widgets'), 'widget_wpuusersonline');

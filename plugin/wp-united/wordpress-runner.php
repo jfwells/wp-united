@@ -17,9 +17,9 @@ $amIGlobal = true;
 
 // Our Mod Settings should have been loaded by now. If not, either WP-United hasn't been set up, or something
 // is seriously screwed.
-if  ( $wpSettings == FALSE ) {
+if  ( empty($wpSettings) ) {
 	trigger_error($user->lang['WP_DBErr_Gen']);
-} elseif ( ($wpSettings['installLevel'] < 10) || ($wpSettings['wpUri'] == '') || ($wpSettings['wpPath'] == '') ) {
+} elseif ($wpSettings['wpPath'] == '') {
 	trigger_error($user->lang['WP_Not_Installed_Yet']);
 }
 

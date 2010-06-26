@@ -126,9 +126,9 @@ function wpu_setup_menu() {
 			$buttonDisplay = 'display: none;';
 			break;
 		case 1:
-			$statusText = __('Connected, but not ready');
+			$statusText = __('Connected, but not ready or disabled due to errors');
 			$statusColour = "updated highlight allok";
-			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
+			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
 			break;
 		case 0:
 		default:
@@ -252,12 +252,12 @@ function wpu_setup_menu() {
 						if(transmitMessage == '') {
 							transmitMessage = '<?php _e('Blank page received: check your error log.'); ?>';
 						}
-						window.location = 'admin.php?page='+type + '&msg=fail&msgerr=' + escape(transmitMessage);
+						window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + escape(transmitMessage);
 					});
 				} else {
-					// we caught the error, redirect
+					// we caught the error, redirect to setup page
 					transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
-					window.location = 'admin.php?page='+type + '&msg=fail &msgerr=' + escape(transmitMessage);
+					window.location = 'admin.php?page=wp-united-setup&msg=fail &msgerr=' + escape(transmitMessage);
 				}
 
 			});
@@ -406,19 +406,23 @@ function wpu_settings_page() {
 							
 							<div id="wpusettingstpladv" class="subsettings">
 								<h4>Advanced Settings</h4>
-								
 								<p><strong>Use full page?</strong>
 									<a class="wpuwhatis" href="#" title="Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try 'full page'. This option could be a little slower.">What is this?</a>
 								</p>
 								<select id="wpuhdrftrspl" name="wpuhdrftrspl">
-									<option value="0">-- Simple Header &amp; Footer (recommended) --</option>
+									
+									<option value="0"<?php if($settings['wpSimpleHdr'] == 1) { echo ' selected="selected" '; } ?>>-- Simple Header &amp; Footer (recommended) --</option>
 									<?php
 										$files = scandir(TEMPLATEPATH);
-										print_r($files); 
 										if(sizeof($files)) {
 											foreach($files as $file) {
-												if(stristr($file, '.php')) {
-													echo '<option value="' . $file . '">Full Page: ' . $file . '</option>';
+												// no stripos for ph4 compatibility
+												if(strpos(strtolower($file), '.php') == (strlen($file) - 4)) {
+													echo '<option value="' . $file . '"';
+													if( ($settings['wpPageName'] == $file) && ($settings['wpSimpleHdr'] == 0) ) {
+														echo ' selected="selected" ';
+													}
+													echo '>Full Page: ' . $file . '</option>';
 												}
 											}
 										}
@@ -629,12 +633,12 @@ function wpu_settings_page() {
 						if(transmitMessage == '') {
 							transmitMessage = '<?php _e('Blank page received: check your error log.'); ?>';
 						}
-						window.location = 'admin.php?page='+type + '&msg=fail&msgerr=' + escape(transmitMessage);
+						window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + escape(transmitMessage);
 					});
 				} else {
-					// we caught the error, redirect
+					// we caught the error, redirect to setup page
 					transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
-					window.location = 'admin.php?page='+type + '&msg=fail &msgerr=' + escape(transmitMessage);
+					window.location = 'admin.php?page=wp-united-setup&msg=fail &msgerr=' + escape(transmitMessage);
 				}
 
 			});
@@ -770,19 +774,12 @@ function wpu_process_settings() {
 			// set defaults
 			$data['wpSimpleHdr'] = 1;
 			$data['wpPageName'] = 'page.php';	
-			
-			if($simpleHeader != 0) {
-				$simpleHeader = (string)$_POST['wpuhdrftrspl'];
-				if(!empty($simpleHeader)) {
-					if (file_exists(add_trailing_slash(TEMPLATEPATH) . $simpleHeader))  {
-						$data['wpSimpleHdr'] = 0;
-						$data['wpPageName'] = $simpleHeader;
-					} else {
-						die('ERROR: You chose a full page template file that does not exist!');
-						return;
-					}
-				} 
-			}
+
+			if(!empty($simpleHeader)) {
+				// we would check for existence of the file, but TEMPLATEPATH isn't initialised here yet.
+				$data['wpSimpleHdr'] = 0;
+				$data['wpPageName'] = $simpleHeader;
+			} 
 			
 			$padT = isset($_POST['wpupadtop']) ? $_POST['wpupadtop'] : '';
 			$padR = isset($_POST['wpupadright']) ? $_POST['wpupadright'] : '';
@@ -819,15 +816,16 @@ function wpu_process_settings() {
 		));
 		
 	}
-	
-		$data = array_merge($data, array(
-			'wpUri' => add_trailing_slash(get_option('home')),
-			'wpPath' => ABSPATH,
-			'wpPluginPath' => ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/',
-			'wpPluginUrl' => $wpuUrl,
-			'enabled' => 'enabled'
-		));
-	
+
+	$data = array_merge($data, array(
+		'wpUri' => add_trailing_slash(get_option('home')),
+		'wpPath' => ABSPATH,
+		'wpPluginPath' => ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/',
+		'wpPluginUrl' => $wpuUrl,
+		'enabled' => 'enabled',
+		'status' => 2
+	));
+
 
 	update_option('wpu-settings', $data);
 	
