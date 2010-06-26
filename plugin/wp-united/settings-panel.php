@@ -33,11 +33,11 @@ function wpu_settings_menu() {
 			die();
 		}
 	}	
-
+	
 	wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
 		
-	if(isset($_GET['page'])) {
+	if(isset($_GET['page'])) { 
 		if( ($_GET['page'] == 'wp-united-settings') || ($_GET['page'] == 'wp-united-setup') ) {
 			wp_deregister_script( 'jquery' );
 			wp_deregister_script( 'jquery-ui-core' );				
@@ -45,6 +45,10 @@ function wpu_settings_menu() {
 			wp_enqueue_script('jquery', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, true);
 			wp_enqueue_script('jquery-ui', $wpuUrl . 'js/jqueryui-wpu-min.js', array(), false, true);
 			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array(), false, true);				
+		}
+		if( ($_GET['page'] == 'wp-united-settings') || ($_GET['page'] == 'wp-united-setup') || ($_GET['page'] == 'wpu-advanced-options') || ($_GET['page'] == 'wp-united-donate') ) {
+			wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
+			wp_enqueue_style('wpuSettingsStyles');
 		}
 	}	
 		
@@ -65,6 +69,8 @@ function wpu_settings_menu() {
 			}
 		add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
 	}
+	
+	add_submenu_page('wp-united-setup', 'Please Help Support WP-United!', 'Support WP-United', 'manage_options','wp-united-support', 'wpu_support');
 	
 }
 
@@ -90,6 +96,40 @@ function wpu_advanced_options() {
 			wpu_show_advanced_options();
 	}
 	?></div> <?php
+}
+
+function wpu_support() {
+	global $wpuUrl;
+	?>
+	<div class="wrap" id="wp-united-setup">
+		<img id="panellogo" src="<?php echo $wpuUrl ?>/images/settings/seclogo.jpg" />
+		<?php screen_icon('options-general'); ?>
+		<h2> <?php _e('Please Help Support WP-United'); ?> </h2>
+		<p><?php _e('WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!');  ?></p>
+		<p><?php _e('The PayPal link will take you to a donation page for our PayPal business account, \'Pet Pirates\'');  ?></p>
+		
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="hosted_button_id" value="GSBRNNH7REY8Y">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+		</form>
+
+			
+			
+		<h3><?php echo 'Other ways to support the WP-United project'; ?></h3>
+		<p><?php _e('If you cannot donate, please consider helping support the WP-United project in another way. For example, you culd help:');  ?></p>
+		<ul>
+			<li><?php _e('Contributing to the WP-United documentation');  ?></li>
+			<li><?php _e('Providing a translation');  ?></li>
+			<li><?php _e('Recommending WP-United or our paid installation services');  ?></li>
+			<li><?php _e('Link back to www.wp-united.com, or post about WP-United on your blog.');  ?></li>
+		</ul>
+		
+		<p><?php printf(__('For more information, please visit the %1$sWP-United forums%2$s.'), '<a href="http://www.wp-united.com/index.php">', '</a>'); ?></p>
+
+	</div>
+	
+	<?php
 }
 
 function wpu_setup_menu() {
@@ -710,7 +750,7 @@ function wpu_settings_page() {
  * Process settings
  */
 function wpu_process_settings() {
-	global $wpuUrl, $wpuPath, $wpSettings;
+	global $wpuUrl, $wpuPath, $wpSettings, $wpdb;
 	
 	$type = 'setup';
 	if(isset($_GET['page'])) {
@@ -750,7 +790,51 @@ function wpu_process_settings() {
 		 */
 		$data['useForumPage'] = isset($_POST['wpuforumpage']) ? 1 : 0;
 		
-		
+		$forum_page_ID = get_option('wpu_set_forum');
+		if ( !empty($data['useForumPage']) ) {
+			$content = '<!--wp-united-phpbb-forum-->';
+			$title = __('forum');
+			if ( !empty($forum_page_ID) ) {
+				$wpdb->query( 
+					"UPDATE IGNORE $wpdb->posts SET
+						post_author = '0',
+						post_date = '".current_time('mysql')."',
+						post_date_gmt = '".current_time('mysql',1)."',
+						post_content = '$content',
+						post_content_filtered = '',
+						post_title = '$title',
+						post_excerpt = '',
+						post_status = 'publish',
+						post_type = 'page',
+						comment_status = 'closed',
+						ping_status = 'closed',
+						post_password = '',
+						post_name = 'forum',
+						to_ping = '',
+						pinged = '',
+						post_modified = '".current_time('mysql')."',
+						post_modified_gmt = '".current_time('mysql',1)."',
+						post_parent = '0',
+						menu_order = '0'
+						WHERE ID = $forum_page_ID"
+				);
+			} else {
+				$wpdb->query(
+				"INSERT IGNORE INTO $wpdb->posts
+						(post_author, post_date, post_date_gmt, post_content, post_content_filtered, post_title, post_excerpt,  post_status, post_type, comment_status, ping_status, post_password, post_name, to_ping, pinged, post_modified, post_modified_gmt, post_parent, menu_order, post_mime_type)
+					VALUES
+						('0', '".current_time('mysql')."', '".current_time('mysql',1)."', '{$content}', '', '{$title}', '', 'publish', 'page', 'closed', 'closed', '', 'forum', '', '', '".current_time('mysql')."', '".current_time('mysql',1)."', '0', '0', '')"
+				);
+				$forum_page_ID = $wpdb->insert_id;		
+			}		
+			update_option('wpu_set_forum', $forum_page_ID);			
+				
+		} else {
+			if ( !empty($forum_page_ID) ) {
+				update_option('wpu_set_forum', '');
+				@wp_delete_post($forum_page_ID);
+			}					
+		}
 		
 		/** 
 		 * Process login integration settings
