@@ -793,7 +793,7 @@ function wpu_process_settings() {
 		$forum_page_ID = get_option('wpu_set_forum');
 		if ( !empty($data['useForumPage']) ) {
 			$content = '<!--wp-united-phpbb-forum-->';
-			$title = __('forum');
+			$title = __('Forum');
 			if ( !empty($forum_page_ID) ) {
 				$wpdb->query( 
 					"UPDATE IGNORE $wpdb->posts SET
