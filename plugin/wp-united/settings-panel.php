@@ -98,13 +98,13 @@ function wpu_setup_menu() {
 	
 	?>
 		<div class="wrap" id="wp-united-setup">
+		<img id="panellogo" src="<?php echo $wpuUrl ?>/images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Setup / Status'); ?> </h2>
 		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.') ?></p>
-	
-	
-		<div id="wputransmit"><img src="<?php echo $wpuUrl ?>/images/wpuldg.gif" style="float: left;" />Contacting phpBB...</div>
-	
+
+		<div id="wputransmit"><p><strong>Communicating with phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" /></div>
+
 	<?php
 	
 	$msg = '';
@@ -232,7 +232,17 @@ function wpu_setup_menu() {
 		function wpu_transmit(type, formID) {
 			$('#wpustatus').hide();
 			window.scrollTo(0,0);
-			$('#wputransmit').show();
+			$("#wputransmit").dialog({
+				modal: true,
+				title: 'Connecting...',
+				width: 360,
+				height: 160,
+				draggable: false,
+				disabled: true,
+				closeOnEscape: false,
+				resizable: false,
+			});
+			$('.ui-dialog-titlebar').hide();
 			var formData;
 			
 			formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
@@ -265,7 +275,17 @@ function wpu_setup_menu() {
 		}
 		
 		function wpu_manual_disable(type) {
-			
+			$("#wputransmit").dialog({
+				modal: true,
+				title: 'Connecting...',
+				width: 360,
+				height: 160,
+				draggable: false,
+				disabled: true,
+				closeOnEscape: false,
+				resizable: false,
+			});
+			$('.ui-dialog-titlebar').hide();
 			var disable = 'wpudisableman=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
 			$.post('admin.php?page='+type, disable, function(response) {
 				// the connection has been disabled, redirect
@@ -299,10 +319,11 @@ function wpu_settings_page() {
 	?>
 	
 	<div class="wrap" id="wp-united-settings">
+		<img id="panellogo" src="<?php echo $wpuUrl ?>/images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Settings'); ?> </h2>
 	
-			<div id="wputransmit"><img src="<?php echo $wpuUrl ?>/images/wpuldg.gif" style="float: left;" />Transmitting settings to phpBB...</div>
+			<div id="wputransmit"><p><strong>Sending settings to phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" /></div>
 			
 			<?php
 				if(isset($_GET['msg'])) {
@@ -540,15 +561,15 @@ function wpu_settings_page() {
 			<?php if(isset($settings['phpbb_path'])) { ?>
 					$("#phpbbpathshow").html('<?php echo $settings['phpbb_path']; ?>').css('color', 'green');
 					$("#wpupathfield").val('<?php echo $settings['phpbb_path']; ?>');
-										
 			<?php } ?>
 				
 				$('.wpuwhatis').click(function() {
 					$('#wpu-desc').text($(this).attr('title'));
 					$("#wpu-dialog").dialog({
 						modal: true,
+						title: 'WP-United Help',
 						buttons: {
-							Ok: function() {
+							Close: function() {
 								$(this).dialog('close');
 							}
 						}
@@ -632,7 +653,17 @@ function wpu_settings_page() {
 		function wpu_transmit(type, formID) {
 			$('#wpustatus').hide();
 			window.scrollTo(0,0);
-			$('#wputransmit').show();
+			$("#wputransmit").dialog({
+				modal: true,
+				title: 'Connecting...',
+				width: 360,
+				height: 160,
+				draggable: false,
+				disabled: true,
+				closeOnEscape: false,
+				resizable: false,
+			});
+			$('.ui-dialog-titlebar').hide();
 			var formData;
 			
 			formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
