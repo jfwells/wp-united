@@ -512,6 +512,8 @@ function wpu_settings_page() {
 								</select>
 								
 								<p><strong>Padding around phpBB</strong>
+								<?php $padding = explode('-', $settings['phpbbPadding']); ?>
+								
 									<a class="wpuwhatis" href="#" title="phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not '0'), and style the 'phpbbforum' DIV in your stylesheet.">What is this?</a>
 								</p>
 									<table>
@@ -520,7 +522,7 @@ function wpu_settings_page() {
 												<label for="wpupadtop">Top:</label><br />
 											</td>
 											<td>
-												<input type="text" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="6" />px<br />
+												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="<?php echo $padding[0]; ?>" />px<br />
 											</td>
 										</tr>
 										<tr>
@@ -528,7 +530,7 @@ function wpu_settings_page() {
 												<label for="wpupadright">Right:</label><br />
 											</td>
 											<td>
-												<input type="text" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="12" />px<br />
+												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="<?php echo $padding[1]; ?>" />px<br />
 											</td>
 										</tr>
 										<tr>
@@ -536,7 +538,7 @@ function wpu_settings_page() {
 												<label for="wpupadbtm">Bottom:</label><br />
 											</td>
 											<td>
-												<input type="text" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="6" />px<br />
+												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="<?php echo $padding[2]; ?>" />px<br />
 											</td>
 										</tr>
 										<tr>
@@ -544,14 +546,14 @@ function wpu_settings_page() {
 												<label for="wpupadleft">Left:</label><br />
 											</td>
 											<td>
-												<input type="text" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="12" />px<br />
+												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="<?php echo $padding[3]; ?>" />px<br />
 											</td>
 										</tr>
 										</table>
 									<p><a href="#" onclick="return false;">Reset to defaults</a></p>
 									
 									<p>
-										<input type="checkbox" id="wpudtd" name="wpudtd" /> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
+										<input type="checkbox" id="wpudtd" name="wpudtd" <?php if(!empty($settings['dtdSwitch'])) { echo ' checked="checked" '; } ?>/> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
 										<a class="wpuwhatis" href="#" title="The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3's prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional  or XHTML 5 DTD. In most cases, this doesn't matter -- however, If you want to use WordPress' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed.">What is this?</a>
 									</p>
 								</div>
@@ -562,15 +564,15 @@ function wpu_settings_page() {
 					
 						<h3>Use phpBB Word Censor?</h3>
 						<p>Turn this option on if you want WordPress posts to be passed through the phpBB word censor.</p>
-						<input type="checkbox" id="wpucensor" name="wpucensor" /><label for="wpucensor">Enable word censoring in WordPress</label>
+						<input type="checkbox" id="wpucensor" name="wpucensor" <?php if(!empty($settings['phpbbCensor'])) { echo ' checked="checked" '; } ?>/><label for="wpucensor">Enable word censoring in WordPress</label>
 						
 						<h3>Use phpBB smilies?</h3>
 						<p>Turn this option on if you want to use phpBB smilies in WordPress comments and posts.</p>
-						<input type="checkbox" id="wpucensor" name="wpusmilies" /><label for="wpusmilies">Enable phpBB smilies in WordPress</label>	
+						<input type="checkbox" id="wpusmilies" name="wpusmilies" <?php if(!empty($settings['phpbbSmilies'])) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Use phpBB smilies in WordPress</label>	
 						
 						<h3>Make Blogs Private?</h3>
 						<p>If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility.</p>
-						<input type="checkbox" id="wpucensor" name="wpusmilies" /><label for="wpusmilies">Make blogs private</label>							
+						<input type="checkbox" id="wpuprivate" name="wpuprivate" <?php if(!empty($settings['mustLogin'])) { echo ' checked="checked" '; } ?> /><label for="wpuprivate">Make blogs private</label>							
 						
 					</div>
 					
@@ -689,6 +691,18 @@ function wpu_settings_page() {
 				$('#wutpladvshow').toggle()
 				$('#wutpladvhide').toggle();
 				return false;
+			}
+			
+			// disallow alpha chars in padding fields
+			function checkPadding(evt) {
+				var theEvent = evt || window.event;
+				var key = theEvent.keyCode || theEvent.which;
+				key = String.fromCharCode( key );
+				var regex = /[0-9]/;
+				if( !regex.test(key) ) {
+					theEvent.returnValue = false;
+					if (theEvent.preventDefault) theEvent.preventDefault();
+				}
 			}
 			
 		var transmitMessage;
@@ -947,9 +961,9 @@ function wpu_process_settings() {
 		 * Process 'behaviour' settings
 		 */
 		$data = array_merge($data, array(
-			'phpbbCensor' 	=> (isset($_POST['phpbbCensor'])) ? 1 : 0,
-			'phpbbSmilies' 	=> (isset($_POST['phpbbSmilies'])) ? 1 : 0,
-			'mustLogin' 		=> (isset($_POST['mustLogin'])) ? 1 : 0
+			'phpbbCensor' 	=> (isset($_POST['wpucensor'])) ? 1 : 0,
+			'phpbbSmilies' 	=> (isset($_POST['wpusmilies'])) ? 1 : 0,
+			'mustLogin' 		=> (isset($_POST['wpuprivate'])) ? 1 : 0
 		));
 		
 	}
