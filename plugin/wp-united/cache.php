@@ -410,19 +410,30 @@ class WPU_Cache {
 	 * Saves updated style keys to the database.
 	 * phpBB $config keys can only store 255 bytes of data, so we usually need to store the data
 	 * split over several config keys
+	  * We want changes to take place as a single transaction to avoid collisions, so we 
+	  * access DB directly rather than using set_config
 	 * @return int the number of config keys used
 	 */
 	function update_style_keys() {
-		global $wpSettings; 
+		global $wpSettings, $cache, $db; 
 		if(sizeof($wpSettings['styleKeys']) > $this->numStyleKeys) {
 			$fullLocs = (base64_encode(serialize($wpSettings['styleKeys'])));
 			$currPtr=1;
 			$chunkStart = 0;
+			$sql = array();
+			wpu_clear_style_keys();
 			while($chunkStart < strlen($fullLocs)) {
-				set_config("wpu_style_keys_{$currPtr}", substr($fullLocs, $chunkStart, 255), true);
+				$sql[] = array(
+					'config_name' 	=> 	"wpu_style_keys_{$currPtr}",
+					'config_value' 	=>	substr($fullLocs, $chunkStart, 255)
+				);
 				$chunkStart = $chunkStart + 255;
 				$currPtr++;
 			}
+			
+			$db->sql_multi_insert(CONFIG_TABLE, $sql);
+			$cache->destroy('config');
+		
 			return $currPtr;
 		}
 		return $this->numStyleKeys;
@@ -462,6 +473,7 @@ class WPU_Cache {
 	 * @todo : Implement
 	 */
 	function purge() {
+		global $wpSettings;
 		@$dir = opendir($this->baseCacheLoc);
 			while( $entry = @readdir($dir) ) {
 				if ( (strpos($entry, '.htaccess') === false) && ((strpos($entry, '.txt') === false)) ) {
@@ -471,13 +483,7 @@ class WPU_Cache {
 				}
 			}
 			// purge style keys
-			global $config, $wpSettings, $db;
-			if(isset($config['wpu_style_keys_1'])) {
-				$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
-					WHERE config_name LIKE \'wpu_style_keys_%\'';
-				@$db->sql_query($sql);
-			}
-			$wpSettings['styleKeys'] = array();
+			wpu_clear_style_keys();
 	}
 
 	

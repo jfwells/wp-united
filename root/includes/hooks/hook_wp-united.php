@@ -353,32 +353,66 @@ function get_integration_settings() {
  * Completely removes all traces of WP-united settings
  */
 function clear_integration_settings() {
-	global $db, $config;
+	global $db, $cache;
+	
+	wpu_clear_main_settings();
+	wpu_clear_style_keys();
+	
+	$cache->destroy('config');
+}
+
+/** 
+ * removes main settings from database
+ * @access private
+ */
+function wpu_clear_main_settings() {
+	global $db;
 	
 	$sql = 'DELETE FROM ' . CONFIG_TABLE . '
 			WHERE config_name LIKE \'wpu_settings_%\'';
 	$db->sql_query($sql);
+}
+
+/** 
+ * removes main settings from database
+ * @access private
+ */
+function wpu_clear_style_keys() {
+	global $db, $config, $wpSettings;
 	
 	if(isset($config['wpu_style_keys_1'])) {
 		$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
 			WHERE config_name LIKE \'wpu_style_keys_%\'';
 		$db->sql_query($sql);
 	}
+	$wpSettings['styleKeys'] = array();
 }
 
 /**
  * Write config settings to the database
  * Writes any configuration settings that are passed to the integration settings table.
+ * We want changes to take place as a single transaction to avoid collisions, so we 
+ * access DB directly rather than using set_config
 */
 function set_integration_settings($dataIn) {
+		global $cache, $db;
 		$fullSettings = (base64_encode(serialize($dataIn)));
 		$currPtr=1;
 		$chunkStart = 0;
+		$sql = array();
+		wpu_clear_main_settings();
 		while($chunkStart < strlen($fullSettings)) {
-			set_config("wpu_settings_{$currPtr}", substr($fullSettings, $chunkStart, 255), true);
+			$sql[] = array(
+				'config_name' 	=> 	"wpu_settings_{$currPtr}",
+				'config_value' 	=>	substr($fullSettings, $chunkStart, 255)
+			);
 			$chunkStart = $chunkStart + 255;
 			$currPtr++;
 		}
+		
+		$db->sql_multi_insert(CONFIG_TABLE, $sql);
+		$cache->destroy('config');
+		
 }
 
 
