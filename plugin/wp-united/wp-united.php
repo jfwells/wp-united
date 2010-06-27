@@ -60,7 +60,6 @@ function wpu_init_plugin() {
 		}
 	}		
 	
-	
 	if(isset($_POST['wpusettings-transmit'])) {
 		if(check_ajax_referer( 'wp-united-transmit')) {
 			wpu_process_settings();
@@ -70,7 +69,6 @@ function wpu_init_plugin() {
 
 	$wpSettings['status'] = 0;
 	
-
 	require_once($wpuPath .  'phpbb.php');
 	$phpbbForum = new WPU_Phpbb();
 
@@ -137,44 +135,16 @@ function wpu_init_plugin() {
 				wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 			}
 			
+			if(!empty($wpSettings['integrateLogin']) && !defined('WPU_REVERSE_INTEGRATION')) { 
+				if(!(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT)) {
+					require_once($wpuPath . 'login-integrator.php');
+					wpu_integrate_logins();
+				}
+			}
 		} 
 	}
 }
 
-/**
- * TODO TEMPORARY LOGIN
- * OVERRIDE
- */
-function wp_get_current_user() { 
-	global $wpuPath, $wpSettings, $current_user, $phpEx;
-	
-	if(defined('WPU_OVERRODE_LOGIN')) {
-		get_currentuserinfo();
-		return $current_user;
-	}
-	define('WPU_OVERRODE_LOGIN', true);
-	
-	
-	if(empty($wpSettings['integrateLogin'])) {
-		get_currentuserinfo();
-		return $current_user;
-	}
-	
-	if(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT) {
-		get_currentuserinfo();
-		return $current_user;
-	}
-	
-	require_once($wpuPath . 'login-integrator.' .$phpEx);
-
-	if(defined('WPU_REVERSE_INTEGRATION')) { 
-		return;
-	}
-	
-	wpu_integrate_logins();
-	return $current_user;
-	
-}
 
 function wpu_disable_connection($type) {
 	global $wpSettings;

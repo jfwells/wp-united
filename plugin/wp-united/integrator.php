@@ -28,6 +28,7 @@ if($connectSuccess) {
 	 */
 	if(!empty($wpSettings['integrateLogin']) && defined('WPU_REVERSE_INTEGRATION')) { 
 		if(!(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT)) {
+			require_once($wpuPath . 'login-integrator.php');
 			wpu_integrate_logins();
 		}
 	}

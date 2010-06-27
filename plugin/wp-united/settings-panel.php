@@ -918,7 +918,7 @@ function wpu_settings_page() {
  */
 function wpu_process_settings() {
 	global $wpuUrl, $wpuPath, $wpSettings, $wpdb;
-	
+
 	$type = 'setup';
 	if(isset($_GET['page'])) {
 		if($_GET['page'] == 'wp-united-settings') {
