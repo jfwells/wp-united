@@ -32,8 +32,6 @@ function wpu_init_plugin() {
 
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings, $wpuUrl, $wpuPath;
 	
-	
-
 	$wpSettings = get_option('wpu-settings');
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
 
@@ -69,9 +67,7 @@ function wpu_init_plugin() {
 			$wpSettings = get_option('wpu-settings');
 		}
 	}	
-	
-	
-	
+
 	$wpSettings['status'] = 0;
 	
 
@@ -141,38 +137,42 @@ function wpu_init_plugin() {
 				wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 			}
 			
-
-			// set up login integration
-			// @todo: review for wp-admin
-			if(!empty($wpSettings['integrateLogin']) && !is_admin()) {
-				if(!(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT)) {
-					require_once($wpuPath . 'login-integrator.' .$phpEx);
-					add_action('init', 'wpu_integrate_logins', 10);
-				}
-			}
 		} 
 	}
+}
 
+/**
+ * TODO TEMPORARY LOGIN
+ * OVERRIDE
+ */
+function wp_get_current_user() { 
+	global $wpuPath, $wpSettings, $current_user, $phpEx;
+	
+	if(defined('WPU_OVERRODE_LOGIN')) {
+		get_currentuserinfo();
+		return $current_user;
+	}
+	define('WPU_OVERRODE_LOGIN', true);
+	
+	
+	if(empty($wpSettings['integrateLogin'])) {
+		get_currentuserinfo();
+		return $current_user;
+	}
+	
+	if(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT) {
+		get_currentuserinfo();
+		return $current_user;
+	}
+	
+	require_once($wpuPath . 'login-integrator.' .$phpEx);
 
-		/**
-		 * Disable access to the blog if the forum is disabled -- otherwise too many variables
-		 * are off-limits
-		 * @todo: complete
-		 */
-		/*if(!is_admin()) {
-			$phpbbForum->enter();
-			global $config, $auth, $wp_actions;
-			if ($config['board_disable'] && !defined('IN_LOGIN') && !$auth->acl_gets('a_', 'm_') && !$auth->acl_getf_global('m_')) {
-				if ($phpbbForum->get_userdata('is_bot')) {
-					header('HTTP/1.1 503 Service Unavailable');
-				}
-				$message = (!empty($config['board_disable_msg'])) ? $config['board_disable_msg'] : 'BOARD_DISABLE';
-				$phpbbForum->leave();
-				wp_die($message);
-			}
-			$phpbbForum->leave();
-		}*/
-
+	if(defined('WPU_REVERSE_INTEGRATION')) { 
+		return;
+	}
+	
+	wpu_integrate_logins();
+	return $current_user;
 	
 }
 
@@ -763,7 +763,7 @@ function wpu_registerlink($registerLink) {
 			} else {
 				$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['get_blog'] : $phpbbForum->lang['go_wp_admin'];
 			}
-			return $before . '<a href="' . get_settings('siteurl') . '/wp-admin/">' . $wpuGetBlog . '</a>' . $after;
+			return $before . '<a href="' . get_option('siteurl') . '/wp-admin/">' . $wpuGetBlog . '</a>' . $after;
 		}
 	} else { 
 		return $registerLink;

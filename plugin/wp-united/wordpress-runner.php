@@ -83,7 +83,6 @@ $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerCo
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
 
-
 if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) { 
 	require_once($wpSettings['wpPluginPath'] . 'wp-integration-class.' . $phpEx);
 	$wpUtdInt = WPU_Integration::getInstance();
@@ -104,18 +103,11 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 		$connectSuccess = true;
 	}
 	
-
 	// clean up, go back to normal :-)
 	if ( !$wpuCache->use_template_cache() ) {
 		$phpbbForum->enter();
 	}
 
-
-
-
 }
-
-
-
 
 ?>

@@ -20,6 +20,19 @@ if($connectSuccess) {
 	
 	$phpbbForum->leave();
 	
+	
+	/**\
+	 * TODO TEMPORARY -- THIS IS A COPY OF CODE FROM WP-UNITED.PHP
+	 * INTEG LOGIN DOESN"T WORK EARLY
+	 * SO WE DO IT HERE
+	 */
+	if(!empty($wpSettings['integrateLogin']) && defined('WPU_REVERSE_INTEGRATION')) { 
+		if(!(defined('WPU_DISABLE_LOGIN_INT') && WPU_DISABLE_LOGIN_INT)) {
+			wpu_integrate_logins();
+		}
+	}
+	
+	
 	// get the page
 	ob_start();
 		if ( $GLOBALS['latest']) {

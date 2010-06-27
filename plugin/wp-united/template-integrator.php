@@ -20,7 +20,6 @@
 * 
 */
 
-
 /**
  *  Just output WordPress if $wpuNoHead
  */

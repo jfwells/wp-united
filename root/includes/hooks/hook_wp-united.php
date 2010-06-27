@@ -62,10 +62,8 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 							define('WPU_REVERSE_INTEGRATION', true); 
 							//ob_start(); // to capture errors
 							require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
-												
 						}
-					
-					
+
 					}
 					
 				} 
@@ -169,8 +167,7 @@ function wpu_execute(&$hook, $handle) {
 			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 
-			
-			
+
 			if(in_array($template->filename[$handle], (array)$GLOBALS['WPU_NOT_INTEGRATED_TPLS'])) {
 				//Don't reverse-integrate pages we know don't want header/foote
 				echo $innerContent;

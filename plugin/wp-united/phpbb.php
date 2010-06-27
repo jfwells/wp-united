@@ -72,7 +72,6 @@ class WPU_Phpbb {
 	function load($rootPath) {
 		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
 		global $dbms, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
-		
 
 		$this->_backup_wp_conflicts();
 		
@@ -196,7 +195,7 @@ class WPU_Phpbb {
 	 */
 	function user_logged_in() {
 		$this->enter_if_out();
-		$result = ( empty($GLOBALS['user']->data['is_registered']) ) ? FALSE : TRUE;
+		$result = ( empty($GLOBALS['user']->data['is_registered']) ) ? false : true;
 		$this->leave_if_just_entered();
 		return $result;
 	}

@@ -399,10 +399,8 @@ Class WPU_Integration {
 			$this->prepare('foreach($newVars as $newVar) { if ($newVar != \'beforeVars\') $GLOBALS[$newVar] =& $$newVar;}');
 		}
 		
-		return TRUE;
+		return true;
 
-		
-		
 	}
 	
 	/**

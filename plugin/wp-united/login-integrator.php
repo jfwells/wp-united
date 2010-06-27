@@ -211,9 +211,9 @@ function wpu_get_userlevel($phpbb_userdata = false) {
 	$phpbbForum->enter_if_out();
 	
 	$user_level = false;
-	if($phbb_userdata == false) {
+	if($phpbb_userdata == false) {
 		if ( (!$phpbbForum->user_logged_in()) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) ) {
-			return FALSE;
+			return false;
 		}
 		global $auth;
 		$auth->acl($user->data);
