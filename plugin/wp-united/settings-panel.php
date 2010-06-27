@@ -346,8 +346,10 @@ function wpu_setup_menu() {
 
 }
 
-function wpu_user_mapper() { ?>
+function wpu_user_mapper() { 
+	global $wpuUrl; ?>
 	<div class="wrap" id="wp-united-setup">
+		<img id="panellogo" src="<?php echo $wpuUrl ?>/images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
 		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together'); ?></p>
@@ -356,7 +358,7 @@ function wpu_user_mapper() { ?>
 				<li><?php echo '<strong>' . __('User Permissions') . ':</strong> ' . __('Setting up permissions so that users can be automatically given mapped accounts'); ?></li>
 				<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up the linkage between user accounts that already existed in both phPBB and WordPress before you installed WP-United, or manually changing linkages.'); ?></li>
 			</ul>
-						<p><?php _e('Users are logged into wordpress or automatically given accounts with the appropriate privileges if a WP-United permission can be found for them. This way, you can choose to integrate only some of your phpBB users. (For example, you could allow only phpBB administrators to write posts, or only a specific subset of members to be able to post comments.'); ?></p>
+						<p><?php _e('Select a tab below to get started.'); ?></p>
 		<div id="wputabs">
 					<ul>
 						<li><a href="#wpumaptab-perms">User Permissions</a></li>
