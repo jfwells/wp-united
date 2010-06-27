@@ -83,7 +83,13 @@ function wpu_init_plugin() {
 		if(file_exists($wpSettings['phpbb_path']) && $wpSettings['enabled'] !=  'disabled') {
 			$wpSettings['status'] = 1;
 		}
-		
+
+		// must turn off these options if we are disabled
+		if($wpSettings['enabled'] != 'enabled') { 
+			$wpSettings['integrateLogin'] = 0;
+			$wpSettings['showHdrFtr'] = 'NONE';
+		}
+
 		if($wpSettings['enabled'] == 'enabled') {
 			if ( !defined('IN_PHPBB') ) {
 				$phpbb_root_path = $wpSettings['phpbb_path'];
@@ -144,7 +150,7 @@ function wpu_init_plugin() {
 					add_action('init', 'wpu_integrate_logins', 10);
 				}
 			}
-		}
+		} 
 	}
 
 

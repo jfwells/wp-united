@@ -80,7 +80,7 @@ define('WPU_MUST_LOGIN', FALSE);
  * Enabling the below option displays debug information that could be useful in tracking down problems with integrated logins
  * It should be left off on a production site!
  */
-define('WPU_DEBUG', FALSE);
+define('WPU_DEBUG', TRUE);
 
 /**
  * OVERRIDE WORDPRESS SITE COOKIE PATH?
@@ -98,7 +98,7 @@ define('WP_ROOT_COOKIE', FALSE);
  * This is a good way to gauge how various options affect server load.
  * It should be left OFF on production servers.
  */
-define('WPU_SHOW_STATS', FALSE);
+define('WPU_SHOW_STATS', TRUE);
 
 /**
  * Disable wordpress header & footer on the following pages

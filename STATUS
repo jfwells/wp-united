@@ -2,6 +2,7 @@ In progress
 --------------
 
 TODO
+-- change acl_get to acl_gets call in login-integrator permissions arbitration
 -- once settings panels are ready, split into separate files in subfolder
 -- simplify mod-settings into single array
 -- Set enabled / disabled -- do not enter phpBB unless "enabled" or $_GET--transmit are set

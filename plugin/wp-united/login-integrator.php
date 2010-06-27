@@ -48,7 +48,7 @@ function wpu_integrate_logins() {
 	$wpUserData = '';
 	$newUserID = '';
 		
-	$user_level = wpu_get_userlevel($phpbbForum->get_userdata());
+	$user_level = wpu_get_userlevel();
 
 	// Integrate only if logged in, and user level is mapped to integrate
 	if (  (!$phpbbForum->user_logged_in()) || ($user_level === false) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) )  {
@@ -204,17 +204,24 @@ function wpu_integrate_logins() {
 /**
  * Gets the logged-in user's level so we can arbitrate permissions
  */
-function wpu_get_userlevel($phpbb_userdata) {
+function wpu_get_userlevel($phpbb_userdata = false) {
 
-	global $db, $phpbbForum, $auth, $user, $lDebug;
-	
-	$user_level = FALSE;
-	
-	if ( (!$phpbbForum->user_logged_in()) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) ) {
-		return FALSE;
-	}
+	global $db, $phpbbForum, $user, $lDebug;
+
 	$phpbbForum->enter_if_out();
-	$auth->acl($user->data);
+	
+	$user_level = false;
+	if($phbb_userdata == false) {
+		if ( (!$phpbbForum->user_logged_in()) || !( ($phpbbForum->get_userdata('user_type') == USER_NORMAL) || ($phpbbForum->get_userdata('user_type') == USER_FOUNDER) ) ) {
+			return FALSE;
+		}
+		global $auth;
+		$auth->acl($user->data);
+	} else {
+		$auth = new auth();
+		$auth->acl($phpbb_userdata);
+	}
+
 	$debug = 'Checking permissions: ';
 	if ( $auth->acl_get('u_wpu_subscriber') ) {
 		$user_level = 'subscriber'; 

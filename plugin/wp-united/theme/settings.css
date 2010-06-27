@@ -639,4 +639,12 @@ div.subsettings div.subsettings {
 	margin-top: 3px;
 }
 
+#wp-united-setup UL {
+	list-style: disc;
+	margin-left: 20px;
+}
 
+#wputabs UL {
+	list-style: none;
+	margin-left: 0;
+}
