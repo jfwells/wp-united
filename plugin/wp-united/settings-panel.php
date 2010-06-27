@@ -354,167 +354,153 @@ function wpu_user_mapper() {
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
 		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together'); ?></p>
 		<p><?php _e('Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
-			<ul>
-				<li><?php echo '<strong>' . __('User Permissions') . ':</strong> ' . __('Setting up permissions so that users can be automatically given mapped accounts'); ?></li>
-				<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up the linkage between user accounts that already existed in both phPBB and WordPress before you installed WP-United, or manually changing linkages.'); ?></li>
-			</ul>
-						<p><?php _e('Select a tab below to get started.'); ?></p>
+		<ul>
+			<li><?php echo '<strong>' . __('User Permissions') . ':</strong> ' . __('Setting up permissions so that users can be automatically given mapped accounts'); ?></li>
+			<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up the linkage between user accounts that already existed in both phPBB and WordPress before you installed WP-United, or manually changing linkages.'); ?></li>
+		</ul>
+		<p><?php _e('Select a tab below to get started.'); ?></p>
 		<div id="wputabs">
-					<ul>
-						<li><a href="#wpumaptab-perms">User Permissions</a></li>
-						<li><a href="#wpumaptab-map">User Mapping</a></li>
-					</ul>
+			<ul>
+				<li><a href="#wpumaptab-perms">User Permissions</a></li>
+				<li><a href="#wpumaptab-map">User Mapping</a></li>
+			</ul>
 
-					<div id="wpumaptab-perms">
+			<div id="wpumaptab-perms">
+			
+				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB.'); ?></p>
+				<p><?php _e('Users are logged into wordpress or automatically given accounts with the appropriate privileges if a WP-United permission can be found for them. This way, you can choose to integrate only some of your phpBB users. (For example, you could allow only phpBB administrators to write posts, or only a specific subset of members to be able to post comments.'); ?></p>
+				<p><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></p>
+				<p><?php printf(__('phpBB user groups are listed below, together with the WP-United permissions assigned to them. To change, these, visit the %1$sphpBB ACP%2$s -> Permissions tab, and edit Groups\' Permissions.'), '<a href="' . $phpbbForum->url . 'adm/">', '</a>'); ?></p>
+				<p><?php _e('Permissions assigned to individual users are not shown &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></p>
+				
+				<?php
+					global $phpbbForum, $db;
+					$phpbbForum->enter();
 					
-						<p><?php _e('Users are integrated if they have WP-United permissions in phpBB.'); ?></p>
-						<p><?php _e('Users are logged into wordpress or automatically given accounts with the appropriate privileges if a WP-United permission can be found for them. This way, you can choose to integrate only some of your phpBB users. (For example, you could allow only phpBB administrators to write posts, or only a specific subset of members to be able to post comments.'); ?></p>
-						<p><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></p>
-						<p><?php printf(__('phpBB user groups are listed below, together with the WP-United permissions assigned to them. To change, these, visit the %1$sphpBB ACP%2$s -> Permissions tab, and edit Groups\' Permissions.'), '<a href="' . $phpbbForum->url . 'adm/">', '</a>'); ?></p>
-						<p><?php _e('Permissions assigned to individual users are not shown &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></p>
-					
-					<?php
-						global $phpbbForum, $db;
-						$phpbbForum->enter();
+					$options = array(
+						'u_wpu_subscriber' 		=> 	__('Subscriber'), 
+						'u_wpu_contributor' 		=>	__('Contributor'),
+						'u_wpu_author'				=>	__('Author'),
+						'm_wpu_editor'				=>	__('Editor'),
+						'a_wpu_administrator'	=>	__('Administrator')
+					);
 						
-						$options = array(
-							'u_wpu_subscriber' 		=> 	__('Subscriber'), 
-							'u_wpu_contributor' 		=>	__('Contributor'),
-							'u_wpu_author'				=>	__('Author'),
-							'm_wpu_editor'				=>	__('Editor'),
-							'a_wpu_administrator'	=>	__('Administrator')
+					$groupTypes = array(__('Built-In'), __('User-Defined'));
+					$numUserDefined = 0;
+						
+					// Get all the groups
+					$sql = 'SELECT group_id, group_name, group_type
+						FROM ' . GROUPS_TABLE . ' 
+						ORDER BY group_type ASC, group_name';
+					$result = $db->sql_query($sql);
+
+					$groupData = array();
+					while ($row = $db->sql_fetchrow($result)) {
+						$groupData[$row['group_id']] = array(
+							'type' 						=> 	($row['group_type'] == GROUP_SPECIAL) ? __('Built-In') : __('User-Defined'),
+							'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
+							'total_members' 	=> 	0,
+							'wpu_perms'			=>	__('None')
 						);
-						
-						$groupTypes = array(__('Built-In'), __('User-Defined'));
-						$numBuiltIn = 0;
-						$numUserDefined = 0;
-						
-						// Get us all the groups
-						$sql = 'SELECT group_id, group_name, group_type
-							FROM ' . GROUPS_TABLE . ' 
-							ORDER BY group_type ASC, group_name';
-						$result = $db->sql_query($sql);
-
-						$groupData = array();
-						while ($row = $db->sql_fetchrow($result)) {
-							$groupData[$row['group_id']] = array(
-								'type' 						=> 	($row['group_type'] == GROUP_SPECIAL) ? __('Built-In') : __('User-Defined'),
-								'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
-								'total_members' 	=> 	0,
-								'wpu_perms'			=>	__('None')
-							);
-							if($groupData[$row['group_id']]['type'] == __('Built-In')) {
-								$numBuiltIn++;
-							} else {
-								$numUserDefined++;
-							}
+						if($groupData[$row['group_id']]['type'] == __('User-Defined')) {
+							$numUserDefined++;
 						}
-						$db->sql_freeresult($result);						
+					}
+					$db->sql_freeresult($result);						
+					
+					// get totals
+					$sql = 'SELECT COUNT(user_id) AS total_members, group_id
+						FROM ' . USER_GROUP_TABLE . ' 
+						WHERE ' . $db->sql_in_set('group_id', array_keys($groupData)) . '
+						GROUP BY group_id';
+					$result = $db->sql_query($sql);
+					while ($row = $db->sql_fetchrow($result)) {
+						$groupData[$row['group_id']]['total_members'] = $row['total_members'];
+					}
+					$db->sql_freeresult($result);
 						
-						// get totals
-						$sql = 'SELECT COUNT(user_id) AS total_members, group_id
-							FROM ' . USER_GROUP_TABLE . ' 
-							WHERE ' . $db->sql_in_set('group_id', array_keys($groupData)) . '
-							GROUP BY group_id';
-						$result = $db->sql_query($sql);
-						while ($row = $db->sql_fetchrow($result)) {
-							$groupData[$row['group_id']]['total_members'] = $row['total_members'];
-						}
-						$db->sql_freeresult($result);
-						
-						//Get Option ID Values
-						$sql = "SELECT auth_option, auth_option_id
-							FROM " . ACL_OPTIONS_TABLE . "
-							WHERE " . $db->sql_in_set('auth_option', array_keys($options));
-						$result = $db->sql_query($sql);
-						$aclOptions = array();
-						while ($permRow = $db->sql_fetchrow($result)) {
-							$aclOptions[$permRow['auth_option_id']] = $permRow['auth_option'];
-						}
-						$db->sql_freeresult($result);
-						
-						$sql = "SELECT auth_option_id, group_id
-							FROM " . ACL_GROUPS_TABLE . "
-							WHERE " . $db->sql_in_set('group_id', array_keys($groupData)) . " 
-							AND " . $db->sql_in_set('auth_option_id', array_keys($aclOptions)) . "
-							GROUP BY auth_option_id";
+					//Get Option ID Values
+					$sql = "SELECT auth_option, auth_option_id
+						FROM " . ACL_OPTIONS_TABLE . "
+						WHERE " . $db->sql_in_set('auth_option', array_keys($options));
+					$result = $db->sql_query($sql);
+					$aclOptions = array();
+					while ($permRow = $db->sql_fetchrow($result)) {
+						$aclOptions[$permRow['auth_option_id']] = $permRow['auth_option'];
+					}
+					$db->sql_freeresult($result);
+					
+					$sql = "SELECT auth_option_id, group_id
+						FROM " . ACL_GROUPS_TABLE . "
+						WHERE " . $db->sql_in_set('group_id', array_keys($groupData)) . " 
+						AND " . $db->sql_in_set('auth_option_id', array_keys($aclOptions)) . "
+						GROUP BY auth_option_id";
 							
-						$result = $db->sql_query($sql);
-						$foundPerms = array();
-						while ($permRow = $db->sql_fetchrow($result)) {
-							foreach($options as $option => $optionName) {
-								if($option == $aclOptions[$permRow['auth_option_id']]) {
-										$groupData[$permRow['group_id']]['wpu_perms'] = $optionName;
-								}
+					$result = $db->sql_query($sql);
+					$foundPerms = array();
+					while ($permRow = $db->sql_fetchrow($result)) {
+						foreach($options as $option => $optionName) {
+							if($option == $aclOptions[$permRow['auth_option_id']]) {
+									$groupData[$permRow['group_id']]['wpu_perms'] = $optionName;
 							}
 						}
-						$db->sql_freeresult($result);
+					}
+					$db->sql_freeresult($result);
 						
-
-						foreach ($groupTypes as $type) { 
-							?>
-							<h4><?php echo "$type Groups"; ?></h4>
-							<?php if(($type == __('Built-In')) || ($numUserDefined > 0)) { ?>
-								<p><?php printf(__('Visit the %1$sphpBB ACP%2$s to change these options.'), '<a href="' . $phpbbForum->url . 'adm/">', '</a>'); ?></p>
-								<table class="widefat fixed">
-									<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
-										<<?php echo $tblHead; ?>>
-											<tr class="thead">
-												<th scope="col"><?php _e('Group Name'); ?></th>
-												<th scope="col"><?php _e('No. of members'); ?></th>
-												<th scope="col"><?php _e('WP-United Permissions'); ?></th>
-											</tr>
-										</<?php echo $tblHead; ?>>
-									<?php } ?>
-									<tbody>
-									<?php
-									$it = 0;
+					foreach ($groupTypes as $type) { ?>
+						<h4><?php echo "$type Groups"; ?></h4>
+						<?php if(($type == __('Built-In')) || ($numUserDefined > 0)) { ?>
+							<p><?php printf(__('Visit the %1$sphpBB ACP%2$s to change these options.'), '<a href="' . $phpbbForum->url . 'adm/">', '</a>'); ?></p>
+							<table class="widefat fixed">
+								<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
+									<<?php echo $tblHead; ?>>
+										<tr class="thead">
+											<th scope="col"><?php _e('Group Name'); ?></th>
+											<th scope="col"><?php _e('No. of members'); ?></th>
+											<th scope="col"><?php _e('WP-United Permissions'); ?></th>
+										</tr>
+									</<?php echo $tblHead; ?>>
+								<?php } ?>
+								<tbody>
+								<?php
+								$it = 0;
 								
-									foreach ($groupData as $group_id => $row) {
-										if($row['type'] == $type) {
-											
-											$class = ($it == 0) ? ' class="alternate" ' : '';
-											?>
-											<tr <?php echo $class; ?>>
-												<td><?php echo $row['name']; ?></td>
-												<td><?php echo $row['total_members']; ?></td>
-												<td><?php echo $row['wpu_perms']; ?></td>
-											</tr>
-											<?php
-											$it = ($it == 0) ? 1 : 0;
-										}
+								foreach ($groupData as $group_id => $row) {
+									if($row['type'] == $type) {
+										
+										$class = ($it == 0) ? ' class="alternate" ' : '';
+										?>
+										<tr <?php echo $class; ?>>
+											<td><?php echo $row['name']; ?></td>
+											<td><?php echo $row['total_members']; ?></td>
+											<td><?php echo $row['wpu_perms']; ?></td>
+										</tr>
+										<?php
+										$it = ($it == 0) ? 1 : 0;
 									}
-
-								?>
+								} ?>
 								</tbody>
-								</table>
-								<?php 
-								} else {
-									echo '<p>' . sprintf(__('No %s groups to show'), $type) . '</p>';
-								}
+							</table>
+						<?php  } else {
+							echo '<p>' . sprintf(__('No %s groups to show'), $type) . '</p>';
 						}
-						
-						
+					}
 					$phpbbForum->leave();
-					
-					?>
-					
-					</div>
-					<div id="wpumaptab-map">
-						The user mapping tool is under construction.
-					</div>
-		
+				?>
+			</div>
+			<div id="wpumaptab-map">
+				The user mapping tool is under construction.
+			</div>
 		</div>
 		
 		<script type="text/javascript">
 		// <![CDATA[
-			jQuery(document).ready(function($) { 
-
+			jQuery(document).ready(function($) { \
 				$('#wputabs').tabs();
 			});
 		// ]]>
 		</script>
-		<?php
+<?php
 }
 	
 /**
