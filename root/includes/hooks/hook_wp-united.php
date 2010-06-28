@@ -81,7 +81,7 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 	}
 
 }
-//die('balls');
+
 /**
  * Initialise WP-United variables and template strings
  */
