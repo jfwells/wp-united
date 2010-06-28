@@ -3,6 +3,7 @@ In progress
 
 TODO
 -- clean up login-integrator
+-- blank pages returned now cause settings/setup apply to hang
 -- validate_user_conflict function will work with func_get_args, so re-implement it
 -- once settings panels are ready, split into separate files in subfolder
 -- simplify mod-settings into single array
