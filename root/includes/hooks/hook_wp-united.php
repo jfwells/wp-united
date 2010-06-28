@@ -81,7 +81,7 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 	}
 
 }
-
+//die('balls');
 /**
  * Initialise WP-United variables and template strings
  */
@@ -173,7 +173,7 @@ function wpu_execute(&$hook, $handle) {
 				echo $innerContent;
 			} else {
 				//insert phpBB into a wordpress page
-				include ($wpSettings['wpPluginPath'] .'integrator.' . $phpEx);
+				include ($wpSettings['wpPluginPath'] .'integrator.' . $phpEx); 
 			}
 			
 		

@@ -37,14 +37,19 @@ function wpu_settings_menu() {
 	wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
 		
-	if(isset($_GET['page'])) { 
+	if(isset($_GET['page'])) {
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper'))) {
+
 			wp_deregister_script( 'jquery' );
 			wp_deregister_script( 'jquery-ui-core' );				
+			wp_deregister_script( 'jquery-color' );				
+			//wp_enqueue_script('jquery-ui-core');
+			//wp_enqueue_script('jquery-ui-tabs');
 			
-			wp_enqueue_script('jquery', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, true);
-			wp_enqueue_script('jquery-ui', $wpuUrl . 'js/jqueryui-wpu-min.js', array(), false, true);
-			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array(), false, true);				
+			wp_enqueue_script('jquery', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, false);
+			wp_enqueue_script('jquery-ui', $wpuUrl . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
+			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array('jquery'), false, false);				
+			wp_enqueue_script('wpu-settigs', $wpuUrl . 'js/settings.js', array('jquery'), false, false);				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-support'))) {
 			wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
@@ -151,6 +156,7 @@ function wpu_setup_menu() {
 	if(isset($_GET['msg'])) {
 		if($_GET['msg'] == 'fail') {
 			$msg = (string)stripslashes($_GET['msgerr']);
+			$msg = base64_decode($msg);
 		}
 	}
 				
@@ -182,6 +188,10 @@ function wpu_setup_menu() {
 		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpuPath . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
 	}
 	
+	if(defined('WPU_CANNOT_OVERRIDE')) {
+		echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United login integration is unavailable.</p></div>';
+	}
+	
 			
 	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . '</strong>';
 	if($status == 2) {
@@ -207,137 +217,21 @@ function wpu_setup_menu() {
 			<input type="submit" style="<?php echo $buttonDisplay; ?>"; class="button-primary" value="<?php  _e('Connect') ?>" name="wpusetup-submit" id="wpusetup-submit" />
 		</p>
 	</form>
-		
+	</div>
 	<script type="text/javascript">
 	// <![CDATA[
-		jQuery(document).ready(function($) { 
-			$('#phpbbpath').fileTree({ 
-				root: '/',
-				script: '<?php echo $wpuUrl . 'js/filetree.php'; ?>',
-				multiFolder: false,
-				loadMessage: "Loading..."
-			}, function(file) { 
-				var parts = file.split('/');
-				if ((parts.length) > 1) {
-					file = parts.pop();
-				}
-				if(file=='config.php') {
-					var pth = parts.join('/') + '/'; 
-					$("#phpbbpathshow").html(pth).css('color', 'green');
-					$("#wpupathfield").val(pth);
-					$('#phpbbpath').hide('slide');
-					$('#txtchangepath').show();
-					$('#txtselpath').hide();
-					$('#wpucancelchange').hide();
-					$('#phpbbpathchooser').show('slide');
-					$('#wpusetup-submit').show();
-					window.scrollTo(0,0);
-				}
-			});
-			
-		<?php if(isset($settings['phpbb_path'])) { ?> 
-				$('#phpbbpath').hide();
-				$('#phpbbpathchooser').button();
-				$('#phpbbpathchooser').show();
-				$("#phpbbpathshow").html('<?php echo $settings['phpbb_path']; ?>').css('color', 'green');
-				$("#wpupathfield").val('<?php echo $settings['phpbb_path']; ?>');
-				$('#txtchangepath').show();
-				$('#txtselpath').hide();
-		<?php } ?>
-						
-		});
-		
-		function wpuChangePath() {
-			$('#phpbbpath').show('slide');
-			$('#phpbbpathchooser').hide('slide');
-			$('#txtchangepath').hide();
-			$('#txtselpath').show();
-			$('#wpucancelchange').show();
-			$('#wpucancelchange').button();
-			$('#wpusetup-submit').show();
-			return false;
-		}
-		
-		function wpuCancelChange() {
-			$('#phpbbpath').hide('slide');
-			$('#phpbbpathchooser').show('slide');
-			$('#txtchangepath').show();
-			$('#txtselpath').hide();
-			$('#wpucancelchange').hide();
-			$('#wpusetup-submit').hide();			
-			return false;
-		}
-		
 		var transmitMessage;
-		function wpu_transmit(type, formID) {
-			$('#wpustatus').hide();
-			window.scrollTo(0,0);
-			$("#wputransmit").dialog({
-				modal: true,
-				title: 'Connecting...',
-				width: 360,
-				height: 160,
-				draggable: false,
-				disabled: true,
-				closeOnEscape: false,
-				resizable: false,
-				show: 'puff'
-			});
-			$('.ui-dialog-titlebar').hide();
-			var formData;
-			
-			formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
-			$.post('admin.php?page='+type, formData, function(response) {
-				if(response=='OK') {
-					// the settings were applied
-					window.location = window.location.href + '&msg=success';
-					return;
-				}
-				
-				transmitMessage = response;
-				// there was an uncatchable error, send a disable request
-				if  (transmitMessage.indexOf('[ERROR]') == -1) {
-					var disable = 'wpudisable=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
-					$.post('admin.php?page='+type, disable, function(response) {
-						// the connection has been disabled, redirect
-						if(transmitMessage == '') {
-							transmitMessage = '<?php _e('Blank page received: check your error log.'); ?>';
-						}
-						window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + escape(transmitMessage);
-					});
-				} else {
-					// we caught the error, redirect to setup page
-					transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
-					window.location = 'admin.php?page=wp-united-setup&msg=fail &msgerr=' + escape(transmitMessage);
-				}
-
-			});
-			return false;
-		}
-		
-		function wpu_manual_disable(type) {
-			$("#wputransmit").dialog({
-				modal: true,
-				title: 'Connecting...',
-				width: 360,
-				height: 160,
-				draggable: false,
-				disabled: true,
-				closeOnEscape: false,
-				resizable: false,
-				show: 'puff'
-			});
-			$('.ui-dialog-titlebar').hide();
-			var disable = 'wpudisableman=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
-			$.post('admin.php?page='+type, disable, function(response) {
-				// the connection has been disabled, redirect
-				window.location = 'admin.php?page='+type;
-			});
-			
-			return false;
-			
-		}
-
+		var transmitNonce = '<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
+		var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
+		var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
+		var phpbbPath = '<?php echo (isset($settings['phpbb_path'])) ? $settings['phpbb_path'] : ''; ?>';		
+		var treeScript =  '<?php echo $wpuUrl . 'js/filetree.php'; ?>';
+		jQuery(document).ready(function($) { 
+			createFileTree();
+			<?php if(isset($settings['phpbb_path'])) { ?> 
+				setPath('setup');
+			<?php } ?>			
+		});
 	// ]]>
 	</script>
 
@@ -537,8 +431,11 @@ function wpu_settings_page() {
 			<?php
 				}
 			}
-			?>
 			
+			if(defined('WPU_CANNOT_OVERRIDE')) {
+				echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United login integration is unavailable.</p></div>';
+			}
+			?>
 			<p><?php _e('WP-United is modular; You can enable or disable any of the four major features below: User Integration, Theme Integration, Behaviour Integration and User Blogs.') ?></p>
 			<p><?php _e('Visit each of the tabs to select the settings, then hit Submit when done.') ?></p>
 					
@@ -547,7 +444,9 @@ function wpu_settings_page() {
 				<div id="wputabs">
 					<ul>
 						<li><a href="#wputab-basic">Basic Settings</a></li>
-						<li><a href="#wputab-user">User Integration</a></li>
+						<?php if(!defined('WPU_CANNOT_OVERRIDE')) { ?>
+							<li><a href="#wputab-user">User Integration</a></li>
+						<?php } ?>
 						<li><a href="#wputab-theme">Theme Integration</a></li>
 						<li><a href="#wputab-behav">Behaviour Integration</a></li>
 					<!--	<li><a href="#wputab-blogs">User Blogs</a></li>-->
@@ -563,57 +462,58 @@ function wpu_settings_page() {
 						<p>Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum.</p>
 						<input type="checkbox" id="wpuforumpage" name="wpuforumpage" <?php if(!empty($settings['useForumPage'])) { ?>checked="checked"<?php } ?> /><label for="wpuforumpage">Enable Forum Page</label>		
 					</div>
-					
-					<div id="wputab-user">
-						<h3>Integrate logins?</h3>
-						<p>If you turn this option on, phpBB will create a WordPress account the first time each phpBB user <strong>with appropriate permissions</strong> visits the blog. If this WordPress install will be non-interactive (e.g., a blog by a single person, a portal page, or an information library with commenting disabled), you may want to turn this option off, as readers may not need accounts. You can also map existing WordPress users to phpBB users, using the mapping tool that will appear after you turn on this option.</p>
-						<p>You <strong>must set</strong> the privileges for each user using the WP-United permissions under the phpBB3 Users' and Groups' permissions settings.</p>
-						<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if(!empty($settings['integrateLogin'])) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
-						
-						<div id="wpusettingsxpost" class="subsettings">
-							<h4>Enable cross-posting?</h4>
-							<p>If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.</p>
-							<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if(!empty($settings['xposting'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
+					<?php if(!defined('WPU_CANNOT_OVERRIDE')) { ?>
+						<div id="wputab-user">
+							<h3>Integrate logins?</h3>
+							<p>If you turn this option on, phpBB will create a WordPress account the first time each phpBB user <strong>with appropriate permissions</strong> visits the blog. If this WordPress install will be non-interactive (e.g., a blog by a single person, a portal page, or an information library with commenting disabled), you may want to turn this option off, as readers may not need accounts. You can also map existing WordPress users to phpBB users, using the mapping tool that will appear after you turn on this option.</p>
+							<p>You <strong>must set</strong> the privileges for each user using the WP-United permissions under the phpBB3 Users' and Groups' permissions settings.</p>
+							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if(!empty($settings['integrateLogin'])) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 							
-							
-							<div id="wpusettingsxpostxtra" class="subsettings">
-								<h4>Type of cross-posting?</h4>
-								<p>Choose how the post should appear in phpBB. WP-United can post an excerpt, the full post, or give you an option to select when posting each post.</p>
-								<input type="radio" name="rad_xpost_type" value="excerpt" id="wpuxpexc"  <?php if($settings['xposttype'] == 'excerpt') { ?>checked="checked"<?php } ?>  /><label for="wpuxpexc">Excerpt</label>
-								<input type="radio" name="rad_xpost_type" value="fullpost" id="wpuxpfp" <?php if($settings['xposttype'] == 'fullpost') { ?>checked="checked"<?php } ?>  /><label for="wpuxpfp">Full Post</label>
-								<input type="radio" name="rad_xpost_type" value="askme" id="wpuxpask" <?php if($settings['xposttype'] == 'askme') { ?>checked="checked"<?php } ?>  /><label for="wpuxpask">Ask Me</label>
+							<div id="wpusettingsxpost" class="subsettings">
+								<h4>Enable cross-posting?</h4>
+								<p>If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.</p>
+								<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if(!empty($settings['xposting'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
 								
-								<h4>phpBB manages comments on crossed posts?</h4>
-								<p>Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.</p>
-								<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if(!empty($settings['xpostautolink'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments">phpBB manages comments</label>		
 								
-								<h4>Force all blog posts to be cross-posted?</h4>
-								<p>Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place.</p>
-								<select id="wpuxpostforce" name="wpuxpostforce">
-									<option value="0" <?php if($wpSettings['xpostforce'] == 0) { echo ' selected="selected" '; } ?>>-- Disabled --</option>
+								<div id="wpusettingsxpostxtra" class="subsettings">
+									<h4>Type of cross-posting?</h4>
+									<p>Choose how the post should appear in phpBB. WP-United can post an excerpt, the full post, or give you an option to select when posting each post.</p>
+									<input type="radio" name="rad_xpost_type" value="excerpt" id="wpuxpexc"  <?php if($settings['xposttype'] == 'excerpt') { ?>checked="checked"<?php } ?>  /><label for="wpuxpexc">Excerpt</label>
+									<input type="radio" name="rad_xpost_type" value="fullpost" id="wpuxpfp" <?php if($settings['xposttype'] == 'fullpost') { ?>checked="checked"<?php } ?>  /><label for="wpuxpfp">Full Post</label>
+									<input type="radio" name="rad_xpost_type" value="askme" id="wpuxpask" <?php if($settings['xposttype'] == 'askme') { ?>checked="checked"<?php } ?>  /><label for="wpuxpask">Ask Me</label>
 									
-									<?php
-									if(defined('IN_PHPBB')) { 
-										global $phpbbForum, $db;
-										$phpbbForum->enter();
-										$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
-											'forum_type = ' . FORUM_POST;
-										if ($result = $db->sql_query($sql)) {
-											while ( $row = $db->sql_fetchrow($result) ) {
-												echo '<option value="' . $row['forum_id'] . '"';
-												if($wpSettings['xpostforce'] == (int)$row['forum_id']) {
-													 echo ' selected="selected" ';
+									<h4>phpBB manages comments on crossed posts?</h4>
+									<p>Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.</p>
+									<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if(!empty($settings['xpostautolink'])) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments">phpBB manages comments</label>		
+									
+									<h4>Force all blog posts to be cross-posted?</h4>
+									<p>Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place.</p>
+									<select id="wpuxpostforce" name="wpuxpostforce">
+										<option value="0" <?php if($wpSettings['xpostforce'] == 0) { echo ' selected="selected" '; } ?>>-- Disabled --</option>
+										
+										<?php
+										if(defined('IN_PHPBB')) { 
+											global $phpbbForum, $db;
+											$phpbbForum->enter();
+											$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
+												'forum_type = ' . FORUM_POST;
+											if ($result = $db->sql_query($sql)) {
+												while ( $row = $db->sql_fetchrow($result) ) {
+													echo '<option value="' . $row['forum_id'] . '"';
+													if($wpSettings['xpostforce'] == (int)$row['forum_id']) {
+														 echo ' selected="selected" ';
+													}
+													echo '>' . $row['forum_name'] . '</option>';
 												}
-												echo '>' . $row['forum_name'] . '</option>';
 											}
 										}
-									}
-								?>								
-									
-								</select>
-							</div>				
-						</div>
-					</div>		
+									?>								
+										
+									</select>
+								</div>				
+							</div>
+						</div>	
+					<?php } ?>	
 					
 					<div id="wputab-theme">
 						<h3>Integrate themes?</h3>
@@ -745,50 +645,16 @@ function wpu_settings_page() {
 		</div>
 		
 	</div>
+	
 		<script type="text/javascript">
 		// <![CDATA[
-			jQuery(document).ready(function($) { 
-
-				$('#wputabs').tabs();	
-				$('#phpbbpathchange').button();	
-				$('#wputpladvancedstgs').button();	
-				$('.wpuwhatis').button();	
-				
-	
-			<?php if(isset($settings['phpbb_path'])) { ?>
-					$("#phpbbpathshow").html('<?php echo $settings['phpbb_path']; ?>').css('color', 'green');
-					$("#wpupathfield").val('<?php echo $settings['phpbb_path']; ?>');
-			<?php } ?>
-				
-				$('.wpuwhatis').click(function() {
-					$('#wpu-desc').text($(this).attr('title'));
-					$("#wpu-dialog").dialog({
-						modal: true,
-						title: 'WP-United Help',
-						buttons: {
-							Close: function() {
-								$(this).dialog('close');
-							}
-						}
-					});
-					return false;
-				});
-				
-
-				if($('#wpuxpost').is(':checked')) $('#wpusettingsxpostxtra').show();
-				if($('#wpuloginint').is(':checked')) $('#wpusettingsxpost').show();
-				if($('#wputplint').is(':checked')) $('#wpusettingstpl').show();
-				
-				$('#wpuloginint').change(function() {
-						$('#wpusettingsxpost').toggle("slide", "slow");
-				});
-				$('#wpuxpost').change(function() {
-						$('#wpusettingsxpostxtra').toggle("slide", "slow");
-				});
-				
-	
-
-				<?php 
+			var transmitMessage;
+			var transmitNonce = '<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
+			var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
+			var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
+			var phpbbPath = '<?php echo (isset($settings['phpbb_path'])) ? $settings['phpbb_path'] : ''; ?>';		
+			var treeScript =  '<?php echo $wpuUrl . 'js/filetree.php'; ?>';
+			<?php 
 					$cssmVal = 0;
 					if(!empty($settings['cssMagic'])){
 						$cssmVal++;
@@ -796,117 +662,21 @@ function wpu_settings_page() {
 					if(!empty($settings['templateVoodoo'])){
 						$cssmVal++;
 					}
-				?>
-				
-				setCSSMLevel(<?php echo $cssmVal; ?>);
-				
-				
-				$('#wputplint').change(function() {
-						$('#wpusettingstpl').toggle("slide", "slow");
-						var slVal = ($(this).val()) ? 2 : 0;						
-						setCSSMLevel(slVal);
-						$("#wpucssmlvl").slider("value", slVal);
-				});	
-				
-				$("#wpucssmlvl").slider({
-					value: <?php echo $cssmVal; ?>,
-					min: 0,
-					max: 2,
-					step: 1,
-					change: function(event, ui) {
-						setCSSMLevel(ui.value);
-					}
-				});
-				
-							
-			});
-			
-			function setCSSMLevel(level) {
-				var lvl, desc;
-				if(level == 0) {
-					lvl = "Off";
-					desc = "All automatic CSS integration is disabled";
-				} else if(level == 1) {
-					lvl = "Medium";
-					desc = "CSS Magic is enabled, Template Voodoo is disabled: <ul><li>Styles are reset to stop outer styles applying to the inner part of the page.</li><li>Inner CSS is made more specific so it does affect the outer portion of the page.</li><li>Some HTML IDs and class names may be duplicated.</li></ul>";
-				} else if(level == 2) {
-					lvl = "Full";
-					desc = "CSS Magic and Template Voodoo are enabled:<ul><li>Styles are reset to stop outer styles applying to the inner part of the page.</li><li>Inner CSS is made more specific so it does affect the outer portion of the page.</li><li>HTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.</li></ul>";							
-				}
-				$("#wpucssmlvlfield").val(level);
-				$("#cssmlvltitle").html(lvl);
-				$("#cssmlvldesc").html(desc);
-				$("#cssmdesc").effect("highlight");
-			}
-			
-			function tplAdv() {
-				$('#wpusettingstpladv').toggle('slide');
-				$('#wutpladvshow').toggle()
-				$('#wutpladvhide').toggle();
-				return false;
-			}
-			
-			// disallow alpha chars in padding fields
-			function checkPadding(evt) {
-				var theEvent = evt || window.event;
-				var key = theEvent.keyCode || theEvent.which;
-				key = String.fromCharCode( key );
-				var regex = /[0-9]/;
-				if( !regex.test(key) ) {
-					theEvent.returnValue = false;
-					if (theEvent.preventDefault) theEvent.preventDefault();
-				}
-			}
-			
-		var transmitMessage;
-		function wpu_transmit(type, formID) {
-			$('#wpustatus').hide();
-			window.scrollTo(0,0);
-			$("#wputransmit").dialog({
-				modal: true,
-				title: 'Connecting...',
-				width: 360,
-				height: 160,
-				draggable: false,
-				disabled: true,
-				closeOnEscape: false,
-				resizable: false,
-				show: 'puff'
-			});
-			$('.ui-dialog-titlebar').hide();
-			var formData;
-			
-			formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
-			$.post('admin.php?page='+type, formData, function(response) {
-				if(response=='OK') {
-					// the settings were applied
-					window.location = window.location.href + '&msg=success';
-					return;
-				}
-				
-				transmitMessage = response;
-				// there was an uncatchable error, send a disable request
-				if  (transmitMessage.indexOf('[ERROR]') == -1) {
-					var disable = 'wpudisable=1&_ajax_nonce=<?php echo wp_create_nonce ('wp-united-disable'); ?>';
-					$.post('admin.php?page='+type, disable, function(response) {
-						// the connection has been disabled, redirect
-						if(transmitMessage == '') {
-							transmitMessage = '<?php _e('Blank page received: check your error log.'); ?>';
-						}
-						window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + escape(transmitMessage);
-					});
-				} else {
-					// we caught the error, redirect to setup page
-					transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
-					window.location = 'admin.php?page=wp-united-setup&msg=fail &msgerr=' + escape(transmitMessage);
-				}
+			?>
+			var cssmVal = '<?php echo $cssmVal; ?>';
 
-			});
-			return false;
-		}
+			jQuery(document).ready(function($) { 
+				
+				setupSettingsPage();
+				<?php if(isset($settings['phpbb_path'])) { ?> 
+					setPath('settings');
+				<?php } ?>	
+					setupHelpButtons();
+					settingsFormSetup();
 		
+			});
 		// ]]>
-		</script>
+		</script>	
 
 <?php }
 
@@ -1006,7 +776,7 @@ function wpu_process_settings() {
 		/** 
 		 * Process login integration settings
 		 */
-		$data['integrateLogin'] = isset($_POST['wpuloginint']) ? 1 : 0;
+		$data['integrateLogin'] = (isset($_POST['wpuloginint']) && (!defined('WPU_CANNOT_OVERRIDE')) ) ? 1 : 0;
 		
 		if($data['integrateLogin']) {
 			$data['xposting'] = isset($_POST['wpuxpost']) ? 1 : 0;
