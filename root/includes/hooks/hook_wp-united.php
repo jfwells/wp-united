@@ -39,7 +39,6 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 			set_error_handler('wpu_msg_handler'); 
 		}
 
-
 		if(isset($wpSettings['wpPluginPath'])) {
 			if(file_exists($wpSettings['wpPluginPath'])) {
 				

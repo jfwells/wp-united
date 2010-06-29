@@ -187,9 +187,12 @@ function wpu_setup_menu() {
 	if(!is_writable($wpuPath . 'cache/')) {
 		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpuPath . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
 	}
-	
-	if(defined('WPU_CANNOT_OVERRIDE')) {
-		echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United login integration is unavailable.</p></div>';
+
+	if( defined('WPU_CANNOT_OVERRIDE') ) {
+		echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United user integration is unavailable.</p></div>';
+	}
+	if( defined('DEBUG') || defined('DEBUG_EXTRA') ) {
+		echo '<div id="debugerror" class="error highlight"><p>WARNING: phpBB Debug is set. To prevent notices from showing due to switching between phpBB and WordPress, delete or comment out the two DEBUG lines from your phpBB\'s config.php. If this is a live site, debug MUST be disabled.</p></div>';
 	}
 	
 			
@@ -432,8 +435,11 @@ function wpu_settings_page() {
 				}
 			}
 			
-			if(defined('WPU_CANNOT_OVERRIDE')) {
-				echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United login integration is unavailable.</p></div>';
+			if( defined('WPU_CANNOT_OVERRIDE') ) {
+				echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United user integration is unavailable.</p></div>';
+			}
+			if( defined('DEBUG') || defined('DEBUG_EXTRA') ) {
+				echo '<div id="debugerror" class="error highlight"><p>WARNING: phpBB Debug is set. To prevent notices from showing due to switching between phpBB and WordPress, delete or comment out the two DEBUG lines from your phpBB\'s config.php. If this is a live site, debug MUST be disabled.</p></div>';
 			}
 			?>
 			<p><?php _e('WP-United is modular; You can enable or disable any of the four major features below: User Integration, Theme Integration, Behaviour Integration and User Blogs.') ?></p>

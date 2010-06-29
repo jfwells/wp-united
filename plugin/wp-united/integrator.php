@@ -26,7 +26,7 @@ if($connectSuccess) {
 	 */
 	if(!empty($wpSettings['integrateLogin']) && defined('WPU_REVERSE_INTEGRATION')) { 
 		if(!defined('WPU_CANNOT_OVERRIDE')) {
-			$wp->init(); 
+			wp_get_current_user(true);
 			do_action('init');
 		}
 	}

@@ -20,79 +20,86 @@ if ( !defined('ABSPATH') ) {
 
 /**
  * The main login integration routine
- * @param string $cookie overridden from WordPress' validate_auth_cookie
- * @param string $scheme overridden from WordPress' validate_auth_cookie
  */
-function wpu_integrate_login($cookie = '', $scheme = '') {
-	global $wpSettings, $lDebug, $phpbbForum, $wpuPath;
+function wpu_integrate_login() {
+	global $wpuPath, $lDebug, $phpbbForum;
 	
 	require_once($wpuPath. 'debugger.php');
 	$lDebug = new WPU_Debug();
 
-	// Should this user integrate? If not, we can just let WordPress do it's thing
-	if( !$userLevel = wpu_get_user_level() ) {
-		return wp_validate_auth_cookie_default($cookie, $scheme);
+	if( !$phpbbForum->user_logged_in() ) {
+		return wpu_int_phpbb_logged_out();
 	}
 
-	// If the user is logged out of phpBB, clear any cookies and set status
-	// we clear cookies directly rather than calling wp_logout, as we don't want other actions to occur
-	/** 
-	 * @TODO: ALLOW LOGIN FROM WP HERE: IF LOGGED OUT OF PHPBB, BUT VALID
-	 * WP LOGIN, THEN LOG THEM IN ANYWAY
-	 */
-
+	return wpu_int_phpbb_logged_in();
 	
-	if( !$phpbbForum->user_logged_in() ) {
-		
-		// user is logged out of phpBB. See if they are logged into WP and have an integrated acct
-		if ( ! $user = wp_validate_auth_cookie_default() ) {
-			if ( is_admin() || empty($_COOKIE[LOGGED_IN_COOKIE]) || !$user = wp_validate_auth_cookie($_COOKIE[LOGGED_IN_COOKIE], 'logged_in') ) {
-				wp_set_current_user(0);
-				return false;
-			}
-		}
-		// user is logged into WP
-		if(!$wpUser = get_userdata($user)) {
+}
+
+/**
+ * What to do when the user is logged out of phpBB
+ * in WP-United prior to v0.9.0, we would forcibly log them out
+ * However this is left open as a prelude to bi-directional user integration
+ */
+function wpu_int_phpbb_logged_out() {
+	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user;
+	
+	// Check if user is logged into WP
+	if ( ! $user = get_currentuserinfo() ) {
+		return false;
+	}
+	
+	if(!$wpUser = get_userdata($user)) {
+		return false;
+	}
+	
+	
+	$wpIntID = (isset($wpUser->phpbb_userid)) ? $wpUser->phpbb_userid : 0;
+	
+	if($wpIntID) {
+		// the user has an integrated phpBB account
+		//$phpbbForum->login($wpIntID); **LOGIN TO PHPBB TO BE HANDLED BY PHPBB! **
+		//wpu_set_role($wpUser->ID, $userLevel);
+		//wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+		return $wpUser->ID;
+	} else {
+		// The user's account is NOT integrated!
+		// What to do?
+		// Need also WordPress->phpbb mapping to decide how to create a user
+		if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
 			return false;
 		}
+		//$phpbbForum->add_user(xxxx) // see phpbb function user_add()
+		// CREATE USER
+		// MAP DETAILS
+		// LOG IN
+		/// [ or -- do all from phpbb ]
+	}
+	
+	// this clears all WP-related cookies
+	// wp_clear_auth_cookie();
+	// return false; // old
+	return $user;
+}
 
-		$wpIntID = (isset($wpUser->phpbb_userid)) ? $wpUser->phpbb_userid : 0;
-		
-		if($wpIntID) {
-			// the user has an integrated phpBB account
-			//$phpbbForum->login($wpIntID); **LOGIN TO PHPBB TO BE HANDLED BY PHPBB! **
-			wpu_set_role($wpUser->ID, $userLevel);
-			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
-			do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
-			return $wpUser->ID;
-		} else {
-			// The user's account is NOT integrated!
-			// What to do?
-			// Need also WordPress->phpbb mapping to decide how to create a user
-			if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
-				return false;
-			}
-			//$phpbbForum->add_user(xxxx) // see phpbb function user_add()
-			// CREATE USER
-			// MAP DETAILS
-			// LOG IN
-		}
-
-		// this clears all WP-related cookies
-		wp_clear_auth_cookie();
-		return false;
+function wpu_int_phpbb_logged_in() {
+	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user;
+	// Should this user integrate? If not, we can just let WordPress do it's thing
+	if( !$userLevel = wpu_get_user_level() ) {
+		return get_currentuserinfo();
 	}
 
 	// This user is logged in to phpBB and needs to be integrated. Do they already have a WP account?
 	if($integratedID = wpu_get_integration_id() ) {
-		
+	
 		// they already have a WP account, log them in to it and ensure they have the correct details
 		if(!$wpUser = get_userdata($integratedID)) {
 			return false;
 		}
+
 		wpu_set_role($wpUser->ID, $userLevel);
 		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
-		//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
+		wp_set_current_user($wpUser->ID);
+		wp_set_auth_cookie($wpUser->ID);
 		return $wpUser->ID;
 		
 	} else {
@@ -122,9 +129,11 @@ function wpu_integrate_login($cookie = '', $scheme = '') {
 		}
 	}
 
-	return false;	
+	return false;		
 	
 }
+
+
 
 /**
  * Finds the next available username in WordPress or phpBB

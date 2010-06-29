@@ -29,17 +29,10 @@ if ( !defined('ABSPATH') ) {
  * Initialise WP-United
  */
 
-function wpu_allow_init() {
-	global $wpuCanInitialise;
-	$wpuCanInitialise = true;
-}
+
 function wpu_init_plugin() {
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings, $wpuUrl, $wpuPath, $wpuPluginLoaded;
-	global $wpuCanInitialise;
 	
-	if(!$wpuCanInitialise) {
-		return false;
-	} 
 	$wpuPluginLoaded = true;
 	$wpSettings = get_option('wpu-settings');
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
@@ -56,24 +49,18 @@ function wpu_init_plugin() {
 	}
 
 	// the settings page has detected an error and asked to abort
-	if(isset($_POST['wpudisable'])) {
-		if(check_ajax_referer( 'wp-united-disable')) {
-			wpu_disable_connection('server-error'); 
-		}
+	if( isset($_POST['wpudisable']) && check_ajax_referer( 'wp-united-disable') ) {
+		wpu_disable_connection('server-error'); 
 	}	
 
 	// the user wants to manually disable
-	if(isset($_POST['wpudisableman'])) {
-		if(check_ajax_referer( 'wp-united-disable')) {
-			wpu_disable_connection('manual');
-		}
+	if( isset($_POST['wpudisableman']) && check_ajax_referer( 'wp-united-disable') ) {
+		wpu_disable_connection('manual');
 	}		
 
-	if(isset($_POST['wpusettings-transmit'])) {
-		if(check_ajax_referer( 'wp-united-transmit')) {
-			wpu_process_settings();
-			$wpSettings = get_option('wpu-settings');
-		}
+	if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) {
+		wpu_process_settings();
+		$wpSettings = get_option('wpu-settings');
 	}	
 
 	$wpSettings['status'] = 0;
@@ -149,89 +136,54 @@ function wpu_init_plugin() {
 			}
 		} 
 	}
-	global $wp;
+	/*global $wp;
 	$wp = new WP();
-	$wp->init();
+	$wp->init();*/
 	return true; 
 }
 
-if(function_exists('wp_validate_auth_cookie')) {
+if(function_exists('wp_get_current_user')) {
 	/**
 	 * wp_validate_auth_cookie is already overridden by a plugin providing SSO.
 	 * integrated login won't work, so we set a marker in order to signpost the error, and disable login integration
 	 */
 	define('WPU_CANNOT_OVERRIDE', true);
 } else {
+	
 	/**
 	 * Overrides auth cookie checking in favour of checking phpBB login status
 	 * Fall back to default WP function in wp_validate_auth_cookie() if integrated login isn't needed
 	 */
-	function wp_validate_auth_cookie($cookie = '', $scheme = '') {
-		global $wpuPath, $wpuPluginLoaded, $wp, $wpSettings;
+	function wp_get_current_user($inRevInt = false) {
+		global $wpuPath, $wpuPluginLoaded,  $wpSettings, $current_user;
+		
+		if(defined('WPU_REVERSE_INTEGRATION') && (!$inRevInt) ) {
+			return false;
+		}
+		
+		if ( isset($current_user) && !empty($current_user) ) {
+			return $current_user;
+		}
 		
 		// don't do anything until the main plugin has initialised
 		if(!$wpuPluginLoaded) {
 			if (!wpu_init_plugin()) {
-				return wp_validate_auth_cookie_default($cookie, $scheme);
+				get_currentuserinfo();
+				return $current_user;
 			}
 		}
 		
 		// If login integration is not enabled, skip to default WP function
 		if( (!$wpSettings['integrateLogin']) || defined('WPU_DISABLE_LOGIN_INT') ) {
-			return wp_validate_auth_cookie_default($cookie, $scheme);
+			get_currentuserinfo();
+			return $current_user;
 		}
 
 		require_once($wpuPath . 'login-integrator.php');
-		return wpu_integrate_login($cookie, $scheme);
-		
+		wpu_integrate_login();
+		return $current_user; 
 	}
 }
-
-function wp_validate_auth_cookie_default($cookie = '', $scheme = '') {
-	
-	if ( ! $cookie_elements = wp_parse_auth_cookie($cookie, $scheme) ) {
-		do_action('auth_cookie_malformed', $cookie, $scheme);
-		return false;
-	}
-
-	extract($cookie_elements, EXTR_OVERWRITE);
-
-	$expired = $expiration;
-
-	// Allow a grace period for POST and AJAX requests
-	if ( defined('DOING_AJAX') || 'POST' == $_SERVER['REQUEST_METHOD'] )
-		$expired += 3600;
-
-	// Quick check to see if an honest cookie has expired
-	if ( $expired < time() ) {
-		do_action('auth_cookie_expired', $cookie_elements);
-		return false;
-	}
-
-	$user = get_userdatabylogin($username);
-	if ( ! $user ) {
-		do_action('auth_cookie_bad_username', $cookie_elements);
-		return false;
-	}
-
-	$pass_frag = substr($user->user_pass, 8, 4);
-
-	$key = wp_hash($username . $pass_frag . '|' . $expiration, $scheme);
-	$hash = hash_hmac('md5', $username . '|' . $expiration, $key);
-
-	if ( $hmac != $hash ) {
-		do_action('auth_cookie_bad_hash', $cookie_elements);
-		return false;
-	}
-
-	if ( $expiration < time() ) // AJAX/POST grace period set above
-		$GLOBALS['login_grace_period'] = 1;
-
-	do_action('auth_cookie_valid', $cookie_elements, $user);
-
-	return $user->ID;
-}
-
 
 function wpu_disable_connection($type) {
 	global $wpSettings;
@@ -1816,7 +1768,7 @@ add_action('admin_head', 'wpu_admin_init');
 add_action('wp_head', 'wpu_done_head');
 add_action('upload_files_browse', 'wpu_browse_attachments');
 add_action('upload_files_browse-all', 'wpu_browse_attachments');
-add_action('init', 'wpu_allow_init');
+
 add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry'); 
   
