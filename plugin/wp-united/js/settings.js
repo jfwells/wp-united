@@ -197,16 +197,24 @@ function wpu_transmit(type, formID) {
 				if(transmitMessage == '') {
 					transmitMessage = blankPageMsg;
 				}
-				window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + escape(Base64.encode(transmitMessage));
+				
+				window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
 			});
 		} else {
 			// we caught the error, redirect to setup page
 			transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
-			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + escape(Base64.encode(transmitMessage));
+			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
 		}
 
 	});
 	return false;
+}
+
+function makeMsgSafe(msg) {
+	msg = Base64.encode(msg)
+	msg = msg.replace(/\+/ig, '[pls]');
+	msg = msg.replace(/\=/ig, '[eq]');
+	return escape(msg);
 }
 
 //disable WP-United
@@ -352,4 +360,4 @@ var Base64 = {
 		}
 		return string;
 	}
-	}
+}

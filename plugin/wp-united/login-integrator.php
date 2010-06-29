@@ -14,8 +14,143 @@
 
 /**
  */
-if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) {
+if ( !defined('ABSPATH') ) {
 	exit;
+}
+
+/**
+ * The main login integration routine
+ * @param string $cookie overridden from WordPress' validate_auth_cookie
+ * @param string $scheme overridden from WordPress' validate_auth_cookie
+ */
+function wpu_integrate_login($cookie = '', $scheme = '') {
+	global $wpSettings, $lDebug, $phpbbForum, $wpuPath;
+	
+	require_once($wpuPath. 'debugger.php');
+	$lDebug = new WPU_Debug();
+
+	// Should this user integrate? If not, we can just let WordPress do it's thing
+	if( !$userLevel = wpu_get_user_level() ) {
+		return wp_validate_auth_cookie_default($cookie, $scheme);
+	}
+
+	// If the user is logged out of phpBB, clear any cookies and set status
+	// we clear cookies directly rather than calling wp_logout, as we don't want other actions to occur
+	/** 
+	 * @TODO: ALLOW LOGIN FROM WP HERE: IF LOGGED OUT OF PHPBB, BUT VALID
+	 * WP LOGIN, THEN LOG THEM IN ANYWAY
+	 */
+
+	
+	if( !$phpbbForum->user_logged_in() ) {
+		
+		// user is logged out of phpBB. See if they are logged into WP and have an integrated acct
+		if ( ! $user = wp_validate_auth_cookie_default() ) {
+			if ( is_admin() || empty($_COOKIE[LOGGED_IN_COOKIE]) || !$user = wp_validate_auth_cookie($_COOKIE[LOGGED_IN_COOKIE], 'logged_in') ) {
+				wp_set_current_user(0);
+				return false;
+			}
+		}
+		// user is logged into WP
+		if(!$wpUser = get_userdata($user)) {
+			return false;
+		}
+
+		$wpIntID = (isset($wpUser->phpbb_userid)) ? $wpUser->phpbb_userid : 0;
+		
+		if($wpIntID) {
+			// the user has an integrated phpBB account
+			//$phpbbForum->login($wpIntID); **LOGIN TO PHPBB TO BE HANDLED BY PHPBB! **
+			wpu_set_role($wpUser->ID, $userLevel);
+			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+			do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
+			return $wpUser->ID;
+		} else {
+			// The user's account is NOT integrated!
+			// What to do?
+			// Need also WordPress->phpbb mapping to decide how to create a user
+			if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
+				return false;
+			}
+			//$phpbbForum->add_user(xxxx) // see phpbb function user_add()
+			// CREATE USER
+			// MAP DETAILS
+			// LOG IN
+		}
+
+		// this clears all WP-related cookies
+		wp_clear_auth_cookie();
+		return false;
+	}
+
+	// This user is logged in to phpBB and needs to be integrated. Do they already have a WP account?
+	if($integratedID = wpu_get_integration_id() ) {
+		
+		// they already have a WP account, log them in to it and ensure they have the correct details
+		if(!$wpUser = get_userdata($integratedID)) {
+			return false;
+		}
+		wpu_set_role($wpUser->ID, $userLevel);
+		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+		//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
+		return $wpUser->ID;
+		
+	} else {
+		
+		// they don't have an account yet, create one
+		require_once( ABSPATH . WPINC . '/registration.php');
+		$signUpName = $phpbbForum->get_username();
+		
+		if(! $signUpName = wpu_find_next_avail_name($signUpName, 'WP') ) {
+			return false;
+		}
+
+		$newWpUser = array(
+			'user_login'	 	=> 	$signUpName,
+			'user_pass'		=>	$phpbbForum->get_userdata('user_password'),
+			'user_email'	=>	$phpbbForum->get_userdata('user_email')
+		);
+		
+		if($newUserID = wp_insert_user($newWpUser)) {
+			if($wpUser = get_userdata($integratedID)) {
+				wpu_set_role($wpUser->ID, $userLevel);		
+				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $newUserID);
+				wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
+				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
+				return $wpUser->ID;
+			}
+		}
+	}
+
+	return false;	
+	
+}
+
+/**
+ * Finds the next available username in WordPress or phpBB
+ * @param string $name the desired username
+ * @param $package the application to search in
+ */
+function wpu_find_next_avail_name($name, $package = 'WP') {
+	//start with the plain username, if unavailable then append a number onto the login name until we find one that is available
+	if($package == 'WP') {
+		$i = 0; 
+		$foundFreeName = false;
+		$name = $newName = sanitize_user($name, true);
+		while ( !$foundFreeName ) {
+			if ( !username_exists($newName) ) {
+				$foundFreeName = true;
+			} else {
+				// This username already exists.
+				$i++; 
+				$newName = $name . $i;
+			}
+		}
+		return $newName;
+	} else {
+		// TODO: phpBB search!
+		return false;
+	}
 }
 
 /**
@@ -285,6 +420,7 @@ function wpu_check_userlevels ($ID, $usrLevel) {
 /**
  * Sets the user role before they get logged in
  * This writes the data to the DB
+ * Only updates if the role is not already correct
  * @param int $id WordPress user ID
  * @param string $userLevel WordPress role
  */

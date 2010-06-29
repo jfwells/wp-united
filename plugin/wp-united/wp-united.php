@@ -163,24 +163,11 @@ if(function_exists('wp_validate_auth_cookie')) {
 	define('WPU_CANNOT_OVERRIDE', true);
 } else {
 	/**
-	 * New function for integrating logins, overrides auth cookie checking in favour of
-	 * checking phpBB login status
+	 * Overrides auth cookie checking in favour of checking phpBB login status
 	 * Fall back to default WP function in wp_validate_auth_cookie() if integrated login isn't needed
-	 * @TODO: Allow checking of status from WP side and log them into phpBB?
 	 */
-	
 	function wp_validate_auth_cookie($cookie = '', $scheme = '') {
-		global $wpSettings, $phpbbForum, $wpuPath, $wpuPluginLoaded, $wp;
-		
-		/**
-		 * For phpBB-in-wordpress, this is called first before phpBB has set up its session.
-		 * So we just blow off the first attempt
-		 * WP_USE_THEMES is set after init, and late enough, so after that, we can continue
-		 * by calling this manually
-		 */
-		if( defined('WPU_REVERSE_INTEGRATION') && !defined('WP_USE_THEMES') ) {
-			return false;
-		}
+		global $wpuPath, $wpuPluginLoaded, $wp, $wpSettings;
 		
 		// don't do anything until the main plugin has initialised
 		if(!$wpuPluginLoaded) {
@@ -195,89 +182,10 @@ if(function_exists('wp_validate_auth_cookie')) {
 		}
 
 		require_once($wpuPath . 'login-integrator.php');
+		return wpu_integrate_login($cookie, $scheme);
 		
-		require_once($wpSettings['wpPluginPath'] . 'debugger.php');
-		global $lDebug;
-		$lDebug = new WPU_Debug();
-
-		// Should this user integrate? If not, we can just let WordPress do it's thing
-		if( !$userLevel = wpu_get_user_level() ) {
-			return wp_validate_auth_cookie_default($cookie, $scheme);
-		}
-
-		// If the user is logged out of phpBB, clear any cookies and set status
-		// we clear cookies directly rather than calling wp_logout, as we don't want other actions to occur
-		/** 
-		 * @TODO: ALLOW LOGIN FROM WP HERE: IF LOGGED OUT OF PHPBB, BUT VALID
-		 * WP LOGIN, THEN LOG THEM IN ANYWAY
-		 */
-		if( !$phpbbForum->user_logged_in() ) {
-			// this clears all WP-related cookies
-			wp_clear_auth_cookie();
-			return false;
-		}
-		
-		// This user is logged in to phpBB and needs to be integrated. Do they already have a WP account?
-		if($integratedID = wpu_get_integration_id() ) {
-			
-			// they already have a WP account, log them in to it and ensure they have the correct details
-			if(!$wpUser = get_userdata($integratedID)) {
-				return false;
-			}
-			/**
-			 * @TODO CHECK ROLE AND ONLY SET IF INCONSISTENT?
-			 */ 
-			wpu_set_role($wpUser->ID, $userLevel);
-			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
-			//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
-			return $wpUser->ID;
-			
-		} else {
-			
-			// they don't have an account yet, create one
-			require_once( ABSPATH . WPINC . '/registration.php');
-			$signUpName = $phpbbUserName = $phpbbForum->get_username();
-			
-			//start with the plain username, if unavailable then append a number onto the login name until we find one that is available
-			$i = 0; 
-			$foundFreeName = false;
-			while ( !$foundFreeName ) {
-				if ( !username_exists($signUpName) ) {
-					$foundFreeName = true;
-				} else {
-					// This username already exists.
-					/**
-					 * @TODO:
-					 * Before we checked if it belonged to this person and errored if it did
-					 * Consider security implications of re-linking. For now, it just gets orphaned
-					 */
-					$i++; 
-					$signUpName = $phpbbUserName . $i;
-				}
-			}
-			$newWpUser = array(
-				'user_login'	 	=> 	$signUpName,
-				'user_pass'		=>	$phpbbForum->get_userdata('user_password'),
-				'user_email'	=>	$phpbbForum->get_userdata('user_email')
-			);
-			
-			if($newUserID = wp_insert_user($newWpUser)) {
-				if($wpUser = get_userdata($integratedID)) {
-					/**
-					 * @TODO CHECK ROLE AND ONLY SET IF INCONSISTENT?
-					 */
-					wpu_set_role($wpUser->ID, $userLevel);		
-					wpu_update_int_id($phpbbForum->get_userdata('user_id'), $newUserID);
-					wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
-					do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
-					return $wpUser->ID;
-				}
-			}
-		}
-		
-		return false;
-	} // end function
-} // end if
+	}
+}
 
 function wp_validate_auth_cookie_default($cookie = '', $scheme = '') {
 	

@@ -156,7 +156,7 @@ function wpu_setup_menu() {
 	if(isset($_GET['msg'])) {
 		if($_GET['msg'] == 'fail') {
 			$msg = (string)stripslashes($_GET['msgerr']);
-			$msg = base64_decode($msg);
+			$msg = base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), $msg));
 		}
 	}
 				

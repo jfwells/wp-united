@@ -155,7 +155,7 @@ define('WPU_MAX_COMPRESS', FALSE);
  * WordPress debug options
  * Set to FALSE for live sites!
  */
-define('WP_DEBUG', TRUE);
-define('WP_DEBUG_DISPLAY', TRUE);
+//define('WP_DEBUG', TRUE);
+//define('WP_DEBUG_DISPLAY', TRUE);
 
 ?>
