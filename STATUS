@@ -1,81 +1,151 @@
-In progress
+Lots to do, lots to do
 --------------
 
-TODO
--- add warning / initial integrate dialog when enabling / disabling user integration
+v0.9:
+
+--- bi-directional user integration------
 -- add wpu_can_phpbb_register function for bi-di login integration, but aside from registering, keep phpBB login on phpBB side
--- validate_user_conflict function will work with func_get_args, so re-implement it
--- once settings panels are ready, split into separate files in subfolder
--- simplify mod-settings into single array
--- Set enabled / disabled -- do not enter phpBB unless "enabled" or $_GET--transmit are set
--- disable submit button until path is chosen
--- change hook flow
+-- add bi-di functions to phpBB to override session creation
+-- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
+-- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
 
-MIGRATION ACTIONS:
-- remove old settings in WP & phpBB
-- remove old widget options
-- remove a_wpu_manage permission
-- remove ACP modules
-
-
-
-clean up wp-runner / integrator split
-logout etc to use comms frame
-
-
-TODO -- remaining from killing blog.php:
-	
-	
-	
-- make_clickable removal still needs to run on rev int pages, conn install, etc.
-- $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define			
+- make_clickable removal still needs to run on rev int pages!
+- $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define (with bi-di, should be able to remove password hash override altogether)		
 - Check wp_check_password override!
+
+
+-- create dynamic usermapper with dynamic row loading, with avatars/e-mails/IDs showing and ability to switch LHS between WP & phpBB.
+-- warn about unsuitable admin mappings
+-- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
+-- validate_user_conflict function will work with func_get_args, so re-implement it so usernames can be sanitized from either side
+-- add 2 new columns to users table -- "wp_username" (Fill it in if the username in WP is different) and use_wp_username (whether to use the WP username when logging in). Add WP usermeta use_phpbbLogin
+-- add global option -- which username to use by default if different in phpBB & WordPress. Can be overridden for individual users via the user mapper
+-- add check and panel warning if "allow wordpress registrations?" but wpu_can_phpbb_register not true
+-- add user_activated check to wordpress? if so check how it behaves
+-- add warning / initial integrate admin user and "should disable site" dialog when enabling / disabling user integration
+
+-- map custom WP roles to phpBB perms. (consider: When roles are changed, phpBB is updated?)
+
+-- re-implement phpbb logout, add wp logout override, allow WP profile editing, and re-implement bi-di profile transfers.
+
+-- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
 
 - move wp_change_username somewhere better
 - consider manually doing make_clickable() on xposted comment text
 
-- add upgrade instructions for people using blog.php
 
 
-Other changes
+
+------ cross-posting and comments ---------
+
+-- move cross-posting from per-topic to per-post (and topic!) to reduce query load
+-- check excerpt/full settings are working
+-- rework html-to-bbcode translation for images with captions
+
+-- for each cross-posted comment insert a ghost comment into wordpress with a marker to the phpBB comment (? -- unless we can cleanly generate "comments list to load", see below)
+-- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
+-- consider allowing guest posting of comments (IF akismet is installed?).
+
+
+----- panel general --------
+-- once settings panels are ready, split into separate files in subfolder
+-- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
+-- check all defaults -- ensure all options disabled by default (different from v0.8x defaults!)
+-- add plugin activate action that describes next steps in bubble
+-- integrate phpBB ACP link into dashboard dropdown & menu
+-- add plugin deactivate action that warns of consequences, and asks if they want a complete removal.
+-- add deinstallation routine using ajax front-end so it can't crash out
+
+---- general cleanup ----
+-- Completely rewrite hook, and combine integrator and template-integrator, since they are now the same
+-- re-base file structure so phpBB mod sits under plugin
+-- split plugin files into folders -- e.g. split off settings panel
+-- move wp-integration-class into general parser class that can be used by both P & W and plugin fixers
+-- remove global checker from plugin fixers, and get them to check for new WP3 syntax -- consider removing altogether
+-- consider lightening phpBB & WP load by removing unneeded functions in WP & phpBB.
+-- consider only loading phpBB if user needs to integrate and they aren't logged in, if this is a cross-post or if widgets need it -- e.g. bootstrap_phpbb (as we did in v0.7x)
+-- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
+
+-- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
+-- remove 90% of all defines, clean up unused globals
+-- remove all old user blog options (e.g. split uploads, etc.)
+-- check all function arbitration is still working, use dynamic args if needed
+-- remove legacy backwards-compat paths, clean up old TODOs
+
+
+----- template integration ------------
+-- update css magic to work with subdomains
+-- re-evaluate parsing of inline css with tVoodoo: performance hit may not be worth it
+-- get acp login page to integrate too -- otherwise looks bad if user removes header/footer
+-- auto-clear of template cache when nav settings changed in WP3
+-- re-enable wordpress-in-phpbb intetgration
+-- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
+
+---- widgets --------
+-- finish moving widgets from widgets1 to widgets2
+-- add username colours to topics, posts & loginuserinfo widget
+-- other widget suggestions from forum
+-- include gpl userblog widgets
+-- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
+
+
+-------- user blogs --> wp-ms ----------
+-- check we don't crash out on WP-ms load
+-- check permissions mapping and user creation -- add check for whether they should be given a blog or not when being created
+-- check css magic / template voodoo with many different user blog templates at once. (or disallow/warn against wordpress-in-phpbb with wp-ms)
+-- add back userblog permissions
+-- reconnect blog buttons, consider removing blogid from phpBB
+
+
+--------- possible ---------------
+-- Add AutoMod engine (may defer to v0.9.x > .0 if not trivial)
+-- Add pre-mod routines and scratch/plugins loader folder for plugins or premium options
+-- Finish "advanced settings" panel page -- first see what options are around and whether still necessary
+-- Override WP version check?
+-- support custom post types with per-type cross-posting settings
+-- add ability to send settings to WP-United.com for analysis/feedback (likely deferred til 1.0)
+-- check that we at least load up with Buddypress
+
+
+------- pie in the sky -----------
+-- draggable permissions mapping using e.g. jsPlumb
+-- finish "post to blog" in phpBB, integrate with pressIt
+-- search integration
+-- split pane help panel popup with all strings pre-loaded (definitely need for v1.0)
+
+
+--------- v0.8x -> v0.9.0 migrator / upgrader --------------
+
+In order to ensure a clean break and new features and code, work on this is deferred until we have a solid v0.9x
+Once that is ready to release, we need a migrator that can:
+
+- run in phpBB and compile a list of actions before any settings are overwritten (or before files are changed in case they get errors)
+- remove old settings in WP & phpBB
+- remove old widget options
+- remove a_wpu_manage permission
+- remove ACP modules
+- add new user table columns
+- migrate cross-posts to post marker system
+- create ghost posts for cross-posted comments (if needed)
+- auto-create wp-ms blogs for users with own blogs and move posts into them
+- check for old files that should be deleted
+- provide instructions for moving from blog.php to new system (or auto-detect the settings)
+
+
+
+
+Other (older) things noticed that may no longer be relevant
 ---------------------
-- duplicate stylekeys config entries error
-- when creating phpBB user account in usermapper, don't just do nothing silently if phpBB username doesn't validate
-- relax wordpres username 'admin' restrctions -- map them to phpBB account in setup wizard
-
-- add option to show post excerpt to posts / topics widget/tag (first 20 words)
-- WP Super Cache is looking for WP cookie -- get it to check for phpBB cookie too, or set WP cookie on phpBB cookie set?
-
-
-
-
-
-
-- post to blog button
-- Migrate widgets to new syntax
 
 - Last post time reported different from topic time
 - Cross-posted post reported not read, even after reading
+- $_SERVER['DOCUMENT_ROOT'] unreliable as source for path computation on open_basedir restricted servers
+- ? author permalinks not working if author permalink with space in username
+- wpu_get_xposted_details called multiple times on page view (comments_open, comment load). Result should be cached.
+- Check "posts since last visit" algorithm
 
-- Move authentication out to module, check with WP Super Cache
-- Allow guest commenting
-- add username colours to topics, posts & loginuserinfo widget
 
-$_SERVER['DOCUMENT_ROOT'] unreliable as source for path computation on open_basedir restricted servers
-? author permalinks not working if author permalink with space in username
-
-wpu-plugin should halt if installLevel is < 10, or if version doesn't match, to prevent users from using WP-United  at all if they haven't got past Step 5 of the Setup Wizard.
-wpu_get_xposted_details called multiple times on page view (comments_open, comment load). Result should be cached.
-Check "posts since last visit" algorithm
-
-Enhancements:
-On install, if blank page or server 500, automatically run again with wp_debug options turned on
-Add forum selection option to widget control panel for latest posts and topics widgets
-user blogs: show only my posts for author or below: http://www.wp-united.com/viewtopic.php?f=9&t=2063
-WP dashboard recent comments integration with xposted comments
-When grepping <title>, check if more than one exists. If so, ignore any commented ones.
-
-Fixed/Committed for vNext
+Fixed/Committed for vNext. For all changed prior to v0.9, see changelog
 ------------------------------------
 
 Check that function update_option exists when installing connection -- if not, balk
@@ -95,4 +165,11 @@ Internalising of integrated login into wordpress -- in progress
 - Fixed absolute phpbb_root_path breaks phpBB URLs in forward template integration
 - wordpress now always run in global scope for reverse integration (but header/footer called locally)
 - Moved ACP panel to wordpress. Settings not yet transferred --need to repackage mod and transfer over settings
-- settings now being transferred to phpBB. TODO: simplify mod-settings into single array
+- settings now being transferred to phpBB.
+- Mod-settings in phpBB is now simplified into a single array getter/setter
+- Settings and style-keys now got and set all at once to prevent partial loads
+- phpBB now invoked from wordpress via override of get_currentuser -- everything inited in simple flow (with exception of reverse integration)
+- settings panel checks for conflicting overrides in other plugins, for PHP errors that happenned previously, or for phpBB's debug being set, and shows appropriate warnings
+- Sophisticated AJAX front-end for enabling/disabling and processing settings now added
+- User integration completely rewritten and significantly simplified -- we no longer check for outside use-case mis-mappings, and just get on with it
+- No longer log out non-integrated users -- assume people who are already logged in are supposed to be so. This allows us to to bi-directional user integration with phpBB
