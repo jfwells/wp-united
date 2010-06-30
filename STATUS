@@ -4,7 +4,7 @@ Lots to do, lots to do
 v0.9:
 
 --- bi-directional user integration------
--- add wpu_can_phpbb_register function for bi-di login integration, but aside from registering, keep phpBB login on phpBB side
+-- add wpu_can_phpbb_register function for bi-di login integration, but aside from registering, keep phpBB login on phpBB side (aside from a wordpress-in-phpbb integration)
 -- add bi-di functions to phpBB to override session creation
 -- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
 -- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
@@ -65,6 +65,7 @@ v0.9:
 -- consider lightening phpBB & WP load by removing unneeded functions in WP & phpBB.
 -- consider only loading phpBB if user needs to integrate and they aren't logged in, if this is a cross-post or if widgets need it -- e.g. bootstrap_phpbb (as we did in v0.7x)
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
+-- LANG strings -- move back again to WP po/mo (arrgh - we ported them to phpBB in v0.8!)
 
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 -- remove 90% of all defines, clean up unused globals
@@ -84,6 +85,7 @@ v0.9:
 ---- widgets --------
 -- finish moving widgets from widgets1 to widgets2
 -- add username colours to topics, posts & loginuserinfo widget
+-- login can use ajax->refresh with bidi integration (but still logs into phpBB)
 -- other widget suggestions from forum
 -- include gpl userblog widgets
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
@@ -153,9 +155,9 @@ Internalising of integrated login into wordpress -- in progress
 - search for all $wpUtdInt->integrate_logins and remove (done)
 - Remove reliance on overridden wp functions: (DONE)
 	-- move hasher to login-integrator (done)
-			- TODO: instead of multiple defines, set once (reduced as much as possible)
-			- TODO: check that hasher override overrides in time. (done, moved)
-			- TODO: remove registration.php stuff from wp-functions. (done) HOWEVER: need to handle validate_username conflict
+			- instead of multiple defines, set once (reduced as much as possible)
+			- check that hasher override overrides in time. (done, moved)
+			- remove registration.php stuff from wp-functions. (done) HOWEVER: need to handle validate_username conflict
 					- Can just rename phpBB's validate_username if a marker is set (done)
 	-- kill make_clickable from wp-functions: rename it in phpBB and add alias function if not defined. (done)
 	Login debug moved to new generic debugger class
