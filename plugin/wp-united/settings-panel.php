@@ -28,7 +28,7 @@ function wpu_settings_menu() {
 	}	
 	
 	if(isset($_POST['wpusettings-transmit'])) {
-		if(check_ajax_referer( 'wp-united-transmit')) {			
+		if(check_ajax_referer( 'wp-united-transmit')) {		
 			wpu_transmit_settings();
 			die();
 		}
@@ -703,7 +703,7 @@ function wpu_process_settings() {
 	}
 	
 	$data = array();
-	
+
 	/**
 	 * First process path to phpBB
 	 */
@@ -908,7 +908,7 @@ function wpu_process_settings() {
 
 
 	update_option('wpu-settings', $data);
-	
+
 }
 
 
@@ -916,12 +916,22 @@ function wpu_process_settings() {
  * Transmit settings to phpBB
  */
 function wpu_transmit_settings() {
-	global $phpbbForum;
+	global $phpbbForum, $phpbb_root_path, $phpEx, $wpuPath, $wpSettings;
+	
+	//if WPU was disabled, we need to initialise phpBB first
+	// phpbbForum is already inited, however -- we just need to load
+	if ( !defined('IN_PHPBB') ) {
+		$phpbb_root_path = $wpSettings['phpbb_path'];
+		$phpEx = substr(strrchr(__FILE__, '.'), 1);
+		define('WPU_PHPBB_IS_EMBEDDED', TRUE);
+		$phpbbForum->load($phpbb_root_path);
+		wpu_set_status();
+	}
 	
 	$settings = get_option('wpu-settings');
 	if($phpbbForum->synchronise_settings($settings)) {
 			die('OK');
-	}
+	} else die('NO');
 	
 }
 

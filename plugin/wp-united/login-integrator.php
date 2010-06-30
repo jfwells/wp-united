@@ -123,6 +123,7 @@ function wpu_int_phpbb_logged_in() {
 				wpu_set_role($wpUser->ID, $userLevel);		
 				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $newUserID);
 				wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
+				wp_set_auth_cookie($wpUser->ID);
 				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
 				return $wpUser->ID;
 			}
@@ -435,7 +436,7 @@ function wpu_check_userlevels ($ID, $usrLevel) {
  */
 function wpu_set_role($id, $userLevel) {
 	$user = new WP_User($id);
-	if($user->roles != array($userLevel)) { echo "changing role";
+	if($user->roles != array($userLevel)) { 
 		$user->set_role($userLevel);
 	}
 }

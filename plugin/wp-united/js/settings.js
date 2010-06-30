@@ -180,6 +180,8 @@ function wpu_transmit(type, formID) {
 	$('.ui-dialog-titlebar').hide();
 	var formData;
 	
+	wpu_setup_errhandler();
+	
 	formData = $('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=' + transmitNonce;
 	$.post('admin.php?page='+type, formData, function(response) { 
 		if(response=='OK') {
@@ -187,27 +189,49 @@ function wpu_transmit(type, formID) {
 			window.location = 'admin.php?page=' + type + '&msg=success';
 			return;
 		}
-		
-		transmitMessage = response;
-		// there was an uncatchable error, send a disable request
-		if  (transmitMessage.indexOf('[ERROR]') == -1) {
-			var disable = 'wpudisable=1&_ajax_nonce=' + disableNonce;
-			$.post('admin.php?page='+type, disable, function(response) {
-				// the connection has been disabled, redirect
-				if(transmitMessage == '') {
-					transmitMessage = blankPageMsg;
-				}
-				
-				window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
-			});
-		} else {
-			// we caught the error, redirect to setup page
-			transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
-			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
-		}
-
+		wpu_process_error(response);
 	});
 	return false;
+}
+
+/**
+ * listen for ajax errors
+ */
+function wpu_setup_errhandler() {
+	$(document).ajaxError(function(e, xhr, settings, exception) {
+
+		if(exception == undefined) {
+			var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+		}
+		wpu_process_error(errMsg = settings.url + ' returned: ' + exception);
+	
+	});
+	
+}
+
+/**
+ * Processes various types of errors received during the ajax call
+ * Messges prefixed with [ERROR] are handled errors
+ * Other types are PHP errors, or server responses with unexpected content
+ * Finally we also process non-300 rsponses from jQuery's ajaxError
+ */
+function wpu_process_error(transmitMessage) {
+	// there was an uncatchable error, send a disable request
+	if  (transmitMessage.indexOf('[ERROR]') == -1) {
+		var disable = 'wpudisable=1&_ajax_nonce=' + disableNonce;
+		$.post('index.php', disable, function(response) {
+			// the connection has been disabled, redirect
+			if(transmitMessage == '') {
+				transmitMessage = blankPageMsg;
+			}
+			
+			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
+		});
+	} else {
+		// we caught the error, redirect to setup page
+		transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
+		window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
+	}
 }
 
 function makeMsgSafe(msg) {

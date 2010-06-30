@@ -2,15 +2,14 @@ In progress
 --------------
 
 TODO
--- clean up login-integrator
--- blank pages returned now cause settings/setup apply to hang
+-- add warning / initial integrate dialog when enabling / disabling user integration
+-- add wpu_can_phpbb_register function for bi-di login integration, but aside from registering, keep phpBB login on phpBB side
 -- validate_user_conflict function will work with func_get_args, so re-implement it
 -- once settings panels are ready, split into separate files in subfolder
 -- simplify mod-settings into single array
 -- Set enabled / disabled -- do not enter phpBB unless "enabled" or $_GET--transmit are set
 -- disable submit button until path is chosen
 -- change hook flow
--- uninstall and/or disable buttons
 
 MIGRATION ACTIONS:
 - remove old settings in WP & phpBB

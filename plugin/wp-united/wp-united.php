@@ -25,11 +25,10 @@ if ( !defined('ABSPATH') ) {
 	exit;
 }
 
+
 /**
  * Initialise WP-United
  */
-
-
 function wpu_init_plugin() {
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings, $wpuUrl, $wpuPath, $wpuPluginLoaded;
 	
@@ -44,24 +43,7 @@ function wpu_init_plugin() {
 	} else {
 			$wpuUrl = get_option('siteurl') . '/wp-content/plugins/' . plugin_basename(dirname(__FILE__)) . '/';
 	}
-	if(is_admin()) {
-		require_once($wpuPath . 'settings-panel.php');
-	}
 
-	// the settings page has detected an error and asked to abort
-	if( isset($_POST['wpudisable']) && check_ajax_referer( 'wp-united-disable') ) {
-		wpu_disable_connection('server-error'); 
-	}	
-
-	// the user wants to manually disable
-	if( isset($_POST['wpudisableman']) && check_ajax_referer( 'wp-united-disable') ) {
-		wpu_disable_connection('manual');
-	}		
-
-	if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) {
-		wpu_process_settings();
-		$wpSettings = get_option('wpu-settings');
-	}	
 
 	$wpSettings['status'] = 0;
 	
@@ -86,6 +68,8 @@ function wpu_init_plugin() {
 		}
 
 		if($wpSettings['enabled'] == 'enabled') {
+
+		
 			if ( !defined('IN_PHPBB') ) {
 				$phpbb_root_path = $wpSettings['phpbb_path'];
 				$phpEx = substr(strrchr(__FILE__, '.'), 1);
@@ -104,9 +88,7 @@ function wpu_init_plugin() {
 
 			}
 
-			if(defined('WPU_HOOK_ACTIVE')) {
-				$wpSettings['status'] = 2;
-			}
+			wpu_set_status();
 			
 			require_once($wpuPath . 'widgets.php');
 			require_once($wpuPath . 'widgets2.php');
@@ -125,22 +107,62 @@ function wpu_init_plugin() {
 					wp_redirect($phpbbForum->url . $login_link);
 				}
 			} */
-			
-			// This variable is used in phpBB template integrator
-			global $siteUrl;
-			$siteUrl = get_option('siteurl');
-			
-			// enqueue any JS we need
-			if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
-				wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
-			}
-		} 
-	}
-	/*global $wp;
-	$wp = new WP();
-	$wp->init();*/
+		}
+		
+		// This variable is used in phpBB template integrator
+		global $siteUrl;
+		$siteUrl = get_option('siteurl');
+		
+		// enqueue any JS we need
+		if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
+			wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
+		}
+	} 
+	
+	wpu_admin_actions();
+	
 	return true; 
 }
+
+/**
+ * Sets the status by checking for problems in phpBB
+ * Also returns true if all is OK
+ */
+function wpu_set_status() {
+	global $wpSettings;
+	if(defined('WPU_HOOK_ACTIVE')) {
+		$wpSettings['status'] = 2;
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Process inbound actions and set up the settings panels after login integration has already taken place
+ */
+function wpu_admin_actions() {
+	global $wpSettings;
+	
+	if(is_admin()) {
+		require_once($wpuPath . 'settings-panel.php');
+        
+		// the settings page has detected an error and asked to abort
+		if( isset($_POST['wpudisable']) && check_ajax_referer( 'wp-united-disable') ) {
+			wpu_disable_connection('server-error'); 
+		}	
+
+		// the user wants to manually disable
+		if( isset($_POST['wpudisableman']) && check_ajax_referer( 'wp-united-disable') ) {
+			wpu_disable_connection('manual');
+		}		
+
+		if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) {
+			wpu_process_settings();
+			$wpSettings = get_option('wpu-settings');
+		}
+	}
+}
+
 
 if(function_exists('wp_get_current_user')) {
 	/**
@@ -149,30 +171,26 @@ if(function_exists('wp_get_current_user')) {
 	 */
 	define('WPU_CANNOT_OVERRIDE', true);
 } else {
-	
 	/**
 	 * Overrides auth cookie checking in favour of checking phpBB login status
 	 * Fall back to default WP function in wp_validate_auth_cookie() if integrated login isn't needed
 	 */
 	function wp_get_current_user($inRevInt = false) {
-		global $wpuPath, $wpuPluginLoaded,  $wpSettings, $current_user;
+		global $wpuPath,  $wpSettings, $current_user, $wpuPluginLoaded;
 		
 		if(defined('WPU_REVERSE_INTEGRATION') && (!$inRevInt) ) {
 			return false;
 		}
-		
+
 		if ( isset($current_user) && !empty($current_user) ) {
 			return $current_user;
 		}
-		
-		// don't do anything until the main plugin has initialised
-		if(!$wpuPluginLoaded) {
-			if (!wpu_init_plugin()) {
-				get_currentuserinfo();
-				return $current_user;
-			}
+
+		// init the plugin
+		if( empty($wpuPluginLoaded) ) {
+			wpu_init_plugin();
 		}
-		
+
 		// If login integration is not enabled, skip to default WP function
 		if( (!$wpSettings['integrateLogin']) || defined('WPU_DISABLE_LOGIN_INT') ) {
 			get_currentuserinfo();
@@ -188,7 +206,10 @@ if(function_exists('wp_get_current_user')) {
 function wpu_disable_connection($type) {
 	global $wpSettings;
 	
-
+	if($wpSettings['enabled'] != 'enabled') {
+			die(__('WP-United is already disabled'));
+	}
+	
 	$wpSettings['enabled'] = ($type == 'manual') ? 'disabled' : 'errored';
 
 	update_option('wpu-settings', $wpSettings);
