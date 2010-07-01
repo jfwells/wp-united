@@ -164,6 +164,23 @@ function wpu_find_next_avail_name($name, $package = 'WP') {
 }
 
 /**
+ * Determines if a non-integrated WP user can integrate into a new phpBB account.
+ * The only way we can do this is by checking if a newly-registered account in phpBB would have WP-United permissions
+ * If they don't, we can't create a new phpBB user for this account, as it would be unintegrated anyway.
+ * @return false if a new account in phpBB would be able to register, or an array of permissions if they can't, which are used to 
+ * explain the problem in the settings panel.
+ */
+ 
+function wpu_cannot_phpbb_register() {
+	global $phpbbForum;
+	
+	$phpbbForum->enter_if_out();
+	
+	
+	$phpbbForum->leave_if_just_entered();
+}
+
+/**
  * Gets the integration ID for the current user
  * @return int phpBB User ID, or zero
  */
@@ -194,9 +211,9 @@ function wpu_get_user_level() {
 	
 	$wpuPermissions = array(
 		'u_wpu_subscriber' 		=>	'subscriber',
-		'u_wpu_contributor' 		=>	'contributor',
-		'u_wpu_author' 				=>	'author',
-		'm_wpu_editor' 				=>	'editor',
+		'u_wpu_contributor' 	=>	'contributor',
+		'u_wpu_author' 			=>	'author',
+		'm_wpu_editor' 			=>	'editor',
 		'a_wpu_administrator' 	=>	'administrator'
 	);
 	
@@ -221,6 +238,7 @@ function wpu_get_user_level() {
 
 /**
  * Logs out from WP
+ * Not currently used
  */
 function wpu_wp_logout() {
 	wp_logout();
@@ -248,7 +266,7 @@ function wpu_update_int_id($pID, $intID) {
 		return false;
 	} 
 	//Switch back to the phpBB DB:
-	$phpbbForum->enter();
+	$phpbbForum->enter_if_out();
 	
 	$updated = FALSE;
 	if ( !empty($pID) ) { 
@@ -262,7 +280,7 @@ function wpu_update_int_id($pID, $intID) {
 		}
 	}
 	//Switch back to the WP DB:
-	$phpbbForum->leave();
+	$phpbbForum->leave_if_just_entered();
 	if ( !$updated ) {
 		trigger_error('Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.');
 	}

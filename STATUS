@@ -57,6 +57,10 @@ v0.9:
 -- add deinstallation routine using ajax front-end so it can't crash out
 
 ---- general cleanup ----
+-- Make context-switching bulletproof so users can use it in their own functions without having to understand the current context:
+	-- change phpbbForum->enter_if_out and leave_if_just_entered so they can be nested. Each call to enter_if() should give a return value (key) that must be provided again on leave_if() so that it can behave intelligently when nested
+	-- clean up/rename any uses of enter() and leave() so that they are private functions -- rename the if_outs and if_just_entereds back to enter() and leave()
+	-- better yet: use some kind of introspection so we can maintain internal state
 -- Completely rewrite hook, and combine integrator and template-integrator, since they are now the same
 -- re-base file structure so phpBB mod sits under plugin
 -- split plugin files into folders -- e.g. split off settings panel
