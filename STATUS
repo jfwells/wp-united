@@ -4,7 +4,7 @@ Lots to do, lots to do
 v0.9:
 
 --- bi-directional user integration------
--- add wpu_can_phpbb_register function for bi-di login integration, but aside from registering, keep phpBB login on phpBB side (aside from a wordpress-in-phpbb integration)
+-- update group list code in settings-panel to use new wpu_assess_perms resolving functions
 -- add bi-di functions to phpBB to override session creation (use auth module for login that redirects to phpBB's auth module if necessary !)
 -- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
 -- add options bi-di (default), phpbb->wp, wp->phpbb, explain implications (e.g. COPPA users, spam, etc.)
@@ -186,7 +186,8 @@ Internalising of integrated login into wordpress -- in progress
 - Sophisticated AJAX front-end for enabling/disabling and processing settings now added
 - User integration completely rewritten and significantly simplified -- we no longer check for outside use-case mis-mappings, and just get on with it
 - No longer log out non-integrated users -- assume people who are already logged in are supposed to be so. This allows us to to bi-directional user integration with phpBB
-
+- New function wpu_assess_perms() in login-integrator for resolving WP-United permissions for user groups.
+- wpu_assess_newuser_perms() is a new helper function -- can determine whether a new user in phpBB would be "integratable". Useful for bi-directional user integration
 
 
 
