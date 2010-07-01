@@ -5,11 +5,12 @@ v0.9:
 
 --- bi-directional user integration------
 -- add wpu_can_phpbb_register function for bi-di login integration, but aside from registering, keep phpBB login on phpBB side (aside from a wordpress-in-phpbb integration)
--- add bi-di functions to phpBB to override session creation
+-- add bi-di functions to phpBB to override session creation (use auth module for login that redirects to phpBB's auth module if necessary !)
 -- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
+-- add options bi-di (default), phpbb->wp, wp->phpbb, explain implications (e.g. COPPA users, spam, etc.)
+-- if bi-di, add option to force users to register on the forum, (enabled by default ?)
 -- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
 
-- make_clickable removal still needs to run on rev int pages!
 - $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define (with bi-di, should be able to remove password hash override altogether)		
 - Check wp_check_password override!
 
@@ -57,6 +58,10 @@ v0.9:
 -- add deinstallation routine using ajax front-end so it can't crash out
 
 ---- general cleanup ----
+-- kill PHP4 compat
+-- do check on plugin activation for php4 and wordpress version
+-- when connecting to phpBB, check version for compatibility
+-- modify version.php to contain compatibility information
 -- Make context-switching bulletproof so users can use it in their own functions without having to understand the current context:
 	-- change phpbbForum->enter_if_out and leave_if_just_entered so they can be nested. Each call to enter_if() should give a return value (key) that must be provided again on leave_if() so that it can behave intelligently when nested
 	-- clean up/rename any uses of enter() and leave() so that they are private functions -- rename the if_outs and if_just_entereds back to enter() and leave()
@@ -70,6 +75,8 @@ v0.9:
 -- consider only loading phpBB if user needs to integrate and they aren't logged in, if this is a cross-post or if widgets need it -- e.g. bootstrap_phpbb (as we did in v0.7x)
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
 -- LANG strings -- move back again to WP po/mo (arrgh - we ported them to phpBB in v0.8!)
+
+- make_clickable removal still needs to run on rev int pages!
 
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 -- remove 90% of all defines, clean up unused globals
@@ -179,3 +186,46 @@ Internalising of integrated login into wordpress -- in progress
 - Sophisticated AJAX front-end for enabling/disabling and processing settings now added
 - User integration completely rewritten and significantly simplified -- we no longer check for outside use-case mis-mappings, and just get on with it
 - No longer log out non-integrated users -- assume people who are already logged in are supposed to be so. This allows us to to bi-directional user integration with phpBB
+
+
+
+
+
+
+
+
+... for phpbb-side login ideas.....
+
+/**** for later...	registering
+ * $GLOBALS['skip_add_log'] = true;
+	// Which group by default?
+	$group_name = 'REGISTERED';
+
+	$sql = 'SELECT group_id
+		FROM ' . GROUPS_TABLE . "
+		WHERE group_name = '" . $db->sql_escape($group_name) . "'
+			AND group_type = " . GROUP_SPECIAL;
+	$result = $db->sql_query($sql);
+	$row = $db->sql_fetchrow($result);
+	$db->sql_freeresult($result);
+if (!$row)
+				{
+					trigger_error('NO_GROUP');
+				}
+
+				$group_id = $row['group_id'];	
+	
+	
+	$user_row = array(
+		'username'				=> $data['username'],
+		'user_password'			=> phpbb_hash($data['new_password']),
+		'user_email'			=> $data['email'],
+		'group_id'				=> (int) $group_id,
+		'user_type'				=> USER_NORMAL,
+		'user_ip'				=>  'optional -- see auth.php',
+		'user_regdate'			=> 'optional -- see auth.php',
+		'new_user'				=> 'set to 1 if user s/b added to new user group, else 0.'
+		
+	);
+	
+****/	

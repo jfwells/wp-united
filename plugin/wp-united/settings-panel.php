@@ -274,13 +274,7 @@ function wpu_user_mapper() {
 					global $phpbbForum, $db;
 					$phpbbForum->enter();
 					
-					$options = array(
-						'u_wpu_subscriber' 		=> 	__('Subscriber'), 
-						'u_wpu_contributor' 		=>	__('Contributor'),
-						'u_wpu_author'				=>	__('Author'),
-						'm_wpu_editor'				=>	__('Editor'),
-						'a_wpu_administrator'	=>	__('Administrator')
-					);
+					$options = wpu_permissions_list();
 						
 					$groupTypes = array(__('Built-In'), __('User-Defined'));
 					$numUserDefined = 0;
@@ -338,7 +332,7 @@ function wpu_user_mapper() {
 					while ($permRow = $db->sql_fetchrow($result)) {
 						foreach($options as $option => $optionName) {
 							if($option == $aclOptions[$permRow['auth_option_id']]) {
-									$groupData[$permRow['group_id']]['wpu_perms'] = $optionName;
+									$groupData[$permRow['group_id']]['wpu_perms'] = __($optionName);
 							}
 						}
 					}

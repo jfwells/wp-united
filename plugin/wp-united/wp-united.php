@@ -37,6 +37,7 @@ function wpu_init_plugin() {
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
 
 	require_once($wpuPath . 'functions-general.php');
+	require_once($wpuPath . 'login-integrator.php');
 
 	if ( function_exists('plugins_url') ) {
 			$wpuUrl = plugins_url('wp-united') . '/';
@@ -118,7 +119,7 @@ function wpu_init_plugin() {
 			wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 		}
 	} 
-	
+
 	wpu_admin_actions();
 	
 	return true; 
@@ -196,8 +197,7 @@ if(function_exists('wp_get_current_user')) {
 			get_currentuserinfo();
 			return $current_user;
 		}
-
-		require_once($wpuPath . 'login-integrator.php');
+		
 		wpu_integrate_login();
 		return $current_user; 
 	}

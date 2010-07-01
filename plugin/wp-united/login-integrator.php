@@ -165,19 +165,111 @@ function wpu_find_next_avail_name($name, $package = 'WP') {
 
 /**
  * Determines if a non-integrated WP user can integrate into a new phpBB account.
- * The only way we can do this is by checking if a newly-registered account in phpBB would have WP-United permissions
- * If they don't, we can't create a new phpBB user for this account, as it would be unintegrated anyway.
- * @return false if a new account in phpBB would be able to register, or an array of permissions if they can't, which are used to 
- * explain the problem in the settings panel.
+ * @return array permission details in the user's language
  */
  
-function wpu_cannot_phpbb_register() {
-	global $phpbbForum;
+function wpu_assess_newuser_perms() {
+	global $config;
+
+	// if 0, they aren't added to the group -- else they are in group until they have this number of posts
+	$newMemberGroup = ($config['new_member_post_limit'] != 0);
+		
+	$groups = ($newMemberGroup) ? array('REGISTERED', 'NEWLY_REGISTERED') : array('REGISTERED');
+	
+	return wpu_assess_perms($groups);
+}
+
+/**
+ * Takes a list of group names to check, and returns an array of permissions due to role and direct permissions
+ * (phpBB likes to over-complicate things, so need to check both :-/ )
+ * @param array $groupList list of group names (language keys) to check
+ * @return array permission details in the user's language
+ */
+
+function wpu_assess_perms($groupList) {
+	global $phpbbForum, $config, $db, $user;
+	
+	$groupList = (array)$groupList;
 	
 	$phpbbForum->enter_if_out();
 	
+	$user->add_lang('acp/permissions');
+	
+	if(sizeof($groupList) > 1) {
+		$where = $db->sql_in_set('group_name', $groupList);
+	} else {
+		$where = "group_name = '{$groupList[0]}'";
+	}
+	
+	$perms = wpu_permissions_list();
+	
+	$sqlArr = array(
+		'SELECT' 		=> 	'g.group_name,  ag.group_id, ag.auth_option_id, ag.auth_setting, ag.auth_role_id, ar.role_name, ao.auth_option',
+		
+		'FROM'		=>	array(
+			GROUPS_TABLE			=> 	'g',
+			ACL_GROUPS_TABLE	=> 	'ag',
+		),
+		
+		'LEFT_JOIN'	=> 	array(
+			array(
+				'FROM'		=>	array(ACL_ROLES_TABLE => 'ar'),
+				'ON'				=>	 'ag.auth_role_id = ar.role_id'
+			),
+			array(
+				'FROM'		=>	array(ACL_OPTIONS_TABLE => 'ao'),
+				'ON'				=>	 'ag.auth_option_id = ao.auth_option_id'
+			)
+		),
+		
+		'WHERE'		=> 	'g.group_id = ag.group_id  
+			AND ' . $where  .  ' 
+			AND (' . $db->sql_in_set('ao.auth_option', array_keys($perms)) . ' 
+				OR ag.auth_role_id > 0)'	
+	);
+		
+	$sql = $db->sql_build_query('SELECT',$sqlArr);
+	$result = $db->sql_query($sql);
+	
+	$rolePerms =$groupPerms = array();
+	
+	while ($row = $db->sql_fetchrow($result)) {
+		$group = (isset($user->lang['G_' . $row['group_name']])) ? $user->lang['G_' . $row['group_name']] : $row['group_name'];
+		switch($row['auth_setting']) {
+			case ACL_YES:
+				$setting = $user->lang['ACL_YES'];
+				break;
+			case ACL_NEVER:
+				$setting = $user->lang['ACL_NEVER'];
+				break;
+			case ACL_NO:
+			default;
+				$setting = $user->lang['ACL_NO'];
+		}
+		
+		if($row['auth_option_id'] == 0) {
+			$rolePerms[$group] = array(
+				'rolename' => (isset($user->lang[$row['role_name']])) ? $user->lang[$row['role_name']] : $row['role_name'],
+				'perm'		=>	$row['auth_option'],
+				'setting'	=>	$setting
+			);
+		} else {
+			$groupPerms[$group] = array(
+				'perm'		=>	$row['auth_option'],
+				'setting'	=>	$setting
+			);			
+		}
+	}
+	
+	$db->sql_freeresult($result);
 	
 	$phpbbForum->leave_if_just_entered();
+	
+	return array(
+		'roles' 		=> 	$rolePerms,
+		'groups'	=>	$groupPerms
+	);
+	
 }
 
 /**
@@ -209,13 +301,7 @@ function wpu_get_user_level() {
 		return false;
 	}
 	
-	$wpuPermissions = array(
-		'u_wpu_subscriber' 		=>	'subscriber',
-		'u_wpu_contributor' 	=>	'contributor',
-		'u_wpu_author' 			=>	'author',
-		'm_wpu_editor' 			=>	'editor',
-		'a_wpu_administrator' 	=>	'administrator'
-	);
+	$wpuPermissions = wpu_permissions_list();
 	
 	// Higher permissions override lower ones, so we work from the bottom up to find the users'
 	// actual level
@@ -233,6 +319,22 @@ function wpu_get_user_level() {
 	$phpbbForum->leave_if_just_entered();
 	return $userLevel;
 
+}
+
+/** 
+ * returns an array of WP-United permissions
+ * Dead simple -- but called in several places
+ * @TODO: Add custom wordpress roles?
+ */
+
+function wpu_permissions_list() {
+	return array(
+		'u_wpu_subscriber' 		=>	'subscriber',
+		'u_wpu_contributor' 	=>	'contributor',
+		'u_wpu_author' 			=>	'author',
+		'm_wpu_editor' 			=>	'editor',
+		'a_wpu_administrator' 	=>	'administrator'
+	);
 }
 
 

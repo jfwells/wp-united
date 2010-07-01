@@ -11,7 +11,8 @@
 * @author John Wells
 *
 */
-
+/*echo GROUP_SPECIAL . "***";
+print_r($config); */
 /**
  */
 if ( !defined('IN_PHPBB') ) { 

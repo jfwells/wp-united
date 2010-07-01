@@ -75,8 +75,7 @@ class WPU_Phpbb {
 
 		$this->_backup_wp_conflicts();
 		
-		
-		define('IN_PHPBB', TRUE);
+		define('IN_PHPBB', true);
 		
 		$phpbb_root_path = $rootPath;
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
