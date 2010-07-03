@@ -34,6 +34,14 @@ function wpu_settings_menu() {
 		}
 	}	
 	
+	if(isset($_GET['page'])) {
+		if($_GET['page'] == 'wpu_acp') {
+			global $phpbbForum;
+			wp_redirect(append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id), 302);
+			die();
+		}
+	}	
+	
 	wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
 		
@@ -43,13 +51,12 @@ function wpu_settings_menu() {
 			wp_deregister_script( 'jquery' );
 			wp_deregister_script( 'jquery-ui-core' );				
 			wp_deregister_script( 'jquery-color' );				
-			//wp_enqueue_script('jquery-ui-core');
-			//wp_enqueue_script('jquery-ui-tabs');
 			
-			wp_enqueue_script('jquery', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, false);
-			wp_enqueue_script('jquery-ui', $wpuUrl . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
-			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array('jquery'), false, false);				
-			wp_enqueue_script('wpu-settigs', $wpuUrl . 'js/settings.js', array('jquery'), false, false);				
+			wp_enqueue_script('jquery-bleedingedge', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, false);
+			wp_enqueue_script('jqueryui-bleedingedge', $wpuUrl . 'js/jqueryui-wpu-min.js', array('jquery-bleedingedge'), false, false);
+			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array('jquery-bleedingedge'), false, false);				
+			wp_enqueue_script('colorbox', $wpuUrl . 'js/colorbox-min.js', array('jquery-bleedingedge'), false, false);				
+			wp_enqueue_script('wpu-settings', $wpuUrl . 'js/settings.js', array('jquery-bleedingedge', 'jqueryui-bleedingedge'), false, false);				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-support'))) {
 			wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
@@ -73,12 +80,20 @@ function wpu_settings_menu() {
 				}
 			}
 		add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
+		add_submenu_page('wp-united-setup', 'Visit phpBB ACP', 'Visit phpBB ACP', 'manage_options', 'wpu_acp', 'wpu_acp');
 	}
 	
 	add_submenu_page('wp-united-setup', 'Please Help Support WP-United!', 'Support WP-United', 'manage_options','wp-united-support', 'wpu_support');
 	
 }
 
+/** 
+ * Just a stub for the menu to redirect to the phpBB ACP
+ * We redirect before this is invoked.
+ */
+function wpu_acp() {
+	
+}
 
 /**
  * Decide whether to show the advanced options, or save them
@@ -264,84 +279,67 @@ function wpu_user_mapper() {
 
 			<div id="wpumaptab-perms">
 			
-				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB.'); ?></p>
-				<p><?php _e('Users are logged into wordpress or automatically given accounts with the appropriate privileges if a WP-United permission can be found for them. This way, you can choose to integrate only some of your phpBB users. (For example, you could allow only phpBB administrators to write posts, or only a specific subset of members to be able to post comments.'); ?></p>
-				<p><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></p>
-				<p><?php printf(__('phpBB user groups are listed below, together with the WP-United permissions assigned to them. To change, these, visit the %1$sphpBB ACP%2$s -> Permissions tab, and edit Groups\' Permissions.'), '<a href="' . $phpbbForum->url . 'adm/">', '</a>'); ?></p>
-				<p><?php _e('Permissions assigned to individual users are not shown &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></p>
-				
+				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB. This way, you can choose to integrate only some of your users. (For example, you could allow only phpBB administrators to write posts, or only a specific subset of members to be able to post comments.'); ?></p>
+				<p><strong><?php _e('Notes:'); ?></strong></p>
+				<ul class="forcebullets">
+					<li><?php _e('If a user or group has multiple different WP-United permissions, the highest level shall prevail (i.e. if you set them as an author and an editor, they will be an editor)'); ?></li>
+					<li><?php _e('phpBB permissions have three states: <em>Yes</em>, <em>No</em> and <em>Never</em>. A <em>Never</em> setting for a user ensures that they will <strong>never</strong> get that permission. For example, if a user is a member of the <em>Registered Users</em> group which has Subscriber permissions set to <em>Yes</em>, and the <em>Newly Registered Users</em> group, which has Subscriber permissions set to <em>Never</em>, they will not be able to integrate as a subscriber.'); ?></li>
+					<li><?php _e('Permissions assigned to individual users are not shown &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></li>
+					<li><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></li>
+				</ul>
 				<?php
 					global $phpbbForum, $db;
 					$phpbbForum->enter();
 					
-					$options = wpu_permissions_list();
 						
 					$groupTypes = array(__('Built-In'), __('User-Defined'));
 					$numUserDefined = 0;
 						
-					// Get all the groups
-					$sql = 'SELECT group_id, group_name, group_type
-						FROM ' . GROUPS_TABLE . ' 
-						ORDER BY group_type ASC, group_name';
-					$result = $db->sql_query($sql);
+					// Get all the groups, and associated info
+					$sqlArr = array(
+						'SELECT'			=>	'COUNT(ug.user_id) AS count, g.group_id, g.group_type, g.group_name',
+						
+						'FROM'			=>	array(
+							GROUPS_TABLE	=>	'g',
+						),
+						
+						'LEFT_JOIN'		=>	array(
+							array(
+								'FROM'	=>	array(USER_GROUP_TABLE	=>	'ug'),
+								'ON'			=>	'g.group_id = ug.group_id'
+							)
+						),
+						
+						'GROUP_BY'	=>	'g.group_id',
+						
+						'ORDER_BY'	=> 'g.group_type DESC, g.group_name ASC'
+					);
 
+					$sql = $db->sql_build_query('SELECT',$sqlArr);
+					$result = $db->sql_query($sql);
+	
 					$groupData = array();
 					while ($row = $db->sql_fetchrow($result)) {
 						$groupData[$row['group_id']] = array(
 							'type' 						=> 	($row['group_type'] == GROUP_SPECIAL) ? __('Built-In') : __('User-Defined'),
 							'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
-							'total_members' 	=> 	0,
-							'wpu_perms'			=>	__('None')
+							'total_members' 	=> 	$row['count'],
+							'url'							=>	$phpbbForum->url . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
 						);
 						if($groupData[$row['group_id']]['type'] == __('User-Defined')) {
 							$numUserDefined++;
 						}
 					}
-					$db->sql_freeresult($result);						
 					
-					// get totals
-					$sql = 'SELECT COUNT(user_id) AS total_members, group_id
-						FROM ' . USER_GROUP_TABLE . ' 
-						WHERE ' . $db->sql_in_set('group_id', array_keys($groupData)) . '
-						GROUP BY group_id';
-					$result = $db->sql_query($sql);
-					while ($row = $db->sql_fetchrow($result)) {
-						$groupData[$row['group_id']]['total_members'] = $row['total_members'];
-					}
-					$db->sql_freeresult($result);
-						
-					//Get Option ID Values
-					$sql = "SELECT auth_option, auth_option_id
-						FROM " . ACL_OPTIONS_TABLE . "
-						WHERE " . $db->sql_in_set('auth_option', array_keys($options));
-					$result = $db->sql_query($sql);
-					$aclOptions = array();
-					while ($permRow = $db->sql_fetchrow($result)) {
-						$aclOptions[$permRow['auth_option_id']] = $permRow['auth_option'];
-					}
 					$db->sql_freeresult($result);
 					
-					$sql = "SELECT auth_option_id, group_id
-						FROM " . ACL_GROUPS_TABLE . "
-						WHERE " . $db->sql_in_set('group_id', array_keys($groupData)) . " 
-						AND " . $db->sql_in_set('auth_option_id', array_keys($aclOptions)) . "
-						GROUP BY auth_option_id";
-							
-					$result = $db->sql_query($sql);
-					$foundPerms = array();
-					while ($permRow = $db->sql_fetchrow($result)) {
-						foreach($options as $option => $optionName) {
-							if($option == $aclOptions[$permRow['auth_option_id']]) {
-									$groupData[$permRow['group_id']]['wpu_perms'] = __($optionName);
-							}
-						}
-					}
-					$db->sql_freeresult($result);
-						
+					$perms = wpu_permissions_list();
+					$permSettings = wpu_assess_perms(); 
+			
 					foreach ($groupTypes as $type) { ?>
 						<h4><?php echo "$type Groups"; ?></h4>
 						<?php if(($type == __('Built-In')) || ($numUserDefined > 0)) { ?>
-							<p><?php printf(__('Visit the %1$sphpBB ACP%2$s to change these options.'), '<a href="' . $phpbbForum->url . 'adm/">', '</a>'); ?></p>
+							<p><?php printf(__('Use the quick links below to change the permissions in a popup panel, or visit the %1$sphpBB ACP%2$s for more options.'), '<a href="' . append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id)  .'">', '</a>'); ?></p>
 							<table class="widefat fixed">
 								<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
 									<<?php echo $tblHead; ?>>
@@ -360,11 +358,52 @@ function wpu_user_mapper() {
 									if($row['type'] == $type) {
 										
 										$class = ($it == 0) ? ' class="alternate" ' : '';
+										
 										?>
 										<tr <?php echo $class; ?>>
-											<td><?php echo $row['name']; ?></td>
+											<td><p><?php echo $row['name']; ?><br />
+											
+											<small><a class="wpuacppopup" href="<?php echo $row['url']; ?>" title = "<?php _e('This will open in a popup panel'); ?>"><?php _e('Edit Group Permissions'); ?></a></small></p></td>
 											<td><?php echo $row['total_members']; ?></td>
-											<td><?php echo $row['wpu_perms']; ?></td>
+											<td><?php 
+												if(isset($permSettings[$row['name']])) {
+													// search from bottom-up in the standard wp-united permissions
+													$nevers =$yes =  array();
+													foreach($perms as $perm => $permText)  {
+														foreach($permSettings[$row['name']] as $permSetting) {
+															if($permSetting['perm'] == $perm) {
+																if($permSetting['setting'] == ACL_NEVER) {
+																	$nevers[] = array(
+																		'perm' 		=>	$permText,
+																		'rolename' 	=>	$permSetting['rolename'],
+																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
+																	);
+																} elseif($permSetting['setting'] == ACL_YES) {
+																	$yes = array(
+																		'perm' 		=>	$permText,
+																		'rolename' 	=>	$permSetting['rolename'],
+																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
+																	);
+																}
+															}
+														}
+													}
+													foreach($nevers as $never) {
+														$roleText = (!empty($never['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $never['rolename'], '<a href="' . $never['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
+														echo '<p class="wpupermnever">' . sprintf(__('Can NEVER integrate as a WordPress %s'), __($never['perm'])) . $roleText . '</p>';
+													}
+													
+													if(sizeof($yes)) {
+														$roleText = (!empty($yes['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $yes['rolename'], '<a href="' . $yes['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
+														echo '<p class="wpupermyes">' . sprintf(__('Can integrate as a WordPress %s'), __($yes['perm'])) . $roleText . '</p>';
+													}
+																					
+																	
+												} else {
+													echo '<p style="font-weight: bold; text-align: center;">' . __('No WP-United permissions set') . '</p>';
+												}
+												?>
+											</td>
 										</tr>
 										<?php
 										$it = ($it == 0) ? 1 : 0;
@@ -383,14 +422,21 @@ function wpu_user_mapper() {
 				The user mapping tool is under construction.
 			</div>
 		</div>
+	</div>
+	<div id="wpu-reload" title="Message" style="display: none;">
+		<p id="wpu-desc">&nbsp;</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
+	</div>
+	<script type="text/javascript">
+	// <![CDATA[
+		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.'); ?>';
 		
-		<script type="text/javascript">
-		// <![CDATA[
-			jQuery(document).ready(function($) { \
-				$('#wputabs').tabs();
-			});
-		// ]]>
-		</script>
+		jQuery(document).ready(function($) {
+			$('#wputabs').tabs();
+			setupAcpPopups();
+		});	
+	// ]]>
+	</script>
+		
 <?php
 }
 	
@@ -639,9 +685,8 @@ function wpu_settings_page() {
 			</p>
 		</form>
 		
-		<div id="wpu-dialog" title="What is this?" style="display: none;">
+		<div id="wpu-dialog" title="Message" style="display: none;">
 			<p id="wpu-desc">&nbsp;</p>
-		
 		</div>
 		
 	</div>

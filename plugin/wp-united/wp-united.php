@@ -119,7 +119,7 @@ function wpu_init_plugin() {
 			wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 		}
 	} 
-
+	
 	wpu_admin_actions();
 	
 	return true; 

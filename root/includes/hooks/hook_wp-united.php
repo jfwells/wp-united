@@ -37,7 +37,7 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 	if(!defined('WPU_STYLE_FIXER')) {
 		
 		if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
-			set_error_handler('wpu_msg_handler'); 
+			//set_error_handler('wpu_msg_handler'); 
 		}
 
 		if(isset($wpSettings['wpPluginPath'])) {

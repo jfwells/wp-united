@@ -186,56 +186,67 @@ function wpu_assess_newuser_perms() {
  * @return array permission details in the user's language
  */
 
-function wpu_assess_perms($groupList) {
+function wpu_assess_perms($groupList = '') {
 	global $phpbbForum, $config, $db, $user;
-	
-	$groupList = (array)$groupList;
 	
 	$phpbbForum->enter_if_out();
 	
-	$user->add_lang('acp/permissions');
-	
-	if(sizeof($groupList) > 1) {
-		$where = $db->sql_in_set('group_name', $groupList);
+	if( ($groupList == '') || $groupList == array() ) {
+		$where = '';
 	} else {
-		$where = "group_name = '{$groupList[0]}'";
+		$groupList = (array)$groupList;
+		if(sizeof($groupList) > 1) {
+			$where = 'AND ' . $db->sql_in_set('group_name', $groupList);
+		} else {
+			$where = "AND group_name = '" . $db->sql_escape($groupList[0]) . "";
+		}
 	}
 	
+	
+	$user->add_lang('acp/permissions');
+		
 	$perms = wpu_permissions_list();
 	
 	$sqlArr = array(
-		'SELECT' 		=> 	'g.group_name,  ag.group_id, ag.auth_option_id, ag.auth_setting, ag.auth_role_id, ar.role_name, ao.auth_option',
+		'SELECT' 			=> 	'g.group_name, ao.auth_option, ag.auth_setting AS groupsetting, ar.role_name, ar.role_id, ar.role_type, ad.auth_setting AS rolesetting',
 		
-		'FROM'		=>	array(
-			GROUPS_TABLE			=> 	'g',
-			ACL_GROUPS_TABLE	=> 	'ag',
+		'FROM' 			=> 	array(
+			GROUPS_TABLE 			=> 	'g',
+			ACL_GROUPS_TABLE 	=> 	'ag'
 		),
-		
-		'LEFT_JOIN'	=> 	array(
+	
+		'LEFT_JOIN' 	=> 	array(
 			array(
 				'FROM'		=>	array(ACL_ROLES_TABLE => 'ar'),
-				'ON'				=>	 'ag.auth_role_id = ar.role_id'
+				'ON'				=> 	'ag.auth_role_id = ar.role_id'
+			),
+			array(
+				'FROM'		=>	array(ACL_ROLES_DATA_TABLE => 'ad'),
+				'ON'				=> 	'ar.role_id = ad.role_id'
 			),
 			array(
 				'FROM'		=>	array(ACL_OPTIONS_TABLE => 'ao'),
-				'ON'				=>	 'ag.auth_option_id = ao.auth_option_id'
-			)
+				'ON'				=>	'ag.auth_option_id = ao.auth_option_id 
+													OR ad.auth_option_id = ao.auth_option_id'
+			),		
 		),
-		
-		'WHERE'		=> 	'g.group_id = ag.group_id  
-			AND ' . $where  .  ' 
-			AND (' . $db->sql_in_set('ao.auth_option', array_keys($perms)) . ' 
-				OR ag.auth_role_id > 0)'	
+		'WHERE' 			=> 	'ag.group_id = g.group_id
+											AND ' . $db->sql_in_set('ao.auth_option', array_keys($perms)) . 
+												$where,
+									
+		'ORDER_BY'	=>	'g.group_type DESC, g.group_name ASC',
 	);
+	
 		
 	$sql = $db->sql_build_query('SELECT',$sqlArr);
 	$result = $db->sql_query($sql);
 	
-	$rolePerms =$groupPerms = array();
+	$calculatedPerms = array();
 	
 	while ($row = $db->sql_fetchrow($result)) {
 		$group = (isset($user->lang['G_' . $row['group_name']])) ? $user->lang['G_' . $row['group_name']] : $row['group_name'];
-		switch($row['auth_setting']) {
+		$stg = (!empty($row['role_name'])) ? $row['rolesetting'] : $row['groupsetting']; 
+		switch($stg) {
 			case ACL_YES:
 				$setting = $user->lang['ACL_YES'];
 				break;
@@ -247,28 +258,44 @@ function wpu_assess_perms($groupList) {
 				$setting = $user->lang['ACL_NO'];
 		}
 		
-		if($row['auth_option_id'] == 0) {
-			$rolePerms[$group] = array(
-				'rolename' => (isset($user->lang[$row['role_name']])) ? $user->lang[$row['role_name']] : $row['role_name'],
-				'perm'		=>	$row['auth_option'],
-				'setting'	=>	$setting
-			);
+		$roleType = '';
+		if(!empty($row['role_name'])) {
+			$role = (isset($user->lang[$row['role_name']])) ? $user->lang[$row['role_name']] : $row['role_name'];
+			switch($row['role_type']) {
+				case 'm_':
+					$roleType = 'mod';
+					break;
+				case 'a_':
+					$roleType = 'admin';
+					break;
+				case 'f_':
+				case 'u_':
+				default;
+					// we only want global roles, so for f_, fall back to user
+					$roleType = 'user';
+					break;
+			}
 		} else {
-			$groupPerms[$group] = array(
-				'perm'		=>	$row['auth_option'],
-				'setting'	=>	$setting
-			);			
+			$role = '';
 		}
+		if(!isset($calculatedPerms[$group])) {
+			$calculatedPerms[$group] = array();
+		}
+		$calculatedPerms[$group][] = array(
+			'rolename' 		=> 	$role,
+			'perm'				=>	$row['auth_option'],
+			'settingText'	=>	$setting,
+			'setting'			=>	$stg,
+			'roleid'				=>	$row['role_id'],
+			'roletype'		=>	$roleType
+		);
 	}
 	
 	$db->sql_freeresult($result);
 	
 	$phpbbForum->leave_if_just_entered();
-	
-	return array(
-		'roles' 		=> 	$rolePerms,
-		'groups'	=>	$groupPerms
-	);
+
+	return (array)$calculatedPerms;
 	
 }
 
@@ -330,9 +357,9 @@ function wpu_get_user_level() {
 function wpu_permissions_list() {
 	return array(
 		'u_wpu_subscriber' 		=>	'subscriber',
-		'u_wpu_contributor' 	=>	'contributor',
-		'u_wpu_author' 			=>	'author',
-		'm_wpu_editor' 			=>	'editor',
+		'u_wpu_contributor' 		=>	'contributor',
+		'u_wpu_author' 				=>	'author',
+		'm_wpu_editor' 				=>	'editor',
 		'a_wpu_administrator' 	=>	'administrator'
 	);
 }

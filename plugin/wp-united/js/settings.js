@@ -265,6 +265,33 @@ function wpu_manual_disable(type) {
 	
 }
 
+function setupAcpPopups() {
+	$('.wpuacppopup').colorbox({
+		width: '88%', 
+		height: '92%', 
+		title: (acpPopupTitle == undefined) ? '' : acpPopupTitle,
+		iframe: true,
+		onClosed: function() {
+			window.scrollTo(0,0);
+			$('#wpu-desc').html('<strong>Reloading setings from phpBB</strong><br />Please wait...');
+			$("#wpu-reload").dialog({
+				modal: true,
+				title: 'Reloading settings from phpBB...',
+				width: 360,
+				height: 160,
+				draggable: false,
+				disabled: true,
+				closeOnEscape: false,
+				resizable: false,
+			});
+			$('.ui-dialog-titlebar').hide();
+			window.location.reload(1);
+		}
+	});
+}
+
+
+
 /**
  * Base64 encode/decode for passing messages
  */

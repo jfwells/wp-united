@@ -4,12 +4,12 @@ Lots to do, lots to do
 v0.9:
 
 --- bi-directional user integration------
--- update group list code in settings-panel to use new wpu_assess_perms resolving functions
 -- add bi-di functions to phpBB to override session creation (use auth module for login that redirects to phpBB's auth module if necessary !)
 -- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
 -- add options bi-di (default), phpbb->wp, wp->phpbb, explain implications (e.g. COPPA users, spam, etc.)
 -- if bi-di, add option to force users to register on the forum, (enabled by default ?)
 -- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
+-- Add warning to ACP if bi-di integ is on but new users won't be integrated due to perms problems (use new wpu_assess_perms)
 
 - $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define (with bi-di, should be able to remove password hash override altogether)		
 - Check wp_check_password override!
@@ -58,6 +58,9 @@ v0.9:
 -- add deinstallation routine using ajax front-end so it can't crash out
 
 ---- general cleanup ----
+-- settings defaults should all be in one place
+-- append_sid is requiring to be fed the session ID -- why?
+-- several old links where & should be &amp; -- run through validator
 -- kill PHP4 compat
 -- do check on plugin activation for php4 and wordpress version
 -- when connecting to phpBB, check version for compatibility
@@ -188,6 +191,10 @@ Internalising of integrated login into wordpress -- in progress
 - No longer log out non-integrated users -- assume people who are already logged in are supposed to be so. This allows us to to bi-directional user integration with phpBB
 - New function wpu_assess_perms() in login-integrator for resolving WP-United permissions for user groups.
 - wpu_assess_newuser_perms() is a new helper function -- can determine whether a new user in phpBB would be "integratable". Useful for bi-directional user integration
+- Updated wpu_assess_perms() to pull relevant info in panel and in normal use
+- Updated Permissions tab in user mapping -- it now shows effective permissions or 'Never' settings
+- Permissions mapping tab now has deep links into ACP in nice colourbox popup, and updates live on changes.
+- New deep link to phpBB ACP in wp-united dashboard menu
 
 
 
