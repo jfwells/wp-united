@@ -40,7 +40,15 @@ function wpu_settings_menu() {
 			wp_redirect(append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id), 302);
 			die();
 		}
+		if($_GET['page'] == 'wpu-user-mapper') {
+			if( isset($_POST['wpumapload']) && check_ajax_referer('wp-united-map') ) {
+				wpu_map_show_data();
+				die();
+			}
+		}
 	}	
+	
+	
 	
 	wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
@@ -417,7 +425,37 @@ function wpu_user_mapper() {
 				?>
 			</div>
 			<div id="wpumaptab-map">
-				The user mapping tool is under construction.
+				<p>The user mapping tool is under construction.</p>
+				<form name="wpumapdisp" id="wpumapdisp">
+					<fieldset>
+						<label for="wpumapside">Show: </label>
+						<select id="wpumapside" name="wpumapside">
+							<option value="wp">WordPress users</option>
+							<option value="phpbb">phpBB users</option>
+						</select> |
+						<label for="wpunumshow">Number to show: </label>
+						<select id="wpunumshow" name="wpunumshow">
+							<option value="0">Dynamic</option>
+							<option value="50">50</option>
+							<option value="100">100</option>
+							<option value="250">250</option>
+							<option value="500">500</option>
+							<option value="1000">1000</option>
+						</select> |			
+						<label for="wputypeshow">Type to show: </label>
+						<select id="wputypeshow" name="wputypeshow">
+							<option value="all">All</option>
+							<option value="int">All Integrated</option>
+							<option value="unint">All Unintegrated</option>
+							<option value="posts">All With Posts</option>
+							<option value="noposts">All Without Posts</option>
+						</select> 					
+					</fieldset>
+				</form>
+				<div id="wpumapscreen">
+					<p>Loading...</p>
+					<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -428,14 +466,122 @@ function wpu_user_mapper() {
 	// <![CDATA[
 		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.'); ?>';
 		
+		var mapNonce = '<?php echo wp_create_nonce ('wp-united-map'); ?>';
 		jQuery(document).ready(function($) {
 			$('#wputabs').tabs();
 			setupAcpPopups();
+			
+			$("#wpumapdisp select").bind('change', function() {
+				wpuShowMapper();
+			});
+			wpuShowMapper();
 		});	
+		
+		function wpuShowMapper() {
+			$('#wpumapscreen').html('<p>Loading</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />');
+						
+			$(document).ajaxError(function(e, xhr, settings, exception) {
+	
+				if(exception == undefined) {
+					var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+				}
+				$('#wpumapscreen').html(errMsg = settings.url + ' returned: ' + exception);
+			});
+			
+			
+			
+			$.post('admin.php?page=wpu-user-mapper', 'wpumapload=1&_ajax_nonce=' + mapNonce, function(response) {
+				$('#wpumapscreen').html(response);
+			});
+		}
+		
+		
+		
 	// ]]>
 	</script>
 		
 <?php
+}
+
+function wpu_map_show_data() {
+	global $wpdb, $phpbbForum;
+	
+	$sql = "SELECT count(*) AS total
+			FROM {$wpdb->users}";
+		
+	$countEntries = $wpdb->get_results($sql);
+	$numWpResults = $countEntries[0]->total;
+	
+	$first = 0;
+	$last = 1000;
+	
+	$sql = "SELECT ID
+			FROM {$wpdb->users}
+			ORDER BY user_login
+			LIMIT $first, $last";
+
+	$results = $wpdb->get_results($sql);
+	
+	foreach ((array) $results as $item => $result) {
+		
+		// TODO in wp3 should be get_user_meta
+		$user = new WP_User($result->ID);
+		
+		?>
+		<div class="wpuwpuser" id="wpuuser<?php echo $result->ID; ?>">
+			<p class="wpuwplogin"><a href="#"><?php echo $user->user_login; ?></a></p>
+			<?php echo get_avatar($user->ID, 50); ?>
+			
+			<div style="float: left;">
+				<p class="wpuwpdetails"><strong>Display name:</strong> <?php echo $user->display_name; ?></p>
+				<p class="wpuwpdetails"><strong>E-mail:</strong> <?php echo $user->user_email; ?></p>
+				<p class="wpuwpdetails"><strong>Website:</strong> <?php echo !empty($user->user_url) ? $result->user_url : 'n/a' ; ?></p>
+				<p class="wpuwpdetails"><strong><?php (sizeof($user->roles) > 1) ? _e('Roles:') : _e('Role:'); ?></strong> <?php 
+					foreach($user->roles as $roleItem => $role) {
+						echo $role;
+						if($roleItem < (sizeof($roles) - 1)) {
+							echo ', ';
+						}
+					} ?></p>
+				<p class="wpuwpdetails"><strong>Posts:</strong> <?php /* @TODO in wp3: this is count_user_posts() */ echo (string)get_usernumposts($result->ID); ?> / 
+				<strong>Comments:</strong> <?php 
+					$count = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $result->ID));
+					echo (string)$count;
+				
+				 ?></p>
+				<p class="wpuwpdetails"><strong>Integration status:</strong> <?php 
+					$colour = 'red';
+					$status = 'Not integrated';
+					if ( (isset($user->phpbb_userid)) && (!empty($user->phpbb_userid)) ) {
+						
+						$phpbbForum->foreground();
+						
+						/**
+						 * @ TODO Check that user is integrated from phpBB side
+						 * 
+						 */
+						
+						$phpbbForum->background();
+						
+						$colour = 'green';
+						$status = 'Integrated';
+						
+					}
+					echo '<span style="color: ' . $colour . '">' . $status . '</span>';
+						
+				
+				
+				?>
+			</div>
+			<br />
+		</div>
+		<?php 
+		
+		if($item < sizeof($results) - 1) echo  '<hr />'; 
+			
+	}
+	
+	
 }
 	
 /**
