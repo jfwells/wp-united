@@ -719,7 +719,7 @@ div.subsettings div.subsettings {
 	margin-left: 0;
 }
 
-.wpupermnever, .wpupermyes {
+.wpupermnever, .wpupermyes{
 	-moz-border-radius:3px 3px 3px 3px;
 	border-style:solid;
 	border-width:1px;
@@ -740,22 +740,51 @@ div.subsettings div.subsettings {
 }
 
 #wpumapscreen {
-	margin-top: 8px;
+	margin-top: 3px;
 	border: 1px solid #cccccc;
-	padding: 8px;
+	padding: 0;
+	
+}
+
+.wpumaprow {
+	border-bottom: 1px solid #cccccc;
+	margin: 0;
+	padding: 4px 0;
+	clear: both;
+	width: 100%;
+	overflow: auto;
 }
 
 .wpuwpuser {
 	width: 250px;
 	border: 1px solid #cccccc;
-	margin: 0 0 6px 0;
 	padding: 3px;
+	margin: 0 0 0 8px;
+	float: left;
+	clear: left;
+	background-color: #ffffff;
+}
+
+.wpuwpuser div {
+	width: 188px;
+}
+
+.wpuintuser {
+	float: right;
+	clear: none;
+	margin: 0 8px 0 0;
+}
+
+
+
+.wpualt {
+	background-color: #eeeeee;
 }
 
 .wpuwpuser .wpuwplogin a, .wpuwpuser .wpuwplogin {
 	font-weight: bold;
 	/* text-align: center; */
-	margin-top: 0;
+	margin: 0 0 3px 0;
 	text-decoration: none;
 	color: #21759b
 }
@@ -775,4 +804,18 @@ div.subsettings div.subsettings {
 .wpuwpuser br {
 	clear: both;
 	height: 0px;
+}
+
+.wpuintegok, .wpuintegnot  {
+	-moz-border-radius:3px 3px 3px 3px;
+	border-style:solid;
+	border-width:1px;
+	padding:0 0.6em;
+	background-color:#aaddaa;
+	border-color:#338833;
+}
+
+.wpuintegnot {
+	background-color:#FFEBE8;
+	border-color:#CC0000;
 }

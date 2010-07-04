@@ -435,7 +435,6 @@ function wpu_user_mapper() {
 						</select> |
 						<label for="wpunumshow">Number to show: </label>
 						<select id="wpunumshow" name="wpunumshow">
-							<option value="0">Dynamic</option>
 							<option value="50">50</option>
 							<option value="100">100</option>
 							<option value="250">250</option>
@@ -479,7 +478,9 @@ function wpu_user_mapper() {
 		
 		function wpuShowMapper() {
 			$('#wpumapscreen').html('<p>Loading</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />');
-						
+			
+			var formData = $('#wpumapdisp').serialize() + '&wpumapload=1&_ajax_nonce=' + mapNonce;
+			
 			$(document).ajaxError(function(e, xhr, settings, exception) {
 	
 				if(exception == undefined) {
@@ -488,9 +489,7 @@ function wpu_user_mapper() {
 				$('#wpumapscreen').html(errMsg = settings.url + ' returned: ' + exception);
 			});
 			
-			
-			
-			$.post('admin.php?page=wpu-user-mapper', 'wpumapload=1&_ajax_nonce=' + mapNonce, function(response) {
+			$.post('admin.php?page=wpu-user-mapper', formData, function(response) {
 				$('#wpumapscreen').html(response);
 			});
 		}
@@ -504,84 +503,186 @@ function wpu_user_mapper() {
 }
 
 function wpu_map_show_data() {
-	global $wpdb, $phpbbForum;
+	global $wpdb, $phpbbForum, $db, $user;
 	
+	/* for pagination 
 	$sql = "SELECT count(*) AS total
 			FROM {$wpdb->users}";
 		
 	$countEntries = $wpdb->get_results($sql);
 	$numWpResults = $countEntries[0]->total;
+	*/
 	
-	$first = 0;
-	$last = 1000;
+	$type = (isset($_POST['wpumapside']) && $_POST['wpumapside'] == 'phpbb' ) ? 'phpbb' : 'wp';
+	$first = (isset($_POST['wpufirstitem'])) ? (int) $_POST['wpufirstitem'] : 0;
+	$num = (isset($_POST['wpunumshow'])) ? (int) $_POST['wpunumshow'] : 50;
 	
-	$sql = "SELECT ID
-			FROM {$wpdb->users}
-			ORDER BY user_login
-			LIMIT $first, $last";
+	$showOnlyInt = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'int'));
+	$showOnlyUnint = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'unint'));
+	$showOnlyPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'posts'));
+	$showOnlyNoPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'noposts'));
+	
+	$resultSet = array();
+	if($type != 'phpbb') {
+		// Process WP users on the left
+		
+		$sql = "SELECT ID
+				FROM {$wpdb->users}
+				ORDER BY user_login
+				LIMIT $first, $num";
 
-	$results = $wpdb->get_results($sql);
+		$results = $wpdb->get_results($sql);
 	
-	foreach ((array) $results as $item => $result) {
-		
-		// TODO in wp3 should be get_user_meta
-		$user = new WP_User($result->ID);
-		
-		?>
-		<div class="wpuwpuser" id="wpuuser<?php echo $result->ID; ?>">
-			<p class="wpuwplogin"><a href="#"><?php echo $user->user_login; ?></a></p>
-			<?php echo get_avatar($user->ID, 50); ?>
+		foreach ((array) $results as $item => $result) {
 			
-			<div style="float: left;">
-				<p class="wpuwpdetails"><strong>Display name:</strong> <?php echo $user->display_name; ?></p>
-				<p class="wpuwpdetails"><strong>E-mail:</strong> <?php echo $user->user_email; ?></p>
-				<p class="wpuwpdetails"><strong>Website:</strong> <?php echo !empty($user->user_url) ? $result->user_url : 'n/a' ; ?></p>
-				<p class="wpuwpdetails"><strong><?php (sizeof($user->roles) > 1) ? _e('Roles:') : _e('Role:'); ?></strong> <?php 
-					foreach($user->roles as $roleItem => $role) {
-						echo $role;
-						if($roleItem < (sizeof($roles) - 1)) {
-							echo ', ';
-						}
-					} ?></p>
-				<p class="wpuwpdetails"><strong>Posts:</strong> <?php /* @TODO in wp3: this is count_user_posts() */ echo (string)get_usernumposts($result->ID); ?> / 
-				<strong>Comments:</strong> <?php 
-					$count = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $result->ID));
-					echo (string)$count;
+			$resultSet[$result->ID] = array();
+			
+			$wpUser = new WP_User($result->ID);
+
+			
+			
+			// The phpBB DB is the canonical source for user integration -- don't trust the WP marker
+			$phpbbForum->foreground();
+			
+			$sql = $db->sql_build_query('SELECT', array(
+				'SELECT'	=> 	'u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_regdate, u.user_lastvisit, g.group_name',
 				
-				 ?></p>
-				<p class="wpuwpdetails"><strong>Integration status:</strong> <?php 
-					$colour = 'red';
-					$status = 'Not integrated';
-					if ( (isset($user->phpbb_userid)) && (!empty($user->phpbb_userid)) ) {
-						
-						$phpbbForum->foreground();
-						
-						/**
-						 * @ TODO Check that user is integrated from phpBB side
-						 * 
-						 */
-						
-						$phpbbForum->background();
-						
-						$colour = 'green';
-						$status = 'Integrated';
-						
-					}
-					echo '<span style="color: ' . $colour . '">' . $status . '</span>';
-						
+				'FROM'	=>	array(
+					USERS_TABLE		=> 	'u',
+					GROUPS_TABLE	=>	'g'
+				),
 				
+				'LEFT_JOIN'	=> array(
+					array(
+						'FROM'	=> 	array(RANKS_TABLE => 'r'),
+						'ON'			=>	'u.user_rank = r.rank_id'
+					)		
+				),
 				
-				?>
+				'WHERE'	=>	"u.user_wpuint_id = {$result->ID}
+											AND g.group_id = u.group_id"
+			
+			)); 
+					
+			if ( ($pResult = $db->sql_query_limit($sql, 1)) && (sizeof($pResult)) ) {	
+				if ($integDets = $db->sql_fetchrow($pResult)) {
+					
+					
+				if( $showOnlyPosts && ((int)$integDets['user_posts'] == 0) ) {
+					continue;
+				}
+				if( $showOnlyNoPosts && ((int)$integDets['user_posts'] > 0) ) {
+					continue;
+				}		
+					
+					// the user is integrated
+					
+					$resultSet[$result->ID]['integration'] = array(
+						'ID'				=> $integDets['user_id'],
+						'login'			=> $integDets['username'],
+						'email'			=> $integDets['user_email'],
+						'group'			=> (isset($phpbbForum->lang[$integDets['group_name']])) ? $phpbbForum->lang[$integDets['group_name']] : $integDets['group_name'],
+						'rank'			=> (isset($phpbbForum->lang[$integDets['rank_title']])) ? $phpbbForum->lang[$integDets['rank_title']] : $integDets['rank_title'],
+						'numposts'	=> $integDets['user_posts'],
+						'regdate'		=> $user->format_date($integDets['user_regdate']),
+						'lastvisit'		=> $user->format_date($integDets['user_lastvisit'])
+					);
+				}
+			}
+			
+			$db->sql_freeresult();
+			
+			// before we leave phpBB, use it to format wp regdata
+			$wpRegDate = $user->format_date($wpUser->user_registered);
+			
+			$phpbbForum->background();
+			
+			$resultSet[$result->ID] = array_merge($resultSet[$result->ID], array(
+				'login'					=>	$wpUser->user_login,
+				'avatar'				=>	get_avatar($wpUser->ID, 50),
+				'displayname'		=>	$wpUser->display_name,
+				'email'					=>	$wpUser->user_email,
+				'website'				=>	 !empty($wpUser->user_url) ? $wpUser->user_url : __('n/a'),
+				'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:') : __('Role:'),
+				'rolelist'				=>	 implode(', ', (array)$wpUser->roles),
+				
+				/* @TODO in wp3: this is count_user_posts() */ 
+				'numposts'			=>	(string)get_usernumposts($result->ID),
+				
+				'numcomments'	=>	(string) $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $result->ID)),
+				'regdate'				=>	$wpRegDate
+			));
+		}
+	} else {
+		// Process phpBB users on the left
+		
+	}
+
+	$alt = '';
+	foreach ((array) $resultSet as $ID => $item) {
+		if( $showOnlyInt && (!isset($item['integration'])) ) {
+			continue;
+		}
+		if( $showOnlyUnint && (isset($item['integration'])) ) {
+			continue;
+		}
+		if( $showOnlyPosts && ((int)$item['numposts'] == 0) ) {
+			continue;
+		}
+		if( $showOnlyNoPosts && ((int)$item['numposts'] > 0) ) {
+			continue;
+		}		
+		
+	?>
+		<div class="wpumaprow<?php echo $alt; ?>"  id="wpuuser<?php echo $ID; ?>">
+		<table style="width: 100%;"><tr><td>
+			<div class="wpuwpuser">
+				<p class="wpuwplogin"><a href="#"><?php echo $item['login']; ?></a></p>
+				<?php echo $item['avatar']; ?>
+				
+				<div style="float: left;">
+					<p class="wpuwpdetails"><strong>Display name:</strong> <?php echo $item['displayname']; ?></p>
+					<p class="wpuwpdetails"><strong>E-mail:</strong> <?php echo $item['email']; ?></p>
+					<p class="wpuwpdetails"><strong>Website:</strong> <?php echo $item['website']; ?></p>
+					<p class="wpuwpdetails"><strong><?php echo $item['roletext']; ?></strong> <?php echo $item['rolelist']; ?></p>
+					<p class="wpuwpdetails"><strong>Posts:</strong> <?php echo $item['numposts']; ?> /  <strong>Comments:</strong> <?php  echo $item['numcomments']; ?></p>
+					<p class="wpuwpdetails"><strong>Registered:</strong> <?php echo $item['regdate']; ?></p>
+				</div>
+				<br />
 			</div>
-			<br />
+			</td><td>
+			<?php if(!isset($item['integration'])) { ?>
+				<div class="wpuintegnot" style="width: 150px; ">
+					<p>Status: <?php _e('Not Integrated'); ?></p>
+					<p>Actions here</p>
+				</div>
+			</td><td>
+				<div class="wpuwpuser wpuintuser" style="border: 0;">&nbsp;</div>
+			<?php } else { ?>
+				<div class="wpuintegok" style="width: 150px; ">
+					<p>Status: Integrated</p>
+					<p>Actions here</p>
+				</div>
+			</td><td>
+				<div class="wpuwpuser wpuintuser">
+					<p class="wpuwplogin"><a href="#"><?php echo $item['integration']['login']; ?></a></p>
+					<img src="" class="avatar" style="width: 50px; height: 50px;" />
+					<div style="float: left;">
+						<p class="wpuwpdetails"><strong>Default Group:</strong> <?php echo $item['integration']['group']; ?></p>
+						<p class="wpuwpdetails"><strong>E-mail:</strong> <?php echo $item['integration']['email']; ?></p>						
+						<p class="wpuwpdetails"><strong>Rank:</strong> <?php echo $item['integration']['rank']; ?></p>
+						<p class="wpuwpdetails"><strong>Posts:</strong> <?php echo $item['integration']['numposts']; ?></p>
+						<p class="wpuwpdetails"><strong>Registered:</strong> <?php echo $item['integration']['regdate']; ?></p>
+						<p class="wpuwpdetails"><strong>Last Visit:</strong> <?php echo $item['integration']['lastvisit']; ?></p>
+					</div>
+					<br />
+				</div>
+			<?php } ?>
+			</td></tr></table>
 		</div>
 		<?php 
-		
-		if($item < sizeof($results) - 1) echo  '<hr />'; 
-			
+		$alt = ($alt == '') ? ' wpualt' : '';
 	}
-	
-	
 }
 	
 /**
