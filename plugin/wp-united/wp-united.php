@@ -728,10 +728,10 @@ function wpu_loginoutlink($loginLink) {
 	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
 		$redir = wpu_get_redirect_link();
-		$phpbbForum->enter();
+		$fStateChanged = $phpbbForum->foreground();
 		$logout_link = append_sid("ucp.$phpEx", 'mode=logout', true, $GLOBALS['user']->session_id);
 		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . $redir, false, false, $GLOBALS['user']->session_id);		
-		$phpbbForum->leave();
+		$phpbbForum->restore_state($fStateChanged);
 		if ( $phpbbForum->user_logged_in() ) {
 			$u_login_logout = $phpbbForum->url . $logout_link;
 			$l_login_logout = sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username());
@@ -762,9 +762,9 @@ function wpu_login_url($loginLink, $redirect) {
 function wpu_logout_url($logoutLink, $redirect) {
 	global $phpbbForum, $wpSettings, $phpEx;
 	if ( !empty($wpSettings['integrateLogin']) ) {
-		$phpbbForum->enter();
+		$fStateChanged = $phpbbForum->foreground();
 		$logoutLink = $phpbbForum->url . append_sid('ucp.'.$phpEx.'?mode=logout', false, false, $GLOBALS['user']->session_id);
-		$phpbbForum->leave();
+		$phpbbForum->restore_state($fStateChanged);
 	}
 	return $logoutLink;
 }
@@ -831,9 +831,8 @@ function wpu_capture_future_post($postID, $post) {
 					}
 					
 					// Need to check authority here -- as we won't know for sure when the time comes to xpost
-					$phpbbForum->enter();
 					$can_crosspost_list = wpu_forum_xpost_list(); 
-					$phpbbForum->leave();
+					
 					if ( !in_array($forumID, (array)$can_crosspost_list['forum_id']) ) { 
 						return;
 					}
@@ -880,7 +879,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
 		if ( !empty($wpSettings['integrateLogin']))  {
 			global $db, $user, $phpEx; 
 			
-			$phpbbForum->enter();
+			$fStateChanged = $phpbbForum->foreground();
 			
 			// Update blog link column
 			/**
@@ -901,7 +900,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
 
 			define('suppress_newpost_action', TRUE);
 		}
-		$phpbbForum->leave();
+		$phpbbForum->restore_state($fStateChanged);
 	}
 
 }
@@ -1234,7 +1233,6 @@ function wpu_add_postboxes() {
 function wpu_add_forcebox($forumName) {
 	global $forceXPosting, $phpbbForum, $wpSettings;
 
-	$phpbbForum->enter();
 	$showText =  (wpu_get_xposted_details()) ? $phpbbForum->lang['wpu_forcexpost_update'] : $phpbbForum->lang['wpu_forcexpost_details'];
 
 ?>
@@ -1279,11 +1277,9 @@ function wpu_add_meta_box() {
 					}
 				} else {	
 					// Add xposting choice box
-					$phpbbForum->enter();
 					if ( !($already_xposted = wpu_get_xposted_details()) ) { 
 						$can_xpost_forumlist = wpu_forum_xpost_list(); 
 					}
-					$phpbbForum->leave();
 			
 					if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
 						add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_xpost_box_title'], 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
@@ -1471,7 +1467,7 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 		// See if the static arrays have already been filled on an earlier invocation
 		if (!is_array($match)) {
 		
-			$phpbbForum->enter();
+			$fStateChanged = $phpbbForum->foreground();
 			
 			$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
 
@@ -1484,7 +1480,7 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 			}
 			$db->sql_freeresult($result);
 			
-			$phpbbForum->leave();
+			$phpbbForum->restore_state($fStateChanged);
 			
 		}
 		if (sizeof($match)) {
@@ -1509,7 +1505,7 @@ function wpu_print_smilies() {
 	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
 		global $db;
 
-		$phpbbForum->enter();
+		$fStateChanged = $phpbbForum->foreground();
 	
 		$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' GROUP BY emotion ORDER BY smiley_order ', 3600);
 
@@ -1528,7 +1524,7 @@ function wpu_print_smilies() {
 		}
 		$db->sql_freeresult($result);
 	
-		$phpbbForum->leave();
+		$phpbbForum->restore_state($fStateChanged);
 	
 	
 		if($i >= 20) {

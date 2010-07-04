@@ -189,7 +189,7 @@ function wpu_assess_newuser_perms() {
 function wpu_assess_perms($groupList = '') {
 	global $phpbbForum, $config, $db, $user;
 	
-	$phpbbForum->enter_if_out();
+	$fStateChanged = $phpbbForum->foreground();
 	
 	if( ($groupList == '') || $groupList == array() ) {
 		$where = '';
@@ -293,7 +293,7 @@ function wpu_assess_perms($groupList = '') {
 	
 	$db->sql_freeresult($result);
 	
-	$phpbbForum->leave_if_just_entered();
+	$phpbbForum->restore_state($fStateChanged);
 
 	return (array)$calculatedPerms;
 	
@@ -319,7 +319,7 @@ function wpu_get_integration_id() {
 function wpu_get_user_level() {
 	global $phpbbForum, $lDebug, $auth;
 
-	$phpbbForum->enter_if_out();
+	$fStateChanged = $phpbbForum->foreground();
 	
 	$userLevel = false;
 	
@@ -343,7 +343,7 @@ function wpu_get_user_level() {
 	$lDebug->add($debug);
 	$lDebug->add('User level set to: ' . $userLevel);
 	
-	$phpbbForum->leave_if_just_entered();
+	$phpbbForum->restore_state($fStateChanged);
 	return $userLevel;
 
 }
@@ -395,7 +395,7 @@ function wpu_update_int_id($pID, $intID) {
 		return false;
 	} 
 	//Switch back to the phpBB DB:
-	$phpbbForum->enter_if_out();
+	$fStateChanged = $phpbbForum->foreground();
 	
 	$updated = FALSE;
 	if ( !empty($pID) ) { 
@@ -409,7 +409,7 @@ function wpu_update_int_id($pID, $intID) {
 		}
 	}
 	//Switch back to the WP DB:
-	$phpbbForum->leave_if_just_entered();
+	$phpbbForum->restore_state($fStateChanged);
 	if ( !$updated ) {
 		trigger_error('Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.');
 	}

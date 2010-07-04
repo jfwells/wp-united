@@ -105,7 +105,7 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 	
 	// clean up, go back to normal :-)
 	if ( !$wpuCache->use_template_cache() ) {
-		$phpbbForum->enter();
+		$phpbbForum->foreground();
 	}
 
 }

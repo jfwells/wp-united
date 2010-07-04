@@ -509,7 +509,7 @@ Class WPU_Integration {
 		
 		// check, in case user has deactivated wpu-plugin
 		if(isset($phpbbForum)) {
-			$phpbbForum->enter();
+			$phpbbForum->foreground();
 		}
 
 		// We previously here mopped up all the WP vars that had been created... but it is a waste of CPU and usually unnecessary

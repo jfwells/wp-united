@@ -166,10 +166,10 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 		$blogList .= "</div>\n";
 	}
 	if ( $numAuthors > $maxEntries ) { 
-		$phpbbForum->enter();
+		$phpbbForum->foreground();
 		$base_url = append_sid(strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) . '://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING']);
 		$pagination = generate_pagination($base_url, $numAuthors, $maxEntries, $start, TRUE);
-		$phpbbForum->leave();
+		$phpbbForum->background();
 		$blogList .= '<p class="wpublpages">' . $pagination . '</p>';
 	}
 
@@ -584,13 +584,13 @@ function get_wpu_phpbb_stats($args='') {
 	extract(_wpu_process_args($args, $defaults));
 
 	
-	$phpbbForum->enter();
+	$fStateChanged = $phpbbForum->foreground();
 	
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_posts'],  '<strong>' 	. $phpbbForum->stats('num_posts') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_threads'], '<strong>' 	. $phpbbForum->stats('num_topics') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_users'], '<strong>' 	. $phpbbForum->stats('num_users')  . '</strong>') . "$after\n";	
 	$output .= $before . sprintf($phpbbForum->lang['wpu_forum_stats_newest_user'], '<a href="' . $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $phpbbForum->stats('newest_user_id') . '"><strong>' . $phpbbForum->stats('newest_username') . '</strong></a>') . "$after\n";
-	$phpbbForum->leave();
+	$phpbbForum->restore_state($fStateChanged);
 	return $output;
 
 }
@@ -623,7 +623,7 @@ function get_wpu_newposts_link() {
 function get_wpu_newposts() {
 	global $db, $phpbbForum;
 	if( $phpbbForum->user_logged_in() ) {
-		$phpbbForum->enter();
+		$fStateChanged = $phpbbForum->foreground();
 		$sql = "SELECT COUNT(post_id) as total
 				FROM " . POSTS_TABLE . "
 				WHERE post_time >= " . $phpbbForum->get_userdata('user_lastvisit');
@@ -631,7 +631,7 @@ function get_wpu_newposts() {
 		if( $result ) {
 			$row = $db->sql_fetchrow($result);
 			$db->sql_freeresult($result);
-			$phpbbForum->leave();
+			$phpbbForum->restore_state($fStateChanged);
 			return $row['total'];
 		}
 	}
@@ -661,14 +661,14 @@ function get_wpu_latest_phpbb_posts($args='') {
 	
 	$ret = '';
 	
-	$phpbbForum->enter();
+	$fStateChanged = $phpbbForum->foreground();
 	$forum_list = (empty($forum)) ? array() :  explode(',', $forum); //forums to explicitly check
 	$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true)));
 	if (sizeof($forum_list)) {
 		$forums_check = array_intersect($forums_check, $forum_list);
 	}
 	if (!sizeof($forums_check)) {
-		$phpbbForum->leave();
+		$phpbbForum->restore_state($fStateChanged);
 		return $before. $phpbbForum->lang['wpu_no_access'] . $after;
 	}	
 	$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, f.forum_name, p.poster_id, u.username, f.forum_id
@@ -702,7 +702,7 @@ function get_wpu_latest_phpbb_posts($args='') {
 	}
 	
 	$db->sql_freeresult($result);
-	$phpbbForum->leave();
+	$phpbbForum->restore_state($fStateChanged);
 	return $ret;
 }
 
@@ -850,7 +850,7 @@ function get_wpu_useronlinelist($args = '') {
 		$online_users = obtain_users_online();
 		$list = obtain_users_online_string($online_users);
 		
-		$phpbbForum->enter();
+		$fStateChanged = $phpbbForum->foreground();
 		// Grab group details for legend display
 		if ($auth->acl_gets('a_group', 'a_groupadd', 'a_groupdel'))	{
 			$sql = 'SELECT group_id, group_name, group_colour, group_type
@@ -893,7 +893,7 @@ function get_wpu_useronlinelist($args = '') {
 		$l_online_users = $list['l_online_users'];
 		$theList = str_replace($phpbb_root_path, $phpbbForum->url, $list['online_userlist']);
 		
-		$phpbbForum->leave();	
+		$phpbbForum->restore_state($fStateChanged);
 			
 	} 
 		
@@ -971,11 +971,11 @@ function get_wpu_login_user_info($args) {
 			if (current_user_can('publish_posts')) {
 				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
-			$phpbbForum->enter();
+			$fStateChanged = $phpbbForum->foreground();
 			if($auth->acl_get('a_')) {
 				$ret .= $before . '<a href="'.$phpbbForum->url . append_sid('adm/index.php', false, false, $GLOBALS['user']->session_id) . '" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
-			$phpbbForum->leave();
+			$phpbbForum->restore_state($fStateChanged);
 		}
 		$ret .= $before . get_wp_loginout() . $after;
 	} else {
@@ -1040,9 +1040,9 @@ function wpu_get_redirect_link() {
 	} else {
 		$link = get_option('home');
 	}
-	$phpbbForum->enter_if_out();
+	$fStateChanged = $phpbbForum->foreground();
 	$link = reapply_sid($link);
-	$phpbbForum->leave_if_just_entered();
+	$phpbbForum->restore_state($fStateChanged);
 	return urlencode(attribute_escape($link));
 }
 
@@ -1107,9 +1107,9 @@ function _wpu_add_class($el, $class) {
 function _wpu_get_user_rank_info($userID = '') {
 
 	global $phpbbForum;
-	$phpbbForum->enter();
+	$fStateChanged = $phpbbForum->foreground();
 	$rank = $phpbbForum->get_user_rank_info($userID);
-	$phpbbForum->leave();
+	$phpbbForum->restore_state($fStateChanged);
 	$rank['image'] = (empty($rank['image'])) ? '' : $phpbbForum->url . $rank['image'];
 	return $rank;
 }

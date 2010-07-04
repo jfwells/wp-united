@@ -29,7 +29,7 @@ class WPU_Comments {
 		
 		global $phpbbForum, $phpbbCommentLinks, $auth, $db, $phpEx, $user, $phpbb_root_path;
 		
-		$phpbbForum->enter();
+		$fStateChanged = $phpbbForum->foreground();
 		
 		$auth_f_read = array_keys($auth->acl_getf('f_read', true));
 		
@@ -48,7 +48,7 @@ class WPU_Comments {
 		
 		if(!isset($topicID)) {
 			$db->sql_freeresult($result);
-			$phpbbForum->leave();
+			$phpbbForum->restore_state($fStateChanged);
 			return false;
 		}
 		
@@ -73,7 +73,7 @@ class WPU_Comments {
 			}
 		}
 		if(!$canPost) {
-			$phpbbForum->leave();
+			$phpbbForum->restore_state($fStateChanged);
 			return false;
 		}
 
@@ -113,7 +113,7 @@ class WPU_Comments {
 
 				if(!($result = $db->sql_query($sql))) {
 					$db->sql_freeresult($result);
-					$phpbbForum->leave();
+					$phpbbForum->restore_state($fStateChanged);
 					return false;
 				} 
 				$phpbbCommentLinks = array();
@@ -154,7 +154,7 @@ class WPU_Comments {
 				}
 				$db->sql_freeresult($result);
 				
-				$phpbbForum->leave();
+				$phpbbForum->restore_state($fStateChanged);
 
 				return true;
 	}

@@ -18,7 +18,7 @@ global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCach
 	
 if($connectSuccess) {
 	
-	$phpbbForum->leave();
+	$phpbbForum->background();
 	
 	
 	/**
@@ -149,9 +149,9 @@ if ( $useCache || $connectSuccess ) {
 		
 		/*
 		if ( !$wpuCache->use_template_cache() ) {
-			$phpbbForum->leave();
+			$phpbbForum->background();
 			wp_reset_query();
-			$phpbbForum->enter();
+			$phpbbForum->foreground();
 		} */
 		
 		if (!DISABLE_PHPBB_CSS && PHPBB_CSS_FIRST) {

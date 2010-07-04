@@ -38,7 +38,7 @@ v0.9:
 
 
 ------ cross-posting and comments ---------
-
+-- Add cross-posting permissions to an additional column in the permissions tab
 -- move cross-posting from per-topic to per-post (and topic!) to reduce query load
 -- check excerpt/full settings are working
 -- rework html-to-bbcode translation for images with captions
@@ -61,14 +61,9 @@ v0.9:
 -- settings defaults should all be in one place
 -- append_sid is requiring to be fed the session ID -- why?
 -- several old links where & should be &amp; -- run through validator
--- kill PHP4 compat
 -- do check on plugin activation for php4 and wordpress version
 -- when connecting to phpBB, check version for compatibility
 -- modify version.php to contain compatibility information
--- Make context-switching bulletproof so users can use it in their own functions without having to understand the current context:
-	-- change phpbbForum->enter_if_out and leave_if_just_entered so they can be nested. Each call to enter_if() should give a return value (key) that must be provided again on leave_if() so that it can behave intelligently when nested
-	-- clean up/rename any uses of enter() and leave() so that they are private functions -- rename the if_outs and if_just_entereds back to enter() and leave()
-	-- better yet: use some kind of introspection so we can maintain internal state
 -- Completely rewrite hook, and combine integrator and template-integrator, since they are now the same
 -- re-base file structure so phpBB mod sits under plugin
 -- split plugin files into folders -- e.g. split off settings panel
@@ -114,6 +109,7 @@ v0.9:
 
 
 --------- possible ---------------
+-- Add user lookup to permissions mapping tab
 -- Add AutoMod engine (may defer to v0.9.x > .0 if not trivial)
 -- Add pre-mod routines and scratch/plugins loader folder for plugins or premium options
 -- Finish "advanced settings" panel page -- first see what options are around and whether still necessary
@@ -195,8 +191,8 @@ Internalising of integrated login into wordpress -- in progress
 - Updated Permissions tab in user mapping -- it now shows effective permissions or 'Never' settings
 - Permissions mapping tab now has deep links into ACP in nice colourbox popup, and updates live on changes.
 - New deep link to phpBB ACP in wp-united dashboard menu
-
-
+- Cleaned up $phpbbForum class (now PHP 5 only)
+- $phpbbForum->enter() and leave() are now private. Access to phpBB is through $phpbbForum->foreground(), ->background() and restore_state($state)
 
 
 
@@ -237,3 +233,5 @@ if (!$row)
 	);
 	
 ****/	
+
+

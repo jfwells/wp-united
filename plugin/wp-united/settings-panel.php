@@ -264,8 +264,7 @@ function wpu_user_mapper() {
 		<img id="panellogo" src="<?php echo $wpuUrl ?>/images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
-		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together'); ?></p>
-		<p><?php _e('Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
+		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together. Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
 		<ul>
 			<li><?php echo '<strong>' . __('User Permissions') . ':</strong> ' . __('Setting up permissions so that users can be automatically given mapped accounts'); ?></li>
 			<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up the linkage between user accounts that already existed in both phPBB and WordPress before you installed WP-United, or manually changing linkages.'); ?></li>
@@ -289,9 +288,8 @@ function wpu_user_mapper() {
 				</ul>
 				<?php
 					global $phpbbForum, $db;
-					$phpbbForum->enter();
+					$phpbbForum->foreground();
 					
-						
 					$groupTypes = array(__('Built-In'), __('User-Defined'));
 					$numUserDefined = 0;
 						
@@ -415,7 +413,7 @@ function wpu_user_mapper() {
 							echo '<p>' . sprintf(__('No %s groups to show'), $type) . '</p>';
 						}
 					}
-					$phpbbForum->leave();
+					$phpbbForum->background();
 				?>
 			</div>
 			<div id="wpumaptab-map">
@@ -540,7 +538,7 @@ function wpu_settings_page() {
 										<?php
 										if(defined('IN_PHPBB')) { 
 											global $phpbbForum, $db;
-											$phpbbForum->enter();
+											$fStateChanged = $phpbbForum->foreground();
 											$sql = 'SELECT forum_id, forum_name FROM ' . FORUMS_TABLE . ' WHERE ' .
 												'forum_type = ' . FORUM_POST;
 											if ($result = $db->sql_query($sql)) {
@@ -552,6 +550,7 @@ function wpu_settings_page() {
 													echo '>' . $row['forum_name'] . '</option>';
 												}
 											}
+											$phpbbForum->restore_state($fStateChanged);
 										}
 									?>								
 										

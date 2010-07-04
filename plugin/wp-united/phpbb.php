@@ -25,29 +25,31 @@ if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) exit;
 class WPU_Phpbb {
 
 
-	var $wpTablePrefix;
-	var $wpUser;
-	var $wpCache;
-	var $phpbbTablePrefix;
-	var $phpbbUser;
-	var $phpbbCache;
-	var $phpbbDbName;
-	var $phpbbTemplate;
-	var $wpTemplate;
-	var $state;
-	var $lang;
-	var $was_out;
-	var $seo;
-	var $url;
-	var $_transitioned_user;
-	var $_savedID;
-	var $_savedIP;
-	var $_savedAuth;
+	private $wpTablePrefix;
+	private $wpUser;
+	private $wpCache;
+	private $phpbbTablePrefix;
+	private $phpbbUser;
+	private $phpbbCache;
+	private $phpbbDbName;
+	private $phpbbTemplate;
+	private $wpTemplate;
+	private $state;
+	private $was_out;
+	private $_savedID;
+	private $_savedIP;
+	private $_savedAuth;
+	private $tokens;
+	
+	public $lang;
+	public $seo;
+	public $url;
+	public $_transitioned_user;		
 	
 	/**
 	 * Class initialisation
 	 */
-	function WPU_Phpbb() {
+	public function __construct() {
 		if(defined('IN_PHPBB')) { 
 			$this->lang = $GLOBALS['user']->lang;
 			$this->state = 'wp';
@@ -56,6 +58,7 @@ class WPU_Phpbb {
 			$this->phpbbUser = $GLOBALS['user'];
 			$this->phpbbCache = $GLOBALS['cache'];
 		}
+		$this->tokens = array();
 		$this->was_out = false;
 		$this->seo = false;
 		
@@ -69,18 +72,18 @@ class WPU_Phpbb {
 	/**
 	 * Loads the phpBB environment if it is not already
 	 */
-	function load($rootPath) {
+	public function load($rootPath) {
 		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
 		global $dbms, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 
-		$this->_backup_wp_conflicts();
+		$this->backup_wp_conflicts();
 		
 		define('IN_PHPBB', true);
 		
 		$phpbb_root_path = $rootPath;
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 		
-		$this->_make_phpbb_env();
+		$this->make_phpbb_env();
 		
 		if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
 			wpu_disable_connection('error');
@@ -97,7 +100,7 @@ class WPU_Phpbb {
 		
 		
 		
-		$this->_calculate_url();
+		$this->calculate_url();
 		
 		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
 		// so we just set it global here
@@ -142,101 +145,99 @@ class WPU_Phpbb {
 		}
 		 
 		$this->lang = $GLOBALS['user']->lang;
-
-		$this->_calculate_url();
 		
-		$this->_backup_phpbb_state();
-		$this->_switch_to_wp_db();
-		$this->_restore_wp_conflicts();
-		$this->_make_wp_env();
+		$this->backup_phpbb_state();
+		$this->switch_to_wp_db();
+		$this->restore_wp_conflicts();
+		$this->make_wp_env();
 	}
 	
 	/**
 	 * Enters the phpBB environment
 	 */
-	function enter() { 
+	private function enter() { 
 		$this->lang = (isset($this->phpbbUser->lang)) ? $this->phpbbUser->lang : $this->lang;
 		if($this->state != 'phpbb') {
-			$this->_backup_wp_conflicts();
-			$this->_restore_phpbb_state();
-			$this->_make_phpbb_env();
-			$this->_switch_to_phpbb_db();
+			$this->backup_wp_conflicts();
+			$this->restore_phpbb_state();
+			$this->make_phpbb_env();
+			$this->switch_to_phpbb_db();
 		}
 	}
 	
 	/**
 	 * Returns to WordPress
 	 */
-	function leave() { 
+	private function leave() { 
 		if(!isset($GLOBALS['user'])) {
 			$this->lang = (sizeof($GLOBALS['user']->lang)) ? $GLOBALS['user']->lang : $this->lang;
 		}
 		if($this->state == 'phpbb') {
-			$this->_backup_phpbb_state();
-			$this->_switch_to_wp_db();
-			$this->_restore_wp_conflicts();
-			$this->_make_wp_env();
+			$this->backup_phpbb_state();
+			$this->switch_to_wp_db();
+			$this->restore_wp_conflicts();
+			$this->make_wp_env();
 		}
 	}
 	
 	/**
 	 * Passes content through the phpBB word censor
 	 */
-	function censor($content) {
-		$this->enter_if_out();
+	public function censor($content) {
+		$fStateChanged = $this->foreground();
 		$content = censor_text($content);
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		return $content;
 	}
 	
 	/**
 	 * Returns if the current user is logged in
 	 */
-	function user_logged_in() {
-		$this->enter_if_out();
+	public function user_logged_in() {
+		$fStateChanged = $this->foreground();
 		$result = ( empty($GLOBALS['user']->data['is_registered']) ) ? false : true;
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		return $result;
 	}
 	
 	/**
 	 * Returns the currently logged-in user's username
 	 */
-	function get_username() {
-		$this->enter_if_out();
+	public function get_username() {
+		$fStateChanged = $this->foreground();
 		$result = $GLOBALS['user']->data['username'];
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		return $result;
 	}
 	
 	/**
 	 * Returns something from $user->userdata
 	 */
-	function get_userdata($key = '') {
-		$this->enter_if_out();
+	public function get_userdata($key = '') {
+		$fStateChanged = $this->foreground();
 		if ( !empty($key) ) {
 			$result = $GLOBALS['user']->data[$key];
 		} else {
 			$result = $GLOBALS['user']->data;
 		}
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		return $result;		
 	}
 	
 	/**
 	 * Returns the user's IP address
 	 */
-	function get_userip() {
-		$this->enter_if_out();
+	public function get_userip() {
+		$fStateChanged = $this->foreground();
 		$result = $GLOBALS['user']->ip;
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		return $result;			
 	}
 	
 	/**
 	 * Returns a statistic
 	 */
-	function stats($stat) {
+	public function stats($stat) {
 		 return $GLOBALS['config'][$stat];
 	}
 	
@@ -244,9 +245,9 @@ class WPU_Phpbb {
 	/**
 	 * Returns rank info for currently logged in, or specified, user.
 	 */
-	function get_user_rank_info($userID = '') {
+	public function get_user_rank_info($userID = '') {
 		global $db;
-		$this->enter_if_out();
+		$fStateChanged = $this->foreground();
 		
 		if (!$userID ) {
 			if( $this->user_logged_in() ) {
@@ -257,7 +258,7 @@ class WPU_Phpbb {
 						FROM ' . USERS_TABLE .
 						' WHERE user_wpuint_id = ' . $userID;
 				if(!($result = $db->sql_query($sql))) {
-					wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
+					wp_die($this->lang['WP_DBErr_Retrieve']);
 				}
 				$usrData = $db->sql_fetchrow($result);
 		}
@@ -269,10 +270,10 @@ class WPU_Phpbb {
 				$rank = array();
 				$rank['text'] = $rank['image_tag'] = $rank['image']  = '';
 				get_user_rank($usrData['user_rank'], $usrData['user_posts'], $rank['text'], $rank['image_tag'], $rank['image']);
-				$this->leave_if_just_entered();
+				$this->restore_state($fStateChanged);
 				return $rank;
 		}
-		$this->leave();
+		$this->restore_state($fStateChanged);
 	}
 	
 	
@@ -280,10 +281,10 @@ class WPU_Phpbb {
 	 * Lifts latest phpBB topics from the DB. (this is the phpBB2 version) 
 	 * $forum_list limits to a specific forum (comma delimited list). $limit sets the number of posts fetched. 
 	 */
-	function get_recent_topics($forum_list = '', $limit = 50) {
+	public function get_recent_topics($forum_list = '', $limit = 50) {
 		global $db, $auth;
 		
-		$this->enter_if_out();
+		$fStateChanged = $this->foreground();
 
 		$forum_list = (empty($forum_list)) ? array() :  explode(',', $forum_list); //forums to explicitly check
 		$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true))); //forums authorised to read posts in
@@ -303,7 +304,7 @@ class WPU_Phpbb {
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
-			wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
+			wp_die($this->lang['WP_DBErr_Retrieve']);
 		}		
 
 		$posts = array();
@@ -321,17 +322,17 @@ class WPU_Phpbb {
 			$i++;
 		}
 		$db->sql_freeresult($result);
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		return $posts;
 	}	
 	
 	/**
 	 * Transitions to/from the currently logged-in user
 	 */
-	 function transition_user($toID = false, $toIP = false) {
+	 public function transition_user($toID = false, $toIP = false) {
 		 global $auth, $user, $db;
 		 
-		 $this->enter_if_out();
+		 $fStateChanged = $this->foreground();
 		 
 		 if( ($toID === false) && ($this->_transitioned_user == true) ) {
 			  // Transition back to the currently logged-in user
@@ -361,7 +362,7 @@ class WPU_Phpbb {
 			$this->_transitioned_user = true;
 		}
 		
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		 
 	}	
 	
@@ -369,9 +370,9 @@ class WPU_Phpbb {
 	/**
 	 * transmits new settings from the WP settings panel to phpBB
 	 */
-	function synchronise_settings($settings) {
+	public function synchronise_settings($settings) {
 		global $wpSettings, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
-		$this->enter_if_out();
+		$fStateChanged = $this->foreground();
 		if(is_array($settings)) {
 			if(sizeof($settings)) {
 				
@@ -464,11 +465,11 @@ class WPU_Phpbb {
 				$wpuCache = WPU_Cache::getInstance();
 				$wpuCache->template_purge();
 
-				$this->leave_if_just_entered();
+				$this->restore_state($fStateChanged);
 				return true;
 			}
 		}
-		$this->leave_if_just_entered();
+		$this->restore_state($fStateChanged);
 		echo "No settings to process";
 		return false;
 	}
@@ -478,7 +479,7 @@ class WPU_Phpbb {
 	 * Calculates the URL to the forum
 	 * @access private
 	 */
-	function _calculate_url() {
+	private function calculate_url() {
 			global $config;
 			$server = $config['server_protocol'] . add_trailing_slash($config['server_name']);
 			$scriptPath = add_trailing_slash($config['script_path']);
@@ -490,7 +491,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */
-	function _make_phpbb_env() {
+	private function make_phpbb_env() {
 		global $IN_WORDPRESS;
 		
 		// WordPress removes $_COOKIE from $_REQUEST, which is the source of much wailing and gnashing of teeth
@@ -502,7 +503,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */	
-	function _make_wp_env() {
+	private function make_wp_env() {
 		$this->state = 'wp';
 		$_REQUEST = array_merge($_GET, $_POST);
 	}
@@ -510,7 +511,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */	
-	function _backup_wp_conflicts() {
+	private function backup_wp_conflicts() {
 		global $table_prefix, $user, $cache, $template;
 		
 		$this->wpTemplate = $template;
@@ -522,7 +523,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */	
-	function _backup_phpbb_state() {
+	private function backup_phpbb_state() {
 		global $table_prefix, $user, $cache, $dbname, $template;
 
 		$this->phpbbTemplate = $template;
@@ -535,7 +536,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */	
-	function _restore_wp_conflicts() {
+	private function restore_wp_conflicts() {
 		global $table_prefix, $user, $cache, $template;
 		
 		$template = $this->wpTemplate;
@@ -547,7 +548,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */	
-	function _restore_phpbb_state() {
+	private function restore_phpbb_state() {
 		global $table_prefix, $user, $cache, $template;
 		
 		$template = $this->phpbbTemplate;
@@ -559,7 +560,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */	
-	function _switch_to_wp_db() {
+	private function switch_to_wp_db() {
 		global $wpdb;
 		if (($this->phpbbDbName != DB_NAME) && (!empty($wpdb->dbh))) {
 			@mysql_select_db(DB_NAME, $wpdb->dbh);
@@ -569,7 +570,7 @@ class WPU_Phpbb {
 	/**
 	 * @access private
 	 */	
-	function _switch_to_phpbb_db() {
+	private function switch_to_phpbb_db() {
 		global $db, $dbms; 
 		if (($this->phpbbDbName != DB_NAME) && (!empty($db->db_connect_id))) {
 			if($dbms=='mysqli') {
@@ -585,7 +586,8 @@ class WPU_Phpbb {
 	 * http://www.phpbb.com/community/viewtopic.php?f=71&t=545415&p=3026305
 	 * @access private
 	 */
-	function _get_role_by_name($name) {
+	private function get_role_by_name($name) {
+		$fStateChanged = $this->foreground();
 	   global $db;
 	   $data = null;
 
@@ -595,7 +597,7 @@ class WPU_Phpbb {
 	   $result = $db->sql_query($sql);
 	   $data = $db->sql_fetchrow($result);
 	   $db->sql_freeresult($result);
-
+		$this->restore_state($fStateChanged);
 	   return $data;
 	}
 	
@@ -608,10 +610,10 @@ class WPU_Phpbb {
 	* @access private
 	*
 	*/
-	function _acl_update_role($role_id, $auth_options, $auth_setting = ACL_YES) {
+	private function acl_update_role($role_id, $auth_options, $auth_setting = ACL_YES) {
 	   global $db, $cache, $auth;
-
-		$acl_options_ids = $this->_get_acl_option_ids($auth_options);
+		$fStateChanged = $this->foreground();
+		$acl_options_ids = $this->get_acl_option_ids($auth_options);
 
 		$role_options = array();
 		$sql = "SELECT auth_option_id
@@ -639,6 +641,7 @@ class WPU_Phpbb {
 
 	   $cache->destroy('acl_options');
 	   $auth->acl_clear_prefetch();
+	   $this->restore_state($fStateChanged);
 	}
 
 	/**
@@ -647,7 +650,8 @@ class WPU_Phpbb {
 	* @param mixed $auth_options auth_options to grant (a auth_option has to be specified)
 	* @access private
 	*/
-	function _get_acl_option_ids($auth_options) {
+	private function get_acl_option_ids($auth_options) {
+		$fStateChanged = $this->foreground();
 	   global $db;
 
 	   $data = array();
@@ -660,34 +664,42 @@ class WPU_Phpbb {
 		  $data[] = $row;
 	   }
 	   $db->sql_freeresult($result);
-
+		$this->restore_state($fStateChanged);
 	   return $data;
-	}	
+	}
 	
 	/**
-	 * Enters phpBB if we were out
-	 * This is the same as the normal enter() function, but it records that we didn't have to enter
-	 * Subsequent calls to leave_if_just_entered ensure we don't leave.
-	 * @access private
+	 * Brings phpBB (db, conflicting vars, etc) to the foreground
+	 * calling functions can track the returned $state parameter and use it to restore the same state when
+	 * they exit.
+	 * @return bool whether phpBB was in the background and we actually had to do anything.
 	 */
-	function enter_if_out() {
-		$this->was_out = ($this->state != 'phpbb');
-		if($this->was_out) {
+	public function foreground() {
+		if($this->state != 'phpbb') {
 			$this->enter();
+			return true;
 		}
+		return false;
 	}
+	
 	/**
-	 * Leaves phpBB only if enter_if_out actually did something
-	 * MUST be preceded by a enter_if_out in the same function, or will be meaningless
-	 * @access private
+	 * Sends phpBB into the background, restoring WP database and vars
+	 * @param bool $state whether to perform the action. Optional -- shortcut for if in the calling function
 	 */
-	function leave_if_just_entered() {
-		if($this->was_out) {
+	public function background($state = true) {
+		if($state) {
 			$this->leave();
 		}
-		$this->was_out = false;	
-	}	
-
+	}
+	
+	/**
+	 * Alias for background(). However $state must be provided
+	 * @ param bool $state whether to perform the action (shortcut for if in the calling function.)
+	 */
+	public function restore_state($state) {
+		$this->background($state);
+	}
+	
 }
 
 ?>

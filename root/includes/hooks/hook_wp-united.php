@@ -125,7 +125,7 @@ function wpu_wp_shutdown() {
 	if (defined('WPU_FWD_INTEGRATION') ) {
 		$innerContent = ob_get_contents();
 		ob_end_clean();  
-		$phpbbForum->enter();
+		$phpbbForum->foreground();
 		include ($wpSettings['wpPluginPath'] . 'integrator.' . $phpEx);
 	}
 }
