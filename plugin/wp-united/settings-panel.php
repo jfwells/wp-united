@@ -663,6 +663,31 @@ function wpu_map_show_data() {
 	$showOnlyPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'posts'));
 	$showOnlyNoPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'noposts'));
 	
+	/*
+	$userMapper = new WPU_User_Mapper("leftSide={$type}&numToShow={$num}&showOnlyInt={$showOnlyInt}
+		&showOnlyUnInt={$showOnlyUnInt}&showOnlyPosts={$showOnlyPosts}&showOnlyNoPosts={$showOnlyNoPosts}");
+
+	$alt = '';
+	foreach($userMapper->users as $userID -> $user) { ?>
+		<div class="wpumaprow<?php echo $alt; ?>"  id="wpuuser<?php echo $userID; ?>">
+			<table style="width: 100%;"><tr><td> 
+				<?php echo $user; ?>
+			</td><td>
+				<?php // echo $user->show_action_panel(); ?>
+			</td><td>
+				<?php 
+				//if($user->is_integrated()) {
+				//	echo $user->integratedUser;
+				//} 
+				?>
+			</td></tr></table>
+		</div>
+		<?php 
+		$alt = ($alt == '') ? ' wpualt' : '';
+	}	
+
+	*/
+	
 	$resultSet = array();
 	if($type != 'phpbb') {
 		// Process WP users on the left
