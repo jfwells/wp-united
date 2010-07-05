@@ -1,11 +1,9 @@
 <?php
 /**
  * Represents individual users in the mapper -- either on the left-hand or right-hand side.
- * Doesn't do anything directly -- designed to be access through the WPU_Mapped_WP_User and WPU_Mapped_Phpbb_User
- * subclasses.
  * Echoing out an instance of this class directly provides a nicely formatted user block
  */
-class WPU_Mapped_User {
+abstract class WPU_Mapped_User {
 
 	protected $templateFields;
 	protected $userDetails;
@@ -108,9 +106,7 @@ class WPU_Mapped_WP_User extends WPU_Mappped_User {
 	
 	
 	function __toString() {
-	
-		parent::toString();
-		
+		return parent::toString();
 	}
 
 }
