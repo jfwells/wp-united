@@ -502,6 +502,147 @@ function wpu_user_mapper() {
 <?php
 }
 
+function wpu_fetch_wp_mapdetails($pos = 'left', $userid = 0, $firstItem, $numItems) {
+	global $wpdb, $phpbbForum, $user;
+	
+	$resultSet = array();
+
+
+	/**
+	 * @TODO: complete where clause creation here
+	 */
+	
+	if(empty($userid)) {
+		$where = '';
+	}
+	
+	$sql = "SELECT ID
+			FROM {$wpdb->users}
+			ORDER BY user_login {$where}
+			LIMIT {$firstItem}, {$numItems}";
+			
+
+	$results = $wpdb->get_results($sql);
+
+	foreach ((array) $results as $item => $result) {
+		
+		$resultSet[$result->ID] = array();
+		
+		$wpUser = new WP_User($result->ID);	
+		
+		//phpbb user info fetched here
+		$phpbbForum->foreground();
+		
+		if($pos=='left') {
+			$resultSet[$result->ID]['integration'] = wpu_fetch_phpbb_mapdetails('right', 0, $result->ID);
+		}
+		
+		// before we leave phpBB, use it to format wp regdata
+		$wpRegDate = $user->format_date($wpUser->user_registered);
+		$phpbbForum->background();
+		
+		$resultSet[$result->ID] = array_merge($resultSet[$result->ID], array(
+			'login'					=>	$wpUser->user_login,
+			'avatar'				=>	get_avatar($wpUser->ID, 50),
+			'displayname'		=>	$wpUser->display_name,
+			'email'					=>	$wpUser->user_email,
+			'website'				=>	 !empty($wpUser->user_url) ? $wpUser->user_url : __('n/a'),
+			'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:') : __('Role:'),
+			'rolelist'				=>	 implode(', ', (array)$wpUser->roles),
+			
+			/* @TODO in wp3: this is count_user_posts() */ 
+			'numposts'			=>	(string)get_usernumposts($result->ID),
+			
+			'numcomments'	=>	(string) $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $result->ID)),
+			'regdate'				=>	$wpRegDate
+		));
+	}	
+	
+	return $resultSet;
+		
+}
+
+function wpu_fetch_phpbb_mapdetails($pos = 'left', $userid = 0, $intid = 0, $firstItem = 0, $numItems = 50) {
+	global $phpbbForum, $db, $user;
+	
+	/**
+	 * @TODO: complete where clause creation here
+	 */
+	
+	$limit = 0;
+	if($pos == 'right') {
+		if(empty($intid)) {
+			return array();
+		}
+		$where = " AND u.user_wpuint_id = {$intid}";
+		$limit = 1;
+	} else {
+		$where = '';
+	}
+	
+	// The phpBB DB is the canonical source for user integration -- don't trust the WP marker
+	$fStateChanged = $phpbbForum->foreground();
+		
+	$sql = $db->sql_build_query('SELECT', array(
+		'SELECT'	=> 	'u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_regdate, u.user_lastvisit, g.group_name',
+		
+		'FROM'	=>	array(
+			USERS_TABLE		=> 	'u',
+			GROUPS_TABLE	=>	'g'
+		),
+		
+		'LEFT_JOIN'	=> array(
+			array(
+				'FROM'	=> 	array(RANKS_TABLE => 'r'),
+				'ON'			=>	'u.user_rank = r.rank_id'
+			)		
+		),
+		
+		'WHERE'	=>		"g.group_id = u.group_id " . 
+									$where
+	
+	)); 
+	
+	$resultSet = array();
+
+	if($limit) {
+		$pResult = $db->sql_query_limit($sql, $limit);
+	} else {
+		$pResult = $db->sql_query($sql);
+	}
+
+	if ( $pResult && (sizeof($pResult)) ) {	
+		if ($resultSet = $db->sql_fetchrow($pResult)) {
+			
+			
+		/*	if( $showOnlyPosts && ((int)$resultSet['user_posts'] == 0) ) {
+				continue;
+			}
+			if( $showOnlyNoPosts && ((int)$resultSet['user_posts'] > 0) ) {
+				continue;
+			}		 */
+					
+					// the user is integrated
+					
+			$resultSet = array(
+				'ID'				=> $integDets['user_id'],
+				'login'			=> $integDets['username'],
+				'email'			=> $integDets['user_email'],
+				'group'			=> (isset($phpbbForum->lang[$integDets['group_name']])) ? $phpbbForum->lang[$integDets['group_name']] : $integDets['group_name'],
+				'rank'			=> (isset($phpbbForum->lang[$integDets['rank_title']])) ? $phpbbForum->lang[$integDets['rank_title']] : $integDets['rank_title'],
+				'numposts'	=> $integDets['user_posts'],
+				'regdate'		=> $user->format_date($integDets['user_regdate']),
+				'lastvisit'		=> $user->format_date($integDets['user_lastvisit'])
+			);
+		}
+	}
+	
+	$db->sql_freeresult();
+	$phpbbForum->background($fStateChanged);
+	return $resultSet;
+	
+}
+
 function wpu_map_show_data() {
 	global $wpdb, $phpbbForum, $db, $user;
 	
@@ -525,97 +666,10 @@ function wpu_map_show_data() {
 	$resultSet = array();
 	if($type != 'phpbb') {
 		// Process WP users on the left
-		
-		$sql = "SELECT ID
-				FROM {$wpdb->users}
-				ORDER BY user_login
-				LIMIT $first, $num";
-
-		$results = $wpdb->get_results($sql);
-	
-		foreach ((array) $results as $item => $result) {
-			
-			$resultSet[$result->ID] = array();
-			
-			$wpUser = new WP_User($result->ID);
-
-			
-			
-			// The phpBB DB is the canonical source for user integration -- don't trust the WP marker
-			$phpbbForum->foreground();
-			
-			$sql = $db->sql_build_query('SELECT', array(
-				'SELECT'	=> 	'u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_regdate, u.user_lastvisit, g.group_name',
-				
-				'FROM'	=>	array(
-					USERS_TABLE		=> 	'u',
-					GROUPS_TABLE	=>	'g'
-				),
-				
-				'LEFT_JOIN'	=> array(
-					array(
-						'FROM'	=> 	array(RANKS_TABLE => 'r'),
-						'ON'			=>	'u.user_rank = r.rank_id'
-					)		
-				),
-				
-				'WHERE'	=>	"u.user_wpuint_id = {$result->ID}
-											AND g.group_id = u.group_id"
-			
-			)); 
-					
-			if ( ($pResult = $db->sql_query_limit($sql, 1)) && (sizeof($pResult)) ) {	
-				if ($integDets = $db->sql_fetchrow($pResult)) {
-					
-					
-				if( $showOnlyPosts && ((int)$integDets['user_posts'] == 0) ) {
-					continue;
-				}
-				if( $showOnlyNoPosts && ((int)$integDets['user_posts'] > 0) ) {
-					continue;
-				}		
-					
-					// the user is integrated
-					
-					$resultSet[$result->ID]['integration'] = array(
-						'ID'				=> $integDets['user_id'],
-						'login'			=> $integDets['username'],
-						'email'			=> $integDets['user_email'],
-						'group'			=> (isset($phpbbForum->lang[$integDets['group_name']])) ? $phpbbForum->lang[$integDets['group_name']] : $integDets['group_name'],
-						'rank'			=> (isset($phpbbForum->lang[$integDets['rank_title']])) ? $phpbbForum->lang[$integDets['rank_title']] : $integDets['rank_title'],
-						'numposts'	=> $integDets['user_posts'],
-						'regdate'		=> $user->format_date($integDets['user_regdate']),
-						'lastvisit'		=> $user->format_date($integDets['user_lastvisit'])
-					);
-				}
-			}
-			
-			$db->sql_freeresult();
-			
-			// before we leave phpBB, use it to format wp regdata
-			$wpRegDate = $user->format_date($wpUser->user_registered);
-			
-			$phpbbForum->background();
-			
-			$resultSet[$result->ID] = array_merge($resultSet[$result->ID], array(
-				'login'					=>	$wpUser->user_login,
-				'avatar'				=>	get_avatar($wpUser->ID, 50),
-				'displayname'		=>	$wpUser->display_name,
-				'email'					=>	$wpUser->user_email,
-				'website'				=>	 !empty($wpUser->user_url) ? $wpUser->user_url : __('n/a'),
-				'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:') : __('Role:'),
-				'rolelist'				=>	 implode(', ', (array)$wpUser->roles),
-				
-				/* @TODO in wp3: this is count_user_posts() */ 
-				'numposts'			=>	(string)get_usernumposts($result->ID),
-				
-				'numcomments'	=>	(string) $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $result->ID)),
-				'regdate'				=>	$wpRegDate
-			));
-		}
+		$resultSet = wpu_fetch_wp_mapdetails('left', 0, $first, $num);
 	} else {
 		// Process phpBB users on the left
-		
+		$resultSet = wpu_fetch_phpbb_mapdetails('left', 0, 0, $first, $num);
 	}
 
 	$alt = '';
@@ -651,7 +705,7 @@ function wpu_map_show_data() {
 				<br />
 			</div>
 			</td><td>
-			<?php if(!isset($item['integration'])) { ?>
+			<?php if(!sizeof($item['integration'])) { ?>
 				<div class="wpuintegnot" style="width: 150px; ">
 					<p>Status: <?php _e('Not Integrated'); ?></p>
 					<p>Actions here</p>
