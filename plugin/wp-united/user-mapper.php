@@ -11,6 +11,7 @@ class WPU_User_Mapper {
 	private $showUsers = 0;
 	private $usersToShow = 0;
 	private $showSpecificUsers = false;
+	private $numStart = 0;
 	
 	public $users;
 	
@@ -28,27 +29,26 @@ class WPU_User_Mapper {
 	public function __construct($args, $showSpecificUsers = 0) {
 	
 		$argDefaults = array(
-			'leftSide' 			=> 'wp',
-			'numToShow' 		=> 50,
-			'numStart'			=> 0
-			'showOnlyInt' 		=> 0,
-			'showOnlyUnInt' 	=> 0,
-			'showOnlyPosts' 	=> 0,
-			'showOnlyNoPosts' 	=> 0
+			'leftSide' 					=> 	'wp',
+			'numToShow' 				=> 	50,
+			'numStart'					=> 	0,
+			'showOnlyInt' 				=> 	0,
+			'showOnlyUnInt' 		=> 	0,
+			'showOnlyPosts' 		=> 	0,
+			'showOnlyNoPosts' 	=> 	0
 		);
 		$procArgs = array();
 		parse_str($args, $procArgs);
-		extract(array_merge($defaults, (array)$procArgs));
+		extract(array_merge($argDefaults, (array)$procArgs));
 
 	
 		$this->leftSide = ($leftSide == 'phpbb') ? 'phpbb' : 'wp';
 		$this->numToShow = $numToShow;
 		$this->numStart = $numStart;
-		$this->showSpecificUsers = 
 		
 		if(is_array($showSpecificUsers)) { 
 			$this->showSpecificUsers = true;
-			$this->usersToShow = $showSpecificUsers
+			$this->usersToShow = $showSpecificUsers;
 		} else {
 			if(!empty($showSpecificUsers)) {
 				$this->showSpecificUsers = true;
@@ -57,12 +57,13 @@ class WPU_User_Mapper {
 			// else leave set at default
 		}
 	
+		$this->users = array();
 	
 	
-		if($this->leftSide != 'phpbb') {
+		if($this->leftSide != 'phpbb') { 
 			// Process WP users on the left
 			$this->load_wp_users();
-		} else {
+		} else { 
 			// Process phpBB users on the left
 			$this->load_phpbb_users();
 		}
@@ -76,9 +77,6 @@ class WPU_User_Mapper {
 	private function load_wp_users() {
 		global $wpdb, $phpbbForum, $user;
 		
-		$resultSet = array();
-
-
 		/**
 		 * @TODO: complete where clause creation here
 		 */
@@ -97,15 +95,17 @@ class WPU_User_Mapper {
 
 		foreach ((array) $results as $item => $result) {
 			
-			$this->users[$result->ID]['user'] = new WPU_Mapped_WP_User($result->ID);
+			$user =  new WPU_Mapped_WP_User($result->ID);
 			
-			if($pos=='left') {
+			$user->find_integration_partner();
+
+			$this->users[$result->ID] = $user;
+			
+			//if($pos=='left') {
 		/////		$this->users[$result->ID]['integration'] = $this->get_phpbb_users('right', 0, $result->ID);
-			}
+			//}
 			
 		}
-
-		
 	
 	}
 	
@@ -113,7 +113,7 @@ class WPU_User_Mapper {
 	 * Loads a list of phpBB users according to the loaded user mapper options
 	 * @access private
 	 */
-	private function load_phpbb_users($pos) {
+	private function load_phpbb_users() {
 	
 	
 	}
