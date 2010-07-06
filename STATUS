@@ -4,6 +4,7 @@ Lots to do, lots to do
 v0.9:
 
 --- bi-directional user integration------
+-- add actions to user mapper.
 -- add bi-di functions to phpBB to override session creation (use auth module for login that redirects to phpBB's auth module if necessary !)
 -- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
 -- add options bi-di (default), phpbb->wp, wp->phpbb, explain implications (e.g. COPPA users, spam, etc.)
@@ -15,7 +16,6 @@ v0.9:
 - Check wp_check_password override!
 
 
--- create dynamic usermapper with dynamic row loading, with avatars/e-mails/IDs showing and ability to switch LHS between WP & phpBB.
 -- warn about unsuitable admin mappings
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
 -- validate_user_conflict function will work with func_get_args, so re-implement it so usernames can be sanitized from either side
@@ -193,7 +193,7 @@ Internalising of integrated login into wordpress -- in progress
 - New deep link to phpBB ACP in wp-united dashboard menu
 - Cleaned up $phpbbForum class (now PHP 5 only)
 - $phpbbForum->enter() and leave() are now private. Access to phpBB is through $phpbbForum->foreground(), ->background() and restore_state($state)
-
+- dynamic usermapper now implemented. Can't yet perform actions (in progress)
 
 
 
