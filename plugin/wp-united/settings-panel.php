@@ -518,10 +518,10 @@ function wpu_map_show_data() {
 	$first = (isset($_POST['wpufirstitem'])) ? (int) $_POST['wpufirstitem'] : 0;
 	$num = (isset($_POST['wpunumshow'])) ? (int) $_POST['wpunumshow'] : 50;
 	
-	$showOnlyInt = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'int'));
-	$showOnlyUnint = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'unint'));
-	$showOnlyPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'posts'));
-	$showOnlyNoPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'noposts'));
+	$showOnlyInt = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'int')) ? 1 : 0;
+	$showOnlyUnInt = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'unint')) ? 1 : 0;
+	$showOnlyPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'posts')) ? 1 : 0;
+	$showOnlyNoPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'noposts')) ? 1 : 0;
 	
 	
 	require($wpuPath . 'user-mapper.php');

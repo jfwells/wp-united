@@ -12,6 +12,10 @@ class WPU_User_Mapper {
 	private $usersToShow = 0;
 	private $showSpecificUsers = false;
 	private $numStart = 0;
+	private $showOnlyInt = 0;
+	private $showOnlyUnInt = 0;
+	private $showOnlyPosts = 0;
+	private $showOnlyNoPosts = 0;
 	
 	public $users;
 	
@@ -47,6 +51,11 @@ class WPU_User_Mapper {
 		$this->leftSide = ($leftSide == 'phpbb') ? 'phpbb' : 'wp';
 		$this->numToShow = $numToShow;
 		$this->numStart = $numStart;
+		$this->showOnlyInt = (int)$showOnlyInt;
+		$this->showOnlyUnInt = (int)$showOnlyUnInt;
+		$this->showOnlyPosts= (int)$showOnlyPosts;
+		$this->showOnlyNoPosts= (int)$showOnlyNoPosts;
+		$this->showSpecificUsers = false;
 		
 		if(is_array($showSpecificUsers)) { 
 			$this->showSpecificUsers = true;
@@ -58,13 +67,20 @@ class WPU_User_Mapper {
 			} 
 			// else leave set at default
 		}
-	
+
 		$this->users = array();
-	
 	
 		if($this->leftSide != 'phpbb') { 
 			// Process WP users on the left
 			$this->load_wp_users();
+			$this->find_phpbb_for_wp_users();
+			if(!empty($this->showOnlyInt)) {
+				foreach($this->users as $key => $usr) {
+					if(!$usr->is_integrated()) {
+						unset($this->users[$key]);
+					}
+				}
+			}
 		} else { 
 			// Process phpBB users on the left
 			$this->load_phpbb_users();
@@ -94,20 +110,13 @@ class WPU_User_Mapper {
 				
 
 		$results = $wpdb->get_results($sql);
-
+		
+		
 		foreach ((array) $results as $item => $result) {
-			
 			$user =  new WPU_Mapped_WP_User($result->ID);
-			
-			$user->find_integration_partner();
-
 			$this->users[$result->ID] = $user;
-			
-			//if($pos=='left') {
-		/////		$this->users[$result->ID]['integration'] = $this->get_phpbb_users('right', 0, $result->ID);
-			//}
-			
 		}
+		
 	
 	}
 	
@@ -116,8 +125,150 @@ class WPU_User_Mapper {
 	 * @access private
 	 */
 	private function load_phpbb_users() {
+		global $db, $phpbbForum;
+		
+		$fStateChanged = $phpbbForum->foreground();
+		
+		$sql =$this->phpbb_userlist_sql();
+		
+		if($result = $db->sql_query_limit($sql, $this->numToShow)) {
+			while($r = $db->sql_fetchrow($result)) { 
+				if( (!empty($this->showOnlyInt)) && (empty($r['user_wpuint_id'])) ) {
+					continue;
+				}
+				if( (!empty($this->showOnlyUnInt)) && (!empty($r['user_wpuint_id'])) ) {
+					continue;
+				}				
+				if( (!empty($this->showOnlyPosts)) && (empty($r['user_posts'])) ) {
+					continue;
+				}
+				if( (!empty($this->showOnlyNoPosts)) && (!empty($r['user_posts'])) ) {
+					continue;
+				}				
+				$user = new WPU_Mapped_Phpbb_User(
+					$r['user_id'], 
+					$this->transform_result_to_phpbb($r),
+					'left'
+				);
+				$this->users[$r['user_id']] = $user;
+				if(!empty($r['user_wpuint_id'])) {
+					
+					$integWpUser = new WPU_Mapped_WP_User($r['user_wpuint_id']);
+					$this->users[$r['user_id']]->set_integration_partner($integWpUser);
+				}
+			}
+		}
+		
+		$db->sql_freeresult();
+		$phpbbForum->background($fStateChanged);
 	
+	}
 	
+	/**
+	 * Find phpBB users that are integrated to WP users
+	 * We treat phpBB users differently from WP users, since we can run a single
+	 * query to pull in all the phpBB details rather than looping thru one by one
+	 * @access private
+	 */
+	private function find_phpbb_for_wp_users() {
+		global $phpbbForum, $db, $user;
+		
+		if(!sizeof($this->users)) {
+			return;
+		}
+		
+		$arrUsers = array_keys((array)$this->users);
+		
+		// The phpBB DB is the canonical source for user integration -- don't trust the WP marker
+		$fStateChanged = $phpbbForum->foreground();
+		
+		$sql =$this->phpbb_userlist_sql($arrUsers);
+		
+		$results = array();
+		
+		if($pResult = $db->sql_query_limit($sql, $this->numToShow)) {
+			while($r = $db->sql_fetchrow($pResult)) {
+				$pUser = new WPU_Mapped_Phpbb_User(
+					$r['user_id'], 
+					$this->transform_result_to_phpbb($r),
+					'right'
+				);
+				$this->users[$r['user_id']]->set_integration_partner($pUser);
+			}
+		}
+		
+		$db->sql_freeresult();
+		$phpbbForum->background($fStateChanged);
+		
+		return $results;
+		
+	}
+	/**
+	 * Transforms the returned DB object into something our mapped phpBB user class will accept
+	 * @access private
+	 */
+	private function transform_result_to_phpbb($dbResult) {
+		global $user, $phpbbForum;
+		
+		$fStateChanged = $phpbbForum->foreground();
+		
+		$arrToLoad = array(
+			'loginName'				=> 	$dbResult['username'],
+			'user_avatar'				=> 	$dbResult['user_avatar'],
+			'user_avatar_type'		=> 	$dbResult['user_avatar_type'],
+			'user_avatar_width'	=> 	$dbResult['user_avatar_width'], 
+			'user_avatar_height'	=> 	$dbResult['user_avatar_height'],
+			'email'							=> 	$dbResult['user_email'],
+			'group'							=> 	(isset($phpbbForum->lang[$dbResult['group_name']])) ? $phpbbForum->lang[$dbResult['group_name']] : $dbResult['group_name'],
+			'rank'							=> 	(isset($phpbbForum->lang[$dbResult['rank_title']])) ? $phpbbForum->lang[$dbResult['rank_title']] : $dbResult['rank_title'],
+			'numposts'					=> 	(int)$dbResult['user_posts'],
+			'regdate'						=> 	$user->format_date($dbResult['user_regdate']),
+			'lastvisit'						=> 	$user->format_date($dbResult['user_lastvisit'])
+		);
+
+		$phpbbForum->background($fStateChanged);
+		
+		return $arrToLoad;
+	}
+	
+	/**
+	 * Generates the phpBB SQL for finding users
+	 * @access private
+	 */
+	private function phpbb_userlist_sql($arrUsers = false) {
+		global $db, $phpbbForum;
+		
+		$fStateChanged = $phpbbForum->foreground();
+		
+		$where = '';
+		if(!empty($arrUsers)) {
+			$where = ' AND ' . $db->sql_in_set('u.user_wpuint_id', (array)$arrUsers);
+		}
+		
+		 $sql = $db->sql_build_query('SELECT', array(
+			'SELECT'	=> 	'u.user_wpuint_id, u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_regdate, u.user_lastvisit, g.group_name',
+			
+			'FROM'	=>	array(
+				USERS_TABLE		=> 	'u',
+				GROUPS_TABLE	=>	'g'
+			),
+			
+			'LEFT_JOIN'	=> array(
+				array(
+					'FROM'	=> 	array(RANKS_TABLE => 'r'),
+					'ON'			=>	'u.user_rank = r.rank_id'
+				)		
+			),
+			
+			'WHERE'	=>		'g.group_id = u.group_id 
+											AND (u.user_type = ' . USER_NORMAL . ' OR u.user_type = ' . USER_FOUNDER . ') ' . 
+											$where
+		)); 		
+		
+		$phpbbForum->background($fStateChanged);
+		
+		return $sql;
+		
 	}
 	
 	

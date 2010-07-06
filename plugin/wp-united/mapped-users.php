@@ -28,13 +28,28 @@ abstract class WPU_Mapped_User {
 		$this->side = 'left';
 	}
 	
+	/**
+	 * Returns whether this user is integrated
+	 */
 	public function is_integrated() {
 		return $this->integrated;
 	}
 	
+	/**
+	 * Returns the user object that this user is integrated to in the internal data structure
+	 */
 	public function get_partner() {
 		return $this->integratedUser;	
 	}
+	
+	/**
+	 * Sets the user object that this user is integrated to in the internal data structure
+	 * @param WPU_Mapped_User $user the user to integrate to in the internal data structure
+	 */
+	public function set_integration_partner($user) {	
+		$this->integratedUser = $user; 
+		$this->integrated = true;
+	}	
 	
 	
 	/**
@@ -75,7 +90,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			'website' 			=> 	'<p><strong>' . __('Website:') . '</strong> %s</p>',
 			'rolelist' 				=> 	'<p><strong>%s</strong> ',
 			'roletext'				=>	'%s</p>',
-			'posts' 				=> 	'<p"><strong>' . __('Posts:') . '</strong> %s / <strong>',
+			'posts' 				=> 	'<p><strong>' . __('Posts:') . '</strong> %s / <strong>',
 			'comments'			=>	__('Comments:') . '</strong> %s</p>',
 			'regdate' 			=> 	'<p>' . __('Registered:') . '</strong> %s</p>',
 		);
@@ -85,6 +100,12 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		$this->load_details();
 	}
 	
+	/**
+	 * Loads in all the details for this user from WordPress
+	 * Note that this is inefficient, as for phpBB users we can pull all users with a single query
+	 * @TODO: externalise this to mapper class
+	 * @access private
+	 */
 	private function load_details() {
 		global $phpbbForum, $wpdb, $user;
 		
@@ -107,23 +128,14 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			'rolelist'				=>	 implode(', ', (array)$wpUser->roles),
 			'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:') : __('Role:'),
 			/* @TODO in wp3: this is count_user_posts() */ 
-			'posts'			=>	(string)get_usernumposts($result->ID),
+			'posts'					=>	get_usernumposts($this->userID),
 			
-			'numcomments'	=>	(string) $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $result->ID)),
+			'comments'			=>	$wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $this->userID)),
 			'regdate'				=>	$wpRegDate
 		);
 	
 	}
 	
-	public function find_integration_partner() {
-				
-		if( ($testUser = new WPU_Mapped_Phpbb_User($this->userID, true)) && ($testUser->is_integrated()) ){
-			$this->integrated = true;
-			$this->integratedUser = $testUser; 
-		} else {
-			$this->integrated = false;
-		}
-	}
 	
 	public function __toString() {
 		return parent::__toString();
@@ -139,14 +151,14 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
  */
 class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 
-	public function __construct($userID, $findFromWP = false) { 
+	public function __construct($userID, $userData = false, $pos = 'left') { 
 		parent::__construct($userID);
 		
 		$this->templateFields = array(
 			'group' 		=> '<p><strong>' . __('Default group:') . '</strong> %s</p>',
 			'email' 		=> '<p><strong>' . __('E-mail:') . '</strong> %s</p>',
 			'rank' 			=> '<p><strong>' . __('Rank:') . '</strong> %s</p>',
-			'numposts' 	=> '<p><strong>' . __('Posts:') . '</strong> %s</p>',
+			'posts' 		=> '<p><strong>' . __('Posts:') . '</strong> %s</p>',
 			'regdate' 	=> '<p><strong>' . __('Registered:') . '</strong> %s</p>',
 			'lastvisit' 	=> '<p><strong>' . __('Last visited:') . '</strong> %s</p>',
 		);
@@ -154,10 +166,11 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		$this->className = "wpuphpbbuser";
 		$this->loginClassName = "wpuphpbblogin";
 		
-		if($findFromWP) {
-			$this->side = 'right';
-			$this->userID = 0;
-			if($this->load_details_from_wp_id($userID)) {
+		$this->userID = $userID;
+		$this->side = $pos;
+		
+		if(is_array($userData)) {
+			if($this->load_from_userdata($userData)) {
 				$this->integrated = true;
 			} 
 		} else {
@@ -165,64 +178,37 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		}
 	}
 	
-	
-	private function load_details_from_wp_id($wpID) {
-		global $phpbbForum, $db, $user;
+	/**
+	 * For phpBB phpBB users we provide all the data to the constructor in an array to create the user
+	 * @access private
+	 */
+	private function load_from_userdata($data) {
+		global $phpbbForum;
 		
 		// The phpBB DB is the canonical source for user integration -- don't trust the WP marker
 		$fStateChanged = $phpbbForum->foreground();
 		
-		$sql = $db->sql_build_query('SELECT', array(
-			'SELECT'	=> 	'u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_regdate, u.user_lastvisit, g.group_name',
-			
-			'FROM'	=>	array(
-				USERS_TABLE		=> 	'u',
-				GROUPS_TABLE	=>	'g'
-			),
-			
-			'LEFT_JOIN'	=> array(
-				array(
-					'FROM'	=> 	array(RANKS_TABLE => 'r'),
-					'ON'			=>	'u.user_rank = r.rank_id'
-				)		
-			),
-			
-			'WHERE'	=>		"g.group_id = u.group_id 
-											AND u.user_wpuint_id = {$wpID}"
-		
-		)); 
-	
-		$pResult = $db->sql_query_limit($sql, 1);
-		
-		$this->integrated = false;
-		
-		if ( $pResult && (sizeof($pResult)) ) {
-			if ($integDets = $db->sql_fetchrow($pResult)) {
+		$this->loginName = $data['loginName'];
 				
-				$this->userID = $integDets['user_id'];
-				$this->loginName = $integDets['username'];
+		$this->load_avatar($data['user_avatar'], $data['user_avatar_type'], $data['user_avatar_width'], $data['user_avatar_height']);
 				
-				$this->load_avatar($integDets['user_avatar'], $integDets['user_avatar_type'], $integDets['user_avatar_width'], $integDets['user_avatar_height']);
-				
-				$this->userDetails = array(
-					'email'			=> $integDets['user_email'],
-					'group'			=> (isset($phpbbForum->lang[$integDets['group_name']])) ? $phpbbForum->lang[$integDets['group_name']] : $integDets['group_name'],
-					'rank'			=> (isset($phpbbForum->lang[$integDets['rank_title']])) ? $phpbbForum->lang[$integDets['rank_title']] : $integDets['rank_title'],
-					'numposts'	=> $integDets['user_posts'],
-					'regdate'		=> $user->format_date($integDets['user_regdate']),
-					'lastvisit'		=> $user->format_date($integDets['user_lastvisit'])
-				);
-				$this->integrated = true;
-			}
-		}
+		$this->userDetails = array(
+			'email'			=> $data['email'],
+			'group'			=> $data['group'],
+			'rank'			=> $data['rank'],
+			'posts'			=> $data['numposts'],
+			'regdate'		=> $data['regdate'],
+			'lastvisit'		=> $data['lastvisit'],
+		);
 
-		$db->sql_freeresult();
 		$phpbbForum->background($fStateChanged);
-
-		return $this->integrated;
 		
 	}
 	
+	/**
+	 * Creates the avatar for the current user
+	 * @access private
+	 */
 	private function load_avatar($avatar, $type, $width, $height) {
 		global $phpbbForum, $phpbb_root_path;
 		
