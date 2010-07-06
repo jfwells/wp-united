@@ -27,7 +27,8 @@ class WPU_User_Mapper {
 	 *  showOnlyNoPosts: Filter out users with posts
 	 */
 	public function __construct($args, $showSpecificUsers = 0) {
-	
+		global $phpbb_root_path, $phpEx;
+		
 		$argDefaults = array(
 			'leftSide' 					=> 	'wp',
 			'numToShow' 				=> 	50,
@@ -41,6 +42,7 @@ class WPU_User_Mapper {
 		parse_str($args, $procArgs);
 		extract(array_merge($argDefaults, (array)$procArgs));
 
+		@include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 	
 		$this->leftSide = ($leftSide == 'phpbb') ? 'phpbb' : 'wp';
 		$this->numToShow = $numToShow;

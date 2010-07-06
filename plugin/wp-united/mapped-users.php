@@ -165,6 +165,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		}
 	}
 	
+	
 	private function load_details_from_wp_id($wpID) {
 		global $phpbbForum, $db, $user;
 		
@@ -172,7 +173,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		$fStateChanged = $phpbbForum->foreground();
 		
 		$sql = $db->sql_build_query('SELECT', array(
-			'SELECT'	=> 	'u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_regdate, u.user_lastvisit, g.group_name',
+			'SELECT'	=> 	'u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_regdate, u.user_lastvisit, g.group_name',
 			
 			'FROM'	=>	array(
 				USERS_TABLE		=> 	'u',
@@ -200,7 +201,8 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 				
 				$this->userID = $integDets['user_id'];
 				$this->loginName = $integDets['username'];
-				$this->avatar = '<img src="#" style="width: 50px; height: 50px;" />'; // temp
+				
+				$this->load_avatar($integDets['user_avatar'], $integDets['user_avatar_type'], $integDets['user_avatar_width'], $integDets['user_avatar_height']);
 				
 				$this->userDetails = array(
 					'email'			=> $integDets['user_email'],
@@ -219,6 +221,30 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 
 		return $this->integrated;
 		
+	}
+	
+	private function load_avatar($avatar, $type, $width, $height) {
+		global $phpbbForum, $phpbb_root_path;
+		
+		$fStateChanged = $phpbbForum->foreground();
+				
+		$av = '';
+		if(function_exists('get_user_avatar')) { 
+			$av = get_user_avatar($avatar, $type, $width, $height);
+		}
+		
+		if(!empty($av)) {
+			$av = explode('"', $av); 
+			$av = str_replace($phpbb_root_path, $phpbbForum->url, $av[1]);
+			$av = "<img src='{$av}' class='avatar avatar-50'  />";
+		}
+		
+		$avClass = (empty($av)) ?  'avatar wpuempty' : 'avatar';
+		$this->avatar = '<div class="' . $avClass . '">' . $av . '</div>';	
+		
+		$phpbbForum->background($fStateChanged);
+		
+		return $this->avatar;	
 	}
 	
 	public function __toString() {

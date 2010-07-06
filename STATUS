@@ -235,3 +235,37 @@ if (!$row)
 ****/	
 
 
+
+
+
+
+
+
+Current prog flow:
+
+- p in w:
+:: wp starts, calls phpBB early
+:: phpbb runs
+::: phpbb hook invoked
+::: buffering started on user_session_handler hook
+::: prohibit template display, catch content and display on template->display hook
+
+how this should work:
+
+w in p
+:: wp starts, 
+:: sets PHPBB_DB_NEW_LINK
+:: calls phpBB early (for login int)
+:: buffering starts
+:: set exception handler
+
+in phpbb exit handler hook:
+throw new PhpBB_Exited_Exception('phpBB exited.');
+
+in wp:
+try
+{
+    call_phpbb();
+}
+catch (PhpBB_Exited_Exception $e) {}
+// continue with wp here
