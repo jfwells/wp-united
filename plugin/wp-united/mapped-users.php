@@ -57,14 +57,19 @@ abstract class WPU_Mapped_User {
 	 */
 	public function __toString() {
 		$side = ($this->side == 'left') ? '' : ' wpuintuser';
-		$template = '<div class="' . $this->className . $side . '">' . 
+		$template = '<div class="wpuuser ' . $this->className . $side . '">' . 
 					'<p class="' . $this->loginClassName . '"><a href="#">' . $this->loginName . '</a></p>' . 
+					'<div class="avatarblock">' .
 					$this->avatar . 
+					 '<small><a href="#" class="wpumapactiondel" onclick="return wpuMapBreak(' . $this->userID . ');">Delete user</a></small>' . 
+					 '<small><a href="#" class="wpumapactionedit" onclick="return wpuMapBreak(' . $this->userID . ');">Edit user</a></small>' . 
+					'</div>' .
 					'<div style="float: left;" class="wpudetails">' ;
-					
+		
 		foreach($this->templateFields as $field => $show) {
 			$template .= sprintf($show, $this->userDetails[$field]);
 		}
+		
 					
 		$template .= '</div><br /></div>';
 		

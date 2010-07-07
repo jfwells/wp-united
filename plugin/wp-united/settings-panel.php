@@ -64,6 +64,7 @@ function wpu_settings_menu() {
 			wp_enqueue_script('jqueryui-bleedingedge', $wpuUrl . 'js/jqueryui-wpu-min.js', array('jquery-bleedingedge'), false, false);
 			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array('jquery-bleedingedge'), false, false);				
 			wp_enqueue_script('colorbox', $wpuUrl . 'js/colorbox-min.js', array('jquery-bleedingedge'), false, false);				
+			wp_enqueue_script('splitter', $wpuUrl . 'js/splitter-min.js', array('jquery-bleedingedge'), false, false);				
 			wp_enqueue_script('wpu-settings', $wpuUrl . 'js/settings.js', array('jquery-bleedingedge', 'jqueryui-bleedingedge'), false, false);				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-support'))) {
@@ -451,10 +452,23 @@ function wpu_user_mapper() {
 						</select> 					
 					</fieldset>
 				</form>
-				<div id="wpumapscreen">
-					<p>Loading...</p>
-					<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
+				
+				<div id="wpumapcontainer">
+					<div id="wpumapscreen">
+						<p>Loading...</p>
+						<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
+					</div>
+					<div id="wpumappanel">
+						<h3 class="ui-widget-header ui-corner-all">Actions to process <span class="ui-icon ui-icon-close"></span></h3>
+						<div id="wpupanelactions">
+							<small>
+								<button class="wpuprocess">Process actions</button>
+								<button class="wpuclear">Clear all</button>
+							</small>
+						</div>
+					</div>
 				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -468,6 +482,16 @@ function wpu_user_mapper() {
 		var mapNonce = '<?php echo wp_create_nonce ('wp-united-map'); ?>';
 		jQuery(document).ready(function($) {
 			$('#wputabs').tabs();
+			$('.wpuprocess').button({
+				icons: {
+					primary: 'ui-icon-transferthick-e-w'
+				}
+			});
+			$('.wpuclear').button({
+				icons: {
+					primary: 'ui-icon-cancel'
+				}
+			});			
 			setupAcpPopups();
 			
 			$("#wpumapdisp select").bind('change', function() {
@@ -491,7 +515,57 @@ function wpu_user_mapper() {
 			
 			$.post('admin.php?page=wpu-user-mapper', formData, function(response) {
 				$('#wpumapscreen').html(response);
+				$('.wpumapactionbrk').button({ 
+					icons: {
+						primary:'ui-icon-scissors'
+					},
+					text: false
+				});
+				$('.wpumapactiondel').button({ 
+					icons: {
+						primary:'ui-icon-trash'
+					},
+					text: false
+				});
+				$('.wpumapactionlnk').button({ 
+					icons: {
+						primary:'ui-icon-link'
+					},
+					text: false
+				});
+				$('.wpumapactionedit').button({ 
+					icons: {
+						primary:'ui-icon-gear'
+					},
+					text: false
+				});	
 			});
+			
+			//$('.wpubuttonset').buttonset();
+			
+			
+			
+		}
+		
+		function wpuMapBreak(userID) {
+			showPanel();
+			return false;
+		}
+		
+		var panelOpen = false;
+		function showPanel() {
+			if(!panelOpen) {
+				$('#wpumapcontainer').splitter({
+					type: 'v',
+					sizeRight: 220
+				});
+				$('#wpumapscreen').css('overflow-y', 'auto');
+				$('#wpumappanel').show('slide', {
+					direction: 'right'
+				});
+				$('#wpumappanel h3').addClass('ui-icon-close');
+				panelOpen = true;
+			}
 		}
 		
 		
@@ -532,22 +606,6 @@ function wpu_map_show_data() {
 
 	$alt = '';
 	foreach($userMapper->users as $userID => $user) { 
-		
-		/*
-		 * 
-		 * 		if( $showOnlyInt && (!isset($item['integration'])) ) {
-			continue;
-		}
-		if( $showOnlyUnint && (isset($item['integration'])) ) {
-			continue;
-		}
-		if( $showOnlyPosts && ((int)$item['numposts'] == 0) ) {
-			continue;
-		}
-		if( $showOnlyNoPosts && ((int)$item['numposts'] > 0) ) {
-			continue;
-		}	*/
-
 		?>
 
 		<div class="wpumaprow<?php echo $alt; ?>"  id="wpuuser<?php echo $userID ?>">
@@ -557,14 +615,20 @@ function wpu_map_show_data() {
 			<?php if(!$user->is_integrated()) { ?>
 				<div class="wpuintegnot" style="width: 150px; ">
 					<p>Status: <?php _e('Not Integrated'); ?></p>
-					<p>Actions here</p>
+					<p><small class="wpubuttonset">
+						<a href="#" class="wpumapactionlnk" onclick="return wpuMapBreak(<?php echo $userID ?>);">Integrate with first suggestion</a>
+						<a href="#" class="wpumapactiondel" onclick="return wpuMapBreak(<?php echo $userID ?>);">Delete user</a>
+					</small></p>
 				</div>
 				</td><td>
 				<div class="wpuphpbbuser wpuintuser" style="border: 0;">&nbsp;</div>
 			<?php } else { ?>
 				<div class="wpuintegok" style="width: 150px; ">
 					<p>Status: Integrated</p>
-					<p>Actions here</p>
+					<p><small class="wpubuttonset">
+						<a href="#" class="wpumapactionbrk" onclick="return wpuMapBreak(<?php echo $userID ?>);">Break Integration</a>
+						<a href="#" class="wpumapactiondel" onclick="return wpuMapBreak(<?php echo $userID ?>);">Delete user</a>
+					</small></p>
 				</div>
 			</td><td>
 				<?php echo $user->get_partner(); ?>

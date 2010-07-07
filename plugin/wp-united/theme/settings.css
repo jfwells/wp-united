@@ -739,11 +739,41 @@ div.subsettings div.subsettings {
 	text-decoration: underline !important;
 }
 
-#wpumapscreen {
-	margin-top: 3px;
+#wpumappanel {
+	margin: 0;
+	display: none;
+	background-color: #eeeeee;
+	max-width: 400px;
+}
+
+#wpumapcontainer {
+	width: 100%;
+	height: 600px;
 	border: 1px solid #cccccc;
-	padding: 0;
+	margin-top: 6px;
 	
+}
+
+#wpumapscreen {
+	margin: 3px 0 0 0;
+	padding: 0;
+	height: 600px;
+}
+
+#wpumappanel h3 {
+	margin-top: 0;
+	font-size: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	display: block;
+	width: 100%;
+}
+
+.vsplitbar {
+	width: 3px;
+	margin: 0px 2px;
+	border: 1px solid #dddddd;
+	background: #cccccc;
 }
 
 .wpumaprow {
@@ -751,8 +781,6 @@ div.subsettings div.subsettings {
 	margin: 0;
 	padding: 4px 0;
 	clear: both;
-	width: 100%;
-	overflow: auto;
 }
 
 .wpuwpuser, .wpuphpbbuser {
@@ -795,13 +823,26 @@ div.subsettings div.subsettings {
 	font-size: 10px;
 }
 
-.wpuwpuser .avatar, .wpuphpbbuser .avatar {
+.wpuwpuser .avatar, .wpuphpbbuser div.avatar {
 	float: left;
 	border: 1px solid #cccccc;
-	margin: 0 3px 0 0;
+	margin: 0 3px 6px 0;
 	width: 50px !important;
 	overflow: hidden;
 }
+
+.wpuwpuser .avatarblock, .wpuphpbbuser .avatarblock {
+	float: left;
+	margin: 0 3px 0 0;
+	width: 53px !important;
+}
+
+.wpuwpuser .avatarblock .ui-button , .wpuphpbbuser .avatarblock .ui-button  {
+	height: 14px;
+	width: 14px;
+	
+}
+
 
 .wpuwpuser div.avatar img, .wpuphpbbuser div.avatar img {
 	width: 50px;
@@ -834,3 +875,15 @@ div.subsettings div.subsettings {
 	background-color:#FFEBE8;
 	border-color:#CC0000;
 }
+
+#wpupanelactions {
+	position: absolute;
+	bottom: 0px;
+	padding-bottom: 3px;
+}
+
+#wpupanelactions button {
+	float: left;
+}
+
+
