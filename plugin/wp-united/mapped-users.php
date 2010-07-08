@@ -43,6 +43,59 @@ abstract class WPU_Mapped_User {
 	}
 	
 	/**
+	 * Returns the current user's e-mail address
+	 */
+	public function get_email() {
+		return $this->userDetails['email'];
+	}
+	
+	/** 
+	 * Returns the current user's username
+	 */
+	public function get_username() {
+		return $this->loginName;
+	}
+	
+	/**
+	 * Returns html markup for a break action
+	 */
+	public function break_action() {
+		
+		if(!$this->integrated) {
+			return '';
+		}
+		
+		$action = sprintf(
+			'<a href="#" class="wpumapactionbrk" onclick="return wpuMapBreak(%d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Break Integration') . '</a>',
+			$userID,
+			$this->integratedUser->userID,
+			$this->loginName,
+			$this->integratedUser->get_username(),
+			$this->userDetails['email'],
+			$this->integratedUser->get_email()
+		);
+		
+		return $action;
+	}
+	
+	/**
+	 * Returns the html markup for a "delete both users" action
+	 */
+	public function delboth_action() {
+		$action = sprintf(
+			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDelBoth(%d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Delete user from both phpBB and WordPress') . '</a>',
+			$userID,
+			$this->integratedUser->userID,
+			$this->loginName,
+			$this->integratedUser->get_username(),
+			$this->userDetails['email'],
+			$this->integratedUser->get_email()	
+		);
+		
+		return $action;
+	}
+		
+	/**
 	 * Sets the user object that this user is integrated to in the internal data structure
 	 * @param WPU_Mapped_User $user the user to integrate to in the internal data structure
 	 */

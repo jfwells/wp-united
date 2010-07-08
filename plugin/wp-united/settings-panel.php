@@ -459,11 +459,15 @@ function wpu_user_mapper() {
 						<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
 					</div>
 					<div id="wpumappanel">
-						<h3 class="ui-widget-header ui-corner-all">Actions to process <span class="ui-icon ui-icon-close"></span></h3>
+						<h3 class="ui-widget-header ui-corner-all">Actions to process</h3>
+						<ul id="wpupanelactionlist">
+						
+						
+						</ul>
 						<div id="wpupanelactions">
 							<small>
-								<button class="wpuprocess">Process actions</button>
-								<button class="wpuclear">Clear all</button>
+								<button class="wpuprocess" onclick="return wpuProcess();">Process actions</button>
+								<button class="wpuclear" onclick="return wpuClearAll();">Clear all</button>
 							</small>
 						</div>
 					</div>
@@ -491,7 +495,7 @@ function wpu_user_mapper() {
 				icons: {
 					primary: 'ui-icon-cancel'
 				}
-			});			
+			});		
 			setupAcpPopups();
 			
 			$("#wpumapdisp select").bind('change', function() {
@@ -514,6 +518,15 @@ function wpu_user_mapper() {
 			});
 			
 			$.post('admin.php?page=wpu-user-mapper', formData, function(response) {
+				
+				if($('#wpumapside').val() == 'phpbb') {
+					leftSide = phpbbText;
+					rightSide = wpText;
+				} else {
+					leftSide = wpText;
+					rightSide = phpbbText; 
+				}
+				
 				$('#wpumapscreen').html(response);
 				$('.wpumapactionbrk').button({ 
 					icons: {
@@ -547,24 +560,121 @@ function wpu_user_mapper() {
 			
 		}
 		
-		function wpuMapBreak(userID) {
+		var wpText = '<?php echo __('WordPress'); ?>';
+		var phpbbText = '<?php echo __('phpBB'); ?>';
+		var actionBreak = '<?php echo __('Break integration'); ?>';
+		var actionBreakDets = '<?php echo  __('between %1$s and %2$s'); ?>';
+		var actionDelBoth = '<?php echo __('Delete '); ?>';
+		var actionDelBothDets = '<?php echo  __('%1$s from %2$s and %3$s from %4$s'); ?>';
+		
+		var wpuMapActions = new Array();
+		
+		
+		var leftSide, rightSide;
+		
+		
+		function wpuMapBreak(userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
 			showPanel();
+			var actionType = actionBreak;
+			var actionDets = actionBreakDets.replace('%1$s', '<em>' + userName + '</em>')
+					.replace('%2$s', '<em>' + intUserName + '</em>');
+			var actionsIndex= wpuMapActions.length;
+			var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+			
+			wpuMapActions.push({
+				'type': 'break',
+				'userid': userID,
+				'intuserid': intUserID,
+				'markup': markup
+			});
+			$('#wpupanelactionlist').append(markup);
+			
+			return false;
+		}
+		
+		function wpuMapDelBoth(userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
+			showPanel();
+			var actionType = actionDelBoth;
+			var actionDets = actionDelBothDets
+				.replace('%1$s', '<em>' + userName + '</em>')
+				.replace ('%2$s', leftSide)
+				.replace('%3$s', '<em>' + intUserName + '</em>')
+				.replace ('%4$s', rightSide);
+			var actionsIndex= wpuMapActions.length;
+			var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+			
+			wpuMapActions.push({
+				'type': 'del',
+				'userid': userID,
+				'intuserid': intUserID,
+				'markup': markup
+			});
+			$('#wpupanelactionlist').append(markup);
+			
+			return false;
+		}		
+		
+		function wpuClearAll() {
+			wpuMapActions = new Array();
+			$('#wpupanelactionlist').html('');
+			closePanel();
+			return false;
+		}
+		
+		function wpuProcess() {
+			alert('This will process all actions');
 			return false;
 		}
 		
 		var panelOpen = false;
+		var panelHidden = false;
 		function showPanel() {
 			if(!panelOpen) {
 				$('#wpumapcontainer').splitter({
 					type: 'v',
-					sizeRight: 220
+					sizeRight: 225
 				});
 				$('#wpumapscreen').css('overflow-y', 'auto');
 				$('#wpumappanel').show('slide', {
 					direction: 'right'
 				});
-				$('#wpumappanel h3').addClass('ui-icon-close');
+				$('#wpumappanel h3').prepend('<span class="ui-icon ui-icon-triangle-1-e"></span>');
+				$('#wpumappanel h3 .ui-icon').click(function() {
+					togglePanel($(this));
+				});
+				
 				panelOpen = true;
+			}
+			panelHidden = true;
+			togglePanel($('#wpumappanel h3 .ui-icon'));
+		}
+		
+		/**
+		* This doesn't really close the panel as the splitter doesn't have a destroy method
+		* instead we just set its width to zero
+		*/
+		function closePanel() {
+			if(panelOpen) {
+				$("#wpumapcontainer").trigger("resize", [ $("#wpumapcontainer").width() ]);
+				$(".vsplitbar").css('display', 'none');
+				panelHidden = true;
+			}
+		}
+		
+		function togglePanel(el) {
+			if(!panelHidden) {
+				el
+					.removeClass('ui-icon-triangle-1-e')
+					.addClass('ui-icon-triangle-1-w');
+				 $("#wpumapcontainer").trigger("resize", [ $("#wpumapcontainer").width() - 20 ]);
+				panelHidden = true;
+			} else {
+				el
+					.removeClass('ui-icon-triangle-1-w')
+					.addClass('ui-icon-triangle-1-e')
+					$(".vsplitbar").css('display', 'block');
+				$("#wpumapcontainer").trigger("resize", [ $("#wpumapcontainer").width() - 225 ]);
+				panelHidden = false;
 			}
 		}
 		
@@ -626,8 +736,8 @@ function wpu_map_show_data() {
 				<div class="wpuintegok" style="width: 150px; ">
 					<p>Status: Integrated</p>
 					<p><small class="wpubuttonset">
-						<a href="#" class="wpumapactionbrk" onclick="return wpuMapBreak(<?php echo $userID ?>);">Break Integration</a>
-						<a href="#" class="wpumapactiondel" onclick="return wpuMapBreak(<?php echo $userID ?>);">Delete user</a>
+						<?php echo $user->break_action(); ?>
+						<?php echo $user->delboth_action(); ?>
 					</small></p>
 				</div>
 			</td><td>

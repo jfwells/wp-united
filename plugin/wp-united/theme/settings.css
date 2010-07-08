@@ -744,6 +744,7 @@ div.subsettings div.subsettings {
 	display: none;
 	background-color: #eeeeee;
 	max-width: 400px;
+	overflow: hidden;
 }
 
 #wpumapcontainer {
@@ -761,17 +762,27 @@ div.subsettings div.subsettings {
 }
 
 #wpumappanel h3 {
-	margin-top: 0;
 	font-size: 12px;
 	white-space: nowrap;
 	overflow: hidden;
-	display: block;
-	width: 100%;
+	margin: 0 0 6px 0;
+}
+
+#wpumappanel h3 span.ui-icon {
+	float: left;
+	cursor: pointer;
+	cursor: hand;
+}
+
+#wpupanelactionlist LI {
+	list-style: disc !important;
+	margin-left: 25px;
+
 }
 
 .vsplitbar {
 	width: 3px;
-	margin: 0px 2px;
+	margin: 0 0 0 2px;
 	border: 1px solid #dddddd;
 	background: #cccccc;
 }
