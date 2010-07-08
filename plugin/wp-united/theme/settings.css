@@ -897,4 +897,11 @@ div.subsettings div.subsettings {
 	float: left;
 }
 
+.wpuloading {
+	width: 100%;
+	text-align: center;
+	padding: 8px auto;
+	font-weight: bold;
+}
+
 

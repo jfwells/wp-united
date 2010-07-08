@@ -12,10 +12,14 @@ abstract class WPU_Mapped_User {
 	protected $integratedUser;
 	protected $integrated;
 	
+	protected $adminLink;
+	
 	protected $className;
 	protected $loginClassName;
 	
 	protected $side;
+	
+	protected $type;
 	
 	
 	public $userID;
@@ -67,7 +71,7 @@ abstract class WPU_Mapped_User {
 		
 		$action = sprintf(
 			'<a href="#" class="wpumapactionbrk" onclick="return wpuMapBreak(%d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Break Integration') . '</a>',
-			$userID,
+			$this->userID,
 			$this->integratedUser->userID,
 			$this->loginName,
 			$this->integratedUser->get_username(),
@@ -84,17 +88,30 @@ abstract class WPU_Mapped_User {
 	public function delboth_action() {
 		$action = sprintf(
 			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDelBoth(%d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Delete user from both phpBB and WordPress') . '</a>',
-			$userID,
-			$this->integratedUser->userID,
+			$this->userID,
+			($this->integrated) ? $this->integratedUser->userID : 0,
 			$this->loginName,
-			$this->integratedUser->get_username(),
+			($this->integrated) ? $this->integratedUser->get_username() : '',
 			$this->userDetails['email'],
-			$this->integratedUser->get_email()	
+			($this->integrated) ? $this->integratedUser->get_email() : ''	
 		);
 		
 		return $action;
 	}
-		
+	
+	public function del_action() {
+		$package = ($this->type == 'phpbb') ? 'phpBB' : 'WordPress';
+		$action = sprintf(
+			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDel(%d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Delete user from %s'), $package) . '</a>',
+			$this->userID,
+			$this->type,
+			$this->loginName,
+			$this->userDetails['email']
+		);		
+		return $action;
+	}
+	
+	
 	/**
 	 * Sets the user object that this user is integrated to in the internal data structure
 	 * @param WPU_Mapped_User $user the user to integrate to in the internal data structure
@@ -111,11 +128,11 @@ abstract class WPU_Mapped_User {
 	public function __toString() {
 		$side = ($this->side == 'left') ? '' : ' wpuintuser';
 		$template = '<div class="wpuuser ' . $this->className . $side . '">' . 
-					'<p class="' . $this->loginClassName . '"><a href="#">' . $this->loginName . '</a></p>' . 
+					'<p class="' . $this->loginClassName . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . $this->loginName . '</a></p>' . 
 					'<div class="avatarblock">' .
 					$this->avatar . 
-					 '<small><a href="#" class="wpumapactiondel" onclick="return wpuMapBreak(' . $this->userID . ');">Delete user</a></small>' . 
-					 '<small><a href="#" class="wpumapactionedit" onclick="return wpuMapBreak(' . $this->userID . ');">Edit user</a></small>' . 
+					 '<small>' . $this->del_action() . '</small>' . 
+					 '<small>' . $this->edit_action() . '</small>' . 
 					'</div>' .
 					'<div style="float: left;" class="wpudetails">' ;
 		
@@ -155,6 +172,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		
 		$this->className = "wpuwpuser";
 		$this->loginClassName = "wpuwplogin";
+		$this->type = 'wp';
 		$this->load_details();
 	}
 	
@@ -194,6 +212,15 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 	
 	}
 	
+	public function edit_action() {
+		$action = '<a href="user-edit.php?user_id=' . $this->userID . '" class="wpumapactionedit">' . __('Edit user') . '</a>';
+		return $action;
+	}
+	
+	public function get_profile_link() {
+		return get_author_posts_url($this->userID);
+	}
+	
 	
 	public function __toString() {
 		return parent::__toString();
@@ -226,6 +253,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		
 		$this->userID = $userID;
 		$this->side = $pos;
+		$this->type = 'phpbb';
 		
 		if(is_array($userData)) {
 			if($this->load_from_userdata($userData)) {
@@ -258,10 +286,35 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 			'regdate'		=> $data['regdate'],
 			'lastvisit'		=> $data['lastvisit'],
 		);
+		
+		$this->set_admin_link();
 
 		$phpbbForum->background($fStateChanged);
 		
 	}
+	
+	public function get_profile_link() {
+		global $phpEx, $phpbbForum;
+		return add_trailing_slash($phpbbForum->url) .  "memberlist.{$phpEx}?mode=viewprofile&amp;u={$this->userID}";
+	}
+	
+	/**
+	 * We use a setter rather than a getter to avoid the overhead of forum context switching
+	 * for append_sid()
+	 */
+	private function set_admin_link() {
+		global $phpbbForum;
+		
+		$fStateChanged = $phpbbForum->foreground();
+		$this->adminLink = $phpbbForum->url . append_sid('adm/index.php?i=users&amp;mode=overview&amp;u=' . $this->userID, false, true, $GLOBALS['user']->session_id);
+		$phpbbForum->background($fStateChanged);
+	}
+	
+
+	public function edit_action() {
+		$action = '<a href="' . $this->adminLink . '" class="wpumapactionedit">' . __('Edit user') . '</a>';
+		return $action;
+	}	
 	
 	/**
 	 * Creates the avatar for the current user

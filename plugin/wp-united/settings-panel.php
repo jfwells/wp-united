@@ -455,19 +455,19 @@ function wpu_user_mapper() {
 				
 				<div id="wpumapcontainer">
 					<div id="wpumapscreen">
-						<p>Loading...</p>
-						<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
+						<div class="wpuloading">
+							<p>Loading...</p>
+							<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
+						</div>
 					</div>
 					<div id="wpumappanel">
 						<h3 class="ui-widget-header ui-corner-all">Actions to process</h3>
 						<ul id="wpupanelactionlist">
-						
-						
 						</ul>
 						<div id="wpupanelactions">
 							<small>
 								<button class="wpuprocess" onclick="return wpuProcess();">Process actions</button>
-								<button class="wpuclear" onclick="return wpuClearAll();">Clear all</button>
+								<button class="wpuclear" onclick="return wpuMapClearAll();">Clear all</button>
 							</small>
 						</div>
 					</div>
@@ -505,7 +505,7 @@ function wpu_user_mapper() {
 		});	
 		
 		function wpuShowMapper() {
-			$('#wpumapscreen').html('<p>Loading</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />');
+			$('#wpumapscreen').html('<div class="wpuloading"><p>Loading</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" /></div>');
 			
 			var formData = $('#wpumapdisp').serialize() + '&wpumapload=1&_ajax_nonce=' + mapNonce;
 			
@@ -528,6 +528,9 @@ function wpu_user_mapper() {
 				}
 				
 				$('#wpumapscreen').html(response);
+				
+				setupUserEditPopups();
+
 				$('.wpumapactionbrk').button({ 
 					icons: {
 						primary:'ui-icon-scissors'
@@ -555,17 +558,19 @@ function wpu_user_mapper() {
 			});
 			
 			//$('.wpubuttonset').buttonset();
-			
-			
-			
+			wpuMapClearAll();			
 		}
 		
-		var wpText = '<?php echo __('WordPress'); ?>';
-		var phpbbText = '<?php echo __('phpBB'); ?>';
-		var actionBreak = '<?php echo __('Break integration'); ?>';
-		var actionBreakDets = '<?php echo  __('between %1$s and %2$s'); ?>';
-		var actionDelBoth = '<?php echo __('Delete '); ?>';
-		var actionDelBothDets = '<?php echo  __('%1$s from %2$s and %3$s from %4$s'); ?>';
+		var wpText 					=	'<?php _e('WordPress'); ?>';
+		var phpbbText 				= '<?php _e('phpBB'); ?>';
+		var mapEditTitle 			= '<?php _e('Editing user. When you are finished, close this screen.'); ?>';
+		var mapProfileTitle 		= '<?php _e('Viewing user profile. When you are finished, close this screen.'); ?>';
+		var actionBreak 			=	'<?php _e('Break integration'); ?>';
+		var actionBreakDets 		=	'<?php _e('between %1$s and %2$s'); ?>';
+		var actionDelBoth 			=	'<?php _e('Delete '); ?>';
+		var actionDelBothDets 	=	'<?php _e('%1$s from %2$s and %3$s from %4$s'); ?>';
+		var actionDel 				=	'<?php _e('Delete '); ?>';
+		var actionDelDets 			=	'<?php _e('%1$s from %2$s'); ?>';
 		
 		var wpuMapActions = new Array();
 		
@@ -604,20 +609,43 @@ function wpu_user_mapper() {
 			var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 			
 			wpuMapActions.push({
-				'type': 'del',
+				'type': 'delboth',
 				'userid': userID,
 				'intuserid': intUserID,
 				'markup': markup
 			});
 			$('#wpupanelactionlist').append(markup);
+			$('#wpuuser' + userID).find('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk').button("disable");
 			
 			return false;
-		}		
+		}
 		
-		function wpuClearAll() {
+		function wpuMapDel(userID, pckg, userName, userEmail) {
+			pckg = (pckg == 'phpbb') ? phpbbText : wpText;
+			showPanel();
+			var actionType = actionDel;
+			var actionDets = actionDelDets
+				.replace('%1$s', '<em>' + userName + '</em>')
+				.replace ('%2$s', pckg)
+			var actionsIndex= wpuMapActions.length;
+			var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+			
+			wpuMapActions.push({
+				'type': 'del',
+				'userid': userID,
+				'markup': markup
+			});
+			$('#wpupanelactionlist').append(markup);
+			$('#wpuuser' + userID).find('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk').button("disable");
+			
+			return false;
+		}					
+		
+		function wpuMapClearAll() {
 			wpuMapActions = new Array();
 			$('#wpupanelactionlist').html('');
 			closePanel();
+			$('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk').button("enable");
 			return false;
 		}
 		
@@ -727,7 +755,7 @@ function wpu_map_show_data() {
 					<p>Status: <?php _e('Not Integrated'); ?></p>
 					<p><small class="wpubuttonset">
 						<a href="#" class="wpumapactionlnk" onclick="return wpuMapBreak(<?php echo $userID ?>);">Integrate with first suggestion</a>
-						<a href="#" class="wpumapactiondel" onclick="return wpuMapBreak(<?php echo $userID ?>);">Delete user</a>
+						<?php echo $user->del_action(); ?>
 					</small></p>
 				</div>
 				</td><td>

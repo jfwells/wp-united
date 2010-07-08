@@ -290,6 +290,24 @@ function setupAcpPopups() {
 	});
 }
 
+function setupUserEditPopups() {
+	$('.wpumapactionedit').colorbox({
+		width: '88%', 
+		height: '92%', 
+		title: (mapEditTitle == undefined) ? '' : mapEditTitle,
+		iframe: true,
+		onClosed: function() {
+			wpuShowMapper();
+		}
+	});
+	$('.wpuprofilelink').colorbox({
+		width: '88%', 
+		height: '92%', 
+		title: (mapProfileTitle == undefined) ? '' : mapProfileTitle,
+		iframe: true
+	});	
+}
+
 
 
 /**
