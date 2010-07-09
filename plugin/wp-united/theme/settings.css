@@ -794,7 +794,7 @@ div.subsettings div.subsettings {
 	clear: both;
 }
 
-.wpuwpuser, .wpuphpbbuser {
+.wpuwpuser, .wpuphpbbuser, .wpumapsugg {
 	width: 250px;
 	border: 1px solid #cccccc;
 	padding: 3px;
@@ -808,10 +808,23 @@ div.subsettings div.subsettings {
 	width: 188px;
 }
 
-.wpuintuser {
+.wpuintuser, .wpumapsugg {
 	float: right;
 	clear: none;
 	margin: 0 8px 0 0;
+}
+
+.wpuintto {
+	font-weight: normal;
+	margin: 0 0 1px 0;
+	font-size: 10px;
+	font-style: italic;
+}
+
+.wpumapsugg input {
+	height: 11px;
+	font-size: 10px;
+	width: 188px;
 }
 
 
@@ -822,16 +835,26 @@ div.subsettings div.subsettings {
 
 .wpuwpuser .wpuwplogin a, .wpuwpuser .wpuwplogin, .wpuphpbbuser .wpuphpbblogin a, .wpuphpbbuser .wpuphpbblogin {
 	font-weight: bold;
-	/* text-align: center; */
 	margin: 0 0 3px 0;
 	text-decoration: none;
 	color: #21759b
 }
 
-.wpuwpuser .wpudetails p, .wpuphpbbuser .wpudetails p {
+.wpumapsugg .wpudetails {
+	height: 65px !important;
+	overflow-y: auto;
+	width: 100%;
+	border: 1px solid #cccccc;
+}
+
+.wpuwpuser .wpudetails p, .wpuphpbbuser .wpudetails p, .wpumapsugg .wpudetails p {
 	font-weight: normal;
 	margin: 0;
 	font-size: 10px;
+}
+
+.wpudetails {
+	float: left;
 }
 
 .wpuwpuser .avatar, .wpuphpbbuser div.avatar {
@@ -853,7 +876,6 @@ div.subsettings div.subsettings {
 	width: 14px;
 	
 }
-
 
 .wpuwpuser div.avatar img, .wpuphpbbuser div.avatar img {
 	width: 50px;

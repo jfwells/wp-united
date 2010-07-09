@@ -45,6 +45,92 @@ function wpu_settings_menu() {
 				wpu_map_show_data();
 				die();
 			}
+			if(isset($_GET['term']) && check_ajax_referer('wp-united-usersearch')) {
+				global $wpdb, $phpbbForum, $db, $phpbb_root_path, $phpEx, $wpuPath;
+				
+				header('Content-type: application/json; charset=utf-8');
+				if($_GET['pkg'] == 'phpbb') { 
+					$fStateChanged = $phpbbForum->foreground();
+					
+					$term = utf8_normalize_nfc($_GET['term']);
+					
+					@include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+					
+					$sql = 'SELECT user_id, username, user_email, user_avatar, user_avatar_type, user_avatar_width, user_avatar_height, user_wpuint_id
+						FROM ' . USERS_TABLE . "
+							WHERE username LIKE '%" . $db->sql_escape($term) . "%' " .
+							'AND (user_type = ' . USER_NORMAL . ' OR user_type = ' . USER_FOUNDER . ') ';
+							
+					if(!$result = $db->sql_query_limit($sql, 10)) {
+						die('{}');
+					}
+					$json = array();
+					while($row = $db->sql_fetchrow($result)) {
+						$av = (function_exists('get_user_avatar')) ? get_user_avatar($avatar, $type, $width, $height) : $av;
+						$status = (!empty($row['user_wpuint_id'])) ? __('Already integrated') : __('Available');
+						$statusCode = (!empty($row['user_wpuint_id'])) ? 0 : 1;
+						$data = '{"value": ' . $row['user_id'] . ',' . 
+							'"label": "' . $row['username'] . '",' . 
+							'"desc": "' . $row['user_email'] . '",' . 
+							'"status": "' . $status . '",' . 
+							'"statuscode": ' . $statusCode . ',' . 
+							'"avatar": "' . $av. '"' . 
+							'}';
+						$json[] = $data;
+					}
+					
+					$db->sql_freeresult();
+					$phpbbForum->background($fStateChanged);
+					
+				} else {
+					// find WP user
+					
+					$sql = $wpdb->prepare("SELECT ID
+						FROM {$wpdb->users}
+						WHERE user_login LIKE %s
+						LIMIT 0, 10", '%' . (string)$_GET['term'] . '%');
+				
+					$results = $wpdb->get_results($sql);
+					$wpUserIDs = array();
+					foreach ((array) $results as $item => $result) {
+						$wpUserIDs[$result->ID] = 1;
+					}
+					if(!sizeof($wpUserIDs)) {
+						die('{}');
+					}
+					
+					$fStateChanged = $phpbbForum->foreground(); 
+						$pUsrSql = 'SELECT user_wpuint_id, user_id FROM ' . USERS_TABLE . ' 
+							WHERE ' . $db->sql_in_set('user_wpuint_id', array_keys($wpUserIDs));
+
+					if($pRes = $db->sql_query($pUsrSql)) {
+						while($row = $db->sql_fetchrow($pRes)) {
+							$wpUserIDs[$row['user_wpuint_id']] = 0;
+						}
+					}
+					
+					$db->sql_freeresult();
+					$phpbbForum->background($fStateChanged);
+				
+					$json = array();
+					foreach($wpUserIDs as $wpUserID => $statusCode) {	
+						$wpUser = new WP_User($wpUserID);	
+						$status = ($statusCode == 0) ? __('Already integrated') : __('Available');
+						
+						
+						$data = '{"value": ' . $wpUserID . ',' . 
+							'"label": "' . $wpUser->user_login . '",' . 
+							'"desc": "' . $wpUser->user_email . '",' . 
+							'"status": "' . $status . '",' . 
+							'"statuscode": ' . $statusCode . ',' . 
+							'"avatar": "' . str_replace('"', "'", get_avatar($wpUserID, 50)) . '"' . 
+							'}';
+						$json[] = $data;
+					}
+				}
+				
+				die('[' . implode($json, ',') . ']');
+			}
 		}
 	}	
 	
@@ -460,7 +546,7 @@ function wpu_user_mapper() {
 							<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
 						</div>
 					</div>
-					<div id="wpumappanel">
+					<div id="wpumappanel ui-widget">
 						<h3 class="ui-widget-header ui-corner-all">Actions to process</h3>
 						<ul id="wpupanelactionlist">
 						</ul>
@@ -484,6 +570,7 @@ function wpu_user_mapper() {
 		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.'); ?>';
 		
 		var mapNonce = '<?php echo wp_create_nonce ('wp-united-map'); ?>';
+		var autofillNonce = '<?php echo wp_create_nonce ('wp-united-usersearch'); ?>';
 		jQuery(document).ready(function($) {
 			$('#wputabs').tabs();
 			$('.wpuprocess').button({
@@ -565,10 +652,55 @@ function wpu_user_mapper() {
 					},
 					text: false
 				});	
+				
+			//$('.wpubuttonset').buttonset();
+			wpuMapClearAll();
+
+			var wpuSuggCache = {};
+			$('.wpuusrtyped').autocomplete({
+				minLength: 2,
+				source: function(request, response) {
+					var findIn = ($('#wpumapside').val() == 'phpbb')  ? 'wp' : 'phpbb';
+					if ( request.term in wpuSuggCache ) {
+						response(wpuSuggCache[request.term]);
+						return;
+					}
+					$.ajax({
+						url: 'admin.php?page=wpu-user-mapper',
+						dataType: 'json',
+						data: 'term=' + request.term + '&_ajax_nonce=' + autofillNonce + '&pkg=' + findIn,
+						success: function(recv) {
+							wpuSuggCache[request.term] = recv;
+							response(recv);
+						}
+					});
+				},
+				select: function(event, ui) {
+					if(ui.item.statuscode == 1) {
+						$(this).val(ui.item.label);
+					}
+					return false;
+				},
+				focus: function(event, ui) {
+					if(ui.item.statuscode == 1) {
+						$(this).val(ui.item.label);
+					}
+					return false;
+				}
+			})
+			.data('autocomplete')._renderItem = function(ul, item) {
+				var statusColor = (item.statuscode == 0) ? 'red' : 'green';
+			return $('<li></li>')
+				.data('item.autocomplete', item )
+				.append( '<a><small><strong>' + item.label + '</strong><br />' + item.desc + '<br /><em style="color: ' + statusColor + '">' + item.status + '</em></small></a>')
+				.appendTo( ul );
+		};;
+				
+				
+				
 			});
 			
-			//$('.wpubuttonset').buttonset();
-			wpuMapClearAll();			
+			
 		}
 		
 		var wpText 					=	'<?php _e('WordPress'); ?>';
@@ -812,7 +944,16 @@ function wpu_map_show_data() {
 					</small></p>
 				</div>
 				</td><td>
-				<div class="wpuphpbbuser wpuintuser" style="border: 0;">&nbsp;</div>
+				<div class="wpumapsugg">
+				<p class="wpuintto">Integrate to:</p>
+					<div class="wpudetails">
+						<p><strong>Username </strong><em>email@somewhere.com</em><br />cannot integrate</p>
+						<p><strong>Username2 </strong><em>email2@somewhere.com</em><br />cannot integrate</p>
+						<p><strong>Username2 </strong><em>email2@somewhere.com</em><br />Can integrate</p>
+					</div>
+					<p class="wpuintto">Or, type a name:</p>
+					<input class="wpuusrtyped" />
+				</div>
 			<?php } else { ?>
 				<div class="wpuintegok ui-widget-header ui-corner-all">
 					<p>Status: Integrated</p>

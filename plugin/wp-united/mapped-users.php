@@ -150,7 +150,7 @@ abstract class WPU_Mapped_User {
 					 '<small>' . $this->del_action() . '</small>' . 
 					 '<small>' . $this->edit_action() . '</small>' . 
 					'</div>' .
-					'<div style="float: left;" class="wpudetails">' ;
+					'<div class="wpudetails">' ;
 		
 		foreach($this->templateFields as $field => $show) {
 			$template .= sprintf($show, $this->userDetails[$field]);
