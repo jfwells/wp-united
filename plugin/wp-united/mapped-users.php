@@ -83,6 +83,22 @@ abstract class WPU_Mapped_User {
 	}
 	
 	/**
+	 * Returns html markup for create counterpart action
+	 */
+	public function create_action() {
+		$altPackage = ($this->type == 'wp') ? __('phpBB') : __('WordPress');
+		$action = sprintf(
+			'<a href="#" class="wpumapactioncreate" onclick="return wpuMapCreate(%d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Create user in %s'), $altPackage) . '</a>',
+			$this->userID,
+			($this->type == 'wp') ? 'phpbb' : 'wp',
+			$this->loginName,
+			$this->userDetails['email']
+		);
+		
+		return $action;
+	}
+	
+	/**
 	 * Returns the html markup for a "delete both users" action
 	 */
 	public function delboth_action() {
@@ -100,7 +116,7 @@ abstract class WPU_Mapped_User {
 	}
 	
 	public function del_action() {
-		$package = ($this->type == 'phpbb') ? 'phpBB' : 'WordPress';
+		$package = ($this->type == 'phpbb') ? __('phpBB') : __('WordPress');
 		$action = sprintf(
 			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDel(%d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Delete user from %s'), $package) . '</a>',
 			$this->userID,

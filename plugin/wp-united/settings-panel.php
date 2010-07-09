@@ -537,6 +537,16 @@ function wpu_user_mapper() {
 					},
 					text: false
 				});
+				
+				$('.wpumapactioncreate').button({ 
+					icons: {
+						primary: 'ui-icon-plusthick'
+					},
+					text: false
+				});		
+				
+
+				
 				$('.wpumapactiondel').button({ 
 					icons: {
 						primary:'ui-icon-trash'
@@ -571,6 +581,8 @@ function wpu_user_mapper() {
 		var actionDelBothDets 	=	'<?php _e('%1$s from %2$s and %3$s from %4$s'); ?>';
 		var actionDel 				=	'<?php _e('Delete '); ?>';
 		var actionDelDets 			=	'<?php _e('%1$s from %2$s'); ?>';
+		var actionCreate			=	'<?php _e('Create '); ?>';
+		var actionCreateDets 	=	'<?php _e('integrated counterpart for %1$s in %2$s'); ?>';
 		
 		var wpuMapActions = new Array();
 		
@@ -615,31 +627,72 @@ function wpu_user_mapper() {
 				'markup': markup
 			});
 			$('#wpupanelactionlist').append(markup);
-			$('#wpuuser' + userID).find('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk').button("disable");
+			$('#wpuuser' + userID).find(
+				'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactioncreate'
+			).button("disable");
 			
 			return false;
 		}
 		
 		function wpuMapDel(userID, pckg, userName, userEmail) {
-			pckg = (pckg == 'phpbb') ? phpbbText : wpText;
+			var txtPackage = (pckg == 'phpbb') ? phpbbText : wpText;
 			showPanel();
 			var actionType = actionDel;
 			var actionDets = actionDelDets
 				.replace('%1$s', '<em>' + userName + '</em>')
-				.replace ('%2$s', pckg)
+				.replace ('%2$s', txtPackage);
 			var actionsIndex= wpuMapActions.length;
 			var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 			
 			wpuMapActions.push({
 				'type': 'del',
 				'userid': userID,
-				'markup': markup
+				'markup': markup,
+				'package': pckg
 			});
 			$('#wpupanelactionlist').append(markup);
-			$('#wpuuser' + userID).find('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk').button("disable");
+			
+			// disable delboth links and clicked delete link, leave the other one
+			$('#wpuuser' + userID).find(
+				'.wpumapactionbrk, ' + 
+				'.wpu' + pckg + 'user .wpumapactiondel, ' +
+				'.wpuintegok .wpumapactiondel, ' +
+				'.wpuintegnot .wpumapactiondel, ' +
+				'.wpumapactionlnk, ' + 
+				'.wpumapactioncreate'
+			).button('disable');
 			
 			return false;
-		}					
+		}
+		
+		function wpuMapCreate(userID, altPckg, userName, userEmail) {
+			var txtAltPackage = (altPckg == 'phpbb') ? phpbbText : wpText;
+			showPanel();
+			var actionType = actionCreate;
+			var actionDets = actionCreateDets
+				.replace('%1$s', '<em>' + userName + '</em>')
+				.replace ('%2$s', txtAltPackage);
+			var actionsIndex= wpuMapActions.length;
+			var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+			
+			wpuMapActions.push({
+				'type': 'createin',
+				'userid': userID,
+				'markup': markup,
+				'package': altPckg
+			});
+			$('#wpupanelactionlist').append(markup);
+			
+			// disable delboth links and clicked delete link, leave the other one
+			$('#wpuuser' + userID).find(
+				'.wpumapactionbrk, ' + 
+				'.wpumapactiondel, ' +
+				'.wpumapactionlnk, ' +
+				'.wpumapactioncreate'
+			).button('disable');
+			
+			return false;
+		}							
 		
 		function wpuMapClearAll() {
 			wpuMapActions = new Array();
@@ -751,17 +804,17 @@ function wpu_map_show_data() {
 				<?php echo $user; ?>
 			</td><td>
 			<?php if(!$user->is_integrated()) { ?>
-				<div class="wpuintegnot" style="width: 150px; ">
+				<div class="wpuintegnot ui-widget-header ui-corner-all">
 					<p>Status: <?php _e('Not Integrated'); ?></p>
 					<p><small class="wpubuttonset">
-						<a href="#" class="wpumapactionlnk" onclick="return wpuMapBreak(<?php echo $userID ?>);">Integrate with first suggestion</a>
+						<?php echo $user->create_action(); ?>
 						<?php echo $user->del_action(); ?>
 					</small></p>
 				</div>
 				</td><td>
 				<div class="wpuphpbbuser wpuintuser" style="border: 0;">&nbsp;</div>
 			<?php } else { ?>
-				<div class="wpuintegok" style="width: 150px; ">
+				<div class="wpuintegok ui-widget-header ui-corner-all">
 					<p>Status: Integrated</p>
 					<p><small class="wpubuttonset">
 						<?php echo $user->break_action(); ?>
