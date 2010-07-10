@@ -11,6 +11,7 @@ class WPU_User_Mapper {
 	private $showUsers = 0;
 	private $usersToShow = 0;
 	private $showSpecificUsers = false;
+	private $showUsersLike = false;
 	private $numStart = 0;
 	private $showOnlyInt = 0;
 	private $showOnlyUnInt = 0;
@@ -30,7 +31,7 @@ class WPU_User_Mapper {
 	 *  showOnlyPosts: Filter out users without any posts
 	 *  showOnlyNoPosts: Filter out users with posts
 	 */
-	public function __construct($args, $showSpecificUsers = 0) {
+	public function __construct($args, $showSpecificUserIDs = 0, $showLike = '') {
 		global $phpbb_root_path, $phpEx;
 		
 		$argDefaults = array(
@@ -56,7 +57,8 @@ class WPU_User_Mapper {
 		$this->showOnlyPosts= (int)$showOnlyPosts;
 		$this->showOnlyNoPosts= (int)$showOnlyNoPosts;
 		$this->showSpecificUsers = false;
-		
+		$this->showUsersLike = (empty($showLike)) ? false : (string)$showLike;
+
 		if(is_array($showSpecificUsers)) { 
 			$this->showSpecificUsers = true;
 			$this->usersToShow = $showSpecificUsers;
@@ -67,6 +69,7 @@ class WPU_User_Mapper {
 			} 
 			// else leave set at default
 		}
+		
 
 		$this->users = array();
 	
@@ -95,22 +98,24 @@ class WPU_User_Mapper {
 	private function load_wp_users() {
 		global $wpdb, $phpbbForum, $user;
 		
-		/**
-		 * @TODO: complete where clause creation here
-		 */
-		
-		if(!$this->showSpecificUsers) {
+		$where = '';
+		if(!empty($this->showSpecificUsers)) {
+			/**
+			 * @TODO: Add specific user clause cretion here
+			 */
 			$where = '';
+		} else if(!empty($this->showUsersLike)) {
+			$where =  $wpdb->prepare('WHERE user_login LIKE %s', '%' . $this->showUsersLike . '%');
 		}
 		
 		$sql = "SELECT ID
-				FROM {$wpdb->users}
-				ORDER BY user_login {$where}
+				FROM {$wpdb->users} 
+				{$where} 
+				ORDER BY user_login 
 				LIMIT {$this->numStart}, {$this->numToShow}";
 				
 
 		$results = $wpdb->get_results($sql);
-		
 		
 		foreach ((array) $results as $item => $result) {
 			$user =  new WPU_Mapped_WP_User($result->ID);
@@ -129,8 +134,8 @@ class WPU_User_Mapper {
 		
 		$fStateChanged = $phpbbForum->foreground();
 		
-		$sql =$this->phpbb_userlist_sql();
-		
+		$sql =$this->phpbb_userlist_sql($this->showSpecificUsers, $this->showUsersLike);
+
 		if($result = $db->sql_query_limit($sql, $this->numToShow)) {
 			while($r = $db->sql_fetchrow($result)) { 
 				if( (!empty($this->showOnlyInt)) && (empty($r['user_wpuint_id'])) ) {
@@ -235,7 +240,7 @@ class WPU_User_Mapper {
 	 * Generates the phpBB SQL for finding users
 	 * @access private
 	 */
-	private function phpbb_userlist_sql($arrUsers = false) {
+	private function phpbb_userlist_sql($arrUsers = false, $showLike = false) {
 		global $db, $phpbbForum;
 		
 		$fStateChanged = $phpbbForum->foreground();
@@ -243,6 +248,8 @@ class WPU_User_Mapper {
 		$where = '';
 		if(!empty($arrUsers)) {
 			$where = ' AND ' . $db->sql_in_set('u.user_wpuint_id', (array)$arrUsers);
+		} else if(!empty($showLike)) {
+			$where = " AND u.username LIKE '%" . $db->sql_escape($showLike) . "%'";
 		}
 		
 		 $sql = $db->sql_build_query('SELECT', array(
@@ -271,7 +278,36 @@ class WPU_User_Mapper {
 		
 	}
 	
+	/**
+	 * Sends a JSON string to the browser with enough information to create e.g. an autocomplete dropdown
+	 */
 	
+	public function send_json() {
+		
+		header('Content-type: application/json; charset=utf-8');
+		
+		$json = array();
+		foreach($this->users as $user) {
+			$statusCode = ($user->is_integrated()) ? 0 : 1;
+			$status = ($statusCode == 0) ? __('Already integrated') : __('Available');
+			
+			$data = '{' .
+				'"value": ' . $user->userID . ',' . 
+				'"label": "' . $user->get_username() . '",' . 
+				'"desc": "' . $user->get_email() . '",' . 
+				'"status": "' . $status . '",' . 
+				'"statuscode": ' . $statusCode . ',' . 
+				'"avatar": "' . str_replace('"', "'", $user->get_avatar()) . '"' . 
+				'}';
+				
+				$json[] = $data;
+		}
+		if(sizeof($json)) {
+			die('[' . implode($json, ',') . ']');
+		} else {
+			die('{}');
+		}
+	}
 }
 
 ?>

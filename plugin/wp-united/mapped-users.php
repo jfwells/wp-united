@@ -61,6 +61,13 @@ abstract class WPU_Mapped_User {
 	}
 	
 	/**
+	 * Returns the current user's avatar
+	 */
+	public function get_avatar() {
+		return $this->avatar;
+	}
+	
+	/**
 	 * Returns html markup for a break action
 	 */
 	public function break_action() {

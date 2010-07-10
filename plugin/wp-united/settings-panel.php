@@ -42,94 +42,25 @@ function wpu_settings_menu() {
 		}
 		if($_GET['page'] == 'wpu-user-mapper') {
 			if( isset($_POST['wpumapload']) && check_ajax_referer('wp-united-map') ) {
+				// Send user mapper html data
 				wpu_map_show_data();
 				die();
 			}
 			if(isset($_GET['term']) && check_ajax_referer('wp-united-usersearch')) {
-				global $wpdb, $phpbbForum, $db, $phpbb_root_path, $phpEx, $wpuPath;
+				// send JSON back for autocomplete
+				global $wpuPath;
 				
-				header('Content-type: application/json; charset=utf-8');
-				if($_GET['pkg'] == 'phpbb') { 
-					$fStateChanged = $phpbbForum->foreground();
-					
-					$term = utf8_normalize_nfc($_GET['term']);
-					
-					@include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-					
-					$sql = 'SELECT user_id, username, user_email, user_avatar, user_avatar_type, user_avatar_width, user_avatar_height, user_wpuint_id
-						FROM ' . USERS_TABLE . "
-							WHERE username LIKE '%" . $db->sql_escape($term) . "%' " .
-							'AND (user_type = ' . USER_NORMAL . ' OR user_type = ' . USER_FOUNDER . ') ';
-							
-					if(!$result = $db->sql_query_limit($sql, 10)) {
-						die('{}');
-					}
-					$json = array();
-					while($row = $db->sql_fetchrow($result)) {
-						$av = (function_exists('get_user_avatar')) ? get_user_avatar($avatar, $type, $width, $height) : $av;
-						$status = (!empty($row['user_wpuint_id'])) ? __('Already integrated') : __('Available');
-						$statusCode = (!empty($row['user_wpuint_id'])) ? 0 : 1;
-						$data = '{"value": ' . $row['user_id'] . ',' . 
-							'"label": "' . $row['username'] . '",' . 
-							'"desc": "' . $row['user_email'] . '",' . 
-							'"status": "' . $status . '",' . 
-							'"statuscode": ' . $statusCode . ',' . 
-							'"avatar": "' . $av. '"' . 
-							'}';
-						$json[] = $data;
-					}
-					
-					$db->sql_freeresult();
-					$phpbbForum->background($fStateChanged);
-					
-				} else {
-					// find WP user
-					
-					$sql = $wpdb->prepare("SELECT ID
-						FROM {$wpdb->users}
-						WHERE user_login LIKE %s
-						LIMIT 0, 10", '%' . (string)$_GET['term'] . '%');
-				
-					$results = $wpdb->get_results($sql);
-					$wpUserIDs = array();
-					foreach ((array) $results as $item => $result) {
-						$wpUserIDs[$result->ID] = 1;
-					}
-					if(!sizeof($wpUserIDs)) {
-						die('{}');
-					}
-					
-					$fStateChanged = $phpbbForum->foreground(); 
-						$pUsrSql = 'SELECT user_wpuint_id, user_id FROM ' . USERS_TABLE . ' 
-							WHERE ' . $db->sql_in_set('user_wpuint_id', array_keys($wpUserIDs));
+				$pkg = ($_GET['pkg'] == 'phpbb') ? 'phpbb' : 'wp';
+				$term = request_var('term', '');
 
-					if($pRes = $db->sql_query($pUsrSql)) {
-						while($row = $db->sql_fetchrow($pRes)) {
-							$wpUserIDs[$row['user_wpuint_id']] = 0;
-						}
-					}
-					
-					$db->sql_freeresult();
-					$phpbbForum->background($fStateChanged);
+				require($wpuPath . 'user-mapper.php');
+				require($wpuPath . 'mapped-users.php');
 				
-					$json = array();
-					foreach($wpUserIDs as $wpUserID => $statusCode) {	
-						$wpUser = new WP_User($wpUserID);	
-						$status = ($statusCode == 0) ? __('Already integrated') : __('Available');
-						
-						
-						$data = '{"value": ' . $wpUserID . ',' . 
-							'"label": "' . $wpUser->user_login . '",' . 
-							'"desc": "' . $wpUser->user_email . '",' . 
-							'"status": "' . $status . '",' . 
-							'"statuscode": ' . $statusCode . ',' . 
-							'"avatar": "' . str_replace('"', "'", get_avatar($wpUserID, 50)) . '"' . 
-							'}';
-						$json[] = $data;
-					}
-				}
+				$userMapper = new WPU_User_Mapper("leftSide={$pkg}&numToShow=10&numStart=0&showOnlyInt=0
+					&showOnlyUnInt=0&showOnlyPosts=0&showOnlyNoPosts=0", 0, $term);
 				
-				die('[' . implode($json, ',') . ']');
+				$userMapper->send_json();
+				die();
 			}
 		}
 	}	
@@ -367,7 +298,7 @@ function wpu_user_mapper() {
 		<p><?php _e('Select a tab below to get started.'); ?></p>
 		<div id="wputabs">
 			<ul>
-				<li><a href="#wpumaptab-perms">User Permissions</a></li>
+				<li><a href="#wpumaptab-perms">New User Permissions</a></li>
 				<li><a href="#wpumaptab-map">User Mapping</a></li>
 			</ul>
 
@@ -546,7 +477,7 @@ function wpu_user_mapper() {
 							<img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
 						</div>
 					</div>
-					<div id="wpumappanel ui-widget">
+					<div id="wpumappanel" class="ui-widget">
 						<h3 class="ui-widget-header ui-corner-all">Actions to process</h3>
 						<ul id="wpupanelactionlist">
 						</ul>
@@ -924,7 +855,7 @@ function wpu_map_show_data() {
 	require($wpuPath . 'user-mapper.php');
 	require($wpuPath . 'mapped-users.php');
 	
-	$userMapper = new WPU_User_Mapper("leftSide={$type}&numToShow={$num}&showOnlyInt={$showOnlyInt}
+	$userMapper = new WPU_User_Mapper("leftSide={$type}&numToShow={$num}&numStart={$first}&showOnlyInt={$showOnlyInt}
 		&showOnlyUnInt={$showOnlyUnInt}&showOnlyPosts={$showOnlyPosts}&showOnlyNoPosts={$showOnlyNoPosts}");
 
 	$alt = '';
