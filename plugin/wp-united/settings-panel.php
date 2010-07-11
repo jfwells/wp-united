@@ -444,31 +444,33 @@ function wpu_user_mapper() {
 			</div>
 			<div id="wpumaptab-map">
 				<p>The user mapping tool is under construction.</p>
-				<form name="wpumapdisp" id="wpumapdisp">
-					<fieldset>
-						<label for="wpumapside">Show: </label>
-						<select id="wpumapside" name="wpumapside">
-							<option value="wp">WordPress users</option>
-							<option value="phpbb">phpBB users</option>
-						</select> |
-						<label for="wpunumshow">Number to show: </label>
-						<select id="wpunumshow" name="wpunumshow">
-							<option value="50">50</option>
-							<option value="100">100</option>
-							<option value="250">250</option>
-							<option value="500">500</option>
-							<option value="1000">1000</option>
-						</select> |			
-						<label for="wputypeshow">Type to show: </label>
-						<select id="wputypeshow" name="wputypeshow">
-							<option value="all">All</option>
-							<option value="int">All Integrated</option>
-							<option value="unint">All Unintegrated</option>
-							<option value="posts">All With Posts</option>
-							<option value="noposts">All Without Posts</option>
-						</select> 					
-					</fieldset>
-				</form>
+				<div class="ui-widget-header ui-corner-all wpumaptoolbar">
+					<form name="wpumapdisp" id="wpumapdisp">
+						<fieldset>
+							<label for="wpumapside">Show: </label>
+							<select id="wpumapside" name="wpumapside">
+								<option value="wp">WordPress users</option>
+								<option value="phpbb">phpBB users</option>
+							</select> 
+							<label for="wpunumshow">Number to show: </label>
+							<select id="wpunumshow" name="wpunumshow">
+								<option value="50">50</option>
+								<option value="100">100</option>
+								<option value="250">250</option>
+								<option value="500">500</option>
+								<option value="1000">1000</option>
+							</select> 	
+							<label for="wputypeshow">Type to show: </label>
+							<select id="wputypeshow" name="wputypeshow">
+								<option value="all">All</option>
+								<option value="int">All Integrated</option>
+								<option value="unint">All Unintegrated</option>
+								<option value="posts">All With Posts</option>
+								<option value="noposts">All Without Posts</option>
+							</select> 					
+						</fieldset>
+					</form>
+				</div>
 				
 				<div id="wpumapcontainer">
 					<div id="wpumapscreen">

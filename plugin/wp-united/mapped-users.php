@@ -40,6 +40,16 @@ abstract class WPU_Mapped_User {
 	}
 	
 	/**
+	 * Returns whether the user has posts
+	 */
+	public function has_posts() {
+		if($this->userDetails['posts'] > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the user object that this user is integrated to in the internal data structure
 	 */
 	public function get_partner() {

@@ -77,12 +77,32 @@ class WPU_User_Mapper {
 			// Process WP users on the left
 			$this->load_wp_users();
 			$this->find_phpbb_for_wp_users();
+			
+			// process filters post-fact for wordpress users
 			if(!empty($this->showOnlyInt)) {
 				foreach($this->users as $key => $usr) {
 					if(!$usr->is_integrated()) {
 						unset($this->users[$key]);
 					}
 				}
+			} else if(!empty($this->showOnlyUnInt)) {
+				foreach($this->users as $key => $usr) {
+					if($usr->is_integrated()) {
+						unset($this->users[$key]);
+					}
+				}				
+			} else if(!empty($this->showOnlyPosts)) {
+				foreach($this->users as $key => $usr) {
+					if(!$usr->has_posts()) {
+						unset($this->users[$key]);
+					}
+				}				
+			} else if(!empty($this->showOnlyNoPosts)) {
+				foreach($this->users as $key => $usr) {
+					if(!$usr->has_posts()) {
+						unset($this->users[$key]);
+					}
+				}				
 			}
 		} else { 
 			// Process phpBB users on the left
