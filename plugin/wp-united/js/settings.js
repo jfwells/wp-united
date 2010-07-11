@@ -794,6 +794,16 @@ function wpuMapClearAll() {
 	return false;
 }
 
+/**
+* Handle user mapper change page request
+*/
+function wpuMapPaginate(el) {
+	var numStart = (el.href.indexOf('start=') > -1) ? el.href.split('start=')[1] : 0
+	$('#wpufirstitem').val(numStart);
+	wpuShowMapper(false);
+	return false;
+}
+
 
 
 
