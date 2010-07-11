@@ -443,11 +443,12 @@ function wpu_user_mapper() {
 				?>
 			</div>
 			<div id="wpumaptab-map">
-				<p>The user mapping tool is under construction.</p>
+				<p><?php _e('All your WordPress or phpBB users are shown on the left below, together with their integration status. On the right, you can see their corresponding integrated user, or &ndash; if they are not integrated &ndash; some suggestions for users they could integrate to.'); ?></p>
+				<p><?php _e('Choose the actions you wish to take, and then click &quot;Process Actions&quot; in the pop-up panel to apply them.'); ?></p>
 				<div class="ui-widget-header ui-corner-all wpumaptoolbar">
 					<form name="wpumapdisp" id="wpumapdisp">
 						<fieldset>
-							<label for="wpumapside">Show: </label>
+							<label for="wpumapside">Show on left: </label>
 							<select id="wpumapside" name="wpumapside">
 								<option value="wp">WordPress users</option>
 								<option value="phpbb">phpBB users</option>
@@ -460,7 +461,7 @@ function wpu_user_mapper() {
 								<option value="500">500</option>
 								<option value="1000">1000</option>
 							</select> 	
-							<label for="wputypeshow">Type to show: </label>
+							<label for="wputypeshow">Show: </label>
 							<select id="wputypeshow" name="wputypeshow">
 								<option value="all">All</option>
 								<option value="int">All Integrated</option>
@@ -530,7 +531,7 @@ function wpu_user_mapper() {
 
 
 		function wpuProcess() {
-			alert('This will process all actions');
+			alert('This part is under construction!');
 			return false;
 		}
 		
