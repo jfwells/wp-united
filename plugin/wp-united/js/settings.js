@@ -329,9 +329,9 @@ function setupUserMapperPage() {
 	setupAcpPopups();
 
 	$("#wpumapdisp select").bind('change', function() {
-		wpuShowMapper();
+		wpuShowMapper(true);
 	});
-	wpuShowMapper();
+	wpuShowMapper(true);
 }
 
 
@@ -339,12 +339,17 @@ function setupUserMapperPage() {
  * Sends the filter fields to the back-end, processes the returned user mapper html, and
  * sets up all contained buttons/fields/etc.
  */
-function wpuShowMapper() {
+function wpuShowMapper(repaginate) {
+	
+	if(repaginate == true) {
+		$('#wpufirstitem').val(0);
+	}
+	
 	$('#wpumapscreen').html('<div class="wpuloading"><p>Loading</p><img src="' + imgLdg + '" /></div>');
 	var formData = $('#wpumapdisp').serialize() + '&wpumapload=1&_ajax_nonce=' + mapNonce;
 	
+	// set up ajax error handler
 	$(document).ajaxError(function(e, xhr, settings, exception) {
-
 		if(exception == undefined) {
 			var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
 		}
@@ -362,8 +367,9 @@ function wpuShowMapper() {
 			leftSide = wpText;
 			rightSide = phpbbText; 
 		}
-		
-		$('#wpumapscreen').html(response);
+
+		$('#wpumapscreen').html($(response).find('mapcontent').text());
+		$('.wpumappaginate').html($(response).find('pagination').text());
 	
 		setupUserEditPopups();
 		
@@ -506,7 +512,7 @@ function setupUserEditPopups() {
 		title: (mapEditTitle == undefined) ? '' : mapEditTitle,
 		iframe: true,
 		onClosed: function() {
-			wpuShowMapper();
+			wpuShowMapper(false);
 		}
 	});
 	$('.wpuprofilelink').colorbox({

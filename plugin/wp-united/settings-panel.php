@@ -287,6 +287,7 @@ function wpu_setup_menu() {
 function wpu_user_mapper() { 
 	global $wpuUrl; ?>
 	<div class="wrap" id="wp-united-setup">
+	
 		<img id="panellogo" src="<?php echo $wpuUrl ?>/images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
@@ -455,7 +456,9 @@ function wpu_user_mapper() {
 							</select> 
 							<label for="wpunumshow">Number to show: </label>
 							<select id="wpunumshow" name="wpunumshow">
-								<option value="50">50</option>
+								<option value="1">1</option>
+								<option value="50">10</option>
+								<option value="50" selected="selected">50</option>
 								<option value="100">100</option>
 								<option value="250">250</option>
 								<option value="500">500</option>
@@ -468,10 +471,14 @@ function wpu_user_mapper() {
 								<option value="unint">All Unintegrated</option>
 								<option value="posts">All With Posts</option>
 								<option value="noposts">All Without Posts</option>
-							</select> 					
+							</select>
+							<input type="hidden" name="wpufirstitem" id="wpufirstitem" value="0" />			
 						</fieldset>
 					</form>
+					<div class="wpumappaginate">
+					</div>
 				</div>
+
 				
 				<div id="wpumapcontainer">
 					<div id="wpumapscreen">
@@ -492,7 +499,10 @@ function wpu_user_mapper() {
 						</div>
 					</div>
 				</div>
-				
+				<div class="ui-widget-header ui-corner-all wpumaptoolbar">
+					<div class="wpumappaginate">
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -526,15 +536,20 @@ function wpu_user_mapper() {
 		
 		jQuery(document).ready(function($) {
 			setupUserMapperPage();
+			
 		});			
 		
-
-
 		function wpuProcess() {
 			alert('This part is under construction!');
 			return false;
 		}
 		
+		function wpuMapPaginate(el) {
+			var numStart = (el.href.indexOf('start=') > -1) ? el.href.split('start=')[1] : 0
+			$('#wpufirstitem').val(numStart);
+			wpuShowMapper(false);
+			return false;
+		}
 	
 	// ]]>
 	</script>
@@ -545,14 +560,6 @@ function wpu_user_mapper() {
 
 function wpu_map_show_data() {
 	global $wpdb, $phpbbForum, $db, $user;
-	
-	/* for pagination 
-	$sql = "SELECT count(*) AS total
-			FROM {$wpdb->users}";
-		
-	$countEntries = $wpdb->get_results($sql);
-	$numWpResults = $countEntries[0]->total;
-	*/
 	
 	$type = (isset($_POST['wpumapside']) && $_POST['wpumapside'] == 'phpbb' ) ? 'phpbb' : 'wp';
 	$first = (isset($_POST['wpufirstitem'])) ? (int) $_POST['wpufirstitem'] : 0;
@@ -571,6 +578,33 @@ function wpu_map_show_data() {
 		&showOnlyUnInt={$showOnlyUnInt}&showOnlyPosts={$showOnlyPosts}&showOnlyNoPosts={$showOnlyNoPosts}");
 
 	$alt = '';
+	
+	header('Content-Type: application/xml'); 
+	header('Cache-Control: private, no-cache="set-cookie"');
+	header('Expires: 0');
+	header('Pragma: no-cache');
+	
+	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+	echo '<wpumapper>';
+	
+	$fStateChanged = $phpbbForum->foreground();
+	$pagination = generate_pagination('#', $userMapper->num_users(), $num, $first, true);
+	$pagination = str_replace('<a ', '<a onclick="return wpuMapPaginate(this);"', $pagination);
+	$phpbbForum->background($fStateChanged);
+	
+	$total = $userMapper->num_users();
+	$to = (($first + $num) > $total) ? $total : ($first + $num);
+	$package = ($type == 'phpbb') ? __('phpBB') : __('WordPress');
+	$packageUsers = ($total > 1) ? sprintf(__('%s users'), $package) :  sprintf(__('%s user'), $package);
+
+	echo '<pagination><![CDATA[<p><em class="wpumapcount">' . sprintf(__('Showing %1$d to %2$d of %3$d %4$s.'), ($first + 1), $to, $total, $packageUsers) . ' </em>' . $pagination . '</p>]]></pagination>';
+	
+	echo '<mapcontent><![CDATA[';
+	
+	if($total == 0) {
+		echo '<em>' . __('There are no users to show that match your criteria') . '</em>';
+	} 
+	
 	foreach($userMapper->users as $userID => $user) { 
 		?>
 
@@ -611,6 +645,10 @@ function wpu_map_show_data() {
 		<?php 
 		$alt = ($alt == '') ? ' wpualt' : '';
 	}
+	
+	
+	echo ']]></mapcontent></wpumapper>';
+	
 }
 	
 /**
