@@ -105,7 +105,7 @@ class WPU_User_Mapper {
 			 */
 			$where = '';
 		} else if(!empty($this->showUsersLike)) {
-			$where =  $wpdb->prepare('WHERE user_login LIKE %s', '%' . $this->showUsersLike . '%');
+			$where =  $wpdb->prepare('WHERE UCASE(user_login) LIKE %s', '%' . strtoupper($this->showUsersLike) . '%');
 		}
 		
 		$sql = "SELECT ID
@@ -217,6 +217,7 @@ class WPU_User_Mapper {
 		
 		$fStateChanged = $phpbbForum->foreground();
 		
+		
 		$arrToLoad = array(
 			'loginName'				=> 	$dbResult['username'],
 			'user_avatar'				=> 	$dbResult['user_avatar'],
@@ -224,13 +225,12 @@ class WPU_User_Mapper {
 			'user_avatar_width'	=> 	$dbResult['user_avatar_width'], 
 			'user_avatar_height'	=> 	$dbResult['user_avatar_height'],
 			'email'							=> 	$dbResult['user_email'],
-			'group'							=> 	(isset($phpbbForum->lang[$dbResult['group_name']])) ? $phpbbForum->lang[$dbResult['group_name']] : $dbResult['group_name'],
+			'group'							=> 	(isset($phpbbForum->lang['G_' . $dbResult['group_name']])) ? $phpbbForum->lang['G_' . $dbResult['group_name']] : $dbResult['group_name'],
 			'rank'							=> 	(isset($phpbbForum->lang[$dbResult['rank_title']])) ? $phpbbForum->lang[$dbResult['rank_title']] : $dbResult['rank_title'],
 			'numposts'					=> 	(int)$dbResult['user_posts'],
 			'regdate'						=> 	$user->format_date($dbResult['user_regdate']),
-			'lastvisit'						=> 	$user->format_date($dbResult['user_lastvisit'])
+			'lastvisit'						=> 	(!empty($dbResult['user_lastvisit'])) ? $user->format_date($dbResult['user_lastvisit']) : __('n/a')
 		);
-
 		$phpbbForum->background($fStateChanged);
 		
 		return $arrToLoad;
@@ -249,7 +249,7 @@ class WPU_User_Mapper {
 		if(!empty($arrUsers)) {
 			$where = ' AND ' . $db->sql_in_set('u.user_wpuint_id', (array)$arrUsers);
 		} else if(!empty($showLike)) {
-			$where = " AND u.username LIKE '%" . $db->sql_escape($showLike) . "%'";
+			$where = " AND UCASE(u.username) LIKE '%" . $db->sql_escape(strtoupper($showLike)) . "%'";
 		}
 		
 		 $sql = $db->sql_build_query('SELECT', array(

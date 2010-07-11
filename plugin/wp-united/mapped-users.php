@@ -77,7 +77,7 @@ abstract class WPU_Mapped_User {
 		}
 		
 		$action = sprintf(
-			'<a href="#" class="wpumapactionbrk" onclick="return wpuMapBreak(%d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Break Integration') . '</a>',
+			'<a href="#" class="wpumapactionbrk" onclick="return wpuMapBreak(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Break Integration') . '</a>',
 			$this->userID,
 			$this->integratedUser->userID,
 			$this->loginName,
@@ -95,7 +95,7 @@ abstract class WPU_Mapped_User {
 	public function create_action() {
 		$altPackage = ($this->type == 'wp') ? __('phpBB') : __('WordPress');
 		$action = sprintf(
-			'<a href="#" class="wpumapactioncreate" onclick="return wpuMapCreate(%d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Create user in %s'), $altPackage) . '</a>',
+			'<a href="#" class="wpumapactioncreate" onclick="return wpuMapCreate(this, %d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Create user in %s'), $altPackage) . '</a>',
 			$this->userID,
 			($this->type == 'wp') ? 'phpbb' : 'wp',
 			$this->loginName,
@@ -110,7 +110,7 @@ abstract class WPU_Mapped_User {
 	 */
 	public function delboth_action() {
 		$action = sprintf(
-			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDelBoth(%d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Delete user from both phpBB and WordPress') . '</a>',
+			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDelBoth(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Delete user from both phpBB and WordPress') . '</a>',
 			$this->userID,
 			($this->integrated) ? $this->integratedUser->userID : 0,
 			$this->loginName,
@@ -125,7 +125,7 @@ abstract class WPU_Mapped_User {
 	public function del_action() {
 		$package = ($this->type == 'phpbb') ? __('phpBB') : __('WordPress');
 		$action = sprintf(
-			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDel(%d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Delete user from %s'), $package) . '</a>',
+			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDel(this, %d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Delete user from %s'), $package) . '</a>',
 			$this->userID,
 			$this->type,
 			$this->loginName,
@@ -151,7 +151,7 @@ abstract class WPU_Mapped_User {
 	public function __toString() {
 		$side = ($this->side == 'left') ? '' : ' wpuintuser';
 		$template = '<div class="wpuuser ' . $this->className . $side . '">' . 
-					'<p class="' . $this->loginClassName . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . $this->loginName . '</a></p>' . 
+					'<p class="' . $this->loginClassName . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . htmlentities($this->loginName) . '</a></p>' . 
 					'<div class="avatarblock">' .
 					$this->avatar . 
 					 '<small>' . $this->del_action() . '</small>' . 
@@ -244,6 +244,65 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		return get_author_posts_url($this->userID);
 	}
 	
+	/**
+	 * Provides a formatted block of suggested usernames this use could integrate to
+	 */
+	public function get_suggested_matches() {
+		if($this->is_integrated()) {
+			return;
+		}
+		
+		$noMatch = '<p><em>' . __('No suggested matches found.') . '</em></p>';
+		
+		// Search for suggested matches in phpBB...
+		
+		// if last char of username is number, kill it to make stub
+		// look for uppercase match of e-mail OR uppercase match of stub to username
+		$username = $this->get_username();
+		$stub = is_numeric($username[strlen($username)-1]) ? substr($username, 0, -1) : $username;
+		
+		global $phpbbForum, $db;
+		$fStateChanged = $phpbbForum->foreground();
+		
+		$sql = 'SELECT user_id, username, user_email, user_wpuint_id 
+			FROM ' . USERS_TABLE . "
+			WHERE UCASE(username) LIKE '%" . $db->sql_escape(strtoupper($stub)) . "%' 
+				OR UCASE(user_email) = '" . $db->sql_escape(strtoupper($this->get_email())) . "'";
+
+		
+		if(!$results = $db->sql_query($sql)) {
+			echo $noMatch;
+			return;
+		}
+		
+		if(!sizeof($results)) {
+			echo $noMatch;
+			return;
+		}
+		
+		$matches = '';
+		while($result = $db->sql_fetchrow($results)) {
+			$integText = (empty($result['user_wpuint_id'])) ? __('Available') : __('Cannot integrate (already integrated)');
+			$integLink =  (!empty($result['user_wpuint_id'])) ? '' : sprintf(
+				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate') . '</a>',
+				$this->userID,
+				$result['user_id'],
+				$this->loginName,
+				$result['username'],
+				$this->get_email(),
+				$result['user_email']
+			);
+			$matches .= '<p><strong>' . $result['username'] . '</strong> <em>' . $result['user_email'] . '</em><br />' . $integText . ' ' . $integLink . '</p>';
+		}
+		
+		$db->sql_freeresult();
+		$phpbbForum->background($fStateChanged);
+		
+		echo $matches;
+		
+	}
+	
+	
 	
 	public function __toString() {
 		return parent::__toString();
@@ -288,7 +347,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 	}
 	
 	/**
-	 * For phpBB phpBB users we provide all the data to the constructor in an array to create the user
+	 * For phpBB users we provide all the data to the constructor in an array to create the user
 	 * @access private
 	 */
 	private function load_from_userdata($data) {
@@ -365,6 +424,83 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		$phpbbForum->background($fStateChanged);
 		
 		return $this->avatar;	
+	}
+	
+	/**
+	 * Provides a formatted block of suggested usernames this user could integrate to
+	 */
+	public function get_suggested_matches() {
+		global $phpbbForum, $wpdb, $db;
+		
+		
+		if($this->is_integrated()) {
+			return;
+		}
+		
+		$noMatch = '<p><em>' . __('No suggested matches found.') . '</em></p>';
+		
+		// Search for suggested matches in WordPress
+		
+		// if last char of username is number, kill it to make stub
+		// look for uppercase match of e-mail OR uppercase match of stub to username
+		$username = $this->get_username();
+		$stub = is_numeric($username[strlen($username)-1]) ? substr($username, 0, -1) : $username;
+		
+		$sql = $wpdb->prepare("SELECT ID, user_login, user_email
+				FROM {$wpdb->users} 
+				WHERE UCASE(user_login) LIKE %s
+					OR UCASE(user_email) = %s
+				ORDER BY user_login ", '%' . strtoupper($stub) . '%', strtoupper($this->get_email()));
+				
+		if(!$results = $wpdb->get_results($sql)) {
+			return $noMatch;
+		}
+		
+		if(!sizeof($results)) {
+			return $noMatch;
+		}
+		$users = array();
+		foreach ((array) $results as $item => $result) {
+			$users[$result->ID] = array(
+				'username'	=>	$result->user_login,
+				'email'			=>	$result->user_email,
+				'integrated'	=>	false
+			);
+		}
+		
+		$fStateChanged = $phpbbForum->foreground();
+		
+		$sql = 'SELECT user_id, user_wpuint_id FROM ' . USERS_TABLE . ' 
+					WHERE ' . $db->sql_in_set('user_wpuint_id', array_keys($users));
+					
+		if($pResults = $db->sql_query($sql)) {
+			while($pResult = $db->sql_fetchrow($pResults)) {
+				if(!empty($pResult['user_wpuint_id'])) {
+					$users[$pResult['user_wpuint_id']]['integrated'] = true;
+				}
+			}
+		}
+		$db->sql_freeresult();	
+		$phpbbForum->background($fStateChanged);
+		
+		$matches = '';
+		foreach($users as $userID => $user) {
+			$integText = (!$user['integrated']) ? __('Available') : __('Cannot integrate (already integrated)');
+			$integLink = ($user['integrated']) ? '' : sprintf(
+				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate') . '</a>',
+				$this->userID,
+				$userID,
+				$this->loginName,
+				$user['username'],
+				$this->get_email(),
+				$user['email']
+			);
+			$matches .= '<p><strong>' . $user['username'] . '</strong> <em>' . $user['email'] . '</em><br />' . $integText . ' ' . $integLink . '</p>';
+		}
+		
+		
+		
+		echo $matches;
 	}
 	
 	public function __toString() {

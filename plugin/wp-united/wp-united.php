@@ -1703,20 +1703,16 @@ if ( function_exists('wp_check_password') ) {
 * 
 * Therefore here we just try to avoid namespace errors. If they are actually invoked while renamed, the result is undefined
 */
-/*
+
 function wpu_validate_username_conflict($wpValdUser, $username) {
-	global $IN_WORDPRESS;
-	$connSettings = get_settings('wputd_connection');
-	if(function_exists('phpbb_validate_username')) { // we are probably expecting a phpBB response
-		if (!empty($connSettings['logins_integrated']) || (!$IN_WORDPRESS) ) { 
-			// We unfortunately can't get to the second phpBB argument
+	global $phpbbForum;
+	if($phpbbForum->get_state() == 'phpbb') {
+		if(function_exists('phpbb_validate_username')) {
 			return phpbb_validate_username($username, false);
-		
-		} 
+		}
 	}
 	return $wpValdUser;
 }
-*/
 
 
 
@@ -1735,7 +1731,7 @@ function wpu_pluginrow_link($links, $file) {
  */
 
 add_filter('pre_user_login', 'wpu_fix_blank_username');
-//add_filter('validate_username', 'wpu_validate_username_conflict');
+add_filter('validate_username', 'wpu_validate_username_conflict');
 
 add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
 add_filter('comment_text', 'wpu_censor');

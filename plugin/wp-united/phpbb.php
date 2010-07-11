@@ -153,7 +153,15 @@ class WPU_Phpbb {
 	}
 	
 	/**
+	 * Gets the current forum/WP status
+	 */
+	public function get_state() {
+		return $this->state;
+	}
+	
+	/**
 	 * Enters the phpBB environment
+	 * @access private
 	 */
 	private function enter() { 
 		$this->lang = (isset($this->phpbbUser->lang)) ? $this->phpbbUser->lang : $this->lang;

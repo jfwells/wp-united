@@ -502,6 +502,11 @@ function wpu_user_mapper() {
 		
 		var mapNonce = '<?php echo wp_create_nonce ('wp-united-map'); ?>';
 		var autofillNonce = '<?php echo wp_create_nonce ('wp-united-usersearch'); ?>';
+		
+		var wpuTypedMatches;
+		var wpuSuggCache;
+		
+		
 		jQuery(document).ready(function($) {
 			$('#wputabs').tabs();
 			$('.wpuprocess').button({
@@ -562,9 +567,7 @@ function wpu_user_mapper() {
 					},
 					text: false
 				});		
-				
 
-				
 				$('.wpumapactiondel').button({ 
 					icons: {
 						primary:'ui-icon-trash'
@@ -577,6 +580,15 @@ function wpu_user_mapper() {
 					},
 					text: false
 				});
+
+				$('.wpumapactionlnktyped').button({ 
+					icons: {
+						primary:'ui-icon-link'
+					},
+					text: false,
+					disabled: true
+				});
+				
 				$('.wpumapactionedit').button({ 
 					icons: {
 						primary:'ui-icon-gear'
@@ -584,51 +596,78 @@ function wpu_user_mapper() {
 					text: false
 				});	
 				
-			//$('.wpubuttonset').buttonset();
-			wpuMapClearAll();
+				//$('.wpubuttonset').buttonset();
+				wpuMapClearAll();
 
-			var wpuSuggCache = {};
-			$('.wpuusrtyped').autocomplete({
-				minLength: 2,
-				source: function(request, response) {
-					var findIn = ($('#wpumapside').val() == 'phpbb')  ? 'wp' : 'phpbb';
-					if ( request.term in wpuSuggCache ) {
-						response(wpuSuggCache[request.term]);
-						return;
-					}
-					$.ajax({
-						url: 'admin.php?page=wpu-user-mapper',
-						dataType: 'json',
-						data: 'term=' + request.term + '&_ajax_nonce=' + autofillNonce + '&pkg=' + findIn,
-						success: function(recv) {
-							wpuSuggCache[request.term] = recv;
-							response(recv);
+				wpuSuggCache = {};
+				wpuTypedMatches = new Array();
+				
+				$('.wpuusrtyped').each(function() {
+					$(this).autocomplete({
+						minLength: 2,
+						source: function(request, response) {
+							var findIn = ($('#wpumapside').val() == 'phpbb')  ? 'wp' : 'phpbb';
+							if ( request.term in wpuSuggCache ) {
+								response(wpuSuggCache[request.term]);
+								return;
+							}
+							$.ajax({
+								url: 'admin.php?page=wpu-user-mapper',
+								dataType: 'json',
+								data: 'term=' + request.term + '&_ajax_nonce=' + autofillNonce + '&pkg=' + findIn,
+								success: function(recv) {
+									wpuSuggCache[request.term] = recv;
+									response(recv);
+								}
+							});
+						},
+						select: function(event, ui) {
+							
+							var buttonID = $(this).attr('id').replace('wpumapsearch', 'wpumapfrom');
+							var userID = $(this).attr('id').split(/-/ig)[1];
+							var userName = $('#wpuuser' + userID + ' .wpuprofilelink').text();
+							
+							if(ui.item.statuscode == 1) {
+								
+								$(this).val(ui.item.label);
+								
+								var details = {
+									'username': userName,
+									'touserid': ui.item.value,
+									'tousername': ui.item.label,
+									'toemail': ui.item.desc
+								}
+								wpuTypedMatches[userID] = details;
+								
+								$('#wpuavatartyped' + userID).html(ui.item.avatar);
+								
+								$('#' + buttonID).bind('click', function() {
+									return wpuMapIntegrateTyped(this);
+								});
+								$('#' + buttonID).button('enable');
+							} else {
+								$('#' + buttonID).unbind('click');
+								$('#' + buttonID).button('disable');
+								$('#wpuavatartyped' + userID).html('');
+							}
+							return false;
+						},
+						focus: function(event, ui) {
+							if(ui.item.statuscode == 1) {
+								$(this).val(ui.item.label);
+							}
+							return false;
 						}
-					});
-				},
-				select: function(event, ui) {
-					if(ui.item.statuscode == 1) {
-						$(this).val(ui.item.label);
-					}
-					return false;
-				},
-				focus: function(event, ui) {
-					if(ui.item.statuscode == 1) {
-						$(this).val(ui.item.label);
-					}
-					return false;
-				}
-			})
-			.data('autocomplete')._renderItem = function(ul, item) {
-				var statusColor = (item.statuscode == 0) ? 'red' : 'green';
-			return $('<li></li>')
-				.data('item.autocomplete', item )
-				.append( '<a><small><strong>' + item.label + '</strong><br />' + item.desc + '<br /><em style="color: ' + statusColor + '">' + item.status + '</em></small></a>')
-				.appendTo( ul );
-		};;
-				
-				
-				
+					})
+					.data('autocomplete')._renderItem = function(ul, item) {
+						var statusColor = (item.statuscode == 0) ? 'red' : 'green';
+						return $('<li></li>')
+							.data('item.autocomplete', item )
+							.append( '<a><small><strong>' + item.label + '</strong><br />' + item.desc + '<br /><em style="color: ' + statusColor + '">' + item.status + '</em></small></a>')
+							.appendTo( ul );
+					};
+				});
+
 			});
 			
 			
@@ -646,14 +685,65 @@ function wpu_user_mapper() {
 		var actionDelDets 			=	'<?php _e('%1$s from %2$s'); ?>';
 		var actionCreate			=	'<?php _e('Create '); ?>';
 		var actionCreateDets 	=	'<?php _e('integrated counterpart for %1$s in %2$s'); ?>';
+		var actionIntegrate		=	'<?php _e('Integrate '); ?>';
+		var actionIntegrateDets =	'<?php _e('%1$s user %2$s to %3$s user %4$s'); ?>';
 		
 		var wpuMapActions = new Array();
 		
 		
 		var leftSide, rightSide;
 		
+		function wpuMapIntegrateTyped(el) {
+			if($(el).button("widget").hasClass('ui-state-disabled')) {
+				return false;
+			}
+				
+			var userID = $(el).attr('id').split(/-/ig)[1];
+			
+			if(userID in wpuTypedMatches) {
+				return wpuMapIntegrate(el, userID, wpuTypedMatches[userID].touserid, wpuTypedMatches[userID].username, wpuTypedMatches[userID].tousername, '', wpuTypedMatches[userID].toemail);
+			}
+			return false;
+		}
 		
-		function wpuMapBreak(userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
+		
+		function wpuMapIntegrate(el, userID, toUserID, userName, toUserName, userEmail, toUserEmail) {
+			if($(el).button("widget").hasClass('ui-state-disabled')) {
+				return false;
+			}
+			showPanel();
+			var actionType = actionIntegrate;
+			var actionDets = actionIntegrateDets.replace('%1$s', leftSide)
+				.replace ('%2$s','<em>' + userName + '</em>')
+				.replace('%3$s', rightSide)
+				.replace ('%4$s', '<em>' + toUserName + '</em>');
+			var actionsIndex= wpuMapActions.length;
+			var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+			
+			wpuMapActions.push({
+					'type': 'integrate',
+					'userid': userID,
+					'intuserid': toUserID,
+					'markup': markup
+				});
+				$('#wpupanelactionlist').append(markup);
+		
+				$('#wpuuser' + userID).find(
+					'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactionlnktyped, .wpumapactioncreate'
+				).button('disable');		
+				
+				if($(el).attr('id').indexOf('wpumapfrom') > -1) {
+					$('#' + $(el).attr('id').replace('wpumapfrom', 'wpumapsearch')).attr('disabled', 'disabled');
+					$(el).unbind('click');
+				}
+			
+			 return false;
+		}
+		
+		function wpuMapBreak(el, userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
+			if($(el).button("widget").hasClass('ui-state-disabled')) {
+				return false;
+			}
 			showPanel();
 			var actionType = actionBreak;
 			var actionDets = actionBreakDets.replace('%1$s', '<em>' + userName + '</em>')
@@ -668,11 +758,19 @@ function wpu_user_mapper() {
 				'markup': markup
 			});
 			$('#wpupanelactionlist').append(markup);
-			
+	
+			$('#wpuuser' + userID).find(
+				'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactionlnktyped .wpumapactioncreate'
+			).button("disable");
+					
 			return false;
 		}
 		
-		function wpuMapDelBoth(userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
+		function wpuMapDelBoth(el, userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
+			if($(el).button("widget").hasClass('ui-state-disabled')) {
+				return false;
+			}
+			
 			showPanel();
 			var actionType = actionDelBoth;
 			var actionDets = actionDelBothDets
@@ -691,13 +789,19 @@ function wpu_user_mapper() {
 			});
 			$('#wpupanelactionlist').append(markup);
 			$('#wpuuser' + userID).find(
-				'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactioncreate'
+				'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactionlnktyped .wpumapactioncreate'
 			).button("disable");
 			
 			return false;
 		}
 		
-		function wpuMapDel(userID, pckg, userName, userEmail) {
+		function wpuMapDel(el, userID, pckg, userName, userEmail) {
+			
+			if($(el).button("widget").hasClass('ui-state-disabled')) {
+				return false;
+			}
+			
+			
 			var txtPackage = (pckg == 'phpbb') ? phpbbText : wpText;
 			showPanel();
 			var actionType = actionDel;
@@ -722,13 +826,21 @@ function wpu_user_mapper() {
 				'.wpuintegok .wpumapactiondel, ' +
 				'.wpuintegnot .wpumapactiondel, ' +
 				'.wpumapactionlnk, ' + 
-				'.wpumapactioncreate'
+				'.wpumapactioncreate, ' +
+				'.wpumapactionlnktyped, '
 			).button('disable');
+			$('#wpuavatartyped' + userID).html('');
+			$('#wpumapsearch-' + userID).attr('disabled', 'disabled');
 			
 			return false;
 		}
 		
-		function wpuMapCreate(userID, altPckg, userName, userEmail) {
+		function wpuMapCreate(el, userID, altPckg, userName, userEmail) {
+			
+			if($(el).button("widget").hasClass('ui-state-disabled')) {
+				return false;
+			}
+			
 			var txtAltPackage = (altPckg == 'phpbb') ? phpbbText : wpText;
 			showPanel();
 			var actionType = actionCreate;
@@ -751,8 +863,11 @@ function wpu_user_mapper() {
 				'.wpumapactionbrk, ' + 
 				'.wpumapactiondel, ' +
 				'.wpumapactionlnk, ' +
-				'.wpumapactioncreate'
+				'.wpumapactioncreate, ' +
+				'.wpumapactionlnktyped'
 			).button('disable');
+			$('#wpuavatartyped' + userID).html('');
+			$('#wpumapsearch-' + userID).attr('disabled', 'disabled');
 			
 			return false;
 		}							
@@ -761,9 +876,15 @@ function wpu_user_mapper() {
 			wpuMapActions = new Array();
 			$('#wpupanelactionlist').html('');
 			closePanel();
-			$('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk').button("enable");
+			$('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactioncreate').button('enable');
+			$('.wpumapactionlnktyped').button('disable');
+			$('.wpuusrtyped').val('');
+			$('.wpuusrtyped').removeAttr('disabled');
+			$('.wpuavatartyped').html('');
 			return false;
 		}
+		
+		wpuTypedMatches = new Array();
 		
 		function wpuProcess() {
 			alert('This will process all actions');
@@ -876,14 +997,12 @@ function wpu_map_show_data() {
 				</div>
 				</td><td>
 				<div class="wpumapsugg">
-				<p class="wpuintto">Integrate to:</p>
+				<p class="wpuintto"><?php _e('Integrate to a suggested match'); ?>:</p>
 					<div class="wpudetails">
-						<p><strong>Username </strong><em>email@somewhere.com</em><br />cannot integrate</p>
-						<p><strong>Username2 </strong><em>email2@somewhere.com</em><br />cannot integrate</p>
-						<p><strong>Username2 </strong><em>email2@somewhere.com</em><br />Can integrate</p>
+						<?php echo $user->get_suggested_matches(); ?>
 					</div>
-					<p class="wpuintto">Or, type a name:</p>
-					<input class="wpuusrtyped" />
+					<p class="wpuintto"><?php _e('Or, type a name'); ?>:</p>
+					<div class="wpuavatartyped" id="wpuavatartyped<?php echo $userID; ?>"></div><input class="wpuusrtyped" id="wpumapsearch-<?php echo $userID; ?>" /> <small class="wpubuttonset"><a href="#" class="wpumapactionlnktyped" onclick="return false;" id="wpumapfrom-<?php echo $userID; ?>"><?php _e('Integrate'); ?></a></small>
 				</div>
 			<?php } else { ?>
 				<div class="wpuintegok ui-widget-header ui-corner-all">

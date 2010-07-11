@@ -18,7 +18,6 @@ v0.9:
 
 -- warn about unsuitable admin mappings
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
--- validate_user_conflict function will work with func_get_args, so re-implement it so usernames can be sanitized from either side
 -- add 2 new columns to users table -- "wp_username" (Fill it in if the username in WP is different) and use_wp_username (whether to use the WP username when logging in). Add WP usermeta use_phpbbLogin
 -- add global option -- which username to use by default if different in phpBB & WordPress. Can be overridden for individual users via the user mapper
 -- add check and panel warning if "allow wordpress registrations?" but wpu_can_phpbb_register not true
@@ -194,6 +193,7 @@ Internalising of integrated login into wordpress -- in progress
 - Cleaned up $phpbbForum class (now PHP 5 only)
 - $phpbbForum->enter() and leave() are now private. Access to phpBB is through $phpbbForum->foreground(), ->background() and restore_state($state)
 - dynamic usermapper now implemented. Can't yet perform actions (in progress)
+- re-instituted validate_username_conflict
 
 
 
