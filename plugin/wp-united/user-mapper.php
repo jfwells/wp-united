@@ -78,7 +78,9 @@ class WPU_User_Mapper {
 		if($this->leftSide != 'phpbb') { 
 			// Process WP users on the left
 			$this->load_wp_users();
-			$this->find_phpbb_for_wp_users();
+			if($this->numUsers) {
+				$this->find_phpbb_for_wp_users();
+			}
 			
 		} else { 
 			// Process phpBB users on the left
@@ -160,7 +162,7 @@ class WPU_User_Mapper {
 				
 				// If this is "show only unintegrated", we need to run a separate count query
 				$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
-					FROM ' . $wpdb->posts .
+					FROM ' . $wpdb->users .
 					$where
 				);
 				
@@ -285,7 +287,7 @@ class WPU_User_Mapper {
 					$this->transform_result_to_phpbb($r),
 					'right'
 				);
-				$this->users[$r['user_id']]->set_integration_partner($pUser);
+				$this->users[$r['user_wpuint_id']]->set_integration_partner($pUser);
 			}
 		}
 		

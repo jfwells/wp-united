@@ -108,7 +108,7 @@ function wpu_int_phpbb_logged_in() {
 		require_once( ABSPATH . WPINC . '/registration.php');
 		$signUpName = $phpbbForum->get_username();
 		
-		if(! $signUpName = wpu_find_next_avail_name($signUpName, 'WP') ) {
+		if(! $signUpName = wpu_find_next_avail_name($signUpName, 'wp') ) {
 			return false;
 		}
 
@@ -118,10 +118,10 @@ function wpu_int_phpbb_logged_in() {
 			'user_email'	=>	$phpbbForum->get_userdata('user_email')
 		);
 		
-		if($newUserID = wp_insert_user($newWpUser)) {
-			if($wpUser = get_userdata($integratedID)) {
+		if($newUserID = wp_insert_user($newWpUser)) { 
+			if($wpUser = get_userdata($newUserID)) { 
 				wpu_set_role($wpUser->ID, $userLevel);		
-				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $newUserID);
+				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
 				wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
 				wp_set_auth_cookie($wpUser->ID);
 				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
@@ -141,9 +141,9 @@ function wpu_int_phpbb_logged_in() {
  * @param string $name the desired username
  * @param $package the application to search in
  */
-function wpu_find_next_avail_name($name, $package = 'WP') {
+function wpu_find_next_avail_name($name, $package = 'wp') {
 	//start with the plain username, if unavailable then append a number onto the login name until we find one that is available
-	if($package == 'WP') {
+	if($package == 'wp') {
 		$i = 0; 
 		$foundFreeName = false;
 		$name = $newName = sanitize_user($name, true);
@@ -523,7 +523,8 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	if ( $doWpUpdate ) {
 		$update['ID'] = $wpData->ID;
 		define('PASSWORD_ALREADY_HASHED', TRUE);
-		if($loggedInID = wp_update_user($wpUpdateData)) {
+		require_once( ABSPATH . WPINC . '/registration.php');
+		if($loggedInID = wp_update_user($update)) {
 			return $update;
 		}
 	}

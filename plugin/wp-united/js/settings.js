@@ -369,33 +369,33 @@ function wpuShowMapper(repaginate) {
 		}
 
 		$('#wpumapscreen').html($(response).find('mapcontent').text());
-		$('.wpumappaginate').html($(response).find('pagination').text());
+		$('#wpumappaginate1, #wpumappaginate2').html($(response).find('pagination').text());
 	
 		setupUserEditPopups();
 		
 		// set up buttons
-		$('.wpumapactionbrk').button({ 
+		$('#wpumapscreen a.wpumapactionbrk').button({ 
 			icons: {primary:'ui-icon-scissors'},
 			text: false
 		});
-		$('.wpumapactioncreate').button({ 
+		$('#wpumapscreen a.wpumapactioncreate').button({ 
 			icons: {primary: 'ui-icon-plusthick'},
 			text: false
 		});		
-		$('.wpumapactiondel').button({ 
+		$('#wpumapscreen a.wpumapactiondel').button({ 
 			icons: {primary:'ui-icon-trash'},
 			text: false
 		});
-		$('.wpumapactionlnk').button({ 
+		$('#wpumapscreen  a.wpumapactionlnk').button({ 
 			icons: {primary:'ui-icon-link'},
 			text: false
 		});
-		$('.wpumapactionlnktyped').button({ 
+		$('#wpumapscreen a.wpumapactionlnktyped').button({ 
 			icons: {primary:'ui-icon-link'},
 			text: false,
 			disabled: true
 		});
-		$('.wpumapactionedit').button({ 
+		$('#wpumapscreen a.wpumapactionedit').button({ 
 			icons: {primary:'ui-icon-gear'},
 			text: false
 		});	
@@ -406,7 +406,7 @@ function wpuShowMapper(repaginate) {
 		wpuTypedMatches = new Array();
 		
 		// set up autocompletes
-		$('.wpuusrtyped').each(function() {
+		$('#wpumapscreen input.wpuusrtyped').each(function() {
 			$(this).autocomplete({
 				minLength: 2,
 				source: function(request, response) {
@@ -470,6 +470,8 @@ function wpuShowMapper(repaginate) {
 					.appendTo( ul );
 			};
 		});
+		
+		currAction = 0;
 
 	});
 }
@@ -478,7 +480,7 @@ function wpuShowMapper(repaginate) {
  * Sets up popup "Colourboxes" for phpBB ACP administration from the permissions tab
  */
 function setupAcpPopups() {
-	$('.wpuacppopup').colorbox({
+	$('#wpumapscreen a.wpuacppopup').colorbox({
 		width: '88%', 
 		height: '92%', 
 		title: (acpPopupTitle == undefined) ? '' : acpPopupTitle,
@@ -494,7 +496,7 @@ function setupAcpPopups() {
 				draggable: false,
 				disabled: true,
 				closeOnEscape: false,
-				resizable: false,
+				resizable: false
 			});
 			$('.ui-dialog-titlebar').hide();
 			window.location.reload(1);
@@ -506,7 +508,7 @@ function setupAcpPopups() {
  * Sets up popup "Colourboxes" for phpBB ACP administration from the user mapper
  */
 function setupUserEditPopups() {
-	$('.wpumapactionedit').colorbox({
+	$('#wpumapscreen a.wpumapactionedit').colorbox({
 		width: '88%', 
 		height: '92%', 
 		title: (mapEditTitle == undefined) ? '' : mapEditTitle,
@@ -555,7 +557,7 @@ function showPanel() {
 function closePanel() {
 	if(panelOpen) {
 		$("#wpumapcontainer").trigger("resize", [ $("#wpumapcontainer").width() ]);
-		$(".vsplitbar").css('display', 'none');
+		$("#wpumapcontainer .vsplitbar").css('display', 'none');
 		panelHidden = true;
 	}
 }
@@ -573,7 +575,7 @@ function togglePanel(el) {
 		el
 			.removeClass('ui-icon-triangle-1-w')
 			.addClass('ui-icon-triangle-1-e')
-			$(".vsplitbar").css('display', 'block');
+			$("#wpumapcontainer .vsplitbar").css('display', 'block');
 		$("#wpumapcontainer").trigger("resize", [ $("#wpumapcontainer").width() - 225 ]);
 		panelHidden = false;
 	}
@@ -617,13 +619,12 @@ function wpuMapIntegrate(el, userID, toUserID, userName, toUserName, userEmail, 
 			'type': 'integrate',
 			'userid': userID,
 			'intuserid': toUserID,
-			'markup': markup
+			'desc': actionType + ' ' + actionDets,
+			'package': leftSide
 		});
 		$('#wpupanelactionlist').append(markup);
 
-		$('#wpuuser' + userID).find(
-			'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactionlnktyped, .wpumapactioncreate'
-		).button('disable');		
+		$('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');	
 		
 		if($(el).attr('id').indexOf('wpumapfrom') > -1) {
 			$('#' + $(el).attr('id').replace('wpumapfrom', 'wpumapsearch')).attr('disabled', 'disabled');
@@ -651,13 +652,12 @@ function wpuMapBreak(el, userID, intUserID, userName, intUserName, userEmail, in
 		'type': 'break',
 		'userid': userID,
 		'intuserid': intUserID,
-		'markup': markup
+		'desc': actionType + ' ' + actionDets,
+		'package': leftSide
 	});
 	$('#wpupanelactionlist').append(markup);
 
-	$('#wpuuser' + userID).find(
-		'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactionlnktyped .wpumapactioncreate'
-	).button("disable");
+	$('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');
 			
 	return false;
 }
@@ -684,12 +684,11 @@ function wpuMapDelBoth(el, userID, intUserID, userName, intUserName, userEmail, 
 		'type': 'delboth',
 		'userid': userID,
 		'intuserid': intUserID,
-		'markup': markup
+		'desc': actionType + ' ' + actionDets,
+		'package': leftSide
 	});
 	$('#wpupanelactionlist').append(markup);
-	$('#wpuuser' + userID).find(
-		'.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactionlnktyped .wpumapactioncreate'
-	).button("disable");
+	$('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');
 	
 	return false;
 }
@@ -712,25 +711,20 @@ function wpuMapDel(el, userID, pckg, userName, userEmail) {
 		.replace ('%2$s', txtPackage);
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
-	
+
 	wpuMapActions.push({
 		'type': 'del',
 		'userid': userID,
-		'markup': markup,
+		'desc': actionType + ' ' + actionDets,
 		'package': pckg
 	});
 	$('#wpupanelactionlist').append(markup);
 	
 	// disable delboth links and clicked delete link, leave the other one
-	$('#wpuuser' + userID).find(
-		'.wpumapactionbrk, ' + 
-		'.wpu' + pckg + 'user .wpumapactiondel, ' +
-		'.wpuintegok .wpumapactiondel, ' +
-		'.wpuintegnot .wpumapactiondel, ' +
-		'.wpumapactionlnk, ' + 
-		'.wpumapactioncreate, ' +
-		'.wpumapactionlnktyped, '
-	).button('disable');
+	var altPckg =  (pckg == 'phpbb') ? 'wp' : 'phpbb';
+	$('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');
+	$('#wpuuser' + userID).find('div.wpu' + altPckg + 'user a.wpumapactiondel').button('enable');
+	
 	$('#wpuavatartyped' + userID).html('');
 	$('#wpumapsearch-' + userID).attr('disabled', 'disabled');
 	
@@ -759,19 +753,12 @@ function wpuMapCreate(el, userID, altPckg, userName, userEmail) {
 	wpuMapActions.push({
 		'type': 'createin',
 		'userid': userID,
-		'markup': markup,
+		'desc': actionType + ' ' + actionDets,
 		'package': altPckg
 	});
 	$('#wpupanelactionlist').append(markup);
 	
-	// disable delboth links and clicked delete link, leave the other one
-	$('#wpuuser' + userID).find(
-		'.wpumapactionbrk, ' + 
-		'.wpumapactiondel, ' +
-		'.wpumapactionlnk, ' +
-		'.wpumapactioncreate, ' +
-		'.wpumapactionlnktyped'
-	).button('disable');
+	$('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');
 	$('#wpuavatartyped' + userID).html('');
 	$('#wpumapsearch-' + userID).attr('disabled', 'disabled');
 	
@@ -786,11 +773,16 @@ function wpuMapClearAll() {
 	wpuMapActions = new Array();
 	$('#wpupanelactionlist').html('');
 	closePanel();
-	$('.wpumapactionbrk, .wpumapactiondel, .wpumapactionlnk, .wpumapactioncreate').button('enable');
-	$('.wpumapactionlnktyped').button('disable');
-	$('.wpuusrtyped').val('');
-	$('.wpuusrtyped').removeAttr('disabled');
-	$('.wpuavatartyped').html('');
+	$('#wpumapscreen').find(
+		'a.wpumapactionbrk, ' + 
+		'a.wpumapactiondel, ' +
+		'a.wpumapactionlnk, ' +
+		'a.wpumapactioncreate'
+	).button('enable');
+	$('#wpumapscreen a.wpumapactionlnktyped').button('disable');
+	$('#wpumapscreen a.wpuusrtyped').val('');
+	$('#wpumapscreen input.wpuusrtyped').removeAttr('disabled');
+	$('#wpumapscreen div.wpuavatartyped').html('');
 	return false;
 }
 

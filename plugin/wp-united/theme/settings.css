@@ -760,7 +760,8 @@ div.subsettings div.subsettings {
 #wpumapscreen {
 	margin: 3px 0 0 0;
 	padding: 0;
-	height: 600px;
+	height: 600px !important;
+	overflow-y: auto;
 }
 
 #wpumappanel h3 {
@@ -779,8 +780,13 @@ div.subsettings div.subsettings {
 #wpupanelactionlist LI {
 	list-style: disc !important;
 	margin-left: 25px;
-
 }
+
+#wpupanelactionlist {
+	height: 500px !important;
+	overflow-y: auto;
+}
+
 
 .vsplitbar {
 	width: 3px;

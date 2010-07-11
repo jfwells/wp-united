@@ -62,6 +62,12 @@ function wpu_settings_menu() {
 				$userMapper->send_json();
 				die();
 			}
+			if( isset($_POST['wpumapaction']) && check_ajax_referer('wp-united-mapaction') ) {
+				// Send user mapper html data
+				
+				wpu_process_mapaction();
+				die();
+			}			
 		}
 	}	
 	
@@ -457,8 +463,9 @@ function wpu_user_mapper() {
 							<label for="wpunumshow">Number to show: </label>
 							<select id="wpunumshow" name="wpunumshow">
 								<option value="1">1</option>
-								<option value="50">10</option>
-								<option value="50" selected="selected">50</option>
+								<option value="10">10</option>
+								<option value="20" selected="selected">20</option>
+								<option value="50">50</option>
 								<option value="100">100</option>
 								<option value="250">250</option>
 								<option value="500">500</option>
@@ -475,7 +482,7 @@ function wpu_user_mapper() {
 							<input type="hidden" name="wpufirstitem" id="wpufirstitem" value="0" />			
 						</fieldset>
 					</form>
-					<div class="wpumappaginate">
+					<div id="wpumappaginate1" class="wpumappaginate">
 					</div>
 				</div>
 
@@ -500,20 +507,21 @@ function wpu_user_mapper() {
 					</div>
 				</div>
 				<div class="ui-widget-header ui-corner-all wpumaptoolbar">
-					<div class="wpumappaginate">
+					<div id="wpumappaginate2" class="wpumappaginate">
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 	<div id="wpu-reload" title="Message" style="display: none;">
-		<p id="wpu-desc">&nbsp;</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
+		<p id="wpu-desc">&nbsp;</p><img id="wpuldgimg" src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />
 	</div>
 	<script type="text/javascript">
 	// <![CDATA[
 				
 		var mapNonce = '<?php echo wp_create_nonce ('wp-united-map'); ?>';
 		var autofillNonce = '<?php echo wp_create_nonce ('wp-united-usersearch'); ?>';
+		var firstMapActionNonce = '<?php echo wp_create_nonce ('wp-united-mapaction'); ?>';
 		
 		var imgLdg = '<?php echo $wpuUrl ?>/images/settings/wpuldg.gif';
 		
@@ -539,9 +547,110 @@ function wpu_user_mapper() {
 			
 		});			
 		
+		var numActions;
+		var currAction = 0;
 		function wpuProcess() {
-			alert('This part is under construction!');
+			window.scrollTo(0,0);
+			$('#wpu-reload').dialog({
+				modal: true,
+				title: 'Applying actions...',
+				width: 360,
+				height: 220,
+				draggable: false,
+				disabled: true,
+				closeOnEscape: false,
+				resizable: false,
+				show: 'puff',
+				buttons: {
+					'Cancel remaining actions': function() {
+						wpuProcessFinished();
+					}
+				}
+			});
+			$('#wpuldgimg').show();
+			numActions = wpuMapActions.length;
+			
+			wpuNextAction(firstMapActionNonce);
+			
 			return false;
+		}
+		
+		function wpuNextAction(nonce) {
+			el = $('#wpupanelactionlist li:first');
+			if(el.length) {
+				wpuProcessNext(el,nonce);
+			} else {
+				wpuProcessFinished();
+			}
+		}
+		
+		function wpuProcessNext(el, nonce) {
+			var mapAction, actionData, postString;
+			
+			var currDesc = '';
+			var nextMapActionNonce = 0;
+			
+			currAction++;
+			mapAction = parseInt(el.attr('id').replace('wpumapaction', ''));
+			$(el).remove();
+				
+			currDesc = wpuMapActions[mapAction]['desc'];
+			$('#wpu-desc').html('<strong>Processing action ' + currAction + ' of ' + numActions + '</strong><br />' + currDesc);
+			
+			$(document).ajaxError(function(e, xhr, settings, exception) {
+				if(exception == undefined) {
+					var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+				}
+				$('#wpu-desc').html(errMsg = 'An error occurred. The remaining actions have not been processed. Error: ' + exception);
+			});
+				
+			// fashion POST data from wpuMapAction
+			actionData = new Array();
+			for(actionKey in wpuMapActions[mapAction]) {
+				if(actionKey != 'desc') {
+					actionData.push(actionKey + '=' + wpuMapActions[mapAction][actionKey]);
+				}
+			}
+			postString = actionData.join('&');
+			postString += '&wpumapaction=1&_ajax_nonce=' + nonce;
+			
+			$.post('admin.php?page=wpu-user-mapper', postString, function(response) {
+				var actionStatus = $(response).find('status').text();
+				var actionDetails = $(response).find('details').text();
+				var nextNonce = $(response).find('nonce').text();
+				
+				if(actionStatus=='OK') {
+					wpuNextAction(nextNonce);
+					
+				} else {
+					// handle error here
+					$('#wpu-reload').dialog('destroy');
+					$('#wpu-desc').html(errMsg = 'An error occurred. The remaining actions have not been processed. Error: ' + actionDetails);
+					$('#wpu-reload').dialog({
+						modal: true,
+						title: 'Error',
+						width: 360,
+						height: 220,
+						draggable: false,
+						resizable: false,
+						show: 'puff',
+						buttons: {
+							'OK': function() {
+								wpuProcessFinished();
+							}
+						}
+					});
+					$('#wpuldgimg').hide();
+				}
+					
+			});				
+
+			return false;
+		}
+		
+		function wpuProcessFinished() {
+			$('#wpu-reload').dialog('destroy');
+			wpuShowMapper(true);
 		}
 	
 	// ]]>
@@ -572,12 +681,8 @@ function wpu_map_show_data() {
 
 	$alt = '';
 	
-	header('Content-Type: application/xml'); 
-	header('Cache-Control: private, no-cache="set-cookie"');
-	header('Expires: 0');
-	header('Pragma: no-cache');
+	wpu_ajax_header();
 	
-	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 	echo '<wpumapper>';
 	
 	$fStateChanged = $phpbbForum->foreground();
@@ -643,6 +748,186 @@ function wpu_map_show_data() {
 	echo ']]></mapcontent></wpumapper>';
 	
 }
+
+/**
+ * Perform an action requested by the user mapper
+ */
+function wpu_process_mapaction() {
+	global $phpbbForum, $db, $wpdb, $phpbb_root_path, $phpEx;
+	
+	wpu_ajax_header();
+	echo '<wpumapaction>';
+	
+	$action = (isset($_POST['type'])) ? (string)$_POST['type'] : '';
+	$userID = (isset($_POST['userid'])) ? (int)$_POST['userid'] : 0;
+	$intUserID = (isset($_POST['intuserid'])) ? (int)$_POST['intuserid'] : 0;
+	$package = (isset($_POST['package'])) ? (string)$_POST['package'] : '';
+	
+	if(
+		empty($action) || 
+		empty($userID) || 
+		empty($package) || 
+		(($action == 'delboth') && empty($intUserID)) ||
+		(($action == 'break') && empty($intUserID))
+	) {
+		wpu_map_action_error('Cannot perform action, required details are missing');
+	}
+	
+	require_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+	
+	
+	switch($action) {
+		
+		case 'del':
+			if($package == 'wp') {
+				// First break if the user is integrated
+				wpu_map_break($userID);
+				wp_delete_user($userID, '0');
+			} else {
+				$fStateChanged = $phpbbForum->foreground();
+				user_delete('retain', $userID);
+				$phpbbForum->background($fStateChanged);
+			}
+		break;
+
+		case 'delboth':
+			$wUserID = ($package == 'wp') ? $userID : $intUserID;
+			$pUserID = ($package == 'wp') ? $intUserID : $userID;
+
+			wp_delete_user($wUserID, '0');
+			$fStateChanged = $phpbbForum->foreground();
+			user_delete('retain', $pUserID);
+			$phpbbForum->background($fStateChanged);
+		break;		
+		
+		case 'integrate':
+		
+		/*
+		 * 
+		 * 	if ( (!empty($wpID)) && (!empty($pID))  ) {
+				$sql = 'UPDATE ' . USERS_TABLE .
+					" SET user_wpuint_id = $wpID 
+					WHERE user_id = $pID";
+				if (!$pInt = $db->sql_query($sql)) {
+					trigger_error($phpbbForum->lang['MAP_COULDNT_INT'] . '<br />' . $phpbbForum->lang['DB_ERROR']);
+				}
+				// Sync profiles
+				$sql = 	"SELECT *
+								FROM " . USERS_TABLE . " 
+								WHERE user_id = $pID";
+				if (!$pUserData = $db->sql_query($sql)) {
+					trigger_error($phpbbForum->lang['MAP_COULDNT_INT'] . '<br />' . $phpbbForum->lang['DB_ERROR']);
+				}
+				$data = $db->sql_fetchrow($pUserData);
+				$db->sql_freeresult($pUserData);
+				$password = $data['user_password'];
+				if(substr($password, 0, 3) == '$H$') {
+					$password = substr_replace($password, '$P$', 0, 3);
+				}
+				$wpu_newDetails = array(
+					'user_id' 		=>  	$pID,
+					'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
+					'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
+					'user_password' 	=> 	(isset($password)) ? $password : '',
+					'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
+					'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
+					'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
+					'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : '',							
+					'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
+					'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
+					'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
+					'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''							
+				);
+				$phpbbForum->leave();
+				$wpUsrData = get_userdata($wpID);
+				$wpUpdateData = $wpUtdInt->check_details_consistency($wpUsrData, $wpu_newDetails);
+				* 
+				*/
+		break;
+		
+		case 'break':
+			
+			$id = ($package == 'wp') ? $userID : $intUserID;
+			wpu_map_break($id);
+			
+		break;
+		
+		case 'createin':
+		
+			/**
+			 * } else { 
+				$phpbbForum->leave();
+				$wpUsr = get_userdata($wpID);
+				$phpbbForum->enter();
+				$password = $wpUsr->user_pass;
+				if(substr($password, 0, 3) == '$P$') {
+					$password = substr_replace($password, '$H$', 0, 3);
+				}
+				
+				if ( validate_username($typedName) === FALSE ) {
+					$userToAdd = array(
+						'username' => $typedName,
+						'user_password' => $password,
+						'user_email' => $wpUsr->user_email,
+						'user_type' => USER_NORMAL,
+						'group_id' => 2  //add to registered users group		
+					);
+					if (user_add($userToAdd)) {
+						$status[] = '<li>'. sprintf($phpbbForum->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
+					} else {
+						$status[] = '<li>' . $phpbbForum->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
+					}
+				}		
+			}
+						*/
+		break;
+		
+	}
+	
+		
+	echo '<status>OK</status>';
+	echo '<details></details>';
+	echo '<nonce>' . wp_create_nonce('wp-united-mapaction') . '</nonce>';
+	echo '</wpumapaction>';
+	die();	
+	
+}
+
+function wpu_map_break($intID) {
+	global $phpbbForum, $db;
+	$fStateChanged = $phpbbForum->foreground();
+	$sql = 'UPDATE ' . USERS_TABLE . ' 
+				 SET user_wpuint_id = NULL 
+				WHERE user_wpuint_id = ' . $intID;
+				
+	if (!$pDel = $db->sql_query($sql)) {
+		wpu_map_action_error('Error when breaking integration');
+	}
+	$phpbbForum->background($fStateChanged);	
+	
+	wpu_map_killusermeta($intID);
+	
+}
+
+function wpu_map_killusermeta($intID) {
+	//update usermeta on WP side
+	if(function_exists('delete_user_meta')) {
+		@delete_user_meta($intID, 'phpbb_userid');
+		@delete_user_meta($intID, 'phpbb_userLogin');
+	} else {
+		@delete_usermeta( $intID, 'phpbb_userid');
+		@delete_usermeta( $intID, 'phpbb_userLogin');
+	}	
+}
+
+function wpu_map_action_error($errDesc) {
+		echo '<status>ERROR</status>';
+		echo '<details>' . $errDesc . '</details>';
+		echo '</wpumapaction>';
+		die();
+	
+}
+
 	
 /**
  * The main WP-United settings panel
@@ -1267,6 +1552,15 @@ function wpu_show_advanced_options() {
 function wpu_process_advanced_options() {	
 	echo "SAVED";
 	wpu_show_advanced_options();
+}
+
+function wpu_ajax_header() {
+	header('Content-Type: application/xml'); 
+	header('Cache-Control: private, no-cache="set-cookie"');
+	header('Expires: 0');
+	header('Pragma: no-cache');
+	
+	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 }
 
 
