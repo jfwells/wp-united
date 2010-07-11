@@ -467,9 +467,9 @@ function wpu_user_mapper() {
 								<option value="20" selected="selected">20</option>
 								<option value="50">50</option>
 								<option value="100">100</option>
-								<option value="250">250</option>
+								<!--<option value="250">250</option>
 								<option value="500">500</option>
-								<option value="1000">1000</option>
+								<option value="1000">1000</option>-->
 							</select> 	
 							<label for="wputypeshow">Show: </label>
 							<select id="wputypeshow" name="wputypeshow">

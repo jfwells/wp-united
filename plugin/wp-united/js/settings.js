@@ -367,9 +367,10 @@ function wpuShowMapper(repaginate) {
 			leftSide = wpText;
 			rightSide = phpbbText; 
 		}
-
-		$('#wpumapscreen').html($(response).find('mapcontent').text());
+		
 		$('#wpumappaginate1, #wpumappaginate2').html($(response).find('pagination').text());
+		$('#wpumapscreen').html($(response).find('mapcontent').text());
+		
 	
 		setupUserEditPopups();
 		
@@ -517,7 +518,7 @@ function setupUserEditPopups() {
 			wpuShowMapper(false);
 		}
 	});
-	$('.wpuprofilelink').colorbox({
+	$('#wpumapscreen a.wpuprofilelink').colorbox({
 		width: '88%', 
 		height: '92%', 
 		title: (mapProfileTitle == undefined) ? '' : mapProfileTitle,
