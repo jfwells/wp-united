@@ -369,45 +369,20 @@ function wpuShowMapper(repaginate) {
 		}
 		
 		$('#wpumappaginate1, #wpumappaginate2').html($(response).find('pagination').text());
-		$('#wpumapscreen').html($(response).find('mapcontent').text());
+		// wrap content in an additional div to speed DOM insertion
+		$('#wpuoffscreen').html('<div id="wpudatacontainer">' + $(response).find('mapcontent').text() + '</div>');
 		
-	
-		setupUserEditPopups();
 		
-		// set up buttons
-		$('#wpumapscreen a.wpumapactionbrk').button({ 
-			icons: {primary:'ui-icon-scissors'},
-			text: false
-		});
-		$('#wpumapscreen a.wpumapactioncreate').button({ 
-			icons: {primary: 'ui-icon-plusthick'},
-			text: false
-		});		
-		$('#wpumapscreen a.wpumapactiondel').button({ 
-			icons: {primary:'ui-icon-trash'},
-			text: false
-		});
-		$('#wpumapscreen  a.wpumapactionlnk').button({ 
-			icons: {primary:'ui-icon-link'},
-			text: false
-		});
-		$('#wpumapscreen a.wpumapactionlnktyped').button({ 
-			icons: {primary:'ui-icon-link'},
-			text: false,
-			disabled: true
-		});
-		$('#wpumapscreen a.wpumapactionedit').button({ 
-			icons: {primary:'ui-icon-gear'},
-			text: false
-		});	
-		
-		//$('.wpubuttonset').buttonset();
+		setTimeout('setupUserEditPopups()', 100);
+		setTimeout('setupMapButtons()', 200);
+		setTimeout('makeMapVisible()', 1000);
+
 		wpuMapClearAll();
 		wpuSuggCache = {};
 		wpuTypedMatches = new Array();
 		
 		// set up autocompletes
-		$('#wpumapscreen input.wpuusrtyped').each(function() {
+		$('#wpudatacontainer input.wpuusrtyped').each(function() {
 			$(this).autocomplete({
 				minLength: 2,
 				source: function(request, response) {
@@ -477,6 +452,46 @@ function wpuShowMapper(repaginate) {
 	});
 }
 
+function makeMapVisible() {
+	$('#wpumapscreen').html('');
+	$('#wpumapscreen').append($('#wpudatacontainer'));
+}
+
+/**
+ * Progressively enhances links into buttons
+ */
+
+function setupMapButtons() {
+	$('#wpudatacontainer a.wpumapactionbrk').button({ 
+		icons: {primary:'ui-icon-scissors'},
+		text: false
+	});
+	$('#wpudatacontainer a.wpumapactioncreate').button({ 
+		icons: {primary: 'ui-icon-plusthick'},
+		text: false
+	});		
+	$('#wpudatacontainer a.wpumapactiondel').button({ 
+		icons: {primary:'ui-icon-trash'},
+		text: false
+	});
+	$('#wpudatacontainer  a.wpumapactionlnk').button({ 
+		icons: {primary:'ui-icon-link'},
+		text: false
+	});
+	$('#wpudatacontainer a.wpumapactionlnktyped').button({ 
+		icons: {primary:'ui-icon-link'},
+		text: false,
+		disabled: true
+	});
+	$('#wpudatacontainer a.wpumapactionedit').button({ 
+		icons: {primary:'ui-icon-gear'},
+		text: false
+	});	
+
+	//$('.wpubuttonset').buttonset();
+	
+}
+
 /**
  * Sets up popup "Colourboxes" for phpBB ACP administration from the permissions tab
  */
@@ -509,7 +524,7 @@ function setupAcpPopups() {
  * Sets up popup "Colourboxes" for phpBB ACP administration from the user mapper
  */
 function setupUserEditPopups() {
-	$('#wpumapscreen a.wpumapactionedit').colorbox({
+	$('#wpuoffscreen a.wpumapactionedit').colorbox({
 		width: '88%', 
 		height: '92%', 
 		title: (mapEditTitle == undefined) ? '' : mapEditTitle,
@@ -518,7 +533,7 @@ function setupUserEditPopups() {
 			wpuShowMapper(false);
 		}
 	});
-	$('#wpumapscreen a.wpuprofilelink').colorbox({
+	$('#wpuoffscreen a.wpuprofilelink').colorbox({
 		width: '88%', 
 		height: '92%', 
 		title: (mapProfileTitle == undefined) ? '' : mapProfileTitle,

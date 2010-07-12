@@ -83,12 +83,12 @@ function wpu_settings_menu() {
 			wp_deregister_script( 'jquery-ui-core' );				
 			wp_deregister_script( 'jquery-color' );				
 			
-			wp_enqueue_script('jquery-bleedingedge', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, false);
-			wp_enqueue_script('jqueryui-bleedingedge', $wpuUrl . 'js/jqueryui-wpu-min.js', array('jquery-bleedingedge'), false, false);
-			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array('jquery-bleedingedge'), false, false);				
-			wp_enqueue_script('colorbox', $wpuUrl . 'js/colorbox-min.js', array('jquery-bleedingedge'), false, false);				
-			wp_enqueue_script('splitter', $wpuUrl . 'js/splitter-min.js', array('jquery-bleedingedge'), false, false);				
-			wp_enqueue_script('wpu-settings', $wpuUrl . 'js/settings.js', array('jquery-bleedingedge', 'jqueryui-bleedingedge'), false, false);				
+			wp_enqueue_script('jquery', $wpuUrl . 'js/jquery-wpu-min.js', array(), false, false);
+			wp_enqueue_script('jquery-ui-core', $wpuUrl . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
+			wp_enqueue_script('filetree', $wpuUrl . 'js/filetree.js', array('jquery'), false, false);				
+			wp_enqueue_script('colorbox', $wpuUrl . 'js/colorbox-min.js', array('jquery'), false, false);				
+			wp_enqueue_script('splitter', $wpuUrl . 'js/splitter-min.js', array('jquery'), false, false);				
+			wp_enqueue_script('wpu-settings', $wpuUrl . 'js/settings.js', array('jquery', 'jquery-ui-core'), false, false);				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-support'))) {
 			wp_register_style('wpuSettingsStyles', $wpuUrl . 'theme/settings.css');
@@ -463,11 +463,12 @@ function wpu_user_mapper() {
 							<label for="wpunumshow">Number to show: </label>
 							<select id="wpunumshow" name="wpunumshow">
 								<option value="1">1</option>
-								<option value="10">10</option>
-								<option value="20" selected="selected">20</option>
+								<option value="5">5</option>
+								<option value="10" selected="selected">10</option>
+								<option value="20">20</option>
 								<option value="50">50</option>
-								<option value="100">100</option>
-								<!--<option value="250">250</option>
+								<!--<option value="100">100</option>
+								<option value="250">250</option>
 								<option value="500">500</option>
 								<option value="1000">1000</option>-->
 							</select> 	
@@ -512,6 +513,8 @@ function wpu_user_mapper() {
 				</div>
 			</div>
 		</div>
+	</div>
+	<div id="wpuoffscreen">
 	</div>
 	<div id="wpu-reload" title="Message" style="display: none;">
 		<p id="wpu-desc">&nbsp;</p><img id="wpuldgimg" src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" />

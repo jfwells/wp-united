@@ -1005,4 +1005,8 @@ div.subsettings div.subsettings {
 	color: #333333;
 }
 
+#wpuoffscreen {
+	display: none;
+}
+
 
