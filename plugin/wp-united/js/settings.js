@@ -434,7 +434,7 @@ function wpuShowMapper(repaginate) {
 		$('#wpumappaginate2').html(bulk + pag);
 		// wrap content in an additional div to speed DOM insertion
 		
-		$('#wpuoffscreen').html('<div id="wpudatacontainer">' + $(response).find('mapcontent').text() + '</div>');
+		$('#wpuoffscreen').html($(response).find('mapcontent').text());
 		
 		
 		setTimeout('setupMapButtons()', 200);
@@ -445,7 +445,7 @@ function wpuShowMapper(repaginate) {
 		wpuTypedMatches = new Array();
 		
 		// set up autocompletes
-		$('#wpudatacontainer input.wpuusrtyped').each(function() {
+		$('#wpumaptable input.wpuusrtyped').each(function() {
 			$(this).autocomplete({
 				minLength: 2,
 				source: function(request, response) {
@@ -517,7 +517,7 @@ function wpuShowMapper(repaginate) {
 
 function makeMapVisible() {
 	$('#wpumapscreen').html('');
-	$('#wpumapscreen').append($('#wpudatacontainer'));
+	$('#wpumapscreen').append($('#wpumaptable'));
 	
 }
 
@@ -571,28 +571,28 @@ function wpuProcessMapActionButton(btnID) {
  */
 
 function setupMapButtons() {
-	$('#wpudatacontainer a.wpumapactionbrk').button({ 
+	$('#wpumaptable a.wpumapactionbrk').button({ 
 		icons: {primary:'ui-icon-scissors'},
 		text: false
 	});
-	$('#wpudatacontainer a.wpumapactioncreate').button({ 
+	$('#wpumaptable a.wpumapactioncreate').button({ 
 		icons: {primary: 'ui-icon-plusthick'},
 		text: false
 	});		
-	$('#wpudatacontainer a.wpumapactiondel').button({ 
+	$('#wpumaptable a.wpumapactiondel').button({ 
 		icons: {primary:'ui-icon-trash'},
 		text: false
 	});
-	$('#wpudatacontainer  a.wpumapactionlnk').button({ 
+	$('#wpumaptable  a.wpumapactionlnk').button({ 
 		icons: {primary:'ui-icon-link'},
 		text: false
 	});
-	$('#wpudatacontainer a.wpumapactionlnktyped').button({ 
+	$('#wpumaptable a.wpumapactionlnktyped').button({ 
 		icons: {primary:'ui-icon-link'},
 		text: false,
 		disabled: true
 	});
-	$('#wpudatacontainer a.wpumapactionedit').button({ 
+	$('#wpumaptable a.wpumapactionedit').button({ 
 		icons: {primary:'ui-icon-gear'},
 		text: false
 	});	
@@ -610,7 +610,7 @@ function wpuMapBulkActions() {
 	switch(bulkType) {
 		
 		case 'del':
-			$('#wpudatacontainer .wpuintegnot a.wpumapactiondel').each(function() {
+			$('#wpumaptable .wpuintegnot a.wpumapactiondel').each(function() {
 				if(!$(this).button('widget').hasClass('ui-button-disabled')) {
 					wpuProcessMapActionButton($(this).attr('id'));
 				}
@@ -619,7 +619,7 @@ function wpuMapBulkActions() {
 		
 		
 		case 'create':
-			$('#wpudatacontainer .wpuintegnot a.wpumapactioncreate').each(function() {
+			$('#wpumaptable .wpuintegnot a.wpumapactioncreate').each(function() {
 				if(!$(this).button('widget').hasClass('ui-button-disabled')) {
 					wpuProcessMapActionButton($(this).attr('id'));
 				}
@@ -627,7 +627,7 @@ function wpuMapBulkActions() {
 		break;
 		
 		case 'break':
-			$('#wpudatacontainer .wpuintegok a.wpumapactionbrk').each(function() {
+			$('#wpumaptable .wpuintegok a.wpumapactionbrk').each(function() {
 				if(!$(this).button('widget').hasClass('ui-button-disabled')) {
 					wpuProcessMapActionButton($(this).attr('id'));
 				}
