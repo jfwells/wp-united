@@ -974,6 +974,7 @@ div.subsettings div.subsettings {
 	text-align: right;
 }
 
+
 .wpumappaginate p {
 	margin: 0 0 2px 0;
 	font-size: 10px;
@@ -1001,6 +1002,10 @@ div.subsettings div.subsettings {
 	display: none;
 }
 
+#wpumappaginate2 {
+	height: 26px;
+}
+
 .wpumapcount {
 	color: #333333;
 }
@@ -1008,5 +1013,11 @@ div.subsettings div.subsettings {
 #wpuoffscreen {
 	display: none;
 }
-
-
+#wpubulk {
+	float: left;
+}
+#wpuquicksel {
+	float: left;
+	height: 10px;
+	font-size: 10px;
+}

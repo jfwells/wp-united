@@ -367,13 +367,15 @@ function wpuShowMapper(repaginate) {
 			leftSide = wpText;
 			rightSide = phpbbText; 
 		}
-		
-		$('#wpumappaginate1, #wpumappaginate2').html($(response).find('pagination').text());
+		var pag = $(response).find('pagination').text();
+		var bulk = $(response).find('bulk').text();
+		$('#wpumappaginate1').html(pag);
+		$('#wpumappaginate2').html(bulk + pag);
 		// wrap content in an additional div to speed DOM insertion
+		
 		$('#wpuoffscreen').html('<div id="wpudatacontainer">' + $(response).find('mapcontent').text() + '</div>');
 		
 		
-		setTimeout('setupUserEditPopups()', 100);
 		setTimeout('setupMapButtons()', 200);
 		setTimeout('makeMapVisible()', 1000);
 
@@ -455,7 +457,112 @@ function wpuShowMapper(repaginate) {
 function makeMapVisible() {
 	$('#wpumapscreen').html('');
 	$('#wpumapscreen').append($('#wpudatacontainer'));
+	
+	/**
+	 * Delegates actions via a single event listener (to improve performance)
+	 * Uses native JS rather than jQuery for the most part in order to keep event actions
+	 * as speedy as possible.
+	 */
+	$('#wpumapscreen').bind('click', function(event) {
+		var el = event.target || event.srcElement;
+		var elType = el.nodeName.toLowerCase();
+		
+		if(elType == 'a') {
+			
+			if(el.className.indexOf('wpuprofilelink') > -1) {
+				$.colorbox({
+					href: el.href,
+					width: '88%', 
+					height: '92%', 
+					title: (mapProfileTitle == undefined) ? '' : mapProfileTitle,
+					iframe: true
+				});	
+			}
+			return false;
+			
+		}
+		
+		// now deal with buttons
+			
+		if((elType != 'span') || (el.className.indexOf('ui-button') == -1)) {
+			return false;
+		}
+		el = el.parentNode;
+		if(el.className.indexOf('ui-button-disabled') > -1) {
+			return false;
+		}
+
+		if( (el.id == undefined) || (el.id == '') ) {
+				
+			if(el.className.indexOf('wpumapactionedit') > -1) {
+				$.colorbox({
+					href: el.href,
+					width: '88%', 
+					height: '92%', 
+					title: (mapEditTitle == undefined) ? '' : mapEditTitle,
+					iframe: true,
+					onClosed: function() {
+						wpuShowMapper(false);
+					}
+				});
+				return false;
+			}
+			
+			return false;
+		}
+		
+		// only remaining possibility is a map action button
+		wpuProcessMapActionButton(el.id);
+		
+		return false;
+		
+	});
 }
+
+
+function wpuProcessMapActionButton(btnID) {
+
+		var actionDetails = btnID.split(/-/g);
+		
+		if(actionDetails.length < 2) {
+			return false;
+		}
+		
+		var intUsrID, intUsrName;
+		var mapAction = actionDetails[1];
+		var pkg = actionDetails[2];
+		var altPkg = (pkg == 'wp') ? 'phpbb' : 'wp';
+		var usrID = actionDetails[3];
+		
+		var usrName = $('#wpu' + pkg + 'login' + usrID).text();
+		
+		switch(mapAction) {
+			case 'del':
+				return wpuMapDel(usrID, pkg, usrName);
+				break;
+			
+			case 'delboth':
+				intUsrID = actionDetails[4];
+				intUsrName = $('#wpu' + altPkg + 'login' + intUsrID).text();
+				return wpuMapDelBoth(usrID, intUsrID, usrName, intUsrName);
+				break;
+				
+			case 'create':
+				return wpuMapCreate(usrID, altPkg, usrName);
+				break;
+				
+			case 'break':
+				intUsrID = actionDetails[4];
+				intUsrName = $('#wpu' + altPkg + 'login' + intUsrID).text();
+				return wpuMapBreak(usrID, intUsrID, usrName, intUsrName);
+				break;
+		}
+		
+		return false;	
+	
+}
+
+
 
 /**
  * Progressively enhances links into buttons
@@ -493,6 +600,50 @@ function setupMapButtons() {
 }
 
 /**
+ * Process a bulk action
+ */
+function wpuMapBulkActions() {
+	var bulkType = $('#wpuquicksel').val();
+	
+	switch(bulkType) {
+		
+		case 'del':
+			$('#wpudatacontainer .wpuintegnot a.wpumapactiondel').each(function() {
+				if(!$(this).button('widget').hasClass('ui-button-disabled')) {
+					wpuProcessMapActionButton($(this).attr('id'));
+				}
+			});
+		break;
+		
+		
+		case 'create':
+			$('#wpudatacontainer .wpuintegnot a.wpumapactioncreate').each(function() {
+				if(!$(this).button('widget').hasClass('ui-button-disabled')) {
+					wpuProcessMapActionButton($(this).attr('id'));
+				}
+			});		
+		break;
+		
+		case 'break':
+			$('#wpudatacontainer .wpuintegok a.wpumapactionbrk').each(function() {
+				if(!$(this).button('widget').hasClass('ui-button-disabled')) {
+					wpuProcessMapActionButton($(this).attr('id'));
+				}
+			});		
+		break;		
+		
+		
+	}
+	
+	
+	
+	return false;
+	
+}
+
+
+
+/**
  * Sets up popup "Colourboxes" for phpBB ACP administration from the permissions tab
  */
 function setupAcpPopups() {
@@ -518,27 +669,6 @@ function setupAcpPopups() {
 			window.location.reload(1);
 		}
 	});
-}
-
-/**
- * Sets up popup "Colourboxes" for phpBB ACP administration from the user mapper
- */
-function setupUserEditPopups() {
-	$('#wpuoffscreen a.wpumapactionedit').colorbox({
-		width: '88%', 
-		height: '92%', 
-		title: (mapEditTitle == undefined) ? '' : mapEditTitle,
-		iframe: true,
-		onClosed: function() {
-			wpuShowMapper(false);
-		}
-	});
-	$('#wpuoffscreen a.wpuprofilelink').colorbox({
-		width: '88%', 
-		height: '92%', 
-		title: (mapProfileTitle == undefined) ? '' : mapProfileTitle,
-		iframe: true
-	});	
 }
 
 
@@ -597,6 +727,7 @@ function togglePanel(el) {
 	}
 }
 
+
 /**
  * Converts an autocompleted user selection to the "integrate to this user" action
  */
@@ -653,10 +784,8 @@ function wpuMapIntegrate(el, userID, toUserID, userName, toUserName, userEmail, 
 /**
  * Generates a "break integration" action
  */
-function wpuMapBreak(el, userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
-	if($(el).button("widget").hasClass('ui-state-disabled')) {
-		return false;
-	}
+function wpuMapBreak(userID, intUserID, userName, intUserName) {
+
 	showPanel();
 	var actionType = actionBreak;
 	var actionDets = actionBreakDets.replace('%1$s', '<em>' + userName + '</em>')
@@ -681,10 +810,7 @@ function wpuMapBreak(el, userID, intUserID, userName, intUserName, userEmail, in
 /**
  * Generates a "delete from both sides" action
  */
-function wpuMapDelBoth(el, userID, intUserID, userName, intUserName, userEmail, intUserEmail) {
-	if($(el).button("widget").hasClass('ui-state-disabled')) {
-		return false;
-	}
+function wpuMapDelBoth(userID, intUserID, userName, intUserName) {
 	
 	showPanel();
 	var actionType = actionDelBoth;
@@ -712,12 +838,7 @@ function wpuMapDelBoth(el, userID, intUserID, userName, intUserName, userEmail, 
 /**
  * Generates a "delete user" action
  */
-function wpuMapDel(el, userID, pckg, userName, userEmail) {
-	
-	if($(el).button("widget").hasClass('ui-state-disabled')) {
-		return false;
-	}
-	
+function wpuMapDel(userID, pckg, userName) {
 	
 	var txtPackage = (pckg == 'phpbb') ? phpbbText : wpText;
 	showPanel();
@@ -751,11 +872,7 @@ function wpuMapDel(el, userID, pckg, userName, userEmail) {
 /**
  * Generates a "Create user" action
  */
-function wpuMapCreate(el, userID, altPckg, userName, userEmail) {
-	
-	if($(el).button("widget").hasClass('ui-state-disabled')) {
-		return false;
-	}
+function wpuMapCreate(userID, altPckg, userName) {
 	
 	var txtAltPackage = (altPckg == 'phpbb') ? phpbbText : wpText;
 	showPanel();

@@ -15,6 +15,8 @@ abstract class WPU_Mapped_User {
 	protected $adminLink;
 	
 	protected $className;
+	protected $htmlID;
+	protected $loginHtmlID;
 	protected $loginClassName;
 	
 	protected $side;
@@ -30,6 +32,8 @@ abstract class WPU_Mapped_User {
 		$this->isLoaded = true;
 		$this->integrated = false;
 		$this->side = 'left';
+		$this->htmlID = '';
+		$this->loginHtmlID = '';
 	}
 	
 	/**
@@ -87,15 +91,11 @@ abstract class WPU_Mapped_User {
 		}
 		
 		$action = sprintf(
-			'<a href="#" class="wpumapactionbrk" onclick="return wpuMapBreak(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Break Integration') . '</a>',
+			'<a href="#" class="wpumapactionbrk" id="wpuaction-break-%s-%d-%d">' . __('Break Integration') . '</a>',
+			$this->type,
 			$this->userID,
-			$this->integratedUser->userID,
-			$this->loginName,
-			$this->integratedUser->get_username(),
-			$this->userDetails['email'],
-			$this->integratedUser->get_email()
+			$this->integratedUser->userID
 		);
-		
 		return $action;
 	}
 	
@@ -104,14 +104,12 @@ abstract class WPU_Mapped_User {
 	 */
 	public function create_action() {
 		$altPackage = ($this->type == 'wp') ? __('phpBB') : __('WordPress');
-		$action = sprintf(
-			'<a href="#" class="wpumapactioncreate" onclick="return wpuMapCreate(this, %d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Create user in %s'), $altPackage) . '</a>',
-			$this->userID,
-			($this->type == 'wp') ? 'phpbb' : 'wp',
-			$this->loginName,
-			$this->userDetails['email']
-		);
 		
+		$action = sprintf(
+			'<a href="#" class="wpumapactioncreate" id="wpuaction-create-%s-%d">' . sprintf(__('Create user in %s'), $altPackage) . '</a>',
+			$this->type,
+			$this->userID
+		);
 		return $action;
 	}
 	
@@ -119,27 +117,23 @@ abstract class WPU_Mapped_User {
 	 * Returns the html markup for a "delete both users" action
 	 */
 	public function delboth_action() {
-		$action = sprintf(
-			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDelBoth(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Delete user from both phpBB and WordPress') . '</a>',
-			$this->userID,
-			($this->integrated) ? $this->integratedUser->userID : 0,
-			$this->loginName,
-			($this->integrated) ? $this->integratedUser->get_username() : '',
-			$this->userDetails['email'],
-			($this->integrated) ? $this->integratedUser->get_email() : ''	
-		);
 		
+$action = sprintf(
+			'<a href="#" class="wpumapactiondel" id="wpuaction-delboth-%s-%d-%d">' . __('Delete user from both phpBB and WordPress') . '</a>',
+			$this->type,
+			$this->userID,
+			($this->integrated) ? $this->integratedUser->userID : 0
+		);		
 		return $action;
 	}
 	
 	public function del_action() {
 		$package = ($this->type == 'phpbb') ? __('phpBB') : __('WordPress');
 		$action = sprintf(
-			'<a href="#" class="wpumapactiondel" onclick="return wpuMapDel(this, %d, \'%s\', \'%s\', \'%s\');">' . sprintf(__('Delete user from %s'), $package) . '</a>',
-			$this->userID,
+			'<a href="#" class="wpumapactiondel" id="wpuaction-del-%s-%d">' . sprintf(__('Delete user from %s'), $package) . '</a>',
 			$this->type,
-			$this->loginName,
-			$this->userDetails['email']
+			$this->userID
+			
 		);		
 		return $action;
 	}
@@ -160,8 +154,8 @@ abstract class WPU_Mapped_User {
 	 */
 	public function __toString() {
 		$side = ($this->side == 'left') ? '' : ' wpuintuser';
-		$template = '<div class="wpuuser ' . $this->className . $side . '">' . 
-					'<p class="' . $this->loginClassName . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . htmlentities($this->loginName) . '</a></p>' . 
+		$template = '<div class="wpuuser ' . $this->className . $side . '" id="' . $this->htmlID . '">' . 
+					'<p class="' . $this->loginClassName . '" id="' . $this->loginHtmlID . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . htmlentities($this->loginName) . '</a></p>' . 
 					'<div class="avatarblock">' .
 					$this->avatar . 
 					 '<small>' . $this->del_action() . '</small>' . 
@@ -203,9 +197,11 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			'regdate' 			=> 	'<p>' . __('Registered:') . '</strong> %s</p>',
 		);
 		
-		$this->className = "wpuwpuser";
-		$this->loginClassName = "wpuwplogin";
+		$this->className = 'wpuwpuser';
+		$this->loginClassName = 'wpuwplogin';
+		$this->loginHtmlID = 'wpuwplogin' . $userID;
 		$this->type = 'wp';
+		$this->htmlID = 'wpuwpuser' . $userID;
 		$this->load_details();
 	}
 	
@@ -340,8 +336,10 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 			'lastvisit' 	=> '<p><strong>' . __('Last visited:') . '</strong> %s</p>',
 		);
 		
-		$this->className = "wpuphpbbuser";
-		$this->loginClassName = "wpuphpbblogin";
+		$this->className = 'wpuphpbbuser';
+		$this->loginClassName = 'wpuphpbblogin';
+		$this->htmlID = 'wpuphpbbuser' . $userID;
+		$this->loginHtmlID = 'wpuphpbblogin' . $userID;
 		
 		$this->userID = $userID;
 		$this->side = $pos;

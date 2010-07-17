@@ -487,7 +487,6 @@ function wpu_user_mapper() {
 					</div>
 				</div>
 
-				
 				<div id="wpumapcontainer">
 					<div id="wpumapscreen">
 						<div class="wpuloading">
@@ -705,7 +704,8 @@ function wpu_map_show_data() {
 	if($total == 0) {
 		echo '<em>' . __('There are no users to show that match your criteria') . '</em>';
 	} 
-	
+	$haveUnintegratedUsers = false;
+	$haveIntegratedUsers = false;
 	foreach($userMapper->users as $userID => $user) { 
 		?>
 
@@ -713,7 +713,9 @@ function wpu_map_show_data() {
 			<table style="width: 100%;"><tr><td> 
 				<?php echo $user; ?>
 			</td><td>
-			<?php if(!$user->is_integrated()) { ?>
+			<?php if(!$user->is_integrated()) { 
+				$haveUnintegratedUsers = true; ?>
+			
 				<div class="wpuintegnot ui-widget-header ui-corner-all">
 					<p>Status: <?php _e('Not Integrated'); ?></p>
 					<p><small class="wpubuttonset">
@@ -730,7 +732,8 @@ function wpu_map_show_data() {
 					<p class="wpuintto"><?php _e('Or, type a name'); ?>:</p>
 					<div class="wpuavatartyped" id="wpuavatartyped<?php echo $userID; ?>"></div><input class="wpuusrtyped" id="wpumapsearch-<?php echo $userID; ?>" /> <small class="wpubuttonset"><a href="#" class="wpumapactionlnktyped" onclick="return false;" id="wpumapfrom-<?php echo $userID; ?>"><?php _e('Integrate'); ?></a></small>
 				</div>
-			<?php } else { ?>
+			<?php } else { 
+				$haveIntegratedUsers = true;?>
 				<div class="wpuintegok ui-widget-header ui-corner-all">
 					<p>Status: Integrated</p>
 					<p><small class="wpubuttonset">
@@ -747,8 +750,22 @@ function wpu_map_show_data() {
 		$alt = ($alt == '') ? ' wpualt' : '';
 	}
 	
-	
-	echo ']]></mapcontent></wpumapper>';
+	echo ']]></mapcontent><bulk><![CDATA[';
+	if($total>0) {
+		echo '<div id="wpubulk"><select id="wpuquicksel" name="wpuquicksel">
+			<option value="0">---- Bulk actions ----</option>';
+		if($haveUnintegratedUsers) {
+			echo '<option value="del">Delete all unintegrated</option>';
+		}
+		if($haveIntegratedUsers) {
+			echo '<option value="break">Break all integrated</option>';
+		}
+		if($haveUnintegratedUsers) {
+			echo  '<option value="create">Create users for all unintegrated</option>';
+		}				
+		echo '</select><button id="wpuquickselbtn" onclick="return wpuMapBulkActions();">' . __('Go') . '</button></div>';
+	}
+	echo ']]></bulk></wpumapper>';
 	
 }
 
