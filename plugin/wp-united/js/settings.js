@@ -327,6 +327,67 @@ function setupUserMapperPage() {
 		}
 	});		
 	setupAcpPopups();
+	
+	/**
+	 * Delegates actions via a single event listener (to improve performance)
+	 * Uses native JS rather than jQuery for the most part in order to keep event actions
+	 * as speedy as possible.
+	 */
+	document.getElementById('wpumapscreen').onclick = function(event) {
+		var el = event.target || event.srcElement;
+		var elType = el.nodeName.toLowerCase();
+		
+		if(elType == 'a') {
+			
+			if(el.className.indexOf('wpuprofilelink') > -1) {
+				$.colorbox({
+					href: el.href,
+					width: '88%', 
+					height: '92%', 
+					title: (mapProfileTitle == undefined) ? '' : mapProfileTitle,
+					iframe: true
+				});	
+			}
+			return false;
+			
+		}
+		
+		// now deal with buttons
+			
+		if((elType != 'span') || (el.className.indexOf('ui-button') == -1)) {
+			return false;
+		}
+		el = el.parentNode;
+		if(el.className.indexOf('ui-button-disabled') > -1) {
+			return false;
+		}
+
+		if( (el.id == undefined) || (el.id == '') ) {
+				
+			if(el.className.indexOf('wpumapactionedit') > -1) {
+				$.colorbox({
+					href: el.href,
+					width: '88%', 
+					height: '92%', 
+					title: (mapEditTitle == undefined) ? '' : mapEditTitle,
+					iframe: true,
+					onClosed: function() {
+						wpuShowMapper(false);
+					}
+				});
+				return false;
+			}
+			
+			return false;
+		}
+		
+		// only remaining possibility is a map action button
+		wpuProcessMapActionButton(el.id);
+		
+		return false;
+		
+	};	
+	
 
 	$("#wpumapdisp select").bind('change', function() {
 		wpuShowMapper(true);
@@ -458,65 +519,6 @@ function makeMapVisible() {
 	$('#wpumapscreen').html('');
 	$('#wpumapscreen').append($('#wpudatacontainer'));
 	
-	/**
-	 * Delegates actions via a single event listener (to improve performance)
-	 * Uses native JS rather than jQuery for the most part in order to keep event actions
-	 * as speedy as possible.
-	 */
-	$('#wpumapscreen').bind('click', function(event) {
-		var el = event.target || event.srcElement;
-		var elType = el.nodeName.toLowerCase();
-		
-		if(elType == 'a') {
-			
-			if(el.className.indexOf('wpuprofilelink') > -1) {
-				$.colorbox({
-					href: el.href,
-					width: '88%', 
-					height: '92%', 
-					title: (mapProfileTitle == undefined) ? '' : mapProfileTitle,
-					iframe: true
-				});	
-			}
-			return false;
-			
-		}
-		
-		// now deal with buttons
-			
-		if((elType != 'span') || (el.className.indexOf('ui-button') == -1)) {
-			return false;
-		}
-		el = el.parentNode;
-		if(el.className.indexOf('ui-button-disabled') > -1) {
-			return false;
-		}
-
-		if( (el.id == undefined) || (el.id == '') ) {
-				
-			if(el.className.indexOf('wpumapactionedit') > -1) {
-				$.colorbox({
-					href: el.href,
-					width: '88%', 
-					height: '92%', 
-					title: (mapEditTitle == undefined) ? '' : mapEditTitle,
-					iframe: true,
-					onClosed: function() {
-						wpuShowMapper(false);
-					}
-				});
-				return false;
-			}
-			
-			return false;
-		}
-		
-		// only remaining possibility is a map action button
-		wpuProcessMapActionButton(el.id);
-		
-		return false;
-		
-	});
 }
 
 

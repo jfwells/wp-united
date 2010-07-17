@@ -801,18 +801,25 @@ div.subsettings div.subsettings {
 	margin-left: 8px;
 }
 
+#wpumaptable {
+	width: 100%;
+	border: 0;
+	border-collapse: collapse
+}
+
 .wpumaprow {
 	border-bottom: 1px solid #cccccc;
 	margin: 0;
-	padding: 4px 0;
+	padding: 0;
 	clear: both;
 }
+
 
 .wpuwpuser, .wpuphpbbuser, .wpumapsugg {
 	width: 250px;
 	border: 1px solid #cccccc;
 	padding: 3px;
-	margin: 0 0 0 8px;
+	margin: 8px 0 8px 8px;
 	float: left;
 	clear: left;
 	background-color: #ffffff;

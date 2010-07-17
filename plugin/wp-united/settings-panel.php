@@ -606,7 +606,7 @@ function wpu_user_mapper() {
 				$('#wpu-desc').html(errMsg = 'An error occurred. The remaining actions have not been processed. Error: ' + exception);
 			});
 				
-			// fashion POST data from wpuMapAction
+			// fashion POST data from wpuMapActions
 			actionData = new Array();
 			for(actionKey in wpuMapActions[mapAction]) {
 				if(actionKey != 'desc') {
@@ -625,7 +625,7 @@ function wpu_user_mapper() {
 					wpuNextAction(nextNonce);
 					
 				} else {
-					// handle error here
+					// handle error
 					$('#wpu-reload').dialog('destroy');
 					$('#wpu-desc').html(errMsg = 'An error occurred. The remaining actions have not been processed. Error: ' + actionDetails);
 					$('#wpu-reload').dialog({
@@ -706,11 +706,12 @@ function wpu_map_show_data() {
 	} 
 	$haveUnintegratedUsers = false;
 	$haveIntegratedUsers = false;
+
+	?><table id="wpumaptable"><?php
 	foreach($userMapper->users as $userID => $user) { 
 		?>
-
-		<div class="wpumaprow<?php echo $alt; ?>"  id="wpuuser<?php echo $userID ?>">
-			<table style="width: 100%;"><tr><td> 
+		<tr class="wpumaprow<?php echo $alt; ?>"  id="wpuuser<?php echo $userID ?>">
+			<td> 
 				<?php echo $user; ?>
 			</td><td>
 			<?php if(!$user->is_integrated()) { 
@@ -718,10 +719,10 @@ function wpu_map_show_data() {
 			
 				<div class="wpuintegnot ui-widget-header ui-corner-all">
 					<p>Status: <?php _e('Not Integrated'); ?></p>
-					<p><small class="wpubuttonset">
+					<p class="wpubuttonset">
 						<?php echo $user->create_action(); ?>
 						<?php echo $user->del_action(); ?>
-					</small></p>
+					</p>
 				</div>
 				</td><td>
 				<div class="wpumapsugg">
@@ -736,16 +737,16 @@ function wpu_map_show_data() {
 				$haveIntegratedUsers = true;?>
 				<div class="wpuintegok ui-widget-header ui-corner-all">
 					<p>Status: Integrated</p>
-					<p><small class="wpubuttonset">
+					<p class="wpubuttonset">
 						<?php echo $user->break_action(); ?>
 						<?php echo $user->delboth_action(); ?>
-					</small></p>
+					</p>
 				</div>
 			</td><td>
 				<?php echo $user->get_partner(); ?>
 			<?php } ?>
-			</td></tr></table>
-		</div>
+			</td>
+		</tr>
 		<?php 
 		$alt = ($alt == '') ? ' wpualt' : '';
 	}

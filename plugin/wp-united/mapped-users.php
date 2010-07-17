@@ -155,13 +155,13 @@ $action = sprintf(
 	public function __toString() {
 		$side = ($this->side == 'left') ? '' : ' wpuintuser';
 		$template = '<div class="wpuuser ' . $this->className . $side . '" id="' . $this->htmlID . '">' . 
-					'<p class="' . $this->loginClassName . '" id="' . $this->loginHtmlID . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . htmlentities($this->loginName) . '</a></p>' . 
-					'<div class="avatarblock">' .
-					$this->avatar . 
-					 '<small>' . $this->del_action() . '</small>' . 
-					 '<small>' . $this->edit_action() . '</small>' . 
-					'</div>' .
-					'<div class="wpudetails">' ;
+			'<p class="' . $this->loginClassName . '" id="' . $this->loginHtmlID . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . htmlentities($this->loginName) . '</a></p>' . 
+			'<div class="avatarblock">' .
+			 $this->avatar . 
+			 $this->del_action()  .
+			 $this->edit_action() .
+			'</div>' .
+			'<div class="wpudetails">' ;
 		
 		foreach($this->templateFields as $field => $show) {
 			$template .= sprintf($show, $this->userDetails[$field]);
