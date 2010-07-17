@@ -701,54 +701,55 @@ function wpu_map_show_data() {
 	
 	echo '<mapcontent><![CDATA[';
 	
-	if($total == 0) {
-		echo '<em>' . __('There are no users to show that match your criteria') . '</em>';
-	} 
 	$haveUnintegratedUsers = false;
 	$haveIntegratedUsers = false;
-
-	?><table id="wpumaptable"><?php
-	foreach($userMapper->users as $userID => $user) { 
-		?>
-		<tr class="wpumaprow<?php echo $alt; ?>"  id="wpuuser<?php echo $userID ?>">
-			<td> 
-				<?php echo $user; ?>
-			</td><td>
-			<?php if(!$user->is_integrated()) { 
-				$haveUnintegratedUsers = true; ?>
-			
-				<div class="wpuintegnot ui-widget-header ui-corner-all">
-					<p>Status: <?php _e('Not Integrated'); ?></p>
-					<p class="wpubuttonset">
-						<?php echo $user->create_action(); ?>
-						<?php echo $user->del_action(); ?>
-					</p>
-				</div>
+	
+	if($total == 0) {
+		echo '<em id="wpumaptable">' . __('There are no users to show that match your criteria') . '</em>';
+	} else {
+		?><table id="wpumaptable"><?php
+		foreach($userMapper->users as $userID => $user) { 
+			?>
+			<tr class="wpumaprow<?php echo $alt; ?>"  id="wpuuser<?php echo $userID ?>">
+				<td> 
+					<?php echo $user; ?>
 				</td><td>
-				<div class="wpumapsugg">
-				<p class="wpuintto"><?php _e('Integrate to a suggested match'); ?>:</p>
-					<div class="wpudetails">
-						<?php echo $user->get_suggested_matches(); ?>
+				<?php if(!$user->is_integrated()) { 
+					$haveUnintegratedUsers = true; ?>
+				
+					<div class="wpuintegnot ui-widget-header ui-corner-all">
+						<p>Status: <?php _e('Not Integrated'); ?></p>
+						<p class="wpubuttonset">
+							<?php echo $user->create_action(); ?>
+							<?php echo $user->del_action(); ?>
+						</p>
 					</div>
-					<p class="wpuintto"><?php _e('Or, type a name'); ?>:</p>
-					<div class="wpuavatartyped" id="wpuavatartyped<?php echo $userID; ?>"></div><input class="wpuusrtyped" id="wpumapsearch-<?php echo $userID; ?>" /> <small class="wpubuttonset"><a href="#" class="wpumapactionlnktyped" onclick="return false;" id="wpumapfrom-<?php echo $userID; ?>"><?php _e('Integrate'); ?></a></small>
-				</div>
-			<?php } else { 
-				$haveIntegratedUsers = true;?>
-				<div class="wpuintegok ui-widget-header ui-corner-all">
-					<p>Status: Integrated</p>
-					<p class="wpubuttonset">
-						<?php echo $user->break_action(); ?>
-						<?php echo $user->delboth_action(); ?>
-					</p>
-				</div>
-			</td><td>
-				<?php echo $user->get_partner(); ?>
-			<?php } ?>
-			</td>
-		</tr>
-		<?php 
-		$alt = ($alt == '') ? ' wpualt' : '';
+					</td><td>
+					<div class="wpumapsugg">
+					<p class="wpuintto"><?php _e('Integrate to a suggested match'); ?>:</p>
+						<div class="wpudetails">
+							<?php echo $user->get_suggested_matches(); ?>
+						</div>
+						<p class="wpuintto"><?php _e('Or, type a name'); ?>:</p>
+						<div class="wpuavatartyped" id="wpuavatartyped<?php echo $userID; ?>"></div><input class="wpuusrtyped" id="wpumapsearch-<?php echo $userID; ?>" /> <small class="wpubuttonset"><a href="#" class="wpumapactionlnktyped" onclick="return false;" id="wpumapfrom-<?php echo $userID; ?>"><?php _e('Integrate'); ?></a></small>
+					</div>
+				<?php } else { 
+					$haveIntegratedUsers = true;?>
+					<div class="wpuintegok ui-widget-header ui-corner-all">
+						<p>Status: Integrated</p>
+						<p class="wpubuttonset">
+							<?php echo $user->break_action(); ?>
+							<?php echo $user->delboth_action(); ?>
+						</p>
+					</div>
+				</td><td>
+					<?php echo $user->get_partner(); ?>
+				<?php } ?>
+				</td>
+			</tr>
+			<?php 
+			$alt = ($alt == '') ? ' wpualt' : '';
+		}
 	}
 	
 	echo ']]></mapcontent><bulk><![CDATA[';
