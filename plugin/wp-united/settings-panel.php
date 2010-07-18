@@ -520,13 +520,14 @@ function wpu_user_mapper() {
 	</div>
 	<script type="text/javascript">
 	// <![CDATA[
-				
 		var mapNonce = '<?php echo wp_create_nonce ('wp-united-map'); ?>';
 		var autofillNonce = '<?php echo wp_create_nonce ('wp-united-usersearch'); ?>';
 		var firstMapActionNonce = '<?php echo wp_create_nonce ('wp-united-mapaction'); ?>';
 		
-		var imgLdg = '<?php echo $wpuUrl ?>/images/settings/wpuldg.gif';
-		
+		var imgLdg						= '<?php echo $wpuUrl ?>/images/settings/wpuldg.gif';
+		var currWpUser				= '<?php echo $GLOBALS['current_user']->ID; ?>';
+		var currPhpbbUser			= '<?php print_r($GLOBALS['phpbbForum']->get_userdata('user_id')); ?>';
+
 		var wpText 					=	'<?php _e('WordPress'); ?>';
 		var phpbbText 				= '<?php _e('phpBB'); ?>';
 		var mapEditTitle 			= '<?php _e('Editing user. When you are finished, close this screen.'); ?>';
@@ -548,112 +549,6 @@ function wpu_user_mapper() {
 			setupUserMapperPage();
 			
 		});			
-		
-		var numActions;
-		var currAction = 0;
-		function wpuProcess() {
-			window.scrollTo(0,0);
-			$('#wpu-reload').dialog({
-				modal: true,
-				title: 'Applying actions...',
-				width: 360,
-				height: 220,
-				draggable: false,
-				disabled: true,
-				closeOnEscape: false,
-				resizable: false,
-				show: 'puff',
-				buttons: {
-					'Cancel remaining actions': function() {
-						wpuProcessFinished();
-					}
-				}
-			});
-			$('#wpuldgimg').show();
-			numActions = wpuMapActions.length;
-			
-			wpuNextAction(firstMapActionNonce);
-			
-			return false;
-		}
-		
-		function wpuNextAction(nonce) {
-			el = $('#wpupanelactionlist li:first');
-			if(el.length) {
-				wpuProcessNext(el,nonce);
-			} else {
-				wpuProcessFinished();
-			}
-		}
-		
-		function wpuProcessNext(el, nonce) {
-			var mapAction, actionData, postString;
-			
-			var currDesc = '';
-			var nextMapActionNonce = 0;
-			
-			currAction++;
-			mapAction = parseInt(el.attr('id').replace('wpumapaction', ''));
-			$(el).remove();
-				
-			currDesc = wpuMapActions[mapAction]['desc'];
-			$('#wpu-desc').html('<strong>Processing action ' + currAction + ' of ' + numActions + '</strong><br />' + currDesc);
-			
-			$(document).ajaxError(function(e, xhr, settings, exception) {
-				if(exception == undefined) {
-					var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
-				}
-				$('#wpu-desc').html(errMsg = 'An error occurred. The remaining actions have not been processed. Error: ' + exception);
-			});
-				
-			// fashion POST data from wpuMapActions
-			actionData = new Array();
-			for(actionKey in wpuMapActions[mapAction]) {
-				if(actionKey != 'desc') {
-					actionData.push(actionKey + '=' + wpuMapActions[mapAction][actionKey]);
-				}
-			}
-			postString = actionData.join('&');
-			postString += '&wpumapaction=1&_ajax_nonce=' + nonce;
-			
-			$.post('admin.php?page=wpu-user-mapper', postString, function(response) {
-				var actionStatus = $(response).find('status').text();
-				var actionDetails = $(response).find('details').text();
-				var nextNonce = $(response).find('nonce').text();
-				
-				if(actionStatus=='OK') {
-					wpuNextAction(nextNonce);
-					
-				} else {
-					// handle error
-					$('#wpu-reload').dialog('destroy');
-					$('#wpu-desc').html(errMsg = 'An error occurred. The remaining actions have not been processed. Error: ' + actionDetails);
-					$('#wpu-reload').dialog({
-						modal: true,
-						title: 'Error',
-						width: 360,
-						height: 220,
-						draggable: false,
-						resizable: false,
-						show: 'puff',
-						buttons: {
-							'OK': function() {
-								wpuProcessFinished();
-							}
-						}
-					});
-					$('#wpuldgimg').hide();
-				}
-					
-			});				
-
-			return false;
-		}
-		
-		function wpuProcessFinished() {
-			$('#wpu-reload').dialog('destroy');
-			wpuShowMapper(true);
-		}
 	
 	// ]]>
 	</script>
@@ -750,6 +645,7 @@ function wpu_map_show_data() {
 			<?php 
 			$alt = ($alt == '') ? ' wpualt' : '';
 		}
+		echo '</table>';
 	}
 	
 	echo ']]></mapcontent><bulk><![CDATA[';
@@ -765,7 +661,7 @@ function wpu_map_show_data() {
 		if($haveUnintegratedUsers) {
 			echo  '<option value="create">Create users for all unintegrated</option>';
 		}				
-		echo '</select><button id="wpuquickselbtn" onclick="return wpuMapBulkActions();">' . __('Go') . '</button></div>';
+		echo '</select><button id="wpuquickselbtn" onclick="return wpuMapBulkActions();">' . __('Add') . '</button></div>';
 	}
 	echo ']]></bulk></wpumapper>';
 	
@@ -810,6 +706,7 @@ function wpu_process_mapaction() {
 				user_delete('retain', $userID);
 				$phpbbForum->background($fStateChanged);
 			}
+			echo '<status>OK</status>';
 		break;
 
 		case 'delboth':
@@ -820,98 +717,160 @@ function wpu_process_mapaction() {
 			$fStateChanged = $phpbbForum->foreground();
 			user_delete('retain', $pUserID);
 			$phpbbForum->background($fStateChanged);
+			echo '<status>OK</status>';
 		break;		
 		
 		case 'integrate':
+			
+			$wUserID = ($package == 'wp') ? $userID : $intUserID;
+			$pUserID = ($package == 'wp') ? $intUserID : $userID;
 		
-		/*
-		 * 
-		 * 	if ( (!empty($wpID)) && (!empty($pID))  ) {
+			if ( (!empty($wUserID)) && (!empty($pUserID))  ) {
+				
+				$fStateChanged = $phpbbForum->foreground();
+				
 				$sql = 'UPDATE ' . USERS_TABLE .
-					" SET user_wpuint_id = $wpID 
-					WHERE user_id = $pID";
+					" SET user_wpuint_id = $wUserID 
+					WHERE user_id = $pUserID";
 				if (!$pInt = $db->sql_query($sql)) {
-					trigger_error($phpbbForum->lang['MAP_COULDNT_INT'] . '<br />' . $phpbbForum->lang['DB_ERROR']);
+					die('<status>FAIL</status><details>Database error: Could not integrate</details></wpumapaction>');
 				}
 				// Sync profiles
-				$sql = 	"SELECT *
-								FROM " . USERS_TABLE . " 
-								WHERE user_id = $pID";
-				if (!$pUserData = $db->sql_query($sql)) {
-					trigger_error($phpbbForum->lang['MAP_COULDNT_INT'] . '<br />' . $phpbbForum->lang['DB_ERROR']);
-				}
-				$data = $db->sql_fetchrow($pUserData);
-				$db->sql_freeresult($pUserData);
-				$password = $data['user_password'];
-				if(substr($password, 0, 3) == '$H$') {
-					$password = substr_replace($password, '$P$', 0, 3);
-				}
-				$wpu_newDetails = array(
-					'user_id' 		=>  	$pID,
-					'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
-					'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
-					'user_password' 	=> 	(isset($password)) ? $password : '',
-					'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
-					'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
-					'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
-					'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : '',							
-					'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
-					'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
-					'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
-					'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''							
-				);
-				$phpbbForum->leave();
-				$wpUsrData = get_userdata($wpID);
-				$wpUpdateData = $wpUtdInt->check_details_consistency($wpUsrData, $wpu_newDetails);
-				* 
-				*/
+				$wpuNewDetails = wpu_get_phpbb_intdata($pUserID);
+				$phpbbForum->background($fStateChanged);
+				$wpUsrData = get_userdata($wUserID);
+				wpu_make_profiles_consistent($wpUsrData, $wpuNewDetails);
+				echo '<status>OK</status>';
+			}
 		break;
 		
 		case 'break':
-			
 			$id = ($package == 'wp') ? $userID : $intUserID;
 			wpu_map_break($id);
-			
+			echo '<status>OK</status>';
 		break;
 		
 		case 'createin':
 		
-			/**
-			 * } else { 
-				$phpbbForum->leave();
-				$wpUsr = get_userdata($wpID);
-				$phpbbForum->enter();
+			// create user in phpBB
+			if($package == 'phpbb') {
+				$wpUsr = get_userdata($userID);
+				$fStateChanged = $phpbbForum->foreground();
 				$password = $wpUsr->user_pass;
 				if(substr($password, 0, 3) == '$P$') {
 					$password = substr_replace($password, '$H$', 0, 3);
 				}
 				
-				if ( validate_username($typedName) === FALSE ) {
-					$userToAdd = array(
-						'username' => $typedName,
-						'user_password' => $password,
-						'user_email' => $wpUsr->user_email,
-						'user_type' => USER_NORMAL,
-						'group_id' => 2  //add to registered users group		
-					);
-					if (user_add($userToAdd)) {
-						$status[] = '<li>'. sprintf($phpbbForum->lang['MAP_CREATEP_SUCCESS'], $typedName) . '</li>';
-					} else {
-						$status[] = '<li>' . $phpbbForum->lang['MAP_CANNOT_CREATEP_NAME'] . '</li>';
+				// validates and finds a unique username
+				if(! $signUpName = wpu_find_next_avail_name($wpUsr->user_login, 'phpbb') ) {
+					die('<status>FAIL</status><details>A suitable username could not be found in phpBB</details></wpumapaction>');
+				}
+				
+				$userToAdd = array(
+					'username' => $signUpName,
+					'user_password' => $password,
+					'user_email' => $wpUsr->user_email,
+					'user_type' => USER_NORMAL,
+					'group_id' => 2  //add to registered users group		
+				);
+				
+				if ($pUserID = user_add($userToAdd)) {
+					
+					//$wpuNewDetails = wpu_get_phpbb_intdata($pUserID);
+					
+					$phpbbForum->background($fStateChanged);
+					
+					wpu_update_int_id($pUserID, $wpUsr->ID);
+					/**
+					 * @TODO: make consistent from phpBB -> WordPress
+					 */
+					//wpu_make_profiles_consistent($wpUsr, $wpuNewDetails, true);
+					
+				} else {
+					die('<status>FAIL</status><details>Could not add user to phpBB</details></wpumapaction>');
+				} 
+			} else {
+
+				// create user in WordPress
+				$wpuNewDetails = wpu_get_phpbb_intdata($userID);
+				
+				require_once( ABSPATH . WPINC . '/registration.php');
+				
+				if( !$userLevel = wpu_get_user_level() ) {
+					die('<status>FAIL</status><details>Cannot create integrated user, as they would have no integration permissions.</details></wpumapaction>');
+				}
+				$phpbbForum->transition_user();
+				
+				
+		
+				if(! $signUpName = wpu_find_next_avail_name($wpuNewDetails['username'], 'wp') ) {
+					return false;
+				}
+
+				$newWpUser = array(
+					'user_login'	 	=> 	$signUpName,
+					'user_pass'		=>	$password,
+					'user_email'	=>	$wpuNewDetails['user_email']
+				);
+		
+				if($newUserID = wp_insert_user($newWpUser)) { 
+					if($wpUser = get_userdata($newUserID)) { 
+						wpu_update_int_id($userID, $wpUser->ID);
+						wpu_make_profiles_consistent($wpUser, $wpuNewDetails, true);
+						wpu_set_role($wpUser->ID, $userLevel);
+						$phpbbForum->transition_user($userID, $wpuNewDetails->user_ip);
 					}
-				}		
+				} else {
+					die('<status>FAIL</status><details>Could not add user to WordPress</details></wpumapaction>');
+				}				
+				
 			}
-						*/
+			
+		echo '<status>OK</status>';
+
 		break;
 		
 	}
-	
-		
-	echo '<status>OK</status>';
-	echo '<details></details>';
 	echo '<nonce>' . wp_create_nonce('wp-united-mapaction') . '</nonce>';
 	echo '</wpumapaction>';
 	die();	
+	
+}
+
+function wpu_get_phpbb_intdata($userID) {
+	global $phpbbForum, $db;
+	
+	$fStateChanged = $phpbbForum->foreground();
+	
+	$sql = 	"SELECT *
+					FROM " . USERS_TABLE . " 
+					WHERE user_id = $userID"; 
+	if (!$pUserData = $db->sql_query($sql)) {
+		die('<status>FAIL</status><details>Database error: Could not get details</details></wpumapaction>');
+	}
+	$data = $db->sql_fetchrow($pUserData);
+	$db->sql_freeresult($pUserData);
+	$password = $data['user_password'];
+
+	$wpuNewDetails = array(
+		'user_id' 		=>  	$userID,
+		'user_ip' 		=>  	(isset($data['user_ip'])) ? $data['user_ip'] : '',
+		'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
+		'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
+		'user_password' 	=> 	(isset($password)) ? $password : '',
+		'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
+		'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
+		'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
+		'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : '',							
+		'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
+		'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
+		'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
+		'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''							
+	);
+				
+	$phpbbForum->restore_state($fStateChanged);
+	
+	return $wpuNewDetails;
 	
 }
 
@@ -921,7 +880,7 @@ function wpu_map_break($intID) {
 	$sql = 'UPDATE ' . USERS_TABLE . ' 
 				 SET user_wpuint_id = NULL 
 				WHERE user_wpuint_id = ' . $intID;
-				
+
 	if (!$pDel = $db->sql_query($sql)) {
 		wpu_map_action_error('Error when breaking integration');
 	}

@@ -276,7 +276,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 				OR UCASE(user_email) = '" . $db->sql_escape(strtoupper($this->get_email())) . "'";
 
 		
-		if(!$results = $db->sql_query($sql)) {
+		if(!$results = $db->sql_query_limit($sql, 5)) {
 			echo $noMatch;
 			return;
 		}
@@ -458,7 +458,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 				FROM {$wpdb->users} 
 				WHERE UCASE(user_login) LIKE %s
 					OR UCASE(user_email) = %s
-				ORDER BY user_login ", '%' . strtoupper($stub) . '%', strtoupper($this->get_email()));
+				ORDER BY user_login LIMIT 5", '%' . strtoupper($stub) . '%', strtoupper($this->get_email()));
 				
 		if(!$results = $wpdb->get_results($sql)) {
 			return $noMatch;

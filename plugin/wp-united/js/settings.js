@@ -400,6 +400,7 @@ function setupUserMapperPage() {
  * Sends the filter fields to the back-end, processes the returned user mapper html, and
  * sets up all contained buttons/fields/etc.
  */
+var selContainsCurrUser = false;
 function wpuShowMapper(repaginate) {
 	
 	if(repaginate == true) {
@@ -418,8 +419,8 @@ function wpuShowMapper(repaginate) {
 	});
 	
 	
-	$.post('admin.php?page=wpu-user-mapper', formData, function(response) {
-		
+	$.post('admin.php?page=wpu-user-mapper', formData, function(response, status, xhr) {
+
 		// Set up the page when a user mapper response has been received
 		if($('#wpumapside').val() == 'phpbb') {
 			leftSide = phpbbText;
@@ -435,7 +436,7 @@ function wpuShowMapper(repaginate) {
 		// wrap content in an additional div to speed DOM insertion
 		
 		$('#wpuoffscreen').html($(response).find('mapcontent').text());
-		
+
 		
 		setTimeout('setupMapButtons()', 200);
 		setTimeout('makeMapVisible()', 1000);
@@ -764,12 +765,19 @@ function wpuMapIntegrate(el, userID, toUserID, userName, toUserName, userEmail, 
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 	
+	
+	var pckg = $('#wpumapside').val();
+	if( ((pckg == 'wp') && ((userID == currWpUser) || (toUserID == currPhpbbUser))) ||
+		 ((pckg == 'phpbb') && ((userID == currPhpbbUser) || (toUserID == currWpUser))) ) {
+			 selContainsCurrUser = true;
+	}
+	
 	wpuMapActions.push({
 			'type': 'integrate',
 			'userid': userID,
 			'intuserid': toUserID,
 			'desc': actionType + ' ' + actionDets,
-			'package': leftSide
+			'package': pckg
 		});
 		$('#wpupanelactionlist').append(markup);
 
@@ -794,13 +802,21 @@ function wpuMapBreak(userID, intUserID, userName, intUserName) {
 			.replace('%2$s', '<em>' + intUserName + '</em>');
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
-	
+
+	var pckg = $('#wpumapside').val();
+	if( ((pckg == 'wp') && ((userID == currWpUser) || (intUserID == currPhpbbUser))) ||
+		 ((pckg == 'phpbb') && ((userID == currPhpbbUser) || (intUserID == currWpUser))) ) {
+			 selContainsCurrUser = true;
+	}
+
+
+
 	wpuMapActions.push({
 		'type': 'break',
 		'userid': userID,
 		'intuserid': intUserID,
 		'desc': actionType + ' ' + actionDets,
-		'package': leftSide
+		'package': pckg
 	});
 	$('#wpupanelactionlist').append(markup);
 
@@ -823,13 +839,20 @@ function wpuMapDelBoth(userID, intUserID, userName, intUserName) {
 		.replace ('%4$s', rightSide);
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+
+
+	var pckg = $('#wpumapside').val();
+	if( ((pckg == 'wp') && ((userID == currWpUser) || (intUserID == currPhpbbUser))) ||
+		 ((pckg == 'phpbb') && ((userID == currPhpbbUser) || (intUserID == currWpUser))) ) {
+			 selContainsCurrUser = true;
+	}
 	
 	wpuMapActions.push({
 		'type': 'delboth',
 		'userid': userID,
 		'intuserid': intUserID,
 		'desc': actionType + ' ' + actionDets,
-		'package': leftSide
+		'package': pckg
 	});
 	$('#wpupanelactionlist').append(markup);
 	$('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');
@@ -850,6 +873,11 @@ function wpuMapDel(userID, pckg, userName) {
 		.replace ('%2$s', txtPackage);
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+
+	if( ((pckg == 'wp') && (userID == currWpUser)) || ((pckg == 'phpbb') && (userID == currPhpbbUser)) ) {
+			 selContainsCurrUser = true;
+	}
+
 
 	wpuMapActions.push({
 		'type': 'del',
@@ -884,6 +912,13 @@ function wpuMapCreate(userID, altPckg, userName) {
 		.replace ('%2$s', txtAltPackage);
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+	
+	
+	if( ((altPckg == 'wp') && (userID == currPhpbbUser)) ||
+		 ((altPckg == 'phpbb') && (userID == currWpUser)) ) {
+			 selContainsCurrUser = true;
+	}
+	
 	
 	wpuMapActions.push({
 		'type': 'createin',
@@ -931,7 +966,129 @@ function wpuMapPaginate(el) {
 	return false;
 }
 
+/**
+ * Process the user mapper acitons
+ */
+var numActions;
+var currAction = 0;
+function wpuProcess() {
+	window.scrollTo(0,0);
+	$('#wpu-reload').dialog({
+		modal: true,
+		title: 'Applying actions...',
+		width: 360,
+		height: 220,
+		draggable: false,
+		disabled: true,
+		closeOnEscape: false,
+		resizable: false,
+		show: 'puff',
+		buttons: {
+			'Cancel remaining actions': function() {
+				wpuProcessFinished();
+			}
+		}
+	});
+	$('#wpuldgimg').show();
+	numActions = wpuMapActions.length;
+	
+	wpuNextAction(firstMapActionNonce);
+	
+	return false;
+}
 
+/**
+ * Get the next mapper action in the queue
+ */
+function wpuNextAction(nonce) {
+	el = $('#wpupanelactionlist li:first');
+	if(el.length) {
+		wpuProcessNext(el,nonce);
+	} else {
+		wpuProcessFinished();
+	}
+}
+
+/**
+ * Process the next mapper action in the queue
+ */	
+function wpuProcessNext(el, nonce) {
+	var mapAction, actionData, postString;
+	
+	var currDesc = '';
+	var nextMapActionNonce = 0;
+	
+	currAction++;
+	mapAction = parseInt(el.attr('id').replace('wpumapaction', ''));
+	$(el).remove();
+		
+	currDesc = wpuMapActions[mapAction]['desc'];
+	$('#wpu-desc').html('<strong>Processing action ' + currAction + ' of ' + numActions + '</strong><br />' + currDesc);
+	
+	$(document).ajaxError(function(e, xhr, settings, exception) {
+		if(exception == undefined) {
+			var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+		}
+		$('#wpu-desc').html(errMsg = 'An error occurred. The remaining actions have not been processed. Error: ' + exception);
+	});
+		
+	// fashion POST data from wpuMapActions
+	actionData = new Array();
+	for(actionKey in wpuMapActions[mapAction]) {
+		if(actionKey != 'desc') {
+			actionData.push(actionKey + '=' + wpuMapActions[mapAction][actionKey]);
+		}
+	}
+	postString = actionData.join('&');
+	postString += '&wpumapaction=1&_ajax_nonce=' + nonce;
+	
+	$.post('admin.php?page=wpu-user-mapper', postString, function(response) {
+		var actionStatus = $(response).find('status').text();
+		var actionDetails = $(response).find('details').text();
+		var nextNonce = $(response).find('nonce').text();
+		
+		if(actionStatus=='OK') {
+			wpuNextAction(nextNonce);
+			
+		} else {
+			// handle error
+			$('#wpu-reload').dialog('destroy');
+			$('#wpu-desc').html(errMsg = 'An error occurred on the server. The remaining actions have not been processed. Error: ' + actionDetails);
+			$('#wpu-reload').dialog({
+				modal: true,
+				title: 'Error',
+				width: 360,
+				height: 220,
+				draggable: false,
+				resizable: false,
+				show: 'puff',
+				buttons: {
+					'OK': function() {
+						wpuProcessFinished();
+					}
+				}
+			});
+			$('#wpuldgimg').hide();
+		}
+			
+	});				
+
+	return false;
+}
+
+
+/**
+ * Finish processing mapping actions
+ * Reload the page if the current user was affected
+ */		
+function wpuProcessFinished() {
+	$('#wpu-reload').dialog('destroy');
+	if(selContainsCurrUser) {
+		window.location.reload();
+	} else {
+		wpuShowMapper(true);
+	}
+}
 
 
 /**

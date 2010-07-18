@@ -95,15 +95,20 @@ function wpu_int_phpbb_logged_in() {
 		if(!$wpUser = get_userdata($integratedID)) {
 			return false;
 		}
+		
+		// must set this here to prevent recursion
+		wp_set_current_user($wpUser->ID);
 
 		wpu_set_role($wpUser->ID, $userLevel);
 		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
-		wp_set_current_user($wpUser->ID);
 		wp_set_auth_cookie($wpUser->ID);
 		return $wpUser->ID;
 		
-	} else {
-		
+	} else { 
+		// to prevent against recursion in strange error scenarios
+		if(defined('WPU_CREATED_WP_USER')) {
+			return WPU_CREATED_WP_USER;
+		}
 		// they don't have an account yet, create one
 		require_once( ABSPATH . WPINC . '/registration.php');
 		$signUpName = $phpbbForum->get_username();
@@ -117,19 +122,19 @@ function wpu_int_phpbb_logged_in() {
 			'user_pass'		=>	$phpbbForum->get_userdata('user_password'),
 			'user_email'	=>	$phpbbForum->get_userdata('user_email')
 		);
-		
-		if($newUserID = wp_insert_user($newWpUser)) { 
-			if($wpUser = get_userdata($newUserID)) { 
-				wpu_set_role($wpUser->ID, $userLevel);		
-				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
-				wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
-				wp_set_auth_cookie($wpUser->ID);
-				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
-				return $wpUser->ID;
-			}
+		if($newUserID = wp_insert_user($newWpUser)) {
+			$wpUser = get_userdata($newUserID);
+			// must set this here to prevent recursion
+			wp_set_current_user($wpUser->ID);
+			wpu_set_role($wpUser->ID, $userLevel);		
+			wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
+			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
+			wp_set_auth_cookie($wpUser->ID);
+			define('WPU_CREATED_WP_USER', $wpUser->ID);
+			//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
+			return $wpUser->ID;
 		}
 	}
-
 	return false;		
 	
 }
@@ -142,10 +147,15 @@ function wpu_int_phpbb_logged_in() {
  * @param $package the application to search in
  */
 function wpu_find_next_avail_name($name, $package = 'wp') {
+	
+	global $phpbbForum, $phpbb_root_path, $phpEx;
+	
+	$i = 0;
+	$foundFreeName = $result = false;
+	
+	
 	//start with the plain username, if unavailable then append a number onto the login name until we find one that is available
 	if($package == 'wp') {
-		$i = 0; 
-		$foundFreeName = false;
 		$name = $newName = sanitize_user($name, true);
 		while ( !$foundFreeName ) {
 			if ( !username_exists($newName) ) {
@@ -158,8 +168,25 @@ function wpu_find_next_avail_name($name, $package = 'wp') {
 		}
 		return $newName;
 	} else {
-		// TODO: phpBB search!
-		return false;
+			// search in phpBB
+			$fStateChanged = $phpbbForum->foreground();
+			require_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+			$newName = $name;
+			while ( !$foundFreeName ) {
+				$result = phpbb_validate_username($newName);
+				if($result === false) {
+					$foundFreeName = true;
+				} else if($result != 'USERNAME_TAKEN') {
+					$phpbbForum->restore_state($fStateChanged);
+					return false;
+				} else {
+					$i++;
+					$newName = $name . $i;
+				}
+			}
+			$phpbbForum->restore_state($fStateChanged);
+		
+		return $newName;
 	}
 }
 
@@ -561,19 +588,6 @@ function wpu_sign_in($wpUsr, $pass) {
 	return false;
 }
 
-/**
- * Arbitrates the user permissions between phpBB and WordPress. Called internally by integrate_login
- * @param int $ID WordPress ID
- * @param the required WordPress role
- */
-function wpu_check_userlevels ($ID, $usrLevel) {
-	global $userdata;
-	$user = new WP_User($ID);
-	$user->set_role($usrLevel);
-	$userdata = get_userdata($ID);
-	wp_set_current_user($ID);
-	return $userdata;
-}
 
 /**
  * Sets the user role before they get logged in
