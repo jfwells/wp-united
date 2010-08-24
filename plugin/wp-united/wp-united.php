@@ -121,7 +121,7 @@ function wpu_init_plugin() {
 	} 
 	
 	wpu_admin_actions();
-	
+
 	return true; 
 }
 
@@ -199,6 +199,7 @@ if(function_exists('wp_get_current_user')) {
 		}
 		
 		wpu_integrate_login();
+
 		return $current_user; 
 	}
 }
@@ -1159,7 +1160,7 @@ function wpu_feed_link($link) {
 /**
  * Redirects to the integrated page, in case WordPress has been accessed directly.
  * This will probably piss some people off -- but it's better than people accessing the wrong page and insisting it is screwed up.
- * @todo this actio is currently disabled -- we should just check for login page for now
+ * @todo this action is currently disabled -- we should just check for login page for now
  */
 function wpu_must_integrate() {
 	if ( (!defined('WP_UNITED_ENTRY')) && (!is_admin()) ) {
@@ -1763,7 +1764,7 @@ add_action('comments_open', 'wpu_comments_open', 10, 2);
 add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
 add_filter('logout_url', 'wpu_logout_url', 10, 2);
 add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
-add_filter('login_url', 'wpu_login_url', 10, 2);
+//add_filter('login_url', 'wpu_login_url', 10, 2);
 add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
 add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
 add_filter('get_comment_link', 'wpu_comment_link', 10, 3);

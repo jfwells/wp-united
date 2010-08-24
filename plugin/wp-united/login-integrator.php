@@ -28,10 +28,12 @@ function wpu_integrate_login() {
 	$lDebug = new WPU_Debug();
 
 	if( !$phpbbForum->user_logged_in() ) {
-		return wpu_int_phpbb_logged_out();
+		return  wpu_int_phpbb_logged_out();
 	}
-
-	return wpu_int_phpbb_logged_in();
+	
+	return  wpu_int_phpbb_logged_in();
+	
+	return $user;
 	
 }
 
@@ -41,33 +43,34 @@ function wpu_integrate_login() {
  * However this is left open as a prelude to bi-directional user integration
  */
 function wpu_int_phpbb_logged_out() {
-	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user;
-	
+	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user, $user;
+			
 	// Check if user is logged into WP
-	if ( ! $user = get_currentuserinfo() ) {
+	get_currentuserinfo();
+	if ( ! $wpUser = $current_user ) {
 		return false;
 	}
-	
-	if(!$wpUser = get_userdata($user)) {
-		return false;
-	}
-	
 	
 	$wpIntID = (isset($wpUser->phpbb_userid)) ? $wpUser->phpbb_userid : 0;
 	
 	if($wpIntID) {
-		// the user has an integrated phpBB account
-		//$phpbbForum->login($wpIntID); **LOGIN TO PHPBB TO BE HANDLED BY PHPBB! **
-		//wpu_set_role($wpUser->ID, $userLevel);
-		//wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+		// the user has an integrated phpBB account, log them into it
+		$fStateChanged = $phpbbForum->foreground();
+		$user->session_create($wpIntID);
+		$phpbbForum->restore_state($fStateChanged);
+		
+		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+		
 		return $wpUser->ID;
+		
 	} else {
+		// DISABLED FOR NOW
 		// The user's account is NOT integrated!
 		// What to do?
 		// Need also WordPress->phpbb mapping to decide how to create a user
-		if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
+		/* if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
 			return false;
-		}
+		} */
 		//$phpbbForum->add_user(xxxx) // see phpbb function user_add()
 		// CREATE USER
 		// MAP DETAILS

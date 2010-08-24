@@ -105,9 +105,10 @@ class WPU_Phpbb {
 		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
 		// so we just set it global here
 		$GLOBALS['template'] = &$template;
-		
+
 		$user->session_begin();
 		$auth->acl($user->data);
+
 		if(!is_admin()) {
 			if ($config['board_disable'] && !defined('IN_LOGIN') && !$auth->acl_gets('a_', 'm_') && !$auth->acl_getf_global('m_')) {
 				// board is disabled. 
@@ -143,7 +144,7 @@ class WPU_Phpbb {
 				$this->seo = true;
 			}
 		}
-		 
+
 		$this->lang = $GLOBALS['user']->lang;
 		
 		$this->backup_phpbb_state();

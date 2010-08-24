@@ -5,6 +5,12 @@ v0.9:
 
 --- bi-directional user integration------
 
+-- remove do_logout function (and from install.xml), use hook detection instead
+-- add wordpress logout function to log out of phpBB, then remove all login/logout redirects form WP
+-- on logout of phpBB find way to clear WP cookies without invoking WP (for new compatibility layer)
+
+-- need to rely on meta:phpbb_userid for bidirectional login to be efficient; rework code to rely on it
+-- ensure phpbb_userLogin and userId are removed whever user integration is broken.
 -- disable all mapper buttons if an action affects the current user
 -- add bi-di functions to phpBB to override session creation (use auth module for login that redirects to phpBB's auth module if necessary !)
 -- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
@@ -137,6 +143,7 @@ Once that is ready to release, we need a migrator that can:
 - remove a_wpu_manage permission
 - remove ACP modules
 - add new user table columns
+- ensure meta::phpbb_userId and phpbb_userLogin exists for all integrated users, and not for unintegrated users
 - migrate cross-posts to post marker system
 - create ghost posts for cross-posted comments (if needed)
 - auto-create wp-ms blogs for users with own blogs and move posts into them

@@ -57,7 +57,7 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 					
 						/**
 						 * New add for global scope 
-						 */
+						 */ 
 						if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 							define('WPU_REVERSE_INTEGRATION', true); 
 							//ob_start(); // to capture errors
@@ -82,12 +82,44 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 
 }
 
+
+
 /**
  * Initialise WP-United variables and template strings
  */
 function wpu_init(&$hook) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config;
+	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config, $phpbbForum;
 
+
+	/* TEMP TEST
+	 if(!empty($GLOBALS['user']->data['is_registered'])) {
+			echo 'user is logged in';
+			echo '***' . $user->data['is_registered'] . '***<br />';
+			print_r($_COOKIE);
+			if(isset($phpbbForum)) {
+				
+				echo 'wordpress env loaded';
+			}
+	}
+	$mode=request_var('mode','');
+	if ($mode==='login'){
+		echo 'caught login<br />'; 
+		if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
+			print_r($user->data); 
+			if(!empty($wpSettings['integrateLogin'])) {
+				echo 'Log into WordPress now!<br />';
+				echo '***' . $user->data['is_registered'] . '***<br />';
+				
+			}
+		}
+	} elseif ($mode === 'logout') {
+		echo 'caught logout<br />'; 
+		echo '***' . $user->data['user_id'] . '***<br />';
+		echo '***' . $GLOBALS['user']->data['is_registered'] . '***';
+		//die();		
+	}
+	*/
+		
 		
 	// Add lang strings if this isn't blog.php
 	if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
