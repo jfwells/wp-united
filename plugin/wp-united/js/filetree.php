@@ -7,11 +7,14 @@
 // Cory S.N. LaViska
 // A Beautiful Site (http://abeautifulsite.net/)
 // 24 March 2008
+
+// Heavily modified by John Wells for WP-United
 //
 // History:
 //
 // 1.01 - updated to work with foreign characters in directory/file names (12 April 2008)
 // 1.00 - released (24 March 2008)
+// 
 //
 // Output a list of files for jQuery File Tree
 //
@@ -20,11 +23,12 @@ if(stristr($_POST['dir'], '..')) {
 	die();
 }
 
-$docRoot =  (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : str_replace( '\\', '/', substr($_SERVER['SCRIPT_FILENAME'], 0, 0-strlen($_SERVER['PHP_SELF']) ) );
+$docRoot =  (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : substr($_SERVER['SCRIPT_FILENAME'], 0, 0 - strlen($_SERVER['PHP_SELF']) );
 $docRoot = @realpath($docRoot); 
-$docRoot = ($docRoot[strlen($docRoot)-1] == "/" ) ? $docRoot : $docRoot . "/";
+$docRoot = str_replace( '\\', '/', $docRoot);
+$docRoot = ($docRoot[strlen($docRoot)-1] == '/') ? $docRoot : $docRoot . '/';
 
-$fileLoc = $_POST['dir'];
+$fileLoc = str_replace( '\\', '/', $_POST['dir']);
 
 if(stristr($fileLoc, $docRoot) === false) {
 	$fileLoc = $docRoot . urldecode($fileLoc);

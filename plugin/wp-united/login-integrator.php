@@ -63,7 +63,7 @@ function wpu_int_phpbb_logged_out() {
 		
 		return $wpUser->ID;
 		
-	} else {
+	} else { 
 		// DISABLED FOR NOW
 		// The user's account is NOT integrated!
 		// What to do?
@@ -107,7 +107,7 @@ function wpu_int_phpbb_logged_in() {
 		wp_set_auth_cookie($wpUser->ID);
 		return $wpUser->ID;
 		
-	} else { 
+	} else {
 		// to prevent against recursion in strange error scenarios
 		if(defined('WPU_CREATED_WP_USER')) {
 			return WPU_CREATED_WP_USER;
@@ -124,18 +124,20 @@ function wpu_int_phpbb_logged_in() {
 			'user_login'	 	=> 	$signUpName,
 			'user_pass'		=>	$phpbbForum->get_userdata('user_password'),
 			'user_email'	=>	$phpbbForum->get_userdata('user_email')
-		);
-		if($newUserID = wp_insert_user($newWpUser)) {
-			$wpUser = get_userdata($newUserID);
-			// must set this here to prevent recursion
-			wp_set_current_user($wpUser->ID);
-			wpu_set_role($wpUser->ID, $userLevel);		
-			wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
-			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
-			wp_set_auth_cookie($wpUser->ID);
-			define('WPU_CREATED_WP_USER', $wpUser->ID);
-			//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
-			return $wpUser->ID;
+		); 
+		if($newUserID = wp_insert_user($newWpUser)) { 
+		   if(!is_a($newUserID, WP_Error)) {
+				$wpUser = get_userdata($newUserID);
+				// must set this here to prevent recursion
+				wp_set_current_user($wpUser->ID);
+				wpu_set_role($wpUser->ID, $userLevel);		
+				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
+				wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
+				wp_set_auth_cookie($wpUser->ID);
+				define('WPU_CREATED_WP_USER', $wpUser->ID); 
+				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
+				return $wpUser->ID; 
+			}
 		}
 	}
 	return false;		
