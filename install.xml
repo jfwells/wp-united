@@ -230,16 +230,6 @@ Remember to purge the phpBB template cache, and refresh your themes after making
 IMPORTANT NEXT STEPS
 --------------------
 
-After making all the edits, you must complete the following steps. For more detailed information, make sure you read the README_FIRST.txt file that was included with WP-United.
-
-1. Log into the phpBB Administration Control Panel as a *founder* administrator. This is the administrator with founder permissions. The WP-United installer will automatically run, and a WP-United tab will appear in the ACP. If it does not, try purging the phpBB cache.
-
-2. Make sure you have installed WordPress. If you need help, look at the instructions on the WordPress Codex, here: http://codex.wordpress.org/Installing_WordPress
-
-3. Run the Setup Wizard, under the WP-United tab that just appeared in your ACP.
-
-4. The last step of the Setup Wizard will try to automatically copy a plugin file to WordPress. If that fails, follow the additional instructions provided in that step.
-
 For more detailed instructions, please read the README_FIRST file, or visit http://www.wp-united.com
 
 REPORTING BUGS / GETTING HELP
@@ -251,8 +241,7 @@ Check that your phpBB server settings (especially "script path") and WordPress s
 
 If it still fails, please:
 (1) If you are getting blank pages, turn on PHP error reporting or look in your server log to find the underlying cause of the problem.
-(2) Use "Debug Info To Post" function, located under the WP-United Admin Control Panel tab, to getrelevant debug information.
-
+	
 Post this information, together with full details of any error, and what you did to generate the error, on http://www.wp-united.com , after performing a search for similar issues.
 
 ]]></diy-instructions>
