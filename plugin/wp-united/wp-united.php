@@ -161,6 +161,12 @@ function wpu_admin_actions() {
 			wpu_process_settings();
 			$wpSettings = get_option('wpu-settings');
 		}
+		
+		// file tree
+		if( isset($_POST['filetree']) && check_ajax_referer( 'wp-united-filetree') ) {
+			wpu_filetree();
+		}	
+		
 	}
 }
 
@@ -1726,6 +1732,68 @@ function wpu_pluginrow_link($links, $file) {
 	return $links;
 }
 
+function wpu_deactivate() {
+	// No actions currently defined
+	//wpu_uninstall(); /** TEMP FOR RESETTING WHILE TESTING **/
+}
+
+/**
+ * Removes all WP-United settings.
+ * As the plugin is deactivated at this point, we can't reliably uninstall from phpBB (yet)
+ */
+function wpu_uninstall() {
+	
+	$forum_page_ID = get_option('wpu_set_forum');
+	if ( !empty($forum_page_ID) ) {
+		@wp_delete_post($forum_page_ID);
+	}
+		
+	$wpSettings = get_option('wpu-settings');
+	
+	
+	delete_option('wpu_set_forum');
+	delete_option('wpu-settings');
+	delete_option('widget_wp-united-loginuser-info');
+	delete_option('widget_wp-united-latest-topics');
+	delete_option('widget_wp-united-latest-posts');
+	
+	
+	/*
+	if(isset($wpSettings['phpbb_path'])) {
+		
+		global $db;
+		
+		$phpbb_root_path = $wpSettings['phpbb_path'];
+		$phpEx = substr(strrchr(__FILE__, '.'), 1);
+	
+		define('IN_PHPBB', true);
+		define('WPU_UNINSTALLING', true);
+		
+		$phpEx = substr(strrchr(__FILE__, '.'), 1);
+		
+		$commonLoc = $phpbb_root_path . 'common.' . $phpEx;
+		
+		if(file_exists($commonLoc)) {
+			include($phpbb_root_path . 'common.' . $phpEx);
+			
+			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
+						  DROP user_wpuint_id';
+			$db->sql_query($sql);
+			
+			$sql = 'ALTER TABLE ' . USERS_TABLE . '
+						DROP user_wpublog_id';
+			$db->sql_query($sql);
+					
+			$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
+						DROP post_wpu_xpost';
+			$db->sql_query($sql);
+			
+		}
+	} */
+	
+	
+}
+
 
 /**
  * here we add all the hooks and filters
@@ -1788,12 +1856,15 @@ add_action('loop_start', 'wpu_loop_entry');
   
 add_action('admin_menu', 'wpu_add_meta_box'); 
 
+register_deactivation_hook('wp-united/wp-united.php', 'wpu_deactivate');
+register_uninstall_hook('wp-united/wp-united.php', 'wpu_uninstall');
 
-	if ( isset($_GET['page']) ) {
-		if ($_GET['page'] == 'wp-united-theme-menu') {
-			add_action('admin_init', 'wpu_prepare_admin_pages');
-		}
+
+if ( isset($_GET['page']) ) {
+	if ($_GET['page'] == 'wp-united-theme-menu') {
+		add_action('admin_init', 'wpu_prepare_admin_pages');
 	}
+}
 
 
 

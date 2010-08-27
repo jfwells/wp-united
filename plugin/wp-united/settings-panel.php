@@ -271,11 +271,12 @@ function wpu_setup_menu() {
 	<script type="text/javascript">
 	// <![CDATA[
 		var transmitMessage;
+		var filetreeNonce = '<?php echo wp_create_nonce ('wp-united-filetree'); ?>';
 		var transmitNonce = '<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
 		var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
 		var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
 		var phpbbPath = '<?php echo (isset($settings['phpbb_path'])) ? $settings['phpbb_path'] : ''; ?>';		
-		var treeScript =  '<?php echo $wpuUrl . 'js/filetree.php'; ?>';
+		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
 		jQuery(document).ready(function($) { 
 			createFileTree();
 			<?php if(isset($settings['phpbb_path'])) { ?> 
@@ -1542,6 +1543,49 @@ function wpu_ajax_header() {
 	header('Pragma: no-cache');
 	
 	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+}
+
+
+function wpu_filetree() {
+	if(stristr($_POST['filetree'], '..')) {
+		die();
+	}
+
+	$docRoot =  (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : substr($_SERVER['SCRIPT_FILENAME'], 0, 0 - strlen($_SERVER['PHP_SELF']) );
+	$docRoot = @realpath($docRoot); 
+	$docRoot = str_replace( '\\', '/', $docRoot);
+	$docRoot = ($docRoot[strlen($docRoot)-1] == '/') ? $docRoot : $docRoot . '/';
+
+	$fileLoc = str_replace( '\\', '/', urldecode($_POST['filetree']));
+
+	if(stristr($fileLoc, $docRoot) === false) {
+		$fileLoc = $docRoot . $fileLoc;
+		$fileLoc = str_replace('//', '/', $fileLoc);
+	}
+
+	if( file_exists($fileLoc) ) {
+		$files = scandir($fileLoc);
+		natcasesort($files);
+		if( count($files) > 2 ) { /* The 2 accounts for . and .. */
+			echo "<ul class=\"jqueryFileTree\" style=\"display: none;\">";
+			// All dirs
+			foreach( $files as $file ) {
+				if( file_exists($fileLoc. $file) && $file != '.' && $file != '..' && is_dir($fileLoc . $file) ) {
+					echo "<li class=\"directory collapsed\"><a href=\"#\" rel=\"" . htmlentities($fileLoc . $file) . "/\">" . htmlentities($file) . "</a></li>";
+				}
+			}
+			// All files
+			foreach( $files as $file ) {
+				if( file_exists($fileLoc . $file) && $file != '.' && $file != '..' && !is_dir($fileLoc . $file) ) {
+					$ext = preg_replace('/^.*\./', '', $file);
+					echo "<li class=\"file ext_$ext\"><a href=\"#\" rel=\"" . htmlentities($fileLoc . $file) . "\">" . htmlentities($file) . "</a></li>";
+				}
+			}
+			echo "</ul>";	
+		}
+	}
+	die();
+	
 }
 
 
