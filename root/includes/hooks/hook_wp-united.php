@@ -288,6 +288,7 @@ function get_integration_settings() {
 		'wpUri' => '' ,
 		'wpPath' => '', 
 		'integrateLogin' => 0, 
+		'integsource' => 'phpbb',
 		'showHdrFtr' => 'NONE',
 		'wpSimpleHdr' => 1,
 		'dtdSwitch' => 0,
