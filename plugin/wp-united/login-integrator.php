@@ -51,31 +51,34 @@ function wpu_int_phpbb_logged_out() {
 		return false;
 	}
 	
-	$wpIntID = (isset($wpUser->phpbb_userid)) ? $wpUser->phpbb_userid : 0;
+	if($wpSettings['integsource'] == 'wp') {
 	
-	if($wpIntID) {
-		// the user has an integrated phpBB account, log them into it
-		$fStateChanged = $phpbbForum->foreground();
-		$user->session_create($wpIntID);
-		$phpbbForum->restore_state($fStateChanged);
+		$wpIntID = (isset($wpUser->phpbb_userid)) ? $wpUser->phpbb_userid : 0;
 		
-		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
-		
-		return $wpUser->ID;
-		
-	} else { 
-		// DISABLED FOR NOW
-		// The user's account is NOT integrated!
-		// What to do?
-		// Need also WordPress->phpbb mapping to decide how to create a user
-		/* if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
-			return false;
-		} */
-		//$phpbbForum->add_user(xxxx) // see phpbb function user_add()
-		// CREATE USER
-		// MAP DETAILS
-		// LOG IN
-		/// [ or -- do all from phpbb ]
+		if($wpIntID) {
+			// the user has an integrated phpBB account, log them into it
+			$fStateChanged = $phpbbForum->foreground();
+			$user->session_create($wpIntID);
+			$phpbbForum->restore_state($fStateChanged);
+			
+			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+			
+			return $wpUser->ID;
+			
+		} else { 
+			// DISABLED FOR NOW
+			// The user's account is NOT integrated!
+			// What to do?
+			// Need also WordPress->phpbb mapping to decide how to create a user
+			/* if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
+				return false;
+			} */
+			//$phpbbForum->add_user(xxxx) // see phpbb function user_add()
+			// CREATE USER
+			// MAP DETAILS
+			// LOG IN
+			/// [ or -- do all from phpbb ]
+		}
 	}
 	
 	// this clears all WP-related cookies
@@ -86,6 +89,12 @@ function wpu_int_phpbb_logged_out() {
 
 function wpu_int_phpbb_logged_in() {
 	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user;
+	
+	
+	if($wpSettings['integsource'] != 'phpbb') {
+		return get_currentuserinfo();
+	}
+	
 	// Should this user integrate? If not, we can just let WordPress do it's thing
 	if( !$userLevel = wpu_get_user_level() ) {
 		return get_currentuserinfo();

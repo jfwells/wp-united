@@ -650,7 +650,7 @@ function wpuMapBulkActions() {
  * Sets up popup "Colourboxes" for phpBB ACP administration from the permissions tab
  */
 function setupAcpPopups() {
-	$('#wpumapscreen a.wpuacppopup').colorbox({
+	$('#wpumapscreen a.wpuacppopup, #wpumaptab-perms a.wpuacppopup').colorbox({
 		width: '88%', 
 		height: '92%', 
 		title: (acpPopupTitle == undefined) ? '' : acpPopupTitle,
