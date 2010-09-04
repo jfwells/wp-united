@@ -37,7 +37,8 @@ function wpu_init_plugin() {
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
 
 	require_once($wpuPath . 'functions-general.php');
-	require_once($wpuPath . 'login-integrator.php');
+	require_once($wpuPath . 'login-integrator.php'); 
+	require_once($wpuPath . 'functions-cross-posting.php');
 
 	if ( function_exists('plugins_url') ) {
 			$wpuUrl = plugins_url('wp-united') . '/';
@@ -76,8 +77,7 @@ function wpu_init_plugin() {
 				$phpEx = substr(strrchr(__FILE__, '.'), 1);
 			}
 			
-			require_once($wpuPath . 'functions-cross-posting.php');
-			
+						
 			if ( !defined('IN_PHPBB') ) {
 				if(is_admin()) {
 					define('WPU_PHPBB_IS_EMBEDDED', TRUE);
@@ -177,7 +177,12 @@ if(function_exists('wp_get_current_user')) {
 	 * integrated login won't work, so we set a marker in order to signpost the error, and disable login integration
 	 */
 	define('WPU_CANNOT_OVERRIDE', true);
-} else {
+	
+	if( empty($wpuPluginLoaded) ) {
+		wpu_init_plugin();
+	}
+	
+} else { 
 	/**
 	 * Overrides auth cookie checking in favour of checking phpBB login status
 	 * Fall back to default WP function in wp_validate_auth_cookie() if integrated login isn't needed
