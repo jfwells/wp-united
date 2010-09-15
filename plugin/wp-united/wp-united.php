@@ -29,6 +29,7 @@ if ( !defined('ABSPATH') ) {
 /**
  * Initialise WP-United
  */
+add_action('init', 'wpu_init_plugin');
 function wpu_init_plugin() {
 	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings, $wpuUrl, $wpuPath, $wpuPluginLoaded;
 	
@@ -121,6 +122,13 @@ function wpu_init_plugin() {
 	} 
 	
 	wpu_admin_actions();
+	
+	
+	if( (!$wpSettings['integrateLogin']) || defined('WPU_DISABLE_LOGIN_INT') ) {
+			return;
+	}
+	wpu_integrate_login();
+	
 
 	return true; 
 }
@@ -170,50 +178,6 @@ function wpu_admin_actions() {
 	}
 }
 
-
-if(function_exists('wp_get_current_user')) {
-	/**
-	 * wp_validate_auth_cookie is already overridden by a plugin providing SSO.
-	 * integrated login won't work, so we set a marker in order to signpost the error, and disable login integration
-	 */
-	define('WPU_CANNOT_OVERRIDE', true);
-	
-	if( empty($wpuPluginLoaded) ) {
-		wpu_init_plugin();
-	}
-	
-} else { 
-	/**
-	 * Overrides auth cookie checking in favour of checking phpBB login status
-	 * Fall back to default WP function in wp_validate_auth_cookie() if integrated login isn't needed
-	 */
-	function wp_get_current_user($inRevInt = false) {
-		global $wpuPath,  $wpSettings, $current_user, $wpuPluginLoaded;
-		
-		if(defined('WPU_REVERSE_INTEGRATION') && (!$inRevInt) ) {
-			return false;
-		}
-
-		if ( isset($current_user) && !empty($current_user) ) {
-			return $current_user;
-		}
-
-		// init the plugin
-		if( empty($wpuPluginLoaded) ) {
-			wpu_init_plugin();
-		}
-
-		// If login integration is not enabled, skip to default WP function
-		if( (!$wpSettings['integrateLogin']) || defined('WPU_DISABLE_LOGIN_INT') ) {
-			get_currentuserinfo();
-			return $current_user;
-		}
-		
-		wpu_integrate_login();
-
-		return $current_user; 
-	}
-}
 
 function wpu_disable_connection($type) {
 	global $wpSettings;
@@ -730,86 +694,6 @@ function wpu_get_stylesheet($default) {
 		}
 	} 
 	return $default;
-}
-
-/**
- * Filters the WordPress "Login/Out" link to point to phpBB installation
- * Only modifies it if login is integrated
- */
-function wpu_loginoutlink($loginLink) {
-	global $phpbbForum, $wpSettings, $phpEx;
-	if ( !empty($wpSettings['integrateLogin']) ) {
-		$redir = wpu_get_redirect_link();
-		$fStateChanged = $phpbbForum->foreground();
-		$logout_link = append_sid("ucp.$phpEx", 'mode=logout', true, $GLOBALS['user']->session_id);
-		$login_link = append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . $redir, false, false, $GLOBALS['user']->session_id);		
-		$phpbbForum->restore_state($fStateChanged);
-		if ( $phpbbForum->user_logged_in() ) {
-			$u_login_logout = $phpbbForum->url . $logout_link;
-			$l_login_logout = sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username());
-		} else {
-			$u_login_logout = $phpbbForum->url . $login_link;
-			$l_login_logout = $phpbbForum->lang['LOGIN'];
-		}
-		return '<a href="' . $u_login_logout . '">' . $l_login_logout . '</a>';
-	} else {
-		return $loginLink;
-	}
-}
-
-/**
- * Catches more general WP login links
- */
-function wpu_login_url($loginLink, $redirect) {
-	global $wpSettings, $phpbbForum, $phpEx;
-	if ( (!empty($wpSettings['integrateLogin'])) && (!$phpbbForum->user_logged_in()) ) {
-		$loginLink = $phpbbForum->url . append_sid("ucp.$phpEx", 'mode=login', true, false, $GLOBALS['user']->session_id) . '&amp;redirect=' . urlencode($redirect);
-	}
-	return $loginLink;
-}
-
-/**
- * Returns the logout URL for the dashboard, modified if logins are integrated.
- */
-function wpu_logout_url($logoutLink, $redirect) {
-	global $phpbbForum, $wpSettings, $phpEx;
-	if ( !empty($wpSettings['integrateLogin']) ) {
-		$fStateChanged = $phpbbForum->foreground();
-		$logoutLink = $phpbbForum->url . append_sid('ucp.'.$phpEx.'?mode=logout', false, false, $GLOBALS['user']->session_id);
-		$phpbbForum->restore_state($fStateChanged);
-	}
-	return $logoutLink;
-}
-
-/**
- * Filters the WordPress "Register" link to point to phpBB installation
- * Only modifies it if login is integrated
- */
-function wpu_registerlink($registerLink) {
-	global $wpSettings, $phpbbForum, $phpEx, $wpuGetBlog;
-	if ( !empty($wpSettings['integrateLogin']) ) {
-		//'before' and 'after' can be passed to the links. Let's isolate them.
-		$startPos = strpos($registerLink, '<a');
-		$endPos = strpos($registerLink, '</a>');
-		$before = substr($registerLink, 0, $startPos);
-		$after = substr($registerLink, $endPos + 4);
-		$before = empty($before) ? '<li>' : $before;
-		$after = empty($after) ? '</li>' : $after;
-		$reg_link =  'ucp.'.$phpEx.'?mode=register';
-
-		if ( ! is_user_logged_in() ) {
-			return $before . '<a href="' . append_sid($phpbbForum->url . $reg_link) . '">' . $phpbbForum->lang['REGISTER'] . '</a>' . $after;
-		} else {
-			if ( $phpbbForum->get_userdata('user_wpublog_id') > 0 ) {
-				$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['add_to_blog'] : $phpbbForum->lang['go_wp_admin'];
-			} else {
-				$wpuGetBlog = ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['get_blog'] : $phpbbForum->lang['go_wp_admin'];
-			}
-			return $before . '<a href="' . get_option('siteurl') . '/wp-admin/">' . $wpuGetBlog . '</a>' . $after;
-		}
-	} else { 
-		return $registerLink;
-	}	
 }
 
 
@@ -1599,108 +1483,8 @@ function wpu_fix_blank_username($user_login) {
 	return $user_login;
 }
 
-/**
-Stops the password fields from showing on the profile page if the user is integrated
-*/
-function wpu_disable_passchange($state, $profileUser = false) {
-	global $wpSettings;
-	// for WP 2.8 and earlier, $profileUser is not passed
-	if(!$profileUser) {
-		$profileUser = $GLOBALS['profileuser'];
-	}	
-	if ( stripos($_SERVER['REQUEST_URI'], 'user-new.php') === false ) {
-		if($profileUser) {
-			if(($wpSettings['integrateLogin']) && (get_wpu_user_id($profileUser->ID))) {
-					return false;
-			}
-		}
-	}
-	return $state;
-}
-
-if (function_exists('wp_hash_password') ) {
-	/**
-	 * wp_hash_password is already overridden by a plugin providing SSO.
-	 * integrated login won't work, so we set a marker in order to signpost the error, and disable login integration
-	 */
-	define('WPU_CANNOT_OVERRIDE', true);
-} else {
-	/**
-	 * Override of WP hash password function
-	 * if the password is already hashed by phpBB, we leave it as is.
-	 * @todo: subst $H$ with $P$ here.
-	 */
-	function wp_hash_password($password) {
-		global $wp_hasher;
-		if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
-			return $password;
-		} else {
-			if ( empty($wp_hasher) ) {
-				require_once( ABSPATH . 'wp-includes/class-phpass.php');
-				// By default, use the portable hash from phpass
-				$wp_hasher = new PasswordHash(8, TRUE);
-			}
-
-			return $wp_hasher->HashPassword($password);
-		}
-	}
-}
-
-if ( function_exists('wp_check_password') ) {
-	/**
-	 * wp_check_password is already overridden by a plugin providing SSO.
-	 * integrated login won't work, so we set a marker in order to signpost the error, and disable login integration
-	 */
-	define('WPU_CANNOT_OVERRIDE', true);		
-} else {
-	/**
-	 * We need to override WordPress password hash checking, as the password we have to log into wordpress is already hashed.
-	 */
-	function wp_check_password($password, $hash, $user_id = '') {
-		global $wp_hasher;
-		
-		// Here phpBB has already handled authentication, so the inbound password is hashed and we just need to check it against the database.
-		// IMPORTANT -- This should not be defined anywhere other than integration-class.php, otherwise it allows an attacker
-		// who has gained access to the DB to log into wordpress without having to crack passwords.
-		if(defined('PASSWORD_ALREADY_HASHED') && PASSWORD_ALREADY_HASHED) {
-			// We can convert hashes from phpBB-type to WordPress-type
-			if(substr($password, 0, 3) == '$H$') {
-				$password = substr_replace($password, '$P$', 0, 3);
-				$check = ($password == $hash);
-				return apply_filters('check_password', $check, $password, $hash, $user_id);
-			}
-		} else { 
-			// This is not an incoming phpBB/WP-United request, so this file will not be called.
-			// Handle the request in wpu-plugin.php, in a filter.
-		}
 
 
-		// If the hash is still md5...
-		if ( strlen($hash) <= 32 ) {
-			$check = ( $hash == md5($password) );
-			if ( $check && $user_id ) {
-				// Rehash using new hash.
-				wp_set_password($password, $user_id);
-				$hash = wp_hash_password($password);
-			}
-
-			return apply_filters('check_password', $check, $password, $hash, $user_id);
-		}
-
-		// If the stored hash is longer than an MD5, presume the
-		// new style phpass portable hash.
-		if ( empty($wp_hasher) ) {
-			require_once( ABSPATH . 'wp-includes/class-phpass.php');
-			// By default, use the portable hash from phpass
-			$wp_hasher = new PasswordHash(8, TRUE);
-		}
-
-		$check = $wp_hasher->CheckPassword($password, $hash);
-
-
-		return apply_filters('check_password', $check, $password, $hash, $user_id);
-	}
-}
 /**
 * Under consideration for future rewrite: Function 'wpu_validate_username_conflict()' - Handles the conflict between validate_username
 * in WP & phpBB. This is only really a problem in integrated pages when naughty WordPress plugins pull in
@@ -1724,6 +1508,123 @@ function wpu_validate_username_conflict($wpValdUser, $username) {
 		}
 	}
 	return $wpValdUser;
+}
+
+/**
+ * Checks username and e-mail requested for a new registration.
+ * Validates against phpBB if user integration is working.
+ * @param string $username username
+ * @param string $email e-mail
+ * @param WP_Error $errors WordPress error object
+ */
+function wpu_check_new_user($username, $email, $errors) {
+	$result = wpu_validate_new_user($username, $email, $errors);
+	
+	if($result !== false) {
+		$errors = $result;
+	}
+}
+
+/**
+ * checks a new registration 
+ * This occurs after the account has been created, so it is only for naughty plugins that
+ * leave no other way to intercept them.
+ * If it is found to be an erroneous user creation, then we remove the newly-added user.
+ * This action is removed by WP-United when adding a user, so we avoid unsetting our own additions
+ */
+add_action('user_register', 'wpu_check_new_user_after', 10, 1); 
+function wpu_check_new_user_after($userID) {
+		global $wpSettings, $phpbbForum;
+		
+		if (!empty($wpSettings['integrateLogin'])) { 
+			
+			$errors = new WP_Error();
+			$user = get_userdata($userID);
+			
+
+			$result = wpu_validate_new_user($user->user_login, $user-->user_email , $errors);
+			if($result !== false) {
+				// An error occurred validating the new WP user, remove the user.
+				wp_delete_user($userID,  0);
+				$message = '<h1>' . __('Error:') . '</h1>';
+				$message .= '<p>' . implode('</p><p>', $errors->get_error_messages());
+				$message .= __('Please go back and try again, or contact an administrator if you keep seeing this error.');
+				wp_die($message);
+				exit();
+			} else {
+				
+				// create new integrated user in phpBB to match
+				$phpbbID = wpu_create_phpbb_user($userID);
+							
+				
+				
+			}
+			
+		}
+}
+
+/**
+ * Validates a new or prospective WordPress user in phpBB
+ * @param string $username username
+ * @param string $email e-mail
+ * @param WP_Error $errors WordPress error object
+ * @return bool|WP_Error false (on success) or modified WP_Error object (on failure)
+ */
+function wpu_validate_new_user($username, $email, $errors) {
+	global $wpSettings, $phpbbForum;
+	$foundErrors = 0;
+	if (!empty($wpSettings['integrateLogin'])) {
+		if(function_exists('phpbb_validate_username')) {
+			$fStateChanged = $phpbbForum->foreground();
+			$result = phpbb_validate_username($username, false);
+			$emailResult = validate_email($email);
+			$phpbbForum->restore_state($fStateChanged);
+
+			if($result !== false) {
+				switch($result) {
+					case 'INVALID_CHARS':
+						$errors->add('phpbb_invalid_chars', __('The username contains invalid characters'));
+						$foundErrors++;
+						break;
+					case 'USERNAME_TAKEN':
+						$errors->add('phpbb_username_taken', __('The username is already taken'));
+						$foundErrors++;
+						break;
+					case 'USERNAME_DISALLOWED':
+						default;
+						$errors->add('phpbb_username_disallowed', __('The username you chose is not allowed'));
+						$foundErrors++;
+						break;
+				}
+			}
+			
+			if($emailResult !== false) {
+				switch($emailResult) {
+					case 'DOMAIN_NO_MX_RECORD':
+						$errors->add('phpbb_invalid_email_mx', __('The email address does not appear to exist (No MX record)'));
+						$foundErrors++;
+						break;
+					case 'EMAIL_BANNED':
+						$errors->add('phpbb_email_banned', __('The e-mail address is banned'));
+						$foundErrors++;
+						break;
+					case 'EMAIL_TAKEN':
+						$errors->add('phpbb_email_taken', __('The e-mail address is already taken'));
+						break;
+					case 'EMAIL_INVALID':
+						default;
+						$errors->add('phpbb_invalid_email', __('The email address is invalid'));
+						$foundErrors++;
+						break;									
+				}
+			}
+
+		}
+	}
+	
+	return ($foundErrors) ? $errors : false;
+	
+	
 }
 
 
@@ -1817,8 +1718,6 @@ add_action('wp_head', 'wpu_inline_js');
 
 add_filter('template', 'wpu_get_template');
 add_filter('stylesheet', 'wpu_get_stylesheet');
-add_filter('loginout', 'wpu_loginoutlink');
-add_filter('register', 'wpu_registerlink');
 add_filter('option_blogname', 'wpu_blogname');
 add_filter('option_blogdescription', 'wpu_blogdesc');
 add_filter('option_home', 'wpu_homelink');
@@ -1835,8 +1734,7 @@ add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
 add_action('pre_comment_on_post', 'wpu_comment_redirector');
 add_action('comments_open', 'wpu_comments_open', 10, 2);
 add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
-add_filter('logout_url', 'wpu_logout_url', 10, 2);
-add_filter('show_password_fields', 'wpu_disable_passchange', 10, 2);
+
 //add_filter('login_url', 'wpu_login_url', 10, 2);
 add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
 add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
@@ -1860,6 +1758,8 @@ add_action('switch_theme', 'wpu_clear_header_cache');
 add_action('loop_start', 'wpu_loop_entry'); 
   
 add_action('admin_menu', 'wpu_add_meta_box'); 
+
+add_action('register_post', 'wpu_check_new_user', 10, 3);
 
 register_deactivation_hook('wp-united/wp-united.php', 'wpu_deactivate');
 register_uninstall_hook('wp-united/wp-united.php', 'wpu_uninstall');

@@ -755,41 +755,14 @@ function wpu_process_mapaction() {
 		
 			// create user in phpBB
 			if($package == 'phpbb') {
-				$wpUsr = get_userdata($userID);
-				$fStateChanged = $phpbbForum->foreground();
-				$password = $wpUsr->user_pass;
-				if(substr($password, 0, 3) == '$P$') {
-					$password = substr_replace($password, '$H$', 0, 3);
-				}
-				
-				// validates and finds a unique username
-				if(! $signUpName = wpu_find_next_avail_name($wpUsr->user_login, 'phpbb') ) {
+				$phpbbID = wpu_create_phpbb_user($userID);
+					
+				if($phpbbID == 0) {
+					die('<status>FAIL</status><details>Could not add user to phpBB</details></wpumapaction>');
+				} else if($phpbbID == -1) {
 					die('<status>FAIL</status><details>A suitable username could not be found in phpBB</details></wpumapaction>');
 				}
 				
-				$userToAdd = array(
-					'username' => $signUpName,
-					'user_password' => $password,
-					'user_email' => $wpUsr->user_email,
-					'user_type' => USER_NORMAL,
-					'group_id' => 2  //add to registered users group		
-				);
-				
-				if ($pUserID = user_add($userToAdd)) {
-					
-					//$wpuNewDetails = wpu_get_phpbb_intdata($pUserID);
-					
-					$phpbbForum->background($fStateChanged);
-					
-					wpu_update_int_id($pUserID, $wpUsr->ID);
-					/**
-					 * @TODO: make consistent from phpBB -> WordPress
-					 */
-					//wpu_make_profiles_consistent($wpUsr, $wpuNewDetails, true);
-					
-				} else {
-					die('<status>FAIL</status><details>Could not add user to phpBB</details></wpumapaction>');
-				} 
 			} else {
 
 				// create user in WordPress

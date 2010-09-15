@@ -3,7 +3,13 @@ Lots to do, lots to do
 
 v0.9:
 
+
 --- bi-directional user integration------
+
+
+-- create generic WP -> phpbb profile importer (or bi-di profile reconciler)
+-- phpBB user creation in settings panel: export WP profile details to phpBB
+-- move settings-panel user operations to login-integrator
 
 -- remove do_logout function (and from install.xml), use hook detection instead
 -- add wordpress logout function to log out of phpBB, then remove all login/logout redirects form WP
@@ -204,6 +210,9 @@ Internalising of integrated login into wordpress -- in progress
 - re-instituted validate_username_conflict
 - added bulk actions to user mapper.
 - added all actions to user mapper
+...
+- new helper functions, wpu_get_integration_id (updated to take optional userID) and wpu_get_integrated_phpbbuser() to determine mapped status
+- new phpBB user gets created and integrated when WordPress user is registered. Tested with RPX.
 
 
 

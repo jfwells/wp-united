@@ -42,7 +42,7 @@ function wpu_integrate_login() {
  * in WP-United prior to v0.9.0, we would forcibly log them out
  * However this is left open as a prelude to bi-directional user integration
  */
-function wpu_int_phpbb_logged_out() {
+function wpu_int_phpbb_logged_out() { 
 	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user, $user;
 			
 	// Check if user is logged into WP
@@ -51,10 +51,10 @@ function wpu_int_phpbb_logged_out() {
 		return false;
 	}
 	
-	if($wpSettings['integsource'] == 'wp') {
+	//if($wpSettings['integsource'] == 'wp') {
 	
-		$wpIntID = (isset($wpUser->phpbb_userid)) ? $wpUser->phpbb_userid : 0;
-		
+		$wpIntID = wpu_get_integrated_phpbbuser($wpUser->ID);
+
 		if($wpIntID) {
 			// the user has an integrated phpBB account, log them into it
 			$fStateChanged = $phpbbForum->foreground();
@@ -79,7 +79,7 @@ function wpu_int_phpbb_logged_out() {
 			// LOG IN
 			/// [ or -- do all from phpbb ]
 		}
-	}
+	//}
 	
 	// this clears all WP-related cookies
 	// wp_clear_auth_cookie();
@@ -91,9 +91,9 @@ function wpu_int_phpbb_logged_in() {
 	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user;
 	
 	
-	if($wpSettings['integsource'] != 'phpbb') {
-		return get_currentuserinfo();
-	}
+	//if($wpSettings['integsource'] != 'phpbb') {
+	//	return get_currentuserinfo();
+	//}
 	
 	// Should this user integrate? If not, we can just let WordPress do it's thing
 	if( !$userLevel = wpu_get_user_level() ) {
@@ -134,7 +134,19 @@ function wpu_int_phpbb_logged_in() {
 			'user_pass'		=>	$phpbbForum->get_userdata('user_password'),
 			'user_email'	=>	$phpbbForum->get_userdata('user_email')
 		); 
-		if($newUserID = wp_insert_user($newWpUser)) { 
+		
+		// remove WP-United hook so we don't get stuck in a loop on new user creation
+		if(!remove_action('user_register', 'wpu_check_new_user_after', 10, 1)) {
+			return false;
+		}
+		
+		$newUserID = wp_insert_user($newWpUser);
+		
+		// reinstate the hook
+		add_action('user_register', 'wpu_check_new_user_after', 10, 1); 
+		
+		if($newUserID) { 
+			
 		   if(!is_a($newUserID, WP_Error)) {
 				$wpUser = get_userdata($newUserID);
 				// must set this here to prevent recursion
@@ -203,6 +215,57 @@ function wpu_find_next_avail_name($name, $package = 'wp') {
 		return $newName;
 	}
 }
+
+/**
+ * Creates a new integrated user in phpBB to match a given WordPress user
+ * @param int $userID the WordPress userID
+ * @return int < 1 on failure; >=1 phpbb User ID on success
+ */
+function wpu_create_phpbb_user($userID) {
+	global $phpbbForum;
+	
+	$wpUsr = get_userdata($userID);
+	
+	$fStateChanged = $phpbbForum->foreground();
+	
+	$password = $wpUsr->user_pass;
+	if(substr($password, 0, 3) == '$P$') {
+		$password = substr_replace($password, '$H$', 0, 3);
+	}
+				
+	// validates and finds a unique username
+	if(! $signUpName = wpu_find_next_avail_name($wpUsr->user_login, 'phpbb') ) {
+		return -1;
+	}
+	
+	$pUserID = 0;
+				
+	$userToAdd = array(
+		'username' => $signUpName,
+		'user_password' => $password,
+		'user_email' => $wpUsr->user_email,
+		'user_type' => USER_NORMAL,
+		'group_id' => 2  //add to registered users group		
+	);
+	
+	
+				
+	if ($pUserID = user_add($userToAdd)) {
+
+		wpu_update_int_id($pUserID, $wpUsr->ID);
+		/**
+		 * @TODO: make consistent from phpBB -> WordPress
+		 */
+		//wpu_make_profiles_consistent($wpUsr, $wpuNewDetails, true);
+	}
+	
+	$phpbbForum->restore_state($fStateChanged);
+
+	
+	return $pUserID;
+}
+
+
 
 /**
  * Determines if a non-integrated WP user can integrate into a new phpBB account.
@@ -341,15 +404,79 @@ function wpu_assess_perms($groupList = '') {
 }
 
 /**
- * Gets the integration ID for the current user
+ * Gets the integration ID for the current phpBB user, or for a provided phpBB user ID
+ * @param in $userID phpBB user ID (optional)
+ * @return int WordPress User ID, or zero
+ */
+function wpu_get_integration_id($userID = 0) {
+	global $phpbbForum, $db;
+	
+	$userID = (int)$userID;
+	
+	if($userID == 0) {
+		if( array_key_exists('user_wpuint_id', $phpbbForum->get_userdata()) ) {
+			return $phpbbForum->get_userdata('user_wpuint_id');
+		} 
+	} else {
+		$fStateChanged = $phpbbForum->foreground();
+		
+		$sql = 'SELECT user_wpuint_id FROM ' . USERS_TABLE . ' 
+					WHERE user_id = ' . $userID;
+		
+		if(!$result = $db->sql_query($sql)) {
+			$wUserID = 0;
+		} else {
+			$wUserID = $db->sql_fetchfield('user_wpuint_id');
+		}
+		$db->sql_freeresult();
+				
+		$phpbbForum->restore_state($fStateChanged);
+		
+		return $wUserID;
+		
+	}
+	return 0;
+}
+
+/**
+ * Gets the integration ID for the current WordPress user, or for a provided WordPress user ID
+ * @param in $userID WordPress user ID (optional)
  * @return int phpBB User ID, or zero
  */
-function wpu_get_integration_id() {
-	global $phpbbForum;
-	if( array_key_exists('user_wpuint_id', $phpbbForum->get_userdata()) ) {
-		return $phpbbForum->get_userdata('user_wpuint_id');
-	} 
-	return 0;
+function wpu_get_integrated_phpbbuser($userID = 0) {
+	global $current_user, $phpbbForum, $db;
+
+	
+		
+	$userID = (int)$userID;
+	
+	if($userID == 0) {
+	
+		$current_user =  wp_get_current_user();
+		$userID = $current_user->ID;
+		
+		if($userID == 0) {
+			return 0;
+		}
+		
+	}
+	
+	$fStateChanged = $phpbbForum->foreground();
+		
+	$sql = 'SELECT user_id FROM ' . USERS_TABLE . ' 
+				WHERE user_wpuint_id = ' . $userID;
+		
+	if(!$result = $db->sql_query_limit($sql, 1)) {
+		$pUserID = 0;
+	} else {
+		$pUserID = $db->sql_fetchfield('user_id');
+	}
+	$db->sql_freeresult();
+			
+	$phpbbForum->restore_state($fStateChanged);
+	
+	return $pUserID;
+
 }
 
 
@@ -521,9 +648,9 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	}
 	
 	if ( ($pData['user_password'] != $wpDataArr['user_pass']) && (!empty($pData['user_password'])) && (isset($pData['user_password'])) ) {
-		$update['user_pass'] = $pData['user_password']; 
-		$doWpUpdate = true;
+		$update['user_pass'] =$pData['user_password']; 
 	}
+	
 	if ( (!($pData['user_website'] == $wpDataArr['user_url'])) && (isset($pData['user_website'])) ) {
 		$update['user_url'] = $pData['user_website'];
 		$doWpUpdate = true;
@@ -562,16 +689,35 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 		}
 	}								
 	if ( $doWpUpdate ) {
+		/**
+		 * We re-implement most of wp_update_user here so that we can override the password hashing
+		 * Before we just plugged wp_hash_password, but some naughty plugins (like Janrain) prevent us from
+		 * being able to do that
+		 */
+		
 		$update['ID'] = $wpData->ID;
-		define('PASSWORD_ALREADY_HASHED', TRUE);
 		require_once( ABSPATH . WPINC . '/registration.php');
-		if($loggedInID = wp_update_user($update)) {
+		$exstUser = get_userdata($update['ID']);
+		$exstUser = add_magic_quotes(get_object_vars($exstUser));
+		
+		$userdata = array_merge($exstUser, $update);
+		$user_id = wp_insert_user($userdata);
+		
+		$current_user = wp_get_current_user();
+		if ( $current_user->id == $ID ) {
+			if ( isset($update['user_pass']) ) {
+				wp_clear_auth_cookie();
+				wp_set_auth_cookie($ID);
+			}
 			return $update;
 		}
 	}
+
 	
 	return 0;
 }
+
+
 
 /**
  * Log users into WordPresss -- It's a private function, designed to be called from
