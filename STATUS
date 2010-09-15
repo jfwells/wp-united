@@ -52,10 +52,12 @@ v0.9:
 
 
 ------ cross-posting and comments ---------
--- Add cross-posting permissions to an additional column in the permissions tab
+-- Add cross-posting permissions to an additional column in the permissions tab (?)
 -- move cross-posting from per-topic to per-post (and topic!) to reduce query load
 -- check excerpt/full settings are working
 -- rework html-to-bbcode translation for images with captions
+
+-- make wpu_get_xposted_details() cachable, and implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
 
 -- for each cross-posted comment insert a ghost comment into wordpress with a marker to the phpBB comment (? -- unless we can cleanly generate "comments list to load", see below)
 -- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
