@@ -11,6 +11,8 @@ v0.9:
 -- phpBB user creation in settings panel: export WP profile details to phpBB
 -- move settings-panel user operations to login-integrator
 
+-- refactor: make use of wpu_get_integration_id and wpu_get_integrated_phpbbuser() wherever possible
+
 -- remove do_logout function (and from install.xml), use hook detection instead
 -- add wordpress logout function to log out of phpBB, then remove all login/logout redirects form WP
 -- on logout of phpBB find way to clear WP cookies without invoking WP (for new compatibility layer)
