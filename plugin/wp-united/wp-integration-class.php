@@ -243,7 +243,7 @@ Class WPU_Integration {
 	 */	
 	function exec() {
 		
-		$code = $this->wpRun; 
+		$code = $this->wpRun;
 		$this->wpRun = '';
 		return $code;
 	}

@@ -58,10 +58,27 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 						/**
 						 * New add for global scope 
 						 */ 
+						 
+						 // Is this a logout request?
+						$phpbb_logging_out = ((request_var('mode', '') == 'logout') && (preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) );
+						
+						// enter wordpress if this is phpbb-in-wordpress
 						if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 							define('WPU_REVERSE_INTEGRATION', true); 
 							//ob_start(); // to capture errors
 							require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+						
+						// or if we are logging out of phpBB
+						} else if($phpbb_logging_out) {
+							require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+						}
+						
+						
+						// Need to do in two steps as pluginpath URL changes if rev integration is on
+						if($phpbb_logging_out) {
+							$phpbbForum->background();
+							wp_logout();
+							$phpbbForum->foreground();
 						}
 
 					}
@@ -89,9 +106,11 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
  */
 function wpu_init(&$hook) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config, $phpbbForum;
-
-
-	/* TEMP TEST
+	
+	
+		/* TEMP TEST
+	*/
+	/*
 	 if(!empty($GLOBALS['user']->data['is_registered'])) {
 			echo 'user is logged in';
 			echo '***' . $user->data['is_registered'] . '***<br />';
