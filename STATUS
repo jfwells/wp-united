@@ -6,6 +6,7 @@ v0.9:
 
 --- bi-directional user integration------
 
+-- Janrain is incompatible with wp-load bypass ---- simply need to comment out pluggable.php loader
 
 -- create generic WP -> phpbb profile importer (or bi-di profile reconciler)
 -- phpBB user creation in settings panel: export WP profile details to phpBB
@@ -218,6 +219,7 @@ Internalising of integrated login into wordpress -- in progress
 - new helper functions, wpu_get_integration_id (updated to take optional userID) and wpu_get_integrated_phpbbuser() to determine mapped status
 - new phpBB user gets created and integrated when WordPress user is registered. Tested with RPX.
 - phpBB  user is logged out when wordpress logs out
+- wordpress user is logged out when phpBB logs out
 
 
 ... for phpbb-side login ideas.....
