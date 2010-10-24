@@ -217,7 +217,7 @@ Internalising of integrated login into wordpress -- in progress
 ...
 - new helper functions, wpu_get_integration_id (updated to take optional userID) and wpu_get_integrated_phpbbuser() to determine mapped status
 - new phpBB user gets created and integrated when WordPress user is registered. Tested with RPX.
-
+- phpBB  user is logged out when wordpress logs out
 
 
 ... for phpbb-side login ideas.....

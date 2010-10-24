@@ -166,6 +166,17 @@ function wpu_int_phpbb_logged_in() {
 }
 
 
+/**
+ * Logs the user out of phpBB if they log out of WordPress
+ */
+ function wpu_wp_logout() {
+	 global $phpbbForum;
+	 
+	 $phpbbForum->logout();
+	 
+}
+
+
 
 /**
  * Finds the next available username in WordPress or phpBB
@@ -537,7 +548,7 @@ function wpu_permissions_list() {
  * Logs out from WP
  * Not currently used
  */
-function wpu_wp_logout() {
+function wpu_wp_logout_legacy() {
 	wp_logout();
 	unset($_COOKIE[AUTH_COOKIE]);
 	unset($_COOKIE[SECURE_AUTH_COOKIE]);

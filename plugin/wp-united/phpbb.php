@@ -375,6 +375,21 @@ class WPU_Phpbb {
 		 
 	}	
 	
+	/**
+	 * Logs out the current user
+	 */
+	 public function logout() {
+		 global $user;
+		 
+		 $fStateChanged = $this->foreground();
+		 
+		 if($user->data['user_id'] != ANONYMOUS) {
+			$user->session_kill();
+		}
+		
+		$this->restore_state($fStateChanged);
+	}
+	
 	
 	/**
 	 * transmits new settings from the WP settings panel to phpBB

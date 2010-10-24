@@ -1704,6 +1704,8 @@ function wpu_uninstall() {
 /**
  * here we add all the hooks and filters
  */
+ 
+ add_action('wp_logout', 'wpu_wp_logout');
 
 add_filter('pre_user_login', 'wpu_fix_blank_username');
 add_filter('validate_username', 'wpu_validate_username_conflict');
