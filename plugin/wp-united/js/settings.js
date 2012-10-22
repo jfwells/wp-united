@@ -122,7 +122,7 @@ function wpuChangePath() {
 	$('#txtselpath').show();
 	$('#wpucancelchange').show();
 	$('#wpucancelchange').button();
-	$('#wpusetup-submit').show();
+	$('#wpusetup-submit').hide();
 	return false;
 }
 
@@ -135,7 +135,7 @@ function wpuCancelChange() {
 	$('#txtchangepath').show();
 	$('#txtselpath').hide();
 	$('#wpucancelchange').hide();
-	$('#wpusetup-submit').hide();			
+	$('#wpusetup-submit').show();			
 	return false;
 }
 
@@ -243,16 +243,20 @@ function wpu_setup_errhandler() {
  * Other types are PHP errors, or server responses with unexpected content
  * Finally we also process non-300 rsponses from jQuery's ajaxError
  */
-function wpu_process_error(transmitMessage) {
+function wpu_process_error(transmitMessage) { 
 	// there was an uncatchable error, send a disable request
-	if  (transmitMessage.indexOf('[ERROR]') == -1) {
+	if  (transmitMessage.indexOf('[ERROR]') == -1) { 
 		var disable = 'wpudisable=1&_ajax_nonce=' + disableNonce;
+		if(transmitMessage == '') {
+			transmitMessage = blankPageMsg;
+		}
+		// prevent recursive ajax error:
+		$(document).ajaxError(function() {
+			// TODO: if server 500 error or disable, try direct delete method
+			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
+		}); 
 		$.post('index.php', disable, function(response) {
 			// the connection has been disabled, redirect
-			if(transmitMessage == '') {
-				transmitMessage = blankPageMsg;
-			}
-			
 			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
 		});
 	} else {

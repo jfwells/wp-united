@@ -51,10 +51,10 @@ function wpu_init_plugin() {
 	$wpSettings['status'] = 0;
 	
 	require_once($wpuPath .  'phpbb.php');
-	$phpbbForum = new WPU_Phpbb();
+	$phpbbForum = new WPU_Phpbb();	
 
 	if(isset($wpSettings['phpbb_path']) && isset($wpSettings['enabled'])) {
-
+		
 		if(file_exists($wpSettings['phpbb_path']) && $wpSettings['enabled'] !=  'disabled') {
 			$wpSettings['status'] = 1;
 		}
@@ -70,7 +70,7 @@ function wpu_init_plugin() {
 			$wpSettings['integrateLogin'] = 0;
 		}
 
-		if($wpSettings['enabled'] == 'enabled') {
+		if(($wpSettings['enabled'] == 'enabled')  && !function_exists('make_clickable')) {
 
 		
 			if ( !defined('IN_PHPBB') ) {

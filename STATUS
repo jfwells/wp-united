@@ -4,6 +4,28 @@ Lots to do, lots to do
 v0.9:
 
 
+----
+coming back to dev after very long hiatus. Major new issues are:
+----
+
+On home dev machine, 500 server error causes massive retry loop, doesn't fall back gracefully [fixed]
+
+connect button disappears after changing path
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------
+
+
 --- bi-directional user integration------
 
 -- Janrain is incompatible with wp-load bypass ---- simply need to comment out pluggable.php loader
