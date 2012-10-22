@@ -22,7 +22,7 @@ Visit http://www.wp-united.com for more help or information.
     <installation>
       <level>intermediate</level>
       <time>1200</time>
-      <target-version>3.0.7</target-version>
+      <target-version>3.0.11</target-version>
     </installation>
     <link-group>
 		<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
@@ -181,8 +181,9 @@ function phpbb_validate_username($username, $allowed_username = false)]]></actio
     </open>
     <open src="styles/prosilver/template/memberlist_view.html">
       <edit>
-        <find><![CDATA[			<dt>{postrow.PROFILE_FIELD1_NAME}:</dt> <dd>{postrow.PROFILE_FIELD1_VALUE}</dd>
-		<!-- ENDIF -->]]></find>
+        <find><![CDATA[                        <dt>{PROFILE_FIELD1_NAME}:</dt> <dd>{PROFILE_FIELD1_VALUE}</dd>
+                <!-- ENDIF -->
+]]></find>
         <action type="after-add"><![CDATA[		<!-- IF U_BLOG_LINK -->
 			<dt>{L_BLOG}:</dt> <dd><a href="{U_BLOG_LINK}" title="{L_VISIT_BLOG}" >{L_VISIT_BLOG}</a></dd>
 		<!-- ENDIF -->]]></action>
