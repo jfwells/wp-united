@@ -49,6 +49,11 @@ function wpu_init_plugin() {
 
 
 	$wpSettings['status'] = 0;
+
+	// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
+	wpu_admin_actions();
+
+
 	
 	require_once($wpuPath .  'phpbb.php');
 	$phpbbForum = new WPU_Phpbb();	
@@ -69,8 +74,6 @@ function wpu_init_plugin() {
 		if(defined('WPU_CANNOT_OVERRIDE')) {
 			$wpSettings['integrateLogin'] = 0;
 		}
-		
-		wpu_admin_actions();
 		
 		if(($wpSettings['enabled'] == 'enabled')) {
 
@@ -121,9 +124,6 @@ function wpu_init_plugin() {
 		if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
 			wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 		}
-	} else {
-	
-		wpu_admin_actions();
 	}
 	
 	
