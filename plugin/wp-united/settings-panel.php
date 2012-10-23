@@ -559,7 +559,7 @@ function wpu_user_mapper() {
 
 
 function wpu_map_show_data() {
-	global $wpdb, $phpbbForum, $db, $user;
+	global $wpuPath, $wpdb, $phpbbForum, $db, $user;
 	
 	$type = (isset($_POST['wpumapside']) && $_POST['wpumapside'] == 'phpbb' ) ? 'phpbb' : 'wp';
 	$first = (isset($_POST['wpufirstitem'])) ? (int) $_POST['wpufirstitem'] : 0;
@@ -569,7 +569,6 @@ function wpu_map_show_data() {
 	$showOnlyUnInt = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'unint')) ? 1 : 0;
 	$showOnlyPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'posts')) ? 1 : 0;
 	$showOnlyNoPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'noposts')) ? 1 : 0;
-	
 	
 	require($wpuPath . 'user-mapper.php');
 	require($wpuPath . 'mapped-users.php');

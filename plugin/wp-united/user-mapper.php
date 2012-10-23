@@ -61,13 +61,13 @@ class WPU_User_Mapper {
 		$this->showSpecificUsers = false;
 		$this->showUsersLike = (empty($showLike)) ? false : (string)$showLike;
 
-		if(is_array($showSpecificUsers)) { 
+		if(is_array($showSpecificUserIDs)) { 
 			$this->showSpecificUsers = true;
-			$this->usersToShow = $showSpecificUsers;
+			$this->usersToShow = $showSpecificUserIDs;
 		} else {
-			if(!empty($showSpecificUsers)) {
+			if(!empty($showSpecificUserIDs)) {
 				$this->showSpecificUsers = true;
-				$this->usersToShow = (array)$showSpecificUsers;
+				$this->usersToShow = (array)$showSpecificUserIDs;
 			} 
 			// else leave set at default
 		}
