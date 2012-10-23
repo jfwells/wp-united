@@ -147,7 +147,7 @@ function wpu_int_phpbb_logged_in() {
 		
 		if($newUserID) { 
 			
-		   if(!is_a($newUserID, WP_Error)) {
+		   if(!is_a($newUserID, 'WP_Error')) {
 				$wpUser = get_userdata($newUserID);
 				// must set this here to prevent recursion
 				wp_set_current_user($wpUser->ID);
