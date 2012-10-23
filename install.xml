@@ -4,7 +4,7 @@
 <mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.3.xsd">
   <header>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
-    <title lang="en-gb">WP-UNITED: WordPress-phpBB Integration Mod</title>
+    <title lang="en-gb">WP-UNITED: WordPress-phpBB Integration Package</title>
     <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
     <author-notes lang="en-gb">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
 Visit http://www.wp-united.com for more help or information.
@@ -231,14 +231,14 @@ Remember to purge the phpBB template cache, and refresh your themes after making
 IMPORTANT NEXT STEPS
 --------------------
 
-For more detailed instructions, please read the README_FIRST file, or visit http://www.wp-united.com
+Most of the work of WP-United is done in the WordPress plugin. Please copy the plugin/wp-united folder to your wordpress plugins folder, and follow the instructions there.
 
 REPORTING BUGS / GETTING HELP
 -----------------------------
 
 Please remember, 95% of reported bugs are user error. If you encounter any problems, re-read the above steps carefully, and make sure you have done everything as instructed, and try installing the mod using AutoMod. 
 
-Check that your phpBB server settings (especially "script path") and WordPress settings are correct, then try re-running the WP-United install wizard (WP-United tab in the phpBB Admin Control Panel).
+Check that your phpBB server settings (especially "script path") and WordPress settings are correct, then try re-installing.
 
 If it still fails, please:
 (1) If you are getting blank pages, turn on PHP error reporting or look in your server log to find the underlying cause of the problem.
