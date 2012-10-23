@@ -69,8 +69,10 @@ function wpu_init_plugin() {
 		if(defined('WPU_CANNOT_OVERRIDE')) {
 			$wpSettings['integrateLogin'] = 0;
 		}
-
-		if(($wpSettings['enabled'] == 'enabled')  && !function_exists('make_clickable')) {
+		
+		wpu_admin_actions();
+		
+		if(($wpSettings['enabled'] == 'enabled')) {
 
 		
 			if ( !defined('IN_PHPBB') ) {
@@ -119,9 +121,10 @@ function wpu_init_plugin() {
 		if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
 			wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 		}
-	} 
+	} else {
 	
-	wpu_admin_actions();
+		wpu_admin_actions();
+	}
 	
 	
 	if( (!$wpSettings['integrateLogin']) || defined('WPU_DISABLE_LOGIN_INT') ) {
