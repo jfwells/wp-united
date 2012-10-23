@@ -208,9 +208,37 @@ function wpu_disable_connection($type) {
 		die(__('WP-United Disabled Successfully'));
 	}
 	
-	_e('WP-United Disabled');
+ 	_e('WP-United Disabled');
 	return;
+
 }
+
+
+/**
+ * The default shutdown action, wp_ob_end_flush_all, causes PHP notices with zlib compression. 
+ * So we turn it off and replace it with the diff suggested at
+ * http://rustyroy.blogspot.jp/2010/12/various-stuff_20.html
+ * See also http://core.trac.wordpress.org/attachment/ticket/18525/18525.6.diff 
+ */
+remove_action('shutdown', 'wp_ob_end_flush_all', 1);
+add_action('shutdown', 'wpu_ob_end_flush_all', 1);
+function wpu_ob_end_flush_all() {
+	$levels = ob_get_level();
+	for ($i=0; $i<$levels; $i++){
+		$obStatus = ob_get_status();
+		if (!empty($obStatus['type']) && $obStatus['status']) {
+			ob_end_flush();
+		}
+	}
+
+}
+
+
+
+
+
+
+
 
 /**
  * Check the permalink to see if this is a link to the forum. 
