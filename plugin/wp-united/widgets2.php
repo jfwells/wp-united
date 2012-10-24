@@ -96,8 +96,8 @@ class WPU_Login_User_info extends WP_Widget {
 		$loginForm = (!empty($instance['login-form'])) ? 'checked="checked"' : '';
 		?>
 		
-		<p><label for="<?php echo $this->get_field_id('title-logged-in'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_loggedin'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-in'); ?>" name="<?php echo $this->get_field_name('title-logged-in'); ?>" type="text" value="<?php echo attribute_escape($titleLoggedIn); ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id('title-logged-out'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_loggedout'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-out'); ?>" name="<?php echo $this->get_field_name('title-logged-out'); ?>" type="text" value="<?php echo attribute_escape($titleLoggedOut); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title-logged-in'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_loggedin'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-in'); ?>" name="<?php echo $this->get_field_name('title-logged-in'); ?>" type="text" value="<?php echo esc_attr($titleLoggedIn); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title-logged-out'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_loggedout'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-out'); ?>" name="<?php echo $this->get_field_name('title-logged-out'); ?>" type="text" value="<?php echo esc_attr($titleLoggedOut); ?>" /></label></p>
 		<p><input id="<?php echo $this->get_field_id('rank'); ?>" name="<?php echo $this->get_field_name('rank'); ?>" type="checkbox" value="rank" <?php echo $rank ?> /> <label for="<?php echo $this->get_field_id('rank'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_rank'] ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('new'); ?>" name="<?php echo $this->get_field_name('new'); ?>" type="checkbox" value="new"  <?php echo $new ?> /> <label for="<?php echo $this->get_field_id('new'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_newposts'] ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('write'); ?>" name="<?php echo $this->get_field_name('write'); ?>" type="checkbox" value="write" <?php echo $write ?> /> <label for="<?php echo $this->get_field_id('write'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_write'] ?></label></p>
@@ -162,8 +162,8 @@ class WPU_Latest_Phpbb_Topics extends WP_Widget {
 		$max = strip_tags($instance['max']);
 
 		?>
-		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo $phpbbForum->lang['wpu_panel_heading'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo attribute_escape($title); ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php echo $phpbbForum->lang['wpu_panel_max_entries'] ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo attribute_escape($max); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo $phpbbForum->lang['wpu_panel_heading'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php echo $phpbbForum->lang['wpu_panel_max_entries'] ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo esc_attr($max); ?>" /></label></p>
 		<?php
 	}	
 }
@@ -221,8 +221,8 @@ class WPU_Latest_Phpbb_Posts extends WP_Widget {
 		$max = strip_tags($instance['max']);
 
 		?>
-		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo $phpbbForum->lang['wpu_panel_heading'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo attribute_escape($title); ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php echo $phpbbForum->lang['wpu_panel_max_entries'] ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo attribute_escape($max); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo $phpbbForum->lang['wpu_panel_heading'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php echo $phpbbForum->lang['wpu_panel_max_entries'] ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo esc_attr($max); ?>" /></label></p>
 		<?php
 	}	
 }

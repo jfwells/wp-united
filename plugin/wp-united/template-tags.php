@@ -1043,7 +1043,7 @@ function wpu_get_redirect_link() {
 	$fStateChanged = $phpbbForum->foreground();
 	$link = reapply_sid($link);
 	$phpbbForum->restore_state($fStateChanged);
-	return urlencode(attribute_escape($link));
+	return urlencode(esc_attr($link));
 }
 
 /**

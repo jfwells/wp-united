@@ -110,7 +110,7 @@ function wpu_init_plugin() {
 				if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
 					wp_redirect(admin_url());
 				} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
-					$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(attribute_escape(admin_url())), false, false, $GLOBALS['user']->session_id);		
+					$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(esc_attr(admin_url())), false, false, $GLOBALS['user']->session_id);		
 					wp_redirect($phpbbForum->url . $login_link);
 				}
 			} */
@@ -388,9 +388,9 @@ function wpu_menuSettings() {
 	<h2> <?php echo $phpbbForum->lang['wpu_blog_details']?> </h2>
 	<form name="profile" id="your-profile" action="admin.php?noheader=true&amp;page=wp-united&amp;wpu_action=update-blog-profile" method="post">
 	<?php wp_nonce_field('update-blog-profile_' . $user_ID); 	?>
-	<input type="hidden" name="_wp_http_referer" value="<?php echo attribute_escape($_SERVER['REQUEST_URI']); ?>" />
+	<input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr($_SERVER['REQUEST_URI']); ?>" />
 	<?php if ( $ref = wp_get_original_referer() ): ?>
-		<input type="hidden" name="_wp_original_http_referer" value="<?php echo attribute_escape(stripslashes($ref)); ?>" />
+		<input type="hidden" name="_wp_original_http_referer" value="<?php echo esc_attr(stripslashes($ref)); ?>" />
 	<?php endif; ?>
 		<input type="hidden" name="checkuser_id" value="<?php echo $user_ID; ?>" />
 	</p>	
@@ -575,11 +575,11 @@ function wp_united_display_theme_menu() {
 						$theme_root_uri = $themes[$theme_name]['Theme Root URI'];							
 						$preview_link = clean_url( get_option('home') . '/');
 						$preview_link = htmlspecialchars( add_query_arg( array('preview' => 1, 'template' => $template, 'stylesheet' => $stylesheet, 'TB_iframe' => 'true', 'width' => 600, 'height' => 400 ), $preview_link ) );
-						$preview_text = attribute_escape( sprintf( __('Preview of "%s"'), $title ) );
+						$preview_text = esc_attr( sprintf( __('Preview of "%s"'), $title ) );
 						$tags = $themes[$theme_name]['Tags'];
 						$thickbox_class = 'thickbox';
 						$activate_link = wp_nonce_url('admin.php?page=wp-united-theme-menu&amp;noheader=true&amp;wpu_action=activate&amp;template=' . $template . '&amp;stylesheet=' . $stylesheet, 'wp-united-switch-theme_' . $template);
-						$activate_text = attribute_escape( sprintf( __('Activate "%s"'), $title ) );
+						$activate_text = esc_attr( sprintf( __('Activate "%s"'), $title ) );
 						?>
 						<?php if ( $screenshot ) { ?>
 							<a href="<?php echo $preview_link; ?>" title="<?php echo $preview_text; ?>" class="<?php echo $thickbox_class; ?> screenshot">
@@ -1261,7 +1261,7 @@ function wpu_buffer_profile($output) {
 		define('WPU_ALTER_PROFILE', TRUE);
 		
 		// We directly edit the profile page. We need to keep the e-mail field around, so hide it.
-		$emailField = '<input type="hidden" name="email" id="email" value="' .  attribute_escape($profileuser->user_email) . '" />';
+		$emailField = '<input type="hidden" name="email" id="email" value="' .  esc_attr($profileuser->user_email) . '" />';
 		$output = preg_replace('/<h3>' . __('Contact Info') . '[\s\S]*<h3>/i', $emailField . '<h3>' , $output);
 		
 		
@@ -1339,7 +1339,7 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
       return $avatar;
    }
 
-   $safe_alt = attribute_escape( $phpbbForum->lang['USER_AVATAR'] );
+   $safe_alt = esc_attr( $phpbbForum->lang['USER_AVATAR'] );
 
    if ( !is_numeric($size) )
       $size = '96';
