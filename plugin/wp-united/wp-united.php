@@ -1563,9 +1563,33 @@ function wpu_check_new_user($username, $email, $errors) {
  * This action is removed by WP-United when adding a user, so we avoid unsetting our own additions
  */
 add_action('user_register', 'wpu_check_new_user_after', 10, 1); 
-function wpu_check_new_user_after($userID) {
-		global $wpSettings, $phpbbForum;
-		
+function wpu_check_new_user_after($userID) { 
+		global $wpSettings, $phpbbForum, $wpuPluginLoaded, $wpuJustCreatedUser;
+	
+	
+		/*
+		 * if we've already created a user in this session, 
+		 * it is likely an error from a plugin calling the user_register hook 
+		 * after wp_insert_user has already called it. The Social Login plugin does this
+		 * 
+		 * At any rate, it is pointless to check twice
+		 */
+		if($wpuJustCreatedUser == $userID) {
+				return;
+		}
+
+		// some registration plugins don't init WP. This is enough to get us a phpBB env
+		if(!$wpuPluginLoaded) {
+			wpu_init_plugin();
+			
+			// neeed some user add / delete functions
+			if ( ! defined('WP_ADMIN') ) {
+				require_once(ABSPATH . 'wp-admin/includes/user.php');
+			}
+			
+		}
+
+
 		if (!empty($wpSettings['integrateLogin'])) { 
 			
 			$errors = new WP_Error();
@@ -1573,21 +1597,22 @@ function wpu_check_new_user_after($userID) {
 			
 
 			$result = wpu_validate_new_user($user->user_login, $user-->user_email , $errors);
-			if($result !== false) {
+
+			if($result !== false) { 
 				// An error occurred validating the new WP user, remove the user.
+				
 				wp_delete_user($userID,  0);
 				$message = '<h1>' . __('Error:') . '</h1>';
-				$message .= '<p>' . implode('</p><p>', $errors->get_error_messages());
-				$message .= __('Please go back and try again, or contact an administrator if you keep seeing this error.');
+				$message .= '<p>' . implode('</p><p>', $errors->get_error_messages()) . '</p><p>';
+				$message .= __('Please go back and try again, or contact an administrator if you keep seeing this error.') . '</p>';
 				wp_die($message);
-				exit();
-			} else {
 				
+				exit();
+			} else { 
+	
 				// create new integrated user in phpBB to match
 				$phpbbID = wpu_create_phpbb_user($userID);
-							
-				
-				
+				$wpuJustCreatedUser = true;
 			}
 			
 		}

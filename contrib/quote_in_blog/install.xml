@@ -21,7 +21,7 @@ Visit http://www.wp-united.com for more help or information.
     <mod-version>0.8.4RC2</mod-version>
     <installation>
       <level>intermediate</level>
-      <time>1200</time>
+      <time>300</time>
       <target-version>3.0.6</target-version>
     </installation>
     <link-group>
@@ -36,7 +36,7 @@ Visit http://www.wp-united.com for more help or information.
     <open src="styles/prosilver/template/viewtopic_body.html">
       <edit>
         <find><![CDATA[<!-- IF postrow.U_EDIT --><li class="edit-icon"><a href="{postrow.U_EDIT}" title="{L_EDIT_POST}"><span>{L_EDIT_POST}</span></a></li><!-- ENDIF -->]]></find>
-        <action type="before-add"><![CDATA[					<!-- IF postrow.U_QUOTEBLOG --><li class="quoteblog-icon"><a href="{postrow.U_QUOTEBLOG}" title="{L_QUOTE_BLOG}"><span>{L_QUOTE_BLOG}</span></a></li><!-- ENDIF --></action>
+        <action type="before-add"><![CDATA[					<!-- IF postrow.U_QUOTEBLOG --><li class="quoteblog-icon"><a href="{postrow.U_QUOTEBLOG}" title="{L_QUOTE_BLOG}"><span>{L_QUOTE_BLOG}</span></a></li><!-- ENDIF -->]]></action>
       </edit>
     </open>    
     <open src="styles/prosilver/imageset/imageset.cfg">

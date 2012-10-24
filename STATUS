@@ -4,6 +4,42 @@ Lots to do, lots to do
 v0.9:
 
 
+Auto login:
+
+-- ignore/remove phpBB/WordPress master
+
+- Disable auto acct creation/login
+
+Auto-register in phpBB on WP reg [done!]
+Auto-register in WP on phpBB reg
+
+phpBB / WP logout, both sides: [WIP in hooks file]
+
+phpBB login on WP login
+WP login on phpBB login
+
+
+Disable JIT WP user creation
+
+Auto-delete from other side????? [to consider -- best to use admin panel]
+
+
+
+
+previously integrated phpbb users but with missing WP cunterparts show as integrated in the user mapper (or leave it, they shouldn't become unintegrated)
+top line in mapper unclickable
+
+
+
+[[[
+
+PHPBB_MSG_HANDLER (overwrite message handler)
+PHPBB_DB_NEW_LINK (overwrite new_link parameter for sql_connect)
+PHPBB_ROOT_PATH   (overwrite $phpbb_root_path)
+PHPBB_ADMIN_PATH  (overwrite $phpbb_admin_path)
+PHPBB_USE_BOARD_URL_PATH (use generate_board_url() for image paths instead of $phpbb_root_path)
+]]]
+
 - cleared many notices, deprecations and errors
 - disabled user pannel buffering. user integration works (apart from logout) for P master
 - TODO: Re-imagine user panel "Name" section

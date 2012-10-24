@@ -87,7 +87,7 @@ function wpu_int_phpbb_logged_out() {
 	return $user;
 }
 
-function wpu_int_phpbb_logged_in() {
+function wpu_int_phpbb_logged_in() { 
 	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user;
 	
 	
@@ -243,12 +243,12 @@ function wpu_create_phpbb_user($userID) {
 	if(substr($password, 0, 3) == '$P$') {
 		$password = substr_replace($password, '$H$', 0, 3);
 	}
-				
+
 	// validates and finds a unique username
 	if(! $signUpName = wpu_find_next_avail_name($wpUsr->user_login, 'phpbb') ) {
 		return -1;
 	}
-	
+
 	$pUserID = 0;
 				
 	$userToAdd = array(
@@ -259,7 +259,7 @@ function wpu_create_phpbb_user($userID) {
 		'group_id' => 2  //add to registered users group		
 	);
 	
-	
+
 				
 	if ($pUserID = user_add($userToAdd)) {
 
@@ -269,7 +269,7 @@ function wpu_create_phpbb_user($userID) {
 		 */
 		//wpu_make_profiles_consistent($wpUsr, $wpuNewDetails, true);
 	}
-	
+
 	$phpbbForum->restore_state($fStateChanged);
 
 	

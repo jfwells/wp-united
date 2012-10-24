@@ -56,11 +56,15 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 
 					
 						/**
-						 * New add for global scope 
-						 */ 
-						 
-						 // Is this a logout request?
-						$phpbb_logging_out = ((request_var('mode', '') == 'logout') && (preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) );
+						* New add for global scope 
+						*/ 
+						
+						$phpbb_logging_in = false;
+						$phpbb_logging_out = false;
+						if(preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) {
+							$phpbb_logging_out = (request_var('mode', '') == 'logout');					
+							$phpbb_logging_in = (request_var('mode', '') == 'login');	
+						}
 						
 						// enter wordpress if this is phpbb-in-wordpress
 						if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
@@ -68,18 +72,34 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 							//ob_start(); // to capture errors
 							require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
 						
-						// or if we are logging out of phpBB
-						} else if($phpbb_logging_out) {
-							require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+						// or if we are logging in or out of phpBB and logins are integrated
+						} else if(!empty($wpSettings['integrateLogin'])) {
+
+							// TEMP DISABLED AS BROKEN
+							if($phpbb_logging_in || $phpbb_logging_out) {
+						//		require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+							}
 						}
 						
-						
+						// TEMP DISABLED AS BROKEN
 						// Need to do in two steps as pluginpath URL changes if rev integration is on
 						if($phpbb_logging_out) {
-							$phpbbForum->background();
-							wp_logout();
-							$phpbbForum->foreground();
-						}
+					//		$phpbbForum->background();
+					//		wp_logout();
+					//		$phpbbForum->foreground();
+						} 
+						
+					/*	if($phpbb_logging_in) {
+							if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
+								print_r($user->data); 
+								
+								echo 'Log into WordPress now!<br />';
+								echo '***' . $user->data['is_registered'] . '***<br />';
+									
+							}
+						}		*/				
+				
+						
 
 					}
 					
