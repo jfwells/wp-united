@@ -233,7 +233,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			'rolelist'				=>	 implode(', ', (array)$wpUser->roles),
 			'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:') : __('Role:'),
 			/* @TODO in wp3: this is count_user_posts() */ 
-			'posts'					=>	get_usernumposts($this->userID),
+			'posts'					=>	count_user_posts($this->userID),
 			
 			'comments'			=>	$wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $this->userID)),
 			'regdate'				=>	$wpRegDate

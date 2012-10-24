@@ -897,7 +897,7 @@ function wpu_homelink($default) {
 				$authorID = $user_ID;
 			}
 			if ( !empty($authorID) ) { 
-				if(get_usernumposts($authorID)) { // only change URL if author has posts
+				if(count_user_posts($authorID)) { // only change URL if author has posts
 					$blog_url = get_author_posts_url($authorID); 
 					$blog_url = ( $blog_url[strlen($blog_url)-1] == "/" ) ? substr($blog_url, 0, -1) : $blog_url; //kill trailing slash
 				}

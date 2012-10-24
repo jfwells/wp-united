@@ -102,7 +102,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 			$path_to_profile = ''; $lastPostID = 0; $post = ''; 
 			$lastPostTitle = ''; $lastPostURL = ''; $time = ''; $lastPostTime = '';
 
-			$posts = get_usernumposts($author->ID);
+			$posts = count_user_posts($author->ID);
 			if ($posts) {
 				$author = get_userdata( $author->ID );
 				$pID = (int) $author->phpbb_userid;
