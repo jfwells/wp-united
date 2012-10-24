@@ -36,8 +36,8 @@ function wpu_init_plugin() {
 	$wpuPluginLoaded = true;
 	$wpSettings = get_option('wpu-settings');
 	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
-
 	require_once($wpuPath . 'functions-general.php');
+	require_once($wpuPath . 'template-tags.php');
 	require_once($wpuPath . 'login-integrator.php'); 
 	require_once($wpuPath . 'functions-cross-posting.php');
 
@@ -99,7 +99,6 @@ function wpu_init_plugin() {
 			
 			require_once($wpuPath . 'widgets.php');
 			require_once($wpuPath . 'widgets2.php');
-			require_once($wpuPath . 'template-tags.php');
 			
 			add_action('widgets_init', 'wpu_widgets_init_old');
 			add_action('widgets_init', 'wpu_widgets_init');
@@ -1224,11 +1223,12 @@ function wpu_add_meta_box() {
 function wpu_admin_init( ) {
 	global $wpu_done_head, $wpSettings;
 	$wpu_done_head = true;
-	
+
 	// style the header text!
 	wpu_css();
 
-	if (!empty($wpSettings['integrateLogin'])) {
+// no more buffering of users panel
+/*	if (!empty($wpSettings['integrateLogin'])) {
 		if (current_user_can('publish_posts')) {
 		//Buffer the users page
 		if(preg_match('|/wp-admin/users.php|', $_SERVER['REQUEST_URI'])) {
@@ -1240,7 +1240,8 @@ function wpu_admin_init( ) {
 		(preg_match('|/wp-admin/user-edit.php|', $_SERVER['REQUEST_URI'])) ) {
 		ob_start('wpu_buffer_profile');
 	}
-}
+}*/
+
 	
 	//Buffer the Categories box on the post page
 	
@@ -1270,10 +1271,9 @@ function wpu_buffer_profile($output) {
 		$forumString = (IS_PROFILE_PAGE) ? $phpbbForum->lang['wpu_profile_edit_use_phpbb'] : $phpbbForum->lang['wpu_user_edit_use_phpbb'];
 		
 		$output = str_replace('<h3>' .  __('Personal Options'), '<p><em>' . sprintf($forumString, '<a href="' . $profileLink . '">', '</a>') . '</em></p><h3>' .  __('Personal Options'), $output);
-		
+	}		
 		
 		return $output;
-	}
 }	
 	
 
@@ -1288,10 +1288,9 @@ function wpu_buffer_userspanel($panelContent) {
 
 	// General message
 	$panelContent = str_replace('</h2>', '</h2><p><em>' . $phpbbForum->lang['wpu_userpanel_use_phpbb'] . '</em></p>', $panelContent);
-	
-	
+
 	// current user, if integrated
-	if(get_wpu_user_id()) {
+	if(get_wpu_user_id()) { 
 		$token = '/(profile\.php">' . __('Edit') . ')/';
 		$replace = '$1</a> | </span><span class="edit"><a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '">' . $phpbbForum->lang['edit_phpbb_details'];
 		$panelContent = preg_replace($token, $replace, $panelContent);

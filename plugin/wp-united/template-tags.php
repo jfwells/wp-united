@@ -755,11 +755,9 @@ function get_wpu_latest_phpbb_topics($args = '') {
  * @param $wp_userID. The WordPress user ID. Leave blank to use the currently logged-in user.
  * @since v0.7.0
  */
-function get_wpu_user_id($wp_userID = '') {
-	global $userdata, $user_ID;
-	
-	if (!$wp_userID ) { 
-		get_currentuserinfo();
+function get_wpu_user_id($wp_userID = 0) {
+	if ($wp_userID == 0) {  
+		$userdata = wp_get_current_user(); 
 		$uID = $userdata->phpbb_userid;	
 	} else {
 		$uID = get_user_meta($wp_userID, 'phpbb_userid', true);
