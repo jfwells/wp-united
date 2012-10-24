@@ -272,11 +272,11 @@ function wpu_check_for_action() {
 		if ('activate' == $_GET['wpu_action']) {
 			check_admin_referer('wp-united-switch-theme_' . $_GET['template']);
 			if ( isset($_GET['template']) )
-					update_usermeta($user_ID,'WPU_MyTemplate',$_GET['template']);
+					update_user_meta($user_ID,'WPU_MyTemplate',$_GET['template']);
 	
 			
 			if ( isset($_GET['stylesheet']) )
-				update_usermeta($user_ID,'WPU_MyStylesheet',$_GET['stylesheet']);
+				update_user_meta($user_ID,'WPU_MyStylesheet',$_GET['stylesheet']);
 				wp_redirect("admin.php?page=wp-united-theme-menu&activated=true");
 			exit;
 		} elseif ('update-blog-profile' == $_GET['wpu_action']) {
@@ -291,8 +291,8 @@ function wpu_check_for_action() {
 			if (isset ($_POST['blog_tagline']))
 				$blog_tagline = wp_specialchars(trim($_POST['blog_tagline']));			
 			
-			update_usermeta($user_ID, 'blog_title', $blog_title);
-			update_usermeta($user_ID, 'blog_tagline', $blog_tagline);
+			update_user_meta($user_ID, 'blog_title', $blog_title);
+			update_user_meta($user_ID, 'blog_tagline', $blog_tagline);
 			wp_redirect("admin.php?page=wp-united&updated=true");
 			exit;
 		}
@@ -399,8 +399,8 @@ function wpu_menuSettings() {
 	<h3><?php echo $phpbbForum->lang['wpu_blog_about']; ?></h3>
 		<input type="hidden" name="email" value="<?php echo $profileuser->user_email; ?>" />
 		<?php /* Retrieve blog options */
-		$blog_title = get_usermeta($user_ID, 'blog_title');
-		$blog_tagline = get_usermeta($user_ID, 'blog_tagline'); ?>
+		$blog_title = get_user_meta($user_ID, 'blog_title', true);
+		$blog_tagline = get_user_meta($user_ID, 'blog_tagline', true); ?>
 		<table class="form-table">
 			<tr>
 				<th><label><?php echo $phpbbForum->lang['wpu_blog_about_title']; ?></label></th>
@@ -442,8 +442,8 @@ function wp_united_display_theme_menu() {
 	$theme_names = array_keys($themes);
 	$user_theme = 'WordPress Default';
 
-	$user_template = get_usermeta($user_ID, 'WPU_MyTemplate'); 
-	$user_stylesheet = get_usermeta($user_ID, 'WPU_MyStylesheet');
+	$user_template = get_user_meta($user_ID, 'WPU_MyTemplate', true); 
+	$user_stylesheet = get_user_meta($user_ID, 'WPU_MyStylesheet', true);
 
 	$site_theme = current_theme_info();
 
@@ -699,7 +699,7 @@ function wpu_get_template($default) {
 		}
 
 		if ( $authorID = wpu_get_author() ) { 
-			$wpu_templatedir = get_usermeta($authorID, 'WPU_MyTemplate');
+			$wpu_templatedir = get_user_meta($authorID, 'WPU_MyTemplate', true);
 			$wpu_theme_path = get_theme_root() . "/$wpu_templatedir";
 			if ( (file_exists($wpu_theme_path)) && (!empty($wpu_templatedir)) )	{
 				return $wpu_templatedir;
@@ -717,7 +717,7 @@ function wpu_get_stylesheet($default) {
 	global $wp_query, $wpSettings;
 	if ( !empty($wpSettings['allowStyleSwitch']) ) {
 		if ( $authorID = wpu_get_author() ) { 
-			$wpu_stylesheetdir = get_usermeta($authorID, 'WPU_MyStylesheet');
+			$wpu_stylesheetdir = get_user_meta($authorID, 'WPU_MyStylesheet', true);
 			$wpu_theme_path = get_theme_root() . "/$wpu_stylesheetdir";
 			if ( (file_exists($wpu_theme_path)) && (!empty($wpu_stylesheetdir)) )	{
 				return $wpu_stylesheetdir;
@@ -800,7 +800,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
 
 	if (($post->post_status == 'publish' ) || $future) { 
 		if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
-			update_usermeta($post->post_author, 'wpu_last_post', $post_ID); 
+			update_user_meta($post->post_author, 'wpu_last_post', $post_ID); 
 		} 
 
 		if ( !empty($wpSettings['integrateLogin']))  {
@@ -846,7 +846,7 @@ function wpu_blogname($default) {
 			}
 		}	
 		if ( !empty($authorID) ) {
-			$blog_title = get_usermeta($authorID, 'blog_title');
+			$blog_title = get_user_meta($authorID, 'blog_title', true);
 			if ( empty($blog_title) ) {
 				if ( !is_admin() ) {
 					$blog_title = $phpbbForum->lang['default_blogname']; 
@@ -869,7 +869,7 @@ function wpu_blogdesc($default) {
 	if ( !empty($wpSettings['usersOwnBlogs']) ) {
 		$authorID = wpu_get_author();
 		if ( !empty($authorID) ) {
-			$blog_tagline = get_usermeta($authorID, 'blog_tagline');
+			$blog_tagline = get_user_meta($authorID, 'blog_tagline', true);
 			if ( empty($blog_tagline) ) {
 				$blog_tagline = $phpbbForum->lang['default_blogdesc'];
 			}

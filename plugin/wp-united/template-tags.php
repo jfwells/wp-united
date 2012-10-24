@@ -132,7 +132,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 					$lastPost->query('author=' . $author->ID . '&showposts=1&post_status=publish&orderby=date');
 					$lastPost->the_post();
 					$lastPostID = get_the_ID();
-					update_usermeta($author->ID, 'wpu_last_post', $lastPostID);
+					update_user_meta($author->ID, 'wpu_last_post', $lastPostID);
 					unset($wp_query); $wp_query = $_oldQuery;
 					unset($GLOBALS['post']);
 					$GLOBALS['post'] = $_oldPost;
@@ -377,7 +377,7 @@ function get_wpu_latest_blogs($args = '') {
 	if ( $posts ) {
 		$blogLinks = ''; 
 		foreach ( $posts as $post ) {
-			$blogTitle = wpu_censor(strip_tags(get_usermeta($post->post_author, 'blog_title')));
+			$blogTitle = wpu_censor(strip_tags(get_user_meta($post->post_author, 'blog_title', true)));
 			$blogTitle = ( $blogTitle == '' ) ? $phpbbForum->lang['default_blogname'] : $blogTitle;
 			if ( function_exists('get_author_posts_url') ) {
 				//WP >= 2.1 branch
@@ -427,7 +427,7 @@ function get_wpu_latest_blogposts($args = '') {
 		$htmlOut = ''; 
 		foreach ( $posts as $post ) {
 			$lastPostTitle = wpu_censor(strip_tags($post->post_title));
-			$blogTitle = wpu_censor(strip_tags(get_usermeta($post->post_author, 'blog_title')));
+			$blogTitle = wpu_censor(strip_tags(get_user_meta($post->post_author, 'blog_title', true)));
 			$blogTitle = ( $blogTitle == '' ) ? $phpbbForum->lang['default_blogname'] : $blogTitle;
 			$lastPostURL = get_permalink($post->ID); 
 			if ( function_exists('get_author_posts_url') ) {
@@ -485,7 +485,7 @@ function get_wpu_phpbb_profile_link($wpID = '') {
 		get_currentuserinfo();
 		$wpID = $user_ID;
 	}
-	$phpbb_usr_id = get_usermeta($wpID, 'phpbb_userid');
+	$phpbb_usr_id = get_user_meta($wpID, 'phpbb_userid', true);
 	if (!empty($phpbb_usr_id)) {
 		$profile_path = "memberlist.$phpEx";
 		return add_trailing_slash($phpbbForum->url) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
@@ -762,7 +762,7 @@ function get_wpu_user_id($wp_userID = '') {
 		get_currentuserinfo();
 		$uID = $userdata->phpbb_userid;	
 	} else {
-		$uID = get_usermeta($wp_userID, 'phpbb_userid');
+		$uID = get_user_meta($wp_userID, 'phpbb_userid', true);
 	}
 	return $uID;
 }

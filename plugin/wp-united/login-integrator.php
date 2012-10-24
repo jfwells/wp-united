@@ -610,7 +610,7 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 		return false;
 	}
 
-	$wpMeta = get_usermeta($wpData->ID);
+	$wpMeta = get_user_meta($wpData->ID);
 		
 	// initialise wp-united meta fields to prevent PHP notices later on
 	$wpuSpecialFields = array('wpu_avatar_width', 'wpu_avatar_height', 'wpu_avatar_type', 'wpu_avatar');
@@ -622,14 +622,14 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	
 	// we use this so we can direct to their phpBB profile without faffing around
 	if ($pData['user_id'] != $wpData->phpbb_userid) {
-		update_usermeta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
+		update_user_meta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
 	}
 	
 	$doWpUpdate = false;
 	// We only update the user's nicename, etc. on the first run -- they can change it thereafter themselves
 	if($newUser) {
 		if ( (!($pData['username'] == $wpData->user_nicename)) &&  (!empty($pData['username'])) ) {
-			update_usermeta( $wpData->ID, 'phpbb_userLogin', $pData['username']);
+			update_user_meta( $wpData->ID, 'phpbb_userLogin', $pData['username']);
 			$update['user_nicename'] = $pData['username'];
 			$update['nickname'] = $pData['username'];
 			$update['display_name'] = $pData['username'];
@@ -680,23 +680,23 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	}
 	if ( ($pData['user_avatar_type'] != $wpMeta['wpu_avatar_type']) && (isset($pData['user_avatar_type'])) ) {
 		if ( !empty($wpData->ID) ) {
-			update_usermeta( $wpData->ID, 'wpu_avatar_type', $pData['user_avatar_type']);
+			update_user_meta( $wpData->ID, 'wpu_avatar_type', $pData['user_avatar_type']);
 		}
 	}
 	if ( ($pData['user_avatar'] != $wpMeta['wpu_avatar']) && (isset($pData['user_avatar'])) ) {
 		if ( !empty($wpData->ID) ) {
-			update_usermeta( $wpData->ID, 'wpu_avatar', $pData['user_avatar']);
+			update_user_meta( $wpData->ID, 'wpu_avatar', $pData['user_avatar']);
 		}
 	}
 
 	if ( (!($pData['user_avatar_width'] == $wpMeta['wpu_avatar_width'])) && (isset($pData['user_avatar_width'])) ) {
 		if ( !empty($wpData->ID) ) {
-			update_usermeta( $wpData->ID, 'wpu_avatar_width', $pData['user_avatar_width']);
+			update_user_meta( $wpData->ID, 'wpu_avatar_width', $pData['user_avatar_width']);
 		}
 	}	
 	if ( (!($pData['user_avatar_height'] == $wpMeta['wpu_avatar_height'])) && (isset($pData['user_avatar_height'])) ) {
 		if ( !empty($wpData->ID) ) {
-			update_usermeta( $wpData->ID, 'wpu_avatar_height', $pData['user_avatar_height']);
+			update_user_meta( $wpData->ID, 'wpu_avatar_height', $pData['user_avatar_height']);
 		}
 	}								
 	if ( $doWpUpdate ) {
