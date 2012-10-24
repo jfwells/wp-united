@@ -8,7 +8,7 @@ v0.9:
 coming back to dev after very long hiatus. Major new issues are:
 ----
 
-On home dev machine, 500 server error causes massive retry loop, doesn't fall back gracefully [NOT FIXED --- CANNOT ENABLE WITH THIS CHECK!! CHECK FOR FN NOT EXISTS INSTEAD!!]
+On home dev machine, 500 server error causes massive retry loop, [fixed]
 
 connect button disappears after changing path [fixed]
 

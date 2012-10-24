@@ -530,6 +530,7 @@ class WPU_Phpbb {
 	private function make_wp_env() {
 		$this->state = 'wp';
 		$_REQUEST = array_merge($_GET, $_POST);
+		restore_error_handler();
 	}
 
 	/**
@@ -579,6 +580,11 @@ class WPU_Phpbb {
 		$table_prefix = $this->phpbbTablePrefix;
 		$user = $this->phpbbUser;
 		$cache = $this->phpbbCache;
+		
+		// restore phpBB error handler
+		set_error_handler(defined('PHPBB_MSG_HANDLER') ? PHPBB_MSG_HANDLER : 'msg_handler');
+
+
 	}
 
 	/**

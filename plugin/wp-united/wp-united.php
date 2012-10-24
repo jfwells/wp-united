@@ -153,7 +153,7 @@ function wpu_set_status() {
  * Process inbound actions and set up the settings panels after login integration has already taken place
  */
 function wpu_admin_actions() {
-	global $wpSettings;
+	global $wpSettings, $wpuPath;
 	
 	if(is_admin()) {
 		require_once($wpuPath . 'settings-panel.php');
