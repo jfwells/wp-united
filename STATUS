@@ -25,7 +25,7 @@ Disable JIT WP user creation
 Auto-delete from other side????? [to consider -- best to use admin panel]
 
 
-
+Cache not clearing on theme integration settings changes
 
 previously integrated phpbb users but with missing WP cunterparts show as integrated in the user mapper (or leave it, they shouldn't become unintegrated)
 top line in mapper unclickable

@@ -35,6 +35,7 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 
 
 	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+	wpu_get_version_opts();
 
 	if(!isset($wpSettings['enabled'])) {
 		return;
@@ -48,6 +49,9 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 		
 		if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
 			//set_error_handler('wpu_msg_handler'); 
+
+			
+			
 		}
 
 		if(isset($wpSettings['wpPluginPath'])) {
@@ -88,11 +92,11 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 							if($phpbb_logging_in || $phpbb_logging_out) {
 								define('WPU_PERFORM_ACTIONS', TRUE);
 								require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+								die('Hello');
 							}
 						}
 						
 						// TEMP DISABLED AS BROKEN
-						// Need to do in two steps as pluginpath URL changes if rev integration is on
 						if($phpbb_logging_out) {
 							$phpbbForum->background();
 							wp_logout();
@@ -134,7 +138,7 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
  * Initialise WP-United variables and template strings
  */
 function wpu_init(&$hook) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config, $phpbbForum;
+	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config, $phpbbForum, $wpuCache;
 	
 	
 		/* TEMP TEST
@@ -195,17 +199,32 @@ function wpu_init(&$hook) {
 	}
 	if (($wpSettings['showHdrFtr'] == 'FWD') && defined('WPU_BLOG_PAGE') ) {
 		define('WPU_FWD_INTEGRATION', true);
+		
+
+		//Initialise the cache -- although we won't be using it, we may need some functionality
+		require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+		$wpuCache = WPU_Cache::getInstance();
+		
+		
+		
+		
+		
+		
+		
 		ob_start();
 		register_shutdown_function('wpu_wp_shutdown');
 	}
 }
 
-function wpu_wp_shutdown() {
-	global $wpSettings, $innerContent, $phpbb_root_path, $phpEx, $phpbbForum;
+function wpu_wp_shutdown() { 
+	global $wpSettings, $innerContent, $wpContentVar, $phpbb_root_path, $phpEx, $phpbbForum, $wpuCache;
 	if (defined('WPU_FWD_INTEGRATION') ) {
+		
 		$innerContent = ob_get_contents();
-		ob_end_clean();  
+		ob_end_clean(); 
 		$phpbbForum->foreground();
+		
+		$wpContentVar = 'innerContent';
 		include ($wpSettings['wpPluginPath'] . 'integrator.' . $phpEx);
 	}
 }
@@ -241,7 +260,7 @@ function wpu_execute(&$hook, $handle) {
 				'S_BLOG'	=>	TRUE,
 			)); 
 		}
-		
+
 
 		if (defined('WPU_REVERSE_INTEGRATION') ) { 
 
@@ -282,7 +301,8 @@ function wpu_execute(&$hook, $handle) {
 function wpu_am_i_buffered() {
 	global $config, $wpuBufferLevel;
 	// + 1 to account for reverse integration buffer
-	$level = ((int)($config['wpu_gzip_compress'] && @extension_loaded('zlib') && !headers_sent())) + 1;
+	
+	$level = (isset($config['wpu_gzip_compress']) && $config['wpu_gzip_compress'] && @extension_loaded('zlib') && !headers_sent()) + 1;
 	if(ob_get_level() > ($wpuBufferLevel + $level)) {
 		return true;
 	}
@@ -411,20 +431,25 @@ function get_integration_settings() {
 		}
 	}
 	
+	return $wpSettings;	
 	
-	/**
-	 * Load the version number
-	 */
-	if(isset($wpSettings['wpPluginPath'])) {
+}
+
+/**
+ * Retrieves the WP-United version number and options
+ * @return void
+ */
+function wpu_get_version_opts() {
+	global $wpSettings, $phpEx;
+	
+	if(isset($wpSettings['wpPluginPath'])) { 
 		if(file_exists($wpSettings['wpPluginPath'])) {
 			require_once ($wpSettings['wpPluginPath'] . 'version.' . $phpEx);
 			require_once ($wpSettings['wpPluginPath'] . 'options.' . $phpEx);
 		}
-	}
-	
-	return $wpSettings;	
-	
+	}	
 }
+
 /**
  * Clear integration settings
  * Completely removes all traces of WP-united settings

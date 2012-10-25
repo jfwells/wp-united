@@ -196,4 +196,5 @@ function wpu_complete() {
 
 	require($wpSettings['wpPluginPath'] .'template-integrator.' . $phpEx);
 }
-	?>
+	
+?>

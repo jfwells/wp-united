@@ -50,13 +50,22 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 				/**
 				 * Need to extract the stylesheet name, by extracting from between 'href =' and ('|"| )
 				 * Bearing in mind that there could be an = in the stylesheet name
-				 */
-				$els = explode("href", $match);
-				$els = explode('=', $els[1]);
-				array_shift($els);
-				$els = implode("=", $els);
-				$els = explode('"', $els);
-				$el = str_replace(array(" ", "'", '"'), "", $els[1]);
+				 */ 
+				$els = explode("href", $match); 		// split around href, RHS will get ="xxxx" foo="bar"
+				$els = explode('=', $els[1]); 			// could also split = in stylesheet URL ..
+				array_shift($els); 						// so ditch start and rejoin
+				$els = implode('=', $els); 
+				
+				
+				// elements of a stylesheet tag could be delimited by ",' or ' ', in that order of likelihood:
+				$delimChars = array('"', "'", ' ');
+				foreach($delimChars as $delimChar) {
+					if(strpos($els, $delimChar) !== FALSE) {
+						$els = explode($delimChar, $els);
+						break;
+					}
+				}
+				$el = str_replace($delimChars, "", $els[1]);  
 				$and = '&amp;';
 			}
 			$tv = (($position == 'inner') && (!empty($wpSettings['templateVoodoo']))) ? "{$and}tv=" : '';

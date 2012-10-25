@@ -117,15 +117,18 @@ class CSS_Magic {
 			}
 		}
 		$parts = explode("}",$str);
+
 		if(count($parts) > 0) {
-			foreach($parts as $part) {
-				list($keys,$cssCode) = explode("{",$part);
-				// store full selector
-				if(strlen($keys) > 0) {
-					$keys = str_replace("\n", "", $keys);
-					$keys = str_replace("\r", "", $keys);
-					$keys = str_replace("\\", "", $keys);
-					$this->addSelector($keys, trim($cssCode));
+			foreach($parts as $part) { 
+				if(strpos($part, '{') !== FALSE) {
+					list($keys,$cssCode) = explode('{', $part);
+					// store full selector
+					if(strlen($keys) > 0) {
+						$keys = str_replace("\n", "", $keys);
+						$keys = str_replace("\r", "", $keys);
+						$keys = str_replace("\\", "", $keys);
+						$this->addSelector($keys, trim($cssCode));
+					}
 				}
 			}
 		}
