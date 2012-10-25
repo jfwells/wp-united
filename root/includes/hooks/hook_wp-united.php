@@ -43,7 +43,7 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 		return;
 	}
 	
-	
+	// If this is a minimal CSS Magic run, don't load anything	
 	if(!defined('WPU_STYLE_FIXER')) {
 		
 		if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
@@ -79,15 +79,14 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 						// enter wordpress if this is phpbb-in-wordpress
 						if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 							define('WPU_REVERSE_INTEGRATION', true); 
-							//ob_start(); // to capture errors
+
 							require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
-						
+
 						// or if we are logging in or out of phpBB and logins are integrated
 						} else if(!empty($wpSettings['integrateLogin'])) {
 
-							// TEMP DISABLED AS BROKEN
 							if($phpbb_logging_in || $phpbb_logging_out) {
-
+								define('WPU_PERFORM_ACTIONS', TRUE);
 								require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
 							}
 						}
@@ -117,7 +116,6 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 				} 
 			}
 		}
-
 		/**
 		 * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB
 		 * too, for wordpress users who might think it's an error in WP-United.
@@ -245,7 +243,8 @@ function wpu_execute(&$hook, $handle) {
 		}
 		
 
-		if (defined('WPU_REVERSE_INTEGRATION') ) {
+		if (defined('WPU_REVERSE_INTEGRATION') ) { 
+
 			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 

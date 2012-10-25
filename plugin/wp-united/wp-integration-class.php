@@ -376,12 +376,13 @@ Class WPU_Integration {
 			
 			$cSet = '?'.'>'.trim($cSet).'[EOF]';
 			$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
-			$this->prepare($content = '?'.'>'.trim($cConf).'[EOF]');
-			unset ($cConf, $cSet);
 
 			// replace EOFs  -- some versions of WP have closing ? >, others don't
 			// We do it here to prevent expensive preg_replaces
-			$content = str_replace(array('?'.'>[EOF]', '[EOF]'), array('?'.'><'.'?php ', ''), $content);
+			$cConf = str_replace(array('?'.'>[EOF]', '[EOF]'), array('?'.'><'.'?php ', ''), $cConf);
+
+			$this->prepare($content = '?'.'>'.trim($cConf).'<' . '?');
+			unset ($cConf, $cSet);
 
 
 			if ( $wpuCache->core_cache_enabled()) {
@@ -511,7 +512,6 @@ Class WPU_Integration {
 	 */
 	function exit_wp_integration() {
 		global $phpbbForum;
-		
 		// check, in case user has deactivated wpu-plugin
 		if(isset($phpbbForum)) {
 			$phpbbForum->foreground();

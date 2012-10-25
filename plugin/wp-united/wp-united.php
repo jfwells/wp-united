@@ -54,7 +54,6 @@ function wpu_init_plugin() {
 	wpu_admin_actions();
 
 
-	
 	require_once($wpuPath .  'phpbb.php');
 	$phpbbForum = new WPU_Phpbb();	
 

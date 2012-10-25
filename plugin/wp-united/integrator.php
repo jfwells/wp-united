@@ -10,7 +10,7 @@
 * @author John Wells
 *
 */
-global $useCache, $connectSuccess, $wpSettings, $wpuCache, $forum_page_ID, $phpbbForum;
+global $connectSuccess, $wpSettings, $wpuCache, $forum_page_ID, $phpbbForum;
 
 global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
@@ -56,7 +56,7 @@ if($connectSuccess) {
 	
 }
 
-if ( $useCache || $connectSuccess ) { 
+if ( $wpuCache->use_template_cache() || $connectSuccess ) { 
 	
 	/**
 	 * Generate the WP header/footer for phpBB-in-WordPress

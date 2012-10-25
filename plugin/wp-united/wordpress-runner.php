@@ -53,33 +53,11 @@ if ( isset($HTTP_GET_VARS['numposts']) ) {
 }
 
 
-
-
 /**
- * Initialise cache
- */
-$useCache = false;
-if ( defined('WPU_REVERSE_INTEGRATION') ) { 
-	// If we're only using a simple WP header & footer, we don't bother with integrated login, and we can cache the wordpress parts of the page
-	if ( !empty($wpSettings['wpSimpleHdr']) ) {
-		// we also don't use the cache if WPU_PERFORM_ACTIONS is set, as we need to perform pending actions in WordPress anyway.
-		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) { 
-			$useCache = true; 
-			$wpuCache->use_template_cache();
-
-			// If the template cache is used, WordPRess doesn't get invoked at all. So we need to load some things that we rely on the plugin for:
-			require_once($wpSettings['wpPluginPath'] .  'phpbb.' . $phpEx);
-			$phpbbForum = new WPU_Phpbb();
-		}
-	}
-}
-
-
-/**
- * Run WordPress
+ *  Run WordPress
  *  If this is phpBB-in-wordpress, we just need to get WordPress header & footer, and store them in $outerContent
  *  if a valid WordPress template cache is available, we just do that and don't need to run WordPress at all.
- * If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
+ *  If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
  */
 $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerContent';
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
@@ -97,20 +75,20 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 		// analyses and modifies WordPress core files as appropriate
 		$wpUtdInt->enter_wp_integration();
 
+
 		eval($wpUtdInt->exec()); 
 
-		if(!isset($phpbbForum)) {
-			wp_die($user->lang['WP_Not_Installed_Yet'] . ' (Error type: plugin missing)');
-		}
 
 		$connectSuccess = true;
 	}
 	
-	// clean up, go back to normal :-)
-	if ( !$wpuCache->use_template_cache() ) {
-		$phpbbForum->foreground();
-	}
+}
 
+// Load phpBB abstraction class if needed
+if(!is_object($phpbbForum)) {
+	require_once($wpSettings['wpPluginPath'] .  'phpbb.' . $phpEx);
+	$phpbbForum = new WPU_Phpbb();
+	$phpbbForum->foreground();
 }
 
 ?>

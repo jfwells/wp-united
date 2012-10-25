@@ -183,7 +183,9 @@ class WPU_Phpbb {
 		}
 		if($this->state == 'phpbb') {
 			$this->backup_phpbb_state();
-			$this->switch_to_wp_db();
+			if(defined('DB_NAME')) {
+				$this->switch_to_wp_db();
+			}
 			$this->restore_wp_conflicts();
 			$this->make_wp_env();
 		}
