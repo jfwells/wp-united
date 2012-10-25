@@ -24,6 +24,16 @@ define('WPU_HOOK_ACTIVE', TRUE);
 // If the user has deleted the wp-united directory, do nothing
 if(file_exists($phpbb_root_path . 'wp-united/')) {
 	
+
+
+// Start the  timer
+$wpuScriptTime = explode(' ', microtime());
+$wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
+
+
+
+
+
 	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
 	if(!isset($wpSettings['enabled'])) {
@@ -322,7 +332,7 @@ function wpu_continue(&$hook) {
  */
 function get_integration_settings() {
 	global $config, $db, $phpbb_root_path, $phpEx;
-	
+
 	$defaults = array(
 		'status' => 0,
 		'wpUri' => '' ,
@@ -360,7 +370,6 @@ function get_integration_settings() {
 	);
 	
 	$wpSettings = array();
-
 	$fullKey = '';
 	$key = 1;
 	while(isset( $config["wpu_settings_{$key}"])) {

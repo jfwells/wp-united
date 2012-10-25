@@ -51,7 +51,6 @@ require($phpbb_root_path . 'includes/db/' . $dbms . '.' . $phpEx);
 require($phpbb_root_path . 'includes/constants.' . $phpEx);
 require($phpbb_root_path . 'includes/functions.' . $phpEx);
 
-require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
 $db = new $sql_db();
 $cache = new cache();
@@ -66,7 +65,6 @@ $config = $cache->obtain_config();
 $user = false;
 
 
-
 /**
  * Initialise variables
  */
@@ -79,6 +77,9 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 	$useTV = request_var('tv', -1);
 }
 
+// require file late, so it doesn't load beore phpBB $config etc
+
+require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 $wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
 if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
