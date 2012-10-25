@@ -107,11 +107,13 @@ class CSS_Magic {
 		// for now we just leave all nested stylesheets untouched
 		preg_match_all('/\@[^\{]*\{[^\{^\}]*(\{[^\{^\}]*\}[^\{^\}]*)*?\}/', $str, $nested);
 		$nestIndex = sizeof($this->nestedItems);
-		foreach($nested[0] as $nest) {
-			if(!empty($nest)) {
-				$this->nestedItems[$nestIndex] = $nest;
-				$str = str_replace($nest, '[WPU_NESTED] {' . $nestIndex . '}', $str);
-				$nestIndex++;
+		if(sizeof($nested[0])) {
+			foreach($nested[0] as $nest) {
+				if(!empty($nest)) {
+					$this->nestedItems[$nestIndex] = $nest;
+					$str = str_replace($nest, '[WPU_NESTED] {' . $nestIndex . '}', $str);
+					$nestIndex++;
+				}
 			}
 		}
 		$parts = explode("}",$str);
