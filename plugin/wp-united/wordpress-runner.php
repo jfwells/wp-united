@@ -81,7 +81,6 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
  *  if a valid WordPress template cache is available, we just do that and don't need to run WordPress at all.
  * If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
  */
-
 $wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerContent';
 $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;

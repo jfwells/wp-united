@@ -15,7 +15,7 @@ global $useCache, $connectSuccess, $wpSettings, $wpuCache, $forum_page_ID, $phpb
 global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
 global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCache, $config, $auth;
-	
+
 if($connectSuccess) {
 	
 	$phpbbForum->background();
@@ -51,7 +51,7 @@ if($connectSuccess) {
 			include($wpSettings['wpPluginPath'] . 'wp-united/latest-posts.' . $phpEx);
 		}
 		
-		$wpContentVar = ob_get_contents();
+		$$wpContentVar = ob_get_contents();
 		ob_end_clean();
 	
 }

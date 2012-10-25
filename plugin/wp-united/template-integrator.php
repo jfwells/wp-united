@@ -20,9 +20,11 @@
 * 
 */
 
+
 /**
  *  Just output WordPress if $wpuNoHead
  */
+
 if($wpuNoHead) {
 	wpu_output_page($$wpContentVar);
 }

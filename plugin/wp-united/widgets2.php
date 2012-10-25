@@ -26,8 +26,8 @@ class WPU_Login_User_info extends WP_Widget {
 	
 	function WPU_Login_User_Info() {
 		global $phpbbForum;
-		$widget_ops = array('classname' => 'wp-united-loginuser-info', 'description' => 'Displays the logged-in user\'s details, such as username, avatar, and number of posts since last visit, together with varius meta links. If the user is logged out, displays a phpBB login form.' );
-		$this->WP_Widget('wp-united-loginuser-info', $phpbbForum->lang['wpu_loginbox_desc'], $widget_ops);
+		$widget_ops = array('classname' => 'wp-united-loginuser-info', 'description' => __('Displays the logged-in user\'s details, such as username, avatar, and number of posts since last visit, together with varius meta links. If the user is logged out, displays a phpBB login form.') );
+		$this->WP_Widget('wp-united-loginuser-info', __('WP-United Login / User Info Box'), $widget_ops);
 	}
 	
 	function widget($args, $instance) {
@@ -117,8 +117,8 @@ class WPU_Latest_Phpbb_Topics extends WP_Widget {
 	
 	function WPU_Latest_Phpbb_Topics() {
 		global $phpbbForum;
-		$widget_ops = array('classname' => 'wp-united-latest-topics', 'description' => 'Shows the latest topics posted in the phpBB forum.' );
-		$this->WP_Widget('wp-united-latest-topics', $phpbbForum->lang['wpu_forumtopics_desc'], $widget_ops);
+		$widget_ops = array('classname' => 'wp-united-latest-topics', 'description' => __('Shows the latest topics posted in the phpBB forum.') );
+		$this->WP_Widget('wp-united-latest-topics', __('WP-United Latest phpBB Topics'), $widget_ops);
 	}
 	
 	function widget($args, $instance) {
@@ -176,8 +176,8 @@ class WPU_Latest_Phpbb_Posts extends WP_Widget {
 	
 	function WPU_Latest_Phpbb_Posts() {
 		global $phpbbForum;
-		$widget_ops = array('classname' => 'wp-united-latest-posts', 'description' => 'Shows the latest posts posted in the phpBB forum.' );
-		$this->WP_Widget('wp-united-latest-posts', $phpbbForum->lang['wpu_forumposts_desc'], $widget_ops);
+		$widget_ops = array('classname' => 'wp-united-latest-posts', 'description' => __('Shows the latest posts posted in the phpBB forum.') );
+		$this->WP_Widget('wp-united-latest-posts', __('WP-United Latest Forum Posts'), $widget_ops);
 	}
 	
 	function widget($args, $instance) {
