@@ -77,16 +77,17 @@ if(file_exists($phpbb_root_path . 'wp-united/')) {
 
 							// TEMP DISABLED AS BROKEN
 							if($phpbb_logging_in || $phpbb_logging_out) {
-						//		require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+
+								require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
 							}
 						}
 						
 						// TEMP DISABLED AS BROKEN
 						// Need to do in two steps as pluginpath URL changes if rev integration is on
 						if($phpbb_logging_out) {
-					//		$phpbbForum->background();
-					//		wp_logout();
-					//		$phpbbForum->foreground();
+							$phpbbForum->background();
+							wp_logout();
+							$phpbbForum->foreground();
 						} 
 						
 					/*	if($phpbb_logging_in) {

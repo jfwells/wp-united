@@ -242,8 +242,8 @@ Class WPU_Integration {
 	 * eval() can be called directly on the returned string
 	 */	
 	function exec() {
-		
 		$code = $this->wpRun;
+
 		$this->wpRun = '';
 		return $code;
 	}
@@ -331,7 +331,7 @@ Class WPU_Integration {
 				trigger_error($user->lang['Function_Duplicate']);
 			}
 			$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
-			$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'<'.'?php ';
+			$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'[EOF]';
 			$finds = array(
 				'require (ABSPATH . WPINC . ' . "'/$fName",
 				'require( ABSPATH . WPINC . ' . "'/$fName"
@@ -374,10 +374,15 @@ Class WPU_Integration {
 			}
 
 			
-			$cSet = '?'.'>'.trim($cSet).'<'.'?php ';
+			$cSet = '?'.'>'.trim($cSet).'[EOF]';
 			$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
-			$this->prepare($content = '?'.'>'.trim($cConf).'<'.'?php ');
+			$this->prepare($content = '?'.'>'.trim($cConf).'[EOF]');
 			unset ($cConf, $cSet);
+
+			// replace EOFs  -- some versions of WP have closing ? >, others don't
+			// We do it here to prevent expensive preg_replaces
+			$content = str_replace(array('?'.'>[EOF]', '[EOF]'), array('?'.'><'.'?php ', ''), $content);
+
 
 			if ( $wpuCache->core_cache_enabled()) {
 				$wpuCache->save_to_core_cache($content, $this->wpVersion, $this->wpu_compat);
@@ -463,7 +468,7 @@ Class WPU_Integration {
 			'} else { $wpuNoHead = true;'
 		);
 		$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);
-		return "\n" . '?' . '>' . $wpuTemplate . '<' . '?php' . "\n";
+		return "\n" . '?' . '>' . trim($wpuTemplate) . '[EOF]' . "\n";
 	}
 
 	/**

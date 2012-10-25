@@ -14,7 +14,6 @@
 
 $amIGlobal = true;
 
-
 // Our Mod Settings should have been loaded by now. If not, either WP-United hasn't been set up, or something
 // is seriously screwed.
 if  ( empty($wpSettings) ) {
@@ -99,7 +98,7 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 		if(!isset($phpbbForum)) {
 			wp_die($user->lang['WP_Not_Installed_Yet'] . ' (Error type: plugin missing)');
 		}
-		
+
 		$connectSuccess = true;
 	}
 	
