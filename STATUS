@@ -7,16 +7,17 @@ v0.9:
 Auto login:
 
 -- ignore/remove phpBB/WordPress master
-
 - Disable auto acct creation/login
 
 Auto-register in phpBB on WP reg [done!]
 Auto-register in WP on phpBB reg
 
-phpBB / WP logout, both sides: [WIP in hooks file]
+phpBB / WP logout, both sides: [Mostly works, but fails from phpBB side when templates integrated]
 
 phpBB login on WP login
 WP login on phpBB login
+
+-- WP - phpBB password translation isn't working
 
 
 Disable JIT WP user creation
