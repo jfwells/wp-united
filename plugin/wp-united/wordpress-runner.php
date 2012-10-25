@@ -66,6 +66,10 @@ if ( defined('WPU_REVERSE_INTEGRATION') ) {
 		if ( $wpuCache->template_cache_enabled() && !defined('WPU_PERFORM_ACTIONS') ) { 
 			$useCache = true; 
 			$wpuCache->use_template_cache();
+
+			// If the template cache is used, WordPRess doesn't get invoked at all. So we need to load some things that we rely on the plugin for:
+			require_once($wpSettings['wpPluginPath'] .  'phpbb.' . $phpEx);
+			$phpbbForum = new WPU_Phpbb();
 		}
 	}
 }
@@ -83,6 +87,7 @@ $phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'oute
 $connectSuccess = false;
 
 if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) { 
+//if ( !defined('WPU_FWD_INTEGRATION')) { 
 	require_once($wpSettings['wpPluginPath'] . 'wp-integration-class.' . $phpEx);
 	$wpUtdInt = WPU_Integration::getInstance();
 

@@ -100,7 +100,7 @@ function wpu_init_plugin() {
 			require_once($wpuPath . 'widgets.php');
 			require_once($wpuPath . 'widgets2.php');
 			
-			add_action('widgets_init', 'wpu_widgets_init_old');
+			//add_action('widgets_init', 'wpu_widgets_init_old');
 			add_action('widgets_init', 'wpu_widgets_init');
 
 			 /*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
