@@ -184,7 +184,7 @@ function wpu_support() {
 	<?php
 }
 
-function show_previewUrl($settings);
+function show_previewUrl($settings) {
 	global $phpbbForum;
 	if(isset($settings['showHdrFtr'])) {
 		if ($settings['showHdrFtr'] == 'FWD') {
@@ -202,7 +202,7 @@ function show_previewUrl($settings);
 
 
 function wpu_setup_menu() {
-	global $wpuUrl, $wpuPath,;
+	global $wpuUrl, $wpuPath;
 	$settings = wpu_get_settings(); 
 
 
