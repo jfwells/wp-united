@@ -122,11 +122,11 @@ function wpu_compute_path_difference($filePath, $currLoc = false) {
 	}
 	
 	$absCurrLoc = add_trailing_slash(clean_path(realpath($currLoc)));
-
 	$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
+
+
 	$absFileLoc = explode($pathSep, $absFileLoc);
 	$absCurrLoc = explode($pathSep, $absCurrLoc);
-
 	array_pop($absFileLoc);
 
 	while($absCurrLoc[0]==$absFileLoc[0]) { 

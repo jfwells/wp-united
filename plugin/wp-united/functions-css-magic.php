@@ -138,7 +138,7 @@ function wpu_extract_css($content) {
 function wpu_fix_css_urls($filePath, &$css) {
 	global $phpbb_root_path, $phpEx, $wpSettings;
 	require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
-	$relPath = wpu_compute_path_difference($filePath);
+	$relPath = wpu_compute_path_difference($filePath, realpath(add_trailing_slash(getcwd()) . 'style-fixer.php'));
 	
 	preg_match_all('/url\(.*?\)/', $css, $urls);
 	if(is_array($urls[0])) {
