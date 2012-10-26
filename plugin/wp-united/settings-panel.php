@@ -918,7 +918,7 @@ function wpu_settings_page() {
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Settings'); ?> </h2>
 	
-			<div id="wputransmit"><p><strong>Sending settings to phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" /></div>
+			<div id="wputransmit"><p><strong><?php _e('Sending settings to phpBB...'); ?></strong><br />Please Wait</p><img src="<?php echo $wpuUrl ?>/images/settings/wpuldg.gif" /></div>
 			
 			<?php
 				if(isset($_GET['msg'])) {

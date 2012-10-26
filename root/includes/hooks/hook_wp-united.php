@@ -92,7 +92,7 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 							if($phpbb_logging_in || $phpbb_logging_out) {
 								define('WPU_PERFORM_ACTIONS', TRUE);
 								require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
-								die('Hello');
+								//die('Hello');
 							}
 						}
 						

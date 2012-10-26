@@ -1,6 +1,22 @@
 /**
  * WP-United JavaScript for the Settings Panel
  */
+ 
+ 
+(function($) {
+    $.QueryString = (function(a) {
+        if (a == "") return {};
+        var b = {};
+        for (var i = 0; i < a.length; ++i)
+        {
+            var p=a[i].split('=');
+            if (p.length != 2) continue;
+            b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+        }
+        return b;
+    })(window.location.search.substr(1).split('&'))
+})(jQuery);
+
 
 /**
  * Creates a file tree for the user to select the phpBB location
@@ -35,10 +51,23 @@ function createFileTree() {
  * Initialises the settings page
  */
 function setupSettingsPage() {
-	$('#wputabs').tabs();	
+	$('#wputabs').tabs({
+		select: function(event, ui) {                   
+			window.location.hash = ui.tab.hash;
+		}
+    });
 	$('#phpbbpathchange').button();	
 	$('#wputpladvancedstgs').button();	
 	$('.wpuwhatis').button();	
+	
+	var selTab = $.QueryString['tab']; 
+	if(selTab != undefined) {
+		 $('#wputabs').tabs('select', '#' + selTab); 
+	}
+
+	
+	
+	
 }
 
 /**
@@ -214,7 +243,7 @@ function wpu_transmit(type, formID, urlToRefresh) {
 	$.post('admin.php?page='+type, formData, function(response) { 
 		if(response=='OK') {
 			// the settings were applied
-			window.location = 'admin.php?page=' + type + '&msg=success';
+			window.location = 'admin.php?page=' + type + '&msg=success' + '&tab=' + window.location.hash.replace('#', '');
 			return;
 		}
 		wpu_process_error(response);
@@ -319,7 +348,11 @@ var panelHidden = false;
  * Initialises the user mapper page
  */
 function setupUserMapperPage() {
-	$('#wputabs').tabs();
+	$('#wputabs').tabs({
+		select: function(event, ui) {                   
+			window.location.hash = ui.tab.hash;
+		}
+    });
 	$('.wpuprocess').button({
 		icons: {
 			primary: 'ui-icon-transferthick-e-w'
@@ -1215,3 +1248,5 @@ var Base64 = {
 		return string;
 	}
 }
+
+
