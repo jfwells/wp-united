@@ -122,6 +122,11 @@ function wpu_init_plugin() {
 		if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
 			wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
 		}
+		
+		// fix broken admin bar on integrated page
+		if(($wpSettings['showHdrFtr'] == 'FWD') && !empty($wpSettings['cssMagic'])) {
+			wp_enqueue_script('wpu-fix-adminbar', $wpuUrl . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
+		}
 	}
 	
 	
