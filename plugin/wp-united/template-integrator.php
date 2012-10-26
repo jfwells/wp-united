@@ -120,11 +120,11 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
 	//Get ltr, rtl & bgcolor, etc, from the body tag
 	preg_match('/<body[^>]+>/i', $innerContent, $pfBodyMatches);
 	if($pfBodyMatches[0]) {
-		$bodyDetails = trim(str_replace(array("<body", ">"), "", $pfBodyMatches[0]));
+		$bodyDetails = trim(str_replace(array('<body', '>'), '', $pfBodyMatches[0]));
 		preg_match('/class\s*=\s*"[^"]+"/', $bodyDetails, $bodyClass);
 		if($bodyClass[0]) {
 			$bodyDetails = str_replace($bodyClass[0], "", $bodyDetails);
-			$bodyClass=trim(str_replace(array("class", "=", " ", '"'), "", $bodyClass[0]));
+			$bodyClass=trim(str_replace(array('class', '=', ' ', '"'), '', $bodyClass[0]));
 		}
 	}
 	// $innerContent is passed by reference -- the <head> is removed during the process, leaving us with an insertable body (hehe).
@@ -167,7 +167,7 @@ if (!empty($wpSettings['cssMagic'])) {
 	 * The generated CSS links to insert into the HTML will need to carry information for the browser on the 
 	 * physical disk location of the CSS files on the server.
 	 * 
-	 * We cannot allow browsers to just request any file on the server, so get_stylesheet_links pre-approves the
+	 * We cannot allow browsers to just request any file on the server by filename, so get_stylesheet_links pre-approves the
 	 * files and stores them in the DB under $wpSettings['styleKeys']. Browsers then only need to know the 
 	 * appropriate style key, not the filename
 	 */
