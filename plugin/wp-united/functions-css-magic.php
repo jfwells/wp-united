@@ -118,12 +118,13 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
  */
 function wpu_extract_css($content) {
 	$css = array('css' => array(), 'orig' => array());
-	preg_match_all('/<style type=\"text\/css\">(.*?)<\/style>/', $content, $cssStr);
-	foreach($cssStr[1] as $index => $c) {
+	preg_match_all('/<style type=\"text\/css\"(.*?)>(.*?)<\/style>/', $content, $cssStr);
+
+	foreach($cssStr[2] as $index => $c) {
 		$cssFixed = str_replace(array('<!--', '-->'), '', $c);
 		if(!empty($cssFixed)) {
 			$css['css'][] = $cssFixed;
-			$css['orig'][] = $cssStr[0][$index];
+			$css['orig'][] = $c; 
 		}
 	}
 	return $css;

@@ -104,12 +104,25 @@ $cssFileToFix = str_replace("//", "", $cssFileToFix);
 $cssFileToFix = str_replace("@", "", $cssFileToFix);
 $cssFileToFix = str_replace(".php", "", $cssFileToFix);
 
+/**
+ * Some stylesheets to ignore
+ */
+$ignoreMe = false;
+$ignores = array(
+	'wp-includes/css/admin-bar.css', // WP Admin bar, as it gets pulled to top of DOM by JS
+);
+foreach($ignores as $ignore) {
+	if(stristr($cssFileToFix, $ignore)) {
+		$ignoreMe = true;
+		break;
+	}
+}
 
-if(file_exists($cssFileToFix)) {
+$css = '';
+if(file_exists($cssFileToFix) && !$ignoreMe) {
 	/**
 	 * First check cache
 	 */
-	$css = '';
 	if($useTV > -1) {
 		// template voodoo-modified CSS already cached?
 		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, $useTV)) {
@@ -152,6 +165,11 @@ if(file_exists($cssFileToFix)) {
 
 
 	}
+} else if($ignoreMe) {
+	$css = file_get_contents($cssFileToFix);
+}
+
+if(!empty($css)) {
 		
 	$expire_time = 7*86400;
 	header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $expire_time));

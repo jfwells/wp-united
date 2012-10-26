@@ -313,13 +313,12 @@ if (!empty($wpSettings['cssMagic'])) {
 			}
 			$cssM->makeSpecificByIdThenClass('wpucssmagic', false);
 			$result = $cssM->getCSS();
-		
 			// save to cache
 			$wpuCache->save_css_magic($result, "{$index}-{$useTVStr}", 'inline', $tvKey);
 		
 		}
 		if(!empty($result)) {
-			$result = '<style type="text/css">'  . $result . '</style>';
+			//$result = '<style type="text/css">'  . $result . '</style>';
 			$innerHeadInfo = str_replace($inCSSInner['orig'][$index], $result, $innerHeadInfo);
 			$numFixes++;
 		}
