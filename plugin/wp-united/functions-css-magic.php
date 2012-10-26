@@ -95,7 +95,7 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 					$cssLnk = realpath($cssLnk);
 					$key = $wpuCache->get_style_key($cssLnk, $position);
 					$keys[] = $key;
-					$repl[] = "{$phpbbForum->url]}/wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
+					$repl[] = "{$phpbbForum->url}/wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
 				}
 			} elseif(stristr($el, "style.php?") !== false) {
 				/**
