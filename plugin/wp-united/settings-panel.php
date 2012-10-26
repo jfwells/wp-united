@@ -184,9 +184,29 @@ function wpu_support() {
 	<?php
 }
 
+function show_previewUrl($settings);
+	global $phpbbForum;
+	if(isset($settings['showHdrFtr'])) {
+		if ($settings['showHdrFtr'] == 'FWD') {
+			return get_site_url();
+		} else if($settings['showHdrFtr'] == 'REV')  {
+			if(is_object($phpbbForum) && !empty($phpbbForum->url)) {
+				return $phpbbForum->url;
+			}
+		}
+	}
+	return '';
+}
+
+
+
+
 function wpu_setup_menu() {
-	global $wpuUrl, $wpuPath; 
-	$settings = wpu_get_settings();
+	global $wpuUrl, $wpuPath,;
+	$settings = wpu_get_settings(); 
+
+
+
 	
 	?>
 		<div class="wrap" id="wp-united-setup">

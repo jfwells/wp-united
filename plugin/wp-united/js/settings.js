@@ -191,7 +191,7 @@ function checkPadding(evt) {
 /**
  * Sends the settings to phPBB
  */
-function wpu_transmit(type, formID) {
+function wpu_transmit(type, formID, urlToRefresh) {
 	$('#wpustatus').hide();
 	window.scrollTo(0,0);
 	$("#wputransmit").dialog({
