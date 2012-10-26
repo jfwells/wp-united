@@ -105,11 +105,11 @@ $cssFileToFix = str_replace("@", "", $cssFileToFix);
 $cssFileToFix = str_replace(".php", "", $cssFileToFix);
 
 /**
- * Some stylesheets to ignore
+ * Some stylesheets to ignore -- not uccrently used. Add terms here to prevent CSS Magic processing
  */
 $ignoreMe = false;
 $ignores = array(
-	'wp-includes/css/admin-bar.css', // WP Admin bar, as it gets pulled to top of DOM by JS
+	// none currently -- add search terms here to prevent them from being modified by CSS Magic
 );
 foreach($ignores as $ignore) {
 	if(stristr($cssFileToFix, $ignore)) {
