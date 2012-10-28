@@ -1028,3 +1028,11 @@ div.subsettings div.subsettings {
 	height: 10px;
 	font-size: 10px;
 }
+
+#wpulastprocessing {
+	display: block;
+	padding-left: 18px;
+	font-weight: bold;
+	display: none;	
+	background: transparent url('../images/settings/ui-anim_basic_16x16.gif') 0 0 no-repeat;
+}

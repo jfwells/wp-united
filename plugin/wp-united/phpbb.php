@@ -489,7 +489,7 @@ class WPU_Phpbb {
 				// clear out the WP-United cache on settings change
 				require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
 				$wpuCache = WPU_Cache::getInstance();
-				$wpuCache->template_purge();
+				$wpuCache->purge();
 
 				$this->restore_state($fStateChanged);
 				return true;

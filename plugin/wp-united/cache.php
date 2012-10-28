@@ -470,7 +470,6 @@ class WPU_Cache {
 	/**
 	 * Purge the WP-United cache
 	 * Deletes all files from the wp-united/cache directory
-	 * @todo : Implement
 	 */
 	function purge() {
 		global $wpSettings;

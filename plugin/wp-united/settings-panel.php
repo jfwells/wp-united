@@ -184,18 +184,52 @@ function wpu_support() {
 	<?php
 }
 
-function show_previewUrl($settings) {
+/**
+ * If settings have been changed and Template Voodoo is active, we reload the page twice in a hidden iFrame in order to reset the styles.
+ */
+function wpu_reload_preview() {
 	global $phpbbForum;
+	$settings = wpu_get_settings();
+	$previewUrl = '';
 	if(isset($settings['showHdrFtr'])) {
 		if ($settings['showHdrFtr'] == 'FWD') {
-			return get_site_url();
+			$previewUrl = get_site_url();
 		} else if($settings['showHdrFtr'] == 'REV')  {
 			if(is_object($phpbbForum) && !empty($phpbbForum->url)) {
-				return $phpbbForum->url;
+				$previewUrl = $phpbbForum->url;
 			}
 		}
 	}
-	return '';
+	if(empty($previewUrl)) {
+		return '';
+	} 
+	?>
+	<p id="wpulastprocessing"><?php _e('Performing final processing... Please wait...'); ?></p>
+	<iframe id="wpupreviewreload" onload="wpuIncPrevCtr();" src="<?php echo $previewUrl . '?wpurnd=' . rand(100000,999999); ?>" style="float: left;width:1px;height:1px;border: 0;" border="0"></iframe>
+	<script type="text/javascript">
+	// <![CDATA[ 
+		var ctr = 0;
+		function wpuIncPrevCtr() {
+			if(ctr < 2) {
+				ctr++;
+				$('#wpulastprocessing').show();
+				// in case the site has frame breakout code that tries to redirect this parent page.
+				window.onbeforeUnload = function(e) { 
+					return '<?php _e('Please stay on this page for a few more moments until processing is complete. Stay on this page?'); ?>';
+				};
+				try {
+					document.getElementById('wpupreviewreload').contentWindow.location.reload(true);
+				} catch(e) {}
+			} else {
+				window.onbeforeunload = null;
+				try {
+					$('#wpulastprocessing, #wpupreviewreload').hide('slow');
+				} catch(e) {}
+			}
+		}
+	// ]]>
+	</script>
+	<?php
 }
 
 
@@ -219,11 +253,15 @@ function wpu_setup_menu() {
 
 	<?php
 	
+	$needPreview = false;
 	$msg = '';
 	if(isset($_GET['msg'])) {
 		if($_GET['msg'] == 'fail') {
 			$msg = (string)stripslashes($_GET['msgerr']);
 			$msg = base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), $msg));
+		} else {
+			// $msg is succcess, do preview reloads to init Template Voodoo:
+			$needPreview = true;
 		}
 	}
 				
@@ -272,7 +310,11 @@ function wpu_setup_menu() {
 		echo '<br /><br /><strong>' . __('The server returned the following information:') . "</strong><br />$msg";
 	}
 	echo '</p></div>';
-		
+	
+	if($needPreview) {
+		wpu_reload_preview();
+	} 
+	
 	?>
 	<h3><?php _e('phpBB Location') ?></h3>
 	<form name="wpu-setup" id="wpusetup" method="post" onsubmit="return wpu_transmit('wp-united-setup', this.id);">
@@ -288,6 +330,9 @@ function wpu_setup_menu() {
 		</p>
 	</form>
 	</div>
+	
+
+	
 	<script type="text/javascript">
 	// <![CDATA[
 		var transmitMessage;
@@ -910,7 +955,7 @@ function wpu_settings_page() {
 	
 	global $phpbbForum, $wpuUrl; 
 	$settings = wpu_get_settings();
-	
+	$needPreview = false;
 	?>
 	
 	<div class="wrap" id="wp-united-setup">
@@ -923,6 +968,7 @@ function wpu_settings_page() {
 			<?php
 				if(isset($_GET['msg'])) {
 					if($_GET['msg'] == 'success') {
+						$needPreview = true;
 			?>
 			<div id="wpustatus" class="updated"><p><?php _e('Settings applied successfully.'); ?></p></div>
 			<?php
@@ -944,6 +990,12 @@ function wpu_settings_page() {
 			if( defined('DEBUG') || defined('DEBUG_EXTRA') ) {
 				echo '<div id="debugerror" class="error highlight"><p>WARNING: phpBB Debug is set. To prevent notices from showing due to switching between phpBB and WordPress, delete or comment out the two DEBUG lines from your phpBB\'s config.php. If this is a live site, debug MUST be disabled.</p></div>';
 			}
+			
+			if($needPreview) {
+				wpu_reload_preview();
+			} 
+			
+			
 			?>
 			<p><?php _e('WP-United is modular; You can enable or disable any of the four major features below: User Integration, Theme Integration, Behaviour Integration and User Blogs.') ?></p>
 			<p><?php _e('Visit each of the tabs to select the settings, then hit Submit when done.') ?></p>
