@@ -11,126 +11,116 @@
 * @author John Wells
 *
 */
-/*echo GROUP_SPECIAL . "***";
-print_r($config); */
+
+
+
 /**
  */
 if ( !defined('IN_PHPBB') ) { 
 	exit;
 }
 
-define('WPU_HOOK_ACTIVE', TRUE);
+/**
+ * Only activate this hook if WP-United is set up and working correctly, and if it is needed:
+ */
 
 // If the user has deleted the wp-united directory, do nothing
-if(file_exists($phpbb_root_path . 'wp-united/')) {
-	
-
-
-// Start the  timer
-$wpuScriptTime = explode(' ', microtime());
-$wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
-
-
-
-
-
-	$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-	wpu_get_version_opts();
-
-	if(!isset($wpSettings['enabled'])) {
-		return;
-	}
-	if($wpSettings['enabled'] != 'enabled') {
-		return;
-	}
-	
-	// If this is a minimal CSS Magic run, don't load anything	
-	if(!defined('WPU_STYLE_FIXER')) {
-		
-		if(!defined('ADMIN_START') && (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))) {
-			//set_error_handler('wpu_msg_handler'); 
-
-			
-			
-		}
-
-		if(isset($wpSettings['wpPluginPath'])) {
-			if(file_exists($wpSettings['wpPluginPath'])) {
-				
-				require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
-
-				
-				wpu_set_buffering_init_level();
-
-				if(!defined('ADMIN_START') && (!defined('WPU_PHPBB_IS_EMBEDDED')) ) {  
-					if (!((defined('WPU_DISABLE')) && WPU_DISABLE)) {  
-						$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
-						$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
-						$phpbb_hook->register('exit_handler', 'wpu_continue');
-
-					
-						/**
-						* New add for global scope 
-						*/ 
-						
-						$phpbb_logging_in = false;
-						$phpbb_logging_out = false;
-						if(preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) {
-							$phpbb_logging_out = (request_var('mode', '') == 'logout');					
-							$phpbb_logging_in = (request_var('mode', '') == 'login');	
-						}
-						
-						// enter wordpress if this is phpbb-in-wordpress
-						if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
-							define('WPU_REVERSE_INTEGRATION', true); 
-
-							require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
-
-						// or if we are logging in or out of phpBB and logins are integrated
-						} else if(!empty($wpSettings['integrateLogin'])) {
-
-							if($phpbb_logging_in || $phpbb_logging_out) {
-								define('WPU_PERFORM_ACTIONS', TRUE);
-								require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
-								//die('Hello');
-							}
-						}
-						
-						// TEMP DISABLED AS BROKEN
-						if($phpbb_logging_out) {
-							$phpbbForum->background();
-							wp_logout();
-							$phpbbForum->foreground();
-						} 
-						
-					/*	if($phpbb_logging_in) {
-							if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
-								print_r($user->data); 
-								
-								echo 'Log into WordPress now!<br />';
-								echo '***' . $user->data['is_registered'] . '***<br />';
-									
-							}
-						}		*/				
-				
-						
-
-					}
-					
-				} 
-			}
-		}
-		/**
-		 * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB
-		 * too, for wordpress users who might think it's an error in WP-United.
-		 * @todo: In future phpBB releases (> 3.0.6), see if the devs hav added this to phpBB, and remove if so
-		 */
-		if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
-			date_default_timezone_set('UTC');
-		}
-	}
-
+if(!file_exists($phpbb_root_path . 'wp-united/')) {
+	return;
 }
+
+// We don't need anything if this is a stylesheet call to css magic (style-fixer.php)
+if(defined('WPU_STYLE_FIXER')) {
+	return;
+}
+
+$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
+// Has WPU been set up from the WordPress plugin yet?
+
+if(!isset($wpSettings['enabled']) || ($wpSettings['enabled'] != 'enabled')) {
+	return;
+}
+if( {
+	return;
+}
+
+if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath']) ) {
+	return;
+}
+
+require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
+wpu_get_version_opts();				
+
+// constants have just been loaded
+if (defined('WPU_DISABLE') || WPU_DISABLE) {  
+	return;
+}	
+
+// We are either in the phpBB ACP, or phpBB is already embedded in WordPress. So we don't need to do anything...
+if(defined('ADMIN_START') || defined('WPU_PHPBB_IS_EMBEDDED')) { 
+	return
+}
+
+
+// OK, activate the hook
+define('WPU_HOOK_ACTIVE', TRUE);
+wpu_timer_start();
+wpu_set_buffering_init_level();		
+
+/**
+ * The hook file is now ready to run.
+ * phpBB is not yet fully loaded, but we need to decide NOW whether we will run WordPress this session. 
+ * If so, we will invoke the WP env here. This is because WP *MUST* be run in the global scope, due to the sheer number of plugins that expect this.
+*/
+				
+// register our hooks
+$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
+$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
+$phpbb_hook->register('exit_handler', 'wpu_continue');
+
+
+
+$wpuIntegrationMode = false;
+$wpuIntegrationActions = false;
+
+
+// Is this a login or logout page? If so, we'll need to enter WP
+if(preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) {
+	$loginOutMode = request_var('mode', '');	
+	if($loginOutMode == 'logout') { define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
+		$wpuIntegrationActions = 'logout';
+		$wpuIntegrationMode = 'actions';
+	} else if($loginOutMode == 'login') {  define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
+		$wpuIntegrationActions = 'login';
+		$wpuIntegrationMode = 'actions';
+	}
+}
+						
+// enter wordpress if this is phpbb-in-wordpress
+if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
+	$wpuIntegrationMode = 'template-p-in-w';
+	define('WPU_REVERSE_INTEGRATION', true);  // TODO: KILL!!!!
+}
+
+
+/**
+ * INVOKE THE WP ENVIRONMENT NOW:
+*/
+if(!empty($wpuIntegrationMode)) {
+	require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+}
+
+
+/**
+ * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB
+ * too, for wordpress users who might think it's an error in WP-United.
+ * @todo: In future phpBB releases (> 3.0.11), see if the devs hav added this to phpBB, and remove if so
+ */
+if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
+	date_default_timezone_set('UTC');
+}	
+
 
 
 
@@ -140,6 +130,22 @@ $wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 function wpu_init(&$hook) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config, $phpbbForum, $wpuCache;
 	
+	
+	if($phpbb_logging_out) {
+		$phpbbForum->background();
+		wp_logout();
+		$phpbbForum->foreground();
+	}
+	
+	/*	if($phpbb_logging_in) {
+			if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
+				print_r($user->data); 
+				
+				echo 'Log into WordPress now!<br />';
+				echo '***' . $user->data['is_registered'] . '***<br />';
+					
+			}
+		}		*/		
 	
 		/* TEMP TEST
 	*/
@@ -515,7 +521,12 @@ function set_integration_settings($dataIn) {
 		$db->sql_multi_insert(CONFIG_TABLE, $sql);
 		$cache->destroy('config');
 		
+/**
+ * Start the script timer
+*/
+function wpu_timer_start() {
+	global $wpuScriptTime;
+	$wpuScriptTime = explode(' ', microtime());
+	$wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
 }
-
-
 ?>
