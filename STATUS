@@ -10,8 +10,6 @@ WORKING! but...
 
 WP top bar gets very upset on forward integration --- due to css magic not altering inline styles in head after styles reset??
 DTD option not having any effect
-Cache not always clearing on theme integration settings changes
-Also, TODO: Add hidden iframe/js to settings change page to automatically reload twice to initialise css magic & template voodoo
 
 
 

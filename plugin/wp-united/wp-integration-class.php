@@ -432,7 +432,7 @@ Class WPU_Integration {
 		$this->prepare('global $wp_did_header; $wp_did_header = true;');
 		$this->prepare('wp();');
 		$this->prepare('if (!$latest ):');
-			$this->prepare('if (!defined(\'WPU_REVERSE_INTEGRATION\')):');
+			$this->prepare('if($GLOBALS['wpuIntegrationMode'] != \'template-p-in-w\'):');
 				$this->prepare('global $wpuNoHead, $wpSettings;');
 				$this->prepare('eval($wpUtdInt->fix_template_loader());');
 			$this->prepare('endif;');

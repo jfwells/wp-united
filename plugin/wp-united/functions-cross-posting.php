@@ -580,13 +580,13 @@ function wpu_comment_link($url, $comment, $args) {
  * 
  */
 function wpu_comments_open($open, $postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user;
+	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user, $wpuIntegrationMode;
 	static $status;
 	if(isset($status)) {
 		return $status;
 	}
 	
-	if(defined('WPU_REVERSE_INTEGRATION')) {
+	if($wpuIntegrationMode == 'template-p-in-w') {
 		$status = false;
 		return $status;
 	}

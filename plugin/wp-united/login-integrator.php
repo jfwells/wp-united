@@ -22,9 +22,9 @@ if ( !defined('ABSPATH') ) {
  * The main login integration routine
  */
 function wpu_integrate_login() {
-	global $wpuPath, $lDebug, $phpbbForum;
+	global $wpUnited, $lDebug, $phpbbForum;
 	
-	require_once($wpuPath. 'debugger.php');
+	require_once($wpUnited->pluginPath . 'debugger.php');
 	$lDebug = new WPU_Debug();
 
 	if( !$phpbbForum->user_logged_in() ) {
@@ -43,7 +43,7 @@ function wpu_integrate_login() {
  * However this is left open as a prelude to bi-directional user integration
  */
 function wpu_int_phpbb_logged_out() { 
-	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user, $user;
+	global $wpSettings, $lDebug, $phpbbForum, $wpUnited, $current_user, $user;
 			
 	// Check if user is logged into WP
 	get_currentuserinfo();
@@ -88,7 +88,7 @@ function wpu_int_phpbb_logged_out() {
 }
 
 function wpu_int_phpbb_logged_in() { 
-	global $wpSettings, $lDebug, $phpbbForum, $wpuPath, $current_user;
+	global $wpSettings, $lDebug, $phpbbForum, $wpUnited, $current_user;
 	
 	
 	//if($wpSettings['integsource'] != 'phpbb') {

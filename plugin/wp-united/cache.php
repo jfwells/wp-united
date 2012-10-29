@@ -106,7 +106,8 @@ class WPU_Cache {
 	 */
 
 	function use_template_cache() {
-		if ( !defined('WPU_REVERSE_INTEGRATION') ) {
+		global $wpuIntegrationMode;
+		if ( $wpuIntegrationMode != 'template-p-in-w' ) {
 			return false;
 		}
 		if ( defined('WPU_PERFORM_ACTIONS') ) {

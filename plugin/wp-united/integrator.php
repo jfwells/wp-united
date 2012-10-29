@@ -10,7 +10,7 @@
 * @author John Wells
 *
 */
-global $connectSuccess, $wpSettings, $wpuCache, $forum_page_ID, $phpbbForum;
+global $connectSuccess, $wpSettings, $wpuCache, $forum_page_ID, $phpbbForum, $wpuIntegrationMode;
 
 global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
@@ -24,7 +24,7 @@ if($connectSuccess) {
 	/**
 	 * We integrate logins here, as otherwise it happens too early.
 	 */
-	if(!empty($wpSettings['integrateLogin']) && defined('WPU_REVERSE_INTEGRATION')) { 
+	if(!empty($wpSettings['integrateLogin']) && ($wpuIntegrationMode == 'template-p-in-w')) { 
 		if(!defined('WPU_CANNOT_OVERRIDE')) {
 			wp_get_current_user(true);
 			do_action('init');
@@ -43,7 +43,7 @@ if($connectSuccess) {
 		
 		wp();
 		if (!$latest ) {
-			if (!defined('WPU_REVERSE_INTEGRATION')) {
+			if ($wpuIntegrationMode != 'template-p-in-w') {
 				global $wpuNoHead, $wpSetngs;
 				eval($wpUtdInt->fix_template_loader());
 			}
@@ -61,7 +61,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 	/**
 	 * Generate the WP header/footer for phpBB-in-WordPress
 	 */
-	if ( defined('WPU_REVERSE_INTEGRATION') ) {
+	if ($wpuIntegrationMode == 'template-p-in-w') {
 
 		//prevent WP 404 error
 		if ( !$wpuCache->use_template_cache() ) {

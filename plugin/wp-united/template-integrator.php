@@ -32,7 +32,7 @@ if($wpuNoHead) {
 /**
  * Get phpBB header/footer
  */
-if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && (!defined('WPU_REVERSE_INTEGRATION')) ) {
+if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && ($wpuIntegrationMode != 'template-p-in-w') ) {
 	//export header styles to template - before or after phpBB's CSS depending on wpSettings.
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later
@@ -106,7 +106,7 @@ if ( !empty($wpSettings['integrateLogin']) ) {
 /**
  * Output WordPress -- If this is a plain WordPress page, we can just output it here.
  */
-if ( !defined('WPU_REVERSE_INTEGRATION') && !($wpSettings['showHdrFtr'] == 'FWD') ) {
+if ( ($wpuIntegrationMode != 'template-p-in-w') && !($wpSettings['showHdrFtr'] == 'FWD') ) {
 	wpu_output_page($$wpContentVar);
 	unset($outerContent); unset($innerContent);
 }
@@ -115,7 +115,7 @@ if ( !defined('WPU_REVERSE_INTEGRATION') && !($wpSettings['showHdrFtr'] == 'FWD'
 /** 
  * Make modifications to $innerContent, and extract items for interleaving into $outerContent <head>
  */
-if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') )  { // phpBB is inner:
+if ( ($wpuIntegrationMode == 'template-p-in-w') || ($wpSettings['showHdrFtr'] == 'FWD') )  { // phpBB is inner:
 
 	//Get ltr, rtl & bgcolor, etc, from the body tag
 	preg_match('/<body[^>]+>/i', $innerContent, $pfBodyMatches);
@@ -134,7 +134,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
 	process_body($innerContent);
 } 
 
-if (defined('WPU_REVERSE_INTEGRATION')) {
+if ($wpuIntegrationMode == 'template-p-in-w') {
 	
 	// replace outer title with phpBB title
 	$outerContent = preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $outerContent);

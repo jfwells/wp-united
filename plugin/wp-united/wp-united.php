@@ -20,146 +20,245 @@ Last Updated: 23 October 2012
 * @author John Wells
 */
 
-// this file will also be called in wp admin panel, when phpBB is not loaded. ABSPATH should *always* be set though!
+// this file will also be called in wp admin panel, when phpBB is not loaded. So we don't check IN_PHPBB.
+// ABSPATH should *always* be set though!
 if ( !defined('ABSPATH') ) {
 	exit;
 }
 
 
-/**
- * Initialise WP-United
- */
-add_action('init', 'wpu_init_plugin');
-function wpu_init_plugin() {
-	global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings, $wpuUrl, $wpuPath, $wpuPluginLoaded;
+if( !class_exists( 'WP_United' ) ):
+
+class WP_United {
+
+	private
+
+		$status = 'disconnected',
+		$pluginLoaded = false,
+
+		$actions = array(
+			'init'	=>	'init_plugin',
+		
+		
+		
+		),
+
+		$filters = array(),
+
+		$options = array();
 	
-	$wpuPluginLoaded = true;
-	$wpSettings = get_option('wpu-settings');
-	$wpuPath =  ABSPATH.'wp-content/plugins/' . plugin_basename('wp-united') . '/';
-	require_once($wpuPath . 'functions-general.php');
-	require_once($wpuPath . 'template-tags.php');
-	require_once($wpuPath . 'login-integrator.php'); 
-	require_once($wpuPath . 'functions-cross-posting.php');
+	public
+		$pluginPath = '',
+		$wpPath = '',
+		$wpHomeUrl = '',
+		$wpBaseUrl = '',
+		$pluginUrl = '';
 
-	if ( function_exists('plugins_url') ) {
-			$wpuUrl = plugins_url('wp-united') . '/';
-	} else {
-			$wpuUrl = get_option('siteurl') . '/wp-content/plugins/' . plugin_basename(dirname(__FILE__)) . '/';
+	/**
+	* Initialise the WP-United class
+	*/
+	public function __construct() {
+		
+		foreach( $this->actions as $action => $classMember) {
+			add_action( $action, array( $this, $classMember ) );
+		}
+
+		foreach( $this->filters as $filter ) {
+		add_filter( $filter, array( $this, $filter ) );
+		}
 	}
-
-
-	$wpSettings['status'] = 0;
-
-	// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
-	wpu_admin_actions();
-
-
-	require_once($wpuPath .  'phpbb.php');
-	$phpbbForum = new WPU_Phpbb();	
-
-	if(isset($wpSettings['phpbb_path']) && isset($wpSettings['enabled'])) {
+	
+	
+	
+	public function init_plugin() {
+		global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings;
 		
-		if(file_exists($wpSettings['phpbb_path']) && $wpSettings['enabled'] !=  'disabled') {
-			$wpSettings['status'] = 1;
+		
+		if($this->pluginLoaded) {
+				return false;
 		}
+		$this->pluginLoaded = true;
+		
+		$this->wpPath = ABSPATH;
+		$this->pluginPath = plugin_dir_path(__FILE__);
+		$this->pluginUrl = plugins_url('wp-united') . '/';
+		$this->wpHomeUrl = home_url('/'); // TODO: REPLACE $wpUri elsewhere
+		$this->wpBaseUrl = site_url('/'); // TODO: REPLACE $wpUri in some instances
+		$this->pluginUrl = plugins_url('wp-united/');
+		
 
-		// must turn off these options if we are disabled
-		if($wpSettings['enabled'] != 'enabled') { 
-			$wpSettings['integrateLogin'] = 0;
-			$wpSettings['showHdrFtr'] = 'NONE';
+		
+		
+		require_once($this->pluginPath . 'functions-general.php');
+		require_once($this->pluginPath . 'template-tags.php');
+		require_once($this->pluginPath . 'login-integrator.php'); 
+		require_once($this->pluginPath . 'functions-cross-posting.php');
+	
+		$wpSettings = get_option('wpu-settings');
+		
+		$this->status = 'disconnected';
+		
+
+
+		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
+		wpu_admin_actions();
+
+
+		require_once($this->pluginPath .  'phpbb.php');
+		$phpbbForum = new WPU_Phpbb();	
+
+		// TODO: THIS SHOULD BE CHECKING STATUS ON LAST RUN! NOT 'ENABLED'!!
+		if(isset($wpSettings['phpbb_path']) && isset($wpSettings['enabled'])) {
+			
+			// Are we connected?
+			if(!$this->check_connection_status()) {
+					
+					// TODO: DISABLE HERE????
+					return;
+			}		
+				
+			
+
+			// must turn off these options if we are disabled 
+			if($wpSettings['enabled'] != 'enabled') { 
+				$wpSettings['integrateLogin'] = 0;
+				$wpSettings['showHdrFtr'] = 'NONE';
+			}
+			
+			// disable login integration if we couldn't override pluggables
+			if(defined('WPU_CANNOT_OVERRIDE')) {
+				$wpSettings['integrateLogin'] = 0;
+			}
+			
+			if(($wpSettings['enabled'] == 'enabled')) {
+
+			
+				if ( !defined('IN_PHPBB') ) {
+					$phpbb_root_path = $wpSettings['phpbb_path'];
+					$phpEx = substr(strrchr(__FILE__, '.'), 1);
+				}
+				
+							
+				if ( !defined('IN_PHPBB') ) {
+					if(is_admin()) {
+						define('WPU_PHPBB_IS_EMBEDDED', TRUE);
+					} else {
+						define('WPU_BLOG_PAGE', 1);
+					}
+
+					$phpbbForum->load($phpbb_root_path);
+
+				}
+				
+				// Move status to 'working'
+				$this->check_connection_status();
+				
+				require_once($this->pluginPath . 'widgets.php');
+				require_once($this->pluginPath . 'widgets2.php');
+				
+				//add_action('widgets_init', 'wpu_widgets_init_old');
+				add_action('widgets_init', 'wpu_widgets_init');
+
+				 /*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
+					global $user_ID;
+					get_currentuserinfo();
+					if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
+						wp_redirect(admin_url());
+					} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
+						$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(esc_attr(admin_url())), false, false, $GLOBALS['user']->session_id);		
+						wp_redirect($phpbbForum->url . $login_link);
+					}
+				} */
+			}
+			
+			// This variable is used in phpBB template integrator
+			global $siteUrl;
+			$siteUrl = get_option('siteurl');
+			
+			// enqueue any JS we need
+			if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
+				wp_enqueue_script('wp-united', $this->pluginUrl . 'js/wpu-min.js', array(), false, true);
+			}
+			
+			// fix broken admin bar on integrated page
+			if(($wpSettings['showHdrFtr'] == 'FWD') && !empty($wpSettings['cssMagic'])) {
+				wp_enqueue_script('wpu-fix-adminbar', $this->pluginUrl . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
+			}
 		}
 		
-		// disable login integration if we couldn't override pluggables
-		if(defined('WPU_CANNOT_OVERRIDE')) {
-			$wpSettings['integrateLogin'] = 0;
-		}
 		
+		if( (!$wpSettings['integrateLogin']) || defined('WPU_DISABLE_LOGIN_INT') ) {
+				return;
+		}
+		wpu_integrate_login();
+		
+
+		return true; 
+			
+		
+		
+		
+	}
+	
+	public function is_loaded() {
+		return $this->pluginLoaded;
+	}
+	
+	public function get_connection_status() {
+		return $this->status;
+	}
+	
+	
+	/**
+	 * Sets the status by checking for problems in phpBB
+	 * Also returns true if all is OK
+	 */
+	public function check_connection_status() {
+		
+		global $wpSettings;
+			
+		if($this->status == 'disconnected') {
+			if(file_exists($wpSettings['phpbb_path']) && $wpSettings['enabled'] !=  'disabled') {
+				$this->status = 'connected';
+			}
+		}
+			
 		if(($wpSettings['enabled'] == 'enabled')) {
-
-		
-			if ( !defined('IN_PHPBB') ) {
-				$phpbb_root_path = $wpSettings['phpbb_path'];
-				$phpEx = substr(strrchr(__FILE__, '.'), 1);
-			}
-			
-						
-			if ( !defined('IN_PHPBB') ) {
-				if(is_admin()) {
-					define('WPU_PHPBB_IS_EMBEDDED', TRUE);
-				} else {
-					define('WPU_BLOG_PAGE', 1);
+			if($this->status == 'connected') {
+				if(defined('WPU_HOOK_ACTIVE')) {
+					$this->status = 'working';
 				}
-
-				$phpbbForum->load($phpbb_root_path);
-
 			}
-
-			wpu_set_status();
-			
-			require_once($wpuPath . 'widgets.php');
-			require_once($wpuPath . 'widgets2.php');
-			
-			//add_action('widgets_init', 'wpu_widgets_init_old');
-			add_action('widgets_init', 'wpu_widgets_init');
-
-			 /*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
-				global $user_ID;
-				get_currentuserinfo();
-				if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
-					wp_redirect(admin_url());
-				} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
-					$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(esc_attr(admin_url())), false, false, $GLOBALS['user']->session_id);		
-					wp_redirect($phpbbForum->url . $login_link);
-				}
-			} */
 		}
 		
-		// This variable is used in phpBB template integrator
-		global $siteUrl;
-		$siteUrl = get_option('siteurl');
-		
-		// enqueue any JS we need
-		if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
-			wp_enqueue_script('wp-united', $wpuUrl . 'js/wpu-min.js', array(), false, true);
-		}
-		
-		// fix broken admin bar on integrated page
-		if(($wpSettings['showHdrFtr'] == 'FWD') && !empty($wpSettings['cssMagic'])) {
-			wp_enqueue_script('wpu-fix-adminbar', $wpuUrl . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
-		}
+		return $this->status;
 	}
 	
 	
-	if( (!$wpSettings['integrateLogin']) || defined('WPU_DISABLE_LOGIN_INT') ) {
-			return;
-	}
-	wpu_integrate_login();
 	
-
-	return true; 
 }
 
-/**
- * Sets the status by checking for problems in phpBB
- * Also returns true if all is OK
- */
-function wpu_set_status() {
-	global $wpSettings;
-	if(defined('WPU_HOOK_ACTIVE')) {
-		$wpSettings['status'] = 2;
-		return true;
-	}
-	return false;
-}
+global $wpUnited;
+
+$wpUnited = new WP_United();
+
+
+endif;
+
+
+
+
+
+
 
 /**
  * Process inbound actions and set up the settings panels after login integration has already taken place
  */
 function wpu_admin_actions() {
-	global $wpSettings, $wpuPath;
+	global $wpSettings, $wpUnited;
 	
 	if(is_admin()) {
-		require_once($wpuPath . 'settings-panel.php');
+		require_once($wpUnited->pluginPath . 'settings-panel.php');
         
 		// the settings page has detected an error and asked to abort
 		if( isset($_POST['wpudisable']) && check_ajax_referer( 'wp-united-disable') ) {
@@ -186,7 +285,7 @@ function wpu_admin_actions() {
 
 
 function wpu_disable_connection($type) {
-	global $wpSettings;
+	global $wpSettings, $wpUnited;
 	
 	if($wpSettings['enabled'] != 'enabled') {
 			die(__('WP-United is already disabled'));
@@ -198,9 +297,9 @@ function wpu_disable_connection($type) {
 	
 	if($type == 'error') {
 				
-		if($wpSettings['status'] == 0) {
+		if($wpUnited->get_connection_status == 'disconnected') {
 			die('[ERROR]' . __('WP-United could not find phpBB at the selected path. WP-United is not connected.'));
-		} elseif($wpSettings['status'] == 1) {
+		} elseif($wpUnited->get_connection_status == 'connected') {
 			die('[ERROR]' . __('WP-United could not successfully run phpBB at the selected path. WP-United is halted.'));
 		} else {
 			die('[ERROR]' . __('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.'));
@@ -947,13 +1046,13 @@ function wpu_get_author() {
  * template integration when WordPress CSS is first.
 */
 function wpu_done_head() {
-	global $wpu_done_head, $wpSettings, $wp_the_query;
+	global $wpu_done_head, $wpSettings, $wp_the_query, $wpuIntegrationMode;
 	$wpu_done_head = true; 
 	//add the frontpage stylesheet, if needed: 
 	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {
 		echo '<link rel="stylesheet" href="' . $wpSettings['wpPluginUrl'] . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
-	if ( (defined('WPU_REVERSE_INTEGRATION')) && (!PHPBB_CSS_FIRST) ) {
+	if ( ($wpuIntegrationMode == 'template-p-in-w') && (!PHPBB_CSS_FIRST) ) {
 		echo '<!--[**HEAD_MARKER**]-->';
 	}
 	
@@ -1568,7 +1667,7 @@ function wpu_check_new_user($username, $email, $errors) {
  */
 add_action('user_register', 'wpu_check_new_user_after', 10, 1); 
 function wpu_check_new_user_after($userID) { 
-		global $wpSettings, $phpbbForum, $wpuPluginLoaded, $wpuJustCreatedUser;
+		global $wpSettings, $phpbbForum, $wpUnited, $wpuJustCreatedUser;
 	
 	
 		/*
@@ -1583,14 +1682,11 @@ function wpu_check_new_user_after($userID) {
 		}
 
 		// some registration plugins don't init WP. This is enough to get us a phpBB env
-		if(!$wpuPluginLoaded) {
-			wpu_init_plugin();
+		$wpUnited->init_plugin();
 			
-			// neeed some user add / delete functions
-			if ( ! defined('WP_ADMIN') ) {
-				require_once(ABSPATH . 'wp-admin/includes/user.php');
-			}
-			
+		// neeed some user add / delete functions
+		if ( ! defined('WP_ADMIN') ) {
+			require_once(ABSPATH . 'wp-admin/includes/user.php');
 		}
 
 
@@ -1690,7 +1786,7 @@ function wpu_validate_new_user($username, $email, $errors) {
 
 add_filter('plugin_row_meta', 'wpu_pluginrow_link', 10, 2);
 function wpu_pluginrow_link($links, $file) {
-	global $wpuUrl;
+
 	if ($file == 'wp-united/wp-united.php') {
 		$links[] = '<a href="admin.php?page=wp-united-setup">' . __('Setup / Status') . '</a>';
 	}

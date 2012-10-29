@@ -27,7 +27,7 @@ require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
 $wpuCache = WPU_Cache::getInstance();
 
 // redirect to login if not logged in and blogs are private
-if ( (empty($user->data['is_registered'])) && ($wpSettings['mustLogin'])  && (!defined('WPU_REVERSE_INTEGRATION')) ) {
+if ( (empty($user->data['is_registered'])) && ($wpSettings['mustLogin'])  && ($wpuIntegrationMode != 'template-p-in-w') ) {
  redirect(append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . urlencode($_SERVER["REQUEST_URI"])));	
 }
 
@@ -59,8 +59,8 @@ if ( isset($HTTP_GET_VARS['numposts']) ) {
  *  if a valid WordPress template cache is available, we just do that and don't need to run WordPress at all.
  *  If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
  */
-$wpContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'outerContent' : 'innerContent';
-$phpBBContentVar = (defined('WPU_REVERSE_INTEGRATION')) ? 'innerContent' : 'outerContent';
+$wpContentVar = ($wpuIntegrationMode == 'template-p-in-w') ? 'outerContent' : 'innerContent';
+$phpBBContentVar = ($wpuIntegrationMode == 'template-p-in-w') ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
 
 if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) { 

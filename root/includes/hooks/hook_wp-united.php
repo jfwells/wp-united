@@ -99,7 +99,6 @@ if(preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) {
 // enter wordpress if this is phpbb-in-wordpress
 if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 	$wpuIntegrationMode = 'template-p-in-w';
-	define('WPU_REVERSE_INTEGRATION', true);  // TODO: KILL!!!!
 }
 
 
@@ -239,7 +238,7 @@ function wpu_wp_shutdown() {
  * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) { 
-	global $wpuBuffered, $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
+	global $wpuBuffered, $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache, $wpuIntegrationMode;
 	// We only want this action to fire once, and only on a real $template->display('body') event
 	if ( (!$wpuRunning)  && (isset($template->filename[$handle])) ) {
 		
@@ -267,8 +266,7 @@ function wpu_execute(&$hook, $handle) {
 		}
 
 
-		if (defined('WPU_REVERSE_INTEGRATION') ) { 
-
+		if($wpuIntegrationMode == 'template-p-in-w') { 
 			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 
@@ -327,10 +325,10 @@ function wpu_set_buffering_init_level() {
  * Prevent phpBB from exiting
  */
 function wpu_continue(&$hook) {
-	global $wpuRunning, $wpuBuffered;
+	global $wpuRunning, $wpuBuffered, $wpuIntegrationMode;
 	if (defined('PHPBB_EXIT_DISABLED') && !defined('WPU_FINISHED')) {
 		return "";
-	} else if ( $wpuBuffered && (!$wpuRunning) && defined('WPU_REVERSE_INTEGRATION') ) {
+	} else if ( $wpuBuffered && (!$wpuRunning) && ($wpuIntegrationMode == 'template-p-in-w') ) {
 		/** if someone else was buffering the page and are now asking to exit,
 		 * wpu_execute won't have run yet
 		 */
@@ -358,7 +356,6 @@ function get_integration_settings() {
 	global $config, $db, $phpbb_root_path, $phpEx;
 
 	$defaults = array(
-		'status' => 0,
 		'wpUri' => '' ,
 		'wpPath' => '', 
 		'integrateLogin' => 0, 
