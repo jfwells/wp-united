@@ -29,23 +29,9 @@ class WPU_Actions {
 	/**
 	 * logs out of WordPress when the phpBB logout is called
 	 */
-	function do_logout() { 
+	function do_logout() {
 		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
-		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {
-			require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
-			$wpuCache = WPU_Cache::getInstance();
-			require_once($wpSettings['wpPluginPath'] . 'wp-integration-class.' . $phpEx);
-			$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
-				if ($wpUtdInt->can_connect_to_wp()) { 
-					define('WPU_DISABLE_LOGIN_INT', TRUE);
-					$wpUtdInt->enter_wp_integration();
-					$wpUtdInt->wp_logout();
-					eval($wpUtdInt->exec()); 
-					$wpUtdInt->exit_wp_integration();
-					$wpUtdInt = null; unset ($wpUtdInt);
-				}
-			}
+		// TODO: REIMPLEMENT!!
 	}
 	/**
 	 * Updates the WordPress user profile when the phpBB profile is updated

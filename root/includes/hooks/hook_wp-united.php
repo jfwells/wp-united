@@ -34,18 +34,15 @@ if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
-$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+$wpSettings  = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
 // Has WPU been set up from the WordPress plugin yet?
 
 if(!isset($wpSettings['enabled']) || ($wpSettings['enabled'] != 'enabled')) {
 	return;
 }
-if( {
-	return;
-}
 
-if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath']) ) {
+if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
 	return;
 }
 
@@ -53,18 +50,20 @@ require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
 wpu_get_version_opts();				
 
 // constants have just been loaded
-if (defined('WPU_DISABLE') || WPU_DISABLE) {  
+if (defined('WPU_DISABLE') && WPU_DISABLE) {  
 	return;
 }	
 
-// We are either in the phpBB ACP, or phpBB is already embedded in WordPress. So we don't need to do anything...
+// OK, activate the hook
+define('WPU_HOOK_ACTIVE', TRUE);
+
+
+// We are either in the phpBB ACP, or phpBB is already embedded in WordPress. So we don't need to do anything else...
 if(defined('ADMIN_START') || defined('WPU_PHPBB_IS_EMBEDDED')) { 
-	return
+	return;
 }
 
 
-// OK, activate the hook
-define('WPU_HOOK_ACTIVE', TRUE);
 wpu_timer_start();
 wpu_set_buffering_init_level();		
 
@@ -129,9 +128,9 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
  */
 function wpu_init(&$hook) {
 	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config, $phpbbForum, $wpuCache;
+	global $wpuIntegrationActions, $wpuIntegrationMode;
 	
-	
-	if($phpbb_logging_out) {
+	if($wpuIntegrationActions == 'logout') {
 		$phpbbForum->background();
 		wp_logout();
 		$phpbbForum->foreground();
@@ -520,6 +519,8 @@ function set_integration_settings($dataIn) {
 		
 		$db->sql_multi_insert(CONFIG_TABLE, $sql);
 		$cache->destroy('config');
+}
+
 		
 /**
  * Start the script timer
