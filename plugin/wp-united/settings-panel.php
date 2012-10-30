@@ -1469,8 +1469,6 @@ function wpu_process_settings() {
 		'wpPath' => $wpUnited->wpPath,
 		'wpPluginPath' => $wpUnited->pluginPath,
 		'wpPluginUrl' => $wpUnited->pluginUrl,
-		'enabled' => 'enabled',
-		'status' => 2
 	));
 
 
@@ -1492,13 +1490,18 @@ function wpu_transmit_settings() {
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 		define('WPU_PHPBB_IS_EMBEDDED', TRUE);
 		$phpbbForum->load($phpbb_root_path);
-		$this->check_connection_status();
+
 	}
 	
 	$settings = get_option('wpu-settings');
 	if($phpbbForum->synchronise_settings($settings)) {
-			die('OK');
-	} else die('NO');
+		$wpUnited->enable();
+		$wpUnited->set_last_run('working');
+		die('OK');
+	} else {
+		$wpUnited->set_last_run('connected') {
+		die('NO');
+	}
 	
 }
 

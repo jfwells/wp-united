@@ -129,7 +129,7 @@ class WP_United {
 		
 		$this->set_last_run('connected');
 		
-		if(($wpSettings['enabled'] == 'enabled')) {
+		if($this->is_enabled()) {
 
 			if ( !defined('IN_PHPBB') ) {
 				$phpbb_root_path = $wpSettings['phpbb_path'];
@@ -191,7 +191,7 @@ class WP_United {
 
 	}
 
-	public function is_enabled() 
+	public function is_enabled() {
 		$this->enabled = get_option('wpu-enabled');
 		return $this->enabled;
 	}
@@ -213,31 +213,6 @@ class WP_United {
 		return $this->status;
 	}
 	
-	
-	/**
-	 * Sets the status by checking for problems in phpBB
-	 * Also returns true if all is OK
-	 */
-	public function check_connection_status() {
-		
-		global $wpSettings;
-			
-		if($this->status == 'disconnected') {
-			if(isset($wpSettings['phpbb_path']) && file_exists($wpSettings['phpbb_path'])) {
-				$this->status = 'connected';
-			}
-		}
-			
-		if(($wpSettings['enabled'] == 'enabled')) {
-			if($this->status == 'connected') {
-				if(defined('WPU_HOOK_ACTIVE')) {
-					$this->status = 'working';
-				}
-			}
-		}
-		
-		return $this->status;
-	}
 	
 	private function set_last_run($status) {
 		if($this->lastRun != $status) {
