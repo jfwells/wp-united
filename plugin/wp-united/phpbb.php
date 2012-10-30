@@ -40,6 +40,7 @@ class WPU_Phpbb {
 	private $_savedIP;
 	private $_savedAuth;
 	private $tokens;
+	private $_loaded;
 	
 	public $lang;
 	public $seo;
@@ -67,7 +68,13 @@ class WPU_Phpbb {
 		$this->_savedIP = '';
 		$this->_savedAuth = NULL;
 		
+		$this->_loaded = false;
+		
 	}	
+	
+	public function is_phpbb_loaded() {
+		return $this->_loaded;
+	}
 	
 	/**
 	 * Loads the phpBB environment if it is not already
@@ -75,7 +82,12 @@ class WPU_Phpbb {
 	public function load($rootPath) {
 		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
 		global $dbms, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
-
+		
+		if($this->is_phpbb_loaded()) {
+			return;
+		}
+		$this->_loaded = true;
+			
 		$this->backup_wp_conflicts();
 		
 		define('IN_PHPBB', true);
@@ -194,7 +206,11 @@ class WPU_Phpbb {
 	/**
 	 * Passes content through the phpBB word censor
 	 */
-	public function censor($content) {
+	public function censor($content) { 
+
+		if(!$this->is_phpbb_loaded()) {
+			return $content;
+		}
 		$fStateChanged = $this->foreground();
 		$content = censor_text($content);
 		$this->restore_state($fStateChanged);
@@ -390,6 +406,50 @@ class WPU_Phpbb {
 		}
 		
 		$this->restore_state($fStateChanged);
+	}
+	
+	/**
+	 * Returns a list of smilies
+	 */
+	public function get_smilies() {
+		global $db;
+		
+		if(!$this->is_phpbb_loaded()) {
+			return '';
+		}
+		
+		$fStateChanged = $this->foreground();
+	
+		$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' GROUP BY emotion ORDER BY smiley_order ', 3600);
+
+		$i = 0;
+		$smlOutput =  '<span id="wpusmls">';
+		while ($row = $db->sql_fetchrow($result)) {
+			if (empty($row['code'])) {
+				continue;
+			}
+			if ($i == 20) {
+				$smlOutput .=  '<span id="wpu-smiley-more" style="display:none">';
+			}
+		
+			$smlOutput .= '<a href="#"><img src="'.$this->url.'images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /></a> ';
+			$i++;
+		}
+		$db->sql_freeresult($result);
+	
+		$this->restore_state($fStateChanged);
+	
+	
+		if($i >= 20) {
+			$smlOutput .= '</span>';
+			if($i>20) {
+				$smlOutput .= '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . $this->lang['wpu_more_smilies'] . '&nbsp;&raquo;</a></span>';
+			}
+		}
+		$smlOutput .= '</span>';
+	
+		return $smlOutput;
+		 
 	}
 	
 	

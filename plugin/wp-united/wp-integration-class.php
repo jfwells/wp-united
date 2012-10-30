@@ -413,7 +413,7 @@ Class WPU_Integration {
 	 * Code wrapper for logging out of WordPress
 	 */
 	function wp_logout() {
-		$this->prepare('wpu_wp_logout();');
+		$this->prepare('$GLOBALS['phpbbForum']->logout();');
 	}
 
 

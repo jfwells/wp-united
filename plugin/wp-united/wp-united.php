@@ -27,6 +27,27 @@ if ( !defined('ABSPATH') ) {
 }
 
 
+
+add_action('comment_form', 'wpu_comment_redir_field');
+add_action('wp_head', 'wpu_inline_js');
+add_action('edit_post', 'wpu_justediting');
+add_action('publish_post', 'wpu_newpost', 10, 2);
+add_action('wp_insert_post', 'wpu_capture_future_post', 10, 2); 
+add_action('future_to_publish', 'wpu_future_to_published', 10); 
+
+add_action('admin_footer', 'wpu_put_powered_text');
+add_action('wp_head', 'wpu_done_head');
+add_action('upload_files_browse', 'wpu_browse_attachments');
+add_action('upload_files_browse-all', 'wpu_browse_attachments');
+add_action('switch_theme', 'wpu_clear_header_cache');
+add_action('loop_start', 'wpu_loop_entry'); 
+add_action('admin_menu', 'wpu_add_meta_box'); 
+add_action('register_post', 'wpu_check_new_user', 10, 3);
+add_action('pre_comment_on_post', 'wpu_comment_redirector');
+add_action('comments_open', 'wpu_comments_open', 10, 2);
+
+
+
 if( !class_exists( 'WP_United' ) ):
 
 class WP_United {
@@ -37,9 +58,15 @@ class WP_United {
 		$lastRun = false,
 		$pluginLoaded = false,
 
+
+
 		$actions = array(
-			'init'	=>	'init_plugin',
-		
+			'init'			=>		'init_plugin',
+			
+			'wp_logout'		=>		'phpbb_logout',
+	
+
+			'comment_form'	=> 		'generate_smilies',
 		
 		
 		),
@@ -230,6 +257,32 @@ class WP_United {
 		 return $this->lastRun;
 	}
 	
+	public function is_phpbb_loaded() {
+		if($this->is_enabled() && ($this->get_last_run == 'working')) {
+			return true;
+		}
+		return false;
+	}
+	
+	public function phpbb_logout() {
+		if($this->is_phpbb_loaded()) {
+			global $phpbbForum;
+			$phpbbForum->logout();
+		}
+	}
+	
+	/**
+	 * Function 'wpu_print_smilies' prints phpBB smilies into comment form
+	 * @since WP-United 0.7.0
+	*/
+	public function generate_smilies() { 
+		global $phpbbForum, $wpSettings;
+		if ( !empty($wpSettings['phpbbSmilies'] ) ) {
+			echo $phpbbForum->get_smilies();
+		}
+	}
+
+	
 	/**
 	 * Process inbound actions and set up the settings panels after login integration has already taken place
 	 */
@@ -237,6 +290,12 @@ class WP_United {
 		global $wpSettings;
 		
 		if(is_admin()) {
+			
+			// styles we need across admin
+			wp_register_style('wpuAdminStyles', $this->pluginUrl . 'theme/admin-general.css');
+			wp_enqueue_style('wpuAdminStyles'); 
+		
+			
 			require_once($this->pluginPath . 'settings-panel.php');
 			
 			// the settings page has detected an error and asked to abort
@@ -262,6 +321,8 @@ class WP_United {
 		}
 	}
 	
+
+	
 }
 
 global $wpUnited;
@@ -278,7 +339,10 @@ endif;
 
 
 
-
+/**
+ * Disable WPU and putput result directly to the calling script
+ *
+ */
 
 function wpu_disable_connection($type) {
 	global $wpUnited;
@@ -356,44 +420,6 @@ function wpu_modify_pagelink($permalink, $post) {
 }
 
 
-/**
- * Checks and processes the inbound dashboard request
- * 
- * @todo Perhaps add additional perms check to see if we are allowed to switch theme/blog settings
- */
-function wpu_check_for_action() {
-	global $user_ID, $wp_version, $phpEx;
-
-	if ( isset($_GET['wpu_action']) ) {
-		if ('activate' == $_GET['wpu_action']) {
-			check_admin_referer('wp-united-switch-theme_' . $_GET['template']);
-			if ( isset($_GET['template']) )
-					update_user_meta($user_ID,'WPU_MyTemplate',$_GET['template']);
-	
-			
-			if ( isset($_GET['stylesheet']) )
-				update_user_meta($user_ID,'WPU_MyStylesheet',$_GET['stylesheet']);
-				wp_redirect("admin.php?page=wp-united-theme-menu&activated=true");
-			exit;
-		} elseif ('update-blog-profile' == $_GET['wpu_action']) {
-			check_admin_referer('update-blog-profile_' . $user_ID);
-			/**
-			 * Update blog details
-			 */
-			$blog_title = $phpbbForum->lang['default_blogname'];
-			$blog_tagline = $phpbbForum->lang['default_blogdesc'];
-			if (isset ($_POST['blog_title']))
-				$blog_title = wp_specialchars(trim($_POST['blog_title']));
-			if (isset ($_POST['blog_tagline']))
-				$blog_tagline = wp_specialchars(trim($_POST['blog_tagline']));			
-			
-			update_user_meta($user_ID, 'blog_title', $blog_title);
-			update_user_meta($user_ID, 'blog_tagline', $blog_tagline);
-			wp_redirect("admin.php?page=wp-united&updated=true");
-			exit;
-		}
-	}
-}
 
 
 /**
@@ -406,62 +432,8 @@ function wpu_put_powered_text() {
 }
 
 
-/**
- * Sets the CSS styles of messages we put in the dashboard
- * Hides the messages we don't want using CSS
- * @todo enqueue from stylesheet once we have proper url
- */
-function wpu_css() {
-	echo '
-			<style type="text/css">
-			#poweredby {
-				text-align: center;
-				font-style: italic;
-				font-size: 12px;
-				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
-				background-color: #464646; 
-				margin-top: 0; 
-				padding: 0 0 8px 0; 
-				color: #999;"
-			}
-			#poweredby a {
-				color: #ccc; 
-				text-decoration: none;
-			}
-			</style>
-		';
-	}
 
-/**
- * Initialises the dashboard options
- * Inserts the admin pages we want, and directs to the admin page requested
- * @todo neaten wp 2.7/2.8+
- */
-function wpu_adminmenu_init() {
-	global $wpSettings, $phpbbForum;
-	
-	//Check for action
-	if ( isset($_GET['wpu_action']) ) {
-		wpu_check_for_action();
-		exit();
-	}
-	
-	if (!empty($wpSettings['integrateLogin'])) {
-		if (function_exists('add_submenu_page')) {
-			if (current_user_can('publish_posts'))  {
-				if (!empty($wpSettings['usersOwnBlogs']) ) {
-					$top = add_menu_page($phpbbForum->lang['wpu_blog_panel_heading'], $phpbbForum->lang['wpu_blog_panel_heading'], 'publish_posts', 'wp-united', 'wpu_menuSettings', $wpSettings['wpPluginUrl'] . 'images/tiny.gif' );
-					
-					add_submenu_page('wp-united', $phpbbForum->lang['wpu_blog_settings'], $phpbbForum->lang['wpu_blog_settings'], 'publish_posts', 'wp-united' , 'wpu_menuSettings');						
-					if ( !empty($wpSettings['allowStyleSwitch']) ) {
-						add_submenu_page('wp-united', $phpbbForum->lang['wpu_blog_theme'], $phpbbForum->lang['wpu_blog_theme'], 'publish_posts','wp-united-theme-menu', 'wp_united_display_theme_menu');
-					}
-				} 
-			} 
-		}
-	}
-}
- 
+
 
 /**
  * Shows the "Your blog settings" menu
@@ -1083,7 +1055,11 @@ function wpu_content_parse_check($postContent) {
  * We also use this hook to suppress everything if this is a forum page.
 */
 function wpu_censor($postContent) {
-	global $wpSettings, $phpbbForum;
+	global $wpUnited, $wpSettings, $phpbbForum;
+	
+	if(!$wpUnited->is_phpbb_loaded()) {
+		return $postContent;
+	}
 	//if (! defined('PHPBB_CONTENT_ONLY') ) {  Commented out as we DO want this to to work on a full reverse page.
 		if ( !is_admin() ) {
 			if ( !empty($wpSettings['phpbbCensor'] ) ) { 
@@ -1314,100 +1290,8 @@ function wpu_add_meta_box() {
 }
 
 
-/**
- * This initialises all the admin changes and functions
- */
-function wpu_admin_init( ) {
-	global $wpu_done_head, $wpSettings;
-	$wpu_done_head = true;
-
-	// style the header text!
-	wpu_css();
-
-// no more buffering of users panel
-/*	if (!empty($wpSettings['integrateLogin'])) {
-		if (current_user_can('publish_posts')) {
-		//Buffer the users page
-		if(preg_match('|/wp-admin/users.php|', $_SERVER['REQUEST_URI'])) {
-			ob_start('wpu_buffer_userspanel');
-		}
-	}
-	// 'Fix' the profile page
-	if ( (preg_match('|/wp-admin/profile.php|', $_SERVER['REQUEST_URI'])) || 
-		(preg_match('|/wp-admin/user-edit.php|', $_SERVER['REQUEST_URI'])) ) {
-		ob_start('wpu_buffer_profile');
-	}
-}*/
 
 	
-	//Buffer the Categories box on the post page
-	
-	// FOR WP < 2.1, THIS SHOULD BE POST.PHP!!!!
-	if(preg_match('|/wp-admin/post-new.php|', $_SERVER['REQUEST_URI'])) {
-		if(!current_user_can('post_to_any_category')) {   //TODO.... IF USER CAN HAVE A USER BLOG, AND IS < EDITOR LEVEL!!!
-			//ob_start('wpu_catlist_alter');  //<--- Commented for release! -- per-user cats not operational
-		}
-	}
-}
-	
-/**
- * Buffers the profile and user-edit page, so it can be modified
- */
-function wpu_buffer_profile($output) {
-	global $wpSettings, $phpbbForum, $phpEx, $profileuser;
-	if(($wpSettings['integrateLogin']) && (($id = get_wpu_user_id($profileuser->ID)) || $isBlogSettings)) {
-		define('WPU_ALTER_PROFILE', TRUE);
-		
-		// We directly edit the profile page. We need to keep the e-mail field around, so hide it.
-		$emailField = '<input type="hidden" name="email" id="email" value="' .  esc_attr($profileuser->user_email) . '" />';
-		$output = preg_replace('/<h3>' . __('Contact Info') . '[\s\S]*<h3>/i', $emailField . '<h3>' , $output);
-		
-		
-		$profileLink = (IS_PROFILE_PAGE) ? $phpbbForum->url . 'ucp.' . $phpEx : get_wpu_phpbb_profile_link($ID);
-		
-		$forumString = (IS_PROFILE_PAGE) ? $phpbbForum->lang['wpu_profile_edit_use_phpbb'] : $phpbbForum->lang['wpu_user_edit_use_phpbb'];
-		
-		$output = str_replace('<h3>' .  __('Personal Options'), '<p><em>' . sprintf($forumString, '<a href="' . $profileLink . '">', '</a>') . '</em></p><h3>' .  __('Personal Options'), $output);
-	}		
-		
-		return $output;
-}	
-	
-
-/**
- * Modifies users.php to show appropriate links
- */
-function wpu_buffer_userspanel($panelContent) {
-	global $phpbbForum, $phpEx, $wpSettings;
-	if(!$wpSettings['integrateLogin']) {
-		return $panelContent;
-	}
-
-	// General message
-	$panelContent = str_replace('</h2>', '</h2><p><em>' . $phpbbForum->lang['wpu_userpanel_use_phpbb'] . '</em></p>', $panelContent);
-
-	// current user, if integrated
-	if(get_wpu_user_id()) { 
-		$token = '/(profile\.php">' . __('Edit') . ')/';
-		$replace = '$1</a> | </span><span class="edit"><a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '">' . $phpbbForum->lang['edit_phpbb_details'];
-		$panelContent = preg_replace($token, $replace, $panelContent);
-	}
-	// Other users -- Add additional link to edit phpBB details if they are integrated
-	$token = '/(user-edit\.php\?user_id=([0-9]+)[^>]*">' . __('Edit') . ')/';
-	if(preg_match_all($token, $panelContent, $matches)) {
-		foreach($matches[2] as $key => $id) {
-			if($pLink = get_wpu_phpbb_profile_link($id)){
-				$replace = $matches[1][$key] . '</a> | </span><span class="edit"><a href="' . $pLink . '">' . $phpbbForum->lang['edit_phpbb_details'];
-				$panelContent= str_replace($matches[1][$key], $replace, $panelContent);
-			}
-		}
-	}
-	
-	
-	
-	return $panelContent;
-}
-
 
 
 /**
@@ -1519,46 +1403,7 @@ function wpu_smilies($postContent, $max_smilies = 0) {
 }
 
 
-/**
- * Function 'wpu_print_smilies' prints phpBB smilies into comment form
- * @since WP-United 0.7.0
-*/
-function wpu_print_smilies() {
-	global $phpbbForum, $wpSettings;
-	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
-		global $db;
 
-		$fStateChanged = $phpbbForum->foreground();
-	
-		$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' GROUP BY emotion ORDER BY smiley_order ', 3600);
-
-		$i = 0;
-		echo '<span id="wpusmls">';
-		while ($row = $db->sql_fetchrow($result)) {
-			if (empty($row['code'])) {
-				continue;
-			}
-			if ($i == 20) {
-				echo '<span id="wpu-smiley-more" style="display:none">';
-			}
-		
-			echo '<a href="#"><img src="'.$phpbbForum->url.'images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /></a> ';
-			$i++;
-		}
-		$db->sql_freeresult($result);
-	
-		$phpbbForum->restore_state($fStateChanged);
-	
-	
-		if($i >= 20) {
-			echo '</span>';
-			if($i>20) {
-				echo '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . $phpbbForum->lang['wpu_more_smilies'] . '&nbsp;&raquo;</a></span>';
-			}
-		}
-		echo '</span>';
-	}
-}
 
 /**
  * Adds any required inline JS (for language strings)
@@ -1789,7 +1634,7 @@ function wpu_pluginrow_link($links, $file) {
 
 function wpu_deactivate() {
 	// No actions currently defined
-	//wpu_uninstall(); /** TEMP FOR RESETTING WHILE TESTING **/
+	wpu_uninstall();  /** TEMP FOR RESETTING WHILE TESTING **/
 }
 
 /**
@@ -1808,6 +1653,8 @@ function wpu_uninstall() {
 	
 	delete_option('wpu_set_forum');
 	delete_option('wpu-settings');
+	delete_option('wpu-last-run');
+	delete_option('wpu-enabled');
 	delete_option('widget_wp-united-loginuser-info');
 	delete_option('widget_wp-united-latest-topics');
 	delete_option('widget_wp-united-latest-posts');
@@ -1854,7 +1701,7 @@ function wpu_uninstall() {
  * here we add all the hooks and filters
  */
  
- add_action('wp_logout', 'wpu_wp_logout');
+
 
 add_filter('pre_user_login', 'wpu_fix_blank_username');
 add_filter('validate_username', 'wpu_validate_username_conflict');
@@ -1863,9 +1710,8 @@ add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
 add_filter('comment_text', 'wpu_censor');
 add_filter('comment_text', 'wpu_smilies');
 add_filter('get_avatar', 'wpu_get_phpbb_avatar', 10, 5);
-add_action('comment_form', 'wpu_print_smilies');
-add_action('comment_form', 'wpu_comment_redir_field');
-add_action('wp_head', 'wpu_inline_js');
+
+
 
 add_filter('template', 'wpu_get_template');
 add_filter('stylesheet', 'wpu_get_stylesheet');
@@ -1882,8 +1728,8 @@ add_filter('feed_link', 'wpu_feed_link');
 
 add_filter('comments_array', 'wpu_load_phpbb_comments', 10, 2);
 add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
-add_action('pre_comment_on_post', 'wpu_comment_redirector');
-add_action('comments_open', 'wpu_comments_open', 10, 2);
+
+
 add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
 
 //add_filter('login_url', 'wpu_login_url', 10, 2);
@@ -1894,23 +1740,7 @@ add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
 //per-user cats in progress -- deprecated
 //add_filter('wpu_cat_presave', 'category_save_pre');
 
-add_action('edit_post', 'wpu_justediting');
-add_action('publish_post', 'wpu_newpost', 10, 2);
-add_action('wp_insert_post', 'wpu_capture_future_post', 10, 2); 
-add_action('future_to_publish', 'wpu_future_to_published', 10); 
-add_action('admin_menu', 'wpu_adminmenu_init');
-add_action('admin_footer', 'wpu_put_powered_text');
-add_action('admin_head', 'wpu_admin_init');
-add_action('wp_head', 'wpu_done_head');
-add_action('upload_files_browse', 'wpu_browse_attachments');
-add_action('upload_files_browse-all', 'wpu_browse_attachments');
 
-add_action('switch_theme', 'wpu_clear_header_cache');
-add_action('loop_start', 'wpu_loop_entry'); 
-  
-add_action('admin_menu', 'wpu_add_meta_box'); 
-
-add_action('register_post', 'wpu_check_new_user', 10, 3);
 
 register_deactivation_hook('wp-united/wp-united.php', 'wpu_deactivate');
 register_uninstall_hook('wp-united/wp-united.php', 'wpu_uninstall');

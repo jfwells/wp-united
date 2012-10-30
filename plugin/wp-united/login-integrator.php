@@ -166,16 +166,6 @@ function wpu_int_phpbb_logged_in() {
 }
 
 
-/**
- * Logs the user out of phpBB if they log out of WordPress
- */
- function wpu_wp_logout() {
-	 global $phpbbForum;
-	 
-	 $phpbbForum->logout();
-	 
-}
-
 
 
 /**
