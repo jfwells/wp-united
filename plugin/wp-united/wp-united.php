@@ -99,6 +99,12 @@ class WP_United {
 		
 		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
 		$this->process_adminpanel_actions();
+
+		require_once($this->pluginPath .  'phpbb.php');
+		$phpbbForum = new WPU_Phpbb();	
+		
+
+
 		
 		if(!$this->is_enabled()) {
 			$this->set_last_run('disconnected');
@@ -115,15 +121,12 @@ class WP_United {
 			$wpSettings['integrateLogin'] = 0;
 		}		
 
-		require_once($this->pluginPath .  'phpbb.php');
-		$phpbbForum = new WPU_Phpbb();	
-		
 		if(!isset($wpSettings['phpbb_path']) || !file_exists($wpSettings['phpbb_path'])) {
 			$this->set_last_run('disconnected');
 			return;
 		}
 		
-		if($this->get_last_run == 'connected') {
+		if($this->get_last_run() == 'connected') {
 			return;
 		}
 		
@@ -184,8 +187,6 @@ class WP_United {
 				wpu_integrate_login();
 		}
 		
-		
-
 		return true; 
 			
 
@@ -197,11 +198,11 @@ class WP_United {
 	}
 	public function enable() {
 		$this->enabled = true;
-		set_option('wpu-enabled');
+		update_option('wpu-enabled', true);
 	}
 	public function disable() {
 		$this->enabled = false;
-		update_option($this->enabled);
+		update_option('wpu-enabled', $this->enabled);
 	}
 
 	
@@ -209,12 +210,7 @@ class WP_United {
 		return $this->pluginLoaded;
 	}
 	
-	public function get_connection_status() {
-		return $this->status;
-	}
-	
-	
-	private function set_last_run($status) {
+	public function set_last_run($status) {
 		if($this->lastRun != $status) {
 			// transitions cannot go from 'working' to 'connected'.
 			if( ($this->lastRun == 'working') && ($status == 'connected') ) {
@@ -225,7 +221,7 @@ class WP_United {
 		}
 	}
 	
-	private function get_last_run() {
+	public function get_last_run() {
 	
 		if(empty($this->lastRun)) {
 			$this->lastRun = get_option('wpu-last-run');
@@ -295,9 +291,9 @@ function wpu_disable_connection($type) {
 	
 	if($type == 'error') {
 				
-		if($wpUnited->get_connection_status == 'disconnected') {
+		if($wpUnited->get_last_run() == 'disconnected') {
 			die('[ERROR]' . __('WP-United could not find phpBB at the selected path. WP-United is not connected.'));
-		} elseif($wpUnited->get_connection_status == 'connected') {
+		} elseif($wpUnited->get_last_run() == 'connected') {
 			die('[ERROR]' . __('WP-United could not successfully run phpBB at the selected path. WP-United is halted.'));
 		} else {
 			die('[ERROR]' . __('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.'));

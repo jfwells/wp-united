@@ -78,10 +78,13 @@ function wpu_settings_menu() {
 	if(isset($_GET['page'])) {
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper'))) {
 
-			wp_deregister_script( 'jquery' );
-			wp_deregister_script( 'jquery-ui-core' );				
-			wp_deregister_script( 'jquery-color' );				
-			
+			// Deregister wordpress scripts where we want our stuff in front
+			$scriptsToDereg = array('jquery', 'jquery-ui-core');//, 'jquery-color');
+			foreach($scriptsToDereg as $script) {
+				if(wp_script_is($script, 'registered')) {
+					wp_deregister_script($script);
+				}
+			}
 			wp_enqueue_script('jquery', $wpUnited->pluginUrl . 'js/jquery-wpu-min.js', array(), false, false);
 			wp_enqueue_script('jquery-ui-core', $wpUnited->pluginUrl . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
 			wp_enqueue_script('filetree', $wpUnited->pluginUrl . 'js/filetree.js', array('jquery'), false, false);				
@@ -99,10 +102,8 @@ function wpu_settings_menu() {
 	add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
 		
 		
-	$status = (isset($wpSettings['status'])) ? $wpSettings['status'] : 0;
-	
 	// only show other menu items if WP-United is set up
-	if($status == 2) {
+	if($wpUnited->get_last_run() == 'working') {
 		add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
 
 			if(isset($wpSettings['integrateLogin'])) {
@@ -264,23 +265,21 @@ function wpu_setup_menu() {
 		}
 	}
 				
-	$status = (isset($settings['status'])) ? $settings['status'] : 0;
-	
 	$buttonDisplay = 'display: block;';
 	
-	switch($status) {
-		case 2:
+	switch($wpUnited->get_last_run()) {
+		case 'working':
 			$statusText = __('OK');
 			$statusColour = "updated allok";
 			$statusDesc =  __('WP-United is connected and working.');
 			$buttonDisplay = 'display: none;';
 			break;
-		case 1:
+		case 'connected':
 			$statusText = __('Connected, but not ready or disabled due to errors');
 			$statusColour = "updated highlight allok";
 			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
 			break;
-		case 0:
+		default;
 		default:
 			$statusText = __('Not Connected');
 			$statusColour = "error";
@@ -301,7 +300,7 @@ function wpu_setup_menu() {
 	
 			
 	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . '</strong>';
-	if($status == 2) {
+	if($wpUnited->get_last_run() == 'working') {
 		echo '<button style="float: right;margin-bottom: 6px;" class="button-secondary" onclick="return wpu_manual_disable(\'wp-united-setup\');">Disable</button>';
 	}
 	echo "<br /><br />$statusDesc";
@@ -1499,7 +1498,7 @@ function wpu_transmit_settings() {
 		$wpUnited->set_last_run('working');
 		die('OK');
 	} else {
-		$wpUnited->set_last_run('connected') {
+		$wpUnited->set_last_run('connected');
 		die('NO');
 	}
 	
@@ -1513,7 +1512,6 @@ function wpu_get_settings() {
 	$settings = (array)get_option('wpu-settings');
 	
 	$defaults = array(
-	'status' => 0,
 	'wpUri' => '' ,
 	'wpPath' => '', 
 	'integrateLogin' => 0, 
