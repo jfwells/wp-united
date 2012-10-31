@@ -1465,7 +1465,7 @@ function wpu_process_settings() {
 	}
 
 	update_option('wpu-settings', $data);
-	$wpSettings = $data;
+	$wpUnited->settings = $data;
 }
 
 

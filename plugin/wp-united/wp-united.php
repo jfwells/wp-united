@@ -141,7 +141,7 @@ class WP_United {
 		
 		global $wpSettings;
 		$wpSettings = $this->settings;
-		
+
 		
 		require_once($this->pluginPath . 'functions-general.php');
 		require_once($this->pluginPath . 'template-tags.php');
@@ -156,7 +156,8 @@ class WP_United {
 		$phpbbForum = new WPU_Phpbb();	
 		
 
-		if(!$this->is_enabled()) {
+
+		if(!$this->is_enabled()) { 
 			$this->set_last_run('disconnected');
 			
 			$this->settings['integrateLogin'] = 0;
@@ -272,8 +273,6 @@ class WP_United {
 		
 		$settings['enabled'] = ($enable) ? 'enabled' : 'disabled';
 		
-		
-		
 		if($phpbbForum->synchronise_settings($settings)) {
 			if($enable) {
 				$this->enable();
@@ -288,8 +287,8 @@ class WP_United {
 		}	
 	}
 
-	public function is_enabled() {
-		$this->enabled = get_option('wpu-enabled');
+	public function is_enabled() { 
+		$this->enabled = get_option('wpu-enabled'); 
 		return $this->enabled;
 	}
 	public function enable() {
@@ -434,7 +433,7 @@ function wpu_disable_connection($type) {
 	} elseif($type=='manual') {
 		
 		// try and disable on the phpBB side:
-		wpu_transmit_settings(false);
+		$wpUnited->transmit_settings(false);
 
 		die(__('WP-United Disabled Successfully'));
 	}

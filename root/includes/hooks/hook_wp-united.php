@@ -20,6 +20,8 @@ if ( !defined('IN_PHPBB') ) {
 	exit;
 }
 
+define('WPU_HOOK_ACTIVE', TRUE);
+
 /**
  * Only activate this hook if WP-United is set up and working correctly, and if it is needed:
  */
@@ -34,7 +36,7 @@ if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
-$wpSettings  = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+$wpSettings  = get_integration_settings(); //(empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
 // Has WPU been set up from the WordPress plugin yet?
 if(!sizeof($wpSettings)) {
@@ -61,9 +63,6 @@ wpu_get_version_opts();
 if (defined('WPU_DISABLE') && WPU_DISABLE) {  
 	return;
 }	
-
-// OK, activate the hook
-define('WPU_HOOK_ACTIVE', TRUE);
 
 
 // We are either in the phpBB ACP, or phpBB is already embedded in WordPress. So we don't need to do anything else...
@@ -112,7 +111,7 @@ if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 /**
  * INVOKE THE WP ENVIRONMENT NOW:
 */
-if(!empty($wpuIntegrationMode)) {
+if(!empty($wpuIntegrationMode)) { 
 	require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
 }
 
