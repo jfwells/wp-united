@@ -30,7 +30,7 @@ function wpu_settings_menu() {
 	
 	if(isset($_POST['wpusettings-transmit'])) {
 		if(check_ajax_referer( 'wp-united-transmit')) {		
-			wpu_transmit_settings();
+			$wpUnited->transmit_settings();
 			die();
 		}
 	}	
