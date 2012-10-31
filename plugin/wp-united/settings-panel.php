@@ -1489,12 +1489,12 @@ function wpu_transmit_settings($enable = true) {
 		'wpPluginUrl' => $wpUnited->pluginUrl,
 	));
 	
-	$settings['enabled'] = ($enabled) ? 'enabled' : 'disabled'
+	$settings['enabled'] = ($enable) ? 'enabled' : 'disabled';
 	
 	
 	
 	if($phpbbForum->synchronise_settings($settings)) {
-		if($enabled) {
+		if($enable) {
 			$wpUnited->enable();
 			$wpUnited->set_last_run('working');
 		} else {

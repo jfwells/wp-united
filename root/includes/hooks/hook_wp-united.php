@@ -37,10 +37,18 @@ if(defined('WPU_STYLE_FIXER')) {
 $wpSettings  = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
 
 // Has WPU been set up from the WordPress plugin yet?
-
-if(!isset($wpSettings['enabled']) || ($wpSettings['enabled'] != 'enabled')) {
+if(!sizeof($wpSettings)) {
 	return;
 }
+
+if(!isset($wpSettings['enabled'])) { 
+	return;
+}
+
+if($wpSettings['enabled'] != 'enabled') {
+	return;
+}
+
 
 if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
 	return;

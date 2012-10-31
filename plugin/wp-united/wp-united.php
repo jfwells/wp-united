@@ -230,7 +230,7 @@ class WP_United {
 	}
 	
 	public function load_phpbb() {
-		global $phpbb_root_path, $phpEx, $phpbbForum;
+		global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings;
 
 		if ( !defined('IN_PHPBB') ) {
 			$phpbb_root_path = $wpSettings['phpbb_path'];
