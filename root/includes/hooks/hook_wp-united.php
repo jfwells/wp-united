@@ -109,14 +109,12 @@ if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
 	$wpuIntegrationMode = 'template-p-in-w';
 }
 
-
 /**
  * INVOKE THE WP ENVIRONMENT NOW:
 */
 if(!empty($wpuIntegrationMode)) {
 	require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
 }
-
 
 /**
  * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB

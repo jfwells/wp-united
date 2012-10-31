@@ -75,7 +75,6 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 		// analyses and modifies WordPress core files as appropriate
 		$wpUtdInt->enter_wp_integration();
 
-
 		eval($wpUtdInt->exec()); 
 
 
