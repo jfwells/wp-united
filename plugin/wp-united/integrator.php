@@ -61,18 +61,18 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 	/**
 	 * Generate the WP header/footer for phpBB-in-WordPress
 	 */
-	if ($wpuIntegrationMode == 'template-p-in-w') {
+	if ($wpuIntegrationMode == 'template-p-in-w') { 
 
 		//prevent WP 404 error
 		if ( !$wpuCache->use_template_cache() ) {
 			query_posts('showposts=1');
 		}
 
-		if ( !empty($wpSettings['wpSimpleHdr']) ) {
+		if ( !empty($wpSettings['wpSimpleHdr']) ) { 
 			//
 			//	Simple header and footer
 			//
-			if ( !$wpuCache->use_template_cache() ) {
+			if ( !$wpuCache->use_template_cache() ) { 
 				//
 				// Need to rebuld the cache
 				//

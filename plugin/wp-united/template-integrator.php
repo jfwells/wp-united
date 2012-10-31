@@ -134,7 +134,7 @@ if ( ($wpuIntegrationMode == 'template-p-in-w') || ($wpSettings['showHdrFtr'] ==
 	process_body($innerContent);
 } 
 
-if ($wpuIntegrationMode == 'template-p-in-w') {
+if ($wpuIntegrationMode == 'template-p-in-w') { 
 	
 	// replace outer title with phpBB title
 	$outerContent = preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $outerContent);
@@ -157,7 +157,7 @@ if ($wpuIntegrationMode == 'template-p-in-w') {
  * classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
  * to make additional changes to the CSS the next time around.
  */
-if (!empty($wpSettings['cssMagic'])) {
+if (!empty($wpSettings['cssMagic'])) { 
 
 	require($wpSettings['wpPluginPath'] . 'css-magic.' . $phpEx);
 	require($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
@@ -375,7 +375,7 @@ if ($wpSettings['cssMagic']) {
 
 
 // Substitute in content
-if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') ) {
+if ( ($wpuIntegrationMode = 'template-p-in-w') || ($wpSettings['showHdrFtr'] == 'FWD') ) {
 	$outerContent = str_replace("<!--[**HEAD_MARKER**]-->", $innerHeadInfo, $outerContent); unset($innerHeadInfo);
 	$outerContent = str_replace("<!--[**INNER_CONTENT**]-->", $wpuOutputPreStr . $innerContent . $wpuOutputPostStr, $outerContent); unset($innerContent);
 	
@@ -390,7 +390,7 @@ if ( defined('WPU_REVERSE_INTEGRATION') || ($wpSettings['showHdrFtr'] == 'FWD') 
  * @return string the page <HEAD>
  */
 function process_head(&$retWpInc) {
-	global $wpSettings, $template;
+	global $wpSettings, $template, $wpuIntegrationMode;
 	//Locate where the WordPress <body> begins, and snip of everything above and including the statement
 	$bodyLocStart = strpos($retWpInc, "<body");
 	$bodyLoc = strpos($retWpInc, ">", $bodyLocStart);
@@ -420,7 +420,7 @@ function process_head(&$retWpInc) {
 	);
 	$header_info = head_snip($wpHead, $findItems);
 	//get the DTD if we're doing DTD switching
-		if ( ($wpSettings['dtdSwitch']) && !defined('WPU_REVERSE_INTEGRATION') ) {
+		if ( ($wpSettings['dtdSwitch']) && ($wpuIntegrationMode != 'template-p-in-w') ) {
 			$wp_dtd = head_snip($wpHead, array('<!DOCTYPE' => '>'));
 			$template->assign_var('WP_DTD', $wp_dtd);
 		}

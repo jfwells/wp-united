@@ -112,7 +112,7 @@ if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
  * INVOKE THE WP ENVIRONMENT NOW:
 */
 if(!empty($wpuIntegrationMode)) { 
-	require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx);
+	require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx); 
 }
 
 /**
@@ -203,7 +203,7 @@ function wpu_init(&$hook) {
 	 * Do a template integration?
 	 * @TODO: Clean up, remove defines
 	 */
-	if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
+	if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) { 
 		ob_start();
 	}
 	if (($wpSettings['showHdrFtr'] == 'FWD') && defined('WPU_BLOG_PAGE') ) {
@@ -275,11 +275,10 @@ function wpu_execute(&$hook, $handle) {
 			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 
-
 			if(in_array($template->filename[$handle], (array)$GLOBALS['WPU_NOT_INTEGRATED_TPLS'])) {
 				//Don't reverse-integrate pages we know don't want header/foote
 				echo $innerContent;
-			} else {
+			} else { 
 				//insert phpBB into a wordpress page
 				include ($wpSettings['wpPluginPath'] .'integrator.' . $phpEx); 
 			}
