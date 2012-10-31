@@ -73,9 +73,9 @@ add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
 
 
 
-if( !class_exists( 'WP_United' ) ):
+if( !class_exists( 'WP_United_Plugin' ) ):
 
-class WP_United {
+class WP_United_Plugin {
 
 	private
 		
@@ -119,6 +119,7 @@ class WP_United {
 		foreach( $this->filters as $filter ) {
 		add_filter( $filter, array( $this, $filter ) );
 		}
+		unset($this->actions, $this->filters);
 	}
 	
 	public function init_plugin() {
@@ -195,16 +196,18 @@ class WP_United {
 			//add_action('widgets_init', 'wpu_widgets_init_old');
 			add_action('widgets_init', 'wpu_widgets_init');
 		
-			/*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($this->settings['integrateLogin'])) ) {
-				global $user_ID;
-				get_currentuserinfo();
-				if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
-					wp_redirect(admin_url());
-				} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
-					$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(esc_attr(admin_url())), false, false, $GLOBALS['user']->session_id);		
-					wp_redirect($phpbbForum->url . $login_link);
-				}
-			} */
+			if(!is_admin()) {
+				if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($this->settings['integrateLogin'])) ) {
+					global $user_ID;
+					get_currentuserinfo();
+					if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
+						wp_redirect(admin_url());
+					} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
+						$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(esc_attr(admin_url())), false, false, $GLOBALS['user']->session_id);		
+						wp_redirect($phpbbForum->url . $login_link);
+					}
+				} 
+			}
 		}
 
 		
@@ -263,6 +266,7 @@ class WP_United {
 			$this->load_phpbb();
 		}
 		
+		
 		// add additional options for phpBB side
 		$settings = array_merge($this->settings, array(
 			'wpUri' => $this->wpHomeUrl,
@@ -273,7 +277,10 @@ class WP_United {
 		
 		$settings['enabled'] = ($enable) ? 'enabled' : 'disabled';
 		
-		if($phpbbForum->synchronise_settings($settings)) {
+		$dataToStore = array($this->pluginPath, serialize($this));
+		$dataToStore = base64_encode(gzcompress(serialize($dataToStore)));
+	
+		if($phpbbForum->synchronise_settings($settings, $dataToStore)) {
 			if($enable) {
 				$this->enable();
 				$this->set_last_run('working');
@@ -393,7 +400,7 @@ class WP_United {
 
 global $wpUnited;
 
-$wpUnited = new WP_United();
+$wpUnited = new WP_United_Plugin();
 
 
 endif;

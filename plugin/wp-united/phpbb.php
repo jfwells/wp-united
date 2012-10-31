@@ -53,6 +53,7 @@ class WPU_Phpbb {
 	public function __construct() {
 		if(defined('IN_PHPBB')) { 
 			$this->lang = $GLOBALS['user']->lang;
+			$this->calculate_url();
 			$this->state = 'wp';
 			$this->phpbbTemplate = $GLOBALS['template'];
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
@@ -456,7 +457,7 @@ class WPU_Phpbb {
 	/**
 	 * transmits new settings from the WP settings panel to phpBB
 	 */
-	public function synchronise_settings($settings) {
+	public function synchronise_settings($settings, $new) {
 		global $wpSettings, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
 		$fStateChanged = $this->foreground();
 		if(is_array($settings)) {
@@ -541,9 +542,9 @@ class WPU_Phpbb {
 				add_log('admin', $ln);
 				
 				$cache->purge();
-				
+				 
 
-				set_integration_settings($settings);
+				set_integration_settings($settings, $new);
 				$wpSettings = $settings;
 				
 				// clear out the WP-United cache on settings change

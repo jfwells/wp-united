@@ -26,11 +26,6 @@ if  ( empty($wpSettings) ) {
 require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
 $wpuCache = WPU_Cache::getInstance();
 
-// redirect to login if not logged in and blogs are private
-if ( (empty($user->data['is_registered'])) && ($wpSettings['mustLogin'])  && ($wpuIntegrationMode != 'template-p-in-w') ) {
- redirect(append_sid('ucp.'.$phpEx.'?mode=login&amp;redirect=' . urlencode($_SERVER["REQUEST_URI"])));	
-}
-
 
 // When PermaLinks are turned on, a trailing slash is added to the blog.php. Some templates also have trailing slashes hard-coded.
 // This results in a single slash in PATH_INFO, which screws up WP_Query.
@@ -84,7 +79,7 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 }
 
 // Load phpBB abstraction class if needed
-if(!is_object($phpbbForum)) {
+if(!isset($phpbbForum) || !is_object($phpbbForum)) {
 	require_once($wpSettings['wpPluginPath'] .  'phpbb.' . $phpEx);
 	$phpbbForum = new WPU_Phpbb();
 	$phpbbForum->foreground();

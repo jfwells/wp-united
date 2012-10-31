@@ -36,10 +36,14 @@ if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
-$wpSettings  = get_integration_settings(); //(empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+$wpSettings  = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
+
+if(!isset($wpUnited) || !is_object($wpUnited)) {
+	return;
+}
 
 // Has WPU been set up from the WordPress plugin yet?
-if(!sizeof($wpSettings)) {
+if(!sizeof($wpUnited->settings)) {
 	return;
 }
 
@@ -408,6 +412,38 @@ function get_integration_settings() {
 	}
 
 	$wpSettings = array_merge($defaults, $wpSettings);
+
+	$wpuString = '';
+	$fullKey = '';
+	$key = 1;
+	while(isset( $config["wpu_settings_new_{$key}"])) {
+		$fullKey .= $config["wpu_settings_new_{$key}"];
+		$key++;
+	} 
+	if(!empty($fullKey)) {
+		$wpuString =  gzuncompress(base64_decode($fullKey));
+
+		global $wpUnited;
+		
+		if(!is_object($wpUnited)) { 
+			$retrieved = unserialize($wpuString);
+			if( is_array($retrieved) && (sizeof($retrieved) == 2) ) { 
+				list($classLoc, $classDetails) = $retrieved;
+				if(file_exists($classLoc)) { 
+					require_once($classLoc . 'basics.' . $phpEx); 
+					$classDetails = str_replace('WP_United_Plugin', 'WP_United_Basics', $classDetails);
+
+					$wpUnited = unserialize($classDetails);
+				}
+			}
+		}
+		
+		
+		
+	} else {
+		return false;
+	}
+
 	
 		/**
 	 * Handle style keys for CSS Magic
@@ -502,7 +538,7 @@ function wpu_clear_style_keys() {
  * We want changes to take place as a single transaction to avoid collisions, so we 
  * access DB directly rather than using set_config
 */
-function set_integration_settings($dataIn) {
+function set_integration_settings($dataIn, $new) {
 		global $cache, $db;
 		$fullSettings = (base64_encode(serialize($dataIn)));
 		$currPtr=1;
@@ -513,6 +549,26 @@ function set_integration_settings($dataIn) {
 			$sql[] = array(
 				'config_name' 	=> 	"wpu_settings_{$currPtr}",
 				'config_value' 	=>	substr($fullSettings, $chunkStart, 255)
+			);
+			$chunkStart = $chunkStart + 255;
+			$currPtr++;
+		}
+		
+		$db->sql_multi_insert(CONFIG_TABLE, $sql);
+		$cache->destroy('config');
+		
+		set_integration_settings_new($new);
+}
+function set_integration_settings_new($dataIn) {
+		global $cache, $db;
+		$currPtr=1;
+		$chunkStart = 0;
+		$sql = array();
+		//wpu_clear_main_settings();
+		while($chunkStart < strlen($dataIn)) {
+			$sql[] = array(
+				'config_name' 	=> 	"wpu_settings_new_{$currPtr}",
+				'config_value' 	=>	substr($dataIn, $chunkStart, 255)
 			);
 			$chunkStart = $chunkStart + 255;
 			$currPtr++;
