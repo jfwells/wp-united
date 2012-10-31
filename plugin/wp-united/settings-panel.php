@@ -1470,46 +1470,6 @@ function wpu_process_settings() {
 
 
 /**
- * Transmit settings to phpBB
- */
-function wpu_transmit_settings($enable = true) {
-	global $wpUnited, $phpbbForum, $phpbb_root_path, $phpEx, $wpSettings;
-	
-	//if WPU was disabled, we need to initialise phpBB first
-	// phpbbForum is already inited, however -- we just need to load
-	if (!defined('IN_PHPBB')) {
-		$wpUnited->load_phpbb();
-	}
-	
-	// add additional options for phpBB side
-	$settings = array_merge($wpSettings, array(
-		'wpUri' => $wpUnited->wpHomeUrl,
-		'wpPath' => $wpUnited->wpPath,
-		'wpPluginPath' => $wpUnited->pluginPath,
-		'wpPluginUrl' => $wpUnited->pluginUrl,
-	));
-	
-	$settings['enabled'] = ($enable) ? 'enabled' : 'disabled';
-	
-	
-	
-	if($phpbbForum->synchronise_settings($settings)) {
-		if($enable) {
-			$wpUnited->enable();
-			$wpUnited->set_last_run('working');
-		} else {
-			$wpUnited->disable();
-		}
-		
-		die('OK');
-	} else {
-		$wpUnited->set_last_run('connected');
-		die('NO');
-	}
-	
-}
-
-/**
  * Retrieve stored WP-United settings or set defaults
  */
 function wpu_get_settings() {

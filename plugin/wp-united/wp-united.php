@@ -89,7 +89,6 @@ class WP_United {
 			'init'			=>		'init_plugin',
 			
 			'wp_logout'		=>		'phpbb_logout',
-	
 
 			'comment_form'	=> 		'generate_smilies',
 		
@@ -105,7 +104,8 @@ class WP_United {
 		$wpPath = '',
 		$wpHomeUrl = '',
 		$wpBaseUrl = '',
-		$pluginUrl = '';
+		$pluginUrl = '',
+		$settings = array();
 
 	/**
 	* Initialise the WP-United class
@@ -121,10 +121,8 @@ class WP_United {
 		}
 	}
 	
-	
-	
 	public function init_plugin() {
-		global $phpbbForum, $wpSettings;
+		global $phpbbForum;
 		
 		
 		if($this->pluginLoaded) {
@@ -139,7 +137,10 @@ class WP_United {
 		$this->wpBaseUrl = site_url('/'); // TODO: REPLACE $wpUri in some instances
 		$this->pluginUrl = plugins_url('wp-united/');
 		
-
+		$this->settings = get_option('wpu-settings');
+		
+		global $wpSettings;
+		$wpSettings = $this->settings;
 		
 		
 		require_once($this->pluginPath . 'functions-general.php');
@@ -147,8 +148,7 @@ class WP_United {
 		require_once($this->pluginPath . 'login-integrator.php'); 
 		require_once($this->pluginPath . 'functions-cross-posting.php');
 	
-		$wpSettings = get_option('wpu-settings');
-		
+	
 		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
 		$this->process_adminpanel_actions();
 
@@ -159,8 +159,8 @@ class WP_United {
 		if(!$this->is_enabled()) {
 			$this->set_last_run('disconnected');
 			
-			$wpSettings['integrateLogin'] = 0;
-			$wpSettings['showHdrFtr'] = 'NONE';
+			$this->settings['integrateLogin'] = 0;
+			$this->settings['showHdrFtr'] = 'NONE';
 			return;
 		} else {
 			$this->get_last_run();
@@ -168,10 +168,10 @@ class WP_United {
 		
 		// disable login integration if we couldn't override pluggables
 		if(defined('WPU_CANNOT_OVERRIDE')) {
-			$wpSettings['integrateLogin'] = 0;
+			$this->settings['integrateLogin'] = 0;
 		}		
 
-		if(!isset($wpSettings['phpbb_path']) || !file_exists($wpSettings['phpbb_path'])) {
+		if(!isset($this->settings['phpbb_path']) || !file_exists($this->settings['phpbb_path'])) {
 			$this->set_last_run('disconnected');
 			return;
 		}
@@ -194,7 +194,7 @@ class WP_United {
 			//add_action('widgets_init', 'wpu_widgets_init_old');
 			add_action('widgets_init', 'wpu_widgets_init');
 		
-			/*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
+			/*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($this->settings['integrateLogin'])) ) {
 				global $user_ID;
 				get_currentuserinfo();
 				if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
@@ -212,16 +212,16 @@ class WP_United {
 		$siteUrl = get_option('siteurl');
 		
 		// enqueue any JS we need
-		if ( !empty($wpSettings['phpbbSmilies'] ) && !is_admin() ) {
+		if ( !empty($this->settings['phpbbSmilies'] ) && !is_admin() ) {
 			wp_enqueue_script('wp-united', $this->pluginUrl . 'js/wpu-min.js', array(), false, true);
 		}
 		
 		// fix broken admin bar on integrated page
-		if(($wpSettings['showHdrFtr'] == 'FWD') && !empty($wpSettings['cssMagic'])) {
+		if(($this->settings['showHdrFtr'] == 'FWD') && !empty($this->settings['cssMagic'])) {
 			wp_enqueue_script('wpu-fix-adminbar', $this->pluginUrl . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
 		}
 		
-		if( !empty($wpSettings['integrateLogin']) && !defined('WPU_DISABLE_LOGIN_INT') ) {
+		if( !empty($this->settings['integrateLogin']) && !defined('WPU_DISABLE_LOGIN_INT') ) {
 				wpu_integrate_login();
 		}
 		
@@ -230,10 +230,10 @@ class WP_United {
 	}
 	
 	public function load_phpbb() {
-		global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings;
+		global $phpbb_root_path, $phpEx, $phpbbForum;
 
 		if ( !defined('IN_PHPBB') ) {
-			$phpbb_root_path = $wpSettings['phpbb_path'];
+			$phpbb_root_path = $this->settings['phpbb_path'];
 			$phpEx = substr(strrchr(__FILE__, '.'), 1);
 		}
 		
@@ -248,6 +248,44 @@ class WP_United {
 			$this->set_last_run('working');
 		}
 		
+	}
+	
+	/**
+	 * Transmit settings to phpBB
+	 */
+	public function transmit_settings($enable = true) {
+		global $phpbbForum;
+		
+		//if WPU was disabled, we need to initialise phpBB first
+		// phpbbForum is already inited, however -- we just need to load
+		if (!defined('IN_PHPBB')) {
+			$this->load_phpbb();
+		}
+		
+		// add additional options for phpBB side
+		$settings = array_merge($this->settings, array(
+			'wpUri' => $this->wpHomeUrl,
+			'wpPath' => $this->wpPath,
+			'wpPluginPath' => $this->pluginPath,
+			'wpPluginUrl' => $this->pluginUrl,
+		));
+		
+		$settings['enabled'] = ($enable) ? 'enabled' : 'disabled';
+		
+		
+		
+		if($phpbbForum->synchronise_settings($settings)) {
+			if($enable) {
+				$this->enable();
+				$this->set_last_run('working');
+			} else {
+				$this->disable();
+			}
+			die('OK');
+		} else {
+			$this->set_last_run('connected');
+			die('NO');
+		}	
 	}
 
 	public function is_enabled() {
@@ -307,8 +345,8 @@ class WP_United {
 	 * @since WP-United 0.7.0
 	*/
 	public function generate_smilies() { 
-		global $phpbbForum, $wpSettings;
-		if ( !empty($wpSettings['phpbbSmilies'] ) ) {
+		global $phpbbForum;
+		if ( !empty($this->settings['phpbbSmilies'] ) ) {
 			echo $phpbbForum->get_smilies();
 		}
 	}
@@ -318,8 +356,7 @@ class WP_United {
 	 * Process inbound actions and set up the settings panels after login integration has already taken place
 	 */
 	private function process_adminpanel_actions() {
-		global $wpSettings;
-		
+
 		if(is_admin()) {
 			
 			// styles we need across admin
@@ -341,7 +378,6 @@ class WP_United {
 
 			if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) {
 				wpu_process_settings();
-				$wpSettings = get_option('wpu-settings');
 			}
 			
 			// file tree
@@ -440,9 +476,9 @@ function wpu_ob_end_flush_all() {
  * If it is, replace it with the real forum link
  */
 function wpu_modify_pagelink($permalink, $post) {
-	global $wpSettings, $phpbbForum, $phpEx;
+	global $wpUnited, $phpbbForum, $phpEx;
 	
-	if ( !empty($wpSettings['useForumPage']) ) {
+	if ( !empty($wpUnited->settings['useForumPage']) ) {
 		$forumPage = get_option('wpu_set_forum');
 		if(!empty($forumPage) && ($forumPage == $post)) {
 			// If the forum and blog are both in root, add index.php to the end
@@ -462,7 +498,7 @@ function wpu_modify_pagelink($permalink, $post) {
  * Please DO NOT remove this!
  */
 function wpu_put_powered_text() {
-	global $wp_version, $wpSettings, $phpbbForum;
+	global $phpbbForum;
 	echo '<p  id="poweredby">' . sprintf($phpbbForum->lang['wpu_dash_copy'], '<a href="http://www.wp-united.com">', '</a>') . '</p>';
 }
 
@@ -475,7 +511,7 @@ function wpu_put_powered_text() {
  * 
  */
 function wpu_menuSettings() { 
-	global $wpSettings, $user_ID, $wp_roles, $phpbbForum, $phpEx;
+	global $user_ID, $wp_roles, $phpbbForum, $phpEx;
 	$profileuser = get_user_to_edit($user_ID);
 	$bookmarklet_height= 440;
 	$page_output = '';
@@ -787,8 +823,8 @@ function wp_united_display_theme_menu() {
  * We could do all this much later, in the template loader, but it is safer here so we load in all template-specific widgets, etc.
  */
 function wpu_get_template($default) {
-	global $wpSettings;
-	if ( !empty($wpSettings['allowStyleSwitch']) ) {
+	global $wpUnited;
+	if ( !empty($wpUnited->settings['allowStyleSwitch']) ) {
 		//The first time this is called, wp_query, wp_rewrite, haven't been set up, so we can't see what kind of page it's gonna be
 		// so set them up now
 		if ( !defined('TEMPLATEPATH') && !isset($GLOBALS['wp_the_query']) ) {
