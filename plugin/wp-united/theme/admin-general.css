@@ -1,0 +1,14 @@
+#poweredby {
+	text-align: center;
+	font-style: italic;
+	font-size: 12px;
+	font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+	background-color: #464646; 
+	margin: 0; 
+	padding: 0 0 8px 0; 
+	color: #999;
+}
+#poweredby a {
+	color: #ccc; 
+	text-decoration: none;
+}
