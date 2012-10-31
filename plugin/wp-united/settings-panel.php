@@ -16,6 +16,7 @@
 /**
  * Add menu options for WP-United Settings panel
  */
+ add_action('admin_menu', 'wpu_settings_menu');
 function wpu_settings_menu() {  
 	global $wpUnited, $wpSettings;
 	
@@ -1463,39 +1464,43 @@ function wpu_process_settings() {
 		
 	}
 
-	$data = array_merge($data, array(
-		'wpUri' => $wpUnited->wpHomeUrl,
-		'wpPath' => $wpUnited->wpPath,
-		'wpPluginPath' => $wpUnited->pluginPath,
-		'wpPluginUrl' => $wpUnited->pluginUrl,
-	));
-
-
 	update_option('wpu-settings', $data);
-
+	$wpSettings = $data;
 }
 
 
 /**
  * Transmit settings to phpBB
  */
-function wpu_transmit_settings() {
+function wpu_transmit_settings($enable = true) {
 	global $wpUnited, $phpbbForum, $phpbb_root_path, $phpEx, $wpSettings;
 	
 	//if WPU was disabled, we need to initialise phpBB first
 	// phpbbForum is already inited, however -- we just need to load
-	if ( !defined('IN_PHPBB') ) {
-		$phpbb_root_path = $wpSettings['phpbb_path'];
-		$phpEx = substr(strrchr(__FILE__, '.'), 1);
-		define('WPU_PHPBB_IS_EMBEDDED', TRUE);
-		$phpbbForum->load($phpbb_root_path);
-
+	if (!defined('IN_PHPBB')) {
+		$wpUnited->load_phpbb();
 	}
 	
-	$settings = get_option('wpu-settings');
+	// add additional options for phpBB side
+	$settings = array_merge($wpSettings, array(
+		'wpUri' => $wpUnited->wpHomeUrl,
+		'wpPath' => $wpUnited->wpPath,
+		'wpPluginPath' => $wpUnited->pluginPath,
+		'wpPluginUrl' => $wpUnited->pluginUrl,
+	));
+	
+	$settings['enabled'] = ($enabled) ? 'enabled' : 'disabled'
+	
+	
+	
 	if($phpbbForum->synchronise_settings($settings)) {
-		$wpUnited->enable();
-		$wpUnited->set_last_run('working');
+		if($enabled) {
+			$wpUnited->enable();
+			$wpUnited->set_last_run('working');
+		} else {
+			$wpUnited->disable();
+		}
+		
 		die('OK');
 	} else {
 		$wpUnited->set_last_run('connected');
@@ -1527,8 +1532,8 @@ function wpu_get_settings() {
 	//'useBlogHome' => 0,
 	//'blogListHead' => $user->lang['WPWiz_BlogListHead_Default'],
 	//'blogIntro' => $user->lang['WPWiz_blogIntro_Default'],
-	'blogsPerPage' => 6,
-	'blUseCSS' => 1,
+	//'blogsPerPage' => 6,
+	//'blUseCSS' => 1,
 	'phpbbCensor' => 1,
 	//'wpuVersion' => $user->lang['WPU_Not_Installed'],
 	'wpPageName' => 'page.php',
@@ -1647,6 +1652,6 @@ function wpu_filetree() {
 }
 
 
-add_action('admin_menu', 'wpu_settings_menu');
+
 
 ?>

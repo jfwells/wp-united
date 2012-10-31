@@ -124,7 +124,7 @@ class WP_United {
 	
 	
 	public function init_plugin() {
-		global $phpbb_root_path, $phpEx, $phpbbForum, $wpSettings;
+		global $phpbbForum, $wpSettings;
 		
 		
 		if($this->pluginLoaded) {
@@ -156,8 +156,6 @@ class WP_United {
 		$phpbbForum = new WPU_Phpbb();	
 		
 
-
-		
 		if(!$this->is_enabled()) {
 			$this->set_last_run('disconnected');
 			
@@ -185,31 +183,18 @@ class WP_United {
 		$this->set_last_run('connected');
 		
 		if($this->is_enabled()) {
-
-			if ( !defined('IN_PHPBB') ) {
-				$phpbb_root_path = $wpSettings['phpbb_path'];
-				$phpEx = substr(strrchr(__FILE__, '.'), 1);
-			}
-			
-						
-			if ( !defined('IN_PHPBB') ) {
-				if(is_admin()) {
-					define('WPU_PHPBB_IS_EMBEDDED', TRUE);
-				} else {
-					define('WPU_BLOG_PAGE', 1);
-				}
-				$phpbbForum->load($phpbb_root_path);
-			}
+		
+			$this->load_phpbb();
 			
 			$this->set_last_run('working');
-			
+		
 			require_once($this->pluginPath . 'widgets.php');
 			require_once($this->pluginPath . 'widgets2.php');
 			
 			//add_action('widgets_init', 'wpu_widgets_init_old');
 			add_action('widgets_init', 'wpu_widgets_init');
-
-			 /*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
+		
+			/*if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($wpSettings['integrateLogin'])) ) {
 				global $user_ID;
 				get_currentuserinfo();
 				if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
@@ -220,6 +205,7 @@ class WP_United {
 				}
 			} */
 		}
+
 		
 		// This variable is used in phpBB template integrator || TODO: KILL!!!
 		global $siteUrl;
@@ -241,7 +227,27 @@ class WP_United {
 		
 		return true; 
 			
+	}
+	
+	public function load_phpbb() {
+		global $phpbb_root_path, $phpEx, $phpbbForum;
 
+		if ( !defined('IN_PHPBB') ) {
+			$phpbb_root_path = $wpSettings['phpbb_path'];
+			$phpEx = substr(strrchr(__FILE__, '.'), 1);
+		}
+		
+		if ( !defined('IN_PHPBB') ) {
+			if(is_admin()) {
+				define('WPU_PHPBB_IS_EMBEDDED', TRUE);
+			} else {
+				define('WPU_BLOG_PAGE', 1);
+			}
+			$phpbbForum->load($phpbb_root_path);
+			
+			$this->set_last_run('working');
+		}
+		
 	}
 
 	public function is_enabled() {
@@ -390,6 +396,10 @@ function wpu_disable_connection($type) {
 	} elseif($type=='server-error') {
 		die('OK');
 	} elseif($type=='manual') {
+		
+		// try and disable on the phpBB side:
+		wpu_transmit_settings(false);
+
 		die(__('WP-United Disabled Successfully'));
 	}
 	
