@@ -283,7 +283,7 @@ class WP_United {
 	}
 	
 	public function is_phpbb_loaded() {
-		if($this->is_enabled() && ($this->get_last_run == 'working')) {
+		if($this->is_enabled() && ($this->get_last_run() == 'working')) {
 			return true;
 		}
 		return false;
