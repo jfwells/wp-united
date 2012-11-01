@@ -301,7 +301,7 @@ class WP_United_Plugin extends WP_United_Basics {
 	}
 	
 	public function update_settings($data) {
-		$data = array_merge(this->settings, (array)$$data); 
+		$data = array_merge($this->settings, (array)$data); 
 		update_option('wpu-settings', $data);
 		$this->settings = $data;
 	}
@@ -835,7 +835,7 @@ function wpu_get_template($default) {
  */
 function wpu_get_stylesheet($default) {
 	global $wp_query, $wpUnited;
-	if ( !empty($wpUnited->get_setting('allowStyleSwitch')) ) {
+	if ( !$wpUnited->get_setting('allowStyleSwitch') ) {
 		if ( $authorID = wpu_get_author() ) { 
 			$wpu_stylesheetdir = get_user_meta($authorID, 'WPU_MyStylesheet', true);
 			$wpu_theme_path = get_theme_root() . "/$wpu_stylesheetdir";
