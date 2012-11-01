@@ -15,15 +15,13 @@
 $amIGlobal = true;
 
 // Our Mod Settings should have been loaded by now. If not, either WP-United hasn't been set up, or something
-// is seriously screwed.
-if  ( empty($wpSettings) ) {
-	trigger_error($user->lang['WP_DBErr_Gen']);
-} elseif ($wpSettings['wpPath'] == '') {
+// is seriously screwed. @TODO: WE DON'T REALLY NEED THIS
+if(!$wpUnited->is_enabled()) {
 	trigger_error($user->lang['WP_Not_Installed_Yet']);
 }
 
 //Initialise the cache
-require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+require_once($wpUnited->pluginPath . 'cache.php'); //@TODO: INIT THIS IN WP-UNITED CLASS
 $wpuCache = WPU_Cache::getInstance();
 
 
@@ -60,7 +58,7 @@ $connectSuccess = false;
 
 if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) { 
 //if ( !defined('WPU_FWD_INTEGRATION')) { 
-	require_once($wpSettings['wpPluginPath'] . 'wp-integration-class.' . $phpEx);
+	require_once($wpUnited->pluginPath . 'wp-integration-class.php');
 	$wpUtdInt = WPU_Integration::getInstance();
 
 	//We really want WordPress to run in the global scope. So, our integration class really just prepares
@@ -80,7 +78,7 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 
 // Load phpBB abstraction class if needed
 if(!isset($phpbbForum) || !is_object($phpbbForum)) {
-	require_once($wpSettings['wpPluginPath'] .  'phpbb.' . $phpEx);
+	require_once($wpUnited->pluginPath .  'phpbb.php');
 	$phpbbForum = new WPU_Phpbb();
 	$phpbbForum->foreground();
 }

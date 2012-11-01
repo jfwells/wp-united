@@ -130,7 +130,6 @@ Class WPU_Integration {
 	var $sleepingVars = array();
 	var $varsToSave;
 	
-	var $wpu_settings;
 	var $phpbb_root;
 	var $phpEx;
 	var $phpbb_usr_data;
@@ -168,14 +167,14 @@ Class WPU_Integration {
 	 * When we exit WordPress, these can be restored.
 	 */
 	function WPU_Integration($varsToSave) {
-
+		global $wpUnited;
 		//these are constants that ain't gonna change - we're going to need them in our class
 		$this->wpRun = '';
 		$this->phpbb_usr_data = $GLOBALS['userdata']; 
 		$this->phpEx = $GLOBALS['phpEx'];
 		$this->phpbb_db_name = $GLOBALS['dbname'];
 		$this->phpbb_root = $GLOBALS['phpbb_root_path'];
-		$this->wpu_settings = $GLOBALS['wpSettings'];
+
 		// store all vars set by phpBB, ready for retrieval after we exit WP
 		/**
 		 * @todo disable passing in of varsToSave -- may be better to 100% manage
@@ -192,18 +191,17 @@ Class WPU_Integration {
 		$this->wpu_ver = $GLOBALS['wpuVersion'];
 		
 		// Load plugin fixer -- must be loaded regardless of settings, as core cache may contain plugin fixes
-		require($this->wpu_settings['wpPluginPath'] . 'plugin-fixer.' . $this->phpEx);
-		
-		// Several library functions are required, and might not have been included if this is called directly from a phpBB function
-		// (e.g. during setup) @TODO: REMOVE
-		//require_once($this->wpu_settings['wpPluginPath'] . 'functions-general.' . $this->phpEx);
+		require($wpUnited->pluginPath . 'plugin-fixer.php');
+
 	}
 	
 	/**
 	 * Test connection to WordPress
 	 */
 	function can_connect_to_wp() {
-		$test = str_replace('http://', '', $this->wpu_settings['wpPath']); // urls sometimes return true on php 5.. this makes sure they don't.
+		global $wpUnited;
+	
+		$test = str_replace('http://', '', $wpUnited->wpPath); // urls sometimes return true on php 5.. this makes sure they don't.
 		if ( !file_exists( $test . 'wp-settings.php') ) {
 			return FALSE;
 		} else {
@@ -253,7 +251,7 @@ Class WPU_Integration {
 	 */
 	function enter_wp_integration() {
 
-		global $wpuCache;
+		global $wpuCache, $wpUnited;
 		//Tell phpBB that we're in WordPress. This controls the branching of the duplicate functions get_userdata and make_clickable
 		$GLOBALS['IN_WORDPRESS'] = 1;
 		
@@ -303,7 +301,7 @@ Class WPU_Integration {
 		
 		//Which version of WordPress are we about to load?
 		global $wp_version;
-		require($this->wpu_settings['wpPath'] . 'wp-includes/version.php');
+		require($wpUnited->wpPath . 'wp-includes/version.php');
 		$this->wpVersion = $wp_version;
 		
 		
@@ -311,26 +309,26 @@ Class WPU_Integration {
 		global $user;
 		// Added realpath to account for symlinks -- 
 		//otherwise it is inconsistent with __FILE__ in WP, which causes plugin inconsistencies.
-		$realAbsPath = realpath($this->wpu_settings['wpPath']);
+		$realAbsPath = realpath($wpUnited->wpPath);
 		$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
 		define('ABSPATH',$realAbsPath);
 
 		if (!$this->core_cache_ready()) {
 			
 			// Now wp-config can be moved one level up, so we try that as well:
-			$wpConfigLoc = (!file_exists($this->wpu_settings['wpPath'] . 'wp-config.php')) ? $this->wpu_settings['wpPath'] . '../wp-config.php' : $this->wpu_settings['wpPath'] . 'wp-config.php';
+			$wpConfigLoc = (!file_exists($wpUnited->wpPath . 'wp-config.php')) ? $wpUnited->wpPath . '../wp-config.php' : $wpUnited->wpPath . 'wp-config.php';
 
 			$cConf = file_get_contents($wpConfigLoc);
-			$cSet = file_get_contents($this->wpu_settings['wpPath'] . 'wp-settings.php');
+			$cSet = file_get_contents($wpUnited->wpPath . 'wp-settings.php');
 			 //Handle the make clickable conflict
-			if (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/formatting.php')) {
+			if (file_exists($wpUnited->wpPath . 'wp-includes/formatting.php')) {
 				$fName='formatting.php';  //WP >= 2.1
-			} elseif (file_exists($this->wpu_settings['wpPath'] . 'wp-includes/functions-formatting.php')) {
+			} elseif (file_exists($wpUnited->wpPath . 'wp-includes/functions-formatting.php')) {
 				$fName='functions-formatting.php';  //WP< 2.1
 			} else {
 				trigger_error($user->lang['Function_Duplicate']);
 			}
-			$cFor = file_get_contents($this->wpu_settings['wpPath'] . "wp-includes/$fName");
+			$cFor = file_get_contents($wpUnited->wpPath . "wp-includes/$fName");
 			$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'[EOF]';
 			$finds = array(
 				'require (ABSPATH . WPINC . ' . "'/$fName",
@@ -340,7 +338,7 @@ Class WPU_Integration {
 			unset ($cFor); 
 			
 			// Fix plugins
-			if(!empty($this->wpu_settings['pluginFixes'])) {
+			if(!empty($wpUnited->get_setting('pluginFixes')) {
 				$strCompat = ($this->wpu_compat) ? "true" : "false";
 				// MU Plugins
 				$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
@@ -433,7 +431,7 @@ Class WPU_Integration {
 		$this->prepare('wp();');
 		$this->prepare('if (!$latest ):');
 			$this->prepare('if($GLOBALS[\'wpuIntegrationMode\'] != \'template-p-in-w\'):');
-				$this->prepare('global $wpuNoHead, $wpSettings;');
+				$this->prepare('global $wpuNoHead, $wpUnited;');
 				$this->prepare('eval($wpUtdInt->fix_template_loader());');
 			$this->prepare('endif;');
 		$this->prepare('else:');
@@ -465,7 +463,7 @@ Class WPU_Integration {
 			'$wpuNoHead = true; do_feed',
 			'$wpuNoHead = true; do_action(\'do_robots\');',
 			'if (is_trackback()) {$wpuNoHead=true;',
-			'}else if(is_author()&& !empty($wpSettings[\'usersOwnBlogs\']) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
+			'}else if(is_author()&& !empty($wpUnited->get_setting(\'usersOwnBlogs\')) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
 			'} else { $wpuNoHead = true;'
 		);
 		$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);

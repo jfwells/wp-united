@@ -19,7 +19,6 @@ if ( !defined('IN_PHPBB') ) exit;
 * (c) Cached CSS for when CSS Magic is enabled
 * (d) Cached template Voodoo instructions
 * (e) Cached plugin modifications
-* @todo CSSM & Template voodoo caches
 */
 class WPU_Cache {
 
@@ -46,23 +45,22 @@ class WPU_Cache {
     	
 	function WPU_Cache() {
 		
-		global $phpbb_root_path, $wpSettings, $phpEx;
+		global $phpbb_root_path, $wpUnited;
 		
 		$this->_useTemplateCache = 'UNKNOWN';
 		$this->_useCoreCache = 'UNKNOWN';
-		$this->baseCacheLoc = $wpSettings['wpPluginPath'] . 'cache/';
-		$this->themePath = $wpSettings['wpPath'] . 'wp-content/themes/';
-		$this->wpVersionLoc = $wpSettings['wpPluginPath'] . "version.$phpEx";
-		$this->fullPage =  !(bool)$wpSettings['wpSimpleHdr'];
+		$this->baseCacheLoc = $wpUnited->pluginPath . 'cache/';
+		$this->themePath = $wpUnited->wpPath . 'wp-content/themes/';  // TODO: FOLLOW WP RECS
+		$this->wpVersionLoc = $wpUnited->pluginPath . 'version.php';
+		$this->fullPage =  !(bool)$wpUnited->get_setting('wpSimpleHdr');
 		
 		$this->initialise_salt();
 		
 		$this->log = array();
 		
-		$this->wpuVer = $GLOBALS['wpuVersion'];
+		$this->wpuVer = $wpUnited->version;
 		
-		$this->numStyleKeys = sizeof($GLOBALS['wpSettings']['styleKeys']);
-					
+				
 	}
 	/**
 	 * The salt is used when hashing filenames and is stored poermanently in the phpBB database
@@ -308,39 +306,41 @@ class WPU_Cache {
 	 * Returns a key number for a CSS file or a CSS magic cache
 	 */
 	function get_style_key($fileName, $pos) {
+		global $wpUnited;
 		if(stripos($fileName, 'style.php?') !== false) {
 			/**
 			 * For style.php, we just need to create a style key for the cache
 			 */
 			$fileName = preg_replace('/sid=[^&]*?&amp;/', '', $fileName);
 			$fileName = $this->get_css_magic_cache_name($fileName, $pos);
-			return $this->_generate_style_key($fileName);
+			return $wpUnited->add_style_key($fileName);
 		} else {
 			/**
 			 * For css files, we need to create a style key for the filename
 			 */
 			$fileName = explode('?', $fileName);
-			return $this->_generate_style_key($fileName[0]);
+			return $wpUnited->add_style_key($fileName[0]);
 		}
 	}
 
 	/**
 	 * returns a key number for a template voodoo instruction cache
 	 */
-	function get_template_voodoo_key($path1, $arr1, $arr2, $arr3, $arr4) {		
+	function get_template_voodoo_key($path1, $arr1, $arr2, $arr3, $arr4) {	
+		global $wpUnited;
 		$fileName = 'tplvoodoo-' . md5( $this->salt . array_pop(explode('/', $path1)) .  implode('.', $arr1) . implode('.', $arr2) . implode('.', $arr2) . implode('.', $arr3) . "-{$this->wpuVer}");
-		return $this->_generate_style_key($fileName);
+		return $wpUnited->add_style_key($fileName);
 	}
 
 	/**
 	 * gets the Template Voodoo instructions, if they exist
 	 */
 	function get_template_voodoo($key) {
-		global $wpSettings;
+		global $wpUnited;
 		if($key < 0) {
 			return false;
 		}
-		$fileName = $this->baseCacheLoc . $wpSettings['styleKeys'][$key];
+		$fileName = $this->baseCacheLoc . $wpUnited->get_style_key($key);
 		if(file_exists($fileName)) { 
 			$templateVoodoo = @file_get_contents($fileName);
 			if(!empty($templateVoodoo)) {
@@ -355,26 +355,13 @@ class WPU_Cache {
 	 * Saves Template Voodoo instructions
 	 */
 	function save_template_voodoo($contents, $key) {
-		global $wpSettings;
-		$fileName = $this->baseCacheLoc . $wpSettings['styleKeys'][$key];
+		global $wpUnited;  
+		$fileName = $this->baseCacheLoc . wpUnited->get_style_key($key);
 		$templateVoodoo = serialize($contents);
 		$this->save($templateVoodoo, $fileName);
 		$this->_log("Generated Template Voodoo cache: $fileName");
 	}
 		
-	/**
-	 * generates a style key, or returns the correct one if it already exists
-	 * @access private
-	 */
-	function _generate_style_key($fileName) {
-		global $wpSettings;
-		$key = array_search($fileName, (array)$wpSettings['styleKeys']);
-		if($key === false) {
-			$wpSettings['styleKeys'][] = $fileName;
-			$key = sizeof($wpSettings['styleKeys']) - 1;
-		}
-		return $key;
-	}
 
 	/**
 	 * Gets the CSS magic cache if it exists
@@ -408,42 +395,6 @@ class WPU_Cache {
 
 
 	/**
-	 * Saves updated style keys to the database.
-	 * phpBB $config keys can only store 255 bytes of data, so we usually need to store the data
-	 * split over several config keys
-	  * We want changes to take place as a single transaction to avoid collisions, so we 
-	  * access DB directly rather than using set_config
-	 * @return int the number of config keys used
-	 */
-	function update_style_keys() {
-		global $wpSettings, $cache, $db; 
-		if(sizeof($wpSettings['styleKeys']) > $this->numStyleKeys) {
-			$fullLocs = (base64_encode(serialize($wpSettings['styleKeys'])));
-			$currPtr=1;
-			$chunkStart = 0;
-			$sql = array();
-			wpu_clear_style_keys();
-			while($chunkStart < strlen($fullLocs)) {
-				$sql[] = array(
-					'config_name' 	=> 	"wpu_style_keys_{$currPtr}",
-					'config_value' 	=>	substr($fullLocs, $chunkStart, 255)
-				);
-				$chunkStart = $chunkStart + 255;
-				$currPtr++;
-			}
-			
-			$db->sql_multi_insert(CONFIG_TABLE, $sql);
-			$cache->destroy('config');
-		
-			return $currPtr;
-		}
-		return $this->numStyleKeys;
-	}
-
-
-
-
-	/**
 	 * Prepares content for saving to cache -- ensuring it can't be called directly, and that it can be properly eval()d
 	 */
 	function prepare_content($content, $addPHP = '') {
@@ -473,7 +424,7 @@ class WPU_Cache {
 	 * Deletes all files from the wp-united/cache directory
 	 */
 	function purge() {
-		global $wpSettings;
+
 		@$dir = opendir($this->baseCacheLoc);
 			while( $entry = @readdir($dir) ) {
 				if ( (strpos($entry, '.htaccess') === false) && ((strpos($entry, '.txt') === false)) ) {

@@ -30,16 +30,16 @@ class WPU_Actions {
 	 * logs out of WordPress when the phpBB logout is called
 	 */
 	function do_logout() {
-		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
+		global $wpUnited, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
 		// TODO: REIMPLEMENT!!
 	}
 	/**
 	 * Updates the WordPress user profile when the phpBB profile is updated
 	 */
 	function profile_update($mode, $phpbb_id, $integration_id, $data) {
-		global $wpSettings, $phpbb_root_path, $phpEx, $wpUtdInt, $db, $user, $wpuCache;
+		global $wpUnited, $phpbb_root_path, $phpEx, $wpUtdInt, $db, $user, $wpuCache;
 
-		if ( !empty($wpSettings['integrateLogin']) && ($wpSettings['installLevel'] == 10) ) {	
+		if ( !empty($wpUnited->get_setting('integrateLogin')) && ($wpUnited->is_enabled()) ) {	
 			
 			// check that integration ID has been provided
 			if (empty($integration_id)) {
@@ -114,9 +114,9 @@ class WPU_Actions {
 						}
 					';	
 					define('WPU_PERFORM_ACTIONS', TRUE);
-					if ( $wpSettings['showHdrFtr'] != 'REV' ) { // if reverse integration, we'll do it later
-						require_once($wpSettings['wpPluginPath'] . 'wp-integration-class.' . $phpEx);
-						require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+					if ( $wpUnited->get_setting('showHdrFtr') != 'REV' ) { // if reverse integration, we'll do it later
+						require_once($wpUnited->pluginPath . 'wp-integration-class.php');
+						require_once($wpUnited->pluginPath . 'cache.' . $phpEx);
 						$wpuCache = WPU_Cache::getInstance();
 						
 						$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
@@ -139,39 +139,36 @@ class WPU_Actions {
 	 * adds blog links to users' profiles.
 	 */
 	function generate_profile_link($bloglink_id, &$template) {
-		global $wpSettings, $phpbb_root_path, $phpEx;
-		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-		if  ( $wpSettings != FALSE ) {
-			if (!empty($wpSettings['buttonsProfile'])) {
-				if ( !empty($bloglink_id) ) {
-					$blog_uri = append_sid($wpSettings['blogsUri'] . "?author=" . $bloglink_id);
-					$blog_img = '';   //TODO: SET FOR SUBSILVER!!
-					$template->assign_vars(array(
-						'BLOG_IMG' 		=> $blog_img,
-						'U_BLOG_LINK'		=> $blog_uri,
-					));
-				} else {
-					$blog_img = '';
-				}
-			}
-		}		
+		global $wpUnited, $phpbb_root_path, $phpEx;
 		
+		if (!empty($wpUnited->get_setting('buttonsProfile'))) {
+			if ( !empty($bloglink_id) ) {
+				$blog_uri = append_sid($wpUnited->wpHomeUrl . "?author=" . $bloglink_id);
+				$blog_img = '';   //TODO: SET FOR SUBSILVER!!
+				$template->assign_vars(array(
+					'BLOG_IMG' 		=> $blog_img,
+					'U_BLOG_LINK'		=> $blog_uri,
+				));
+			} else {
+				$blog_img = '';
+			}
+		}
 	}
 	/**
 	 * creates blog links for users' posts
 	 * @todo set blog images for subSilver template
 	 */
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
-		global $wpSettings, $phpbb_root_path, $phpEx;
-		if  ( $wpSettings['installLevel'] == 10 ) { 
-			if (!empty($wpSettings['buttonsPost'])) {
+		global $wpUnited, $phpbb_root_path, $phpEx;
+		if  ( $wpUnited->is_enabled() ) { 
+			if (!empty($wpUnited->get_setting('buttonsPost'))) {
 				if ((!isset($user_cache[$poster_id])) && !empty($bloglink_id)) {
 					if ($poster_id == ANONYMOUS) {
 						$cache['blog_img'] = '';
 						$cache['blog_link'] = '';
 					} else {
 						$cache['blog_img'] = '';   //TODO: SET FOR SUBSILVER!!
-						$cache['blog_link'] = append_sid($wpSettings['blogsUri'] . "?author=" . $bloglink_id);			
+						$cache['blog_link'] = append_sid($wpUnited->wpHomeUrl . "?author=" . $bloglink_id);			
 					}
 				}
 			}
@@ -192,19 +189,18 @@ class WPU_Actions {
 	 */	
 	function css_magic($cssIn) {
 		
-		global $phpbb_root_path, $phpEx, $wpuCache, $wpSettings;
+		global $phpbb_root_path, $phpEx, $wpuCache, $wpUnited;
 		define('WPU_STYLE_FIXER', true);
 		require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
-		$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-		
-		if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
+				
+		if(!$wpUnited->is_enabled()) {
 			return $cssIn; 
 		}
 		
-		require_once($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
+		require_once($wpUnited->pluginPath . 'functions-css-magic.php');
 
-		require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+		require_once(wpUnited->pluginPath . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 
 		if(!isset($_GET['usecssm'])) {
@@ -214,7 +210,7 @@ class WPU_Actions {
 		$cacheLocation = '';
 		
 		$cssIdentifier = request_var('cloc', 0);
-		$cssIdentifier = $wpSettings['styleKeys'][$cssIdentifier];
+		$cssIdentifier = $wpUnited->get_style_key($cssIdentifier);
 		
 		$useTV = -1;
 		if(isset($_GET['tv']) && $pos == 'inner') { 
@@ -243,7 +239,7 @@ class WPU_Actions {
 		}
 		
 		// Apply or load css magic
-		include($wpSettings['wpPluginPath'] . 'css-magic.' . $phpEx);
+		include(wpUnited->pluginPath . 'css-magic.php');
 		$cssMagic = CSS_Magic::getInstance();
 		if(!$cssMagic->parseString($cssIn)) {
 			return $cssIn;
@@ -277,8 +273,8 @@ class WPU_Actions {
 	 * Simple call to cache purge. We include it here so that phpBB core edits are static
 	 */
 	function purge_cache() {
-		global $wpSettings, $phpEx;
-		require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+		global $wpUnited, $phpEx;
+		require_once($wpUnited->pluginPath . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 		$wpuCache->purge();
 	}

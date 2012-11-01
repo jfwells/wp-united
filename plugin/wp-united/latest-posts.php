@@ -8,7 +8,7 @@
 * @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
-* @deprecated
+* @deprecated -- DOES NOT WORK WITH WPUv0.9
 *
 */
 
@@ -23,7 +23,7 @@ if ( !defined('IN_PHPBB') ) {
 *
 *	Just include this file to generate the page content for the previous x posts
 *	lib_curl is required. It is enabled by default on most shared hosts. 
-* 	If you're unfortunate enough to be on Windows, you'll proabaly have to enable the specified module in apache or php.ini
+* 	If you're on Windows, you'll proabaly have to enable the specified module in apache or php.ini
 *
 *
 *

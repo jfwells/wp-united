@@ -10,9 +10,9 @@
 * @author John Wells
 *
 */
-global $connectSuccess, $wpSettings, $wpuCache, $forum_page_ID, $phpbbForum, $wpuIntegrationMode;
+global $connectSuccess, $wpUnited, $forum_page_ID, $phpbbForum, $wpuIntegrationMode;
 
-global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
+global $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
 global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCache, $config, $auth;
 
@@ -24,7 +24,7 @@ if($connectSuccess) {
 	/**
 	 * We integrate logins here, as otherwise it happens too early.
 	 */
-	if(!empty($wpSettings['integrateLogin']) && ($wpuIntegrationMode == 'template-p-in-w')) { 
+	if(!empty($wpUnited->get_setting('integrateLogin')) && ($wpuIntegrationMode == 'template-p-in-w')) { 
 		if(!defined('WPU_CANNOT_OVERRIDE')) {
 			wp_get_current_user(true);
 			do_action('init');
@@ -48,7 +48,7 @@ if($connectSuccess) {
 				eval($wpUtdInt->fix_template_loader());
 			}
 		} else {
-			include($wpSettings['wpPluginPath'] . 'wp-united/latest-posts.' . $phpEx);
+			include($wpUnited->pluginPath . 'latest-posts.php');
 		}
 		
 		$$wpContentVar = ob_get_contents();
@@ -68,7 +68,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 			query_posts('showposts=1');
 		}
 
-		if ( !empty($wpSettings['wpSimpleHdr']) ) { 
+		if ( !empty($wpUnited->get_setting('wpSimpleHdr')) ) { 
 			//
 			//	Simple header and footer
 			//
@@ -82,7 +82,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 				$GLOBALS['inove_nosidebar'] = true;
 		
 				ob_start();
-				if(!empty($wpSettings['useForumPage'])) {
+				if(!empty($wpUnited->get_setting('useForumPage'))) {
 					// set the page query so that the forum page is selected if in header
 					$forum_page_ID = get_option('wpu_set_forum');
 					if(!empty($forum_page_ID)) {
@@ -123,7 +123,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 			global $phpbbForum;
 			ob_start();
 			
-			if(!empty($wpSettings['useForumPage'])) {
+			if(!empty($wpUnited->get_setting('useForumPage'))) {
 				// set the page query so that the forum page is selected if in header
 				$forum_page_ID = get_option('wpu_set_forum');
 				if(!empty($forum_page_ID)) {
@@ -131,7 +131,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 				}
 			}
 	
-			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpSettings['wpPageName']);
+			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpUnited->get_setting('wpPageName'));
 			if ( !file_exists($wpTemplateFile) ) {
 				$wpTemplateFile = TEMPLATEPATH . "/page.php";
 				// Fall back to index.php for Classic template
@@ -169,7 +169,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 
 }
 
-require($wpSettings['wpPluginPath'] . 'template-integrator.' . $phpEx);
+require($wpUnited->pluginPath . 'template-integrator.php');
 
 /**
  * Work-around for plugins that force exit.
@@ -182,7 +182,7 @@ require($wpSettings['wpPluginPath'] . 'template-integrator.' . $phpEx);
  * WordPress still appears inside the phpBB header/footer in these circumstances.
  */
 function wpu_complete() {
-	global $wpSettings, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
+	global $wpUnited, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
 	global $innerHeadInfo, $innerContent;
 	global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCache, $config, $auth;
 	
@@ -194,7 +194,7 @@ function wpu_complete() {
 		$wpUtdInt = null; unset ($wpUtdInt);
 	}
 
-	require($wpSettings['wpPluginPath'] .'template-integrator.' . $phpEx);
+	require($wpUnited->pluginPath .'template-integrator.php');
 }
 	
 ?>

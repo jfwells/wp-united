@@ -43,7 +43,7 @@ function wpu_integrate_login() {
  * However this is left open as a prelude to bi-directional user integration
  */
 function wpu_int_phpbb_logged_out() { 
-	global $wpSettings, $lDebug, $phpbbForum, $wpUnited, $current_user, $user;
+	global $lDebug, $phpbbForum, $wpUnited, $current_user, $user;
 			
 	// Check if user is logged into WP
 	get_currentuserinfo();
@@ -51,7 +51,7 @@ function wpu_int_phpbb_logged_out() {
 		return false;
 	}
 	
-	//if($wpSettings['integsource'] == 'wp') {
+	//if($wpUnited->get_settings('integsource') == 'wp') {
 	
 		$wpIntID = wpu_get_integrated_phpbbuser($wpUser->ID);
 
@@ -88,10 +88,10 @@ function wpu_int_phpbb_logged_out() {
 }
 
 function wpu_int_phpbb_logged_in() { 
-	global $wpSettings, $lDebug, $phpbbForum, $wpUnited, $current_user;
+	global $wpUnited $lDebug, $phpbbForum, $wpUnited, $current_user;
 	
 	
-	//if($wpSettings['integsource'] != 'phpbb') {
+	//if($wpUnited->get_setting('integsource') != 'phpbb') {
 	//	return get_currentuserinfo();
 	//}
 	

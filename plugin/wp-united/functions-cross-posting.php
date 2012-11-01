@@ -22,7 +22,7 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
  * Cross-posts a blog-post that was just added, to the relevant forum
  */
 function wpu_do_crosspost($postID, $post, $future=false) {
-	global $wpSettings, $phpbbForum, $phpbb_root_path, $phpEx, $db, $auth;
+	global $wpUnited, $phpbbForum, $phpbb_root_path, $phpEx, $db, $auth;
 	$forum_id = false;
 	$found_future_xpost = false;
 	
@@ -30,8 +30,8 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	
 	if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
 		$forum_id = (int)$_POST['sel_wpuxpost'];
-	} else if ( $wpSettings['xpostforce'] > -1 ) {
-		$forum_id = $wpSettings['xpostforce'];
+	} else if ( $wpUnited->get_setting('xpostforce') > -1 ) {
+		$forum_id = $wpUnited->get_setting('xpostforce');
 	} else if($future) {
 		$phpbbForum->background();
 		$forum_id = get_post_meta($postID, '_wpu_future_xpost', true);
@@ -116,11 +116,11 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	
 	// should we post an excerpt, or a full post?
 	$postType = 'excerpt';
-	if($wpSettings['xposttype'] == 'ASKME') { 
+	if($wpUnited->get_setting('xposttype') == 'ASKME') { 
 		if (isset($_POST['rad_xpost_type'])) {
 			$postType = ($_POST['rad_xpost_type'] == 'fullpost') ? 'fullpost' : 'excerpt';
 		}
-	} else if($wpSettings['xposttype'] == 'FULLPOST') {
+	} else if($wpUnited->get_setting('xposttype') == 'FULLPOST') {
 		$postType = 'fullpost';
 	}
 	update_post_meta($postID, '_wpu_posttype', $postType);
@@ -342,18 +342,18 @@ function wpu_get_forced_forum_name($forumID) {
  * @since v0.8.0
  */
 function wpu_load_phpbb_comments($commentArray, $postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
+	global $wpUnited, $phpbb_root_path, $phpEx, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
 
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpSettings['xposting'])) || 
-		(empty($wpSettings['xpostautolink'])) ||
+		(empty($wpUnited->get_setting('xposting'))) || 
+		(empty($wpUnited->get_setting('xpostautolink'))) ||
 		(empty($postID))
 	) {
 		return $commentArray;
 	}
 	
-	require_once($wpSettings['wpPluginPath'] . 'comments.' . $phpEx);
+	require_once($wpUnited->pluginPath . 'comments.' . $phpEx);
 
 	$phpBBComments = new WPU_Comments();
 	if ( !$phpBBComments->populate($postID) ) {
@@ -389,7 +389,7 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
  * @param int $postID the WordPress post ID
  */
 function wpu_comments_count($count, $postID = false) {
-	global $wp_query, $usePhpBBComments, $phpbbForum, $wpSettings, $phpbb_root_path;
+	global $wp_query, $usePhpBBComments, $phpbbForum, $wpUnited;
 
 	// In WP < 2.9, $postID is not provided
 	if($postID === false) {
@@ -404,9 +404,9 @@ function wpu_comments_count($count, $postID = false) {
 	// else, get the details
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpSettings['integrateLogin'])) || 
-		(empty($wpSettings['xposting'])) || 
-		(empty($wpSettings['xpostautolink'])) 
+		(empty($wpUnited->get_setting('integrateLogin'))) || 
+		(empty($wpUnited->get_setting('xposting'))) || 
+		(empty($wpUnited->get_setting('xpostautolink'))) 
 	) {
 		return $count;
 	}
@@ -428,12 +428,12 @@ function wpu_comments_count($count, $postID = false) {
  * this catches posted comments and sends them to the forum
  */
 function wpu_comment_redirector($postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user;
+	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user;
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpSettings['integrateLogin'])) || 
-		(empty($wpSettings['xposting'])) || 
-		(empty($wpSettings['xpostautolink'])) 
+		(empty($wpUnited->get_setting('integrateLogin'))) || 
+		(empty($wpUnited->get_setting('xposting'))) || 
+		(empty($wpUnited->get_setting('xpostautolink'))) 
 	) {
 		return;
 	}
@@ -580,7 +580,7 @@ function wpu_comment_link($url, $comment, $args) {
  * 
  */
 function wpu_comments_open($open, $postID) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user, $wpuIntegrationMode;
+	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user, $wpuIntegrationMode;
 	static $status;
 	if(isset($status)) {
 		return $status;
@@ -597,9 +597,9 @@ function wpu_comments_open($open, $postID) {
 	
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpSettings['integrateLogin'])) || 
-		(empty($wpSettings['xposting'])) || 
-		(empty($wpSettings['xpostautolink'])) 
+		(empty($wpUnited->get_setting('integrateLogin'))) || 
+		(empty($wpUnited->get_setting('xposting'))) || 
+		(empty($wpUnited->get_setting('xpostautolink'))) 
 	) {
 		$status = $open;
 		return $status;

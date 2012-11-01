@@ -3,12 +3,17 @@
 
 class WP_United_Basics {
 
-	private
+	protected
 		
 		$enabled = false,
 		$lastRun = false,
-		$pluginLoaded = false;
-
+		$pluginLoaded = false,
+		$version = '',
+		$settings = array(),
+		$styleKeys = array(),
+		
+		$updatedStyleKeys = false,
+		$wordpressLoaded = false;
 	
 	public
 		$pluginPath = '',
@@ -16,7 +21,7 @@ class WP_United_Basics {
 		$wpHomeUrl = '',
 		$wpBaseUrl = '',
 		$pluginUrl = '',
-		$settings = array();
+		
 
 	/**
 	* Initialise the WP-United class
@@ -26,19 +31,28 @@ class WP_United_Basics {
 
 	}
 	
-
-	// Must be overridden on WP side
-	public function is_enabled() { 
-		return $this->enabled;
+	public function __wakeup() {
+		require_once($this->pluginPath . 'functions-general.php');
+		require_once ($this->pluginPath .  'options.php');
 	}
 	
-	// Must be overridden on WP side
+	public function is_enabled() {
+		if($this->wordpressLoaded) {
+			$this->enabled = get_option('wpu-enabled'); 
+		}
+		return $this->enabled;
+	}
 	public function enable() {
 		$this->enabled = true;
+		if($this->wordpressLoaded) {
+			update_option('wpu-enabled', true);
+		}
 	}
-	// Must be overridden on WP side
 	public function disable() {
 		$this->enabled = false;
+		if($this->wordpressLoaded) {
+			update_option('wpu-enabled', $this->enabled);
+		}
 	}
 
 	
@@ -47,11 +61,7 @@ class WP_United_Basics {
 	}
 	
 
-	// Must be overridden on WP side
-	public function get_last_run() {
-		 return $this->lastRun;
-	}
-	
+	// overridden on WP side
 	public function is_phpbb_loaded() {
 		return true;
 	}
@@ -63,6 +73,138 @@ class WP_United_Basics {
 		}
 	}
 	
+	public function version() {
+		if(empty($this->version)) {
+			require_once ($this->pluginPath . 'version.php');
+			global $wpuVersion;
+			$this->version = $wpuVersion;
+		}
+		return $this->version;
+	}
+	
+	private function get_default_settings() {
+		return array(
+			'integrateLogin' => 0, 
+			'integsource' => 'phpbb',
+			'showHdrFtr' => 'NONE',
+			'wpSimpleHdr' => 1,
+			'dtdSwitch' => 0,
+			'usersOwnBlogs' => 0,
+			//'buttonsProfile' => 0,
+			//'buttonsPost' => 0,
+			//'allowStyleSwitch' => 0,
+			//'useBlogHome' => 0,
+			//'blogListHead' => $user->lang['WPWiz_BlogListHead_Default'],
+			//'blogIntro' => $user->lang['WPWiz_blogIntro_Default'],
+			//'blogsPerPage' => 6,
+			//'blUseCSS' => 1,
+			'phpbbCensor' => 1,
+			'wpPageName' => 'page.php',
+			'phpbbPadding' =>  '6-12-6-12',
+			'mustLogin' => 0,
+			//'upgradeRun' => 0,
+			'xposting' => 0,
+			'phpbbSmilies' => 0,
+			'xpostautolink' => 0,
+			'xpostforce' => -1,
+			'xposttype' => 'EXCERPT',	
+			'cssMagic' => 1,
+			'templateVoodoo' => 1,
+			//'pluginFixes' => 0,
+			'useForumPage' => 1
+	
+		);
+	}
+	
+	
+	
+	public function get_setting($key) {
+		if(!is_array($this->settings)) {
+			$this->settings = $this->load_settings();
+		}
+		
+		if(isset($this->settings[$key])) {
+			return $this->settings[$key];
+		}
+		return false;
+	}
+	
+	public function init_style_keys($keys = array()) {
+		$this->styleKeys = $keys;
+	}
+	
+	public function get_style_key($key = '') {
+		if(empty($key)) {
+			return $this->styleKeys;
+		} else {
+			if(in_array($key, $styleKeys)) {
+				return $this->styleKeys[$key];
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	
+	// adds a new style key, or returns the existing one if it already exists
+	public function add_style_key($fileName) {
+		$key = array_search($fileName, (array)$this->styleKeys);
+		if($key === false) {
+			$this->styleKeys[] = $fileName;
+			$key = sizeof($this->styleKeys) - 1;
+			$this->updatedStyleKeys = true;
+		} 
+		return $key
+	}
+	
+	/**
+	 * Saves updated style keys to the database.
+	 * phpBB $config keys can only store 255 bytes of data, so we usually need to store the data
+	 * split over several config keys
+	  * We want changes to take place as a single transaction to avoid collisions, so we 
+	  * access DB directly rather than using set_config
+	 * @return int the number of config keys used
+	 */  // @TODO:  PUT THIS INTO PHPBB.PHP!!!!!
+	public function commit_style_keys() {
+		global $cache, $db;
+		
+		if(!$this->updatedStyleKeys) {
+			return sizeof($this->styleKeys) - 1;
+		}
+		
+		$fullLocs = (base64_encode(serialize($this->styleKeys)));
+		$currPtr=1;
+		$chunkStart = 0;
+		$sql = array();
+		wpu_clear_style_keys();
+		while($chunkStart < strlen($fullLocs)) {
+			$sql[] = array(
+				'config_name' 	=> 	"wpu_style_keys_{$currPtr}",
+				'config_value' 	=>	substr($fullLocs, $chunkStart, 255)
+			);
+			$chunkStart = $chunkStart + 255;
+			$currPtr++;
+		}
+		
+		$db->sql_multi_insert(CONFIG_TABLE, $sql);
+		$cache->destroy('config');
+	
+		return $currPtr;
+	}
+
+
+	protected function load_settings() {
+		$savedSettings = array();
+		if($this->wordpressLoaded) {
+			$savedSettings = (array)get_option('wpu-settings');
+		}
+		
+		$defaults = get_default_settings();
+		$this->settings = array_merge($defaults, $settings);
+
+	}
+
 }
+
 
 ?>

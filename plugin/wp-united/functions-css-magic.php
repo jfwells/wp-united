@@ -29,7 +29,7 @@ if ( !defined('IN_PHPBB') ) {
  * @return array an array of stylesheet links and modifications
  */
 function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
-	global $phpbb_root_path, $wpuCache, $wpSettings, $phpbbForum;
+	global $phpbb_root_path, $wpuCache, $wpUnited, $phpbbForum;
 
 	// grep all styles
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
@@ -68,7 +68,7 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 				$el = str_replace($delimChars, "", $els[1]);  
 				$and = '&amp;';
 			}
-			$tv = (($position == 'inner') && (!empty($wpSettings['templateVoodoo']))) ? "{$and}tv=" : '';
+			$tv = (($position == 'inner') && (!empty($wpUnited->get_setting('templateVoodoo')))) ? "{$and}tv=" : '';
 			if(stristr($el, ".css") !== false) {
 				/**
 				 * We need to ensure the stylesheet maps to a real file on disk as fopen_url will not work on most 
@@ -79,8 +79,8 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 				if(stristr($el, $phpbbForum->url) !== false) {
 					$cssLnk = str_replace($phpbbForum->url, "", $el); 
 				// Absolute path to CSS, in WordPress
-				} elseif(stristr($el, $wpSettings['wpUri']) !== false) {
-					$cssLnk = str_replace($wpSettings['wpUri'], $wpSettings['wpPath'], $el);
+				} elseif(stristr($el, $wpUnited->wpBaseUrl) !== false) {
+					$cssLnk = str_replace($wpUnited->wpBaseUrl, $wpUnited->wpPath, $el);
 				} else {
 					// else: relative path
 					$cssLnk = $phpbb_root_path . $el;
@@ -136,8 +136,8 @@ function wpu_extract_css($content) {
  * @param string $css a string containing valid CSS to be modified
  */
 function wpu_fix_css_urls($filePath, &$css) {
-	global $phpbb_root_path, $phpEx, $wpSettings;
-	require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
+	global $phpbb_root_path, $wpUnited;
+	require_once($wpUnited->pluginPath . 'functions-general.php');
 	$relPath = wpu_compute_path_difference($filePath, realpath(add_trailing_slash(getcwd()) . 'style-fixer.php'));
 	
 	preg_match_all('/url\(.*?\)/', $css, $urls);

@@ -5,8 +5,8 @@
 * WP-United Hooks
 *
 * @package WP-United
-* @version $Id: v0.8.5RC2 2010/02/06 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2010 wp-united.com
+* @version $Id: v0.9RC3 2012/11/01 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
@@ -31,37 +31,21 @@ if(!file_exists($phpbb_root_path . 'wp-united/')) {
 	return;
 }
 
+get_integration_settings();
+
 // We don't need anything if this is a stylesheet call to css magic (style-fixer.php)
 if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
-$wpSettings  = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-
 if(!isset($wpUnited) || !is_object($wpUnited)) {
 	return;
 }
 
-// Has WPU been set up from the WordPress plugin yet?
-if(!sizeof($wpUnited->settings)) {
+// Has WPU been set up from the WordPress plugin yet? Also accounts for empty settings
+if(!$wpUnited->is_enabled();) {
 	return;
 }
-
-if(!isset($wpSettings['enabled'])) { 
-	return;
-}
-
-if($wpSettings['enabled'] != 'enabled') {
-	return;
-}
-
-
-if(!isset($wpSettings['wpPluginPath']) || !file_exists($wpSettings['wpPluginPath'])) {
-	return;
-}
-
-require_once($wpSettings['wpPluginPath'] . 'functions-general.' . $phpEx);
-wpu_get_version_opts();				
 
 // constants have just been loaded
 if (defined('WPU_DISABLE') && WPU_DISABLE) {  
@@ -108,7 +92,7 @@ if(preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) {
 }
 						
 // enter wordpress if this is phpbb-in-wordpress
-if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
+if (($wpUnited->get_setting('showHdrFtr') == 'REV') && !defined('WPU_BLOG_PAGE')) {
 	$wpuIntegrationMode = 'template-p-in-w';
 }
 
@@ -116,7 +100,7 @@ if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) {
  * INVOKE THE WP ENVIRONMENT NOW:
 */
 if(!empty($wpuIntegrationMode)) { 
-	require_once($wpSettings['wpPluginPath'] . 'wordpress-runner.' .$phpEx); 
+	require_once($wpUnited->get_setting('wpPluginPath') . 'wordpress-runner.' .$phpEx); 
 }
 
 /**
@@ -135,7 +119,7 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
  * Initialise WP-United variables and template strings
  */
 function wpu_init(&$hook) {
-	global $wpSettings, $phpbb_root_path, $phpEx, $template, $user, $config, $phpbbForum, $wpuCache;
+	global $wpUnited, $phpbb_root_path, $template, $user, $config, $phpbbForum, $wpuCache;
 	global $wpuIntegrationActions, $wpuIntegrationMode;
 	
 	if($wpuIntegrationActions == 'logout') {
@@ -171,7 +155,7 @@ function wpu_init(&$hook) {
 		echo 'caught login<br />'; 
 		if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
 			print_r($user->data); 
-			if(!empty($wpSettings['integrateLogin'])) {
+			if(!empty($wpUnited->get_setting('integrateLogin'))) {
 				echo 'Log into WordPress now!<br />';
 				echo '***' . $user->data['is_registered'] . '***<br />';
 				
@@ -193,7 +177,7 @@ function wpu_init(&$hook) {
 	
 	// Since we will buffer the page, we need to start doing so after the gzip handler is set
 	// to prevent phpBB from setting the handler twice, we unset the option.
-	if(!defined('ADMIN_START') ) { //&& (defined('WPU_BLOG_PAGE') || ($wpSettings['showHdrFtr'] == 'REV'))
+	if(!defined('ADMIN_START') ) { //&& (defined('WPU_BLOG_PAGE') || ($wpUnited->get_setting('showHdrFtr') == 'REV'))
 		if ($config['gzip_compress']) {
 			if (@extension_loaded('zlib') && !headers_sent()) {
 				ob_start('ob_gzhandler');
@@ -207,30 +191,25 @@ function wpu_init(&$hook) {
 	 * Do a template integration?
 	 * @TODO: Clean up, remove defines
 	 */
-	if (($wpSettings['showHdrFtr'] == 'REV') && !defined('WPU_BLOG_PAGE')) { 
+	if (($wpUnited->get_setting('showHdrFtr') == 'REV') && !defined('WPU_BLOG_PAGE')) { 
 		ob_start();
 	}
-	if (($wpSettings['showHdrFtr'] == 'FWD') && defined('WPU_BLOG_PAGE') ) {
+	if (($wpUnited->get_setting('showHdrFtr') == 'FWD') && defined('WPU_BLOG_PAGE') ) {
 		define('WPU_FWD_INTEGRATION', true);
 		
 
 		//Initialise the cache -- although we won't be using it, we may need some functionality
-		require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+		require_once($wpUnited->pluginPath . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 		
-		
-		
-		
-		
-		
-		
+
 		ob_start();
 		register_shutdown_function('wpu_wp_shutdown');
 	}
 }
 
 function wpu_wp_shutdown() { 
-	global $wpSettings, $innerContent, $wpContentVar, $phpbb_root_path, $phpEx, $phpbbForum, $wpuCache;
+	global $innerContent, $wpContentVar, $phpbb_root_path, $phpbbForum, $wpuCache;
 	if (defined('WPU_FWD_INTEGRATION') ) {
 		
 		$innerContent = ob_get_contents();
@@ -238,7 +217,7 @@ function wpu_wp_shutdown() {
 		$phpbbForum->foreground();
 		
 		$wpContentVar = 'innerContent';
-		include ($wpSettings['wpPluginPath'] . 'integrator.' . $phpEx);
+		include ($wpUnited->pluginPath . 'integrator.php');
 	}
 }
 
@@ -247,7 +226,7 @@ function wpu_wp_shutdown() {
  * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) { 
-	global $wpuBuffered, $wpuRunning, $wpSettings, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache, $wpuIntegrationMode;
+	global $wpUnited, $wpuBuffered, $wpuRunning, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache, $wpuIntegrationMode;
 	// We only want this action to fire once, and only on a real $template->display('body') event
 	if ( (!$wpuRunning)  && (isset($template->filename[$handle])) ) {
 		
@@ -269,7 +248,7 @@ function wpu_execute(&$hook, $handle) {
 		//$hook->remove_hook(array('template', 'display'));
 		if(defined('SHOW_BLOG_LINK') && SHOW_BLOG_LINK) {
 			$template->assign_vars(array(
-				'U_BLOG'	 =>	append_sid($wpSettings['wpUri'], false, false, $GLOBALS['user']->session_id),
+				'U_BLOG'	 =>	append_sid($wpUnited->wpHomeUrl, false, false, $GLOBALS['user']->session_id),
 				'S_BLOG'	=>	TRUE,
 			)); 
 		}
@@ -284,7 +263,7 @@ function wpu_execute(&$hook, $handle) {
 				echo $innerContent;
 			} else { 
 				//insert phpBB into a wordpress page
-				include ($wpSettings['wpPluginPath'] .'integrator.' . $phpEx); 
+				include ($wpUnited->pluginPath .'integrator.php'); 
 			}
 			
 		
@@ -357,140 +336,74 @@ function wpu_continue(&$hook) {
 
 /**
  * Get configuration setings from database
- * Gets the configuration settings from the db, and returns them in $wpSettings.
+ * Configurations are stored as a serialized WP-United object that was initialised and send by WordPress, 
+ * hashed together with the path back to WordPress (so we can reload it).
  * Sets initial values to sensible deafaults if they haven't been set yet.
  */
 function get_integration_settings() {
-	global $config, $db, $phpbb_root_path, $phpEx;
-
-	$defaults = array(
-		'wpUri' => '' ,
-		'wpPath' => '', 
-		'integrateLogin' => 0, 
-		'integsource' => 'phpbb',
-		'showHdrFtr' => 'NONE',
-		'wpSimpleHdr' => 1,
-		'dtdSwitch' => 0,
-		//'installLevel' => 0,
-		'usersOwnBlogs' => 0,
-		//'buttonsProfile' => 0,
-		//'buttonsPost' => 0,
-		//'allowStyleSwitch' => 0,
-		//'useBlogHome' => 0,
-		//'blogListHead' => $user->lang['WPWiz_BlogListHead_Default'],
-		//'blogIntro' => $user->lang['WPWiz_blogIntro_Default'],
-		'blogsPerPage' => 6,
-		'blUseCSS' => 1,
-		'phpbbCensor' => 1,
-		//'wpuVersion' => $user->lang['WPU_Not_Installed'],
-		'wpPageName' => 'page.php',
-		'phpbbPadding' =>  '6-12-6-12',
-		'mustLogin' => 0,
-		//'upgradeRun' => 0,
-		'xposting' => 0,
-		'phpbbSmilies' => 0,
-		'xpostautolink' => 0,
-		'xpostforce' => -1,
-		'xposttype' => 'EXCERPT',	
-		'cssMagic' => 1,
-		'templateVoodoo' => 1,
-		//'pluginFixes' => 0,
-		'useForumPage' => 1
-	);
-	
-	$wpSettings = array();
-	$fullKey = '';
-	$key = 1;
-	while(isset( $config["wpu_settings_{$key}"])) {
-		$fullKey .= $config["wpu_settings_{$key}"];
-		$key++;
-	}
-	if(!empty($fullKey)) {
-		$wpSettings =  (array)unserialize(base64_decode($fullKey));
-	} else {
-		$wpSettings= array();
-	}
-
-	$wpSettings = array_merge($defaults, $wpSettings);
+	global $config, $db;
 
 	$wpuString = '';
-	$fullKey = '';
 	$key = 1;
 	while(isset( $config["wpu_settings_new_{$key}"])) {
-		$fullKey .= $config["wpu_settings_new_{$key}"];
+		$wpuString .= $config["wpu_settings_new_{$key}"];
 		$key++;
-	} 
-	if(!empty($fullKey)) {
-		$wpuString =  gzuncompress(base64_decode($fullKey));
-
-		global $wpUnited;
-		
-		if(!is_object($wpUnited)) { 
-			$retrieved = unserialize($wpuString);
-			if( is_array($retrieved) && (sizeof($retrieved) == 2) ) { 
-				list($classLoc, $classDetails) = $retrieved;
-				if(file_exists($classLoc)) { 
-					require_once($classLoc . 'basics.' . $phpEx); 
-					$classDetails = str_replace('WP_United_Plugin', 'WP_United_Basics', $classDetails);
-
-					$wpUnited = unserialize($classDetails);
-				}
-			}
-		}
-		
-		
-		
-	} else {
-		return false;
 	}
 
+	// convert config value to a serialised string
+	if(empty($wpuString)) {
+		return false;
+	}
+	$wpuString =  gzuncompress(base64_decode($wpuString));
 	
-		/**
+	// if $wpUnited doesn't already exist, create it by unserialising the stored object
+	global $wpUnited;
+	if(!is_object($wpUnited)) { 
+		$retrieved = unserialize($wpuString);
+		if( is_array($retrieved) && (sizeof($retrieved) == 2) ) { 
+			list($classLoc, $classDetails) = $retrieved;
+			if(file_exists($classLoc)) { 
+				require_once($classLoc . 'basics.' . $phpEx); 
+				// Convert it from a saved WP_United_Plugin class to our base WP_United_Basics class. 
+				// Yes this is brittle/ugly but cleanest alternative for now and still beats duplicating
+				// TODO: Make WP_United_Plugin expose no additional public interfaces.
+				$classDetails = str_replace('WP_United_Plugin', 'WP_United_Basics', $classDetails);
+				$wpUnited = unserialize($classDetails);
+			}
+		}
+	}
+	if(!is_object($wpUnited)) {
+		return false;
+	}
+		
+	/**
 	 * Handle style keys for CSS Magic
 	 * We load them here so that we can auto-remove them if CSS Magic is disabled
 	 */
-	if(sizeof($wpSettings)) {
-		$key = 1;
-		if(!empty($wpSettings['cssMagic'])) {
-			$fullKey = '';
-			while(isset( $config["wpu_style_keys_{$key}"])) {
-				$fullKey .= $config["wpu_style_keys_{$key}"];
-				$key++;
-			}
-			if(!empty($fullKey)) {
-				$wpSettings['styleKeys'] = unserialize(base64_decode($fullKey));
-			} else {
-				$wpSettings['styleKeys'] = array();
-			}
-		} else {
-			// Clear out the config keys
-			if(isset($config['wpu_style_keys_1'])) {
-				$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
-					WHERE config_name LIKE \'wpu_style_keys_%\'';
-				$db->sql_query($sql);
-			}
-			$wpSettings['styleKeys'] = array();
+	$key = 1;
+	if(!empty($wpUnited->get_setting('cssMagic'))) {
+		$fullKey = '';
+		while(isset( $config["wpu_style_keys_{$key}"])) {
+			$fullKey .= $config["wpu_style_keys_{$key}"];
+			$key++;
 		}
+		if(!empty($fullKey)) {
+			$wpUnited->init_style_keys(unserialize(base64_decode($fullKey)));
+		} else {
+			$wpUnited->init_style_keys();
+		}
+	} else {
+		// Clear out the config keys
+		if(isset($config['wpu_style_keys_1'])) {
+			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+				WHERE config_name LIKE \'wpu_style_keys_%\'';
+			$db->sql_query($sql);
+		}
+		$wpUnited->init_style_keys();
 	}
-	
-	return $wpSettings;	
 	
 }
 
-/**
- * Retrieves the WP-United version number and options
- * @return void
- */
-function wpu_get_version_opts() {
-	global $wpSettings, $phpEx;
-	
-	if(isset($wpSettings['wpPluginPath'])) { 
-		if(file_exists($wpSettings['wpPluginPath'])) {
-			require_once ($wpSettings['wpPluginPath'] . 'version.' . $phpEx);
-			require_once ($wpSettings['wpPluginPath'] . 'options.' . $phpEx);
-		}
-	}	
-}
 
 /**
  * Clear integration settings
@@ -522,14 +435,14 @@ function wpu_clear_main_settings() {
  * @access private
  */
 function wpu_clear_style_keys() {
-	global $db, $config, $wpSettings;
+	global $db, $config, $wpUnited;
 	
 	if(isset($config['wpu_style_keys_1'])) {
 		$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
 			WHERE config_name LIKE \'wpu_style_keys_%\'';
 		$db->sql_query($sql);
 	}
-	$wpSettings['styleKeys'] = array();
+	$wpUnited->init_style_keys();
 }
 
 /**
@@ -538,28 +451,7 @@ function wpu_clear_style_keys() {
  * We want changes to take place as a single transaction to avoid collisions, so we 
  * access DB directly rather than using set_config
 */
-function set_integration_settings($dataIn, $new) {
-		global $cache, $db;
-		$fullSettings = (base64_encode(serialize($dataIn)));
-		$currPtr=1;
-		$chunkStart = 0;
-		$sql = array();
-		wpu_clear_main_settings();
-		while($chunkStart < strlen($fullSettings)) {
-			$sql[] = array(
-				'config_name' 	=> 	"wpu_settings_{$currPtr}",
-				'config_value' 	=>	substr($fullSettings, $chunkStart, 255)
-			);
-			$chunkStart = $chunkStart + 255;
-			$currPtr++;
-		}
-		
-		$db->sql_multi_insert(CONFIG_TABLE, $sql);
-		$cache->destroy('config');
-		
-		set_integration_settings_new($new);
-}
-function set_integration_settings_new($dataIn) {
+function set_integration_settings($dataIn) {
 		global $cache, $db;
 		$currPtr=1;
 		$chunkStart = 0;

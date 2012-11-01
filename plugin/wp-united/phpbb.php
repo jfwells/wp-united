@@ -81,7 +81,7 @@ class WPU_Phpbb {
 	 * Loads the phpBB environment if it is not already
 	 */
 	public function load($rootPath) {
-		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpSettings;
+		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpUnited;
 		global $dbms, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 		
 		if($this->is_phpbb_loaded()) {
@@ -128,7 +128,7 @@ class WPU_Phpbb {
 				$user->add_lang('common');
 				define('WPU_BOARD_DISABLED', (!empty($config['board_disable_msg'])) ? '<strong>' . $user->lang['BOARD_DISABLED'] . '</strong><br /><br />' . $config['board_disable_msg'] : $user->lang['BOARD_DISABLE']);
 			} else {
-				if(($wpSettings['showHdrFtr'] == 'FWD') && (defined('WPU_INTEG_DEFAULT_STYLE') && WPU_INTEG_DEFAULT_STYLE)) {
+				if(($wpUnited->get_setting('showHdrFtr') == 'FWD') && (defined('WPU_INTEG_DEFAULT_STYLE') && WPU_INTEG_DEFAULT_STYLE)) {
 					// This option forces the default phpBB style in a forward integration
 					$user->setup('mods/wp-united', $config['default_style']);
 				} else {
@@ -144,9 +144,7 @@ class WPU_Phpbb {
 			trigger_error($user->lang['wpu_hook_error'], E_USER_ERROR);
 		}
 		
-		if(!defined('WPU_BLOG_PAGE')) {
-			$wpSettings = (empty($wpSettings)) ? get_integration_settings() : $wpSettings; 
-		}
+		// @ wpSettings load used to happen here
 		
 		//fix phpBB SEO mod
 		global $phpbb_seo;
@@ -457,8 +455,8 @@ class WPU_Phpbb {
 	/**
 	 * transmits new settings from the WP settings panel to phpBB
 	 */
-	public function synchronise_settings($settings, $new) {
-		global $wpSettings, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
+	public function synchronise_settings($settings) {
+		global $wpUnited, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
 		$fStateChanged = $this->foreground();
 		if(is_array($settings)) {
 			if(sizeof($settings)) {
@@ -544,11 +542,10 @@ class WPU_Phpbb {
 				$cache->purge();
 				 
 
-				set_integration_settings($settings, $new);
-				$wpSettings = $settings;
+				set_integration_settings($settings);
 				
 				// clear out the WP-United cache on settings change
-				require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+				require_once($wpUnited->pluginPath . 'cache.php');
 				$wpuCache = WPU_Cache::getInstance();
 				$wpuCache->purge();
 

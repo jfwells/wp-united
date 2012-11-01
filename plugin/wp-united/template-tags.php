@@ -32,8 +32,8 @@ function wpu_intro() {
  * Prepares a sentence soliciting users to get started with their blogs
  */
 function get_wpu_intro() {
-	global $wpSettings, $phpEx, $wpuGetBlogIntro, $phpbbForum;
-	if ( (!empty($wpSettings['useBlogHome'])) && (!empty($wpSettings['usersOwnBlogs'])) ) {
+	global $wpUnited, $phpEx, $wpuGetBlogIntro, $phpbbForum;
+	if ( (!empty($wpUnited->get_setting('useBlogHome'))) && (!empty($wpUnited->get_setting('usersOwnBlogs'))) ) {
 		$reg_link =  'ucp.'.$phpEx.'?mode=register';
 		$redir = wpu_get_redirect_link();
 		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;redirect='. $redir;	
@@ -42,7 +42,7 @@ function get_wpu_intro() {
 		if ( !empty($isReg) ) {
 			$wpuGetBlogIntro = ($phpbbForum->get_userdata('user_wpublog_id') > 0 ) ? $phpbbForum->lang['blog_intro_add'] : $phpbbForum->lang['blog_intro_get'];
 		} else {
-			$wpuGetBlogIntro =  ($wpSettings['usersOwnBlogs']) ? $phpbbForum->lang['blog_intro_loginreg_ownblogs'] : $phpbbForum->lang['blog_intro_loginreg'];
+			$wpuGetBlogIntro =  ($wpUnited->get_setting('usersOwnBlogs') ? $phpbbForum->lang['blog_intro_loginreg_ownblogs'] : $phpbbForum->lang['blog_intro_loginreg'];
 		}
 		
 		if ( ! $phpbbForum->user_logged_in() ) {
@@ -50,7 +50,7 @@ function get_wpu_intro() {
 		} else {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro, '<a href="' . get_settings('siteurl') . '/wp-admin/">','</a>') . '</p>';
 		}
-		$intro = '<p>' . str_replace('{GET-STARTED}', $getStarted, $wpSettings['blogIntro']);
+		$intro = '<p>' . str_replace('{GET-STARTED}', $getStarted, wpUnited->get_setting('blogIntro'));
 		return $intro;
 	} 	
 }
@@ -62,7 +62,7 @@ function get_wpu_intro() {
  * @param int $maxEntries Maximum number to show per page. Defaults to 5.
  */
 function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
-	global $wpdb, $authordata, $phpbbForum, $wpSettings, $phpEx;
+	global $wpdb, $authordata, $phpbbForum, $phpEx;
 	$start = 0;
 	$start = (integer)trim($_GET['start']);
 	$start = ($start < 0) ? 0 : $start;
@@ -200,9 +200,9 @@ function wpu_blogs_home() {
  * @author John Wells
  */
 function get_wpu_blogs_home() {
-	global $wpSettings;
+	global $wpUnited;
 	$postContent = get_wpu_intro(); 
-	$postContent .= get_wpu_bloglist(true, $wpSettings['blogsPerPage']); 
+	$postContent .= get_wpu_bloglist(true, $wpUnited->get_setting('blogsPerPage')); 
 	return $postContent;
 }
 
@@ -224,7 +224,7 @@ function avatar_commenter($default = true, $id = '') {
  * @author John Wells
  */
 function get_avatar_commenter($default=TRUE, $id = '') {
-global $comment, $images, $wpSettings;
+global $comment, $images, $wpUnited;
 
 	if ( empty($id) ) {
 		if ( !empty($comment) ) {
@@ -232,7 +232,7 @@ global $comment, $images, $wpSettings;
 		} 
 		if ( empty($id) ) {
 			if ( $default ) {
-				return $wpSettings['wpPluginUrl'] . 'images/wpu_unregistered.gif';
+				return $wpUnited->pluginUrl . 'images/wpu_unregistered.gif';
 			}
 			return '';
 		}
@@ -244,7 +244,7 @@ global $comment, $images, $wpSettings;
 		return $image;
 	} 
 	if ( $default ) {
-		return $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
+		return $wpUnited->pluginUrl . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -272,7 +272,7 @@ function get_avatar_poster($default = true) {
 		return $image;
 	} 
 	if ( $default ) {
-		return $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
+		return $wpUnited->pluginUrl . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -295,7 +295,7 @@ function avatar_reader($default = true) {
  * @author John Wells
  */
 function get_avatar_reader($default = true) {
-	global $images, $wpSettings, $userdata, $user_ID;
+	global $images, $wpUnited, $userdata, $user_ID;
 	get_currentuserinfo();
 	$image = false;
 	if ( !empty($user_ID) ) {
@@ -305,11 +305,11 @@ function get_avatar_reader($default = true) {
 		return $image;
 	} elseif ( $image === false ) {
 		if ( $default ) {
-			return  $wpSettings['wpPluginUrl'] . 'images/wpu_unregistered.gif';
+			return  $wpUnited->pluginUrl . 'images/wpu_unregistered.gif';
 		}
 	}
 	if ( $default ) {
-		return  $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
+		return  $wpUnited->pluginUrl . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -923,7 +923,7 @@ function wpu_login_user_info($args) {
  * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1&showPMs=1");
  */
 function get_wpu_login_user_info($args) {
-	global $user_ID, $db, $wpSettings, $auth, $phpbbForum, $wpSettings, $phpEx, $config;
+	global $user_ID, $db, $auth, $phpbbForum, $wpUnited, $phpEx, $config;
 	
 	$defaults = array('before' => '<li>', 'after' => '</li>', 'showPMs' => 1, 'showLoginForm' => 1, 'showRankBlock' => 1, 'showNewPosts' => 1, 'showWriteLink' => 1, 'showAdminLinks' => 1);
 	extract(_wpu_process_args($args, $defaults));
@@ -962,12 +962,12 @@ function get_wpu_login_user_info($args) {
 
 		if ($showWriteLink) {
 			if (current_user_can('publish_posts')) {
-				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/post-new.php" title="' . $phpbbForum->lang['wpu_write_post'] . '">' . $phpbbForum->lang['wpu_write_post'] . '</a>' . $after;
+				$ret .= $before . '<a href="'. $wpUnited->wpBaseUrl .'wp-admin/post-new.php" title="' . $phpbbForum->lang['wpu_write_post'] . '">' . $phpbbForum->lang['wpu_write_post'] . '</a>' . $after;
 			}
 		}
 		if ($showAdminLinks) {
 			if (current_user_can('publish_posts')) {
-				$ret .= $before . '<a href="'.$wpSettings['wpUri'].'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
+				$ret .= $before . '<a href="'.$wpUnited->wpBaseUrl .'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
 			$fStateChanged = $phpbbForum->foreground();
 			if($auth->acl_get('a_')) {

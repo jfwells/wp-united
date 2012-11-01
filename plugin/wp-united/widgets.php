@@ -249,12 +249,12 @@ function wpu_widgets_init_old() {
 	 * The widgets are all registered here
 	 */
 	
-	global $wpSettings, $phpbbForum;
+	global $wpUnited, $phpbbForum;
 	//print_r($phpbbForum->lang);
 
 	register_sidebar_widget(array($phpbbForum->lang['wpu_stats_desc'], 'widgets'), 'widget_wpustats');
 	register_sidebar_widget(array($phpbbForum->lang['wpu_online_desc'], 'widgets'), 'widget_wpuusersonline');
-	if(!empty($wpSettings['usersOwnBlogs'])) {
+	if(!empty($wpUnited->get_setting('usersOwnBlogs'))) {
 		register_sidebar_widget(array($phpbbForum->lang['wpu_bloglist_desc'], 'widgets'), 'widget_wpulatestblogs');
 		register_sidebar_widget(array($phpbbForum->lang['wpu_blogposts_desc'], 'widgets'), 'widget_wpulatestblogposts');	
 	}
@@ -263,7 +263,7 @@ function wpu_widgets_init_old() {
 	 */
 	register_widget_control(array($phpbbForum->lang['wpu_stats_desc'], 'widgets'), 'widget_wpustats_control', 300, 100);
 	register_widget_control(array($phpbbForum->lang['wpu_online_desc'], 'widgets'), 'widget_wpuusersonline_control', 300, 100);
-	if(!empty($wpSettings['usersOwnBlogs'])) {	
+	if(!empty($wpUnited->get_setting('usersOwnBlogs'))) {	
 		register_widget_control(array($phpbbForum->lang['wpu_bloglist_desc'], 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
 		register_widget_control(array($phpbbForum->lang['wpu_blogposts_desc'], 'widgets'), 'widget_wpulatestblogposts_control', 300, 100);
 	}

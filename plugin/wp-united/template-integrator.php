@@ -32,8 +32,8 @@ if($wpuNoHead) {
 /**
  * Get phpBB header/footer
  */
-if ( ($wpSettings['showHdrFtr'] == 'FWD') && (!$wpuNoHead) && ($wpuIntegrationMode != 'template-p-in-w') ) {
-	//export header styles to template - before or after phpBB's CSS depending on wpSettings.
+if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && ($wpuIntegrationMode != 'template-p-in-w') ) {
+	//export header styles to template - before or after phpBB's CSS depending on settings.
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later
 	$wpStyleLoc = ( PHPBB_CSS_FIRST ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
@@ -92,7 +92,7 @@ $$wpContentVar = str_replace(".$phpEx/?",  ".$phpEx?", $$wpContentVar);
 $$wpContentVar = str_replace(".$phpEx/\"",  ".$phpEx\"", $$wpContentVar);
 
 // re-point unintegrated login/out links
-if ( !empty($wpSettings['integrateLogin']) ) {
+if ( !empty($wpUnited->get_setting('integrateLogin')) ) {
 	$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
 	$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout') . '&amp;redirect=';
 	global $siteUrl;
@@ -106,7 +106,7 @@ if ( !empty($wpSettings['integrateLogin']) ) {
 /**
  * Output WordPress -- If this is a plain WordPress page, we can just output it here.
  */
-if ( ($wpuIntegrationMode != 'template-p-in-w') && !($wpSettings['showHdrFtr'] == 'FWD') ) {
+if ( ($wpuIntegrationMode != 'template-p-in-w') && !($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
 	wpu_output_page($$wpContentVar);
 	unset($outerContent); unset($innerContent);
 }
@@ -115,7 +115,7 @@ if ( ($wpuIntegrationMode != 'template-p-in-w') && !($wpSettings['showHdrFtr'] =
 /** 
  * Make modifications to $innerContent, and extract items for interleaving into $outerContent <head>
  */
-if ( ($wpuIntegrationMode == 'template-p-in-w') || ($wpSettings['showHdrFtr'] == 'FWD') )  { // phpBB is inner:
+if ( ($wpuIntegrationMode == 'template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') )  { // phpBB is inner:
 
 	//Get ltr, rtl & bgcolor, etc, from the body tag
 	preg_match('/<body[^>]+>/i', $innerContent, $pfBodyMatches);
@@ -157,10 +157,10 @@ if ($wpuIntegrationMode == 'template-p-in-w') {
  * classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
  * to make additional changes to the CSS the next time around.
  */
-if (!empty($wpSettings['cssMagic'])) { 
+if (!empty($wpUnited->get_setting('cssMagic')) { 
 
-	require($wpSettings['wpPluginPath'] . 'css-magic.' . $phpEx);
-	require($wpSettings['wpPluginPath'] . 'functions-css-magic.' . $phpEx);
+	require($wpUnited->pluginPath . 'css-magic.php');
+	require($wpUnited->pluginPath . 'functions-css-magic.php');
 
 	/** 
 	 * Get all links to stylesheets, and prepare appropriate replacement links to insert into the page content
@@ -168,7 +168,7 @@ if (!empty($wpSettings['cssMagic'])) {
 	 * physical disk location of the CSS files on the server.
 	 * 
 	 * We cannot allow browsers to just request any file on the server by filename, so get_stylesheet_links pre-approves the
-	 * files and stores them in the DB under $wpSettings['styleKeys']. Browsers then only need to know the 
+	 * files and stores them in the DB under "style keys". Browsers then only need to know the 
 	 * appropriate style key, not the filename
 	 */
 	
@@ -181,7 +181,7 @@ if (!empty($wpSettings['cssMagic'])) {
 	/**
 	 * Template Voodoo
 	 */
-	if (!empty($wpSettings['templateVoodoo'])) {
+	if (!empty($wpUnited->get_setting('templateVoodoo'))) {
 		
 		//For template voodoo, we also need the outer styles
 		$outerSSLinks = wpu_get_stylesheet_links($outerContent, "outer");
@@ -192,7 +192,7 @@ if (!empty($wpSettings['cssMagic'])) {
 		$foundOuter = array();
 
 		foreach ((array)$innerSSLinks['keys'] as $index => $key) {
-			if($found = $wpuCache->get_css_magic($wpSettings['styleKeys'][$key], "inner", -1)) {
+			if($found = $wpuCache->get_css_magic($wpUnited->get_style_key($key), "inner", -1)) {
 				$foundInner[] = $found;
 				$innerSSLinks['replacements'][$index] .=  "[*FOUND*]";
 			} else {
@@ -200,7 +200,7 @@ if (!empty($wpSettings['cssMagic'])) {
 			}
 		}
 		foreach ($outerSSLinks['keys'] as $index => $key) {
-			if($found = $wpuCache->get_css_magic($wpSettings['styleKeys'][$key], "outer", -1)) {
+			if($found = $wpuCache->get_css_magic($wpUnited->get_style_key($key), "outer", -1)) {
 				$foundOuter[] = $found;
 			}
 		}	
@@ -282,8 +282,8 @@ if (!empty($wpSettings['cssMagic'])) {
 	/**
 	 * Now we can apply the CSS magic to any inline CSS
 	 */
-	$useTVStr =  ($wpSettings['templateVoodoo']) ? 'TV' : '';
-	$tvKey = ($wpSettings['templateVoodoo']) ? $tplVoodooKey : -1;
+	$useTVStr =  ($wpUnited->get_setting('templateVoodoo')) ? 'TV' : '';
+	$tvKey = ($wpUnited->get_setting('templateVoodoo')) ? $tplVoodooKey : -1;
 	$numFixes = 0;
 	foreach($inCSSInner['css'] as $index => $innerCSSItem) {
 
@@ -295,7 +295,7 @@ if (!empty($wpSettings['cssMagic'])) {
 			/**
 			 * @todo could split out to templatevoodoo file
 			 */
-			if ($wpSettings['templateVoodoo']) {
+			if ($wpUnited->get_setting('templateVoodoo')) {
 				if(isset($classDupes) && isset($idDupes)) {
 					$finds = array();
 					$repl = array();
@@ -325,16 +325,16 @@ if (!empty($wpSettings['cssMagic'])) {
 	}
 	
 	// Store the updated style keys
-	$wpuCache->update_style_keys();
+	$wpUnited->commit_style_keys();
 	
 	// add link to reset stylesheet
-	$reset = "<link href=\"{$wpSettings['wpPluginUrl']}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
+	$reset = "<link href=\"{$wpUnited->wpPluginUrl}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
 	$innerHeadInfo = $reset . $innerHeadInfo;
 
 	//write out the modified stylesheet links
 	$innerHeadInfo = str_replace($innerSSLinks['links'], $innerSSLinks['replacements'], $innerHeadInfo);
 	
-	if ($wpSettings['templateVoodoo']) {
+	if ($wpUnited->get_setting('templateVoodoo') {
 		$outerContent = str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $outerContent);
 	}
 	
@@ -360,11 +360,11 @@ if (!empty($wpSettings['cssMagic'])) {
 
 //Wrap $innerContent in CSS Magic, padding, etc.
 $padding = '';
-if ($wpSettings['phpbbPadding'] != 'NOT_SET') {
-	$pad = explode('-', $wpSettings['phpbbPadding']);
+if ($wpUnited->get_setting('phpbbPadding') != 'NOT_SET') {
+	$pad = explode('-', $wpUnited->get_setting('phpbbPadding');
 	$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
 }
-if ($wpSettings['cssMagic']) {
+if ($wpUnited->get_setting('cssMagic')) {
 	$wpuOutputPreStr = '<div id="wpucssmagic" style="' . $padding . 'margin: 0;"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
 	$wpuOutputPostStr = '</div></div></div>';
 } else {
@@ -375,7 +375,7 @@ if ($wpSettings['cssMagic']) {
 
 
 // Substitute in content
-if ( ($wpuIntegrationMode = 'template-p-in-w') || ($wpSettings['showHdrFtr'] == 'FWD') ) {
+if ( ($wpuIntegrationMode = 'template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
 	$outerContent = str_replace("<!--[**HEAD_MARKER**]-->", $innerHeadInfo, $outerContent); unset($innerHeadInfo);
 	$outerContent = str_replace("<!--[**INNER_CONTENT**]-->", $wpuOutputPreStr . $innerContent . $wpuOutputPostStr, $outerContent); unset($innerContent);
 	
@@ -390,7 +390,7 @@ if ( ($wpuIntegrationMode = 'template-p-in-w') || ($wpSettings['showHdrFtr'] == 
  * @return string the page <HEAD>
  */
 function process_head(&$retWpInc) {
-	global $wpSettings, $template, $wpuIntegrationMode;
+	global $wpUnited, $template, $wpuIntegrationMode;
 	//Locate where the WordPress <body> begins, and snip of everything above and including the statement
 	$bodyLocStart = strpos($retWpInc, "<body");
 	$bodyLoc = strpos($retWpInc, ">", $bodyLocStart);
@@ -420,7 +420,7 @@ function process_head(&$retWpInc) {
 	);
 	$header_info = head_snip($wpHead, $findItems);
 	//get the DTD if we're doing DTD switching
-		if ( ($wpSettings['dtdSwitch']) && ($wpuIntegrationMode != 'template-p-in-w') ) {
+		if ( ($wpUnited->get_setting('dtdSwitch')) && ($wpuIntegrationMode != 'template-p-in-w') ) {
 			$wp_dtd = head_snip($wpHead, array('<!DOCTYPE' => '>'));
 			$template->assign_var('WP_DTD', $wp_dtd);
 		}

@@ -75,42 +75,24 @@ add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
 
 if( !class_exists( 'WP_United_Plugin' ) ):
 
-class WP_United_Plugin {
+class WP_United_Plugin extends WP_United_Basics {
 
 	private
-		
-		$enabled = false,
-		$lastRun = false,
-		$pluginLoaded = false,
-
-
-
 		$actions = array(
 			'init'			=>		'init_plugin',
-			
 			'wp_logout'		=>		'phpbb_logout',
-
 			'comment_form'	=> 		'generate_smilies',
-		
-		
 		),
 
-		$filters = array(),
-
-		$options = array();
-	
-	public
-		$pluginPath = '',
-		$wpPath = '',
-		$wpHomeUrl = '',
-		$wpBaseUrl = '',
-		$pluginUrl = '',
-		$settings = array();
+		$filters = array();
 
 	/**
 	* Initialise the WP-United class
 	*/
-	public function __construct() {
+	public function __construct(WP_United_Basics $existingObject) {
+		
+		//Rather than using the decorator pattern, we can just import the style keys.
+		$this->styleKeys = $existingObject->get_style_key();
 		
 		foreach( $this->actions as $action => $classMember) {
 			add_action( $action, array( $this, $classMember ) );
@@ -120,6 +102,8 @@ class WP_United_Plugin {
 		add_filter( $filter, array( $this, $filter ) );
 		}
 		unset($this->actions, $this->filters);
+		
+		
 	}
 	
 	public function init_plugin() {
@@ -134,14 +118,8 @@ class WP_United_Plugin {
 		$this->wpPath = ABSPATH;
 		$this->pluginPath = plugin_dir_path(__FILE__);
 		$this->pluginUrl = plugins_url('wp-united') . '/';
-		$this->wpHomeUrl = home_url('/'); // TODO: REPLACE $wpUri elsewhere
-		$this->wpBaseUrl = site_url('/'); // TODO: REPLACE $wpUri in some instances
-		$this->pluginUrl = plugins_url('wp-united/');
-		
-		$this->settings = get_option('wpu-settings');
-		
-		global $wpSettings;
-		$wpSettings = $this->settings;
+		$this->wpHomeUrl = home_url('/');
+		$this->wpBaseUrl = site_url('/');
 
 		
 		require_once($this->pluginPath . 'functions-general.php');
@@ -266,21 +244,10 @@ class WP_United_Plugin {
 			$this->load_phpbb();
 		}
 		
-		
-		// add additional options for phpBB side
-		$settings = array_merge($this->settings, array(
-			'wpUri' => $this->wpHomeUrl,
-			'wpPath' => $this->wpPath,
-			'wpPluginPath' => $this->pluginPath,
-			'wpPluginUrl' => $this->pluginUrl,
-		));
-		
-		$settings['enabled'] = ($enable) ? 'enabled' : 'disabled';
-		
 		$dataToStore = array($this->pluginPath, serialize($this));
 		$dataToStore = base64_encode(gzcompress(serialize($dataToStore)));
 	
-		if($phpbbForum->synchronise_settings($settings, $dataToStore)) {
+		if($phpbbForum->synchronise_settings($dataToStore)) {
 			if($enable) {
 				$this->enable();
 				$this->set_last_run('working');
@@ -294,25 +261,12 @@ class WP_United_Plugin {
 		}	
 	}
 
-	public function is_enabled() { 
-		$this->enabled = get_option('wpu-enabled'); 
-		return $this->enabled;
-	}
-	public function enable() {
-		$this->enabled = true;
-		update_option('wpu-enabled', true);
-	}
-	public function disable() {
-		$this->enabled = false;
-		update_option('wpu-enabled', $this->enabled);
-	}
 
-	
 	public function is_loaded() {
 		return $this->pluginLoaded;
 	}
 	
-	public function set_last_run($status) {
+	private function set_last_run($status) {
 		if($this->lastRun != $status) {
 			// transitions cannot go from 'working' to 'connected'.
 			if( ($this->lastRun == 'working') && ($status == 'connected') ) {
@@ -346,8 +300,14 @@ class WP_United_Plugin {
 		}
 	}
 	
+	public function update_settings($data) {
+		$data = array_merge(this->settings, (array)$$data); 
+		update_option('wpu-settings', $data);
+		$this->settings = $data;
+	}
+	
 	/**
-	 * Function 'wpu_print_smilies' prints phpBB smilies into comment form
+	 * Originally function 'wpu_print_smilies' prints phpBB smilies into comment form
 	 * @since WP-United 0.7.0
 	*/
 	public function generate_smilies() { 
@@ -357,9 +317,8 @@ class WP_United_Plugin {
 		}
 	}
 
-	
 	/**
-	 * Process inbound actions and set up the settings panels after login integration has already taken place
+	 * Process inbound actions and set up the settings panels
 	 */
 	private function process_adminpanel_actions() {
 
@@ -368,7 +327,6 @@ class WP_United_Plugin {
 			// styles we need across admin
 			wp_register_style('wpuAdminStyles', $this->pluginUrl . 'theme/admin-general.css');
 			wp_enqueue_style('wpuAdminStyles'); 
-		
 			
 			require_once($this->pluginPath . 'settings-panel.php');
 			
@@ -394,13 +352,30 @@ class WP_United_Plugin {
 		}
 	}
 	
+	public function version() {
+		if(empty($this->version)) {
+			require_once ($this->pluginPath . 'version.php');
+			global $wpuVersion;
+			$this->version = $wpuVersion;
+		}
+		return $this->version;
+	}
+	
 
 	
 }
 
-global $wpUnited;
 
-$wpUnited = new WP_United_Plugin();
+/**
+* If  WordPress has been invoked from phpBB, we keep the WP-United object around.
+* We upgrade it with a pseudo-decorator
+*/
+global $wpUnited;
+require_once(plugin_dir_path(__FILE__) . 'basics.php');
+if(!isset($wpUnited)) {
+	$wpUnited = new WP_United_Basics;
+}
+$wpUnited = new WP_United_Plugin($wpUnited);
 
 
 endif;
@@ -859,8 +834,8 @@ function wpu_get_template($default) {
  * 
  */
 function wpu_get_stylesheet($default) {
-	global $wp_query, $wpSettings;
-	if ( !empty($wpSettings['allowStyleSwitch']) ) {
+	global $wp_query, $wpUnited;
+	if ( !empty($wpUnited->get_setting('allowStyleSwitch')) ) {
 		if ( $authorID = wpu_get_author() ) { 
 			$wpu_stylesheetdir = get_user_meta($authorID, 'WPU_MyStylesheet', true);
 			$wpu_theme_path = get_theme_root() . "/$wpu_stylesheetdir";
@@ -887,12 +862,12 @@ function wpu_justediting() {
  * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
  */
 function wpu_capture_future_post($postID, $post) {
-	global $wpSettings, $phpbbForum;
+	global $wpUnited, $phpbbForum;
 	
-	if ( ($post->post_status == 'future') && (!empty($wpSettings['integrateLogin'])) ) {
-		if ( ($phpbbForum->user_logged_in()) && (!empty($wpSettings['xposting'])) ) {
+	if ( ($post->post_status == 'future') && (!empty($wpUnited->get_setting('integrateLogin'))) ) {
+		if ( ($phpbbForum->user_logged_in()) && (!empty($wpUnited->get_setting('xposting'))) ) {
 			// If x-post forcing is turned on, we don't need to do anything
-			if( $wpSettings['xpostforce'] == -1) {
+			if( $wpUnited->get_setting('xpostforce') == -1) {
 				if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
 					
 					$forumID = (int)$_POST['sel_wpuxpost'];
@@ -923,7 +898,6 @@ function wpu_capture_future_post($postID, $post) {
  * Since wp-cron could be invoked by any user, we treat logged in status etc differently
  */
 function wpu_future_to_published($post) {
-	global $wpSettings;
 	define("WPU_JUST_POSTED_{$postID}", TRUE);
 	wpu_newpost($post->ID, $post, true);
 }
@@ -935,7 +909,7 @@ function wpu_future_to_published($post) {
  */
 
 function wpu_newpost($post_ID, $post, $future=false) {
-	global $wpSettings, $phpbbForum, $phpbb_root_path;
+	global $wpUnited, $phpbbForum, $phpbb_root_path;
 	
 	if( (!$future) && (defined("WPU_JUST_POSTED_{$postID}")) ) {
 		return;
@@ -948,7 +922,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
 			update_user_meta($post->post_author, 'wpu_last_post', $post_ID); 
 		} 
 
-		if ( !empty($wpSettings['integrateLogin']))  {
+		if ( !empty($wpUnited->get_setting('integrateLogin')))  {
 			global $db, $user, $phpEx; 
 			
 			$fStateChanged = $phpbbForum->foreground();
@@ -966,7 +940,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
 			}
 			
 			
-			if ( (($phpbbForum->user_logged_in()) || $future) && (!empty($wpSettings['xposting'])) ) {
+			if ( (($phpbbForum->user_logged_in()) || $future) && (!empty($wpUnited->get_setting('xposting'))) ) {
 				$did_xPost = wpu_do_crosspost($post_ID, $post, $future);
 			} 
 
@@ -981,8 +955,8 @@ function wpu_newpost($post_ID, $post, $future=false) {
  * Returns the name of the current user's blog
  */
 function wpu_blogname($default) {
-	global $wpSettings, $user_ID, $phpbbForum, $adminSetOnce;
-	if ( ((!empty($wpSettings['usersOwnBlogs'])) || ((is_admin()) && (!$adminSetOnce)))  ) {
+	global $wpUnited, $user_ID, $phpbbForum, $adminSetOnce;
+	if ((!empty($wpUnited->get_setting('usersOwnBlogs'))) || ((is_admin()) && (!$adminSetOnce)))   {
 		$authorID = wpu_get_author();
 		if ($authorID === FALSE) {
 			if ( is_admin() ) {
@@ -1010,8 +984,8 @@ function wpu_blogname($default) {
  * Returns the tagline of the current user's blog
  */
 function wpu_blogdesc($default) {
-	global $wpSettings, $phpbbForum;
-	if ( !empty($wpSettings['usersOwnBlogs']) ) {
+	global $wpUnited, $phpbbForum;
+	if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) {
 		$authorID = wpu_get_author();
 		if ( !empty($authorID) ) {
 			$blog_tagline = get_user_meta($authorID, 'blog_tagline', true);
@@ -1029,10 +1003,10 @@ function wpu_blogdesc($default) {
  * Returns the URL of the current user's blog
  */
 function wpu_homelink($default) {
-	global $wpSettings, $user_ID, $wpu_done_head, $altered_link;
+	global $wpUnited, $user_ID, $wpu_done_head, $altered_link;
 	if ( ($wpu_done_head && !$altered_link) || ($default=="wpu-activate-theme")  ) {
 
-		if ( !empty($wpSettings['usersOwnBlogs']) ) {
+		if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) {
 
 			$altered_link = TRUE; // prevents this from becoming recursive -- we only want to do it once anyway
 
@@ -1089,11 +1063,11 @@ function wpu_get_author() {
  * template integration when WordPress CSS is first.
 */
 function wpu_done_head() {
-	global $wpu_done_head, $wpSettings, $wp_the_query, $wpuIntegrationMode;
+	global $wpu_done_head, $wpUnited, $wp_the_query, $wpuIntegrationMode;
 	$wpu_done_head = true; 
 	//add the frontpage stylesheet, if needed: 
-	if ( (!empty($wpSettings['blUseCSS'])) && (!empty($wpSettings['useBlogHome'])) ) {
-		echo '<link rel="stylesheet" href="' . $wpSettings['wpPluginUrl'] . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
+	if ( (!empty($wpUnited->get_setting('blUseCSS'))) && (!empty($wpUnited->get_setting('useBlogHome'))) ) {
+		echo '<link rel="stylesheet" href="' . $wpUnited->pluginUrl . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
 	if ( ($wpuIntegrationMode == 'template-p-in-w') && (!PHPBB_CSS_FIRST) ) {
 		echo '<!--[**HEAD_MARKER**]-->';
@@ -1132,14 +1106,14 @@ function wpu_content_parse_check($postContent) {
  * We also use this hook to suppress everything if this is a forum page.
 */
 function wpu_censor($postContent) {
-	global $wpUnited, $wpSettings, $phpbbForum;
+	global $wpUnited, $wpUnited, $phpbbForum;
 	
 	if(!$wpUnited->is_phpbb_loaded()) {
 		return $postContent;
 	}
 	//if (! defined('PHPBB_CONTENT_ONLY') ) {  Commented out as we DO want this to to work on a full reverse page.
 		if ( !is_admin() ) {
-			if ( !empty($wpSettings['phpbbCensor'] ) ) { 
+			if ( !empty($wpUnited->get_setting('phpbbCensor') ) ) { 
 				return $phpbbForum->censor($postContent);
 			}
 		}
@@ -1151,10 +1125,10 @@ function wpu_censor($postContent) {
  * Alters the where clause of the sql for previous/Next post lookup, to ensure we stay on the same author blog
  */
 function wpu_prev_next_post($where) {
-	global $wpSettings, $post;
+	global $wpUnited, $post;
 	$author = $post->post_author;
 	
-	if ( !empty($wpSettings['usersOwnBlogs']) ) {
+	if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) {
 		$where = str_replace("AND post_type = 'post'", "AND post_author = '$author' AND post_type = 'post'", $where); 
 	}	
 	return $where;
@@ -1166,9 +1140,9 @@ function wpu_prev_next_post($where) {
  * This prevents users from browsing other users' media
  */
 function wpu_user_upload_dir($default) {
-	global $wpSettings, $phpbbForum;
+	global $wpUnited, $phpbbForum;
 
-	if ( !empty($wpSettings['integratelogin']) ) {
+	if ( !empty($wpUnited->get_setting('integratelogin')) ) {
 		global $user_ID, $phpbbForum;
 		$usr = get_userdata($user_ID);
 		$usrDir = $usr->user_login;
@@ -1197,9 +1171,9 @@ function wpu_user_upload_dir($default) {
  * Adds a filter if we are browsing attachments if users have own blogs but don't have 'edit' permissions
  */
 function wpu_browse_attachments() {
-	global $user_ID, $wpSettings;
+	global $user_ID, $wpUnited;
 
-	if ( (!empty($wpSettings['integrateLogin'])) && (!current_user_can('edit_post', (int) $ID)) ) {
+	if ( (!empty($wpUnited->get_setting('integrateLogin'))) && (!current_user_can('edit_post', (int) $ID)) ) {
 		add_filter( 'posts_where', 'wpu_attachments_where' );
 	}
 }
@@ -1220,8 +1194,8 @@ function wpu_attachments_where($where) {
  * Returns an author's feed link on the main page if users can have own blogs.
  */
 function wpu_feed_link($link) {
-	global $wpSettings;
-	if ( !empty($wpSettings['usersOwnBlogs']) ) { 
+	global $wpUnited;
+	if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) { 
 		$authorID = wpu_get_author();
 		if ( (!strstr($link, 'comment')) ) {
 			$link = get_author_rss_link(FALSE, $authorID, '');
@@ -1254,8 +1228,8 @@ function wpu_must_integrate() {
  * no way of knowing what the theme should be a WordPress is not invoked
  */
 function wpu_clear_header_cache() {
-	global $wpSettings, $phpEx;
-	require_once($wpSettings['wpPluginPath'] . 'cache.' . $phpEx);
+	global $wpUnited;
+	require_once($wpUnited->pluginPath . 'cache.php');
 	$wpuCache = WPU_Cache::getInstance();
 	$wpuCache->template_purge();
 }
@@ -1264,7 +1238,7 @@ function wpu_clear_header_cache() {
  * Add box to the write/(edit) post page.
  */
 function wpu_add_postboxes() {
-	global $can_xpost_forumlist, $already_xposted, $phpbbForum, $wpSettings;
+	global $can_xpost_forumlist, $already_xposted, $phpbbForum, $wpUnited;
 ?>
 	<div id="wpuxpostdiv" class="inside">
 	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
@@ -1286,7 +1260,7 @@ function wpu_add_postboxes() {
 			} ?>
 			</select>
 	
-			 <?php if($wpSettings['xposttype'] == 'ASKME') {
+			 <?php if($wpUnited->get_setting('xposttype') == 'ASKME') {
 				$excerptState = 'checked="checked"';
 				$fullState = '';
 				if (isset($_GET['post'])) {
@@ -1307,14 +1281,14 @@ function wpu_add_postboxes() {
  * Adds a "Force cross-posting" info box
  */
 function wpu_add_forcebox($forumName) {
-	global $forceXPosting, $phpbbForum, $wpSettings;
+	global $forceXPosting, $phpbbForum, $wpUnited;
 
 	$showText =  (wpu_get_xposted_details()) ? $phpbbForum->lang['wpu_forcexpost_update'] : $phpbbForum->lang['wpu_forcexpost_details'];
 
 ?>
 	<div id="wpuxpostdiv" class="inside">
 	<p> <?php echo sprintf($showText, $forceXPosting); ?></p>
-	<?php if($wpSettings['xposttype'] == 'ASKME') {
+	<?php if($wpUnited->get_setting('xposttype') == 'ASKME') {
 				$excerptState = 'checked="checked"';
 				$fullState = '';
 				if (isset($_GET['post'])) {
@@ -1336,18 +1310,18 @@ function wpu_add_forcebox($forumName) {
  * For WP >= 2.5, we set the approproate callback function. For older WP, we can go directly to the func now.
  */
 function wpu_add_meta_box() {
-	global $phpbbForum, $wpSettings, $can_xpost_forumlist, $already_xposted;
+	global $phpbbForum, $wpUnited, $can_xpost_forumlist, $already_xposted;
 	// this func is called early
 	if (preg_match('/\/wp-admin\/(post.php|post-new.php|press-this.php)/', $_SERVER['REQUEST_URI'])) {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to
-			if ( !empty($wpSettings['xposting']) && !empty($wpSettings['integrateLogin']) ) { 
+			if ( !empty($wpUnited->get_setting('xposting')) && !empty($wpUnited->get_setting('integrateLogin')) ) { 
 				
-				if($wpSettings['xpostforce'] > -1) {
+				if($wpUnited->get_setting('xpostforce') > -1) {
 					// Add forced xposting info box
 					global $forceXPosting;
-					$forceXPosting = wpu_get_forced_forum_name($wpSettings['xpostforce']);
+					$forceXPosting = wpu_get_forced_forum_name($wpUnited->get_setting('xpostforce'));
 					if($forceXPosting !== false) {
 						add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_forcexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
 					}
@@ -1391,8 +1365,8 @@ function wpu_prepare_admin_pages() {
 */
 
 function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
-   global $wpSettings, $phpbbForum;
-   if (empty($wpSettings['integrateLogin'])) { 
+   global $wpUnited, $phpbbForum;
+   if (empty($wpUnited->get_setting('integrateLogin'))) { 
       return $avatar;
    }
 
@@ -1419,14 +1393,14 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
       // use default WordPress or WP-United image
       if(!$image = avatar_create_image($user)) { 
          if(stripos($avatar, 'blank.gif') !== false) {
-            $image = $wpSettings['wpPluginUrl'] . 'images/wpu_no_avatar.gif';
+            $image = $wpUnited->get_setting('wpPluginUrl') . 'images/wpu_no_avatar.gif';
          } else {
             return $avatar;
          }
       } 
    } else {
       if(stripos($avatar, 'blank.gif') !== false) {
-          $image = $wpSettings['wpPluginUrl'] . 'images/wpu_unregistered.gif';
+          $image = $wpUnited->get_setting('wpPluginUrl') . 'images/wpu_unregistered.gif';
        } else {
          return $avatar;
       }
@@ -1440,9 +1414,9 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
  * @since WP-United 0.7.0
  */
 function wpu_smilies($postContent, $max_smilies = 0) {
-	global $phpbbForum, $wpSettings;
+	global $phpbbForum;
 	
-	if ( !empty($wpSettings['phpbbSmilies'] ) ) { 
+	if ( !empty($wpUnited->get_setting('phpbbSmilies') ) ) { 
 		static $match;
 		static $replace;
 		global $db;
@@ -1486,11 +1460,11 @@ function wpu_smilies($postContent, $max_smilies = 0) {
  * Adds any required inline JS (for language strings)
  */
 function wpu_inline_js() {
-	global $wpSettings, $phpbbForum;
+	global $wpUnited, $phpbbForum;
 	
 	// Rather than outputting the script, we just signpost any language strings we will need
 	// The scripts themselves are already enqueud.
-	if ( !empty($wpSettings['phpbbSmilies'] ) ) {
+	if ( !empty($wpUnited->get_setting('phpbbSmilies') ) ) {
 		echo "\n<script type=\"text/javascript\">//<![CDATA[\nvar wpuLang ={";
 		$langStrings = array('wpu_more_smilies', 'wpu_less_smilies', 'wpu_smiley_error');
 		for($i=0; $i<sizeof($langStrings);$i++) {
@@ -1514,9 +1488,9 @@ function wpu_inline_js() {
 * @since WP-United 0.7.1
 */
 function wpu_fix_blank_username($user_login) {
-	global $wpSettings;
+	global $wpUnited;
 
-	if (!empty($wpSettings['integrateLogin'])) { 
+	if (!empty($wpUnited->get_setting('integrateLogin'))) { 
 	    if ( empty($user_login) ){
 			$foundFreeName = FALSE;
 			while ( !$foundFreeName ) {
@@ -1583,7 +1557,7 @@ function wpu_check_new_user($username, $email, $errors) {
  */
 add_action('user_register', 'wpu_check_new_user_after', 10, 1); 
 function wpu_check_new_user_after($userID) { 
-		global $wpSettings, $phpbbForum, $wpUnited, $wpuJustCreatedUser;
+		global $wpUnited, $phpbbForum, $wpUnited, $wpuJustCreatedUser;
 	
 	
 		/*
@@ -1606,7 +1580,7 @@ function wpu_check_new_user_after($userID) {
 		}
 
 
-		if (!empty($wpSettings['integrateLogin'])) { 
+		if (!empty($wpUnited->get_setting('integrateLogin'))) { 
 			
 			$errors = new WP_Error();
 			$user = get_userdata($userID);
@@ -1642,9 +1616,9 @@ function wpu_check_new_user_after($userID) {
  * @return bool|WP_Error false (on success) or modified WP_Error object (on failure)
  */
 function wpu_validate_new_user($username, $email, $errors) {
-	global $wpSettings, $phpbbForum;
+	global $wpUnited, $phpbbForum;
 	$foundErrors = 0;
-	if (!empty($wpSettings['integrateLogin'])) {
+	if (!empty($wpUnited->get_setting('integrateLogin'))) {
 		if(function_exists('phpbb_validate_username')) {
 			$fStateChanged = $phpbbForum->foreground();
 			$result = phpbb_validate_username($username, false);
@@ -1725,8 +1699,6 @@ function wpu_uninstall() {
 		@wp_delete_post($forum_page_ID);
 	}
 		
-	$wpSettings = get_option('wpu-settings');
-	
 	
 	delete_option('wpu_set_forum');
 	delete_option('wpu-settings');
@@ -1738,11 +1710,11 @@ function wpu_uninstall() {
 	
 	
 	/*
-	if(isset($wpSettings['phpbb_path'])) {
+	if(isset($wpUnited->get_setting('phpbb_path'))) {
 		
 		global $db;
 		
-		$phpbb_root_path = $wpSettings['phpbb_path'];
+		$phpbb_root_path = $wpUnited->get_setting('phpbb_path');
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 	
 		define('IN_PHPBB', true);
