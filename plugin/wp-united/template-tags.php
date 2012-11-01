@@ -42,7 +42,7 @@ function get_wpu_intro() {
 		if ( !empty($isReg) ) {
 			$wpuGetBlogIntro = ($phpbbForum->get_userdata('user_wpublog_id') > 0 ) ? $phpbbForum->lang['blog_intro_add'] : $phpbbForum->lang['blog_intro_get'];
 		} else {
-			$wpuGetBlogIntro =  ($wpUnited->get_setting('usersOwnBlogs') ? $phpbbForum->lang['blog_intro_loginreg_ownblogs'] : $phpbbForum->lang['blog_intro_loginreg'];
+			$wpuGetBlogIntro =  ($wpUnited->get_setting('usersOwnBlogs')) ? $phpbbForum->lang['blog_intro_loginreg_ownblogs'] : $phpbbForum->lang['blog_intro_loginreg'];
 		}
 		
 		if ( ! $phpbbForum->user_logged_in() ) {
@@ -50,7 +50,7 @@ function get_wpu_intro() {
 		} else {
 			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro, '<a href="' . get_settings('siteurl') . '/wp-admin/">','</a>') . '</p>';
 		}
-		$intro = '<p>' . str_replace('{GET-STARTED}', $getStarted, wpUnited->get_setting('blogIntro'));
+		$intro = '<p>' . str_replace('{GET-STARTED}', $getStarted, $wpUnited->get_setting('blogIntro'));
 		return $intro;
 	} 	
 }

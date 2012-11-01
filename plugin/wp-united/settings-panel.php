@@ -190,13 +190,11 @@ function wpu_reload_preview() {
 	global $wpUnited, $phpbbForum;
 
 	$previewUrl = '';
-	if(isset($wpUnited->get_setting('showHdrFtr'))) {
-		if ($wpUnited->get_setting('showHdrFtr') == 'FWD') {
-			$previewUrl = get_site_url();
-		} else if($wpUnited->get_setting('showHdrFtr') == 'REV')  {
-			if(is_object($phpbbForum) && !empty($phpbbForum->url)) {
-				$previewUrl = $phpbbForum->url;
-			}
+	if ($wpUnited->get_setting('showHdrFtr') == 'FWD') {
+		$previewUrl = get_site_url();
+	} else if($wpUnited->get_setting('showHdrFtr') == 'REV')  {
+		if(is_object($phpbbForum) && !empty($phpbbForum->url)) {
+			$previewUrl = $phpbbForum->url;
 		}
 	}
 	if(empty($previewUrl)) {
@@ -1218,7 +1216,7 @@ function wpu_settings_page() {
 			var treeScript =  '<?php echo $wpUnited->pluginUrl . 'js/filetree.php'; ?>';
 			<?php 
 					$cssmVal = 0;
-					if(($wpUnited->get_setting('cssMagic')){
+					if($wpUnited->get_setting('cssMagic')){
 						$cssmVal++;
 					}
 					if($wpUnited->get_setting('templateVoodoo')){
@@ -1230,7 +1228,7 @@ function wpu_settings_page() {
 			jQuery(document).ready(function($) { 
 				
 				setupSettingsPage();
-				<?php if(isset($wpUnited->get_setting('phpbb_path'))) { ?> 
+				<?php if(!$wpUnited->get_setting('phpbb_path')) { ?> 
 					setPath('settings');
 				<?php } ?>	
 					setupHelpButtons();

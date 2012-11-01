@@ -88,7 +88,7 @@ function wpu_int_phpbb_logged_out() {
 }
 
 function wpu_int_phpbb_logged_in() { 
-	global $wpUnited $lDebug, $phpbbForum, $wpUnited, $current_user;
+	global $wpUnited, $lDebug, $phpbbForum, $wpUnited, $current_user;
 	
 	
 	//if($wpUnited->get_setting('integsource') != 'phpbb') {

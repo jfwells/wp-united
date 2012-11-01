@@ -462,7 +462,7 @@ function wpu_ob_end_flush_all() {
 function wpu_modify_pagelink($permalink, $post) {
 	global $wpUnited, $phpbbForum, $phpEx;
 	
-	if ( !empty($wpUnited->get_setting('useForumPage')) ) {
+	if ( $wpUnited->get_setting('useForumPage') ) {
 		$forumPage = get_option('wpu_set_forum');
 		if(!empty($forumPage) && ($forumPage == $post)) {
 			// If the forum and blog are both in root, add index.php to the end
@@ -808,7 +808,7 @@ function wp_united_display_theme_menu() {
  */
 function wpu_get_template($default) {
 	global $wpUnited;
-	if ( !empty($wpUnited->get_setting('allowStyleSwitch')) ) {
+	if ( $wpUnited->get_setting('allowStyleSwitch') ) {
 		//The first time this is called, wp_query, wp_rewrite, haven't been set up, so we can't see what kind of page it's gonna be
 		// so set them up now
 		if ( !defined('TEMPLATEPATH') && !isset($GLOBALS['wp_the_query']) ) {
