@@ -75,6 +75,10 @@ add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
 
 if( !class_exists( 'WP_United_Plugin' ) ):
 
+
+require_once(plugin_dir_path(__FILE__) . 'basics.php');
+
+
 class WP_United_Plugin extends WP_United_Basics {
 
 	private
@@ -371,7 +375,6 @@ class WP_United_Plugin extends WP_United_Basics {
 * We upgrade it with a pseudo-decorator
 */
 global $wpUnited;
-require_once(plugin_dir_path(__FILE__) . 'basics.php');
 if(!isset($wpUnited)) {
 	$wpUnited = new WP_United_Basics;
 }

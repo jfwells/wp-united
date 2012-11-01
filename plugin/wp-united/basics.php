@@ -20,7 +20,7 @@ class WP_United_Basics {
 		$wpPath = '',
 		$wpHomeUrl = '',
 		$wpBaseUrl = '',
-		$pluginUrl = '',
+		$pluginUrl = '';
 		
 
 	/**
@@ -154,7 +154,7 @@ class WP_United_Basics {
 			$key = sizeof($this->styleKeys) - 1;
 			$this->updatedStyleKeys = true;
 		} 
-		return $key
+		return $key;
 	}
 	
 	/**
