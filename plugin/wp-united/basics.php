@@ -34,6 +34,7 @@ class WP_United_Basics {
 	public function __wakeup() {
 		require_once($this->pluginPath . 'functions-general.php');
 		require_once ($this->pluginPath .  'options.php');
+		$this->wordpressLoaded = false;
 	}
 	
 	public function is_enabled() {
@@ -73,7 +74,7 @@ class WP_United_Basics {
 		}
 	}
 	
-	public function version() {
+	public function get_version() {
 		if(empty($this->version)) {
 			require_once ($this->pluginPath . 'version.php');
 			global $wpuVersion;
@@ -84,6 +85,7 @@ class WP_United_Basics {
 	
 	private function get_default_settings() {
 		return array(
+			'phpbb_path' => '',
 			'integrateLogin' => 0, 
 			'integsource' => 'phpbb',
 			'showHdrFtr' => 'NONE',
@@ -118,11 +120,10 @@ class WP_United_Basics {
 	
 	
 	
-	public function get_setting($key) {
-		if(!is_array($this->settings)) {
-			$this->settings = $this->load_settings();
+	public function get_setting($key) { 
+		if(!sizeof($this->settings)) { 
+			$this->load_settings();
 		}
-		
 		if(isset($this->settings[$key])) {
 			return $this->settings[$key];
 		}
@@ -134,10 +135,10 @@ class WP_United_Basics {
 	}
 	
 	public function get_style_key($key = '') {
-		if(empty($key)) {
+		if($key === '') {
 			return $this->styleKeys;
 		} else {
-			if(in_array($key, $styleKeys)) {
+			if(array_key_exists($key, $this->styleKeys)) {
 				return $this->styleKeys[$key];
 			} else {
 				return false;
@@ -193,15 +194,14 @@ class WP_United_Basics {
 	}
 
 
-	protected function load_settings() {
+	protected function load_settings() { 
 		$savedSettings = array();
-		if($this->wordpressLoaded) {
+		if($this->wordpressLoaded) { 
 			$savedSettings = (array)get_option('wpu-settings');
 		}
 		
-		$defaults = get_default_settings();
-		$this->settings = array_merge($defaults, $settings);
-
+		$defaults = $this->get_default_settings();
+		$this->settings = array_merge($defaults, (array)$savedSettings);
 	}
 
 }

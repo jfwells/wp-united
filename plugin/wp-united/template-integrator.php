@@ -328,13 +328,13 @@ if ($wpUnited->get_setting('cssMagic')) {
 	$wpUnited->commit_style_keys();
 	
 	// add link to reset stylesheet
-	$reset = "<link href=\"{$wpUnited->wpPluginUrl}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
+	$reset = "<link href=\"{$wpUnited->pluginUrl}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
 	$innerHeadInfo = $reset . $innerHeadInfo;
 
 	//write out the modified stylesheet links
 	$innerHeadInfo = str_replace($innerSSLinks['links'], $innerSSLinks['replacements'], $innerHeadInfo);
 	
-	if ($wpUnited->get_setting('templateVoodoo') {
+	if ($wpUnited->get_setting('templateVoodoo')) {
 		$outerContent = str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $outerContent);
 	}
 	
@@ -361,7 +361,7 @@ if ($wpUnited->get_setting('cssMagic')) {
 //Wrap $innerContent in CSS Magic, padding, etc.
 $padding = '';
 if ($wpUnited->get_setting('phpbbPadding') != 'NOT_SET') {
-	$pad = explode('-', $wpUnited->get_setting('phpbbPadding');
+	$pad = explode('-', $wpUnited->get_setting('phpbbPadding'));
 	$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
 }
 if ($wpUnited->get_setting('cssMagic')) {

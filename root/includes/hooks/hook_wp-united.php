@@ -43,7 +43,7 @@ if(!isset($wpUnited) || !is_object($wpUnited)) {
 }
 
 // Has WPU been set up from the WordPress plugin yet? Also accounts for empty settings
-if(!$wpUnited->is_enabled();) {
+if(!$wpUnited->is_enabled()) {
 	return;
 }
 
@@ -209,7 +209,7 @@ function wpu_init(&$hook) {
 }
 
 function wpu_wp_shutdown() { 
-	global $innerContent, $wpContentVar, $phpbb_root_path, $phpbbForum, $wpuCache;
+	global $innerContent, $wpContentVar, $phpbb_root_path, $phpbbForum, $wpuCache, $wpUnited;
 	if (defined('WPU_FWD_INTEGRATION') ) {
 		
 		$innerContent = ob_get_contents();
@@ -345,8 +345,8 @@ function get_integration_settings() {
 
 	$wpuString = '';
 	$key = 1;
-	while(isset( $config["wpu_settings_new_{$key}"])) {
-		$wpuString .= $config["wpu_settings_new_{$key}"];
+	while(isset( $config["wpu_settings_{$key}"])) {
+		$wpuString .= $config["wpu_settings_{$key}"];
 		$key++;
 	}
 
@@ -363,7 +363,7 @@ function get_integration_settings() {
 		if( is_array($retrieved) && (sizeof($retrieved) == 2) ) { 
 			list($classLoc, $classDetails) = $retrieved;
 			if(file_exists($classLoc)) { 
-				require_once($classLoc . 'basics.' . $phpEx); 
+				require_once($classLoc . 'basics.php');
 				// Convert it from a saved WP_United_Plugin class to our base WP_United_Basics class. 
 				// Yes this is brittle/ugly but cleanest alternative for now and still beats duplicating
 				// TODO: Make WP_United_Plugin expose no additional public interfaces.
@@ -453,13 +453,16 @@ function wpu_clear_style_keys() {
 */
 function set_integration_settings($dataIn) {
 		global $cache, $db;
+		
+		
+		
 		$currPtr=1;
 		$chunkStart = 0;
 		$sql = array();
-		//wpu_clear_main_settings();
+		wpu_clear_main_settings();
 		while($chunkStart < strlen($dataIn)) {
 			$sql[] = array(
-				'config_name' 	=> 	"wpu_settings_new_{$currPtr}",
+				'config_name' 	=> 	"wpu_settings_{$currPtr}",
 				'config_value' 	=>	substr($dataIn, $chunkStart, 255)
 			);
 			$chunkStart = $chunkStart + 255;

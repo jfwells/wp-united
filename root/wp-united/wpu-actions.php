@@ -200,7 +200,7 @@ class WPU_Actions {
 		
 		require_once($wpUnited->pluginPath . 'functions-css-magic.php');
 
-		require_once(wpUnited->pluginPath . 'cache.php');
+		require_once($wpUnited->pluginPath . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 
 		if(!isset($_GET['usecssm'])) {
@@ -239,7 +239,7 @@ class WPU_Actions {
 		}
 		
 		// Apply or load css magic
-		include(wpUnited->pluginPath . 'css-magic.php');
+		include($wpUnited->pluginPath . 'css-magic.php');
 		$cssMagic = CSS_Magic::getInstance();
 		if(!$cssMagic->parseString($cssIn)) {
 			return $cssIn;

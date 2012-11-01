@@ -272,12 +272,11 @@ function wpu_setup_menu() {
 			$statusColour = "updated highlight allok";
 			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
 			break;
-		default;
 		default:
 			$statusText = __('Not Connected');
 			$statusColour = "error";
 			$statusDesc = _('WP-United is not connected yet. Select your forum location below and then click &quot;Connect&quot;') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.');
-			$buttonDisplay = ($wpUnited->is_enabled()) ? 'display: block;' : 'display: none;';
+			$buttonDisplay = (!$wpUnited->is_enabled()) ? 'display: block;' : 'display: none;';
 	}
 	
 	if(!is_writable($wpUnited->pluginPath . 'cache/')) {
@@ -335,7 +334,7 @@ function wpu_setup_menu() {
 		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
 		jQuery(document).ready(function($) { 
 			createFileTree();
-			<?php if(!$wpUnited->get_setting('phpbb_path')) { ?> 
+			<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
 				setPath('setup');
 			<?php } ?>			
 		});
@@ -1228,7 +1227,7 @@ function wpu_settings_page() {
 			jQuery(document).ready(function($) { 
 				
 				setupSettingsPage();
-				<?php if(!$wpUnited->get_setting('phpbb_path')) { ?> 
+				<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
 					setPath('settings');
 				<?php } ?>	
 					setupHelpButtons();

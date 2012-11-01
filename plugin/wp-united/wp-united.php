@@ -89,6 +89,9 @@ class WP_United_Plugin extends WP_United_Basics {
 		),
 
 		$filters = array();
+		
+	protected	
+		$wordpressLoaded = true;
 
 	/**
 	* Initialise the WP-United class
@@ -125,7 +128,7 @@ class WP_United_Plugin extends WP_United_Basics {
 		$this->wpHomeUrl = home_url('/');
 		$this->wpBaseUrl = site_url('/');
 
-		
+		require_once($this->pluginPath . 'options.php');
 		require_once($this->pluginPath . 'functions-general.php');
 		require_once($this->pluginPath . 'template-tags.php');
 		require_once($this->pluginPath . 'login-integrator.php'); 
@@ -250,12 +253,12 @@ class WP_United_Plugin extends WP_United_Basics {
 		
 		$dataToStore = array($this->pluginPath, serialize($this));
 		$dataToStore = base64_encode(gzcompress(serialize($dataToStore)));
-	
-		if($phpbbForum->synchronise_settings($dataToStore)) {
+		
+		if($phpbbForum->synchronise_settings($dataToStore)) { 
 			if($enable) {
 				$this->enable();
 				$this->set_last_run('working');
-			} else {
+			} else { 
 				$this->disable();
 			}
 			die('OK');

@@ -17,7 +17,7 @@
  * This seciton is for security. Do not modify this part:
  * @ignore
  */
-if ( !defined('IN_PHPBB') ) {
+if ( !defined('IN_PHPBB') && !(defined('ABSPATH')) ) {
 	exit;
 }
 

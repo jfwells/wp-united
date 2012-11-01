@@ -455,107 +455,108 @@ class WPU_Phpbb {
 	/**
 	 * transmits new settings from the WP settings panel to phpBB
 	 */
-	public function synchronise_settings($settings) {
+	public function synchronise_settings($data) {
 		global $wpUnited, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
-		$fStateChanged = $this->foreground();
-		if(is_array($settings)) {
-			if(sizeof($settings)) {
-				
-				// generate unique ID for details ID
-				$randSeed = rand(0, 99999);
-
-				$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdetails' . $randSeed . '">';
-				$bodyContent .= "Sending settings from WordPress to phpBB<br />\n\n";
-				if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
-					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
-						  ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
-
-					if (!$result = $db->sql_query($sql)) {
-						trigger_error('ERROR: Cannot add the integration column to the users table', E_USER_ERROR); exit();
-					}
-					$bodyContent .= "Modified USERS Table (Integration ID)<br />\n\n";
-				}
-				
-				if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
-					$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
-						ADD user_wpublog_id VARCHAR(10) NULL DEFAULT NULL';
-					if (!$result = $db->sql_query($sql)) {
-						trigger_error('ERROR: Cannot add blog ID column to users table', E_USER_ERROR); exit();
-					}
-					$bodyContent .= "Modified USERS Table (Blog ID)<br />\n\n";
-				}
-				
-				$sql = 'SELECT * FROM ' . POSTS_TABLE;
-				$result = $db->sql_query_limit($sql, 1);
-
-				$row = (array)$db->sql_fetchrow($result);
-
-				if (!array_key_exists('post_wpu_xpost', $row) ) {
-					$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
-						ADD post_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
-
-					if (!$result = $db->sql_query($sql)) {
-						trigger_error('ERROR: Cannot add cross-posting column to posts table', E_USER_ERROR); exit();
-					}
-					$bodyContent .= "Modified POSTS Table (Cross-Posting Link)<br />\n\n";
-				}
-				
-				$db->sql_freeresult($result);
-
-				$bodyContent .= "Adding WP-United Permissions....<br />\n\n";
-				
-				
-				// Setup $auth_admin class so we can add permission options
-				include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
-
-
-				$auth_admin = new auth_admin();
-
-				// Add permissions
-				$auth_admin->acl_add_option(array(
-					'local'      => array('f_wpu_xpost'),
-					'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
-				));
-
-				$bodyContent .= '</div>';
-				$ln = "<script type=\"text/javascript\">
-				// <![CDATA[
-				function toggleWpuLog{$randSeed}() {
-					var lg = document.getElementById('wpulogdetails{$randSeed}');
-					var lgP = document.getElementById('wpulogexpand{$randSeed}');
-					if(lg.style.display == 'none') {
-						lg.style.display='block';
-						lgP.firstChild.nodeValue = '-';
-					} else {
-						lg.style.display='none';
-						lgP.firstChild.nodeValue = '+';			
-					}
-					return false;
-				}
-				// ]]>
-				</script>";
-				
-				$ln .= '*}<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">Changed WP-United Settings (click for details)<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '{*';
-
-				add_log('admin', $ln);
-				
-				$cache->purge();
-				 
-
-				set_integration_settings($settings);
-				
-				// clear out the WP-United cache on settings change
-				require_once($wpUnited->pluginPath . 'cache.php');
-				$wpuCache = WPU_Cache::getInstance();
-				$wpuCache->purge();
-
-				$this->restore_state($fStateChanged);
-				return true;
-			}
+		
+		
+		if(empty($data)) {
+			echo "No settings to process";
+			return false;
 		}
+		
+		$fStateChanged = $this->foreground();
+				
+		// generate unique ID for details ID
+		$randSeed = rand(0, 99999);
+
+		$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdetails' . $randSeed . '">';
+		$bodyContent .= "Sending settings from WordPress to phpBB<br />\n\n";
+		if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
+			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
+				  ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
+
+			if (!$result = $db->sql_query($sql)) {
+				trigger_error('ERROR: Cannot add the integration column to the users table', E_USER_ERROR); exit();
+			}
+			$bodyContent .= "Modified USERS Table (Integration ID)<br />\n\n";
+		}
+		
+		if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
+			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
+				ADD user_wpublog_id VARCHAR(10) NULL DEFAULT NULL';
+			if (!$result = $db->sql_query($sql)) {
+				trigger_error('ERROR: Cannot add blog ID column to users table', E_USER_ERROR); exit();
+			}
+			$bodyContent .= "Modified USERS Table (Blog ID)<br />\n\n";
+		}
+		
+		$sql = 'SELECT * FROM ' . POSTS_TABLE;
+		$result = $db->sql_query_limit($sql, 1);
+
+		$row = (array)$db->sql_fetchrow($result);
+
+		if (!array_key_exists('post_wpu_xpost', $row) ) {
+			$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
+				ADD post_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
+
+			if (!$result = $db->sql_query($sql)) {
+				trigger_error('ERROR: Cannot add cross-posting column to posts table', E_USER_ERROR); exit();
+			}
+			$bodyContent .= "Modified POSTS Table (Cross-Posting Link)<br />\n\n";
+		}
+		
+		$db->sql_freeresult($result);
+
+		$bodyContent .= "Adding WP-United Permissions....<br />\n\n";
+		
+		
+		// Setup $auth_admin class so we can add permission options
+		include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
+
+
+		$auth_admin = new auth_admin();
+
+		// Add permissions
+		$auth_admin->acl_add_option(array(
+			'local'      => array('f_wpu_xpost'),
+			'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
+		));
+
+		$bodyContent .= '</div>';
+		$ln = "<script type=\"text/javascript\">
+		// <![CDATA[
+		function toggleWpuLog{$randSeed}() {
+			var lg = document.getElementById('wpulogdetails{$randSeed}');
+			var lgP = document.getElementById('wpulogexpand{$randSeed}');
+			if(lg.style.display == 'none') {
+				lg.style.display='block';
+				lgP.firstChild.nodeValue = '-';
+			} else {
+				lg.style.display='none';
+				lgP.firstChild.nodeValue = '+';			
+			}
+			return false;
+		}
+		// ]]>
+		</script>";
+		
+		$ln .= '*}<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">Changed WP-United Settings (click for details)<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '{*';
+
+		add_log('admin', $ln);
+		
+		$cache->purge();
+		 
+
+		set_integration_settings($data);
+		
+		// clear out the WP-United cache on settings change
+		require_once($wpUnited->pluginPath . 'cache.php');
+		$wpuCache = WPU_Cache::getInstance();
+		$wpuCache->purge();
+
 		$this->restore_state($fStateChanged);
-		echo "No settings to process";
-		return false;
+		return true;
+
 	}
 	
 	

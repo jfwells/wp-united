@@ -58,7 +58,7 @@ class WPU_Cache {
 		
 		$this->log = array();
 		
-		$this->wpuVer = $wpUnited->version;
+		$this->wpuVer = $wpUnited->get_version();
 		
 				
 	}
@@ -356,7 +356,7 @@ class WPU_Cache {
 	 */
 	function save_template_voodoo($contents, $key) {
 		global $wpUnited;  
-		$fileName = $this->baseCacheLoc . wpUnited->get_style_key($key);
+		$fileName = $this->baseCacheLoc . $wpUnited->get_style_key($key);
 		$templateVoodoo = serialize($contents);
 		$this->save($templateVoodoo, $fileName);
 		$this->_log("Generated Template Voodoo cache: $fileName");

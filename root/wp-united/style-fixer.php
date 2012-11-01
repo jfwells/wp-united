@@ -81,7 +81,7 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 
 require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
-if(!isset($wpUnited->pluginPath) || !file_exists($wpUnited->pluginPath) || (!$wpUnited->is_enabled()) {
+if(!isset($wpUnited->pluginPath) || !file_exists($wpUnited->pluginPath) || !$wpUnited->is_enabled()) {
 	die('not setup properly');
 }
 
@@ -91,7 +91,6 @@ require($wpUnited->pluginPath . 'functions-css-magic.php');
 
 require($wpUnited->pluginPath . 'cache.php');
 $wpuCache = WPU_Cache::getInstance();
-
 
 $cssFileToFix = $wpUnited->get_style_key($cssFileToFix);
 
