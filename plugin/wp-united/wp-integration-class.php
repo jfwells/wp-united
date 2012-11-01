@@ -132,7 +132,6 @@ Class WPU_Integration {
 	
 	var $phpbb_root;
 	var $phpEx;
-	var $phpbb_usr_data;
 	var $phpbb_db_name;
 	
 	var $wpVersion;
@@ -170,7 +169,6 @@ Class WPU_Integration {
 		global $wpUnited;
 		//these are constants that ain't gonna change - we're going to need them in our class
 		$this->wpRun = '';
-		$this->phpbb_usr_data = $GLOBALS['userdata']; 
 		$this->phpEx = $GLOBALS['phpEx'];
 		$this->phpbb_db_name = $GLOBALS['dbname'];
 		$this->phpbb_root = $GLOBALS['phpbb_root_path'];
@@ -259,7 +257,9 @@ Class WPU_Integration {
 		 * @since v0.8.0
 		 */
 		foreach($this->varsToUnsetAndRestore as $value) {
-			$this->sleepingVars[$value] = $GLOBALS[$value];
+			if(isset($GLOBALS['value'])) {
+				$this->sleepingVars[$value] = $GLOBALS[$value];
+			}
 		}
 		
 		

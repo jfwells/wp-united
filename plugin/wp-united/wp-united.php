@@ -27,7 +27,6 @@ if ( !defined('ABSPATH') ) {
 }
 
 
-
 add_action('comment_form', 'wpu_comment_redir_field');
 add_action('wp_head', 'wpu_inline_js');
 add_action('edit_post', 'wpu_justediting');
@@ -113,7 +112,7 @@ class WP_United_Plugin extends WP_United_Basics {
 		
 	}
 	
-	public function init_plugin() {
+	public function init_plugin() { 
 		global $phpbbForum;
 		
 		
@@ -127,6 +126,8 @@ class WP_United_Plugin extends WP_United_Basics {
 		$this->pluginUrl = plugins_url('wp-united') . '/';
 		$this->wpHomeUrl = home_url('/');
 		$this->wpBaseUrl = site_url('/');
+		
+	
 
 		require_once($this->pluginPath . 'options.php');
 		require_once($this->pluginPath . 'functions-general.php');
@@ -158,7 +159,7 @@ class WP_United_Plugin extends WP_United_Basics {
 			$this->settings['integrateLogin'] = 0;
 		}		
 
-		if(!isset($this->settings['phpbb_path']) || !file_exists($this->settings['phpbb_path'])) {
+		if(!$this->get_setting('phpbb_path') || !file_exists($this->get_setting('phpbb_path'))) {
 			$this->set_last_run('disconnected');
 			return;
 		}
@@ -182,7 +183,7 @@ class WP_United_Plugin extends WP_United_Basics {
 			add_action('widgets_init', 'wpu_widgets_init');
 		
 			if(!is_admin()) {
-				if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && (!empty($this->settings['integrateLogin'])) ) {
+				if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && $this->get_setting('integrateLogin') ) {
 					global $user_ID;
 					get_currentuserinfo();
 					if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
@@ -201,16 +202,16 @@ class WP_United_Plugin extends WP_United_Basics {
 		$siteUrl = get_option('siteurl');
 		
 		// enqueue any JS we need
-		if ( !empty($this->settings['phpbbSmilies'] ) && !is_admin() ) {
+		if ( $this->get_setting('phpbbSmilies') && !is_admin() ) {
 			wp_enqueue_script('wp-united', $this->pluginUrl . 'js/wpu-min.js', array(), false, true);
 		}
 		
 		// fix broken admin bar on integrated page
-		if(($this->settings['showHdrFtr'] == 'FWD') && !empty($this->settings['cssMagic'])) {
+		if(($this->get_setting('showHdrFtr') == 'FWD') && $this->get_setting('cssMagic')) {
 			wp_enqueue_script('wpu-fix-adminbar', $this->pluginUrl . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
 		}
 		
-		if( !empty($this->settings['integrateLogin']) && !defined('WPU_DISABLE_LOGIN_INT') ) {
+		if($this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT') ) {
 				wpu_integrate_login();
 		}
 		
@@ -222,7 +223,7 @@ class WP_United_Plugin extends WP_United_Basics {
 		global $phpbb_root_path, $phpEx, $phpbbForum;
 
 		if ( !defined('IN_PHPBB') ) {
-			$phpbb_root_path = $this->settings['phpbb_path'];
+			$phpbb_root_path = $this->get_setting('phpbb_path');
 			$phpEx = substr(strrchr(__FILE__, '.'), 1);
 		}
 		
@@ -250,6 +251,12 @@ class WP_United_Plugin extends WP_United_Basics {
 		if (!defined('IN_PHPBB')) {
 			$this->load_phpbb();
 		}
+	
+		// settings must be loaded before we transmit ourselves
+		// If this is an enable or disable request, they might not be as they are lazily loaded.
+		$this->load_settings();
+
+
 		
 		$dataToStore = array($this->pluginPath, serialize($this));
 		$dataToStore = base64_encode(gzcompress(serialize($dataToStore)));
@@ -308,9 +315,17 @@ class WP_United_Plugin extends WP_United_Basics {
 	}
 	
 	public function update_settings($data) {
+
+		// settings must be loaded before we transmit ourselves
+		// they might not be as they are lazily loaded.
+		$this->load_settings();
+		
+		
 		$data = array_merge($this->settings, (array)$data); 
 		update_option('wpu-settings', $data);
 		$this->settings = $data;
+		
+		
 	}
 	
 	/**
@@ -319,7 +334,7 @@ class WP_United_Plugin extends WP_United_Basics {
 	*/
 	public function generate_smilies() { 
 		global $phpbbForum;
-		if ( !empty($this->settings['phpbbSmilies'] ) ) {
+		if ( !empty($wpUnited->settings['phpbbSmilies'] ) ) {
 			echo $phpbbForum->get_smilies();
 		}
 	}
@@ -347,7 +362,7 @@ class WP_United_Plugin extends WP_United_Basics {
 				wpu_disable_connection('manual');
 			}		
 
-			if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) {
+			if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) { 
 				wpu_process_settings();
 			}
 			

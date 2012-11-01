@@ -9,11 +9,12 @@ class WP_United_Basics {
 		$lastRun = false,
 		$pluginLoaded = false,
 		$version = '',
-		$settings = array(),
+		
 		$styleKeys = array(),
 		
 		$updatedStyleKeys = false,
-		$wordpressLoaded = false;
+		$wordpressLoaded = false,
+		$settings = array(); 
 	
 	public
 		$pluginPath = '',
@@ -21,7 +22,7 @@ class WP_United_Basics {
 		$wpHomeUrl = '',
 		$wpBaseUrl = '',
 		$pluginUrl = '';
-		
+
 
 	/**
 	* Initialise the WP-United class
@@ -121,9 +122,9 @@ class WP_United_Basics {
 	
 	
 	public function get_setting($key) { 
-		if(!sizeof($this->settings)) { 
-			$this->load_settings();
-		}
+
+		$this->load_settings();
+
 		if(isset($this->settings[$key])) {
 			return $this->settings[$key];
 		}
@@ -195,13 +196,18 @@ class WP_United_Basics {
 
 
 	protected function load_settings() { 
-		$savedSettings = array();
-		if($this->wordpressLoaded) { 
-			$savedSettings = (array)get_option('wpu-settings');
-		}
 		
-		$defaults = $this->get_default_settings();
-		$this->settings = array_merge($defaults, (array)$savedSettings);
+		if(!sizeof($this->settings)) {
+			$savedSettings = array();
+			if($this->wordpressLoaded) { 
+				$savedSettings = (array)get_option('wpu-settings');
+			} 
+			
+			$defaults = $this->get_default_settings();
+			$this->settings = array_merge($defaults, (array)$savedSettings);	
+			
+		} 
+
 	}
 
 }

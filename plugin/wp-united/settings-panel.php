@@ -28,8 +28,9 @@ function wpu_settings_menu() {
 		return;
 	}	
 	
-	if(isset($_POST['wpusettings-transmit'])) {
+	if(isset($_POST['wpusettings-transmit'])) { 
 		if(check_ajax_referer( 'wp-united-transmit')) {		
+
 			$wpUnited->transmit_settings();
 			die();
 		}
@@ -1454,8 +1455,10 @@ function wpu_process_settings() {
 		));
 		
 	}
-	$wpUnited->update_settings($data);
+
 	
+	$wpUnited->update_settings($data);
+
 }
 
 

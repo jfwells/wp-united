@@ -13,7 +13,6 @@
 */
 
 
-
 /**
  */
 if ( !defined('IN_PHPBB') ) { 
@@ -118,7 +117,7 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
 /**
  * Initialise WP-United variables and template strings
  */
-function wpu_init(&$hook) {
+function wpu_init(&$hook) { 
 	global $wpUnited, $phpbb_root_path, $template, $user, $config, $phpbbForum, $wpuCache;
 	global $wpuIntegrationActions, $wpuIntegrationMode;
 	

@@ -80,7 +80,7 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 if(!isset($phpbbForum) || !is_object($phpbbForum)) {
 	require_once($wpUnited->pluginPath .  'phpbb.php');
 	$phpbbForum = new WPU_Phpbb();
-	$phpbbForum->foreground();
+	//$phpbbForum->foreground();
 }
 
 ?>
