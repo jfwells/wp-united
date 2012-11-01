@@ -155,7 +155,7 @@ function wpu_init(&$hook) {
 		echo 'caught login<br />'; 
 		if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
 			print_r($user->data); 
-			if(!empty($wpUnited->get_setting('integrateLogin'))) {
+			if($wpUnited->get_setting('integrateLogin')) {
 				echo 'Log into WordPress now!<br />';
 				echo '***' . $user->data['is_registered'] . '***<br />';
 				
@@ -381,7 +381,7 @@ function get_integration_settings() {
 	 * We load them here so that we can auto-remove them if CSS Magic is disabled
 	 */
 	$key = 1;
-	if(!empty($wpUnited->get_setting('cssMagic'))) {
+	if($wpUnited->get_setting('cssMagic')) {
 		$fullKey = '';
 		while(isset( $config["wpu_style_keys_{$key}"])) {
 			$fullKey .= $config["wpu_style_keys_{$key}"];

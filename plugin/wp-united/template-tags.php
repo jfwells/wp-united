@@ -33,7 +33,7 @@ function wpu_intro() {
  */
 function get_wpu_intro() {
 	global $wpUnited, $phpEx, $wpuGetBlogIntro, $phpbbForum;
-	if ( (!empty($wpUnited->get_setting('useBlogHome'))) && (!empty($wpUnited->get_setting('usersOwnBlogs'))) ) {
+	if ( ($wpUnited->get_setting('useBlogHome')) && ($wpUnited->get_setting('usersOwnBlogs')) ) {
 		$reg_link =  'ucp.'.$phpEx.'?mode=register';
 		$redir = wpu_get_redirect_link();
 		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;redirect='. $redir;	

@@ -338,7 +338,7 @@ Class WPU_Integration {
 			unset ($cFor); 
 			
 			// Fix plugins
-			if(!empty($wpUnited->get_setting('pluginFixes')) {
+			if($wpUnited->get_setting('pluginFixes')) {
 				$strCompat = ($this->wpu_compat) ? "true" : "false";
 				// MU Plugins
 				$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
@@ -463,7 +463,7 @@ Class WPU_Integration {
 			'$wpuNoHead = true; do_feed',
 			'$wpuNoHead = true; do_action(\'do_robots\');',
 			'if (is_trackback()) {$wpuNoHead=true;',
-			'}else if(is_author()&& !empty($wpUnited->get_setting(\'usersOwnBlogs\')) && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
+			'}else if(is_author()&& $wpUnited->get_setting(\'usersOwnBlogs\') && $wp_template=get_author_template()){include($wp_template);} else if ( is_author()',
 			'} else { $wpuNoHead = true;'
 		);
 		$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);

@@ -92,7 +92,7 @@ $$wpContentVar = str_replace(".$phpEx/?",  ".$phpEx?", $$wpContentVar);
 $$wpContentVar = str_replace(".$phpEx/\"",  ".$phpEx\"", $$wpContentVar);
 
 // re-point unintegrated login/out links
-if ( !empty($wpUnited->get_setting('integrateLogin')) ) {
+if ( $wpUnited->get_setting('integrateLogin') ) {
 	$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
 	$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout') . '&amp;redirect=';
 	global $siteUrl;
@@ -157,7 +157,7 @@ if ($wpuIntegrationMode == 'template-p-in-w') {
  * classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
  * to make additional changes to the CSS the next time around.
  */
-if (!empty($wpUnited->get_setting('cssMagic')) { 
+if ($wpUnited->get_setting('cssMagic')) { 
 
 	require($wpUnited->pluginPath . 'css-magic.php');
 	require($wpUnited->pluginPath . 'functions-css-magic.php');
@@ -181,7 +181,7 @@ if (!empty($wpUnited->get_setting('cssMagic')) {
 	/**
 	 * Template Voodoo
 	 */
-	if (!empty($wpUnited->get_setting('templateVoodoo'))) {
+	if ($wpUnited->get_setting('templateVoodoo')) {
 		
 		//For template voodoo, we also need the outer styles
 		$outerSSLinks = wpu_get_stylesheet_links($outerContent, "outer");

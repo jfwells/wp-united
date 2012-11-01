@@ -333,11 +333,11 @@ function wpu_setup_menu() {
 		var transmitNonce = '<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
 		var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
 		var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
-		var phpbbPath = '<?php echo (!empty($wpUnited->get_setting('phpbb_path'))) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
+		var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
 		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
 		jQuery(document).ready(function($) { 
 			createFileTree();
-			<?php if(empty($wpUnited->get_setting('phpbb_path'))) { ?> 
+			<?php if(!$wpUnited->get_setting('phpbb_path')) { ?> 
 				setPath('setup');
 			<?php } ?>			
 		});
@@ -1014,14 +1014,14 @@ function wpu_settings_page() {
 						<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
 						<h3>Forum Page</h3>
 						<p>Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum.</p>
-						<input type="checkbox" id="wpuforumpage" name="wpuforumpage" <?php if(!empty($wpUnited->get_setting('useForumPage')) { ?>checked="checked"<?php } ?> /><label for="wpuforumpage">Enable Forum Page</label>		
+						<input type="checkbox" id="wpuforumpage" name="wpuforumpage" <?php if($wpUnited->get_setting('useForumPage')) { ?>checked="checked"<?php } ?> /><label for="wpuforumpage">Enable Forum Page</label>		
 					</div>
 					<?php if(!defined('WPU_CANNOT_OVERRIDE')) { ?>
 						<div id="wputab-user">
 							<h3>Integrate logins?</h3>
 							<p>If you turn this option on, phpBB will create a WordPress account the first time each phpBB user <strong>with appropriate permissions</strong> visits the blog. If this WordPress install will be non-interactive (e.g., a blog by a single person, a portal page, or an information library with commenting disabled), you may want to turn this option off, as readers may not need accounts. You can also map existing WordPress users to phpBB users, using the mapping tool that will appear after you turn on this option.</p>
 							<p>You <strong>must set</strong> the privileges for each user using the WP-United permissions under the phpBB3 Users' and Groups' permissions settings.</p>
-							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if(!empty($wpUnited->get_setting('integrateLogin')) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
+							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if($wpUnited->get_setting('integrateLogin')) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 							
 							<div id="wpusettingsxpost" class="subsettings">
 								<h4>Authentication source</h4>
@@ -1034,7 +1034,7 @@ function wpu_settings_page() {
 								
 								<h4>Enable cross-posting?</h4>
 								<p>If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.</p>
-								<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if(!empty($wpUnited->get_setting('xposting')) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
+								<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if($wpUnited->get_setting('xposting')) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
 								
 								
 								<div id="wpusettingsxpostxtra" class="subsettings">
@@ -1046,7 +1046,7 @@ function wpu_settings_page() {
 									
 									<h4>phpBB manages comments on crossed posts?</h4>
 									<p>Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.</p>
-									<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if(!empty($wpUnited->get_setting('xpostautolink'))) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments">phpBB manages comments</label>		
+									<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if($wpUnited->get_setting('xpostautolink')) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments">phpBB manages comments</label>		
 									
 									<h4>Force all blog posts to be cross-posted?</h4>
 									<p>Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place.</p>
@@ -1169,7 +1169,7 @@ function wpu_settings_page() {
 									<p><a href="#" onclick="return false;">Reset to defaults</a></p>
 									
 									<p>
-										<input type="checkbox" id="wpudtd" name="wpudtd" <?php if(!empty($wpUnited->get_setting('dtdSwitch'))) { echo ' checked="checked" '; } ?>/> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
+										<input type="checkbox" id="wpudtd" name="wpudtd" <?php if($wpUnited->get_setting('dtdSwitch')) { echo ' checked="checked" '; } ?>/> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
 										<a class="wpuwhatis" href="#" title="The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3's prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional  or XHTML 5 DTD. In most cases, this doesn't matter -- however, If you want to use WordPress' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed.">What is this?</a>
 									</p>
 								</div>
@@ -1180,15 +1180,15 @@ function wpu_settings_page() {
 					
 						<h3>Use phpBB Word Censor?</h3>
 						<p>Turn this option on if you want WordPress posts to be passed through the phpBB word censor.</p>
-						<input type="checkbox" id="wpucensor" name="wpucensor" <?php if(!empty($wpUnited->get_setting('phpbbCensor'))) { echo ' checked="checked" '; } ?>/><label for="wpucensor">Enable word censoring in WordPress</label>
+						<input type="checkbox" id="wpucensor" name="wpucensor" <?php if($wpUnited->get_setting('phpbbCensor')) { echo ' checked="checked" '; } ?>/><label for="wpucensor">Enable word censoring in WordPress</label>
 						
 						<h3>Use phpBB smilies?</h3>
 						<p>Turn this option on if you want to use phpBB smilies in WordPress comments and posts.</p>
-						<input type="checkbox" id="wpusmilies" name="wpusmilies" <?php if(!empty($wpUnited->get_setting('phpbbSmilies'))) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Use phpBB smilies in WordPress</label>	
+						<input type="checkbox" id="wpusmilies" name="wpusmilies" <?php if($wpUnited->get_setting('phpbbSmilies')) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Use phpBB smilies in WordPress</label>	
 						
 						<h3>Make Blogs Private?</h3>
 						<p>If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility.</p>
-						<input type="checkbox" id="wpuprivate" name="wpuprivate" <?php if(!empty($wpUnited->get_setting('mustLogin'))) { echo ' checked="checked" '; } ?> /><label for="wpuprivate">Make blogs private</label>							
+						<input type="checkbox" id="wpuprivate" name="wpuprivate" <?php if($wpUnited->get_setting('mustLogin')) { echo ' checked="checked" '; } ?> /><label for="wpuprivate">Make blogs private</label>							
 						
 					</div>
 					
@@ -1214,14 +1214,14 @@ function wpu_settings_page() {
 			var transmitNonce = '<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
 			var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
 			var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
-			var phpbbPath = '<?php echo (!empty($wpUnited->get_setting('phpbb_path'))) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
+			var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
 			var treeScript =  '<?php echo $wpUnited->pluginUrl . 'js/filetree.php'; ?>';
 			<?php 
 					$cssmVal = 0;
-					if(!empty($wpUnited->get_setting('cssMagic'))){
+					if(($wpUnited->get_setting('cssMagic')){
 						$cssmVal++;
 					}
-					if(!empty($wpUnited->get_setting('templateVoodoo'))){
+					if($wpUnited->get_setting('templateVoodoo')){
 						$cssmVal++;
 					}
 			?>

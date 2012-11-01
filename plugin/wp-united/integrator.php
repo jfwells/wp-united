@@ -24,7 +24,7 @@ if($connectSuccess) {
 	/**
 	 * We integrate logins here, as otherwise it happens too early.
 	 */
-	if(!empty($wpUnited->get_setting('integrateLogin')) && ($wpuIntegrationMode == 'template-p-in-w')) { 
+	if($wpUnited->get_setting('integrateLogin') && ($wpuIntegrationMode == 'template-p-in-w')) { 
 		if(!defined('WPU_CANNOT_OVERRIDE')) {
 			wp_get_current_user(true);
 			do_action('init');
@@ -68,7 +68,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 			query_posts('showposts=1');
 		}
 
-		if ( !empty($wpUnited->get_setting('wpSimpleHdr')) ) { 
+		if ($wpUnited->get_setting('wpSimpleHdr')) { 
 			//
 			//	Simple header and footer
 			//
@@ -82,7 +82,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 				$GLOBALS['inove_nosidebar'] = true;
 		
 				ob_start();
-				if(!empty($wpUnited->get_setting('useForumPage'))) {
+				if($wpUnited->get_setting('useForumPage')) {
 					// set the page query so that the forum page is selected if in header
 					$forum_page_ID = get_option('wpu_set_forum');
 					if(!empty($forum_page_ID)) {
@@ -123,7 +123,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 			global $phpbbForum;
 			ob_start();
 			
-			if(!empty($wpUnited->get_setting('useForumPage'))) {
+			if($wpUnited->get_setting('useForumPage')) {
 				// set the page query so that the forum page is selected if in header
 				$forum_page_ID = get_option('wpu_set_forum');
 				if(!empty($forum_page_ID)) {

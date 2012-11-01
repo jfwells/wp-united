@@ -835,7 +835,7 @@ function wpu_get_template($default) {
  */
 function wpu_get_stylesheet($default) {
 	global $wp_query, $wpUnited;
-	if ( !$wpUnited->get_setting('allowStyleSwitch') ) {
+	if ( $wpUnited->get_setting('allowStyleSwitch') ) {
 		if ( $authorID = wpu_get_author() ) { 
 			$wpu_stylesheetdir = get_user_meta($authorID, 'WPU_MyStylesheet', true);
 			$wpu_theme_path = get_theme_root() . "/$wpu_stylesheetdir";
@@ -864,8 +864,8 @@ function wpu_justediting() {
 function wpu_capture_future_post($postID, $post) {
 	global $wpUnited, $phpbbForum;
 	
-	if ( ($post->post_status == 'future') && (!empty($wpUnited->get_setting('integrateLogin'))) ) {
-		if ( ($phpbbForum->user_logged_in()) && (!empty($wpUnited->get_setting('xposting'))) ) {
+	if ( ($post->post_status == 'future') && ($wpUnited->get_setting('integrateLogin')) ) {
+		if ( ($phpbbForum->user_logged_in()) && ($wpUnited->get_setting('xposting')) ) {
 			// If x-post forcing is turned on, we don't need to do anything
 			if( $wpUnited->get_setting('xpostforce') == -1) {
 				if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
@@ -922,7 +922,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
 			update_user_meta($post->post_author, 'wpu_last_post', $post_ID); 
 		} 
 
-		if ( !empty($wpUnited->get_setting('integrateLogin')))  {
+		if ( $wpUnited->get_setting('integrateLogin') )  {
 			global $db, $user, $phpEx; 
 			
 			$fStateChanged = $phpbbForum->foreground();
@@ -940,7 +940,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
 			}
 			
 			
-			if ( (($phpbbForum->user_logged_in()) || $future) && (!empty($wpUnited->get_setting('xposting'))) ) {
+			if ( (($phpbbForum->user_logged_in()) || $future) && ($wpUnited->get_setting('xposting')) ) {
 				$did_xPost = wpu_do_crosspost($post_ID, $post, $future);
 			} 
 
@@ -956,7 +956,7 @@ function wpu_newpost($post_ID, $post, $future=false) {
  */
 function wpu_blogname($default) {
 	global $wpUnited, $user_ID, $phpbbForum, $adminSetOnce;
-	if ((!empty($wpUnited->get_setting('usersOwnBlogs'))) || ((is_admin()) && (!$adminSetOnce)))   {
+	if ( $wpUnited->get_setting('usersOwnBlogs') || (is_admin() && !$adminSetOnce) )   {
 		$authorID = wpu_get_author();
 		if ($authorID === FALSE) {
 			if ( is_admin() ) {
@@ -985,7 +985,7 @@ function wpu_blogname($default) {
  */
 function wpu_blogdesc($default) {
 	global $wpUnited, $phpbbForum;
-	if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) {
+	if ( $wpUnited->get_setting('usersOwnBlogs') ) {
 		$authorID = wpu_get_author();
 		if ( !empty($authorID) ) {
 			$blog_tagline = get_user_meta($authorID, 'blog_tagline', true);
@@ -1006,7 +1006,7 @@ function wpu_homelink($default) {
 	global $wpUnited, $user_ID, $wpu_done_head, $altered_link;
 	if ( ($wpu_done_head && !$altered_link) || ($default=="wpu-activate-theme")  ) {
 
-		if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) {
+		if ( $wpUnited->get_setting('usersOwnBlogs') ) {
 
 			$altered_link = TRUE; // prevents this from becoming recursive -- we only want to do it once anyway
 
@@ -1066,7 +1066,7 @@ function wpu_done_head() {
 	global $wpu_done_head, $wpUnited, $wp_the_query, $wpuIntegrationMode;
 	$wpu_done_head = true; 
 	//add the frontpage stylesheet, if needed: 
-	if ( (!empty($wpUnited->get_setting('blUseCSS'))) && (!empty($wpUnited->get_setting('useBlogHome'))) ) {
+	if ( ($wpUnited->get_setting('blUseCSS')) && ($wpUnited->get_setting('useBlogHome')) ) {
 		echo '<link rel="stylesheet" href="' . $wpUnited->pluginUrl . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
 	if ( ($wpuIntegrationMode == 'template-p-in-w') && (!PHPBB_CSS_FIRST) ) {
@@ -1113,7 +1113,7 @@ function wpu_censor($postContent) {
 	}
 	//if (! defined('PHPBB_CONTENT_ONLY') ) {  Commented out as we DO want this to to work on a full reverse page.
 		if ( !is_admin() ) {
-			if ( !empty($wpUnited->get_setting('phpbbCensor') ) ) { 
+			if ( $wpUnited->get_setting('phpbbCensor') ) { 
 				return $phpbbForum->censor($postContent);
 			}
 		}
@@ -1128,7 +1128,7 @@ function wpu_prev_next_post($where) {
 	global $wpUnited, $post;
 	$author = $post->post_author;
 	
-	if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) {
+	if ( $wpUnited->get_setting('usersOwnBlogs') ) {
 		$where = str_replace("AND post_type = 'post'", "AND post_author = '$author' AND post_type = 'post'", $where); 
 	}	
 	return $where;
@@ -1142,7 +1142,7 @@ function wpu_prev_next_post($where) {
 function wpu_user_upload_dir($default) {
 	global $wpUnited, $phpbbForum;
 
-	if ( !empty($wpUnited->get_setting('integratelogin')) ) {
+	if ( $wpUnited->get_setting('integratelogin') ) {
 		global $user_ID, $phpbbForum;
 		$usr = get_userdata($user_ID);
 		$usrDir = $usr->user_login;
@@ -1173,7 +1173,7 @@ function wpu_user_upload_dir($default) {
 function wpu_browse_attachments() {
 	global $user_ID, $wpUnited;
 
-	if ( (!empty($wpUnited->get_setting('integrateLogin'))) && (!current_user_can('edit_post', (int) $ID)) ) {
+	if ( ($wpUnited->get_setting('integrateLogin')) && (!current_user_can('edit_post', (int) $ID)) ) {
 		add_filter( 'posts_where', 'wpu_attachments_where' );
 	}
 }
@@ -1195,7 +1195,7 @@ function wpu_attachments_where($where) {
  */
 function wpu_feed_link($link) {
 	global $wpUnited;
-	if ( !empty($wpUnited->get_setting('usersOwnBlogs')) ) { 
+	if ( $wpUnited->get_setting('usersOwnBlogs') ) { 
 		$authorID = wpu_get_author();
 		if ( (!strstr($link, 'comment')) ) {
 			$link = get_author_rss_link(FALSE, $authorID, '');
@@ -1316,7 +1316,7 @@ function wpu_add_meta_box() {
 		if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
 	
 			//Add the cross-posting box if enabled and the user has forums they can post to
-			if ( !empty($wpUnited->get_setting('xposting')) && !empty($wpUnited->get_setting('integrateLogin')) ) { 
+			if ( $wpUnited->get_setting('xposting') && $wpUnited->get_setting('integrateLogin') ) { 
 				
 				if($wpUnited->get_setting('xpostforce') > -1) {
 					// Add forced xposting info box
@@ -1366,7 +1366,7 @@ function wpu_prepare_admin_pages() {
 
 function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
    global $wpUnited, $phpbbForum;
-   if (empty($wpUnited->get_setting('integrateLogin'))) { 
+   if (!$wpUnited->get_setting('integrateLogin')) { 
       return $avatar;
    }
 
@@ -1416,7 +1416,7 @@ function wpu_get_phpbb_avatar($avatar, $id_or_email, $size = '96', $default = ''
 function wpu_smilies($postContent, $max_smilies = 0) {
 	global $phpbbForum;
 	
-	if ( !empty($wpUnited->get_setting('phpbbSmilies') ) ) { 
+	if ($wpUnited->get_setting('phpbbSmilies')  ) { 
 		static $match;
 		static $replace;
 		global $db;
@@ -1464,7 +1464,7 @@ function wpu_inline_js() {
 	
 	// Rather than outputting the script, we just signpost any language strings we will need
 	// The scripts themselves are already enqueud.
-	if ( !empty($wpUnited->get_setting('phpbbSmilies') ) ) {
+	if ( $wpUnited->get_setting('phpbbSmilies') ) {
 		echo "\n<script type=\"text/javascript\">//<![CDATA[\nvar wpuLang ={";
 		$langStrings = array('wpu_more_smilies', 'wpu_less_smilies', 'wpu_smiley_error');
 		for($i=0; $i<sizeof($langStrings);$i++) {
@@ -1490,7 +1490,7 @@ function wpu_inline_js() {
 function wpu_fix_blank_username($user_login) {
 	global $wpUnited;
 
-	if (!empty($wpUnited->get_setting('integrateLogin'))) { 
+	if ($wpUnited->get_setting('integrateLogin')) { 
 	    if ( empty($user_login) ){
 			$foundFreeName = FALSE;
 			while ( !$foundFreeName ) {
@@ -1580,7 +1580,7 @@ function wpu_check_new_user_after($userID) {
 		}
 
 
-		if (!empty($wpUnited->get_setting('integrateLogin'))) { 
+		if ($wpUnited->get_setting('integrateLogin')) { 
 			
 			$errors = new WP_Error();
 			$user = get_userdata($userID);
@@ -1618,7 +1618,7 @@ function wpu_check_new_user_after($userID) {
 function wpu_validate_new_user($username, $email, $errors) {
 	global $wpUnited, $phpbbForum;
 	$foundErrors = 0;
-	if (!empty($wpUnited->get_setting('integrateLogin'))) {
+	if ($wpUnited->get_setting('integrateLogin')) {
 		if(function_exists('phpbb_validate_username')) {
 			$fStateChanged = $phpbbForum->foreground();
 			$result = phpbb_validate_username($username, false);

@@ -68,7 +68,7 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 				$el = str_replace($delimChars, "", $els[1]);  
 				$and = '&amp;';
 			}
-			$tv = (($position == 'inner') && (!empty($wpUnited->get_setting('templateVoodoo')))) ? "{$and}tv=" : '';
+			$tv = (($position == 'inner') && ($wpUnited->get_setting('templateVoodoo'))) ? "{$and}tv=" : '';
 			if(stristr($el, ".css") !== false) {
 				/**
 				 * We need to ensure the stylesheet maps to a real file on disk as fopen_url will not work on most 

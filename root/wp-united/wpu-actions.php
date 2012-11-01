@@ -39,7 +39,7 @@ class WPU_Actions {
 	function profile_update($mode, $phpbb_id, $integration_id, $data) {
 		global $wpUnited, $phpbb_root_path, $phpEx, $wpUtdInt, $db, $user, $wpuCache;
 
-		if ( !empty($wpUnited->get_setting('integrateLogin')) && ($wpUnited->is_enabled()) ) {	
+		if ( $wpUnited->get_setting('integrateLogin') && $wpUnited->is_enabled() ) {	
 			
 			// check that integration ID has been provided
 			if (empty($integration_id)) {
@@ -141,7 +141,7 @@ class WPU_Actions {
 	function generate_profile_link($bloglink_id, &$template) {
 		global $wpUnited, $phpbb_root_path, $phpEx;
 		
-		if (!empty($wpUnited->get_setting('buttonsProfile'))) {
+		if ($wpUnited->get_setting('buttonsProfile')) {
 			if ( !empty($bloglink_id) ) {
 				$blog_uri = append_sid($wpUnited->wpHomeUrl . "?author=" . $bloglink_id);
 				$blog_img = '';   //TODO: SET FOR SUBSILVER!!
@@ -161,7 +161,7 @@ class WPU_Actions {
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
 		global $wpUnited, $phpbb_root_path, $phpEx;
 		if  ( $wpUnited->is_enabled() ) { 
-			if (!empty($wpUnited->get_setting('buttonsPost'))) {
+			if ($wpUnited->get_setting('buttonsPost')) {
 				if ((!isset($user_cache[$poster_id])) && !empty($bloglink_id)) {
 					if ($poster_id == ANONYMOUS) {
 						$cache['blog_img'] = '';

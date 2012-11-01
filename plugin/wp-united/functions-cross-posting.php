@@ -346,8 +346,8 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpUnited->get_setting('xposting'))) || 
-		(empty($wpUnited->get_setting('xpostautolink'))) ||
+		(!$wpUnited->get_setting('xposting')) || 
+		(!$wpUnited->get_setting('xpostautolink')) ||
 		(empty($postID))
 	) {
 		return $commentArray;
@@ -404,9 +404,9 @@ function wpu_comments_count($count, $postID = false) {
 	// else, get the details
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpUnited->get_setting('integrateLogin'))) || 
-		(empty($wpUnited->get_setting('xposting'))) || 
-		(empty($wpUnited->get_setting('xpostautolink'))) 
+		(!$wpUnited->get_setting('integrateLogin')) || 
+		(!$wpUnited->get_setting('xposting')) || 
+		(!$wpUnited->get_setting('xpostautolink')) 
 	) {
 		return $count;
 	}
@@ -431,9 +431,9 @@ function wpu_comment_redirector($postID) {
 	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user;
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpUnited->get_setting('integrateLogin'))) || 
-		(empty($wpUnited->get_setting('xposting'))) || 
-		(empty($wpUnited->get_setting('xpostautolink'))) 
+		(!$wpUnited->get_setting('integrateLogin')) || 
+		(!$wpUnited->get_setting('xposting')) || 
+		(!$wpUnited->get_setting('xpostautolink')) 
 	) {
 		return;
 	}
@@ -597,9 +597,9 @@ function wpu_comments_open($open, $postID) {
 	
 	if ( 
 		(empty($phpbb_root_path)) || 
-		(empty($wpUnited->get_setting('integrateLogin'))) || 
-		(empty($wpUnited->get_setting('xposting'))) || 
-		(empty($wpUnited->get_setting('xpostautolink'))) 
+		(!$wpUnited->get_setting('integrateLogin')) || 
+		(!$wpUnited->get_setting('xposting')) || 
+		(!$wpUnited->get_setting('xpostautolink')) 
 	) {
 		$status = $open;
 		return $status;
