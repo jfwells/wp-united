@@ -262,17 +262,17 @@ abstract class WP_United_Plugin_Base extends WP_United_Basics {
 	}
 	
 	protected function add_filters() {
-		foreach($this->actions as $action => $details) {
+		foreach($this->filters as $filter => $details) {
 			switch(sizeof((array)$details)) {
 				case 3:
-					add_filter($action, array($this, $details[0]), $details[1], $details[2]);
+					add_filter($filter, array($this, $details[0]), $details[1], $details[2]);
 				break;
 				case 2:
-					add_filter($action, array($this, $details[0]), $details[1]);
+					add_filter($filter, array($this, $details[0]), $details[1]);
 				break;
 				case 1:
 				default:
-					add_filter($action, array($this, $details));
+					add_filter($filter, array($this, $details));
 			}
 		}	
 	}	

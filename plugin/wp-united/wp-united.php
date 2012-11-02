@@ -481,7 +481,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 */
 	public function check_content_for_forum($postContent) {
 		if (! defined('PHPBB_CONTENT_ONLY') ) {
-			$postContent = wpu_censor($postContent);
+			$postContent = $this->censor_content($postContent);
 		} else {
 			global $innerContent, $wpuOutputPreStr, $wpuOutputPostStr;
 			$postContent = "<!--[**INNER_CONTENT**]-->";
@@ -502,7 +502,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		//if (! defined('PHPBB_CONTENT_ONLY') ) {  Commented out as we DO want this to to work on a full reverse page.
 			if ( !is_admin() ) {
 				if ( $this->get_setting('phpbbCensor') ) { 
-					return $this->censor($postContent);
+					return $phpbbForum->censor($postContent);
 				}
 			}
 			return $postContent;
