@@ -22,20 +22,21 @@ if ( !defined('IN_PHPBB') ) exit;
 */
 class WPU_Cache {
 
-	var $_useTemplateCache;
-	var $baseCacheLoc;
-	var $themePath;
-	var $templateCacheLoc;
-	var $salt;
-	var $logged;
-	var $fullPage;
-	var $wpuVer;
+	private
+		$useTemplateCache,
+		$baseCacheLoc,
+		$themePath,
+		$templateCacheLoc,
+		$salt,
+		$logged,
+		$fullPage,
+		$wpuVer;
 
 
 	/**
 	 *  Makes class a singleton. Class must be invoked through this method
 	 */
-	function getInstance () {
+	public static function getInstance () {
 		static $instance;
 		if (!isset($instance)) {
 			$instance = new WPU_Cache();
@@ -43,11 +44,11 @@ class WPU_Cache {
         return $instance;
     }
     	
-	function WPU_Cache() {
+	public function __construct() {
 		
 		global $phpbb_root_path, $wpUnited;
 		
-		$this->_useTemplateCache = 'UNKNOWN';
+		$this->useTemplateCache = 'UNKNOWN';
 		$this->_useCoreCache = 'UNKNOWN';
 		$this->baseCacheLoc = $wpUnited->pluginPath . 'cache/';
 		$this->themePath = $wpUnited->wpPath . 'wp-content/themes/';  // TODO: FOLLOW WP RECS
@@ -67,7 +68,7 @@ class WPU_Cache {
 	 * It does not need to be particularly secure, so we still use MD5 -- it will be enough to stop
 	 * script kiddies from guessing filenames in the cache folder
 	 */
-	function initialise_salt() {
+	private function initialise_salt() {
 		if(!isset( $GLOBALS['config']['wpu_cache_hash'])) {
 			// Generate a 10-digit random number
 			$this->salt = rand(10000, 99999);
@@ -81,7 +82,7 @@ class WPU_Cache {
 	 * Determines if the template cache is active
 	 * Currently can be enabled/disabled in options.php
 	 */
-	function template_cache_enabled() {
+	public function template_cache_enabled() {
 		if (defined('WPU_CACHE_ENABLED') && WPU_CACHE_ENABLED) {
 			return true;
 		}
@@ -91,7 +92,7 @@ class WPU_Cache {
 	/**
 	 * Determine whether the core cache can be used.	
 	 */
-	function core_cache_enabled() {
+	public function core_cache_enabled() {
 		if (defined('WPU_CORE_CACHE_ENABLED') && WPU_CORE_CACHE_ENABLED) {
 			return true;
 		}
@@ -103,7 +104,7 @@ class WPU_Cache {
 	 * Decides whether to use, or regenerate, the cache for WordPress template header and footers.
 	 */
 
-	function use_template_cache() {
+	public function use_template_cache() {
 		global $wpuIntegrationMode;
 		if ( $wpuIntegrationMode != 'template-p-in-w' ) {
 			return false;
@@ -120,7 +121,7 @@ class WPU_Cache {
 		}
 		
 
-		switch($this->_useTemplateCache) {
+		switch($this->useTemplateCache) {
 			case "USE":
 				return true;
 				break;
@@ -149,7 +150,7 @@ class WPU_Cache {
 					if ( !( ($compareDate < @filemtime("$fileAddress/header.$phpEx")) || 
 					  ($compareDate < @filemtime("$fileAddress/footer.$phpEx")) ||
 					  ($compareDate < @filemtime($this->wpVersionLoc)) ) ) {
-						$this->_useTemplateCache = "USE";
+						$this->useTemplateCache = "USE";
 						// Since the cache isn't being used, WordPress won't run. We can
 						// set some useful global variables and defines from the filename
 						// They shouldn't be relied upon, but they're useful for various things
@@ -159,7 +160,7 @@ class WPU_Cache {
 						return true;
 					}
 				} 
-				$this->_useTemplateCache = "REFRESH";
+				$this->useTemplateCache = "REFRESH";
 				return false;			
 		
 		}
@@ -171,7 +172,7 @@ class WPU_Cache {
 	 * @param string $wpVer WordPress version number
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
-	function use_core_cache($wpVer, $compat) {
+	public function use_core_cache($wpVer, $compat) {
 		global $latest;
 		
 		if($latest) {
@@ -188,7 +189,7 @@ class WPU_Cache {
 			default:
 				@$dir = opendir($this->baseCacheLoc);
 				while( $entry = @readdir($dir) ) {
-					if ( $entry == $this->_get_core_cache_name($wpVer, $compat) )  {
+					if ( $entry == $this->get_core_cache_name($wpVer, $compat) )  {
 						$entry = $this->baseCacheLoc . $entry;
 						$compareDate = filemtime($entry);
 						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) {
@@ -211,12 +212,12 @@ class WPU_Cache {
 	 * @param string $wpVer WordPress version number
 	 * @param string All WordPress portions of the page to save, with a delimiter set for where phpBB should be spliced in.
 	 */
-	function save_to_template_cache($wpVer, $content) {
+	public function save_to_template_cache($wpVer, $content) {
 		if ( $this->template_cache_enabled() ) {
 			$theme = str_replace('-', '__sep__', array_pop(explode('/', TEMPLATEPATH))); 
 			$fnDest = $this->baseCacheLoc . "theme-{$theme}-{$wpVer}-". md5("{$this->salt}-{$this->wpuVer}");
 			$this->save($content, $fnDest);
-			$this->_log("Generated template cache: $fnDest");		
+			$this->log("Generated template cache: $fnDest");		
 		
 			return true;
 		}
@@ -229,7 +230,7 @@ class WPU_Cache {
 	 * Generate core cache name
 	 * @access private
 	 */
-	function _get_core_cache_name($wpVer, $compat) {
+	private function get_core_cache_name($wpVer, $compat) {
 		global $phpEx;
 		$compat = ($compat) ? "_fast" : "_slow";
 		return "core-" . md5("{$this->salt}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
@@ -240,12 +241,12 @@ class WPU_Cache {
 	 * @param string $wpVer WordPress version number
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
-	function save_to_core_cache($content, $wpVer, $compat) {
+	public function save_to_core_cache($content, $wpVer, $compat) {
 		if ( $this->core_cache_enabled() ) {
-			$fnDest = $this->baseCacheLoc . $this->_get_core_cache_name($wpVer, $compat);
+			$fnDest = $this->baseCacheLoc . $this->get_core_cache_name($wpVer, $compat);
 			$content = $this->prepare_content($content); 
 			$this->save($content, $fnDest);
-			$this->_log("Generated core cache: $fnDest");	
+			$this->log("Generated core cache: $fnDest");	
 		
 			return true;
 		}
@@ -259,8 +260,8 @@ class WPU_Cache {
 	 * without having to invoke WordPress at all
 	 * use_template_cache() must have already been called to set up cache parameters
 	 */		
-	function get_from_template_cache() {
-		if ( $this->template_cache_enabled() && $this->_useTemplateCache) {
+	public function get_from_template_cache() {
+		if ( $this->template_cache_enabled() && $this->useTemplateCache) {
 			return file_get_contents($this->templateCacheLoc);
 		}
 	}
@@ -270,13 +271,13 @@ class WPU_Cache {
 	 * @param string $pluginPath Full path to plugin
 	 * @param bool $compat Whether the plugin should be run in compatibility (slow) mode or not.
 	 */
-	function save_plugin($content, $pluginPath, $wpVer, $compat, $addPHP = '') {
+	public function save_plugin($content, $pluginPath, $wpVer, $compat, $addPHP = '') {
 		global $phpEx;
 		$compat = ($compat) ? "_fast" : "_slow";
 		$fnDest = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
 		$content = $this->prepare_content($content, $addPHP); 
 		$this->save($content, $fnDest);
-		$this->_log("Generated plugin cache: $fnDest");	
+		$this->log("Generated plugin cache: $fnDest");	
 		// update plugin compile time
 		$GLOBALS['wpUtdInt']->switch_db('TO_P');
 		set_config('wpu_plugins_compiled', filemtime($fnDest));
@@ -288,7 +289,7 @@ class WPU_Cache {
 	 * Pulls a "compiled" worked-around plugin
 	 * and returns the filename, or false if it needs to be created
 	 */
-	function get_plugin($pluginPath, $wpVer, $compat) {
+	public function get_plugin($pluginPath, $wpVer, $compat) {
 		global $phpEx;
 		$lastCompiled = $GLOBALS['config']['wpu_plugins_compiled'];
 		$compat = ($compat) ? "_fast" : "_slow";
@@ -305,7 +306,7 @@ class WPU_Cache {
 	/**
 	 * Returns a key number for a CSS file or a CSS magic cache
 	 */
-	function get_style_key($fileName, $pos) {
+	public function get_style_key($fileName, $pos) {
 		global $wpUnited;
 		if(stripos($fileName, 'style.php?') !== false) {
 			/**
@@ -326,7 +327,7 @@ class WPU_Cache {
 	/**
 	 * returns a key number for a template voodoo instruction cache
 	 */
-	function get_template_voodoo_key($path1, $arr1, $arr2, $arr3, $arr4) {	
+	public function get_template_voodoo_key($path1, $arr1, $arr2, $arr3, $arr4) {	
 		global $wpUnited;
 		$fileName = 'tplvoodoo-' . md5( $this->salt . array_pop(explode('/', $path1)) .  implode('.', $arr1) . implode('.', $arr2) . implode('.', $arr2) . implode('.', $arr3) . "-{$this->wpuVer}");
 		return $wpUnited->add_style_key($fileName);
@@ -335,7 +336,7 @@ class WPU_Cache {
 	/**
 	 * gets the Template Voodoo instructions, if they exist
 	 */
-	function get_template_voodoo($key) {
+	public function get_template_voodoo($key) {
 		global $wpUnited;
 		if($key < 0) {
 			return false;
@@ -354,19 +355,19 @@ class WPU_Cache {
 	/**
 	 * Saves Template Voodoo instructions
 	 */
-	function save_template_voodoo($contents, $key) {
+	public function save_template_voodoo($contents, $key) {
 		global $wpUnited;  
 		$fileName = $this->baseCacheLoc . $wpUnited->get_style_key($key);
 		$templateVoodoo = serialize($contents);
 		$this->save($templateVoodoo, $fileName);
-		$this->_log("Generated Template Voodoo cache: $fileName");
+		$this->log("Generated Template Voodoo cache: $fileName");
 	}
 		
 
 	/**
 	 * Gets the CSS magic cache if it exists
 	 */
-	function get_css_magic($fileName, $pos, $incTplVoodoo = -1) {
+	public function get_css_magic($fileName, $pos, $incTplVoodoo = -1) {
 		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
 		if(file_exists($cacheFileName)) {
 			if(@filemtime($cacheFileName) > @filemtime($fileName)) {
@@ -379,7 +380,7 @@ class WPU_Cache {
 	/**
 	 * Generates a name for the CSS Magic Cache
 	 */
-	function get_css_magic_cache_name($fileName, $pos, $incTplVoodoo = -1) {
+	public function get_css_magic_cache_name($fileName, $pos, $incTplVoodoo = -1) {
 		$tpl = ($incTplVoodoo > -1) ? 'tplvd-' : '';
 		return "cssmagic-{$tpl}" . md5("{$this->salt}{$fileName }-{$pos}-{$incTplVoodoo}-{$this->wpuVer}") . '.css';
 	}
@@ -387,17 +388,17 @@ class WPU_Cache {
 	/**
 	 * Saves the CSS Magic 
 	 */
-	function save_css_magic($content, $fileName, $pos, $incTplVoodoo = -1) {
+	public function save_css_magic($content, $fileName, $pos, $incTplVoodoo = -1) {
 		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
 		$this->save($content, $cacheFileName);
-		$this->_log("Generated CSS Magic cache: $cacheFileName");
+		$this->log("Generated CSS Magic cache: $cacheFileName");
 	}
 
 
 	/**
 	 * Prepares content for saving to cache -- ensuring it can't be called directly, and that it can be properly eval()d
 	 */
-	function prepare_content($content, $addPHP = '') {
+	public function prepare_content($content, $addPHP = '') {
 		$addPHP = (!empty($addPHP)) ? "\n\n$addPHP" : '';
 		return '<' ."?php\n\n if(!defined('IN_PHPBB')){exit();}$addPHP\n\n$content\n\n?" . '>';
 	}
@@ -409,7 +410,7 @@ class WPU_Cache {
 	 * @param string $content The content to save
 	 * @param string $fileName The complete path and filename
 	 */
-	function save($content, $fileName) {
+	public function save($content, $fileName) {
 			$fnTemp = $this->baseCacheLoc . 'temp_' . floor(rand(0, 999999)) . '-temp';
 			$hTempFile = @fopen($fnTemp, 'w+');
 			@fwrite($hTempFile, $content);
@@ -423,7 +424,7 @@ class WPU_Cache {
 	 * Purge the WP-United cache
 	 * Deletes all files from the wp-united/cache directory
 	 */
-	function purge() {
+	public function purge() {
 
 		@$dir = opendir($this->baseCacheLoc);
 			while( $entry = @readdir($dir) ) {
@@ -441,7 +442,7 @@ class WPU_Cache {
 	/** 
 	 * Clears the cache of template files. Used when a new template is selected.
 	 */
-	function template_purge() {
+	public function template_purge() {
 		@$dir = opendir($this->baseCacheLoc);
 			while( $entry = @readdir($dir) ) {
 				if ( strpos($entry, 'theme-') !== false) {
@@ -457,14 +458,14 @@ class WPU_Cache {
 	 * @access private
 	 *	@param string $action the action to log
 	 */
-	function _log($action) {
+	private function log($action) {
 		$this->logged[] = $action;
 	}
 	/**
 	 * Returns a string for display, with all the instances where a cache file was generated.
 	 * If an item is not listed, we can assume it was already cached
 	 */
-	function get_logged_actions() {
+	public function get_logged_actions() {
 		if(sizeof($this->logged)) {
 			$strLog = implode('<br />', $this->logged);
 		}

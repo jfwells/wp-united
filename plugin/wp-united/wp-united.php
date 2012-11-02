@@ -351,12 +351,12 @@ class WP_United_Plugin extends WP_United_Basics {
 			
 			// the settings page has detected an error and asked to abort
 			if( isset($_POST['wpudisable']) && check_ajax_referer( 'wp-united-disable') ) {
-				wpu_disable_connection('server-error'); 
+				$this->disable_connection('server-error'); 
 			}	
 
 			// the user wants to manually disable
 			if( isset($_POST['wpudisableman']) && check_ajax_referer( 'wp-united-disable') ) {
-				wpu_disable_connection('manual');
+				$this->disable_connection('manual');
 			}		
 
 			if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) { 
@@ -379,6 +379,7 @@ class WP_United_Plugin extends WP_United_Basics {
 		}
 		return $this->version;
 	}
+	
 	
 
 	
@@ -405,43 +406,7 @@ endif;
 
 
 
-/**
- * Disable WPU and putput result directly to the calling script
- *
- */
 
-function wpu_disable_connection($type) {
-	global $wpUnited;
-	
-	if(!$wpUnited->is_enabled()) {
-		die(__('WP-United is already disabled'));
-	}
-	
-	$wpUnited->disable();
-	
-	if($type == 'error') {
-				
-		if($wpUnited->get_last_run() == 'disconnected') {
-			die('[ERROR]' . __('WP-United could not find phpBB at the selected path. WP-United is not connected.'));
-		} elseif($wpUnited->get_last_run() == 'connected') {
-			die('[ERROR]' . __('WP-United could not successfully run phpBB at the selected path. WP-United is halted.'));
-		} else {
-			die('[ERROR]' . __('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.'));
-		}
-	} elseif($type=='server-error') {
-		die('OK');
-	} elseif($type=='manual') {
-		
-		// try and disable on the phpBB side:
-		$wpUnited->transmit_settings(false);
-
-		die(__('WP-United Disabled Successfully'));
-	}
-	
- 	_e('WP-United Disabled');
-	return;
-
-}
 
 
 /**
@@ -462,12 +427,6 @@ function wpu_ob_end_flush_all() {
 	}
 
 }
-
-
-
-
-
-
 
 
 /**

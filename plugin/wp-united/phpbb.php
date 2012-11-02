@@ -99,16 +99,17 @@ class WPU_Phpbb {
 		$this->make_phpbb_env();
 		
 		if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
-			wpu_disable_connection('error');
+			$wpUnited->disable_connection('error');
 		}
 		require_once($phpbb_root_path . 'common.' . $phpEx);
 		
+		// various tests for success:
 		if(!isset($user)) {
-			wpu_disable_connection('error');
+			$wpUnited->disable_connection('error');
 		}
 		
 		if(!is_object($user)) {
-			wpu_disable_connection('error');
+			$wpUnited->disable_connection('error');
 		}
 		
 		
@@ -144,7 +145,6 @@ class WPU_Phpbb {
 			trigger_error($user->lang['wpu_hook_error'], E_USER_ERROR);
 		}
 		
-		// @ wpSettings load used to happen here
 		
 		//fix phpBB SEO mod
 		global $phpbb_seo;

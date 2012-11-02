@@ -209,7 +209,60 @@ class WP_United_Basics {
 		} 
 
 	}
+	
+	protected function ajax_result($errMsg, $msgType = 'message') {
+		if($msgType == 'error') {
+			$errMsg = '[ERROR]' . $errMsg;
+		}
+		die($errMsg);
+	}
+	
+	protected function ajax_ok() {
+		$this->ajax_result('OK', 'message');
+	}
+	
+	/**
+ * Disable WPU and output result directly to the calling script
+ *
+ */
 
+public function disable_connection($type) {
+	
+	if(!$this->is_enabled()) {
+		$this->ajax_result(__('WP-United is already disabled'), 'message');
+	}
+	
+	$this->disable();
+	
+	switch ($type) {
+		case 'error':
+			switch ($this->get_last_run()) {
+				case 'disconnected':
+					$this->ajax_result(__('WP-United could not find phpBB at the selected path. WP-United is not connected.'), 'error');
+				break;
+				case 'connected':
+					$this->ajax_result(__('WP-United could not successfully run phpBB at the selected path. WP-United is halted.'), 'error');
+				break;
+				default:
+					$this->ajax_result(__('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.'), 'error');
+			}
+		break;
+		case 'server-error':
+			$this->ajax_ok();
+		break;
+		case 'manual':
+			$this->ajax_result(__('WP-United Disabled Successfully'), 'message');
+		break;
+		default:
+			_e('WP-United Disabled');
+	}
+ 	
+	return;
+
+}
+	
+
+	
 }
 
 
