@@ -26,7 +26,7 @@ if ( !defined('ABSPATH') ) {
 	exit;
 }
 
-
+// THESE ARE TO BE CLEANED UP::::
 add_action('comment_form', 'wpu_comment_redir_field');
 add_action('wp_head', 'wpu_inline_js');
 add_action('admin_menu', 'wpu_add_meta_box'); 
