@@ -60,9 +60,9 @@ if ( !defined('IN_PHPBB') )
  * (c) John Wells, 2009
 */
 class CSS_Magic {
-	var $css;
-	var $filename;
-	var $nestedItems;
+	private 	$css,
+				$filename,
+				$nestedItems;
 	
 	/**
 	 * If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
@@ -78,7 +78,7 @@ class CSS_Magic {
 	/**
 	 * Class constructor
 	 */
-	function CSS_Magic() {
+	public function __construct() {
 		$this->clear();
 		$this->filename = '';
 		$this->nestedItems = array();
@@ -86,7 +86,7 @@ class CSS_Magic {
 	/**
 	 * Private method to initialise or clear out internal representation
 	 */
-	function clear() {
+	private function clear() {
 		$this->css = array();
 		$this->nestedItems = array();
 	}
@@ -96,7 +96,7 @@ class CSS_Magic {
 	 * @param string $str A valid CSS string
 	 * @return The number of CSS keys stored
 	 */
-	function parseString($str) {
+	public function parseString($str) {
 		$keys = '';
 		
 		$Instr = $str;
@@ -139,7 +139,7 @@ class CSS_Magic {
 	 * @param string $filename The path and name of the file 
 	 * @param bool $clear Set to true to clear out the internal representation and start again. Leave false to add to what we already have.
 	 */
-	function parseFile($filename, $clear = false) {
+	public function parseFile($filename, $clear = false) {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
 		if(file_exists($filename)) {
@@ -151,7 +151,7 @@ class CSS_Magic {
 	/**
 	 * Add selector (private) -- adds a selector to the internal representation
 	 */
-	function addSelector($keys, $cssCode) {
+	private function addSelector($keys, $cssCode) {
 		$keys = trim($keys);
 		$cssCode = trim($cssCode);
 		
@@ -167,7 +167,7 @@ class CSS_Magic {
 	 * @param string $id The DOM ID to use
 	 * @param bool $removeBody Whether the body tag should be ignored
 	 */
-	function makeSpecificById($id, $removeBody = false) {
+	public function makeSpecificById($id, $removeBody = false) {
 		$this->_makeSpecific("#{$id}", $removeBody);
 	}
 	/**
@@ -175,7 +175,7 @@ class CSS_Magic {
 	 * @param string $class The document class to use
 	 * @param bool $removeBody Whether the body tag should be ignored
 	 */
-	function makeSpecificByClass($class, $removeBody = false) {
+	public function makeSpecificByClass($class, $removeBody = false) {
 		$this->_makeSpecific(".{$class}", $removeBody);
 	}
 	/**
@@ -183,7 +183,7 @@ class CSS_Magic {
 	 * @param string $classAndIdThe string to prepend
 	 * @param bool $removeBody Whether the body tag should be ignored
 	 */
-	function makeSpecificByIdThenClass($classAndId, $removeBody = false) {
+	public function makeSpecificByIdThenClass($classAndId, $removeBody = false) {
 		$this->_makeSpecific("#{$classAndId} .{$classAndId}", $removeBody);
 	}
 	/**
@@ -191,7 +191,7 @@ class CSS_Magic {
 	 * @param string prefix the prefix to apply
 	 * @param bool $IDs an array of IDs to modify
 	 */
-	function renameIds($prefix, $IDs) {
+	public function renameIds($prefix, $IDs) {
 		$fixed = array();
 		$searchStrings = array();
 		$replStrings = array();
@@ -214,7 +214,7 @@ class CSS_Magic {
 	 * @param string prefix the prefix to apply
 	 * @param bool $classess an array ofclasses to modify
 	 */	
-	function renameClasses($prefix, $classes) {
+	public function renameClasses($prefix, $classes) {
 		$fixed = array();
 		$searchStrings = array();
 		$replStrings = array();
@@ -238,7 +238,7 @@ class CSS_Magic {
 	 * @param string prefix the prefix to apply
 	 * @param bool  $removeBody: set to true to ignore body keys
 	 */
-	function _makeSpecific($prefix, $removeBody = false) {
+	private function _makeSpecific($prefix, $removeBody = false) {
 		$fixed = array();
 		// things that could be delimiting a "body" selector at the beginning of our string.
 		$seps = array(' ', '>', '<', '.', '#', ':', '+', '*', '[', ']', '?');
@@ -317,7 +317,7 @@ class CSS_Magic {
 	 * Removes common elements from CSS selectors
 	 * For example, this can be used to undo CSS magic additions
 	 */
-	function removeCommonKeyEl($txt) {
+	public function removeCommonKeyEl($txt) {
 		$newCSS = array();
 		foreach($this->css as $keyString => $cssCode) {
 			$newKey = trim(str_replace($txt, '', $keyString));
@@ -333,7 +333,7 @@ class CSS_Magic {
 	 * Returns all key classes and IDs
 	 * @return an array with all classes and IDs
 	 */
-	function getKeyClassesAndIDs() {
+	public function getKeyClassesAndIDs() {
 		$classes = array();
 		$ids = array();
 		foreach($this->css as $keyString => $cssCode) {
@@ -365,7 +365,7 @@ class CSS_Magic {
 	 * @param array $finds key elements to find
 	 * @param array $replacements Matching replacements for key elements
 	 */
-	function modifyKeys($finds, $replacements) {
+	public function modifyKeys($finds, $replacements) {
 		$theFinds = array();
 		$theRepl = array();
 		// First prepare the find/replace strings
@@ -386,9 +386,9 @@ class CSS_Magic {
 	
 
 	/*
-	 * Outputs all our stored, fixed (hopeffuly!) CSS
+	 * Outputs all our stored, fixed (hopefully!) CSS
 	 */
-	function getCSS() {
+	public function getCSS() {
 		$response = '';
 		foreach($this->css as $keyString => $cssCode) {
 			$keyString = str_replace('__ ', '', $keyString);
@@ -404,7 +404,7 @@ class CSS_Magic {
 	/**
 	 * Sends CSS directly to browser as text/css
 	 */
-	function sendCSS() {
+	public function sendCSS() {
 		header("Content-type: text/css");
 		echo $this->getCSS();
 	
