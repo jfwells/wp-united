@@ -560,6 +560,33 @@ class WPU_Phpbb {
 	}
 	
 	
+	
+	// Update blog link column
+	/**
+	 * @todo this doesn't need to happen every time
+	 */
+	public function update_blog_link($author) {
+		global $db;
+		
+		if(!$this->is_phpbb_loaded()) {
+			return '';
+		}
+		
+		$fStateChanged = $this->foreground();
+		
+		if ( !empty($author) ) {
+			$sql = 'UPDATE ' . USERS_TABLE . ' SET user_wpublog_id = ' . $author . " WHERE user_wpuint_id = '{$author}'";
+			if (!$result = $db->sql_query($sql)) {
+				return false;
+			}
+			$db->sql_freeresult($result);
+		}
+		$this->restore_state($fStateChanged);
+		return true;
+	}
+	
+	
+	
 	/**
 	 * Calculates the URL to the forum
 	 * @access private

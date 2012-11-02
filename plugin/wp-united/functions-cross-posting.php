@@ -668,4 +668,41 @@ function wpu_no_guest_comment_posting() {
 }
 
 
+/**
+ * Catches posts scheduled for future publishing
+ * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
+ */
+function wpu_capture_future_post($postID, $post) {
+	global $wpUnited, $phpbbForum;
+	
+	if ( ($post->post_status == 'future') && ($wpUnited->get_setting('integrateLogin')) ) {
+		if ( ($phpbbForum->user_logged_in()) && ($wpUnited->get_setting('xposting')) ) {
+			// If x-post forcing is turned on, we don't need to do anything
+			if( $wpUnited->get_setting('xpostforce') == -1) {
+				if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
+					
+					$forumID = (int)$_POST['sel_wpuxpost'];
+					
+					//only needs doing once
+					if(get_post_meta($postID, '_wpu_future_xpost', true) === $forumID) {
+						return;
+					}
+					
+					// Need to check authority here -- as we won't know for sure when the time comes to xpost
+					$can_crosspost_list = wpu_forum_xpost_list(); 
+					
+					if ( !in_array($forumID, (array)$can_crosspost_list['forum_id']) ) { 
+						return;
+					}
+					update_post_meta($postID, '_wpu_future_xpost', $forumID);
+					update_post_meta($postID, '_wpu_future_ip', $phpbbForum->get_userip());
+				}
+			} else {
+				update_post_meta($postID, '_wpu_future_ip', $phpbbForum->get_userip());
+			}
+		}
+	}
+}
+
+
 ?>
