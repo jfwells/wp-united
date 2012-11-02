@@ -135,20 +135,15 @@ class WP_United_Plugin extends WP_United_Basics {
 		require_once($this->pluginPath . 'login-integrator.php'); 
 		require_once($this->pluginPath . 'functions-cross-posting.php');
 	
-	
-		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
-		$this->process_adminpanel_actions();
-
 		require_once($this->pluginPath .  'phpbb.php');
 		$phpbbForum = new WPU_Phpbb();	
 		
+		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
+		$this->process_adminpanel_actions();
 
 
 		if(!$this->is_enabled()) { 
 			$this->set_last_run('disconnected');
-			
-			$this->settings['integrateLogin'] = 0;
-			$this->settings['showHdrFtr'] = 'NONE';
 			return;
 		} else {
 			$this->get_last_run();
@@ -169,7 +164,7 @@ class WP_United_Plugin extends WP_United_Basics {
 		}
 		
 		$this->set_last_run('connected');
-		
+
 		if($this->is_enabled()) {
 		
 			$this->load_phpbb();
@@ -255,18 +250,20 @@ class WP_United_Plugin extends WP_United_Basics {
 		// settings must be loaded before we transmit ourselves
 		// If this is an enable or disable request, they might not be as they are lazily loaded.
 		$this->load_settings();
-
-
+		
+		// store data before transmitting
+		if($enable) {
+			$this->enable();
+		} else {
+			$this->disable();
+		}
 		
 		$dataToStore = array($this->pluginPath, serialize($this));
 		$dataToStore = base64_encode(gzcompress(serialize($dataToStore)));
 		
 		if($phpbbForum->synchronise_settings($dataToStore)) { 
 			if($enable) {
-				$this->enable();
 				$this->set_last_run('working');
-			} else { 
-				$this->disable();
 			}
 			die('OK');
 		} else {
