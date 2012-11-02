@@ -210,6 +210,15 @@ class WP_United_Basics {
 
 	}
 	
+	public function version() {
+		if(empty($this->version)) {
+			require_once ($this->pluginPath . 'version.php');
+			global $wpuVersion;
+			$this->version = $wpuVersion;
+		}
+		return $this->version;
+	}
+	
 	protected function ajax_result($errMsg, $msgType = 'message') {
 		if($msgType == 'error') {
 			$errMsg = '[ERROR]' . $errMsg;

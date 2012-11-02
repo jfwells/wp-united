@@ -33,7 +33,7 @@ add_action('edit_post', 'wpu_justediting');
 add_action('publish_post', 'wpu_newpost', 10, 2);
 add_action('wp_insert_post', 'wpu_capture_future_post', 10, 2); 
 add_action('future_to_publish', 'wpu_future_to_published', 10); 
-add_action('admin_footer', 'wpu_put_powered_text');
+
 add_action('wp_head', 'wpu_done_head');
 add_action('upload_files_browse', 'wpu_browse_attachments');
 add_action('upload_files_browse-all', 'wpu_browse_attachments');
@@ -65,7 +65,7 @@ add_filter('upload_dir', 'wpu_user_upload_dir');
 add_filter('feed_link', 'wpu_feed_link');
 add_filter('comments_array', 'wpu_load_phpbb_comments', 10, 2);
 add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
-add_filter('page_link', 'wpu_modify_pagelink', 10, 2);
+
 add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
 add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
 add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
@@ -87,7 +87,12 @@ class WP_United_Plugin extends WP_United_Basics {
 			'comment_form'	=> 		'generate_smilies',
 		),
 
-		$filters = array();
+		$filters = array(
+			'page_link'		=>		array('fix_forum_link', 10, 2),
+			'admin_footer_text'		=>	'admin_footer_text',
+		
+		
+		);
 		
 	protected	
 		$wordpressLoaded = true;
@@ -100,12 +105,20 @@ class WP_United_Plugin extends WP_United_Basics {
 		//Rather than using the decorator pattern, we can just import the style keys.
 		$this->styleKeys = $existingObject->get_style_key();
 		
-		foreach( $this->actions as $action => $classMember) {
-			add_action( $action, array( $this, $classMember ) );
+		foreach($this->actions as $action => $details) {
+			if(is_array($details)) {
+				add_action($action, array($this, $details[0]), $details[1], $details[2]);
+			} else {
+				add_action($action, array($this, $details));
+			}
 		}
 
-		foreach( $this->filters as $filter ) {
-		add_filter( $filter, array( $this, $filter ) );
+		foreach($this->filters as $filter => $details ) {
+			if(is_array($details)) {
+				add_filter($filter, array($this, $details[0]), $details[1], $details[2]);
+			} else {
+				add_filter($filter, array($this, $details));
+			}
 		}
 		unset($this->actions, $this->filters);
 		
@@ -343,10 +356,6 @@ class WP_United_Plugin extends WP_United_Basics {
 
 		if(is_admin()) {
 			
-			// styles we need across admin
-			wp_register_style('wpuAdminStyles', $this->pluginUrl . 'theme/admin-general.css');
-			wp_enqueue_style('wpuAdminStyles'); 
-			
 			require_once($this->pluginPath . 'settings-panel.php');
 			
 			// the settings page has detected an error and asked to abort
@@ -371,17 +380,30 @@ class WP_United_Plugin extends WP_United_Basics {
 		}
 	}
 	
-	public function version() {
-		if(empty($this->version)) {
-			require_once ($this->pluginPath . 'version.php');
-			global $wpuVersion;
-			$this->version = $wpuVersion;
+	/**
+	 * Check the permalink to see if this is a link to the forum. 
+	 * If it is, replace it with the real forum link
+	 */
+	public function fix_forum_link($permalink, $post) { // wpu_modify_pagelink($permalink, $post) {
+		global $phpbbForum, $phpEx;
+		
+		if ( $this->get_setting('useForumPage') ) {
+			$forumPage = get_option('wpu_set_forum');
+			if(!empty($forumPage) && ($forumPage == $post)) {
+				// If the forum and blog are both in root, add index.php to the end
+				$forumPage = ($phpbbForum->url == get_option('siteurl')) ? $phpbbForum->url . 'index.' . $phpEx : $phpbbForum->url;
+				return $forumPage; 
+			}
 		}
-		return $this->version;
+		
+		return $permalink;
 	}
 	
+	public function admin_footer_text($inbound) {
+		$inbound .= ' <span id="footer-wpunited">' . __('phpBB integration by <a href="http://www.wp-united.com/">WP-United</a>.') . '</span>';
+		return $inbound;
+	}
 	
-
 	
 }
 
@@ -427,40 +449,6 @@ function wpu_ob_end_flush_all() {
 	}
 
 }
-
-
-/**
- * Check the permalink to see if this is a link to the forum. 
- * If it is, replace it with the real forum link
- */
-function wpu_modify_pagelink($permalink, $post) {
-	global $wpUnited, $phpbbForum, $phpEx;
-	
-	if ( $wpUnited->get_setting('useForumPage') ) {
-		$forumPage = get_option('wpu_set_forum');
-		if(!empty($forumPage) && ($forumPage == $post)) {
-			// If the forum and blog are both in root, add index.php to the end
-			$forumPage = ($phpbbForum->url == get_option('siteurl')) ? $phpbbForum->url . 'index.' . $phpEx : $phpbbForum->url;
-			return $forumPage; 
-		}
-	}
-	
-	return $permalink;
-}
-
-
-
-
-/**
- * Adds the WP-United copyright statement in all dashboards
- * Please DO NOT remove this!
- */
-function wpu_put_powered_text() {
-	global $phpbbForum;
-	echo '<p  id="poweredby">' . sprintf($phpbbForum->lang['wpu_dash_copy'], '<a href="http://www.wp-united.com">', '</a>') . '</p>';
-}
-
-
 
 
 

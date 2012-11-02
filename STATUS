@@ -13,7 +13,7 @@ WORKING! but...
 
 WP top bar gets very upset on forward integration --- due to css magic not altering inline styles in head after styles reset??
 DTD option not having any effect
-
+WPU cache not cleared on style changes
 
 
 User integration status:
