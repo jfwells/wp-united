@@ -84,9 +84,9 @@ class CSS_Magic {
 		$this->nestedItems = array();
 	}
 	/**
-	 * Private method to initialise or clear out internal representation
+	 * initialise or clear out internal representation
 	 */
-	private function clear() {
+	public function clear() {
 		$this->css = array();
 		$this->nestedItems = array();
 	}

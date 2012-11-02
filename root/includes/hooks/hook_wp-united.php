@@ -99,7 +99,7 @@ if (($wpUnited->get_setting('showHdrFtr') == 'REV') && !defined('WPU_BLOG_PAGE')
  * INVOKE THE WP ENVIRONMENT NOW:
 */
 if(!empty($wpuIntegrationMode)) { 
-	require_once($wpUnited->get_setting('wpPluginPath') . 'wordpress-runner.' .$phpEx); 
+	require_once($wpUnited->pluginPath . 'wordpress-runner.' .$phpEx); 
 }
 
 /**
