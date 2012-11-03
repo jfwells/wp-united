@@ -67,7 +67,7 @@ class CSS_Magic {
 	/**
 	 * If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
 	 */
-	function getInstance () {
+	public static function getInstance () {
 		static $instance;
 		if (!isset($instance)) {
 			$instance = new CSS_Magic();

@@ -116,14 +116,25 @@ function clean_path($value) {
 function wpu_compute_path_difference($filePath, $currLoc = false) {
 	
 	$absFileLoc = clean_path(realpath($filePath));
-	
+
+	if(is_dir($absFileLoc)) {
+		$absFileLoc = add_trailing_slash($absFileLoc);
+	}
+
 	if($currLoc === false) {
 		$currLoc = getcwd();
 	}
 	
-	$absCurrLoc = add_trailing_slash(clean_path(realpath($currLoc)));
+	$absCurrLoc = clean_path(realpath($currLoc));
+	
+	if(is_dir($absCurrLoc)) {
+		$absCurrLoc = add_trailing_slash($absCurrLoc);
+	}
+	
+	// A fix for the WP-United build environment symlinks
+	$absCurrLoc = str_replace('wpu-buildenv/sources/wp-united/root/wp-united/', 'wpu-buildenv/sources/phpbb/wp-united/', $absCurrLoc);
+	
 	$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
-
 
 	$absFileLoc = explode($pathSep, $absFileLoc);
 	$absCurrLoc = explode($pathSep, $absCurrLoc);

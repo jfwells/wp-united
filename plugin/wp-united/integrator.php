@@ -12,9 +12,9 @@
 */
 global $connectSuccess, $wpUnited, $forum_page_ID, $phpbbForum, $wpuIntegrationMode;
 
-global $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
+global $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
-global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCache, $config, $auth;
+global $wpContentVar, $outerContent, $phpbb_root_path, $phpEx, $wpuCache;
 
 if($connectSuccess) {
 	
@@ -44,7 +44,6 @@ if($connectSuccess) {
 		wp();
 		if (!$latest ) {
 			if ($wpuIntegrationMode != 'template-p-in-w') {
-				global $wpuNoHead, $wpSetngs;
 				eval($wpUtdInt->fix_template_loader());
 			}
 		} else {
@@ -182,9 +181,9 @@ require($wpUnited->pluginPath . 'template-integrator.php');
  * WordPress still appears inside the phpBB header/footer in these circumstances.
  */
 function wpu_complete() {
-	global $wpUnited, $user, $userdata, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $module, $latest, $wpu_page_title, $wp_version, $lDebug;
+	global $wpUnited, $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
 	global $innerHeadInfo, $innerContent;
-	global $wpContentVar, $lDebug, $outerContent, $phpbb_root_path, $phpEx, $wpuCache, $config, $auth;
+	global $wpContentVar, $outerContent, $phpbb_root_path, $phpEx, $wpuCache;
 	
 	$$wpContentVar = ob_get_contents();
 	ob_end_clean();

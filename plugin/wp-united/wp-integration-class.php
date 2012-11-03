@@ -474,6 +474,7 @@ Class WPU_Integration {
 	 * Used by usercp_register.php - changes the WP username.
 	 * @param string $oldName The old WordPress username
 	 * @param string $newName The new WordPress username
+	 * TODO: REMOVE THIS FROM HERE!
 	 */
 	function wp_change_username($oldName, $newName) {
 			// set the global vars we need
@@ -561,8 +562,5 @@ Class WPU_Integration {
 		}
 	}
 
-
-	
-	
 }
 ?>

@@ -139,7 +139,7 @@ function wpu_fix_css_urls($filePath, &$css) {
 	global $phpbb_root_path, $wpUnited;
 	require_once($wpUnited->pluginPath . 'functions-general.php');
 	$relPath = wpu_compute_path_difference($filePath, realpath(add_trailing_slash(getcwd()) . 'style-fixer.php'));
-	
+
 	preg_match_all('/url\(.*?\)/', $css, $urls);
 	if(is_array($urls[0])) {
 		foreach($urls[0] as $url) {
