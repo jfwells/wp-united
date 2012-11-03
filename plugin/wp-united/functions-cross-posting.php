@@ -17,6 +17,129 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 	exit;
 }
 
+// Cross-posting related actions and filters. Hooks related to adding the postboxes are in wp-united.php;
+add_action('comment_form', 'wpu_comment_redir_field');
+add_action('pre_comment_on_post', 'wpu_comment_redirector');
+add_action('comments_open', 'wpu_comments_open', 10, 2);
+
+add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
+add_filter('comments_array', 'wpu_load_phpbb_comments', 10, 2);
+add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
+add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
+add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
+add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
+
+
+
+/**
+ *  Display the relevant cross-posting box, and store the permissions list in global vars for future use.
+ * For WP >= 2.5, we set the approproate callback function. 
+ */
+function wpu_add_xposting_box() {
+	global $phpbbForum, $wpUnited, $can_xpost_forumlist, $already_xposted, $forceXPosting;
+	
+	if($wpUnited->get_setting('xpostforce') > -1) {
+		// Add forced xposting info box
+		$forceXPosting = wpu_get_forced_forum_name($wpUnited->get_setting('xpostforce'));
+		if($forceXPosting !== false) {
+			add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_forcexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
+		}
+	} else {	
+		// Add xposting choice box
+		if ( !($already_xposted = wpu_get_xposted_details()) ) { 
+			$can_xpost_forumlist = wpu_forum_xpost_list(); 
+		}
+
+		if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
+			add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_xpost_box_title'], 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
+		}
+	}
+}
+
+
+
+
+/**
+ * Callback function to add box to the write/(edit) post page.
+ */
+function wpu_add_postboxes() {
+	global $can_xpost_forumlist, $already_xposted, $phpbbForum, $wpUnited;
+?>
+	<div id="wpuxpostdiv" class="inside">
+	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
+	<label for="wpu_chkxpost" class="selectit">
+		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1001" />
+		<?php echo $phpbbForum->lang['wpu_xpost_box_title']; ?><br />
+	</label><br />
+	<label for="wpu_selxpost">Select Forum:</label><br />
+		<select name="sel_wpuxpost" id="wpu_selxpost" <?php if ($already_xposted) echo 'disabled="disabled"'; ?>> 
+		<?php
+			if ($already_xposted) {
+				echo "<option value=\"{$already_xposted['forum_id']}\">{$already_xposted['forum_name']}</option>";
+			} else {
+				foreach ( $can_xpost_forumlist['forum_id'] as $key => $value ) {
+					echo "<option value=\"{$value}\" ";
+					echo ($key == 0) ? 'selected="selected"' : '';
+					echo ">{$can_xpost_forumlist['forum_name'][$key]}</option>";
+				}
+			} ?>
+			</select>
+	
+			 <?php if($wpUnited->get_setting('xposttype') == 'ASKME') {
+				$excerptState = 'checked="checked"';
+				$fullState = '';
+				if (isset($_GET['post'])) {
+					$postID = (int)$_GET['post'];
+					if(get_post_meta($postID, '_wpu_posttype', true) != 'excerpt') {
+						$fullState = 'checked="checked"';
+						$excerptState = '';
+					}
+				}
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
+			} ?>
+
+	</div>
+<?php
+}
+
+/**
+ * Adds a "Force cross-posting" info box
+ */
+function wpu_add_forcebox($forumName) {
+	global $forceXPosting, $phpbbForum, $wpUnited;
+
+	$showText =  (wpu_get_xposted_details()) ? $phpbbForum->lang['wpu_forcexpost_update'] : $phpbbForum->lang['wpu_forcexpost_details'];
+
+?>
+	<div id="wpuxpostdiv" class="inside">
+	<p> <?php echo sprintf($showText, $forceXPosting); ?></p>
+	<?php if($wpUnited->get_setting('xposttype') == 'ASKME') {
+				$excerptState = 'checked="checked"';
+				$fullState = '';
+				if (isset($_GET['post'])) {
+					$postID = (int)$_GET['post'];
+					if(get_post_meta($postID, '_wpu_posttype', true) != 'excerpt') {
+						$fullState = 'checked="checked"';
+						$excerptState = '';
+					}
+				}
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
+			} ?>
+	</div>
+<?php
+}
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Cross-posts a blog-post that was just added, to the relevant forum

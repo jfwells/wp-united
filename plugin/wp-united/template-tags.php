@@ -110,7 +110,7 @@ function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
 				if ( $show_fullname && ($author->first_name != '' && $author->last_name != '') ) {
 					$name = "{$author->first_name} {$author->last_name}";
 				}
-				$avatar = avatar_create_image($author); 
+				$avatar = wpu_avatar_create_image($author); 
 				$blogTitle = ( empty($author->blog_title) ) ? $phpbbForum->lang['default_blogname'] : wpu_censor($author->blog_title);
 				$blogDesc = ( empty($author->blog_tagline) ) ? $phpbbForum->lang['default_blogdesc'] : wpu_censor($author->blog_tagline);
 				$blogPath = get_author_posts_url($author->ID, $author->user_nicename);
@@ -239,7 +239,7 @@ global $comment, $images, $wpUnited;
 	}
 	//Now we have ID
 	$author = get_userdata($id);
-	$image = avatar_create_image($author);
+	$image = wpu_avatar_create_image($author);
 	if ( !empty($image) ) {
 		return $image;
 	} 
@@ -267,7 +267,7 @@ function avatar_poster($default = true) {
  */
 function get_avatar_poster($default = true) {
 	global $images, $authordata, $phpbbForum;
-	$image = avatar_create_image($authordata);
+	$image = wpu_avatar_create_image($authordata);
 	if ( !empty($image) ) {
 		return $image;
 	} 
@@ -299,7 +299,7 @@ function get_avatar_reader($default = true) {
 	get_currentuserinfo();
 	$image = false;
 	if ( !empty($user_ID) ) {
-		$image = avatar_create_image($userdata);
+		$image = wpu_avatar_create_image($userdata);
 	}
 	if ( !empty($image) ) {
 		return $image;
@@ -321,7 +321,7 @@ function get_avatar_reader($default = true) {
  * @author John Wells
  * @access private
  */
-function avatar_create_image($user) {
+function wpu_avatar_create_image($user) {
 	$avatar = '';
 	if ( !empty($user->ID) ) {
 		global $phpbbForum, $phpbb_root_path, $phpEx;

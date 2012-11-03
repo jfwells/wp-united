@@ -442,7 +442,7 @@ class WPU_Phpbb {
 		if($i >= 20) {
 			$smlOutput .= '</span>';
 			if($i>20) {
-				$smlOutput .= '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . $this->lang['wpu_more_smilies'] . '&nbsp;&raquo;</a></span>';
+				$smlOutput .= '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . __('More smilies') . '&nbsp;&raquo;</a></span>';
 			}
 		}
 		$smlOutput .= '</span>';
@@ -563,7 +563,7 @@ class WPU_Phpbb {
 	
 	// Update blog link column
 	/**
-	 * @todo this doesn't need to happen every time
+	 * @TODO: this doesn't need to happen every time
 	 */
 	public function update_blog_link($author) {
 		global $db;
@@ -584,6 +584,44 @@ class WPU_Phpbb {
 		$this->restore_state($fStateChanged);
 		return true;
 	}
+	
+	public function add_smilies($postContent, $maxSmilies) {
+		static $match;
+		static $replace;
+		global $db;
+	
+
+		// See if the static arrays have already been filled on an earlier invocation
+		if (!is_array($match)) {
+		
+			$fStateChanged = $this->foreground();
+			
+			$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
+
+			while ($row = $db->sql_fetchrow($result)) {
+				if (empty($row['code'])) {
+					continue; 
+				} 
+				$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
+				$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $this->url . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+			}
+			$db->sql_freeresult($result);
+			
+			$this->restore_state($fStateChanged);
+			
+		}
+		if (sizeof($match)) {
+			if ($maxSmilies) {
+				$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
+				unset($matches);
+			}
+			
+			// Make sure the delimiter # is added in front and at the end of every element within $match
+			$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
+		}
+		
+		return $postContent;
+	}	
 	
 	
 	

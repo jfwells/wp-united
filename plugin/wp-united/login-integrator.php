@@ -218,6 +218,96 @@ function wpu_find_next_avail_name($name, $package = 'wp') {
 }
 
 /**
+* Function 'wpu_fix_blank_username()' - Generates a username in WP when the sanitized username is blank,
+* as phpbb is more liberal in user naming
+* Originally by Wintermute
+* If the sanitized userLogin is blank, create a random
+* username inside WP. The userLogin begins with WPU followed
+* by a random number (1-10) of digits between 0 & 9
+* Also, check to make sure the userLogin is unique
+* @since WP-United 0.7.1
+*/
+function wpu_fix_blank_username($userLogin) {
+	if (empty($userLogin)){
+		$foundFreeName = FALSE;
+		while ( !$foundFreeName ) {
+			$userLogin = 'WPU';
+			srand(time());
+			for ($i=0; $i < (rand()%9)+1; $i++)
+				$userLogin .= (rand()%9);
+			if ( !username_exists($userLogin) )
+				$foundFreeName = TRUE;
+		}
+	}
+	return $userLogin;
+}
+
+
+/**
+ * Validates a new or prospective WordPress user in phpBB
+ * @param string $username username
+ * @param string $email e-mail
+ * @param WP_Error $errors WordPress error object
+ * @return bool|WP_Error false (on success) or modified WP_Error object (on failure)
+ */
+function wpu_validate_new_user($username, $email, $errors) {
+	global $phpbbForum;
+	$foundErrors = 0;
+	
+	
+	if(function_exists('phpbb_validate_username')) {
+		$fStateChanged = $phpbbForum->foreground();
+		$result = phpbb_validate_username($username, false);
+		$emailResult = validate_email($email);
+		$phpbbForum->restore_state($fStateChanged);
+
+		if($result !== false) {
+			switch($result) {
+				case 'INVALID_CHARS':
+					$errors->add('phpbb_invalid_chars', __('The username contains invalid characters'));
+					$foundErrors++;
+					break;
+				case 'USERNAME_TAKEN':
+					$errors->add('phpbb_username_taken', __('The username is already taken'));
+					$foundErrors++;
+					break;
+				case 'USERNAME_DISALLOWED':
+					default;
+					$errors->add('phpbb_username_disallowed', __('The username you chose is not allowed'));
+					$foundErrors++;
+					break;
+			}
+		}
+		
+		if($emailResult !== false) {
+			switch($emailResult) {
+				case 'DOMAIN_NO_MX_RECORD':
+					$errors->add('phpbb_invalid_email_mx', __('The email address does not appear to exist (No MX record)'));
+					$foundErrors++;
+					break;
+				case 'EMAIL_BANNED':
+					$errors->add('phpbb_email_banned', __('The e-mail address is banned'));
+					$foundErrors++;
+					break;
+				case 'EMAIL_TAKEN':
+					$errors->add('phpbb_email_taken', __('The e-mail address is already taken'));
+					break;
+				case 'EMAIL_INVALID':
+					default;
+					$errors->add('phpbb_invalid_email', __('The email address is invalid'));
+					$foundErrors++;
+					break;									
+			}
+		}
+
+	}
+	return ($foundErrors) ? $errors : false;
+	
+}
+
+
+
+/**
  * Creates a new integrated user in phpBB to match a given WordPress user
  * @param int $userID the WordPress userID
  * @return int < 1 on failure; >=1 phpbb User ID on success
