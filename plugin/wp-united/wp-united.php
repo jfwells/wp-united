@@ -30,7 +30,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 	protected
 		$actions = array(
-			'init'					=>		'init_plugin',
+			'plugins_loaded'		=>		'init_plugin',  // this should be 'init', but we want to play with current_user, which comes earlier
 			'wp_logout'				=>		'phpbb_logout',
 			'comment_form'			=> 		'generate_smilies',
 			'wp_head'				=>		'add_head_marker',

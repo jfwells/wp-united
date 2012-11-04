@@ -17,8 +17,15 @@ WPU cache not cleared on style changes
 
 
 User integration status:
+
+---- moved plugin load event to plugins_loaded so we can get in before set_current_user.
+------ However now we should move user integration from plugin init to hook into set_current_user
+------ WP passwords work in phpBB but phpBB passwords don't work in WP! $H$ and $P$ are ok, but only one-way compatible!
+------ Don't demote main WP admin user in wpu_set_role!!!!!
+
+
 -- ignore/remove phpBB/WordPress master
-- Disable auto acct creation/login
+- Disable auto acct creation (?)
 
 Auto-register in phpBB on WP reg [done!]
 Auto-register in WP on phpBB reg
@@ -31,13 +38,12 @@ WP login on phpBB login
 -- WP - phpBB password translation isn't working
 
 
-Disable JIT WP user creation
 
 Auto-delete from other side????? [to consider -- best to use admin panel]
 
 
 
-previously integrated phpbb users but with missing WP cunterparts show as integrated in the user mapper (or leave it, they shouldn't become unintegrated)
+previously integrated phpbb users but with missing WP counterparts show as integrated in the user mapper (or leave it, they shouldn't become unintegrated)
 top line in mapper unclickable
 
 

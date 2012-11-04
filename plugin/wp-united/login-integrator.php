@@ -5,8 +5,8 @@
 * WP-United Login Integrator
 *
 * @package WP-United
-* @version $Id: v0.8.5RC2 2010/02/06 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2010 wp-united.com
+* @version $Id: v0.8.5RC2 2012/11/04 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
@@ -21,7 +21,7 @@ if ( !defined('ABSPATH') ) {
 /**
  * The main login integration routine
  */
-function wpu_integrate_login() {
+function wpu_integrate_login() { 
 	global $wpUnited, $lDebug, $phpbbForum;
 	
 	require_once($wpUnited->pluginPath . 'debugger.php');
@@ -100,6 +100,7 @@ function wpu_int_phpbb_logged_in() {
 		return get_currentuserinfo();
 	}
 
+
 	// This user is logged in to phpBB and needs to be integrated. Do they already have a WP account?
 	if($integratedID = wpu_get_integration_id() ) {
 	
@@ -111,12 +112,13 @@ function wpu_int_phpbb_logged_in() {
 		// must set this here to prevent recursion
 		wp_set_current_user($wpUser->ID);
 
-		wpu_set_role($wpUser->ID, $userLevel);
+		wpu_set_role($wpUser->ID, $userLevel);   // TODO: Stop killing main WP admin role
 		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
 		wp_set_auth_cookie($wpUser->ID);
 		return $wpUser->ID;
 		
-	} else {
+	} else {  
+		
 		// to prevent against recursion in strange error scenarios
 		if(defined('WPU_CREATED_WP_USER')) {
 			return WPU_CREATED_WP_USER;
@@ -136,10 +138,10 @@ function wpu_int_phpbb_logged_in() {
 		); 
 		
 		// remove WP-United hook so we don't get stuck in a loop on new user creation
-		if(!remove_action('user_register', 'wpu_check_new_user_after', 10, 1)) {
+		if(!remove_action('user_register', array($wpUnited, 'process_new_wp_reg'), 10, 1)) {
 			return false;
 		}
-		
+
 		$newUserID = wp_insert_user($newWpUser);
 		
 		// reinstate the hook

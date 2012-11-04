@@ -395,7 +395,10 @@ Class WPU_Integration {
 		}
 		
 		if ( defined('WPU_PERFORM_ACTIONS') ) {
-			$this->prepare($GLOBALS['wpu_add_actions']);
+			global $wpu_add_actions;
+			if(isset($wpu_add_actions)) {
+				$this->prepare($wpu_add_actions);
+			}
 		}
 		
 		if ( !$this->wpu_compat ) {
