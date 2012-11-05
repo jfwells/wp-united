@@ -31,6 +31,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	protected
 		$actions = array(
 			'plugins_loaded'		=>		'init_plugin',  // this should be 'init', but we want to play with current_user, which comes earlier
+			'set_current_user'		=>		'integrate_users',
 			'wp_logout'				=>		'phpbb_logout',
 			'comment_form'			=> 		'generate_smilies',
 			'wp_head'				=>		'add_head_marker',
@@ -159,11 +160,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		}
 
-		//TODO: MOVE THIS TO PROPER HOOKS!
-		if($this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT') ) {
-				wpu_integrate_login();
-		}
-		
 		return true; 
 			
 	}
@@ -271,12 +267,16 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		// they might not be as they are lazily loaded.
 		$this->load_settings();
 		
-		
 		$data = array_merge($this->settings, (array)$data); 
 		update_option('wpu-settings', $data);
 		$this->settings = $data;
-		
-		
+
+	}
+	
+	public function integrate_users() {
+		if($this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT')) {
+			wpu_integrate_login();
+		}
 	}
 	
 	/**

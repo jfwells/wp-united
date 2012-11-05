@@ -101,7 +101,7 @@ function wpu_int_phpbb_logged_in() {
 	}
 
 
-	// This user is logged in to phpBB and needs to be integrated. Do they already have a WP account?
+	// This user is logged in to phpBB and needs to be integrated. Do they already have an integrated WP account?
 	if($integratedID = wpu_get_integration_id() ) {
 	
 		// they already have a WP account, log them in to it and ensure they have the correct details
@@ -119,6 +119,9 @@ function wpu_int_phpbb_logged_in() {
 		
 	} else {  
 		
+
+		
+
 		// to prevent against recursion in strange error scenarios
 		if(defined('WPU_CREATED_WP_USER')) {
 			return WPU_CREATED_WP_USER;
@@ -538,8 +541,6 @@ function wpu_get_integration_id($userID = 0) {
 function wpu_get_integrated_phpbbuser($userID = 0) {
 	global $current_user, $phpbbForum, $db;
 
-	
-		
 	$userID = (int)$userID;
 	
 	if($userID == 0) {
@@ -616,33 +617,14 @@ function wpu_get_user_level() {
 
 function wpu_permissions_list() {
 	return array(
-		'u_wpu_subscriber' 		=>	'subscriber',
+		'u_wpu_subscriber' 			=>	'subscriber',
 		'u_wpu_contributor' 		=>	'contributor',
 		'u_wpu_author' 				=>	'author',
 		'm_wpu_editor' 				=>	'editor',
-		'a_wpu_administrator' 	=>	'administrator'
+		'a_wpu_administrator' 		=>	'administrator'
 	);
 }
 
-
-/**
- * Logs out from WP
- * Not currently used
- */
-function wpu_wp_logout_legacy() {
-	wp_logout();
-	unset($_COOKIE[AUTH_COOKIE]);
-	unset($_COOKIE[SECURE_AUTH_COOKIE]);
-	unset($_COOKIE[LOGGED_IN_COOKIE]);
-	// prior to WP2.5 we did wp_clearcookie(); rather than the above
-	
-	do_action('wp_logout');
-	wp_set_current_user(0, 0);
-	nocache_headers();
-	unset($_COOKIE[USER_COOKIE]);
-	unset($_COOKIE[PASS_COOKIE]);
-	
-}
 
 /**
  * Updates the Integration ID stored in phpBB profile
@@ -804,35 +786,6 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 
 
 
-/**
- * Log users into WordPresss -- It's a private function, designed to be called from
- * do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
- */ // TODO: KILL THIS !!!!!!!!!!!!!!!!!!!!!!!
-function wpu_sign_in($wpUsr, $pass) { 
-
-	/* This overrides authentication in wp_check_password() [wp-functions.php]
-	 * This is OK to set here, as phpBB has already dealt with integration.
-	 * DO NOT define this anywhere else, ever!
-	 */
-	define('PASSWORD_ALREADY_HASHED', TRUE);	
-	
-	global $error;
-	if ( function_exists('wp_signon') ) {
-		$result = wp_signon(array('user_login' => $wpUsr, 'user_password' => $pass, 'remember' => false));
-		if ( !is_wp_error($result) ) {
-			return true;
-		} 
-		$error = $result->get_error_message();
-	} else { 
-		if ( wp_login($wpUsr, md5($pass), true) ) {
-			wp_setcookie($wpUsr, md5($pass), true, '', '', false);
-			do_action('wp_login', $wpUsr);
-			return true;
-		}
-	}
-	return false;
-}
-
 
 /**
  * Sets the user role before they get logged in
@@ -841,7 +794,7 @@ function wpu_sign_in($wpUsr, $pass) {
  * @param int $id WordPress user ID
  * @param string $userLevel WordPress role
  */
-function wpu_set_role($id, $userLevel) {
+function wpu_set_role($id, $userLevel) { 
 	$user = new WP_User($id);
 	if($user->roles != array($userLevel)) { 
 		$user->set_role($userLevel);

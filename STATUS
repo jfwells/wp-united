@@ -19,9 +19,9 @@ WPU cache not cleared on style changes
 User integration status:
 
 ---- moved plugin load event to plugins_loaded so we can get in before set_current_user.
------- However now we should move user integration from plugin init to hook into set_current_user
+------ user integration now happens in set_current_user hook rather than during plugin init
 ------ wp password now properly hashed using wpu_make_profiles_consistent() :-)
------- Don't demote main WP admin user in wpu_set_role!!!!!
+------ Don't demote main WP admin user in wpu_set_role!!!!! *SET FROM ROLE HOOK, NOT PROCEDURALLY!*
 
 
 -- ignore/remove phpBB/WordPress master
