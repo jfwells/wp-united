@@ -20,7 +20,7 @@ User integration status:
 
 ---- moved plugin load event to plugins_loaded so we can get in before set_current_user.
 ------ However now we should move user integration from plugin init to hook into set_current_user
------- WP passwords work in phpBB but phpBB passwords don't work in WP! $H$ and $P$ are ok, but only one-way compatible!
+------ wp password now properly hashed using wpu_make_profiles_consistent() :-)
 ------ Don't demote main WP admin user in wpu_set_role!!!!!
 
 

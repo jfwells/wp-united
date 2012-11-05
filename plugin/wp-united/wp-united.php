@@ -606,7 +606,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function fix_blank_username($userLogin) {
 
 		if ($this->get_setting('integrateLogin')) { 
-			$userLogin = wpu_fix_blank_username();
+			$userLogin = wpu_fix_blank_username($userLogin);
 		}
 		return $userLogin;
 	}

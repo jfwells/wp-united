@@ -124,7 +124,6 @@ function wpu_int_phpbb_logged_in() {
 			return WPU_CREATED_WP_USER;
 		}
 		// they don't have an account yet, create one
-		require_once( ABSPATH . WPINC . '/registration.php');
 		$signUpName = $phpbbForum->get_username();
 		
 		if(! $signUpName = wpu_find_next_avail_name($signUpName, 'wp') ) {
@@ -145,7 +144,7 @@ function wpu_int_phpbb_logged_in() {
 		$newUserID = wp_insert_user($newWpUser);
 		
 		// reinstate the hook
-		add_action('user_register', 'wpu_check_new_user_after', 10, 1); 
+		add_action('user_register', array($wpUnited, 'process_new_wp_reg'), 10, 1); 
 		
 		if($newUserID) { 
 			
@@ -691,7 +690,7 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	if( empty($wpData->ID) ) {
 		return false;
 	}
-
+	$update = array();
 	$wpMeta = get_user_meta($wpData->ID);
 		
 	// initialise wp-united meta fields to prevent PHP notices later on
@@ -708,6 +707,7 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	}
 	
 	$doWpUpdate = false;
+	$updatingPassword = false;
 	// We only update the user's nicename, etc. on the first run -- they can change it thereafter themselves
 	if($newUser) {
 		if ( (!($pData['username'] == $wpData->user_nicename)) &&  (!empty($pData['username'])) ) {
@@ -739,9 +739,11 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	if(substr($pData['user_password'], 0, 3) == '$H$') {
 		$pData['user_password'] = substr_replace($pData['user_password'], '$P$', 0, 3);
 	}
-	
+
 	if ( ($pData['user_password'] != $wpDataArr['user_pass']) && (!empty($pData['user_password'])) && (isset($pData['user_password'])) ) {
-		$update['user_pass'] =$pData['user_password']; 
+		// We DON'T add the password to the update array as this causes WP to generate a new auth cookie too early!
+		// instead, we have to update the password by ourseles later.
+		$updatingPassword =$pData['user_password']; echo "UPDATING";
 	}
 	
 	if ( (!($pData['user_website'] == $wpDataArr['user_url'])) && (isset($pData['user_website'])) ) {
@@ -782,32 +784,22 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 		}
 	}								
 	if ( $doWpUpdate ) {
-		/**
-		 * We re-implement most of wp_update_user here so that we can override the password hashing
-		 * Before we just plugged wp_hash_password, but some naughty plugins (like Janrain) prevent us from
-		 * being able to do that
-		 */
 		
 		$update['ID'] = $wpData->ID;
-		require_once( ABSPATH . WPINC . '/registration.php');
-		$exstUser = get_userdata($update['ID']);
-		$exstUser = add_magic_quotes(get_object_vars($exstUser));
-		
-		$userdata = array_merge($exstUser, $update);
-		$user_id = wp_insert_user($userdata);
-		
-		$current_user = wp_get_current_user();
-		if ( $current_user->id == $ID ) {
-			if ( isset($update['user_pass']) ) {
-				wp_clear_auth_cookie();
-				wp_set_auth_cookie($ID);
-			}
-			return $update;
-		}
+		$userID = wp_update_user($update);
 	}
-
 	
-	return 0;
+	if($updatingPassword) { 
+		// need to update the password manually or it gets double-hashed:
+		global $wpdb;
+		$wpdb->update($wpdb->users, array('user_pass' => $updatingPassword) , array('ID' => $wpData->ID));	
+		$wpdb->print_error();
+		wp_clear_auth_cookie();
+		wp_set_auth_cookie($wpData->ID);
+	}
+	
+	return $update;
+
 }
 
 
@@ -815,7 +807,7 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 /**
  * Log users into WordPresss -- It's a private function, designed to be called from
  * do_integrate_login(). It handles the various methods of logging into WP, maintaining backwards compatibility
- */
+ */ // TODO: KILL THIS !!!!!!!!!!!!!!!!!!!!!!!
 function wpu_sign_in($wpUsr, $pass) { 
 
 	/* This overrides authentication in wp_check_password() [wp-functions.php]
