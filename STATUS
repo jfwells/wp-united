@@ -11,32 +11,31 @@ template integration status:
 
 WORKING! but...
 
+- need to remove admin bar on cached templates now
 WP top bar gets very upset on forward integration --- due to css magic not altering inline styles in head after styles reset??
 DTD option not having any effect
-WPU cache not cleared on style changes
+WPU cache not cleared on style changes [should be fixed]
 
 
 User integration status:
 
----- moved plugin load event to plugins_loaded so we can get in before set_current_user.
------- user integration now happens in set_current_user hook rather than during plugin init
------- wp password now properly hashed using wpu_make_profiles_consistent() :-)
------- Don't demote main WP admin user in wpu_set_role!!!!! *SET FROM ROLE HOOK, NOT PROCEDURALLY!*
+user integration now works reliably from either direction. Just need to: 
+- get make_profiles_consistent to work in both directions!! Then kill off old crufty avatar creation/ caching routines
+- clean up first user mapper tab and add option for "What should newly-created WP users integrate as?". 
+ ------ Maybe also add option to ignore role for already-integrated users??
+
 
 
 -- ignore/remove phpBB/WordPress master
-- Disable auto acct creation (?)
+- Disable auto acct creation (?) [ leaving as-is for now, works well and saves having to hook everything in phpBB]
 
 Auto-register in phpBB on WP reg [done!]
-Auto-register in WP on phpBB reg
+Auto-register in WP on phpBB reg [ no neeed, leaving JIT for now]
 
 phpBB / WP logout, both sides: [Mostly works, but fails from phpBB side when templates integrated]
 
-phpBB login on WP login
-WP login on phpBB login
-
--- WP - phpBB password translation isn't working
-
+phpBB login on WP login [ works on page view, not only login]
+WP login on phpBB login [ works on page view, not only login]
 
 
 Auto-delete from other side????? [to consider -- best to use admin panel]

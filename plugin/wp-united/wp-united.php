@@ -680,7 +680,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$errors = new WP_Error();
 			$user = get_userdata($userID);
 
-			$result = wpu_validate_new_user($user->user_login, $user-->user_email , $errors);
+			$result = wpu_validate_new_user($user->user_login, $user->user_email , $errors);
 
 			if($result !== false) { 
 				// An error occurred validating the new WP user, remove the user.

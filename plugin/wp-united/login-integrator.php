@@ -47,38 +47,42 @@ function wpu_int_phpbb_logged_out() {
 			
 	// Check if user is logged into WP
 	get_currentuserinfo();
-	if ( ! $wpUser = $current_user ) {
+	if(!$current_user->ID) {
 		return false;
 	}
+
+	
+	// TODO: THIS INTEGRATES **ALL** WP USERS TO A NEW PHPBB ACCOUNT IF THEY DON'T HAVE ONE ALREADY!!!
+	// TODO: Step 1 would be to check permissions of newly registered users in phpBB
 	
 	//if($wpUnited->get_settings('integsource') == 'wp') {
 	
 		$wpIntID = wpu_get_integrated_phpbbuser($wpUser->ID);
+		
+		
+		if(!$wpIntID) { // The user has no account in phpBB, so we create one:
+			
+			// We just create standard users here for now, no setting of roles
+			$phpbbID = wpu_create_phpbb_user($wpUser->ID);
+					
+			if($phpbbID == 0) {
+				wp_die('Could not add user to phpBB');
+			} else if($phpbbID == -1) {
+				wp_die('A suitable username could not be found in phpBB');
+			}	
+		} 
+		
+		// the user now has an integrated phpBB account, log them into it
+		$fStateChanged = $phpbbForum->foreground();
+		$user->session_create($wpIntID);
+		$phpbbForum->restore_state($fStateChanged);
 
-		if($wpIntID) {
-			// the user has an integrated phpBB account, log them into it
-			$fStateChanged = $phpbbForum->foreground();
-			$user->session_create($wpIntID);
-			$phpbbForum->restore_state($fStateChanged);
+		// TODO: MAKE THIS WORK BOTH WAYS!
+		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+
+		return $wpUser->ID;
 			
-			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
-			
-			return $wpUser->ID;
-			
-		} else { 
-			// DISABLED FOR NOW
-			// The user's account is NOT integrated!
-			// What to do?
-			// Need also WordPress->phpbb mapping to decide how to create a user
-			/* if( ! $signUpName =  wpu_find_next_avail_name($wpUser->user_login, 'PHPBB') ) {
-				return false;
-			} */
-			//$phpbbForum->add_user(xxxx) // see phpbb function user_add()
-			// CREATE USER
-			// MAP DETAILS
-			// LOG IN
-			/// [ or -- do all from phpbb ]
-		}
+
 	//}
 	
 	// this clears all WP-related cookies
@@ -120,11 +124,11 @@ function wpu_int_phpbb_logged_in() {
 	} else {  
 		
 
-		
+		static $createdUser;
 
 		// to prevent against recursion in strange error scenarios
-		if(defined('WPU_CREATED_WP_USER')) {
-			return WPU_CREATED_WP_USER;
+		if(isset($createdUser) && $createdUser > 0) {
+			return $createdUser;
 		}
 		// they don't have an account yet, create one
 		$signUpName = $phpbbForum->get_username();
@@ -159,7 +163,9 @@ function wpu_int_phpbb_logged_in() {
 				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
 				wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
 				wp_set_auth_cookie($wpUser->ID);
-				define('WPU_CREATED_WP_USER', $wpUser->ID); 
+				
+				$createdUser = $wpUser->ID;
+				
 				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
 				return $wpUser->ID; 
 			}
@@ -349,7 +355,7 @@ function wpu_create_phpbb_user($userID) {
 
 		wpu_update_int_id($pUserID, $wpUsr->ID);
 		/**
-		 * @TODO: make consistent from phpBB -> WordPress
+		 * @TODO: make consistent from WP -> phpBB
 		 */
 		//wpu_make_profiles_consistent($wpUsr, $wpuNewDetails, true);
 	}
