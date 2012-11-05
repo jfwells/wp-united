@@ -104,7 +104,7 @@ class WP_United_Basics {
 			'phpbbCensor' => 1,
 			'wpPageName' => 'page.php',
 			'phpbbPadding' =>  '6-12-6-12',
-			'mustLogin' => 0,
+			//'mustLogin' => 0,
 			//'upgradeRun' => 0,
 			'xposting' => 0,
 			'phpbbSmilies' => 0,

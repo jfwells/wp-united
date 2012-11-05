@@ -1184,10 +1184,6 @@ function wpu_settings_page() {
 						<p>Turn this option on if you want to use phpBB smilies in WordPress comments and posts.</p>
 						<input type="checkbox" id="wpusmilies" name="wpusmilies" <?php if($wpUnited->get_setting('phpbbSmilies')) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Use phpBB smilies in WordPress</label>	
 						
-						<h3>Make Blogs Private?</h3>
-						<p>If you turn this on, users will have to be logged in to VIEW blogs. This is not recommended for most set-ups, as WordPress will lose search engine visibility.</p>
-						<input type="checkbox" id="wpuprivate" name="wpuprivate" <?php if($wpUnited->get_setting('mustLogin')) { echo ' checked="checked" '; } ?> /><label for="wpuprivate">Make blogs private</label>							
-						
 					</div>
 					
 					<!--<div id="wputab-blogs">
@@ -1451,7 +1447,7 @@ function wpu_process_settings() {
 		$data = array_merge($data, array(
 			'phpbbCensor' 	=> (isset($_POST['wpucensor'])) ? 1 : 0,
 			'phpbbSmilies' 	=> (isset($_POST['wpusmilies'])) ? 1 : 0,
-			'mustLogin' 		=> (isset($_POST['wpuprivate'])) ? 1 : 0
+			//'mustLogin' 		=> (isset($_POST['wpuprivate'])) ? 1 : 0
 		));
 		
 	}

@@ -65,15 +65,6 @@ define('WPU_CACHE_ENABLED', TRUE);
  */
 define('WPU_CORE_CACHE_ENABLED', TRUE);
 
-/**
- * DISABLE WORDPRESS WP-LOGIN?
- * If all your users are integrated, you will want to disable access to wp-login.php. If you set this
- * option to TRUE, users who access wp-login.php will be redirected to the phpBB login.
- * 
- * If this is set to FALSE, logged-in, integrated users will automatically be redirected to the WordPress
- * dashboard, but since we don't know if logged-out users should be integrated, they will see the WordPress login form.
- */
-define('WPU_MUST_LOGIN', FALSE);
 
 /**
  * ENABLE LOGIN INTEGRATION DEBUG MODE?

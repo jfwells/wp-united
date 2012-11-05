@@ -684,7 +684,7 @@ function wpu_update_int_id($pID, $intID) {
  * @param mixed $pData phpBB user data
  * @param bool $newuser set to true to populate profile fields
  * @return mixed array of fields to update
- */
+ */ // TODO: Clean up long repetitive logic here and reduce multiple update_usermetas
 function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {	
 
 	if( empty($wpData->ID) ) {

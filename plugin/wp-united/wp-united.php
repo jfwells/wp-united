@@ -41,7 +41,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			'switch_theme'			=>		'clear_header_cache',
 			'shutdown'				=>		array('buffer_end_flush_all', 1),
 			'admin_menu'			=>		'add_xposting_box',
-			'wp_head' 				=>		'smiley_js_langs',
+			'wp_head' 				=>		'add_scripts',
 			'register_post'			=>		array('validate_new_user', 10, 3),
 			'user_register'			=>		array('process_new_wp_reg', 10, 1),
 		),
@@ -157,31 +157,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			//add_action('widgets_init', 'wpu_widgets_init_old');
 			add_action('widgets_init', 'wpu_widgets_init');
 		
-			if(!is_admin()) {
-				if ( (stripos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && $this->get_setting('integrateLogin') ) {
-					global $user_ID;
-					get_currentuserinfo();
-					if( ($phpbbForum->user_logged_in()) && ($id = get_wpu_user_id($user_ID)) ) {
-						wp_redirect(admin_url());
-					} else if ( (defined('WPU_MUST_LOGIN')) && WPU_MUST_LOGIN ) {
-						$login_link = append_sid('ucp.'.$phpEx.'?mode=login&redirect=' . urlencode(esc_attr(admin_url())), false, false, $GLOBALS['user']->session_id);		
-						wp_redirect($phpbbForum->url . $login_link);
-					}
-				} 
-			}
 		}
 
-		
-		// enqueue any JS we need
-		if ( $this->get_setting('phpbbSmilies') && !is_admin() ) {
-			wp_enqueue_script('wp-united', $this->pluginUrl . 'js/wpu-min.js', array(), false, true);
-		}
-		
-		// fix broken admin bar on integrated page
-		if(($this->get_setting('showHdrFtr') == 'FWD') && $this->get_setting('cssMagic')) {
-			wp_enqueue_script('wpu-fix-adminbar', $this->pluginUrl . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
-		}
-		
+		//TODO: MOVE THIS TO PROPER HOOKS!
 		if($this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT') ) {
 				wpu_integrate_login();
 		}
@@ -576,9 +554,19 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	 * Adds any required inline JS (for language strings)
+	 * Adds any required scripts and inline JS (for lang strings)
 	 */
-	public function smiley_js_langs() {
+	public function add_scripts() {
+		
+		// enqueue any JS we need
+		if ( $this->get_setting('phpbbSmilies') && !is_admin() ) {
+			wp_enqueue_script('wp-united', $this->pluginUrl . 'js/wpu-min.js', array(), false, true);
+		}
+		
+		// fix broken admin bar on integrated page
+		if(($this->get_setting('showHdrFtr') == 'FWD') && $this->get_setting('cssMagic')) {
+			wp_enqueue_script('wpu-fix-adminbar', $this->pluginUrl . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
+		}
 
 		// Rather than outputting the script, we just signpost any language strings we will need
 		// The scripts themselves are already enqueud.
