@@ -668,11 +668,11 @@ function wpu_update_int_id($pID, $intID) {
  * Arbitrates the user details - e-mail, password, website, aim, yim, between phpBB & WordPress -- called internally by integrate_login
  * Basically, just overwrites WP values with the current phpBB values.
  * We try to update these whenever they are changed, but that's not always the case, so for now we also do this on each access.
- *	@param mixed $wpData WordPress user data
+ * @param mixed $wpData WordPress user data
  * @param mixed $pData phpBB user data
  * @param bool $newuser set to true to populate profile fields
  * @return mixed array of fields to update
- */ // TODO: Clean up long repetitive logic here and reduce multiple update_usermetas
+ */
 function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {	
 
 	if( empty($wpData->ID) ) {
@@ -680,110 +680,65 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 	}
 	$update = array();
 	$wpMeta = get_user_meta($wpData->ID);
-		
-	// initialise wp-united meta fields to prevent PHP notices later on
-	$wpuSpecialFields = array('wpu_avatar_width', 'wpu_avatar_height', 'wpu_avatar_type', 'wpu_avatar');
-	foreach($wpuSpecialFields as $key) {
-		if(!isset($wpMeta[$key])) {
-			$wpMeta[$key] = '';
-		}
-	}
 	
-	// we use this so we can direct to their phpBB profile without faffing around
+	$doWpUpdate = false;
+	
+	// set integration ID on WP side. phpBB is still used as the canonical side if both exist.
 	if ($pData['user_id'] != $wpData->phpbb_userid) {
 		update_user_meta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
 	}
 	
-	$doWpUpdate = false;
-	$updatingPassword = false;
+	
 	// We only update the user's nicename, etc. on the first run -- they can change it thereafter themselves
 	if($newUser) {
-		if ( (!($pData['username'] == $wpData->user_nicename)) &&  (!empty($pData['username'])) ) {
+		if ( (!empty($pData['username'])) && !($pData['username'] == $wpData->user_nicename) ) {
 			update_user_meta( $wpData->ID, 'phpbb_userLogin', $pData['username']);
-			$update['user_nicename'] = $pData['username'];
-			$update['nickname'] = $pData['username'];
-			$update['display_name'] = $pData['username'];
+			
+			list($update['user_nicename'], $update['nickname'], $update['display_name']) = $pDate['username'];
 			$doWpUpdate = true;
 		}
 	}
 	
-	// When items are not set, the WP User object variables are non-existent.
-	// So we cast the object to an array with all fields set
-	$fields = array('user_email', 'user_pass', 'user_url', 'aim', 'yim', 'jabber');
-	foreach($fields as $field) {
-		if(isset($wpData->$field)) {
-			$wpDataArr[$field] = $wpData->$field;
-		} else {
-			$wpDataArr[$field] = '';
-		}
-	}
-	
-	if ( (!($pData['user_email'] == $wpData->user_email)) && (isset($pData['user_email'])) ) {
-		$update['user_email'] = $pData['user_email'];
-		$doWpUpdate = true;
-	} 
-	
-	// Store our password in a WordPress compatible format
-	if(substr($pData['user_password'], 0, 3) == '$H$') {
-		$pData['user_password'] = substr_replace($pData['user_password'], '$P$', 0, 3);
-	}
 
-	if ( ($pData['user_password'] != $wpDataArr['user_pass']) && (!empty($pData['user_password'])) && (isset($pData['user_password'])) ) {
-		// We DON'T add the password to the update array as this causes WP to generate a new auth cookie too early!
-		// instead, we have to update the password by ourseles later.
-		$updatingPassword =$pData['user_password']; echo "UPDATING";
-	}
-	
-	if ( (!($pData['user_website'] == $wpDataArr['user_url'])) && (isset($pData['user_website'])) ) {
-		$update['user_url'] = $pData['user_website'];
-		$doWpUpdate = true;
-	}
-	if ( ($pData['user_aim'] != $wpDataArr['aim']) && (isset($pData['user_aim'])) ) {
-		$update['aim'] = $pData['user_aim'];
-		$doWpUpdate = true;
-	}
-	if ( ($pData['user_yim'] != $wpDataArr['yim']) && (isset($pData['user_yim'])) ) {
-		$update['yim'] = $pData['user_yim'];
-		$doWpUpdate = true;
-	}
-	if ( ($pData['user_jabber'] != $wpDataArr['jabber']) && (isset($pData['user_jabber'])) ) {
-		$update['jabber'] = $pData['user_jabber'];
-		$doWpUpdate = true;
-	}
-	if ( ($pData['user_avatar_type'] != $wpMeta['wpu_avatar_type']) && (isset($pData['user_avatar_type'])) ) {
-		if ( !empty($wpData->ID) ) {
-			update_user_meta( $wpData->ID, 'wpu_avatar_type', $pData['user_avatar_type']);
-		}
-	}
-	if ( ($pData['user_avatar'] != $wpMeta['wpu_avatar']) && (isset($pData['user_avatar'])) ) {
-		if ( !empty($wpData->ID) ) {
-			update_user_meta( $wpData->ID, 'wpu_avatar', $pData['user_avatar']);
-		}
-	}
+	$wpDataArr = get_object_vars($wpData);
 
-	if ( (!($pData['user_avatar_width'] == $wpMeta['wpu_avatar_width'])) && (isset($pData['user_avatar_width'])) ) {
-		if ( !empty($wpData->ID) ) {
-			update_user_meta( $wpData->ID, 'wpu_avatar_width', $pData['user_avatar_width']);
+	// update profile fields
+	$fields = array(
+		'user_email'		=>		'user_email',
+		'user_url'			=>		'user_website',
+		'aim'				=>		'user_aim',
+		'yim'				=>		'user_yim',
+		'jabber'			=>		'user_jabber',
+	);
+	foreach($fields as $wpField => $pField) {
+		if(isset($pData[$pField]) && isset($wpDataArr[$wpField]) && ($pData[$pField] != $wpDataArr[$wpField])) {
+			$update[$wpField] = $pData[$pField];
+			$doWpUpdate = true;
 		}
 	}	
-	if ( (!($pData['user_avatar_height'] == $wpMeta['wpu_avatar_height'])) && (isset($pData['user_avatar_height'])) ) {
-		if ( !empty($wpData->ID) ) {
-			update_user_meta( $wpData->ID, 'wpu_avatar_height', $pData['user_avatar_height']);
-		}
-	}								
+	
+	// update main fields apart from password
 	if ( $doWpUpdate ) {
-		
 		$update['ID'] = $wpData->ID;
 		$userID = wp_update_user($update);
 	}
 	
-	if($updatingPassword) { 
-		// need to update the password manually or it gets double-hashed:
-		global $wpdb;
-		$wpdb->update($wpdb->users, array('user_pass' => $updatingPassword) , array('ID' => $wpData->ID));	
-		$wpdb->print_error();
-		wp_clear_auth_cookie();
-		wp_set_auth_cookie($wpData->ID);
+	
+	/**
+	 * wp_update_user hashes the password, but it is already hashed. We also need to convert it from phpBB to WordPress format.
+	 * So we handle it separately.
+	 */
+	if(substr($pData['user_password'], 0, 3) == '$H$') {
+		$pData['user_password'] = substr_replace($pData['user_password'], '$P$', 0, 3);
+	}
+	if(isset($wpDataArr['user_pass']) && isset($pData['user_password'])) {
+		if (!empty($pData['user_password']) && ($pData['user_password'] != $wpDataArr['user_pass'])) {
+			global $wpdb;
+			$wpdb->update($wpdb->users, array('user_pass' => $updatingPassword) , array('ID' => $wpData->ID));	
+			$wpdb->print_error();
+			wp_clear_auth_cookie();
+			wp_set_auth_cookie($wpData->ID);
+		}
 	}
 	
 	return $update;
