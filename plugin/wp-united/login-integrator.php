@@ -748,6 +748,7 @@ function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {
 
 
 
+
 /**
  * Sets the user role before they get logged in
  * This writes the data to the DB

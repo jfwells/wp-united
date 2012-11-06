@@ -474,58 +474,75 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				}
 			}
 		}
-	}
-	
+	}	
 	
 	/**
-	* Function 'get_avatar()' - Retrieve the phpBB avatar of a user
+	* Retrieve the phpBB avatar of a user
+	* @return phpBB avatar html tag, or the WordPress avatar if the phpBB one is empty or user integration is disabled
 	* @since WP-United 0.7.0
+	* 
+	* TODO: let wp override phpBB avatar if it is newer!
 	*/
 
 	public function get_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
+		global $phpbbForum;
 
-	   if (!$this->get_setting('integrateLogin')) { 
-		  return $avatar;
-	   }
+		if (!$this->get_setting('integrateLogin')) { 
+			return $avatar;
+		}
 
-	   $safe_alt = esc_attr( __('Avatar image') );
+		$safe_alt = (false === $alt) ? esc_attr(__('Avatar image')) : esc_attr($alt);
 
-	   if ( !is_numeric($size) )
-		  $size = '96';
 
-	   if ( !is_numeric($size) )
-		  $size = '96';
-	   // Figure out if this is an ID or e-mail --sourced from WP's pluggables.php
-	   $email = '';
-	   if ( is_numeric($id_or_email) ) {
-		  $id = (int) $id_or_email;
-		  $user = get_userdata($id);
-	   } elseif ( is_object($id_or_email) ) {
-		  if ( !empty($id_or_email->user_id) ) {
-			  // $id_or_email is probably a comment object
-			 $user = get_userdata($id_or_email->user_id);
-		  } 
-	   }
+		if ( !is_numeric($size) )
+			$size = '96';
 
-	   if($user) {
-		  // use default WordPress or WP-United image
-		  if(!$image = wpu_avatar_create_image($user)) { 
-			 if(stripos($avatar, 'blank.gif') !== false) {
-				$image = $this->pluginUrl . 'images/wpu_no_avatar.gif';
-			 } else {
+		// Figure out if this is an ID or e-mail --sourced from WP's pluggables.php
+		if ( is_numeric($id_or_email) ) {
+			$id = (int) $id_or_email;
+			$user = get_userdata($id);
+		} elseif (is_object($id_or_email)) {
+			if (!empty($id_or_email->user_id)) {
+				$id = (int)$id_or_email->user_id;
+				$user = get_userdata($id);
+			}
+		}
+		
+
+		if(!$user) {
+			return $avatar;
+		}
+
+		$wpuIntID = wpu_get_integrated_phpbbuser($user->ID);
+		
+		if(!$wpuIntID) { 
+			// the user isn't integrated, show WP avatar
+			return $avatar;
+			
+		} else {
+			
+			$phpbbAvatar = $phpbbForum->get_avatar($wpuIntID, $size, $size, $safe_alt);	
+			
+			if(!empty($phpbbAvatar)) {
+				return $phpbbAvatar;
+			}
+			
+
+			//phpBB avatar was empty. If this is just a default avatar, leave it.
+			// However, if this was a real avatar from Gravatar, send it to the forum.
+			// The gravatar could just be a default (e.g. a monster), but it doesn't matter, and checking returned headers
+			// is too expensive.
+			if(!empty($avatar)) {
+				
+				if(stripos($avatar, includes_url('images/blank.gif')) === false) {
+					$phpbbForum->put_avatar($avatar, $wpuIntID, $size, $size);
+				}
 				return $avatar;
-			 }
-		  } 
-	   } else {
-		  if(stripos($avatar, 'blank.gif') !== false) {
-			  $image = $this->pluginUrl . 'images/wpu_unregistered.gif';
-		   } else {
-			 return $avatar;
-		  }
-	   }
-	   return "<img alt='{$safe_alt}' src='{$image}' class='avatar avatar-{$size}' height='{$size}' width='{$size}' />";
+			
+			}
+		
+		}
 	}
-
 
 	/**
 	 * Originally function 'wpu_print_smilies' prints phpBB smilies into comment form

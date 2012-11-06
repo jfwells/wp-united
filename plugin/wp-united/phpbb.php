@@ -451,6 +451,81 @@ class WPU_Phpbb {
 		 
 	}
 	
+	public function get_avatar($phpbbId, $width=0, $height=0, $alt) {
+		global $db, $config, $phpbb_root_path, $phpEx;
+		
+		$fStateChanged = $this->foreground();
+		
+		require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		
+		$sql = 'SELECT user_avatar, user_avatar_type, user_avatar_width, user_avatar_height 
+			FROM ' . USERS_TABLE . '
+			WHERE user_id = ' . (int) $phpbbId;
+		$result = $db->sql_query($sql);
+		$avatarDetails = $db->sql_fetchrow($result);
+		$db->sql_freeresult($result);
+		
+		$width = (empty($width)) ? $avatarDetails['user_avatar_width'] : $width;
+		$height = (empty($height)) ? $avatarDetails['user_avatar_height'] : $height;
+		
+		$phpbbAvatar = get_user_avatar($avatarDetails['user_avatar'], $avatarDetails['user_avatar_type'], $width, $height, $alt);
+		
+		$this->restore_state($fStateChanged);
+		
+		
+		// convert path to URL for returned avatar HTML
+		$phpbbAvatar = str_replace('src="' . $phpbb_root_path, 'src="' . $this->url, $phpbbAvatar);
+
+		return $phpbbAvatar;
+	}
+	
+	
+	// send the WP avatar to phpBB if the phpBB one is unset
+	public function put_avatar($html, $id, $width=90, $height=90) {
+		global $db, $config;	
+			
+
+		$width = (int)$width;
+		$height = (int)$height;
+		
+		if(($width < 50) || ($height < 50)) { 
+			return;
+		}
+		
+		if(!preg_match('/src\s*=\s*[\'"]([^\'"]+)[\'"]/', $html, $matches)) {
+			return;
+		} 
+		$avatarUrl = $matches[1];
+		
+		if(!$avatarUrl) {
+			return;
+		}
+
+		$fStateChanged = $this->foreground();
+		
+		if($config['allow_avatar'] && $config['allow_avatar_remote']) {
+		
+			// calling avatar_remote uses too many resources, so we put in the images directly to the DB
+			
+			$width = ($width > $config['avatar_max_width']) ? $config['avatar_max_width'] : $width;
+			$height = ($height > $config['avatar_max_height']) ? $config['avatar_max_height'] : $height;
+			
+			
+			list($sql_ary['user_avatar_type'], $sql_ary['user_avatar'], $sql_ary['user_avatar_width'], $sql_ary['user_avatar_height']) = array(AVATAR_REMOTE, $avatarUrl, $width, $height);
+			
+
+			if (sizeof($sql_ary)) {
+				$sql = 'UPDATE ' . USERS_TABLE . '
+					SET ' . $db->sql_build_array('UPDATE', $sql_ary) . '
+					WHERE user_id = ' . $id;
+				$db->sql_query($sql);
+			}
+		}
+		
+		$this->restore_state($fStateChanged);
+		
+	}
+	
 	
 	/**
 	 * transmits new settings from the WP settings panel to phpBB
