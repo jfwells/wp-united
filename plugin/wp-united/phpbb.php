@@ -612,7 +612,7 @@ class WPU_Phpbb {
 			}
 			return false;
 		}
-		var hides = document.getElementsByClassName('wpuLog');
+		var hides = document.getElementsByClassName('wpulog');
 		for(h in hides) {
 			hides[h].parentNode.firstChild.nodeValue = '';
 		}
