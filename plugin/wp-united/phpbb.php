@@ -251,6 +251,28 @@ class WPU_Phpbb {
 	}
 	
 	/**
+	 * 	fetch data for a specific user
+	 */
+	public function fetch_userdata_for($id) {
+		global $db;
+		
+		
+	    $sql = 'SELECT * FROM ' . USERS_TABLE . '
+			WHERE user_id = ' . (int) $id;
+    
+		$result = $db->sql_query($sql);
+		$user_row = @$db->sql_fetchrow($result);
+		$db->sql_freeresult($result);
+
+		if (!$user_row) {
+			return false;
+		}	
+		
+		return $user_row;
+		 
+	}
+	
+	/**
 	 * Returns the user's IP address
 	 */
 	public function get_userip() {

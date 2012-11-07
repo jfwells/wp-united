@@ -32,14 +32,13 @@ function wpu_integrate_login() {
 	require_once($wpUnited->pluginPath . 'debugger.php'); 
 
 	$lDebug = new WPU_Debug();
-// TODO: CHECK WE ARE NOT **IN** PHPBB!!!
+				// TODO: CHECK WE ARE NOT **IN** PHPBB!!!
 	if( !$phpbbForum->user_logged_in() ) { 
 		return  wpu_int_phpbb_logged_out(); 
 	}
 
 	return  wpu_int_phpbb_logged_in();
 	
-	return $user;
 	
 }
 
@@ -50,41 +49,46 @@ function wpu_integrate_login() {
  */
 function wpu_int_phpbb_logged_out() { 
 	global $lDebug, $phpbbForum, $wpUnited, $user;
-			
+
 	// Check if user is logged into WP
-	$wpUser = get_currentuserinfo();
+	global $current_user; get_currentuserinfo();  $wpUser = $current_user;
 	if(!$wpUser->ID) {
 		return false;
 	}
 
-	
 	// TODO: THIS INTEGRATES **ALL** WP USERS TO A NEW PHPBB ACCOUNT IF THEY DON'T HAVE ONE ALREADY!!!
 	// TODO: Step 1 would be to check permissions of newly registered users in phpBB
 	
 	//if($wpUnited->get_settings('integsource') == 'wp') {
+		$createdUser = false;
 	
-		$wpIntID = wpu_get_integrated_phpbbuser($wpUser->ID);
+		$phpbbId = wpu_get_integrated_phpbbuser($wpUser->ID);
 		
 		
-		if(!$wpIntID) { // The user has no account in phpBB, so we create one:
+		if(!$phpbbId) { // The user has no account in phpBB, so we create one:
 			
 			// We just create standard users here for now, no setting of roles
-			$phpbbID = wpu_create_phpbb_user($wpUser->ID);
+			$phpbbId = wpu_create_phpbb_user($wpUser->ID);
 					
-			if($phpbbID == 0) {
+			if($phpbbId == 0) {
 				wp_die('Could not add user to phpBB');
-			} else if($phpbbID == -1) {
+			} else if($phpbbId == -1) {
 				wp_die('A suitable username could not be found in phpBB');
-			}	
+			}
+			$createdUser = true;
 		} 
-		
+
 		// the user now has an integrated phpBB account, log them into it
 		$fStateChanged = $phpbbForum->foreground();
-		$user->session_create($wpIntID);
+		$user->session_create($phpbbId);
 		$phpbbForum->restore_state($fStateChanged);
-
-		// TODO: MAKE THIS WORK BOTH WAYS!
-		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+		
+		// TODO: MAKE THESE WORK BOTH WAYS!
+		if($createdUser) {
+			wpu_sync_phpbb_profile($phpbbForum->get_userdata(), $wpUsr, true); // under construction
+		} else {
+			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+		}
 
 		return $wpUser->ID;
 			
@@ -107,7 +111,7 @@ function wpu_int_phpbb_logged_in() {
 	
 	// Should this user integrate? If not, we can just let WordPress do it's thing
 	if( !$userLevel = wpu_get_user_level() ) {
-		return get_currentuserinfo();
+		global $current_user; get_currentuserinfo();  return $current_user;
 	}
 
 
@@ -364,10 +368,9 @@ function wpu_create_phpbb_user($userID) {
 	if ($pUserID = user_add($userToAdd)) {
 
 		wpu_update_int_id($pUserID, $wpUsr->ID);
-		/**
-		 * @TODO: make consistent from WP -> phpBB
-		 */
-		//wpu_make_profiles_consistent($wpUsr, $wpuNewDetails, true);
+		update_user_meta( $wpUsr->ID, 'phpbb_userid', $pUserID);
+		
+
 	}
 
 	$phpbbForum->restore_state($fStateChanged);
@@ -375,6 +378,8 @@ function wpu_create_phpbb_user($userID) {
 	
 	return $pUserID;
 }
+
+
 
 
 
@@ -661,7 +666,7 @@ function wpu_update_int_id($pID, $intID) {
 			SET user_wpuint_id = $intID 
 			WHERE user_id = '$pID'";
 		if(!$result = $db->sql_query($sql)) {
-			trigger_error('WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.');
+			trigger_error(__('WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.'));
 		} else {
 			$updated = TRUE;
 		}
@@ -669,10 +674,40 @@ function wpu_update_int_id($pID, $intID) {
 	//Switch back to the WP DB:
 	$phpbbForum->restore_state($fStateChanged);
 	if ( !$updated ) {
-		trigger_error('Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.');
+		trigger_error(__('Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.'));
 	}
 }	
+
+
+function wpu_sync_phpbb_profile($pData, $wpData, $newUser = false) {
+	global $wpUnited, $phpbbForum;
 	
+	$wpDataArr = get_object_vars($wpData); 
+
+	if( !isset($wpDataArr['ID']) || empty($wpDataArr['ID']) || empty($pData['user_id']) ) {
+		return false;
+	}
+	if($newUser) {
+		update_user_meta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
+	}
+	
+	// get the avatar from WordPress. Remove our filtering function first!
+	// TODO: CHECK IF AN AVATAR EXISTS ALREADY
+	if($wpUnited->get_setting('avatarsync')) { echo "A";
+		if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) { echo "B";
+			$avatar = get_avatar($wpData->ID, 90);
+			if(!empty($avatar)) {
+				if(stripos($avatar, includes_url('images/blank.gif')) === false) {
+					$phpbbForum->put_avatar($avatar, $pData['user_id'], 90, 90);
+				}
+			}
+			
+			// reinstate our action hook:
+			add_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5);
+		}
+	}
+	
+}	
 	
 /**
  * Arbitrates the user details - e-mail, password, website, aim, yim, between phpBB & WordPress -- called internally by integrate_login
@@ -682,48 +717,55 @@ function wpu_update_int_id($pID, $intID) {
  * @param mixed $pData phpBB user data
  * @param bool $newuser set to true to populate profile fields
  * @return mixed array of fields to update
- */
+ */ // TODO: CHECK THIS IS NOT BEING CALLED MORE THAN ONCE PER PAGE LOAD??
 function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {	
+	
+	$wpDataArr = get_object_vars($wpData); 
 
-	if( empty($wpData->ID) ) {
+	if( !isset($wpDataArr['ID']) || empty($wpDataArr['ID']) || empty($pData['user_id']) ) {
 		return false;
 	}
 	$update = array();
-	$wpMeta = get_user_meta($wpData->ID);
+	$wpMeta = get_user_meta($wpDataArr['ID']);
 	
 	$doWpUpdate = false;
 	
-	// set integration ID on WP side. phpBB is still used as the canonical side if both exist.
-	if ($pData['user_id'] != $wpData->phpbb_userid) {
-		update_user_meta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
-	}
+
 	
 	
 	// We only update the user's nicename, etc. on the first run -- they can change it thereafter themselves
 	if($newUser) {
-		if ( (!empty($pData['username'])) && !($pData['username'] == $wpData->user_nicename) ) {
-			update_user_meta( $wpData->ID, 'phpbb_userLogin', $pData['username']);
-			
-			list($update['user_nicename'], $update['nickname'], $update['display_name']) = $pDate['username'];
+		if ( (!empty($pData['username'])) && !($pData['username'] == $wpDataArr['user_nicename']) ) {
+			list($update['user_nicename'], $update['nickname'], $update['display_name']) = $pData['username'];
 			$doWpUpdate = true;
 		}
 	}
-	
 
-	$wpDataArr = get_object_vars($wpData);
-
-	// update profile fields
+	// update profile fields 
 	$fields = array(
-		'user_email'		=>		'user_email',
-		'user_url'			=>		'user_website',
-		'aim'				=>		'user_aim',
-		'yim'				=>		'user_yim',
-		'jabber'			=>		'user_jabber',
+		'user_email'		=>		array('field' => 'user_email', 	'type'	=>	'main'),
+		'user_website'		=>		array('field' => 'user_url', 	'type'	=>	'main'),
+		'user_id'			=>		array('field' => 'phpbb_userid','type'	=>	'meta'),
+		'user_aim'			=>		array('field' => 'aim', 		'type'	=>	'meta'),
+		'user_yim'			=>		array('field' => 'yim', 		'type'	=>	'meta'),
+		'user_jabber'		=>		array('field' => 'jabber', 	 	'type'	=>	'meta')
 	);
-	foreach($fields as $wpField => $pField) {
-		if(isset($pData[$pField]) && isset($wpDataArr[$wpField]) && ($pData[$pField] != $wpDataArr[$wpField])) {
-			$update[$wpField] = $pData[$pField];
-			$doWpUpdate = true;
+	foreach($fields as $pField => $wpField) {
+		// fields and metadata are in different formats
+		if(isset($pData[$pField]) && !empty($pData[$pField])) { 
+			switch($wpField['type']) {
+				case 'main':
+					if(!isset($wpDataArr[$wpField['field']]) || ($pData[$pField] != $wpDataArr[$wpField['field']])) {
+						$update[$wpField['field']] = $pData[$pField];
+						$doWpUpdate = true;
+					}
+					break;
+				case 'meta':
+					if(!isset($wpDataArr[$wpMeta['field']]) || ($pData[$pField] != $wpMeta[$wpField['field']][0])) {
+						$update[$wpField['field']] = $pData[$pField];
+						$doWpUpdate = true;
+					}
+			}				
 		}
 	}	
 	

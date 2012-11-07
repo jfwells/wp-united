@@ -487,7 +487,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function get_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
 		global $phpbbForum;
 
-		if (!$this->is_enabled() || !$this->get_setting('integrateLogin')) { 
+		if (!$this->is_enabled() || !$this->get_setting('integrateLogin') || !$this->get_setting('avatarsync')) { 
 			return $avatar;
 		}
 
@@ -527,20 +527,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				return $phpbbAvatar;
 			}
 			
-
-			//phpBB avatar was empty. If this is just a default avatar, leave it.
-			// However, if this was a real avatar from Gravatar, send it to the forum.
-			// The gravatar could just be a default (e.g. a monster), but it doesn't matter, and checking returned headers
-			// is too expensive.
-			if(!empty($avatar)) {
-				
-				if(stripos($avatar, includes_url('images/blank.gif')) === false) {
-					$phpbbForum->put_avatar($avatar, $wpuIntID, $size, $size);
-				}
-				return $avatar;
+			return $avatar;
 			
-			}
-		
 		}
 	}
 
@@ -669,7 +657,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * This action is removed by WP-United when adding a user, so we avoid unsetting our own additions
 	 */
 	public function process_new_wp_reg ($userID) { 
-
+		global $phpbbForum;
+		
 		static $justCreatedUser = -1;
 
 		/*
@@ -713,6 +702,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				// create new integrated user in phpBB to match
 				$phpbbID = wpu_create_phpbb_user($userID);
 				$justCreatedUser = $userID;
+				
+				wpu_sync_phpbb_profile($phpbbForum->fetch_userdata_for($phpbbID), $user, true); // TODO: JUST USE LOGIN ONCE under construction
+				
 			}
 			
 		}
