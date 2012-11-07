@@ -75,7 +75,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 		
 		// we want to override some actions. These must match the priority of the built-ins 
-		remove_action('shutdown', 'buffer_end_flush_all', 1);
+		remove_action('shutdown', 'wp_ob_end_flush_all', 1);
 		
 		// add new actions and filters
 		$this->add_actions();
