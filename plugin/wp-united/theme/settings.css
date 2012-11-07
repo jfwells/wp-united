@@ -1025,7 +1025,7 @@ div.subsettings div.subsettings {
 }
 #wpuquicksel {
 	float: left;
-	height: 10px;
+	/*height: 10px;*/
 	font-size: 10px;
 }
 

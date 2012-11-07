@@ -427,7 +427,7 @@ class WPU_Phpbb {
 			if (empty($row['code'])) {
 				continue;
 			}
-			if ($i == 20) {
+			if ($i == 7) {
 				$smlOutput .=  '<span id="wpu-smiley-more" style="display:none">';
 			}
 		
@@ -439,9 +439,9 @@ class WPU_Phpbb {
 		$this->restore_state($fStateChanged);
 	
 	
-		if($i >= 20) {
+		if($i >= 7) {
 			$smlOutput .= '</span>';
-			if($i>20) {
+			if($i>7) {
 				$smlOutput .= '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . __('More smilies') . '&nbsp;&raquo;</a></span>';
 			}
 		}
@@ -500,6 +500,9 @@ class WPU_Phpbb {
 		if(!$avatarUrl) {
 			return;
 		}
+		
+		// we leave a marker for ourselves to see if this avatar was put by wpu
+		$avatarUrl = $avatarUrl . '&amp;wpuput=1';
 
 		$fStateChanged = $this->foreground();
 		

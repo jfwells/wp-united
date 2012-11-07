@@ -154,7 +154,7 @@ function wpu_support() {
 	global $wpUnited;
 	?>
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>/images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('Please Help Support WP-United'); ?> </h2>
 		<p><?php _e('WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!');  ?></p>
@@ -238,12 +238,12 @@ function wpu_setup_menu() {
 	
 	?>
 		<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>/images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Setup / Status'); ?> </h2>
 		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.') ?></p>
 
-		<div id="wputransmit"><p><strong>Communicating with phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpUnited->pluginUrl ?>/images/settings/wpuldg.gif" /></div>
+		<div id="wputransmit"><p><strong>Communicating with phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" /></div>
 
 	<?php
 	
@@ -351,7 +351,7 @@ function wpu_user_mapper() {
 	global $wpUnited; ?>
 	<div class="wrap" id="wp-united-setup">
 	
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>/images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
 		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together. Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
@@ -548,7 +548,7 @@ function wpu_user_mapper() {
 					<div id="wpumapscreen">
 						<div class="wpuloading">
 							<p>Loading...</p>
-							<img src="<?php echo $wpUnited->pluginUrl ?>/images/settings/wpuldg.gif" />
+							<img src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" />
 						</div>
 					</div>
 					<div id="wpumappanel" class="ui-widget">
@@ -573,7 +573,7 @@ function wpu_user_mapper() {
 	<div id="wpuoffscreen">
 	</div>
 	<div id="wpu-reload" title="Message" style="display: none;">
-		<p id="wpu-desc">&nbsp;</p><img id="wpuldgimg" src="<?php echo $wpUnited->pluginUrl ?>/images/settings/wpuldg.gif" />
+		<p id="wpu-desc">&nbsp;</p><img id="wpuldgimg" src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" />
 	</div>
 	<script type="text/javascript">
 	// <![CDATA[
@@ -581,7 +581,7 @@ function wpu_user_mapper() {
 		var autofillNonce = '<?php echo wp_create_nonce ('wp-united-usersearch'); ?>';
 		var firstMapActionNonce = '<?php echo wp_create_nonce ('wp-united-mapaction'); ?>';
 		
-		var imgLdg						= '<?php echo $wpUnited->pluginUrl ?>/images/settings/wpuldg.gif';
+		var imgLdg						= '<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif';
 		var currWpUser				= '<?php echo $GLOBALS['current_user']->ID; ?>';
 		var currPhpbbUser			= '<?php echo $phpbbForum->get_userdata('user_id'); ?>';
 
@@ -950,11 +950,11 @@ function wpu_settings_page() {
 	?>
 	
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>/images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Settings'); ?> </h2>
 	
-			<div id="wputransmit"><p><strong><?php _e('Sending settings to phpBB...'); ?></strong><br />Please Wait</p><img src="<?php echo $wpUnited->pluginUrl ?>/images/settings/wpuldg.gif" /></div>
+			<div id="wputransmit"><p><strong><?php _e('Sending settings to phpBB...'); ?></strong><br />Please Wait</p><img src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" /></div>
 			
 			<?php
 				if(isset($_GET['msg'])) {
