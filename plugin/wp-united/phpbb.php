@@ -598,7 +598,7 @@ class WPU_Phpbb {
 		));
 
 		$bodyContent .= '</div>';
-		$ln = "<script type=\"text/javascript\">
+		$ln = "*}<div class='wpulog'><script type=\"text/javascript\">
 		// <![CDATA[
 		function toggleWpuLog{$randSeed}() {
 			var lg = document.getElementById('wpulogdetails{$randSeed}');
@@ -612,10 +612,14 @@ class WPU_Phpbb {
 			}
 			return false;
 		}
+		var hides = document.getElementsByClassName('wpuLog');
+		for(h in hides) {
+			hides[h].parentNode.firstChild.nodeValue = '';
+		}
 		// ]]>
 		</script>";
 		
-		$ln .= '*}<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">Changed WP-United Settings (click for details)<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '{*';
+		$ln .= '<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">' . __('Changed WP-United Settings (click for details)') . '<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '</div>{*';
 
 		add_log('admin', $ln);
 		
