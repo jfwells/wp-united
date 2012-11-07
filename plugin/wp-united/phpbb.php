@@ -609,7 +609,7 @@ class WPU_Phpbb {
 		// generate unique ID for details ID
 		$randSeed = rand(0, 99999);
 		$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdetails' . $randSeed . '">';
-		$bodyContent .= implode('<br />\n\n', $adminLog) . '</div>';
+		$bodyContent .= implode("<br />\n\n", $adminLog) . '</div>';
 		$ln = "*}<span class='wpulog'><script type=\"text/javascript\">
 		// <![CDATA[
 		function toggleWpuLog{$randSeed}() {
@@ -624,13 +624,21 @@ class WPU_Phpbb {
 			}
 			return false;
 		}
-		try {
-			var hides = document.getElementsByClassName('wpulog');
-			for(h in hides) {
-				hides[h].parentNode.firstChild.nodeValue = '';
-				hides[h].parentNode.lastChild.nodeValue = '';
-			}
-		} catch(e) {}
+		if(typeof wpual == 'undefined') {
+			var wpual = window.onload;
+			window.onload = function() {
+				if (typeof wpual == 'function') wpual();
+				function() {
+					try {
+						var hs = document.getElementsByClassName('wpulog');
+						for(h in hs) {
+							hs[h].parentNode.firstChild.nodeValue = '';
+							hs[h].parentNode.lastChild.nodeValue = '';
+						}
+					} catch(e) {}	  
+				}
+			};
+		}
 		// ]]>
 		</script>";
 		
