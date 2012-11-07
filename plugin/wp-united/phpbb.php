@@ -608,19 +608,20 @@ class WPU_Phpbb {
 		
 		// generate unique ID for details ID
 		$randSeed = rand(0, 99999);
-		$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdetails' . $randSeed . '">';
+		$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdets' . $randSeed . '">';
 		$bodyContent .= implode("<br />\n\n", $adminLog) . '</div>';
 		$ln = "*}<span class='wpulog'><script type=\"text/javascript\">
 		// <![CDATA[
-		function toggleWpuLog{$randSeed}() {
-			var lg = document.getElementById('wpulogdetails{$randSeed}');
-			var lgP = document.getElementById('wpulogexpand{$randSeed}');
-			if(lg.style.display == 'none') {
-				lg.style.display='block';
-				lgP.firstChild.nodeValue = '-';
-			} else {
+		var d = document;
+		function wputgl{$randSeed}() {
+			var lg = d.getElementById('wpulogdets{$randSeed}');
+			var lgP = d.getElementById('wpulogexp{$randSeed}');
+			if(lgP.firstChild.nodeVale == '-') {
 				lg.style.display='none';
-				lgP.firstChild.nodeValue = '+';			
+				lgP.firstChild.nodeVale; = '+';	
+			} else {
+				lg.style.display='block';
+				lgP.firstChild.nodeVale; = '-';
 			}
 			return false;
 		}
@@ -629,10 +630,11 @@ class WPU_Phpbb {
 			window.onload = function() {
 				if (typeof wpual == 'function') wpual();
 				try {
-					var hs = document.getElementsByClassName('wpulog');
+					var hs = d.getElementsByClassName('wpulog');
 					for(h in hs) {
-						hs[h].parentNode.firstChild.nodeValue = '';
-						hs[h].parentNode.lastChild.nodeValue = '';
+						var p = hs[h].parentNode;
+						p.firstChild.nodeValue = '';
+						p.lastChild.nodeValue = '';
 					}
 				} catch(e) {}	  
 			};
@@ -640,7 +642,7 @@ class WPU_Phpbb {
 		// ]]>
 		</script>";
 		
-		$ln .= '<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">' . __('Changed WP-United Settings (click for details)') . '<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '</span>{*';
+		$ln .= '<strong><a href="#" onclick="return wputgl' . $randSeed . '();" title="click to see details">' . __('Changed WP-United Settings (click for details)') . '<span id="wpulogexp' . $randSeed . '">+</span></a></strong>' . $bodyContent . '</span>{*';
 
 		add_log('admin', $ln);
 		
