@@ -618,10 +618,10 @@ class WPU_Phpbb {
 			var lgP = d.getElementById('wpulogexp{$randSeed}');
 			if(lgP.firstChild.nodeVale == '-') {
 				lg.style.display='none';
-				lgP.firstChild.nodeVale; = '+';	
+				lgP.firstChild.nodeVale = '+';	
 			} else {
 				lg.style.display='block';
-				lgP.firstChild.nodeVale; = '-';
+				lgP.firstChild.nodeVale = '-';
 			}
 			return false;
 		}
