@@ -541,11 +541,9 @@ class WPU_Phpbb {
 		
 		$fStateChanged = $this->foreground();
 				
-		// generate unique ID for details ID
-		$randSeed = rand(0, 99999);
-
-		$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdetails' . $randSeed . '">';
-		$bodyContent .= "Sending settings from WordPress to phpBB<br />\n\n";
+		$adminLog = array();
+		$adminLog[] = __('Receiving settings from WP-United...');
+		
 		if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
 			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 				  ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
@@ -553,7 +551,7 @@ class WPU_Phpbb {
 			if (!$result = $db->sql_query($sql)) {
 				trigger_error('ERROR: Cannot add the integration column to the users table', E_USER_ERROR); exit();
 			}
-			$bodyContent .= "Modified USERS Table (Integration ID)<br />\n\n";
+			$adminLog[] = __('Modified USERS Table (Integration ID)');
 		}
 		
 		if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
@@ -562,7 +560,7 @@ class WPU_Phpbb {
 			if (!$result = $db->sql_query($sql)) {
 				trigger_error('ERROR: Cannot add blog ID column to users table', E_USER_ERROR); exit();
 			}
-			$bodyContent .= "Modified USERS Table (Blog ID)<br />\n\n";
+			$adminLog[] = __('Modified USERS Table (Blog ID)');
 		}
 		
 		$sql = 'SELECT * FROM ' . POSTS_TABLE;
@@ -577,18 +575,16 @@ class WPU_Phpbb {
 			if (!$result = $db->sql_query($sql)) {
 				trigger_error('ERROR: Cannot add cross-posting column to posts table', E_USER_ERROR); exit();
 			}
-			$bodyContent .= "Modified POSTS Table (Cross-Posting Link)<br />\n\n";
+			$adminLog[] = __('Modified POSTS Table (Cross-Posting Link)');
 		}
 		
 		$db->sql_freeresult($result);
 
-		$bodyContent .= "Adding WP-United Permissions....<br />\n\n";
 		
+		$adminLog[] = __('Adding WP-United Permissions');
 		
 		// Setup $auth_admin class so we can add permission options
 		include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
-
-
 		$auth_admin = new auth_admin();
 
 		// Add permissions
@@ -596,9 +592,25 @@ class WPU_Phpbb {
 			'local'      => array('f_wpu_xpost'),
 			'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
 		));
-
-		$bodyContent .= '</div>';
-		$ln = "*}<div class='wpulog'><script type=\"text/javascript\">
+		
+		$adminLog[] = __('Storing the new WP-United settings');
+		set_integration_settings($data);
+		
+		// clear out the WP-United cache on settings change
+		$adminLog[] = __('Purging the WP-United cache');
+		require_once($wpUnited->pluginPath . 'cache.php');
+		$wpuCache = WPU_Cache::getInstance();
+		$wpuCache->purge();
+		
+		$adminLog[] = __('Completed successfully');
+		
+		// Save the admin log in a nice dropdown in phpBB admin log. Requires a bit of template hacking using JS
+		
+		// generate unique ID for details ID
+		$randSeed = rand(0, 99999);
+		$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdetails' . $randSeed . '">';
+		$bodyContent .= implode('<br />\n\n', $adminLog) . '</div>';
+		$ln = "*}<span class='wpulog'><script type=\"text/javascript\">
 		// <![CDATA[
 		function toggleWpuLog{$randSeed}() {
 			var lg = document.getElementById('wpulogdetails{$randSeed}');
@@ -612,26 +624,24 @@ class WPU_Phpbb {
 			}
 			return false;
 		}
-		var hides = document.getElementsByClassName('wpulog');
-		for(h in hides) {
-			hides[h].parentNode.firstChild.nodeValue = '';
-		}
+		try {
+			var hides = document.getElementsByClassName('wpulog');
+			for(h in hides) {
+				hides[h].parentNode.firstChild.nodeValue = '';
+				hides[h].parentNode.lastChild.nodeValue = '';
+			}
+		} catch(e) {}
 		// ]]>
 		</script>";
 		
-		$ln .= '<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">' . __('Changed WP-United Settings (click for details)') . '<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '</div>{*';
+		$ln .= '<strong><a href="#" onclick="return toggleWpuLog' . $randSeed . '();" title="click to see details">' . __('Changed WP-United Settings (click for details)') . '<span id="wpulogexpand' . $randSeed . '">+</span></a></strong>' . $bodyContent . '</span>{*';
 
 		add_log('admin', $ln);
 		
 		$cache->purge();
 		 
 
-		set_integration_settings($data);
 		
-		// clear out the WP-United cache on settings change
-		require_once($wpUnited->pluginPath . 'cache.php');
-		$wpuCache = WPU_Cache::getInstance();
-		$wpuCache->purge();
 
 		$this->restore_state($fStateChanged);
 		return true;
