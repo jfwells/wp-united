@@ -604,25 +604,20 @@ class WPU_Phpbb {
 		
 		$adminLog[] = __('Completed successfully');
 		
-		// Save the admin log in a nice dropdown in phpBB admin log. Requires a bit of template hacking using JS
+		// Save the admin log in a nice dropdown in phpBB admin log. 
+		// Requires a bit of template hacking using JS since we don't want to have to do a mod edit for new script
 		
 		// generate unique ID for details ID
 		$randSeed = rand(0, 99999);
 		$bodyContent = '<div style="display: none; border: 1px solid #cccccc; background-color: #ccccff; padding: 3px;" id="wpulogdets' . $randSeed . '">';
 		$bodyContent .= implode("<br />\n\n", $adminLog) . '</div>';
-		$ln = "*}<span class='wpulog'><script type=\"text/javascript\">
-		// <![CDATA[
+		$ln = "*}<span class='wpulog'><script type=\"text/javascript\">// <![CDATA[
 		var d = document;
 		function wputgl{$randSeed}() {
-			var lg = d.getElementById('wpulogdets{$randSeed}');
-			var lgP = d.getElementById('wpulogexp{$randSeed}');
-			if(lgP.firstChild.nodeVale == '-') {
-				lg.style.display='none';
-				lgP.firstChild.nodeVale = '+';	
-			} else {
-				lg.style.display='block';
-				lgP.firstChild.nodeVale = '-';
-			}
+			var l = d.getElementById('wpulogdets{$randSeed}');
+			var p = d.getElementById('wpulogexp{$randSeed}'); var n = p.firstChild.nodeValue;
+			l.style.display = (n == '-') ? 'none' : 'block';
+			p.firstChild.nodeValue = (n == '-') ? '+' : '-';
 			return false;
 		}
 		if(typeof wpual == 'undefined') {
@@ -631,11 +626,7 @@ class WPU_Phpbb {
 				if (typeof wpual == 'function') wpual();
 				try {
 					var hs = d.getElementsByClassName('wpulog');
-					for(h in hs) {
-						var p = hs[h].parentNode;
-						p.firstChild.nodeValue = '';
-						p.lastChild.nodeValue = '';
-					}
+					for(h in hs) {var p = hs[h].parentNode; p.firstChild.nodeValue = ''; p.lastChild.nodeValue = '';}
 				} catch(e) {}	  
 			};
 		}
