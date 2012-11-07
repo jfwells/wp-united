@@ -189,7 +189,7 @@ class WPU_Phpbb {
 	 * Returns to WordPress
 	 */
 	private function leave() { 
-		if(!isset($GLOBALS['user'])) {
+		if(isset($GLOBALS['user'])) {
 			$this->lang = (sizeof($GLOBALS['user']->lang)) ? $GLOBALS['user']->lang : $this->lang;
 		}
 		if($this->state == 'phpbb') {
@@ -595,21 +595,20 @@ class WPU_Phpbb {
 			'local'      => array('f_wpu_xpost'),
 			'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
 		));
-		
+
 		$adminLog[] = __('Storing the new WP-United settings');
 		set_integration_settings($data);
 
 		// TODO: Once the set_integration_settings procedure is refactored into this class, combine this into the same DB call
-		if($wpUnited->get_setting['integrateLogin'] && $wpUnited->get_setting['avatarsync']) {
+		if($wpUnited->get_setting('integrateLogin') && $wpUnited->get_setting('avatarsync')) {
 			if(!$config['allow_avatar'] || !$config['allow_avatar_remote']) {
 				$adminLog[] = __('Updating avatar settings');
-				for($item in array('allow_avatar', 'allow_avatar_remote')) {
-					$sql[] = array(
-						'config_name' 	=> 	$item,
-						'config_value' 	=>	1
-					);
-				}
-				$db->sql_multi_insert(CONFIG_TABLE, $sql);
+
+				$sql = 'UPDATE ' . CONFIG_TABLE . " 
+					SET config_value = 1
+					WHERE config_name IN ('allow_avatar', 'allow_avatar_remote')";
+				$db->sql_query($sql);
+
 				$cache->destroy('config');
 			}
 		}

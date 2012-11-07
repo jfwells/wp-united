@@ -23,14 +23,20 @@ if ( !defined('ABSPATH') ) {
  */
 function wpu_integrate_login() { 
 	global $wpUnited, $lDebug, $phpbbForum;
-	
-	require_once($wpUnited->pluginPath . 'debugger.php');
-	$lDebug = new WPU_Debug();
 
-	if( !$phpbbForum->user_logged_in() ) {
-		return  wpu_int_phpbb_logged_out();
+	// sometimes this gets called early, e.g. for admin ajax calls.
+	if(!$phpbbForum->is_phpbb_loaded()) {
+		return;
 	}
-	
+
+	require_once($wpUnited->pluginPath . 'debugger.php'); 
+
+	$lDebug = new WPU_Debug();
+// TODO: CHECK WE ARE NOT **IN** PHPBB!!!
+	if( !$phpbbForum->user_logged_in() ) { 
+		return  wpu_int_phpbb_logged_out(); 
+	}
+
 	return  wpu_int_phpbb_logged_in();
 	
 	return $user;
@@ -43,11 +49,11 @@ function wpu_integrate_login() {
  * However this is left open as a prelude to bi-directional user integration
  */
 function wpu_int_phpbb_logged_out() { 
-	global $lDebug, $phpbbForum, $wpUnited, $current_user, $user;
+	global $lDebug, $phpbbForum, $wpUnited, $user;
 			
 	// Check if user is logged into WP
-	get_currentuserinfo();
-	if(!$current_user->ID) {
+	$wpUser = get_currentuserinfo();
+	if(!$wpUser->ID) {
 		return false;
 	}
 
@@ -324,7 +330,11 @@ function wpu_validate_new_user($username, $email, $errors) {
  */
 function wpu_create_phpbb_user($userID) {
 	global $phpbbForum;
-	
+
+	if(!$userID) {
+		return -1;
+	}
+
 	$wpUsr = get_userdata($userID);
 	
 	$fStateChanged = $phpbbForum->foreground();

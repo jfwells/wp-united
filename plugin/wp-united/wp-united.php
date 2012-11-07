@@ -118,7 +118,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if(!isset($phpbbForum) && !(is_object($phpbbForum))) {
 			$phpbbForum = new WPU_Phpbb();	
 		}
-		
+
 		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
 		$this->process_adminpanel_actions();
 
@@ -274,7 +274,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function integrate_users() {
-		if($this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT')) {
+		if($this->is_phpbb_loaded() && $this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT')) {
 			wpu_integrate_login();
 		}
 	}
@@ -313,7 +313,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) { 
 				wpu_process_settings();
 			}
-			
+	
 			// file tree
 			if( isset($_POST['filetree']) && check_ajax_referer( 'wp-united-filetree') ) {
 				wpu_filetree();
@@ -487,7 +487,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function get_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
 		global $phpbbForum;
 
-		if (!$this->get_setting('integrateLogin')) { 
+		if (!$this->is_enabled() || !$this->get_setting('integrateLogin')) { 
 			return $avatar;
 		}
 
