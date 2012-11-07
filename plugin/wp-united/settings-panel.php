@@ -1030,6 +1030,14 @@ function wpu_settings_page() {
 								<input type="radio" name="rad_integ_source" id="integphpbb" value="phpbb"  <?php if($wpUnited->get_setting('integsource') == 'phpbb') { ?>checked="checked"<?php } ?>  /><label for="integphpbb">phpBB</label>
 									<input type="radio" name="rad_integ_source" id="integwp" value="wp" <?php if($wpUnited->get_setting('integsource') == 'wp') { ?>checked="checked"<?php } ?>  /><label for="integwp">WordPress</label>
 								
+								
+								<h4>Sync avatars?</h4>
+								<p>Avatars will be synced between phpBB &amp; WordPress. If a user has an avatar in phpBB, it will show in WordPress. If they have a Gravatar, it will show in phpBB.</p>
+								<p>Enabling this option requires that the &quot;Remote avatar linking&quot; option is enabled in phpBB, so WP-United will automatically enable that phpBB option for you.</p>
+								<input type="checkbox" id="wpuavatar" name="wpuavatar" <?php if($wpUnited->get_setting('avatarsync')) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Sync avatars?</label>	
+						
+								
+								
 								<h4>Enable cross-posting?</h4>
 								<p>If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.</p>
 								<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if($wpUnited->get_setting('xposting')) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
@@ -1175,7 +1183,7 @@ function wpu_settings_page() {
 					</div>
 					
 					<div id="wputab-behav">
-					
+
 						<h3>Use phpBB Word Censor?</h3>
 						<p>Turn this option on if you want WordPress posts to be passed through the phpBB word censor.</p>
 						<input type="checkbox" id="wpucensor" name="wpucensor" <?php if($wpUnited->get_setting('phpbbCensor')) { echo ' checked="checked" '; } ?>/><label for="wpucensor">Enable word censoring in WordPress</label>
@@ -1339,7 +1347,8 @@ function wpu_process_settings() {
 			$data['integsource'] =  (!isset($_POST['rad_integ_source'])) ? 'phpbb' : $_POST['rad_integ_source'];
 			$data['integsource'] = ($data['integsource'] == 'wp') ? 'wp' : 'phpbb';
 			
-			$data['xposting'] = isset($_POST['wpuxpost']) ? 1 : 0;
+			$data['xposting'] =   (isset($_POST['wpuxpost'])) ? 1 : 0;
+			$data['avatarsync'] = (isset($_POST['wpuavatar'])) ? 1 : 0,
 			
 			if($data['xposting'] ) { 
 				
@@ -1357,19 +1366,20 @@ function wpu_process_settings() {
 			} else {
 				//cross-posting disabled, set to default
 				$data = array_merge($data, array(
-					'xposttype' 					=> 'excerpt',
+					'xposttype' 		=> 'excerpt',
 					'wpuxpostcomments'	=> 0,
-					'xpostforce' 				=> 0
+					'xpostforce' 		=> 0
 				));
 			}
 		} else {
 			// logins not integrated, set to default
 			$data = array_merge($data, array(
-				'integsource'				=> 'phpbb',
-				'xposting' 					=> 0,
-				'xposttype' 					=> 'excerpt',
-				'wpuxpostcomments'	=> 0,
-				'xpostforce' 				=> 0
+				'integsource'			=> 'phpbb',
+				'xposting' 				=> 0,
+				'xposttype' 			=> 'excerpt',
+				'wpuxpostcomments'		=> 0,
+				'xpostforce' 			=> 0
+				'avatarsync'			=> 0,
 			));
 		}
 			

@@ -108,6 +108,7 @@ class WP_United_Basics {
 			//'upgradeRun' => 0,
 			'xposting' => 0,
 			'phpbbSmilies' => 0,
+			'avatarsync'	=> 1,
 			'xpostautolink' => 0,
 			'xpostforce' => -1,
 			'xposttype' => 'EXCERPT',	
