@@ -628,15 +628,13 @@ class WPU_Phpbb {
 			var wpual = window.onload;
 			window.onload = function() {
 				if (typeof wpual == 'function') wpual();
-				function() {
-					try {
-						var hs = document.getElementsByClassName('wpulog');
-						for(h in hs) {
-							hs[h].parentNode.firstChild.nodeValue = '';
-							hs[h].parentNode.lastChild.nodeValue = '';
-						}
-					} catch(e) {}	  
-				}
+				try {
+					var hs = document.getElementsByClassName('wpulog');
+					for(h in hs) {
+						hs[h].parentNode.firstChild.nodeValue = '';
+						hs[h].parentNode.lastChild.nodeValue = '';
+					}
+				} catch(e) {}	  
 			};
 		}
 		// ]]>
