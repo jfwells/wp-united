@@ -1022,7 +1022,7 @@ function wpu_settings_page() {
 							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if($wpUnited->get_setting('integrateLogin')) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 							
 							<div id="wpusettingsxpost" class="subsettings">
-								<h4>Authentication source</h4>
+								<h4>Authentication source [ !NOT NEEDED, CURRENTLY IGNORED ! ]</h4>
 								<p>Choose whether phpBB or WordPress should act as the main database for user integration. </p>
 								<p>For example, if you choose 'phpBB', users will be logged into both packages based on their phpBB status.</p>
 								<p>For your end users, what you choose here will not make much difference. However, if you plan to integrate with an additional authentication module (e.g. a Facebook Connect plugin), you will need to select the appropriate side here.</p>
@@ -1033,7 +1033,7 @@ function wpu_settings_page() {
 								
 								<h4>Sync avatars?</h4>
 								<p>Avatars will be synced between phpBB &amp; WordPress. If a user has an avatar in phpBB, it will show in WordPress. If they have a Gravatar, it will show in phpBB.</p>
-								<p>Enabling this option requires that the &quot;Remote avatar linking&quot; option is enabled in phpBB, so WP-United will automatically enable that phpBB option for you.</p>
+								<p>Enabling this option requires that the &quot;Allow avatars&quot; and &quot;Remote avatar linking&quot; options is enabled in phpBB, so WP-United will automatically enable those options for you if they are disabled.</p>
 								<input type="checkbox" id="wpuavatar" name="wpuavatar" <?php if($wpUnited->get_setting('avatarsync')) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Sync avatars?</label>	
 						
 								

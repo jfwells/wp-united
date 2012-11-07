@@ -598,6 +598,22 @@ class WPU_Phpbb {
 		
 		$adminLog[] = __('Storing the new WP-United settings');
 		set_integration_settings($data);
+
+		// TODO: Once the set_integration_settings procedure is refactored into this class, combine this into the same DB call
+		if($wpUnited->get_setting['integrateLogin'] && $wpUnited->get_setting['avatarsync']) {
+			if(!$config['allow_avatar'] || !$config['allow_avatar_remote']) {
+				$adminLog[] = __('Updating avatar settings');
+				for($item in array('allow_avatar', 'allow_avatar_remote')) {
+					$sql[] = array(
+						'config_name' 	=> 	$item,
+						'config_value' 	=>	1
+					);
+				}
+				$db->sql_multi_insert(CONFIG_TABLE, $sql);
+				$cache->destroy('config');
+			}
+		}
+
 		
 		// clear out the WP-United cache on settings change
 		$adminLog[] = __('Purging the WP-United cache');
