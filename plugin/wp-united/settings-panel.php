@@ -1348,7 +1348,7 @@ function wpu_process_settings() {
 			$data['integsource'] = ($data['integsource'] == 'wp') ? 'wp' : 'phpbb';
 			
 			$data['xposting'] =   (isset($_POST['wpuxpost'])) ? 1 : 0;
-			$data['avatarsync'] = (isset($_POST['wpuavatar'])) ? 1 : 0,
+			$data['avatarsync'] = (isset($_POST['wpuavatar'])) ? 1 : 0;
 			
 			if($data['xposting'] ) { 
 				
@@ -1378,8 +1378,8 @@ function wpu_process_settings() {
 				'xposting' 				=> 0,
 				'xposttype' 			=> 'excerpt',
 				'wpuxpostcomments'		=> 0,
-				'xpostforce' 			=> 0
-				'avatarsync'			=> 0,
+				'xpostforce' 			=> 0,
+				'avatarsync'			=> 0
 			));
 		}
 			
