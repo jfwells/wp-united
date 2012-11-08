@@ -45,6 +45,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			'wp_head' 				=>		'add_scripts',
 			'register_post'			=>		array('validate_new_user', 10, 3),
 			'user_register'			=>		array('process_new_wp_reg', 10, 1),
+			'profile_update'		=>		array('profile_update', 10, 2),
 		),
 
 		$filters = array(
@@ -523,7 +524,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			
 			$phpbbAvatar = $phpbbForum->get_avatar($wpuIntID, $size, $size, $safe_alt);	
 			
-			if(!empty($phpbbAvatar)) {
+			if(!empty($phpbbAvatar) && (stristr($phpbbAvatar, 'wpuput=1') === false)) {
 				return $phpbbAvatar;
 			}
 			
@@ -705,6 +706,22 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				wpu_sync_profiles($user, $phpbbForum->fetch_userdata_for($phpbbID), 'sync');
 			}
 			
+		}
+	}
+	
+	/**
+	 * Sync details to phpBB on a profile update
+	 * 
+	 */
+	public function profile_update($userId, $oldUserData) {
+		global $phpbbForum;
+		 
+		if($this->get_setting('integrateLogin')) {
+			$wpData = get_userdata($userId);
+			$phpbbId = wpu_get_integrated_phpbbuser($userID);
+			if($phpbbId) {
+				wpu_sync_profiles($wpData, $phpbbForum->fetch_userdata_for($phpbbId), 'wp-update'); 
+			}
 		}
 	}
 	

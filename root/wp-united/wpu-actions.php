@@ -30,111 +30,22 @@ class WPU_Actions {
 	 * logs out of WordPress when the phpBB logout is called
 	 */
 	function do_logout() {
-		global $wpUnited, $phpbb_root_path, $phpEx, $wpUtdInt, $wpuCache;
-		// TODO: REIMPLEMENT!!
+		return;
 	}
 	/**
 	 * Updates the WordPress user profile when the phpBB profile is updated
 	 */
 	function profile_update($mode, $phpbb_id, $integration_id, $data) {
-		global $wpUnited, $phpbb_root_path, $phpEx, $wpUtdInt, $db, $user, $wpuCache;
+		return;
 
-		if ( $wpUnited->get_setting('integrateLogin') && $wpUnited->is_enabled() ) {	
-			
-			// check that integration ID has been provided
-			if (empty($integration_id)) {
-				$sql = 	"SELECT *
-					FROM " . USERS_TABLE . " 
-					WHERE user_id = $phpbb_id";
-				if (!$result = $db->sql_query($sql)) {
-					trigger_error($user->lang['L_MAP_COULDNT_INT'] . '<br />' .  $user->lang['L_DB_ERROR']);
-				}
-				$user_data = $db->sql_fetchrow($result);
-				$db->sql_freeresult($result);
-				$integration_id = $user_data['user_wpuint_id'];
-			}
-			
-			// only bother integrating data if user is already integrated
-			if (!empty($integration_id)) {
-			
-				$GLOBALS['wpu_newDetails'] = ''; 
-				switch($mode) {
-					case 'reg_details':
-						$GLOBALS['wpu_newDetails'] = array(
-							'user_id' 		=>  	$phpbb_id,
-							'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
-							'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
-							'user_password' 	=> 	(isset($data['user_password'])) ? $data['user_password'] : ''
-						);
-					break;
-					case 'profile_info':
-						$GLOBALS['wpu_newDetails'] = array(
-							'user_id' 		=> 	$phpbb_id,
-							'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
-							'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
-							'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
-							'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : ''
-						);
-					break;
-					case 'avatar':
-						$GLOBALS['wpu_newDetails'] = array(
-							'user_id' 			=> 	$phpbb_id,							
-							'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
-							'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
-							'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
-							'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''
-						);
-					break;
-					case 'all':
-					default;
-						$GLOBALS['wpu_newDetails'] = array(
-							'user_id' 		=>  	$phpbb_id,
-							'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
-							'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
-							'user_password' 	=> 	(isset($data['user_password'])) ? $data['user_password'] : '',
-							'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
-							'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
-							'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
-							'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : '',							
-							'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
-							'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
-							'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
-							'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''							
-						);
-					
-					break;
-				}
-				if (!empty($GLOBALS['wpu_newDetails'])) {
-					$GLOBALS['wpu_add_actions'] = '
-						$wpUsrData = get_userdata(' . $integration_id . ');
-						$wpUpdateData =	wpu_check_details_consistency($wpUsrData, $GLOBALS[\'wpu_newDetails\']);
-						if ( $wpUpdateData ) {
-							require_once( ABSPATH . WPINC . \'/registration.php\');
-							wp_update_user($wpUpdateData);
-						}
-					';	
-					define('WPU_PERFORM_ACTIONS', TRUE);
-					if ( $wpUnited->get_setting('showHdrFtr') != 'REV' ) { // if reverse integration, we'll do it later
-						require_once($wpUnited->pluginPath . 'wp-integration-class.php');
-						require_once($wpUnited->pluginPath . 'cache.' . $phpEx);
-						$wpuCache = WPU_Cache::getInstance();
-						
-						$wpUtdInt = WPU_Integration::getInstance(get_defined_vars());
-						if ($wpUtdInt->can_connect_to_wp()) {
-							//enter the integration
-							/// No user integration here as we can't log in with the new credentials yet
-							define('WPU_DISABLE_LOGIN_INT', TRUE);
-							$wpUtdInt->enter_wp_integration();
-							eval($wpUtdInt->exec());  
-							$wpUtdInt->exit_wp_integration();
-							$wpUtdInt = null; unset($wpUtdInt);
-							
-						}
-					}
-				}
-			}			
-		}
 	}
+	
+
+	
+	
+	
+	
+	
 	/**
 	 * adds blog links to users' profiles.
 	 */

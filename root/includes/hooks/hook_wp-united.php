@@ -53,7 +53,7 @@ if (defined('WPU_DISABLE') && WPU_DISABLE) {
 
 
 // We are either in the phpBB ACP, or phpBB is already embedded in WordPress. So we don't need to do anything else...
-if(defined('ADMIN_START') || defined('WPU_PHPBB_IS_EMBEDDED')) { 
+if(defined('WPU_PHPBB_IS_EMBEDDED')) { 
 	return;
 }
 
@@ -66,29 +66,54 @@ wpu_set_buffering_init_level();
  * phpBB is not yet fully loaded, but we need to decide NOW whether we will run WordPress this session. 
  * If so, we will invoke the WP env here. This is because WP *MUST* be run in the global scope, due to the sheer number of plugins that expect this.
 */
-				
-// register our hooks
-$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
-$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
-$phpbb_hook->register('exit_handler', 'wpu_continue');
-
-
 
 $wpuIntegrationMode = false;
 $wpuIntegrationActions = false;
 
 
 // Is this a login or logout page? If so, we'll need to enter WP
-if(preg_match('/\/ucp.php/', $_SERVER['REQUEST_URI'])) {
-	$loginOutMode = request_var('mode', '');	
-	if($loginOutMode == 'logout') { define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
-		$wpuIntegrationActions = 'logout';
-		$wpuIntegrationMode = 'actions';
-	} else if($loginOutMode == 'login') {  define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
-		$wpuIntegrationActions = 'login';
-		$wpuIntegrationMode = 'actions';
+if($wpUnited->get_setting('integrateLogin')) {
+	if(preg_match("/\/ucp\.{$phpEx}/", $_SERVER['REQUEST_URI'])) { 
+		$actionMode = request_var('mode', '');	
+		if($actionMode == 'logout') { define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
+			$wpuIntegrationActions = 'logout';
+			$wpuIntegrationMode = 'actions';
+		} else if($actionMode == 'login') {  define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
+			$wpuIntegrationActions = 'login';
+			$wpuIntegrationMode = 'actions';
+		} else if(($actionMode == 'profile_info') || ($actionMode == 'reg_details') || ($actionMode == 'avatar')) {
+			$didSubmit = request_var('submit', '');
+			if(!empty($didSubmit)) {
+				$wpuIntegrationActions = 'profile';
+				$wpuIntegrationMode = 'actions';
+			}
+		}
+	} else if(defined('ADMIN_START')) {
+		$didSubmit = request_var('update', '');
+		if(!empty($didSubmit)) {
+			$actionMode = request_var('mode', '');
+			$wpuActionsFor = (int)request_var('u', '');
+			if(!empty($wpuActionsFor) && (($actionMode == 'profile') || ($actionMode == 'overview') || ($actionMode == 'profile'))) {
+				$wpuIntegrationActions = 'acpprofile';
+				$wpuIntegrationMode = 'actions'; 
+			}
+		}
+		
+
 	}
 }
+
+if(defined('ADMIN_START') && !$wpuIntegrationActions) {
+	return;
+}
+
+// register our hooks.
+$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
+$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
+$phpbb_hook->register('exit_handler', 'wpu_continue');
+
+
+
 						
 // enter wordpress if this is phpbb-in-wordpress
 if (($wpUnited->get_setting('showHdrFtr') == 'REV') && !defined('WPU_BLOG_PAGE')) {
@@ -127,46 +152,6 @@ function wpu_init(&$hook) {
 		$phpbbForum->foreground();
 	}
 	
-	/*	if($phpbb_logging_in) {
-			if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
-				print_r($user->data); 
-				
-				echo 'Log into WordPress now!<br />';
-				echo '***' . $user->data['is_registered'] . '***<br />';
-					
-			}
-		}		*/		
-	
-		/* TEMP TEST
-	*/
-	/*
-	 if(!empty($GLOBALS['user']->data['is_registered'])) {
-			echo 'user is logged in';
-			echo '***' . $user->data['is_registered'] . '***<br />';
-			print_r($_COOKIE);
-			if(isset($phpbbForum)) {
-				
-				echo 'wordpress env loaded';
-			}
-	}
-	$mode=request_var('mode','');
-	if ($mode==='login'){
-		echo 'caught login<br />'; 
-		if( (!empty($user->data['user_id'])) && (!$user->data['is_bot']) ) {
-			print_r($user->data); 
-			if($wpUnited->get_setting('integrateLogin')) {
-				echo 'Log into WordPress now!<br />';
-				echo '***' . $user->data['is_registered'] . '***<br />';
-				
-			}
-		}
-	} elseif ($mode === 'logout') {
-		echo 'caught logout<br />'; 
-		echo '***' . $user->data['user_id'] . '***<br />';
-		echo '***' . $GLOBALS['user']->data['is_registered'] . '***';
-		//die();		
-	}
-	*/
 		
 		
 	// Add lang strings if this isn't blog.php
@@ -228,10 +213,31 @@ function wpu_execute(&$hook, $handle) {
 	global $wpUnited, $wpuBuffered, $wpuRunning, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache, $wpuIntegrationMode;
 	// We only want this action to fire once, and only on a real $template->display('body') event
 	if ( (!$wpuRunning)  && (isset($template->filename[$handle])) ) {
+	
+	
+		// NEW ADD FOR PROFILE SYNC, TEMP WHILE HOOKS BEING CLEANED UP (@TODO: CLEANUP HOOKS FILE)
+		global $wpuIntegrationActions, $phpbbForum, $user, $wpuActionsFor;
+		
+		if(($wpuIntegrationActions == 'profile') || ($wpuIntegrationActions == 'acpprofile')) {
+			
+			$idToFetch = ($wpuIntegrationActions == 'acpprofile') ? $wpuActionsFor : $user->data['user_id'];
+			
+			// have to reload data from scratch otherwise cached $user is used
+			$newUserData = $phpbbForum->fetch_userdata_for($idToFetch);
+
+			$phpbbForum->background(); 
+			$wpUserData = get_userdata($newUserData['user_wpuint_id']);
+			wpu_sync_profiles($wpUserData, $newUserData, 'phpbb-update');
+			$phpbbForum->foreground();
+		}
+	
+	
 		
 		if($handle != 'body') {
 			return;
 		}
+		
+
 
 		/**
 		 * An additional check to ensure we don't act on a $template->assign_display('body') event --

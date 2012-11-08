@@ -140,25 +140,7 @@ function wpu_int_phpbb_logged_in() {
 		// they don't have an account yet, create one
 		$signUpName = $phpbbForum->get_username();
 		
-		if(! $signUpName = wpu_find_next_avail_name($signUpName, 'wp') ) {
-			return false;
-		}
-
-		$newWpUser = array(
-			'user_login'	 	=> 	$signUpName,
-			'user_pass'		=>	$phpbbForum->get_userdata('user_password'),
-			'user_email'	=>	$phpbbForum->get_userdata('user_email')
-		); 
-		
-		// remove WP-United hook so we don't get stuck in a loop on new user creation
-		if(!remove_action('user_register', array($wpUnited, 'process_new_wp_reg'), 10, 1)) {
-			return false;
-		}
-
-		$newUserID = wp_insert_user($newWpUser);
-		
-		// reinstate the hook
-		add_action('user_register', array($wpUnited, 'process_new_wp_reg'), 10, 1); 
+		$newUserID = wpu_create_wp_user($signUpName, $phpbbForum->get_userdata('user_password'), $phpbbForum->get_userdata('user_email'));
 		
 		if($newUserID) { 
 			
@@ -182,7 +164,37 @@ function wpu_int_phpbb_logged_in() {
 	
 }
 
+/**
+ * Simple function to add a new user while preventing firing of the WPU user register hook
+ */
+function wpu_create_wp_user($signUpName, $password, $email) {
+	global $wpUnited;
+	
 
+	if(! $foundName = wpu_find_next_avail_name($signUpName, 'wp') ) {
+
+			return false;
+	}
+
+	$newWpUser = array(
+		'user_login'	=> 	$foundName,
+		'user_pass'		=>	$password,
+		'user_email'	=>	$email
+	); 
+
+	// remove WP-United hook so we don't get stuck in a loop on new user creation
+	if(!remove_action('user_register', array($wpUnited, 'process_new_wp_reg'), 10, 1)) {
+		return false;
+	}
+
+	$newUserID = wp_insert_user($newWpUser);
+	
+	// reinstate the hook
+	add_action('user_register', array($wpUnited, 'process_new_wp_reg'), 10, 1); 
+	
+	return $newUserID;
+	
+}
 
 
 /**
@@ -683,16 +695,16 @@ function wpu_update_int_id($pID, $intID) {
 function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	global $wpUnited, $phpbbForum, $wpdb;
 
-	if(is_object($wpData)) {
-		$wpData = get_object_vars($wpData->data); 
+	if(is_object($wpData)) { 
+		$wpData = (array)get_object_vars($wpData->data); 
 	} 
 
 	$wpMeta = get_user_meta($wpData['ID']);
-	
+
 	if( !isset($wpData['ID']) || empty($wpData['ID']) || empty($pData['user_id']) ) {
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 *	First, update normal profile fields
@@ -705,11 +717,11 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 		array('wp'	=>	'nickname',		'phpbb'	=> 'username', 		'type'	=>	'main', 'dir' => 'wp-only'),
 		array('wp'	=>	'display_name',	'phpbb'	=> 'username', 		'type'	=>	'main', 'dir' => 'wp-only'),
 		array('wp'	=>	'user_email',	'phpbb'	=> 'user_email', 	'type'	=>	'main', 'dir' => 'bidi'),
-		array('wp'	=>	'user_url',	'phpbb' => 'user_website', 		'type'	=>	'main', 'dir' => 'bidi'),
-		array('wp'	=>	'phpbb_userid',		'phpbb' => 'user_id',	'type'	=>	'meta', 'dir' => 'wp-only'),
-		array('wp'	=>	'aim',		'phpbb' => 'user_aim', 			'type'	=>	'meta', 'dir' => 'bidi'),
-		array('wp'	=>	'yim',		'phpbb' => 'user_yim', 			'type'	=>	'meta', 'dir' => 'bidi'),
-		array('wp'	=>	'jabber',	'phpbb' => 'user_jabber', 	 	'type'	=>	'meta', 'dir' => 'bidi')
+		array('wp'	=>	'user_url',		'phpbb' => 'user_website', 	'type'	=>	'main', 'dir' => 'bidi'),
+		array('wp'	=>	'phpbb_userid',	'phpbb' => 'user_id',		'type'	=>	'meta', 'dir' => 'wp-only'),
+		array('wp'	=>	'aim',			'phpbb' => 'user_aim', 		'type'	=>	'meta', 'dir' => 'bidi'),
+		array('wp'	=>	'yim',			'phpbb' => 'user_yim', 		'type'	=>	'meta', 'dir' => 'bidi'),
+		array('wp'	=>	'jabber',		'phpbb' => 'user_jabber', 	'type'	=>	'meta', 'dir' => 'bidi')
 	);	
 	
 	$updates = array('wp' => array(),	'phpbb' => array());
@@ -764,13 +776,16 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	// sync avatar WP -> phpBB
 	if((action != 'phpbb-update') &&  ($wpUnited->get_setting('avatarsync'))){
 		// is the phpBB avatar empty already, or was it already put by WP-United?
-		if(empty($pData['user_avatar']) || (stripos($pData['user_avatar'], 'wpuput=') !== false)) { 
+		if(empty($pData['user_avatar']) || (stripos($pData['user_avatar'], 'wpuput=1') !== false)) { 
 			
 			$avatarSize = 90;
 			
 			// we send an avatar. First we need to get the WP one -- remove our filter hook
 			if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) {
-				$avatar = get_avatar($wpData['ID'], $avatarSize);
+				
+				// Gravatars are predicated on user e-mail. If we send ID instead, get_avatar could just return a default as the user might not
+				// have cached data yet. E-mail is also faster as it doesn't need to be converted.
+				$avatar = get_avatar($wpData['user_email'], $avatarSize);
 				if(!empty($avatar)) {
 					if(stripos($avatar, includes_url('images/blank.gif')) === false) {
 						$avatarDetails = $phpbbForum->convert_avatar_to_phpbb($avatar, $pData['user_id'], $avatarSize, $avatarSize);
@@ -788,8 +803,6 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	 *	Compare and update passwords
 	 *
 	 */	
-	
-
 	if(($action == 'phpbb-update') || ($action == 'sync')) { // updating phpBB profile or syncing
 		
 		// convert password to WP format for comparison, as that will be the destination if it is different
@@ -804,7 +817,7 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	} else if($action == 'wp-update') {	// updating WP profile 
 		
 		// convert password to phpBB format for comparison, as that will be the destination if it is different
-		$wpData['user_pas'] = wpu_convert_password_format($wpData['user_pass'], 'to-phpbb');
+		$wpData['user_pass'] = wpu_convert_password_format($wpData['user_pass'], 'to-phpbb');
 
 		// for phpBB we can update along with everything else
 		if($pData['user_password'] != $wpData['user_pass']) {
@@ -830,7 +843,11 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	// update WP items
 	if(sizeof($updates['wp'])) {
 		$updates['wp']['ID'] = $wpData['ID'];
+		
+		// prevent our hook from firing
+		remove_action('profile_update', array($wpUnited, 'profile_update'), 10, 2);
 		$userID = wp_update_user($updates['wp']);
+		add_action('profile_update', array($wpUnited, 'profile_update'), 10, 2);
 		$updated = true; 
 	}
 
@@ -868,94 +885,6 @@ function wpu_convert_password_format($password, $direction = 'to-phpbb') {
 
 }
 	
-/**
- * Arbitrates the user details - e-mail, password, website, aim, yim, between phpBB & WordPress -- called internally by integrate_login
- * Basically, just overwrites WP values with the current phpBB values.
- * We try to update these whenever they are changed, but that's not always the case, so for now we also do this on each access.
- * @param mixed $wpData WordPress user data
- * @param mixed $pData phpBB user data
- * @param bool $newuser set to true to populate profile fields
- * @return mixed array of fields to update
- */ // TODO: CHECK THIS IS NOT BEING CALLED MORE THAN ONCE PER PAGE LOAD??
-function wpu_make_profiles_consistent($wpData, $pData, $newUser = false) {	
-	
-	$wpDataArr = get_object_vars($wpData); 
-
-	if( !isset($wpDataArr['ID']) || empty($wpDataArr['ID']) || empty($pData['user_id']) ) {
-		return false;
-	}
-	$update = array();
-	$wpMeta = get_user_meta($wpDataArr['ID']);
-	
-	$doWpUpdate = false;
-	
-
-	
-	
-	// We only update the user's nicename, etc. on the first run -- they can change it thereafter themselves
-	if($newUser) {
-		if ( (!empty($pData['username'])) && !($pData['username'] == $wpDataArr['user_nicename']) ) {
-			list($update['user_nicename'], $update['nickname'], $update['display_name']) = $pData['username'];
-			$doWpUpdate = true;
-		}
-	}
-
-	// update profile fields 
-	$fields = array(
-		'user_email'		=>		array('field' => 'user_email', 	'type'	=>	'main'),
-		'user_website'		=>		array('field' => 'user_url', 	'type'	=>	'main'),
-		'user_id'			=>		array('field' => 'phpbb_userid','type'	=>	'meta'),
-		'user_aim'			=>		array('field' => 'aim', 		'type'	=>	'meta'),
-		'user_yim'			=>		array('field' => 'yim', 		'type'	=>	'meta'),
-		'user_jabber'		=>		array('field' => 'jabber', 	 	'type'	=>	'meta')
-	);
-	foreach($fields as $pField => $wpField) {
-		// fields and metadata are in different formats
-		if(isset($pData[$pField]) && !empty($pData[$pField])) { 
-			switch($wpField['type']) {
-				case 'main':
-					if(!isset($wpDataArr[$wpField['field']]) || ($pData[$pField] != $wpDataArr[$wpField['field']])) {
-						$update[$wpField['field']] = $pData[$pField];
-						$doWpUpdate = true;
-					}
-					break;
-				case 'meta':
-					if(!isset($wpDataArr[$wpMeta['field']]) || ($pData[$pField] != $wpMeta[$wpField['field']][0])) {
-						$update[$wpField['field']] = $pData[$pField];
-						$doWpUpdate = true;
-					}
-			}				
-		}
-	}	
-	
-	// update main fields apart from password
-	if ( $doWpUpdate ) {
-		$update['ID'] = $wpData->ID;
-		$userID = wp_update_user($update);
-	}
-	
-	
-	/**
-	 * wp_update_user hashes the password, but it is already hashed. We also need to convert it from phpBB to WordPress format.
-	 * So we handle it separately.
-	 */
-	if(substr($pData['user_password'], 0, 3) == '$H$') {
-		$pData['user_password'] = substr_replace($pData['user_password'], '$P$', 0, 3);
-	}
-	if(isset($wpDataArr['user_pass']) && isset($pData['user_password'])) {
-		if (!empty($pData['user_password']) && ($pData['user_password'] != $wpDataArr['user_pass'])) {
-			global $wpdb;
-			$wpdb->update($wpdb->users, array('user_pass' => $updatingPassword) , array('ID' => $wpData->ID));	
-			$wpdb->print_error();
-			wp_clear_auth_cookie();
-			wp_set_auth_cookie($wpData->ID);
-		}
-	}
-	
-	return $update;
-
-}
-
 
 
 

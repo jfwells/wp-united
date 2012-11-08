@@ -831,19 +831,9 @@ function wpu_process_mapaction() {
 				}
 				$phpbbForum->transition_user();
 				
-				
-		
-				if(! $signUpName = wpu_find_next_avail_name($wpuNewDetails['username'], 'wp') ) {
-					return false;
-				}
-
-				$newWpUser = array(
-					'user_login'	 	=> 	$signUpName,
-					'user_pass'		=>	$password,
-					'user_email'	=>	$wpuNewDetails['user_email']
-				);
-		
-				if($newUserID = wp_insert_user($newWpUser)) { 
+				$newUserID = wpu_create_wp_user($wpuNewDetails['username'], $password, $wpuNewDetails);
+						
+				if($newUserID) { 
 					if($wpUser = get_userdata($newUserID)) { 
 						wpu_update_int_id($userID, $wpUser->ID);
 						
@@ -868,6 +858,8 @@ function wpu_process_mapaction() {
 	die();	
 	
 }
+
+
 
 function wpu_get_phpbb_intdata($userID) {
 	global $phpbbForum, $db;
