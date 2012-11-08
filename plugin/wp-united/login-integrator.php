@@ -826,7 +826,7 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	
 	// Update phpBB items
 	if(sizeof($updates['phpbb'])) {
-		$phpbbForum->update_userdata($pData['user_id'], $updates['wp']);
+		$phpbbForum->update_userdata($pData['user_id'], $updates['phpbb']);
 		$updated = true;
 	}
 	
@@ -852,7 +852,7 @@ function wpu_convert_password_format($password, $direction = 'to-phpbb') {
 	
 		case 'to-phpbb':
 			$from = '$P$';
-			$to = '$H$'
+			$to = '$H$';
 			break;
 			
 		case 'to-wp':

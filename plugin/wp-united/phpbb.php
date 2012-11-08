@@ -580,7 +580,7 @@ class WPU_Phpbb {
 				'user_avatar_type' 		=> AVATAR_REMOTE,
 				'user_avatar'			=> $avatarUrl,
 				'user_avatar_width'		=> $width,
-				'user_avatar_height'	=> $height;
+				'user_avatar_height'	=> $height,
 			);
 					
 		}
