@@ -340,10 +340,7 @@ function wpu_create_phpbb_user($userID) {
 	
 	$fStateChanged = $phpbbForum->foreground();
 	
-	$password = $wpUsr->user_pass;
-	if(substr($password, 0, 3) == '$P$') {
-		$password = substr_replace($password, '$H$', 0, 3);
-	}
+	$password = wpu_convert_password_format($wpUsr->user_pass, 'to-phpbb');
 
 	// validates and finds a unique username
 	if(! $signUpName = wpu_find_next_avail_name($wpUsr->user_login, 'phpbb') ) {
@@ -678,7 +675,7 @@ function wpu_update_int_id($pID, $intID) {
 /**
  * Bi-direcitonal profile synchroniser.
  * 
- * @param mixed $wpData WordPress user data
+ * @param mixed $wpData WordPress user object or array of data
  * @param mixed $pData phpBB user data
  * @param string $action = sync | phpbb-update | wp-update
  * @return bool true if something was updated
@@ -686,10 +683,13 @@ function wpu_update_int_id($pID, $intID) {
 function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	global $wpUnited, $phpbbForum, $wpdb;
 
-	$wpData = get_object_vars($wpData); 
-	$wpMeta = get_user_meta($wpDataArr['ID']);
+	if(is_object($wpData)) {
+		$wpData = get_object_vars($wpData->data); 
+	} 
+
+	$wpMeta = get_user_meta($wpData['ID']);
 	
-	if( !isset($wpDataArr['ID']) || empty($wpDataArr['ID']) || empty($pData['user_id']) ) {
+	if( !isset($wpData['ID']) || empty($wpData['ID']) || empty($pData['user_id']) ) {
 		return false;
 	}
 	
@@ -705,11 +705,11 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 		array('wp'	=>	'nickname',		'phpbb'	=> 'username', 		'type'	=>	'main', 'dir' => 'wp-only'),
 		array('wp'	=>	'display_name',	'phpbb'	=> 'username', 		'type'	=>	'main', 'dir' => 'wp-only'),
 		array('wp'	=>	'user_email',	'phpbb'	=> 'user_email', 	'type'	=>	'main', 'dir' => 'bidi'),
-		array('wp'	=>	'user_website',	'phpbb' => 'user_url', 		'type'	=>	'main', 'dir' => 'bidi'),
-		array('wp'	=>	'user_id',		'phpbb' => 'phpbb_userid',	'type'	=>	'meta', 'dir' => 'wp-only'),
-		array('wp'	=>	'user_aim',		'phpbb' => 'aim', 			'type'	=>	'meta', 'dir' => 'bidi'),
-		array('wp'	=>	'user_yim',		'phpbb' => 'yim', 			'type'	=>	'meta', 'dir' => 'bidi'),
-		array('wp'	=>	'user_jabber',	'phpbb' => 'jabber', 	 	'type'	=>	'meta', 'dir' => 'bidi')
+		array('wp'	=>	'user_url',	'phpbb' => 'user_website', 		'type'	=>	'main', 'dir' => 'bidi'),
+		array('wp'	=>	'phpbb_userid',		'phpbb' => 'user_id',	'type'	=>	'meta', 'dir' => 'wp-only'),
+		array('wp'	=>	'aim',		'phpbb' => 'user_aim', 			'type'	=>	'meta', 'dir' => 'bidi'),
+		array('wp'	=>	'yim',		'phpbb' => 'user_yim', 			'type'	=>	'meta', 'dir' => 'bidi'),
+		array('wp'	=>	'jabber',	'phpbb' => 'user_jabber', 	 	'type'	=>	'meta', 'dir' => 'bidi')
 	);	
 	
 	$updates = array('wp' => array(),	'phpbb' => array());
@@ -770,7 +770,7 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 			
 			// we send an avatar. First we need to get the WP one -- remove our filter hook
 			if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) {
-				$avatar = get_avatar($wpData->ID, $avatarSize);
+				$avatar = get_avatar($wpData['ID'], $avatarSize);
 				if(!empty($avatar)) {
 					if(stripos($avatar, includes_url('images/blank.gif')) === false) {
 						$avatarDetails = $phpbbForum->convert_avatar_to_phpbb($avatar, $pData['user_id'], $avatarSize, $avatarSize);
@@ -793,14 +793,12 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	if(($action == 'phpbb-update') || ($action == 'sync')) { // updating phpBB profile or syncing
 		
 		// convert password to WP format for comparison, as that will be the destination if it is different
-		$pData['user_pasword'] = wpu_convert_password_format($wpData['user_password'], 'to-wp');
-		
+		$pData['user_password'] = wpu_convert_password_format($pData['user_password'], 'to-wp');
 		// wp_update_user double-hashes the password so we handle it separately, now
 		if($pData['user_password'] != $wpData['user_pass']) {
-			$wpdb->update($wpdb->users, array('user_pass' => $pData['user_password']) , array('ID' => $wpData['ID']));	
-			$wpdb->print_error();
-			wp_clear_auth_cookie();
-			wp_set_auth_cookie($wpData['ID']);
+			$wpdb->update($wpdb->users, array('user_pass' => stripslashes($pData['user_password'])) , array('ID' => (int)$wpData['ID']), '%s', '%d');
+			wp_cache_delete($wpData['ID'], 'users');
+			wp_cache_delete($wpData['ID'], 'userlogins');
 		}
 		
 	} else if($action == 'wp-update') {	// updating WP profile 
@@ -821,20 +819,19 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	 *	Commit changes
 	 *
 	 */
-	
 	$updated = false;
 	
 	// Update phpBB items
-	if(sizeof($updates['phpbb'])) {
+	if(sizeof($updates['phpbb'])) { 
 		$phpbbForum->update_userdata($pData['user_id'], $updates['phpbb']);
 		$updated = true;
 	}
 	
 	// update WP items
 	if(sizeof($updates['wp'])) {
-		$update['ID'] = $wpData['ID'];
+		$updates['wp']['ID'] = $wpData['ID'];
 		$userID = wp_update_user($updates['wp']);
-		$updated = true;
+		$updated = true; 
 	}
 
 	return $updated;
@@ -864,9 +861,10 @@ function wpu_convert_password_format($password, $direction = 'to-phpbb') {
 			return $password;
 	}
 	
-	if(substr($password, 0, 3) == $from) {
-		return substr_replace($password, $to, 0, 3);
+	if(substr($password, 0, 3) == $from) { 
+		$password = substr_replace($password, $to, 0, 3); 
 	}
+	return $password;
 
 }
 	
