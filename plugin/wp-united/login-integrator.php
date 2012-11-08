@@ -693,7 +693,7 @@ function wpu_sync_phpbb_profile($pData, $wpData, $newUser = false) {
 	
 	// get the avatar from WordPress. Remove our filtering function first!
 	// TODO: CHECK IF AN AVATAR EXISTS ALREADY
-	if($wpUnited->get_setting('avatarsync')) { echo "A";
+	if($wpUnited->get_setting('avatarsync')) {
 		if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) { echo "B";
 			$avatar = get_avatar($wpData->ID, 90);
 			if(!empty($avatar)) {

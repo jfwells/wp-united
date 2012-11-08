@@ -817,7 +817,7 @@ function wpu_process_mapaction() {
 				} else if($phpbbID == -1) {
 					die('<status>FAIL</status><details>A suitable username could not be found in phpBB</details></wpumapaction>');
 				}
-				wpu_sync_phpbb_profile($phpbbForum->fetch_userdata_for($phpbbID), $wpUsrData, true); // TODO: JUST USE LOGIN ONCE under construction
+				wpu_sync_phpbb_profile($phpbbForum->fetch_userdata_for($phpbbID), get_userdata($userID), true); // TODO: JUST USE LOGIN ONCE under construction
 				
 			} else {
 
