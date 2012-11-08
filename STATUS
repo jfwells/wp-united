@@ -9,6 +9,8 @@ v0.9:
 template integration status:
 ---------------------------
 
+** some duplication of functions, get_phpbb_intdata in settings_panel, and $phpbbForum->fetch_userdata_for **
+
 WORKING! but...
 
 - need to remove admin bar on cached templates now

@@ -795,7 +795,7 @@ function wpu_process_mapaction() {
 				$wpuNewDetails = wpu_get_phpbb_intdata($pUserID);
 				$phpbbForum->background($fStateChanged);
 				$wpUsrData = get_userdata($wUserID);
-				wpu_make_profiles_consistent($wpUsrData, $wpuNewDetails);
+				wpu_sync_profiles($wpUsrData, $wpuNewDetails, 'sync');
 				echo '<status>OK</status>';
 			}
 		break;
@@ -817,7 +817,7 @@ function wpu_process_mapaction() {
 				} else if($phpbbID == -1) {
 					die('<status>FAIL</status><details>A suitable username could not be found in phpBB</details></wpumapaction>');
 				}
-				wpu_sync_phpbb_profile($phpbbForum->fetch_userdata_for($phpbbID), get_userdata($userID), true); // TODO: JUST USE LOGIN ONCE under construction
+				wpu_sync_phpbb_profile($phpbbForum->fetch_userdata_for($phpbbID), get_userdata($userID), 'sync'); // TODO: JUST USE LOGIN ONCE under construction
 				
 			} else {
 
@@ -846,7 +846,9 @@ function wpu_process_mapaction() {
 				if($newUserID = wp_insert_user($newWpUser)) { 
 					if($wpUser = get_userdata($newUserID)) { 
 						wpu_update_int_id($userID, $wpUser->ID);
-						wpu_make_profiles_consistent($wpUser, $wpuNewDetails, true);
+						
+						wpu_sync_profiles($wpUser, $wpuNewDetails, 'sync');
+
 						wpu_set_role($wpUser->ID, $userLevel);
 						$phpbbForum->transition_user($userID, $wpuNewDetails->user_ip);
 					}

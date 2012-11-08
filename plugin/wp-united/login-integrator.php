@@ -83,12 +83,9 @@ function wpu_int_phpbb_logged_out() {
 		$user->session_create($phpbbId);
 		$phpbbForum->restore_state($fStateChanged);
 		
-		// TODO: MAKE THESE WORK BOTH WAYS!
 		if($createdUser) {
-			wpu_sync_phpbb_profile($phpbbForum->get_userdata(), $wpUsr, true); // under construction
-		} else {
-			wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
-		}
+			wpu_sync_profiles($wpUsr, $phpbbForum->get_userdata(), 'sync');
+		} 
 
 		return $wpUser->ID;
 			
@@ -127,7 +124,7 @@ function wpu_int_phpbb_logged_in() {
 		wp_set_current_user($wpUser->ID);
 
 		wpu_set_role($wpUser->ID, $userLevel);   // TODO: Stop killing main WP admin role
-		wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), false);
+		
 		wp_set_auth_cookie($wpUser->ID);
 		return $wpUser->ID;
 		
@@ -171,7 +168,7 @@ function wpu_int_phpbb_logged_in() {
 				wp_set_current_user($wpUser->ID);
 				wpu_set_role($wpUser->ID, $userLevel);		
 				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
-				wpu_make_profiles_consistent($wpUser, $phpbbForum->get_userdata(), true);
+				wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync');
 				wp_set_auth_cookie($wpUser->ID);
 				
 				$createdUser = $wpUser->ID;
@@ -678,36 +675,200 @@ function wpu_update_int_id($pID, $intID) {
 	}
 }	
 
+/**
+ * Bi-direcitonal profile synchroniser.
+ * 
+ * @param mixed $wpData WordPress user data
+ * @param mixed $pData phpBB user data
+ * @param string $action = sync | phpbb-update | wp-update
+ * @return bool true if something was updated
+*/
+function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
+	global $wpUnited, $phpbbForum, $wpdb;
 
-function wpu_sync_phpbb_profile($pData, $wpData, $newUser = false) {
-	global $wpUnited, $phpbbForum;
+	$wpData = get_object_vars($wpData); 
+	$wpMeta = get_user_meta($wpDataArr['ID']);
 	
-	$wpDataArr = get_object_vars($wpData); 
-
 	if( !isset($wpDataArr['ID']) || empty($wpDataArr['ID']) || empty($pData['user_id']) ) {
 		return false;
 	}
-	if($newUser) {
-		update_user_meta( $wpData->ID, 'phpbb_userid', $pData['user_id']);
-	}
 	
-	// get the avatar from WordPress. Remove our filtering function first!
-	// TODO: CHECK IF AN AVATAR EXISTS ALREADY
-	if($wpUnited->get_setting('avatarsync')) {
-		if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) { echo "B";
-			$avatar = get_avatar($wpData->ID, 90);
-			if(!empty($avatar)) {
-				if(stripos($avatar, includes_url('images/blank.gif')) === false) {
-					$phpbbForum->put_avatar($avatar, $pData['user_id'], 90, 90);
+	/**
+	 * 
+	 *	First, update normal profile fields
+	 *
+	 */
+	
+	// Our profile fields to synchronise:
+	$fields = array(
+		array('wp'	=>	'user_nicename','phpbb'	=> 'username', 		'type'	=>	'main', 'dir' => 'wp-only'),
+		array('wp'	=>	'nickname',		'phpbb'	=> 'username', 		'type'	=>	'main', 'dir' => 'wp-only'),
+		array('wp'	=>	'display_name',	'phpbb'	=> 'username', 		'type'	=>	'main', 'dir' => 'wp-only'),
+		array('wp'	=>	'user_email',	'phpbb'	=> 'user_email', 	'type'	=>	'main', 'dir' => 'bidi'),
+		array('wp'	=>	'user_website',	'phpbb' => 'user_url', 		'type'	=>	'main', 'dir' => 'bidi'),
+		array('wp'	=>	'user_id',		'phpbb' => 'phpbb_userid',	'type'	=>	'meta', 'dir' => 'wp-only'),
+		array('wp'	=>	'user_aim',		'phpbb' => 'aim', 			'type'	=>	'meta', 'dir' => 'bidi'),
+		array('wp'	=>	'user_yim',		'phpbb' => 'yim', 			'type'	=>	'meta', 'dir' => 'bidi'),
+		array('wp'	=>	'user_jabber',	'phpbb' => 'jabber', 	 	'type'	=>	'meta', 'dir' => 'bidi')
+	);	
+	
+	$updates = array('wp' => array(),	'phpbb' => array());
+	
+
+	foreach($fields as $field) {
+		
+		$type = $field['type'];
+		$wpField = $field['wp'];
+		$pField = $field['phpbb'];
+		$dir = $field['dir'];
+		
+		// initialise items in both data arrays so we can compare them
+		$pFieldData = (isset($pData[$pField])) ? $pData[$pField] : '';
+		if($type == 'main') {
+			$wpFieldData = (isset($wpData[$wpField])) ? $wpData[$wpField] : '';
+		} else {
+			$wpFieldData = (isset($wpMeta[$wpField])) ? $wpMeta[$wpField][0] : '';
+		}
+		
+		switch($action) {
+			case 'wp-update': // WP profile has been updated, so send to phpBB
+				if((!empty($wpFieldData)) && ($dir != 'wp-only')) {
+					$updates['phpbb'][$pField] = $wpFieldData;
 				}
-			}
-			
-			// reinstate our action hook:
-			add_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5);
+				break;
+				
+			case 'phpbb-update': // phpBB profile has been updated, so send to WP
+				if((!empty($pFieldData)) && ($dir != 'phpbb-only')) {
+					$updates['wp'][$wpField] = $pFieldData;
+				}
+				break;
+				
+			case 'sync': // initial sync of profiles, so fill in whatever we can on both sides
+			default;
+				if((!empty($wpFieldData)) && (empty($pFieldData)) &&  ($dir != 'wp-only')) {
+					$updates['phpbb'][$pField] = $wpFieldData;
+				}
+				if((!empty($pFieldData)) && (empty($wpFieldData)) && ($dir != 'phpbb-only')) {
+					$updates['wp'][$wpField] = $pFieldData;
+				}
+				break;
 		}
 	}
 	
+	/**
+	 * 
+	 *	Next, sync avatars
+	 *   TODO: check if wpuput and if avatar_type == AVATAR_REMOTE. If so then can sync p -> w too!
+	 */
+				
+	// sync avatar WP -> phpBB
+	if((action != 'phpbb-update') &&  ($wpUnited->get_setting('avatarsync'))){
+		// is the phpBB avatar empty already, or was it already put by WP-United?
+		if(empty($pData['user_avatar']) || (stripos($pData['user_avatar'], 'wpuput=') !== false)) { 
+			
+			$avatarSize = 90;
+			
+			// we send an avatar. First we need to get the WP one -- remove our filter hook
+			if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) {
+				$avatar = get_avatar($wpData->ID, $avatarSize);
+				if(!empty($avatar)) {
+					if(stripos($avatar, includes_url('images/blank.gif')) === false) {
+						$avatarDetails = $phpbbForum->convert_avatar_to_phpbb($avatar, $pData['user_id'], $avatarSize, $avatarSize);
+						$updates['phpbb'] = array_merge($updates['phpbb'], $avatarDetails);
+					}
+				}
+				// reinstate our action hook:
+				add_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5);
+			}
+		}
+	}	
+		
+	 /**
+	 * 
+	 *	Compare and update passwords
+	 *
+	 */	
+	
+
+	if(($action == 'phpbb-update') || ($action == 'sync')) { // updating phpBB profile or syncing
+		
+		// convert password to WP format for comparison, as that will be the destination if it is different
+		$pData['user_pasword'] = wpu_convert_password_format($wpData['user_password'], 'to-wp');
+		
+		// wp_update_user double-hashes the password so we handle it separately, now
+		if($pData['user_password'] != $wpData['user_pass']) {
+			$wpdb->update($wpdb->users, array('user_pass' => $pData['user_password']) , array('ID' => $wpData['ID']));	
+			$wpdb->print_error();
+			wp_clear_auth_cookie();
+			wp_set_auth_cookie($wpData['ID']);
+		}
+		
+	} else if($action == 'wp-update') {	// updating WP profile 
+		
+		// convert password to phpBB format for comparison, as that will be the destination if it is different
+		$wpData['user_pas'] = wpu_convert_password_format($wpData['user_pass'], 'to-phpbb');
+
+		// for phpBB we can update along with everything else
+		if($pData['user_password'] != $wpData['user_pass']) {
+			$updates['phpbb']['user_password'] = $wpData['user_password'];
+		}
+		
+	}
+
+
+	/**
+	 * 
+	 *	Commit changes
+	 *
+	 */
+	
+	$updated = false;
+	
+	// Update phpBB items
+	if(sizeof($updates['phpbb'])) {
+		$phpbbForum->update_userdata($pData['user_id'], $updates['wp']);
+		$updated = true;
+	}
+	
+	// update WP items
+	if(sizeof($updates['wp'])) {
+		$update['ID'] = $wpData['ID'];
+		$userID = wp_update_user($updates['wp']);
+		$updated = true;
+	}
+
+	return $updated;
+
 }	
+
+/**
+ * phpBB and WordPress passwords are compatible. phPBB marks the hash with a $H$, while WordPress uses $P$
+ * So we just need to convert between them.
+ */
+
+function wpu_convert_password_format($password, $direction = 'to-phpbb') {
+
+	switch($direction) {
+	
+		case 'to-phpbb':
+			$from = '$P$';
+			$to = '$H$'
+			break;
+			
+		case 'to-wp':
+			$from = '$H$';
+			$to = '$P$';
+			break;
+			
+		default;
+			return $password;
+	}
+	
+	if(substr($password, 0, 3) == $from) {
+		return substr_replace($password, $to, 0, 3);
+	}
+
+}
 	
 /**
  * Arbitrates the user details - e-mail, password, website, aim, yim, between phpBB & WordPress -- called internally by integrate_login

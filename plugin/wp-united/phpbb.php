@@ -504,29 +504,70 @@ class WPU_Phpbb {
 	
 	// send the WP avatar to phpBB if the phpBB one is unset
 	public function put_avatar($html, $id, $width=90, $height=90) {
-		global $db, $config;	
+		global $db;	
 			
+		$userItems = $this->convert_avatar_to_phpbb($html, $id, $width, $height);
+		return $this->update_userdata($id, $userItems);
+		
+	}
+	
+	/**
+	 * Update_userdata -- Updates user information for a given user
+	 * @param integer $id phpBB user ID
+	 * @param array $userItems an associative array of key names and values to update
+	 * @return sql update result, false on failure (?)
+	 */
+	public function update_userdata($id, $userItems) {
+		global $db;	
+		
+		if(!is_array($userItems) || !sizeof($userItems) || empty($id)) {
+			return false;
+		}
 
+		$fStateChanged = $this->foreground();
+		
+		$sql = 'UPDATE ' . USERS_TABLE . '
+			SET ' . $db->sql_build_array('UPDATE', $userItems) . '
+			WHERE user_id = ' . $id;
+		$status = $db->sql_query($sql);		
+		
+		$this->restore_state($fStateChanged);
+		
+		return $status;
+		
+	
+	}
+	
+	/**
+	 * Convert an avatar into relevant $user array items for phpBB
+	 * @return array array of user items or empty array on failure
+	 */
+	public function convert_avatar_to_phpbb($html, $id, $width=90, $height=90) {
+		global $config;	
+		
+		
 		$width = (int)$width;
 		$height = (int)$height;
 		
 		if(($width < 50) || ($height < 50)) { 
-			return;
+			return array();
 		}
 		
 		if(!preg_match('/src\s*=\s*[\'"]([^\'"]+)[\'"]/', $html, $matches)) {
-			return;
+			return array();
 		} 
 		$avatarUrl = $matches[1];
 		
 		if(!$avatarUrl) {
-			return;
+			return array();
 		}
 		
-		// we leave a marker for ourselves to see if this avatar was put by wpu
+		// we leave a marker for ourselves to show this avatar was put by wpu
 		$avatarUrl = $avatarUrl . '&amp;wpuput=1';
 
 		$fStateChanged = $this->foreground();
+		
+		$userItems = array();
 		
 		if($config['allow_avatar'] && $config['allow_avatar_remote']) {
 		
@@ -535,20 +576,18 @@ class WPU_Phpbb {
 			$width = ($width > $config['avatar_max_width']) ? $config['avatar_max_width'] : $width;
 			$height = ($height > $config['avatar_max_height']) ? $config['avatar_max_height'] : $height;
 			
-			
-			list($sql_ary['user_avatar_type'], $sql_ary['user_avatar'], $sql_ary['user_avatar_width'], $sql_ary['user_avatar_height']) = array(AVATAR_REMOTE, $avatarUrl, $width, $height);
-			
-
-			if (sizeof($sql_ary)) {
-				$sql = 'UPDATE ' . USERS_TABLE . '
-					SET ' . $db->sql_build_array('UPDATE', $sql_ary) . '
-					WHERE user_id = ' . $id;
-				$db->sql_query($sql);
-			}
+			$userItems = array(
+				'user_avatar_type' 		=> AVATAR_REMOTE,
+				'user_avatar'			=> $avatarUrl,
+				'user_avatar_width'		=> $width,
+				'user_avatar_height'	=> $height;
+			);
+					
 		}
 		
-		$this->restore_state($fStateChanged);
+		$this->restore_state($fStateChanged);	
 		
+		return $userItems;
 	}
 	
 	

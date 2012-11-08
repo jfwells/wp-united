@@ -702,9 +702,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				// create new integrated user in phpBB to match
 				$phpbbID = wpu_create_phpbb_user($userID);
 				$justCreatedUser = $userID;
-				
-				wpu_sync_phpbb_profile($phpbbForum->fetch_userdata_for($phpbbID), $user, true); // TODO: JUST USE LOGIN ONCE under construction
-				
+				wpu_sync_profiles($user, $phpbbForum->fetch_userdata_for($phpbbID), 'sync');
 			}
 			
 		}
