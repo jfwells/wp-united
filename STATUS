@@ -23,6 +23,7 @@ User integration status:
 Beginning to work quite well:
 ** Need to unplug filters for user_register and profile update when user sync is run**
 ** create filter for profile update **
+** sync avatar to phpBB as 'if gravatar' option?? Can likely leave to next version
 ** remove old wpuActions for profile update and move to hook **
 ** some duplication of functions, get_phpbb_intdata in settings_panel, and $phpbbForum->fetch_userdata_for **
 
