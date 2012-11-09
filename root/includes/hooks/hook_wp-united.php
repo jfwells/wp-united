@@ -20,9 +20,7 @@ if ( !defined('IN_PHPBB') ) {
 
 define('WPU_HOOK_ACTIVE', TRUE);
 
-/**
- * Only activate this hook if WP-United is set up and working correctly, and if it is needed:
- */
+
 
 // If the user has deleted the wp-united directory, do nothing
 if(!file_exists($phpbb_root_path . 'wp-united/')) {
@@ -39,14 +37,6 @@ if(defined('WPU_STYLE_FIXER')) {
 if(!isset($wpUnited) || !is_object($wpUnited) || !$wpUnited->is_enabled()) {
 	return;
 }
-
-
-// constants have just been loaded
-if (defined('WPU_DISABLE') && WPU_DISABLE) {  
-	return;
-}	
-
-		
 
 
 // If we don't need to run WP, we don't need to do anything else here...
@@ -83,7 +73,7 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
  * Initialise WP-United variables and template strings
  */
 function wpu_init(&$hook) { 
-	global $wpUnited, $phpbb_root_path, $template, $user, $config, $phpbbForum, $wpuCache;
+	global $wpUnited, $template, $user, $config, $phpbbForum, $wpuCache;
 	
 	if($wpUnited->should_do_action('logout')) {
 		$phpbbForum->background();
@@ -222,6 +212,31 @@ function wpu_execute(&$hook, $handle) {
 	}
 }
 
+
+/**
+ * Prevent phpBB from exiting
+ */
+function wpu_continue(&$hook) {
+	global $wpuRunning, $wpuBuffered, $wpUnited;
+	
+	if (defined('PHPBB_EXIT_DISABLED') && !defined('WPU_FINISHED')) {
+		return '';
+	} else if ( $wpuBuffered && (!$wpuRunning) && $wpUnited->should_do_action('template-p-in-w') ) {
+		/** if someone else was buffering the page and are now asking to exit,
+		 * wpu_execute won't have run yet
+		 */
+		$buff = false;
+		// flush the buffer until we get to our reverse integrated layer
+		while(wpu_am_i_buffered()) {
+			ob_end_flush();
+			$buff = true;
+		}
+		if($buff) {
+			wpu_execute($hook, 'body');
+		}
+	}
+}
+
 /**
  * This is the last line of defence against mods which might be calling $template->assign_display('body')
  *
@@ -248,32 +263,6 @@ function wpu_set_buffering_init_level() {
 	global $wpuBufferLevel;
 	$wpuBufferLevel = ob_get_level();
 }
-
-/**
- * Prevent phpBB from exiting
- */
-function wpu_continue(&$hook) {
-	global $wpuRunning, $wpuBuffered, $wpUnited;
-	
-	if (defined('PHPBB_EXIT_DISABLED') && !defined('WPU_FINISHED')) {
-		return '';
-	} else if ( $wpuBuffered && (!$wpuRunning) && $wpUnited->should_do_action('template-p-in-w') ) {
-		/** if someone else was buffering the page and are now asking to exit,
-		 * wpu_execute won't have run yet
-		 */
-		$buff = false;
-		// flush the buffer until we get to our reverse integrated layer
-		while(wpu_am_i_buffered()) {
-			ob_end_flush();
-			$buff = true;
-		}
-		if($buff) {
-			wpu_execute($hook, 'body');
-		}
-	}
-}
-
-
 
 
 /**

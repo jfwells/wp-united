@@ -42,8 +42,8 @@ Current status:
 -- add deinstallation routine using ajax front-end so it can't crash out
 
 ---- general cleanup ----
+-- use a real decorator for $wpUnited and internalise settings load via new class
 -- Massive cleanup of old integrator, template-integrator and wp-integration-class functions needed, as global scope no longer required.
--- remove old wpuActions for profile update and move to hook 
 -- decide what to do with $phpEx global
 -- append_sid is requiring to be fed the session ID -- why?
 -- several old links where & should be &amp; -- run through validator
@@ -165,7 +165,7 @@ Other (older) things noticed that may no longer be relevant
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
 
-
+- removed globally set actions defines and internalised logic into $wpUnited class
 - Full bi-directional login integration & profile / avatar/Gravatar sync
 - Settings internalised into plugin via new $wpUnited class. Settings transferred to phpBB through serialised class with all members intact.
 - Check that function update_option exists when installing connection -- if not, baulk

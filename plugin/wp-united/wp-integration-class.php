@@ -394,13 +394,7 @@ Class WPU_Integration {
 			$this->prepare('wp_die(\'' . WPU_BOARD_DISABLED . '\', \'' . $GLOBALS['user']->lang['BOARD_DISABLED'] . '\');');
 		}
 		
-		if ( defined('WPU_PERFORM_ACTIONS') ) {
-			global $wpu_add_actions;
-			if(isset($wpu_add_actions)) {
-				$this->prepare($wpu_add_actions);
-			}
-		}
-		
+
 		if ( !$this->wpu_compat ) {
 			$this->prepare('$newVars = array_diff(array_keys(get_defined_vars()), $beforeVars);');
 			$this->prepare('foreach($newVars as $newVar) { if ($newVar != \'beforeVars\') $GLOBALS[$newVar] =& $$newVar;}');
