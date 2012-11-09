@@ -598,7 +598,7 @@ class WPU_Phpbb {
 		global $wpUnited, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
 		
 		
-		if(empty($data)) {
+		if(empty($dataToStore)) {
 			echo "No settings to process";
 			return false;
 		}
@@ -667,7 +667,7 @@ class WPU_Phpbb {
 			'config_name'	=>	'wpu_location',
 			'config_value'	=>	$wpUnited->get_plugin_path()
 		);
-		$dataToStore = base64_encode(gzcompress(serialize($dataToStore)));
+		$dataIn = base64_encode(gzcompress(serialize($dataToStore)));
 		$currPtr=1;
 		$chunkStart = 0;
 		while($chunkStart < strlen($dataIn)) {
@@ -751,7 +751,7 @@ class WPU_Phpbb {
 	public function clear_settings() {
 		global $db;
 		
-		$fStateChanged = $this->foregound();
+		$fStateChanged = $this->foreground();
 		
 		$sql = 'DELETE FROM ' . CONFIG_TABLE . "
 			WHERE config_name LIKE 'wpu_settings_%' 

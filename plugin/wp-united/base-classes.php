@@ -15,8 +15,6 @@ class WP_United_Settings {
 		$wpHomeUrl = '',
 		$wpBaseUrl = '',
 		$pluginUrl = '',
-		$enabled = false,
-		$lastRun = false,
 		$settings = array();
 
 	public function __construct() {
@@ -131,7 +129,9 @@ class WP_United_Plugin_Base {
 		$integActions = array(),
 		$integActionsFor = 0,
 		$filters = array(),
-		$actions = array();
+		$actions = array(),
+		$enabled = false,
+		$lastRun = false;
 
 
 	/**
@@ -281,7 +281,7 @@ class WP_United_Plugin_Base {
 
 	// TODO: PUT THIS IN phpBBFORUM?
 	public function clear_style_keys()	{
-		global $db, $config;
+		global $db, $config, $cache;
 		
 		if(isset($config['wpu_style_keys_1'])) {
 			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
