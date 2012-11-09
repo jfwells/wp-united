@@ -155,6 +155,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$phpbbForum->load($phpbb_root_path);
 			
 			$this->set_last_run('working');
+			$this->init_style_keys();
 		}
 		
 	}
@@ -214,13 +215,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 		
 		 return $this->lastRun;
-	}
-	
-	public function is_phpbb_loaded() {
-		if($this->is_enabled() && ($this->get_last_run() == 'working')) {
-			return true;
-		}
-		return false;
 	}
 	
 	public function phpbb_logout() {

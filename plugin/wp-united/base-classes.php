@@ -125,6 +125,7 @@ class WP_United_Plugin_Base {
 		$version = '',
 		$styleKeys = array(),
 		$updatedStyleKeys = false,
+		$styleKeysLoaded = false,
 		$settings = false,
 		$integActions = array(),
 		$integActionsFor = 0,
@@ -164,6 +165,7 @@ class WP_United_Plugin_Base {
 	
 	protected function load_settings() {
 		$this->settings = new WP_United_Settings();
+		$this->init_style_keys();
 	}
 	
 
@@ -218,7 +220,12 @@ class WP_United_Plugin_Base {
 
 	// overridden on WP side
 	public function is_phpbb_loaded() {
-		return true;
+		// if ABSPATH is not defined, we must be loaded from phpBB
+		if(!defined('ABSPATH')) {
+			return true;
+		} else {
+			return (($this->get_last_run() == 'working') && ($this->is_enabled()));
+		}
 	}
 	
 	public function phpbb_logout() {
