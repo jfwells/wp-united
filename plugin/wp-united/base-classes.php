@@ -17,6 +17,8 @@ class WP_United_Settings {
 		$pluginUrl = '',
 		$enabled = false,
 		$settings = array();
+		
+	
 
 	public function __construct() {
 		
@@ -251,8 +253,8 @@ class WP_United_Plugin_Base {
 	
 	
 	public function get_setting($key) { 
-
-		if(isset($this->settings->settings[$key])) {
+		
+		if(isset($this->settings->settings[$key])) { 
 			return $this->settings->settings[$key];
 		}
 		return false;
@@ -343,13 +345,14 @@ class WP_United_Plugin_Base {
 			return 0;
 		}
 		
-		if($numActions = sizeof($this->actions)) {
+		$numActions = sizeof($this->integActions);
+		if($numActions > 0) { 
 			return $numActions;
 		}
 		
 		// Check for user integration-related actions
 		
-		if($this->get_setting('integrateLogin')) {
+		if($this->get_setting('integrateLogin')) { 
 		
 			// Is this a login/out page or profile update?
 			if(preg_match("/\/ucp\.{$phpEx}/", $_SERVER['REQUEST_URI'])) { 

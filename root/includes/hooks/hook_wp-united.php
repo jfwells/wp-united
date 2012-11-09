@@ -76,7 +76,7 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
 function wpu_init(&$hook) { 
 	global $wpUnited, $template, $user, $config, $phpbbForum, $wpuCache;
 	
-	if($wpUnited->should_do_action('logout')) {
+	if($wpUnited->should_do_action('logout')) { 
 		$phpbbForum->background();
 		wp_logout();
 		$phpbbForum->foreground();
