@@ -71,7 +71,7 @@ class WPU_Actions {
 	 */
 	function generate_viewtopic_link($bloglink_id, &$cache) { 
 		global $wpUnited, $phpbb_root_path, $phpEx;
-		if  ( $wpUnited->is_enabled() ) { 
+		if  ( isset($wpUnited) && $wpUnited->is_enabled() ) { 
 			if ($wpUnited->get_setting('buttonsPost')) {
 				if ((!isset($user_cache[$poster_id])) && !empty($bloglink_id)) {
 					if ($poster_id == ANONYMOUS) {
@@ -105,7 +105,7 @@ class WPU_Actions {
 		require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
 				
-		if(!$wpUnited->is_enabled()) {
+		if(!isset($wpUnited) || $wpUnited->is_enabled()) {
 			return $cssIn; 
 		}
 		

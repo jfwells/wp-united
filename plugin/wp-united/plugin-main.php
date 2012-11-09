@@ -52,7 +52,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		);
 		
 		private
-			doneInit = false;
+			$doneInit = false;
 
 
 	
@@ -171,10 +171,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$this->load_phpbb();
 		}
 	
-		// settings must be loaded before we transmit ourselves
-		// If this is an enable or disable request, they might not be as they are lazily loaded.
-		$this->load_settings();
-		
 		// store data before transmitting
 		if($enable) {
 			$this->enable();
@@ -236,9 +232,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	public function update_settings($data) {
 
-		// settings must be loaded before we transmit ourselves
-		// they might not be as they are lazily loaded.
-		$this->load_settings();
 		
 		$data = array_merge($this->settings, (array)$data); 
 		update_option('wpu-settings', $data);

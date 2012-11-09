@@ -24,7 +24,7 @@ if( !class_exists( 'WP_United_Plugin' ) ) {
 	global $wpUnited;
 	$wpUnited = new WP_United_Plugin();	
 }
-
+$wpUnited->wp_init();
 
 
 function wpu_deactivate() {

@@ -16,14 +16,14 @@ class WP_United_Settings {
 		$wpBaseUrl = '',
 		$pluginUrl = '',
 		$enabled = false,
-		$lastRun = false;
+		$lastRun = false,
 		$settings = array();
 
 	public function __construct() {
-		if(!$this->load_from_wp()) {
-			$this->load_from_phpbb();
+		if(!$s = $this->load_from_wp()) {
+			$s = $this->load_from_phpbb();
 		}
-		return $this;
+		return $s;
 	}
 	
 
@@ -118,9 +118,9 @@ class WP_United_Plugin_Base {
 		$version = '',
 		$styleKeys = array(),
 		$updatedStyleKeys = false,
-		$settings = false;
+		$settings = false,
 		$integActions = array(),
-		$integActionsFor = 0;
+		$integActionsFor = 0,
 		$filters = array(),
 		$actions = array();
 
@@ -130,16 +130,16 @@ class WP_United_Plugin_Base {
 	*/
 	public function __construct() {
 	
+		require_once('phpbb.php');
+		global $phpbbForum;
+		$phpbbForum = new WPU_Phpbb();
+
+		$this->load_settings();
 	
 		require_once($this->get_plugin_path() . 'functions-general.php');
 		require_once ($this->get_plugin_path() . 'options.php');
 		require_once($this->get_plugin_path() .  'phpbb.php');
 	
-		require_once($wpUnited->get_plugin_path() .  'phpbb.php');
-		global $phpbbForum;
-		$phpbbForum = new WPU_Phpbb();
-
-		$this->load_settings();
 
 	}
 
@@ -157,8 +157,7 @@ class WP_United_Plugin_Base {
 		$this->settings = new WP_United_Settings();
 	}
 	
-	
-	
+
 	
 	public function get_plugin_path() {
 		return $this->settings->pluginPath;
@@ -232,8 +231,6 @@ class WP_United_Plugin_Base {
 	
 	
 	public function get_setting($key) { 
-
-		$this->settings->load();
 
 		if(isset($this->settings->settings[$key])) {
 			return $this->settings->settings[$key];
