@@ -189,7 +189,7 @@ Class WPU_Integration {
 		$this->wpu_ver = $GLOBALS['wpuVersion'];
 		
 		// Load plugin fixer -- must be loaded regardless of settings, as core cache may contain plugin fixes
-		require($wpUnited->pluginPath . 'plugin-fixer.php');
+		require($wpUnited->get_plugin_path() . 'plugin-fixer.php');
 
 	}
 	
@@ -199,7 +199,7 @@ Class WPU_Integration {
 	function can_connect_to_wp() {
 		global $wpUnited;
 	
-		$test = str_replace('http://', '', $wpUnited->wpPath); // urls sometimes return true on php 5.. this makes sure they don't.
+		$test = str_replace('http://', '', $wpUnited->get_wp_path()); // urls sometimes return true on php 5.. this makes sure they don't.
 		if ( !file_exists( $test . 'wp-settings.php') ) {
 			return FALSE;
 		} else {
@@ -301,7 +301,7 @@ Class WPU_Integration {
 		
 		//Which version of WordPress are we about to load?
 		global $wp_version;
-		require($wpUnited->wpPath . 'wp-includes/version.php');
+		require($wpUnited->get_wp_path() . 'wp-includes/version.php');
 		$this->wpVersion = $wp_version;
 		
 		
@@ -309,26 +309,26 @@ Class WPU_Integration {
 		global $user;
 		// Added realpath to account for symlinks -- 
 		//otherwise it is inconsistent with __FILE__ in WP, which causes plugin inconsistencies.
-		$realAbsPath = realpath($wpUnited->wpPath);
+		$realAbsPath = realpath($wpUnited->get_wp_path());
 		$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
 		define('ABSPATH',$realAbsPath);
 
 		if (!$this->core_cache_ready()) {
 			
 			// Now wp-config can be moved one level up, so we try that as well:
-			$wpConfigLoc = (!file_exists($wpUnited->wpPath . 'wp-config.php')) ? $wpUnited->wpPath . '../wp-config.php' : $wpUnited->wpPath . 'wp-config.php';
+			$wpConfigLoc = (!file_exists($wpUnited->get_wp_path() . 'wp-config.php')) ? $wpUnited->get_wp_path() . '../wp-config.php' : $wpUnited->get_wp_path() . 'wp-config.php';
 
 			$cConf = file_get_contents($wpConfigLoc);
-			$cSet = file_get_contents($wpUnited->wpPath . 'wp-settings.php');
+			$cSet = file_get_contents($wpUnited->get_wp_path() . 'wp-settings.php');
 			 //Handle the make clickable conflict
-			if (file_exists($wpUnited->wpPath . 'wp-includes/formatting.php')) {
+			if (file_exists($wpUnited->get_wp_path() . 'wp-includes/formatting.php')) {
 				$fName='formatting.php';  //WP >= 2.1
-			} elseif (file_exists($wpUnited->wpPath . 'wp-includes/functions-formatting.php')) {
+			} elseif (file_exists($wpUnited->get_wp_path() . 'wp-includes/functions-formatting.php')) {
 				$fName='functions-formatting.php';  //WP< 2.1
 			} else {
 				trigger_error($user->lang['Function_Duplicate']);
 			}
-			$cFor = file_get_contents($wpUnited->wpPath . "wp-includes/$fName");
+			$cFor = file_get_contents($wpUnited->get_wp_path() . "wp-includes/$fName");
 			$cFor = '?'.'>'.trim(str_replace('function make_clickable', 'function wp_make_clickable', $cFor)).'[EOF]';
 			$finds = array(
 				'require (ABSPATH . WPINC . ' . "'/$fName",

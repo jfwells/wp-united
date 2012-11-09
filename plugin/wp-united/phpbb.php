@@ -594,7 +594,7 @@ class WPU_Phpbb {
 	/**
 	 * transmits new settings from the WP settings panel to phpBB
 	 */
-	public function synchronise_settings($data) {
+	public function synchronise_settings($dataToStore) {
 		global $wpUnited, $cache, $user, $auth, $config, $db, $phpbb_root_path, $phpEx;
 		
 		
@@ -658,16 +658,38 @@ class WPU_Phpbb {
 		));
 
 		$adminLog[] = __('Storing the new WP-United settings');
-		set_integration_settings($data);
+		
+		// this stores the passed-in settings object, which is a bit brittle
+		// TODO: ask $wpUnited->settings to store/reload itself, without making it public
+		$this->clear_settings();
+		$sql = array();
+		$sql[] = array(
+			'config_name'	=>	'wpu_location',
+			'config_value'	=>	$wpUnited->get_plugin_path()
+		);
+		$dataToStore = base64_encode(gzcompress(serialize($dataToStore)));
+		$currPtr=1;
+		$chunkStart = 0;
+		while($chunkStart < strlen($dataIn)) {
+			$sql[] = array(
+				'config_name' 	=> 	"wpu_settings_{$currPtr}",
+				'config_value' 	=>	substr($dataIn, $chunkStart, 255)
+			);
+			$chunkStart = $chunkStart + 255;
+			$currPtr++;
+		}
+		
+		$db->sql_multi_insert(CONFIG_TABLE, $sql);
+		$cache->destroy('config');
+		
 
-		// TODO: Once the set_integration_settings procedure is refactored into this class, combine this into the same DB call
 		if($wpUnited->get_setting('integrateLogin') && $wpUnited->get_setting('avatarsync')) {
 			if(!$config['allow_avatar'] || !$config['allow_avatar_remote']) {
 				$adminLog[] = __('Updating avatar settings');
 
-				$sql = 'UPDATE ' . CONFIG_TABLE . " 
+				$sql = 'UPDATE ' . CONFIG_TABLE . ' 
 					SET config_value = 1
-					WHERE config_name IN ('allow_avatar', 'allow_avatar_remote')";
+					WHERE ' . $db->sql_in_set('config_name', array('allow_avatar', 'allow_avatar_remote'));
 				$db->sql_query($sql);
 
 				$cache->destroy('config');
@@ -677,7 +699,7 @@ class WPU_Phpbb {
 		
 		// clear out the WP-United cache on settings change
 		$adminLog[] = __('Purging the WP-United cache');
-		require_once($wpUnited->pluginPath . 'cache.php');
+		require_once($wpUnited->get_plugin_path() . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 		$wpuCache->purge();
 		
@@ -724,6 +746,20 @@ class WPU_Phpbb {
 		$this->restore_state($fStateChanged);
 		return true;
 
+	}
+	
+	public function clear_settings() {
+		global $db;
+		
+		$fStateChanged = $this->foregound();
+		
+		$sql = 'DELETE FROM ' . CONFIG_TABLE . "
+			WHERE config_name LIKE 'wpu_settings_%' 
+			OR config_name LIKE 'wpu_location'";
+		$db->sql_query($sql);
+		
+		$this->restore_state($fStateChanged);
+	
 	}
 	
 	

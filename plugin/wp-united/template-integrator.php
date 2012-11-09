@@ -159,8 +159,8 @@ if ($wpUnited->should_do_action('template-p-in-w')) {
  */
 if ($wpUnited->get_setting('cssMagic')) { 
 
-	require($wpUnited->pluginPath . 'css-magic.php');
-	require($wpUnited->pluginPath . 'functions-css-magic.php');
+	require($wpUnited->get_plugin_path() . 'css-magic.php');
+	require($wpUnited->get_plugin_path() . 'functions-css-magic.php');
 
 	/** 
 	 * Get all links to stylesheets, and prepare appropriate replacement links to insert into the page content
@@ -328,7 +328,7 @@ if ($wpUnited->get_setting('cssMagic')) {
 	$wpUnited->commit_style_keys();
 	
 	// add link to reset stylesheet
-	$reset = "<link href=\"{$wpUnited->pluginUrl}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
+	$reset = "<link href=\"{$wpUnited->get_plugin_url()}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
 	$innerHeadInfo = $reset . $innerHeadInfo;
 
 	//write out the modified stylesheet links

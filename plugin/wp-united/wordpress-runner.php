@@ -21,7 +21,7 @@ if(!$wpUnited->is_enabled()) {
 }
 
 //Initialise the cache
-require_once($wpUnited->pluginPath . 'cache.php'); //@TODO: INIT THIS IN WP-UNITED CLASS
+require_once($wpUnited->get_plugin_path() . 'cache.php'); //@TODO: INIT THIS IN WP-UNITED CLASS
 $wpuCache = WPU_Cache::getInstance();
 
 
@@ -58,7 +58,7 @@ $connectSuccess = false;
 
 if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) { 
 //if ( !defined('WPU_FWD_INTEGRATION')) { 
-	require_once($wpUnited->pluginPath . 'wp-integration-class.php');
+	require_once($wpUnited->get_plugin_path() . 'wp-integration-class.php');
 	$wpUtdInt = WPU_Integration::getInstance();
 
 	//We really want WordPress to run in the global scope. So, our integration class really just prepares
@@ -74,13 +74,6 @@ if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) {
 		$connectSuccess = true;
 	}
 	
-}
-
-// Load phpBB abstraction class if needed
-if(!isset($phpbbForum) || !is_object($phpbbForum)) {
-	require_once($wpUnited->pluginPath .  'phpbb.php');
-	$phpbbForum = new WPU_Phpbb();
-	//$phpbbForum->foreground();
 }
 
 ?>

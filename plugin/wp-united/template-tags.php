@@ -232,7 +232,7 @@ global $comment, $images, $wpUnited;
 		} 
 		if ( empty($id) ) {
 			if ( $default ) {
-				return $wpUnited->pluginUrl . 'images/wpu_unregistered.gif';
+				return $wpUnited->get_plugin_url() . 'images/wpu_unregistered.gif';
 			}
 			return '';
 		}
@@ -244,7 +244,7 @@ global $comment, $images, $wpUnited;
 		return $image;
 	} 
 	if ( $default ) {
-		return $wpUnited->pluginUrl . 'images/wpu_no_avatar.gif';
+		return $wpUnited->get_plugin_url() . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -272,7 +272,7 @@ function get_avatar_poster($default = true) {
 		return $image;
 	} 
 	if ( $default ) {
-		return $wpUnited->pluginUrl . 'images/wpu_no_avatar.gif';
+		return $wpUnited->get_plugin_url() . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -305,11 +305,11 @@ function get_avatar_reader($default = true) {
 		return $image;
 	} elseif ( $image === false ) {
 		if ( $default ) {
-			return  $wpUnited->pluginUrl . 'images/wpu_unregistered.gif';
+			return  $wpUnited->get_plugin_url() . 'images/wpu_unregistered.gif';
 		}
 	}
 	if ( $default ) {
-		return  $wpUnited->pluginUrl . 'images/wpu_no_avatar.gif';
+		return  $wpUnited->get_plugin_url() . 'images/wpu_no_avatar.gif';
 	}
 	return '';
 }
@@ -962,12 +962,12 @@ function get_wpu_login_user_info($args) {
 
 		if ($showWriteLink) {
 			if (current_user_can('publish_posts')) {
-				$ret .= $before . '<a href="'. $wpUnited->wpBaseUrl .'wp-admin/post-new.php" title="' . $phpbbForum->lang['wpu_write_post'] . '">' . $phpbbForum->lang['wpu_write_post'] . '</a>' . $after;
+				$ret .= $before . '<a href="'. $wpUnited->get_wp_base_url() .'wp-admin/post-new.php" title="' . $phpbbForum->lang['wpu_write_post'] . '">' . $phpbbForum->lang['wpu_write_post'] . '</a>' . $after;
 			}
 		}
 		if ($showAdminLinks) {
 			if (current_user_can('publish_posts')) {
-				$ret .= $before . '<a href="'.$wpUnited->wpBaseUrl .'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
+				$ret .= $before . '<a href="'.$wpUnited->get_wp_base_url() .'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
 			}
 			$fStateChanged = $phpbbForum->foreground();
 			if($auth->acl_get('a_')) {

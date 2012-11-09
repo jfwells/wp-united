@@ -54,8 +54,8 @@ function wpu_settings_menu() {
 				$pkg = ($_GET['pkg'] == 'phpbb') ? 'phpbb' : 'wp';
 				$term = request_var('term', '');
 
-				require($wpUnited->pluginPath . 'user-mapper.php');
-				require($wpUnited->pluginPath . 'mapped-users.php');
+				require($wpUnited->get_plugin_path() . 'user-mapper.php');
+				require($wpUnited->get_plugin_path() . 'mapped-users.php');
 				
 				$userMapper = new WPU_User_Mapper("leftSide={$pkg}&numToShow=10&numStart=0&showOnlyInt=0
 					&showOnlyUnInt=0&showOnlyPosts=0&showOnlyNoPosts=0", 0, $term);
@@ -74,7 +74,7 @@ function wpu_settings_menu() {
 	
 	
 	
-	wp_register_style('wpuSettingsStyles', $wpUnited->pluginUrl . 'theme/settings.css');
+	wp_register_style('wpuSettingsStyles', $wpUnited->get_plugin_url() . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
 		
 	if(isset($_GET['page'])) {
@@ -87,20 +87,20 @@ function wpu_settings_menu() {
 					wp_deregister_script($script);
 				}
 			}
-			wp_enqueue_script('jquery', $wpUnited->pluginUrl . 'js/jquery-wpu-min.js', array(), false, false);
-			wp_enqueue_script('jquery-ui-core', $wpUnited->pluginUrl . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
-			wp_enqueue_script('filetree', $wpUnited->pluginUrl . 'js/filetree.js', array('jquery'), false, false);				
-			wp_enqueue_script('colorbox', $wpUnited->pluginUrl . 'js/colorbox-min.js', array('jquery'), false, false);				
-			wp_enqueue_script('splitter', $wpUnited->pluginUrl . 'js/splitter-min.js', array('jquery'), false, false);				
-			wp_enqueue_script('wpu-settings', $wpUnited->pluginUrl . 'js/settings.js', array('jquery', 'jquery-ui-core'), false, false);				
+			wp_enqueue_script('jquery', $wpUnited->get_plugin_url() . 'js/jquery-wpu-min.js', array(), false, false);
+			wp_enqueue_script('jquery-ui-core', $wpUnited->get_plugin_url() . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
+			wp_enqueue_script('filetree', $wpUnited->get_plugin_url() . 'js/filetree.js', array('jquery'), false, false);				
+			wp_enqueue_script('colorbox', $wpUnited->get_plugin_url() . 'js/colorbox-min.js', array('jquery'), false, false);				
+			wp_enqueue_script('splitter', $wpUnited->get_plugin_url() . 'js/splitter-min.js', array('jquery'), false, false);				
+			wp_enqueue_script('wpu-settings', $wpUnited->get_plugin_url() . 'js/settings.js', array('jquery', 'jquery-ui-core'), false, false);				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-support'))) {
-			wp_register_style('wpuSettingsStyles', $wpUnited->pluginUrl . 'theme/settings.css');
+			wp_register_style('wpuSettingsStyles', $wpUnited->get_plugin_url() . 'theme/settings.css');
 			wp_enqueue_style('wpuSettingsStyles');
 		}
 	}	
 		
-	$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpUnited->pluginUrl . 'images/tiny.gif', 2 );
+	$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpUnited->get_plugin_url() . 'images/tiny.gif', 2 );
 	add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
 		
 		
@@ -154,7 +154,7 @@ function wpu_support() {
 	global $wpUnited;
 	?>
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('Please Help Support WP-United'); ?> </h2>
 		<p><?php _e('WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!');  ?></p>
@@ -238,12 +238,12 @@ function wpu_setup_menu() {
 	
 	?>
 		<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Setup / Status'); ?> </h2>
 		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.') ?></p>
 
-		<div id="wputransmit"><p><strong>Communicating with phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" /></div>
+		<div id="wputransmit"><p><strong>Communicating with phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" /></div>
 
 	<?php
 	
@@ -280,8 +280,8 @@ function wpu_setup_menu() {
 			$buttonDisplay = (!$wpUnited->is_enabled()) ? 'display: block;' : 'display: none;';
 	}
 	
-	if(!is_writable($wpUnited->pluginPath . 'cache/')) {
-		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpUnited->pluginPath . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
+	if(!is_writable($wpUnited->get_plugin_path() . 'cache/')) {
+		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpUnited->get_plugin_path() . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
 	}
 
 	if( defined('WPU_CANNOT_OVERRIDE') ) {
@@ -351,7 +351,7 @@ function wpu_user_mapper() {
 	global $wpUnited; ?>
 	<div class="wrap" id="wp-united-setup">
 	
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
 		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together. Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
@@ -548,7 +548,7 @@ function wpu_user_mapper() {
 					<div id="wpumapscreen">
 						<div class="wpuloading">
 							<p>Loading...</p>
-							<img src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" />
+							<img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" />
 						</div>
 					</div>
 					<div id="wpumappanel" class="ui-widget">
@@ -573,7 +573,7 @@ function wpu_user_mapper() {
 	<div id="wpuoffscreen">
 	</div>
 	<div id="wpu-reload" title="Message" style="display: none;">
-		<p id="wpu-desc">&nbsp;</p><img id="wpuldgimg" src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" />
+		<p id="wpu-desc">&nbsp;</p><img id="wpuldgimg" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" />
 	</div>
 	<script type="text/javascript">
 	// <![CDATA[
@@ -581,7 +581,7 @@ function wpu_user_mapper() {
 		var autofillNonce = '<?php echo wp_create_nonce ('wp-united-usersearch'); ?>';
 		var firstMapActionNonce = '<?php echo wp_create_nonce ('wp-united-mapaction'); ?>';
 		
-		var imgLdg						= '<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif';
+		var imgLdg						= '<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif';
 		var currWpUser				= '<?php echo $GLOBALS['current_user']->ID; ?>';
 		var currPhpbbUser			= '<?php echo $phpbbForum->get_userdata('user_id'); ?>';
 
@@ -626,8 +626,8 @@ function wpu_map_show_data() {
 	$showOnlyPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'posts')) ? 1 : 0;
 	$showOnlyNoPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'noposts')) ? 1 : 0;
 	
-	require($wpUnited->pluginPath . 'user-mapper.php');
-	require($wpUnited->pluginPath . 'mapped-users.php');
+	require($wpUnited->get_plugin_path() . 'user-mapper.php');
+	require($wpUnited->get_plugin_path() . 'mapped-users.php');
 	
 	$userMapper = new WPU_User_Mapper("leftSide={$type}&numToShow={$num}&numStart={$first}&showOnlyInt={$showOnlyInt}
 		&showOnlyUnInt={$showOnlyUnInt}&showOnlyPosts={$showOnlyPosts}&showOnlyNoPosts={$showOnlyNoPosts}");
@@ -945,11 +945,11 @@ function wpu_settings_page() {
 	?>
 	
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->pluginUrl ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Settings'); ?> </h2>
 	
-			<div id="wputransmit"><p><strong><?php _e('Sending settings to phpBB...'); ?></strong><br />Please Wait</p><img src="<?php echo $wpUnited->pluginUrl ?>images/settings/wpuldg.gif" /></div>
+			<div id="wputransmit"><p><strong><?php _e('Sending settings to phpBB...'); ?></strong><br />Please Wait</p><img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" /></div>
 			
 			<?php
 				if(isset($_GET['msg'])) {
@@ -1212,7 +1212,7 @@ function wpu_settings_page() {
 			var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
 			var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
 			var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
-			var treeScript =  '<?php echo $wpUnited->pluginUrl . 'js/filetree.php'; ?>';
+			var treeScript =  '<?php echo $wpUnited->get_plugin_url() . 'js/filetree.php'; ?>';
 			<?php 
 					$cssmVal = 0;
 					if($wpUnited->get_setting('cssMagic')){
@@ -1266,7 +1266,7 @@ function wpu_process_settings() {
 	$wpuPhpbbPath = (string)$_POST['wpu-path'];
 	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
 	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
-	if(!file_exists($wpUnited->pluginPath))  {
+	if(!file_exists($wpUnited->get_plugin_path()))  {
 		die('[ERROR] ERROR:The path you selected for phpBB\'s config.php is not valid');
 		return;
 	}

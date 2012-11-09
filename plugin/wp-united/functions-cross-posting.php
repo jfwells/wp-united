@@ -476,7 +476,7 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 		return $commentArray;
 	}
 	
-	require_once($wpUnited->pluginPath . 'comments.' . $phpEx);
+	require_once($wpUnited->get_plugin_path() . 'comments.' . $phpEx);
 
 	$phpBBComments = new WPU_Comments();
 	if ( !$phpBBComments->populate($postID) ) {

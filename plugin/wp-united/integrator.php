@@ -50,7 +50,7 @@ if($connectSuccess) {
 				eval($wpUtdInt->fix_template_loader());
 			}
 		} else {
-			include($wpUnited->pluginPath . 'latest-posts.php');
+			include($wpUnited->get_plugin_path() . 'latest-posts.php');
 		}
 		
 		$$wpContentVar = ob_get_contents();
@@ -171,7 +171,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 
 }
 
-require($wpUnited->pluginPath . 'template-integrator.php');
+require($wpUnited->get_plugin_path() . 'template-integrator.php');
 
 /**
  * Work-around for plugins that force exit.
@@ -196,7 +196,7 @@ function wpu_complete() {
 		$wpUtdInt = null; unset ($wpUtdInt);
 	}
 
-	require($wpUnited->pluginPath .'template-integrator.php');
+	require($wpUnited->get_plugin_path() .'template-integrator.php');
 }
 	
 ?>

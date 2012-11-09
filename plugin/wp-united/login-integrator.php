@@ -29,7 +29,7 @@ function wpu_integrate_login() {
 		return;
 	}
 
-	require_once($wpUnited->pluginPath . 'debugger.php'); 
+	require_once($wpUnited->get_plugin_path() . 'debugger.php'); 
 
 	$lDebug = new WPU_Debug();
 				// TODO: CHECK WE ARE NOT **IN** PHPBB!!!

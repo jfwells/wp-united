@@ -79,8 +79,8 @@ function wpu_get_stylesheet_links(&$headerInfo, $position="outer") {
 				if(stristr($el, $phpbbForum->url) !== false) {
 					$cssLnk = str_replace($phpbbForum->url, "", $el); 
 				// Absolute path to CSS, in WordPress
-				} elseif(stristr($el, $wpUnited->wpBaseUrl) !== false) {
-					$cssLnk = str_replace($wpUnited->wpBaseUrl, $wpUnited->wpPath, $el);
+				} elseif(stristr($el, $wpUnited->get_wp_base_url()) !== false) {
+					$cssLnk = str_replace($wpUnited->get_wp_base_url(), $wpUnited->get_wp_path(), $el);
 				} else {
 					// else: relative path
 					$cssLnk = $phpbb_root_path . $el;
@@ -137,7 +137,7 @@ function wpu_extract_css($content) {
  */
 function wpu_fix_css_urls($filePath, &$css) {
 	global $phpbb_root_path, $wpUnited;
-	require_once($wpUnited->pluginPath . 'functions-general.php');
+	require_once($wpUnited->get_plugin_path() . 'functions-general.php');
 	$relPath = wpu_compute_path_difference($filePath, realpath(add_trailing_slash(getcwd()) . 'style-fixer.php'));
 
 	preg_match_all('/url\(.*?\)/', $css, $urls);

@@ -50,9 +50,9 @@ class WPU_Cache {
 		
 		$this->useTemplateCache = 'UNKNOWN';
 		$this->_useCoreCache = 'UNKNOWN';
-		$this->baseCacheLoc = $wpUnited->pluginPath . 'cache/';
-		$this->themePath = $wpUnited->wpPath . 'wp-content/themes/';  // TODO: FOLLOW WP RECS
-		$this->wpVersionLoc = $wpUnited->pluginPath . 'version.php';
+		$this->baseCacheLoc = $wpUnited->get_plugin_path() . 'cache/';
+		$this->themePath = $wpUnited->get_wp_path() . 'wp-content/themes/';  // TODO: FOLLOW WP RECS
+		$this->wpVersionLoc = $wpUnited->get_plugin_path() . 'version.php';
 		$this->fullPage =  !(bool)$wpUnited->get_setting('wpSimpleHdr');
 		
 		$this->initialise_salt();
@@ -427,7 +427,7 @@ class WPU_Cache {
 	 * Deletes all files from the wp-united/cache directory
 	 */
 	public function purge() {
-
+		global $wpUnited;
 		@$dir = opendir($this->baseCacheLoc);
 			while( $entry = @readdir($dir) ) {
 				if ( (strpos($entry, '.htaccess') === false) && ((strpos($entry, '.txt') === false)) ) {
@@ -437,7 +437,7 @@ class WPU_Cache {
 				}
 			}
 			// purge style keys
-			wpu_clear_style_keys();
+			$wpUnited->clear_style_keys();
 	}
 
 	
