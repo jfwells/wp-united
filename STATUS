@@ -1,110 +1,23 @@
-* VERY BROKEN in this commit -- template integration temporarily not working as refactoring is taking place.
+Current status:
+- user integration is working bi-directionally
+- Template integration usually works, but on many commits is broken as phpBB portion is still awaiting refactoring
+- Other options generally working but as yet not well tested.
+- Lots of work underway to simplify options and code paths. As this is done, many of the ponts below will disappear. Many of the comments/observations are from 2010/11, and will be irrelevant after refactoring.
 
-
-Lots to do, lots to do... but I'm back.
---------------
-
-v0.9:
-
-template integration status:
----------------------------
-
-
-WORKING! but...
-
-- need to remove admin bar on cached templates now
-WP top bar gets very upset on forward integration --- due to css magic not altering inline styles in head after styles reset??
-DTD option not having any effect
-WPU cache not cleared on style changes [should be fixed]
-
-
-User integration status:
-
-Beginning to work quite well:
-** Need to unplug filters for user_register and profile update when user sync is run**
-** create filter for profile update **
-** sync avatar to phpBB as 'if gravatar' option?? Can likely leave to next version
-** remove old wpuActions for profile update and move to hook **
-** some duplication of functions, get_phpbb_intdata in settings_panel, and $phpbbForum->fetch_userdata_for **
-
-- clean up first user mapper tab and add option for "What should newly-created WP users integrate as?". 
- ------ Maybe also add option to ignore role for already-integrated users??
-
-
-
--- ignore/remove phpBB/WordPress master
-- Disable auto acct creation (?) [ leaving as-is for now, works well and saves having to hook everything in phpBB]
-
-Auto-register in phpBB on WP reg [done!]
-Auto-register in WP on phpBB reg [ no neeed, leaving JIT for now]
-
-phpBB / WP logout, both sides: [Mostly works, but fails from phpBB side when templates integrated]
-
-phpBB login on WP login [ works on page view, not only login]
-WP login on phpBB login [ works on page view, not only login]
-
-
-Auto-delete from other side????? [to consider -- best to use admin panel]
-
-
-
-previously integrated phpbb users but with missing WP counterparts show as integrated in the user mapper (or leave it, they shouldn't become unintegrated)
-top line in mapper unclickable
-
-
-
-
-
-Older TODOs/thoughts from early 2011:
---------------------------------------------------------------------
-
-
---- bi-directional user integration------
-
--- Janrain is incompatible with wp-load bypass ---- simply need to comment out pluggable.php loader
-
--- create generic WP -> phpbb profile importer (or bi-di profile reconciler)
--- phpBB user creation in settings panel: export WP profile details to phpBB
--- move settings-panel user operations to login-integrator
-
--- refactor: make use of wpu_get_integration_id and wpu_get_integrated_phpbbuser() wherever possible
-
--- remove do_logout function (and from install.xml), use hook detection instead
--- add wordpress logout function to log out of phpBB, then remove all login/logout redirects form WP
--- on logout of phpBB find way to clear WP cookies without invoking WP (for new compatibility layer)
-
--- need to rely on meta:phpbb_userid for bidirectional login to be efficient; rework code to rely on it
--- ensure phpbb_userLogin and userId are removed whever user integration is broken.
+---- user integration ---------
+-- remove phpBB/WordPress master option
+-- clean up first user mapper tab wording
+-- Add "use phpBB to set roles" option, recommended but disabled by default to prevent admin stranding.
+-- sync avatar to phpBB as 'if gravatar' option?? Can likely leave to next version
+-- Check WordPress logout function -- is phpBB logging out or are we waiting 'til next page load?
+-- ensure phpbb_userLogin and userId are removed when mapping is broken.
 -- disable all mapper buttons if an action affects the current user
--- add bi-di functions to phpBB to override session creation (use auth module for login that redirects to phpBB's auth module if necessary !)
--- stop enforcing roles. Trust pre-existing roles -- this way, we avoid tug-of-war in a bi-di setup
--- add options bi-di (default), phpbb->wp, wp->phpbb, explain implications (e.g. COPPA users, spam, etc.)
--- if bi-di, add option to force users to register on the forum, (enabled by default ?)
+-- consider adding options to force redirection to P or W login/register (?)
 -- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
--- Add warning to ACP if bi-di integ is on but new users won't be integrated due to perms problems (use new wpu_assess_perms)
-
-- $H$/$P$ substitution can take place in hasher override -- no need to do elsewhere. Can check password hashed here, no need to use define (with bi-di, should be able to remove password hash override altogether)		
-- Check wp_check_password override!
-
-
--- warn about unsuitable admin mappings
+-- [ An old comment from 2011: still relevant?]: Add warning to ACP if bi-di integ is on but new users won't be integrated due to perms problems (use new wpu_assess_perms)
+-- on login (in WP or phpBB), also check username of integrated user if different and login failed
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
--- add 2 new columns to users table -- "wp_username" (Fill it in if the username in WP is different) and use_wp_username (whether to use the WP username when logging in). Add WP usermeta use_phpbbLogin
--- add global option -- which username to use by default if different in phpBB & WordPress. Can be overridden for individual users via the user mapper
--- add check and panel warning if "allow wordpress registrations?" but wpu_can_phpbb_register not true
--- add user_activated check to wordpress? if so check how it behaves
--- add warning / initial integrate admin user and "should disable site" dialog when enabling / disabling user integration
-
--- map custom WP roles to phpBB perms. (consider: When roles are changed, phpBB is updated?)
-
--- re-implement phpbb logout, add wp logout override, allow WP profile editing, and re-implement bi-di profile transfers.
-
 -- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
-
-- move wp_change_username somewhere better
-- consider manually doing make_clickable() on xposted comment text
-
-- Creating a user in phpBB in usermapper does not sync profiles wp-> phpBB yet. First write generic sync function to use
 
 
 ------ cross-posting and comments ---------
@@ -112,16 +25,15 @@ Older TODOs/thoughts from early 2011:
 -- move cross-posting from per-topic to per-post (and topic!) to reduce query load
 -- check excerpt/full settings are working
 -- rework html-to-bbcode translation for images with captions
-
--- make wpu_get_xposted_details() cachable, and implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
-
+-- make wpu_get_xposted_details() cacheable, and implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
 -- for each cross-posted comment insert a ghost comment into wordpress with a marker to the phpBB comment (? -- unless we can cleanly generate "comments list to load", see below)
 -- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
 -- consider allowing guest posting of comments (IF akismet is installed?).
 
 
 ----- panel general --------
--- once settings panels are ready, split into separate files in subfolder
+-- Check user mapper CSS, and that it is always clickable
+-- once settings panels are ready, split into separate files in subfolder (?)
 -- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
 -- check all defaults -- ensure all options disabled by default (different from v0.8x defaults!)
 -- add plugin activate action that describes next steps in bubble
@@ -130,10 +42,13 @@ Older TODOs/thoughts from early 2011:
 -- add deinstallation routine using ajax front-end so it can't crash out
 
 ---- general cleanup ----
--- settings defaults should all be in one place
+-- Massive cleanup of old integrator, template-integrator and wp-integration-class functions needed, as global scope no longer required.
+-- remove old wpuActions for profile update and move to hook 
 -- append_sid is requiring to be fed the session ID -- why?
 -- several old links where & should be &amp; -- run through validator
--- do check on plugin activation for php4 and wordpress version
+-- do check on plugin activation for php and wordpress version
+-- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
+-- Move user-integration-relevant functions in settings-panel to login-integrator, and remove duplication of functions, get_phpbb_intdata in settings_panel, and $phpbbForum->fetch_userdata_for **
 -- when connecting to phpBB, check version for compatibility
 -- modify version.php to contain compatibility information
 -- Completely rewrite hook, and combine integrator and template-integrator, since they are now the same
@@ -146,7 +61,7 @@ Older TODOs/thoughts from early 2011:
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
 -- LANG strings -- move back again to WP po/mo (arrgh - we ported them to phpBB in v0.8!)
 
-- make_clickable removal still needs to run on rev int pages!
+-- make_clickable removal still needs to run on rev int pages!
 
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 -- remove 90% of all defines, clean up unused globals
@@ -156,11 +71,15 @@ Older TODOs/thoughts from early 2011:
 
 
 ----- template integration ------------
+-- need to remove admin bar on cached templates now
+-- WP top bar gets very upset on forward integration --- due to css magic not altering inline styles in head after styles reset??
+-- DTD option not having any effect
+-- WPU cache not cleared on style changes [should be fixed]
 -- update css magic to work with subdomains
 -- re-evaluate parsing of inline css with tVoodoo: performance hit may not be worth it
 -- get acp login page to integrate too -- otherwise looks bad if user removes header/footer
 -- auto-clear of template cache when nav settings changed in WP3
--- re-enable wordpress-in-phpbb intetgration
+-- re-enable wordpress-in-phpbb integration
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
 
 ---- widgets --------
@@ -182,7 +101,6 @@ Older TODOs/thoughts from early 2011:
 
 --------- possible ---------------
 -- Add user lookup to permissions mapping tab
--- Add AutoMod engine (may defer to v0.9.x > .0 if not trivial)
 -- Add pre-mod routines and scratch/plugins loader folder for plugins or premium options
 -- Finish "advanced settings" panel page -- first see what options are around and whether still necessary
 -- Override WP version check?
@@ -196,9 +114,11 @@ Older TODOs/thoughts from early 2011:
 -- finish "post to blog" in phpBB, integrate with pressIt
 -- search integration
 -- split pane help panel popup with all strings pre-loaded (definitely need for v1.0)
+-- Add AutoMod engine (may defer to v0.9.x > .0 if not trivial)
 
 
 --------- v0.8x -> v0.9.0 migrator / upgrader --------------
+These are comments from 2010: Below is too sophisticated TBH. Easier to just add check when settings are installed.
 
 In order to ensure a clean break and new features and code, work on this is deferred until we have a solid v0.9x
 Once that is ready to release, we need a migrator that can:
@@ -222,6 +142,17 @@ Once that is ready to release, we need a migrator that can:
 Other (older) things noticed that may no longer be relevant
 ---------------------
 
+-- warn about unsuitable admin mappings
+
+-- add 2 new columns to users table -- "wp_username" (Fill it in if the username in WP is different) and use_wp_username (whether to use the WP username when logging in). Add WP usermeta use_phpbbLogin
+-- add global option -- which username to use by default if different in phpBB & WordPress. Can be overridden for individual users via the user mapper
+-- add check and panel warning if "allow wordpress registrations?" but wpu_can_phpbb_register not true
+-- add user_activated check to wordpress? if so check how it behaves
+-- add warning / initial integrate admin user and "should disable site" dialog when enabling / disabling user integration
+
+-- map custom WP roles to phpBB perms. (consider: When roles are changed, phpBB is updated?)
+- move wp_change_username somewhere better
+- consider manually doing make_clickable() on xposted comment text
 - Last post time reported different from topic time
 - Cross-posted post reported not read, even after reading
 - $_SERVER['DOCUMENT_ROOT'] unreliable as source for path computation on open_basedir restricted servers
@@ -230,11 +161,14 @@ Other (older) things noticed that may no longer be relevant
 - Check "posts since last visit" algorithm
 
 
-Fixed/Committed for vNext. For all changed prior to v0.9, see changelog
+Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
 
-Check that function update_option exists when installing connection -- if not, balk
-Internalising of integrated login into wordpress -- in progress
+
+- Full bi-directional login integration & profile / avatar/Gravatar sync
+- Settings internalised into plugin via new $wpUnited class. Settings transferred to phpBB through serialised class with all members intact.
+- Check that function update_option exists when installing connection -- if not, baulk
+- Internalising of integrated login into wordpress -- in progress
 - search for all $wpUtdInt->integrate_logins and remove (done)
 - Remove reliance on overridden wp functions: (DONE)
 	-- move hasher to login-integrator (done)
@@ -275,76 +209,4 @@ Internalising of integrated login into wordpress -- in progress
 - new phpBB user gets created and integrated when WordPress user is registered. Tested with RPX.
 - phpBB  user is logged out when wordpress logs out
 - wordpress user is logged out when phpBB logs out
-
-
-... for phpbb-side login ideas.....
-
-/**** for later...	registering
- * $GLOBALS['skip_add_log'] = true;
-	// Which group by default?
-	$group_name = 'REGISTERED';
-
-	$sql = 'SELECT group_id
-		FROM ' . GROUPS_TABLE . "
-		WHERE group_name = '" . $db->sql_escape($group_name) . "'
-			AND group_type = " . GROUP_SPECIAL;
-	$result = $db->sql_query($sql);
-	$row = $db->sql_fetchrow($result);
-	$db->sql_freeresult($result);
-if (!$row)
-				{
-					trigger_error('NO_GROUP');
-				}
-
-				$group_id = $row['group_id'];	
 	
-	
-	$user_row = array(
-		'username'				=> $data['username'],
-		'user_password'			=> phpbb_hash($data['new_password']),
-		'user_email'			=> $data['email'],
-		'group_id'				=> (int) $group_id,
-		'user_type'				=> USER_NORMAL,
-		'user_ip'				=>  'optional -- see auth.php',
-		'user_regdate'			=> 'optional -- see auth.php',
-		'new_user'				=> 'set to 1 if user s/b added to new user group, else 0.'
-		
-	);
-	
-****/	
-
-
-
-
-
-
-
-
-Current prog flow:
-
-- p in w:
-:: wp starts, calls phpBB early
-:: phpbb runs
-::: phpbb hook invoked
-::: buffering started on user_session_handler hook
-::: prohibit template display, catch content and display on template->display hook
-
-how this should work:
-
-w in p
-:: wp starts, 
-:: sets PHPBB_DB_NEW_LINK
-:: calls phpBB early (for login int)
-:: buffering starts
-:: set exception handler
-
-in phpbb exit handler hook:
-throw new PhpBB_Exited_Exception('phpBB exited.');
-
-in wp:
-try
-{
-    call_phpbb();
-}
-catch (PhpBB_Exited_Exception $e) {}
-// continue with wp here
