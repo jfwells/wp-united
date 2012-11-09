@@ -15,11 +15,17 @@ class WP_United_Settings {
 		$wpHomeUrl = '',
 		$wpBaseUrl = '',
 		$pluginUrl = '',
+		$enabled = false,
 		$settings = array();
 
 	public function __construct() {
-		if(!$s = $this->load_from_wp()) {
-			$s = $this->load_from_phpbb();
+		
+	}
+
+	public static function Create() {
+		$s = new WP_United_Settings();
+		if(!$s->load_from_wp()) {
+			return($s->load_from_phpbb());
 		}
 		return $s;
 	}
@@ -37,9 +43,7 @@ class WP_United_Settings {
 			$this->pluginUrl = plugins_url('wp-united') . '/';
 			$this->wpHomeUrl = home_url('/');
 			$this->wpBaseUrl = site_url('/');
-			
-
-			return $this;
+			return true;
 		}
 		return false;
 	}
@@ -57,9 +61,9 @@ class WP_United_Settings {
 		// convert config value into something just like me :-)
 		if(!empty($wpuString)) {
 			$wpuString =  gzuncompress(base64_decode($wpuString));	
-			$settingsObj = unserialize($wpuString);
+			$settingsObj = unserialize($wpuString); 
 			if(is_object($settingsObj)) {
-				return $settingsObj;
+				return $settingsObj; 
 			}
 		}
 		
@@ -131,7 +135,6 @@ class WP_United_Plugin_Base {
 		$integActionsFor = 0,
 		$filters = array(),
 		$actions = array(),
-		$enabled = false,
 		$lastRun = false;
 
 
@@ -139,16 +142,17 @@ class WP_United_Plugin_Base {
 	* Initialise the WP-United class
 	*/
 	public function __construct() {
-	
-		require_once('phpbb.php');
+		
+		$currPath = dirname(__FILE__);
+		require_once($currPath . '/functions-general.php');
+		require_once($currPath . '/options.php');
+		require_once($currPath . '/phpbb.php');
+
 		global $phpbbForum;
 		$phpbbForum = new WPU_Phpbb();
 
 		$this->load_settings();
 	
-		require_once($this->get_plugin_path() . 'functions-general.php');
-		require_once ($this->get_plugin_path() . 'options.php');
-		require_once($this->get_plugin_path() .  'phpbb.php');
 	
 
 	}
@@ -164,7 +168,7 @@ class WP_United_Plugin_Base {
 
 	
 	protected function load_settings() {
-		$this->settings = new WP_United_Settings();
+		$this->settings = WP_United_Settings::Create();
 		$this->init_style_keys();
 	}
 	
@@ -179,7 +183,7 @@ class WP_United_Plugin_Base {
 	}
 	
 	public function get_wp_home_url() {
-		return $this->setings->wpHomeUrl;
+		return $this->settings->wpHomeUrl;
 	}
 	
 	public function get_wp_base_url() {
@@ -224,7 +228,7 @@ class WP_United_Plugin_Base {
 		if(!defined('ABSPATH')) {
 			return true;
 		} else {
-			return (($this->get_last_run() == 'working') && ($this->is_enabled()));
+			return (defined('IN_PHPBB') && ($this->get_last_run() == 'working') && ($this->is_enabled()));
 		}
 	}
 	

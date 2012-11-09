@@ -54,7 +54,7 @@ class WPU_Phpbb {
 		if(defined('IN_PHPBB')) { 
 			$this->lang = $GLOBALS['user']->lang;
 			$this->calculate_url();
-			$this->state = 'wp';
+			$this->state = 'phpbb';
 			$this->phpbbTemplate = $GLOBALS['template'];
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
 			$this->phpbbUser = $GLOBALS['user'];
@@ -758,18 +758,19 @@ class WPU_Phpbb {
 			$fullKey .= $config["wpu_style_keys_{$key}"];
 			$key++;
 		}
+		$this->restore_state($fStateChanged);
+
 		if(!empty($fullKey)) {
 			return unserialize(base64_decode($fullKey));
 		} else {
 			return array();
+		}
 		
-		
-		$this->restore_state($fStateChanged);
 	}
 	
 	public function clear_style_keys()	{
 		global $db, $config, $cache;
-		
+
 		$fStateChanged = $this->foreground();
 		
 		if(isset($config['wpu_style_keys_1'])) {
@@ -1001,7 +1002,7 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	private function switch_to_phpbb_db() {
-		global $db, $dbms; 
+		global $db, $dbms;
 		if (($this->phpbbDbName != DB_NAME) && (!empty($db->db_connect_id))) {
 			if($dbms=='mysqli') {
 				@mysqli_select_db($this->phpbbDbName, $db->db_connect_id);
