@@ -748,6 +748,77 @@ class WPU_Phpbb {
 
 	}
 	
+	public function load_style_keys() {
+		global $config;
+		$fStateChanged = $this->foreground();
+		
+		$key = 1;
+		$fullKey = '';
+		while(isset( $config["wpu_style_keys_{$key}"])) {
+			$fullKey .= $config["wpu_style_keys_{$key}"];
+			$key++;
+		}
+		if(!empty($fullKey)) {
+			return unserialize(base64_decode($fullKey));
+		} else {
+			return array();
+		
+		
+		$this->restore_state($fStateChanged);
+	}
+	
+	public function clear_style_keys()	{
+		global $db, $config, $cache;
+		
+		$fStateChanged = $this->foreground();
+		
+		if(isset($config['wpu_style_keys_1'])) {
+			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+				WHERE config_name LIKE \'wpu_style_keys_%\'';
+			$db->sql_query($sql);
+		}	
+		$cache->destroy('config');
+		
+		$this->restore_state($fStateChanged);
+		
+		
+	}
+	
+	/**
+	 * Saves updated style keys to the database.
+	 * phpBB $config keys can only store 255 bytes of data, so we usually need to store the data
+	 * split over several config keys
+	  * We want changes to take place as a single transaction to avoid collisions, so we 
+	  * access DB directly rather than using set_config
+	 * @return int the number of config keys used
+	 */ 
+	public function commit_style_keys($styleKeys) {
+		global $cache, $db;
+		
+		
+		$fStateChanged = $this->foreground();
+		
+		$fullLocs = (base64_encode(serialize($styleKeys)));
+		$currPtr=1;
+		$chunkStart = 0;
+		$sql = array();
+		while($chunkStart < strlen($fullLocs)) {
+			$sql[] = array(
+				'config_name' 	=> 	"wpu_style_keys_{$currPtr}",
+				'config_value' 	=>	substr($fullLocs, $chunkStart, 255)
+			);
+			$chunkStart = $chunkStart + 255;
+			$currPtr++;
+		}
+		
+		$db->sql_multi_insert(CONFIG_TABLE, $sql);
+		$cache->destroy('config');
+		
+		$this->restore_state($fStateChanged);
+	
+		return $currPtr;
+	}	
+	
 	public function clear_settings() {
 		global $db;
 		

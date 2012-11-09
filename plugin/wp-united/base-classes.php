@@ -255,11 +255,11 @@ class WP_United_Plugin_Base {
 	}
 	
 	public function init_style_keys() {
-		global $config;
+		global $phpbbForum;
 		/**
 		 * Handle style keys for CSS Magic
 		 * We load them here so that we can auto-remove them if CSS Magic is disabled
-		 */ // TODO: THIS SHOULD BE IN phpbbForum
+		 */ 
 		 
 		if($this->styleKeysLoaded) {
 			return;
@@ -267,18 +267,9 @@ class WP_United_Plugin_Base {
 		 
 		if($this->is_phpbb_loaded()) {
 			$this->styleKeysLoaded = true;
-			$key = 1;
+			
 			if($this->get_setting('cssMagic')) {
-				$fullKey = '';
-				while(isset( $config["wpu_style_keys_{$key}"])) {
-					$fullKey .= $config["wpu_style_keys_{$key}"];
-					$key++;
-				}
-				if(!empty($fullKey)) {
-					$this->styleKeys = unserialize(base64_decode($fullKey));
-				} else {
-					$this->styleKeys = array();
-				}
+				$this->styleKeys = $phpbbForum->load_style_keys();
 			} else {
 				// Clear out the config keys
 				$this->clear_style_keys();
@@ -288,15 +279,10 @@ class WP_United_Plugin_Base {
 
 	// TODO: PUT THIS IN phpBBFORUM?
 	public function clear_style_keys()	{
-		global $db, $config, $cache;
+		global $phpbbForum;
 		
-		if(isset($config['wpu_style_keys_1'])) {
-			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
-				WHERE config_name LIKE \'wpu_style_keys_%\'';
-			$db->sql_query($sql);
-		}	
+		$phpbbForum->clear_style_keys();
 		$this->styleKeys = array();
-		$cache->destroy('config');
 	}
 
 	
@@ -326,37 +312,18 @@ class WP_United_Plugin_Base {
 	
 	/**
 	 * Saves updated style keys to the database.
-	 * phpBB $config keys can only store 255 bytes of data, so we usually need to store the data
-	 * split over several config keys
-	  * We want changes to take place as a single transaction to avoid collisions, so we 
-	  * access DB directly rather than using set_config
+	 * 
 	 * @return int the number of config keys used
-	 */  // @TODO:  PUT THIS INTO PHPBB.PHP!!!!!
+	 */ 
 	public function commit_style_keys() {
-		global $cache, $db;
-		
+				
 		if(!$this->updatedStyleKeys) {
 			return sizeof($this->styleKeys) - 1;
 		}
 		
-		$fullLocs = (base64_encode(serialize($this->styleKeys)));
-		$currPtr=1;
-		$chunkStart = 0;
-		$sql = array();
 		$this->clear_style_keys();
-		while($chunkStart < strlen($fullLocs)) {
-			$sql[] = array(
-				'config_name' 	=> 	"wpu_style_keys_{$currPtr}",
-				'config_value' 	=>	substr($fullLocs, $chunkStart, 255)
-			);
-			$chunkStart = $chunkStart + 255;
-			$currPtr++;
-		}
-		
-		$db->sql_multi_insert(CONFIG_TABLE, $sql);
-		$cache->destroy('config');
-	
-		return $currPtr;
+		return $phpbbForum->commit_style_keys($this->styleKeys);
+
 	}
 
 
