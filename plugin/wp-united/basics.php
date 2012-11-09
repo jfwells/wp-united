@@ -14,7 +14,9 @@ class WP_United_Basics {
 		
 		$updatedStyleKeys = false,
 		$wordpressLoaded = false,
-		$settings = array(); 
+		$settings = array();
+		$actions = array();
+		$actionsFor = 0;
 	
 	public
 		$pluginPath = '',
@@ -36,14 +38,25 @@ class WP_United_Basics {
 		require_once($this->pluginPath . 'functions-general.php');
 		require_once ($this->pluginPath .  'options.php');
 		$this->wordpressLoaded = false;
+		$this->actions = array();
+		$this->actionsFor = 0;
+		$this->styleKeys = array();
+		$this->updatedStyleKeys = false;
+		$this->pluginLoaded = false;
 	}
 	
 	public function is_enabled() {
+		
+		if (defined('WPU_DISABLE') && WPU_DISABLE) { 
+			return false;
+		}
+	
 		if($this->wordpressLoaded) {
 			$this->enabled = get_option('wpu-enabled'); 
 		}
 		return $this->enabled;
 	}
+	
 	public function enable() {
 		$this->enabled = true;
 		if($this->wordpressLoaded) {
@@ -203,13 +216,95 @@ class WP_United_Basics {
 			if($this->wordpressLoaded) { 
 				$savedSettings = (array)get_option('wpu-settings');
 			} 
-			
+
 			$defaults = $this->get_default_settings();
 			$this->settings = array_merge($defaults, (array)$savedSettings);	
 			
 		} 
-
 	}
+	
+	/**
+	 * Determine if we need to load WordPress, and compile a list of actions that will need to take place once we do
+	 */
+	protected function assess_required_wp_actions() {
+		
+		
+		if($this->wordpressLoaded || defined('WPU_PHPBB_IS_EMBEDDED')) {
+			return 0;
+		}
+		
+		if($numActions = sizeof($this->actions)) {
+			return $numActions;
+		}
+		
+		// Check for user integration-related actions
+		
+		if($this->get_setting('integrateLogin')) {
+		
+			// Is this a login/out page or profile update?
+			if(preg_match("/\/ucp\.{$phpEx}/", $_SERVER['REQUEST_URI'])) { 
+				
+				$actionMode = request_var('mode', '');	
+				
+				if($actionMode == 'logout') {
+					$this->actions[] = 'logout';
+				//} else if($actionMode == 'login') { 
+					//$this->actions[] = 'login';
+				} else if(($actionMode == 'profile_info') || ($actionMode == 'reg_details') || ($actionMode == 'avatar')) {
+					
+					$didSubmit = request_var('submit', '');
+					if(!empty($didSubmit)) {
+						$this->actions[] = 'profile';
+						$this->actionsFor = 0;
+					}
+				}
+			// Or is it an admin editing a user's profile?
+			} else if(defined('ADMIN_START')) {
+			
+				$didSubmit = request_var('update', '');
+				
+				if(!empty($didSubmit)) {
+					$actionMode = request_var('mode', '');
+					$wpuActionsFor = (int)request_var('u', '');
+					if(!empty($wpuActionsFor) && (($actionMode == 'profile') || ($actionMode == 'overview') || ($actionMode == 'profile'))) {
+						$this->actions[] = 'profile'
+						$this->actionsFor = $wpuActionsFor;
+					}
+				}
+			}
+		}
+		
+		// Check for template integration-related actions:
+		if ($this->get_setting('showHdrFtr') == 'REV') {
+			$this->actions[] = 'template-p-in-w';
+		}
+		
+		return sizeof($this->actions);
+	}
+	
+	public function should_run_wordpress() {
+		return $this->assess_required_wp_actions;
+	}
+	
+	public function get_actions() {
+		return $this->actions;
+	}
+	
+	public function actions_for_another() {
+		return $this->actionsFor;
+	}
+	
+	
+	public function should_do_action($actionName) {
+		if(!sizeof($this->actions)) {
+			return false;
+		}
+		if(in_array($actionName, $this->actions)) {
+			return true;
+		}
+		return false;
+	}
+	
 	
 	public function version() {
 		if(empty($this->version)) {

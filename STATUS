@@ -44,6 +44,7 @@ Current status:
 ---- general cleanup ----
 -- Massive cleanup of old integrator, template-integrator and wp-integration-class functions needed, as global scope no longer required.
 -- remove old wpuActions for profile update and move to hook 
+-- decide what to do with $phpEx global
 -- append_sid is requiring to be fed the session ID -- why?
 -- several old links where & should be &amp; -- run through validator
 -- do check on plugin activation for php and wordpress version

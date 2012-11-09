@@ -105,11 +105,13 @@ class WPU_Cache {
 	 */
 
 	public function use_template_cache() {
-		global $wpuIntegrationMode;
-		if ( $wpuIntegrationMode != 'template-p-in-w' ) {
+		global $wpUnited;
+		if (!$wpUnited->should_do_action('template-p-in-w')) {
 			return false;
 		}
-		if ( defined('WPU_PERFORM_ACTIONS') ) {
+		// a p-in-w template action counts as 1 action, but can be cached. Are there more?
+		// If there are, we can't use the cache and need to load WP instead.
+		if ($wpUnited->should_load_wordpress() > 1) { 
 			return false;
 		}
 		if(!$this->template_cache_enabled()) {

@@ -30,82 +30,33 @@ if(!file_exists($phpbb_root_path . 'wp-united/')) {
 	return;
 }
 
-get_integration_settings();
+wpu_get_integration_settings();
 
 // We don't need anything if this is a stylesheet call to css magic (style-fixer.php)
 if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
-if(!isset($wpUnited) || !is_object($wpUnited)) {
+if(!isset($wpUnited) || !is_object($wpUnited) || !$wpUnited->is_enabled()) {
 	return;
 }
 
-// Has WPU been set up from the WordPress plugin yet? Also accounts for empty settings
-if(!$wpUnited->is_enabled()) {
-	return;
-}
 
 // constants have just been loaded
 if (defined('WPU_DISABLE') && WPU_DISABLE) {  
 	return;
 }	
 
-
-// We are either in the phpBB ACP, or phpBB is already embedded in WordPress. So we don't need to do anything else...
-if(defined('WPU_PHPBB_IS_EMBEDDED')) { 
-	return;
-}
-
-
-wpu_timer_start();
-wpu_set_buffering_init_level();		
-
-/**
- * The hook file is now ready to run.
- * phpBB is not yet fully loaded, but we need to decide NOW whether we will run WordPress this session. 
- * If so, we will invoke the WP env here. This is because WP *MUST* be run in the global scope, due to the sheer number of plugins that expect this.
-*/
-
-$wpuIntegrationMode = false;
-$wpuIntegrationActions = false;
-
-
-// Is this a login or logout page? If so, we'll need to enter WP
-if($wpUnited->get_setting('integrateLogin')) {
-	if(preg_match("/\/ucp\.{$phpEx}/", $_SERVER['REQUEST_URI'])) { 
-		$actionMode = request_var('mode', '');	
-		if($actionMode == 'logout') { define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
-			$wpuIntegrationActions = 'logout';
-			$wpuIntegrationMode = 'actions';
-		} else if($actionMode == 'login') {  define('WPU_PERFORM_ACTIONS', TRUE); // TODO: KILL!!!!
-			$wpuIntegrationActions = 'login';
-			$wpuIntegrationMode = 'actions';
-		} else if(($actionMode == 'profile_info') || ($actionMode == 'reg_details') || ($actionMode == 'avatar')) {
-			$didSubmit = request_var('submit', '');
-			if(!empty($didSubmit)) {
-				$wpuIntegrationActions = 'profile';
-				$wpuIntegrationMode = 'actions';
-			}
-		}
-	} else if(defined('ADMIN_START')) {
-		$didSubmit = request_var('update', '');
-		if(!empty($didSubmit)) {
-			$actionMode = request_var('mode', '');
-			$wpuActionsFor = (int)request_var('u', '');
-			if(!empty($wpuActionsFor) && (($actionMode == 'profile') || ($actionMode == 'overview') || ($actionMode == 'profile'))) {
-				$wpuIntegrationActions = 'acpprofile';
-				$wpuIntegrationMode = 'actions'; 
-			}
-		}
 		
 
-	}
-}
 
-if(defined('ADMIN_START') && !$wpuIntegrationActions) {
+// If we don't need to run WP, we don't need to do anything else here...
+if(!$wpUnited->should_run_wordpress()) {
 	return;
 }
+
+wpu_timer_start();
+wpu_set_buffering_init_level();
 
 // register our hooks.
 $phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
@@ -113,29 +64,19 @@ $phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
 $phpbb_hook->register('exit_handler', 'wpu_continue');
 
 
-
-						
-// enter wordpress if this is phpbb-in-wordpress
-if (($wpUnited->get_setting('showHdrFtr') == 'REV') && !defined('WPU_BLOG_PAGE')) {
-	$wpuIntegrationMode = 'template-p-in-w';
-}
-
 /**
- * INVOKE THE WP ENVIRONMENT NOW:
+ * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
 */
-if(!empty($wpuIntegrationMode)) { 
-	require_once($wpUnited->pluginPath . 'wordpress-runner.' .$phpEx); 
-}
+
+require_once($wpUnited->pluginPath . 'wordpress-runner.php'); 
 
 /**
- * Since WordPress suppresses timezone warnings in php 5.3 with the below, we do it in phpBB
- * too, for wordpress users who might think it's an error in WP-United.
- * @todo: In future phpBB releases (> 3.0.11), see if the devs hav added this to phpBB, and remove if so
+ * Since WordPress uses PHP timezone handling in PHP 5.3+, we need to do in phpBB too to suppress warnings
+ * @TODO: In future phpBB releases (> 3.0.11), see if the devs hav added this to phpBB, and remove if so
  */
 if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
 	date_default_timezone_set('UTC');
 }	
-
 
 
 
@@ -144,9 +85,8 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
  */
 function wpu_init(&$hook) { 
 	global $wpUnited, $phpbb_root_path, $template, $user, $config, $phpbbForum, $wpuCache;
-	global $wpuIntegrationActions, $wpuIntegrationMode;
 	
-	if($wpuIntegrationActions == 'logout') {
+	if($wpUnited->should_do_action('logout')) {
 		$phpbbForum->background();
 		wp_logout();
 		$phpbbForum->foreground();
@@ -179,7 +119,7 @@ function wpu_init(&$hook) {
 		ob_start();
 	}
 	if (($wpUnited->get_setting('showHdrFtr') == 'FWD') && defined('WPU_BLOG_PAGE') ) {
-		define('WPU_FWD_INTEGRATION', true);
+		define('WPU_FWD_INTEGRATION', true); // TODO: clean this somehow
 		
 
 		//Initialise the cache -- although we won't be using it, we may need some functionality
@@ -210,17 +150,16 @@ function wpu_wp_shutdown() {
  * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) { 
-	global $wpUnited, $wpuBuffered, $wpuRunning, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache, $wpuIntegrationMode;
+	global $wpUnited, $wpuBuffered, $wpuRunning, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
+	
 	// We only want this action to fire once, and only on a real $template->display('body') event
 	if ( (!$wpuRunning)  && (isset($template->filename[$handle])) ) {
 	
-	
-		// NEW ADD FOR PROFILE SYNC, TEMP WHILE HOOKS BEING CLEANED UP (@TODO: CLEANUP HOOKS FILE)
-		global $wpuIntegrationActions, $phpbbForum, $user, $wpuActionsFor;
-		
-		if(($wpuIntegrationActions == 'profile') || ($wpuIntegrationActions == 'acpprofile')) {
+		// perform profile sync if required
+		if($wpUnited->should_do_action('profile') {
+			global $phpbbForum, $user;
 			
-			$idToFetch = ($wpuIntegrationActions == 'acpprofile') ? $wpuActionsFor : $user->data['user_id'];
+			$idToFetch = ($wpUnited->actions_for_another()) ? $wpUnited->actions_for_another() : $user->data['user_id'];
 			
 			// have to reload data from scratch otherwise cached $user is used
 			$newUserData = $phpbbForum->fetch_userdata_for($idToFetch);
@@ -231,13 +170,11 @@ function wpu_execute(&$hook, $handle) {
 			$phpbbForum->foreground();
 		}
 	
-	
-		
+
 		if($handle != 'body') {
 			return;
 		}
 		
-
 
 		/**
 		 * An additional check to ensure we don't act on a $template->assign_display('body') event --
@@ -259,12 +196,12 @@ function wpu_execute(&$hook, $handle) {
 		}
 
 
-		if($wpuIntegrationMode == 'template-p-in-w') { 
+		if($wpUnited->should_do_action('template-p-in-w')) { 
 			$template->display($handle);
 			$innerContent = ob_get_contents();
 			ob_end_clean(); 
 			if(in_array($template->filename[$handle], (array)$GLOBALS['WPU_NOT_INTEGRATED_TPLS'])) {
-				//Don't reverse-integrate pages we know don't want header/foote
+				//Don't reverse-integrate pages we know don't want header/footers
 				echo $innerContent;
 			} else { 
 				//insert phpBB into a wordpress page
@@ -317,10 +254,11 @@ function wpu_set_buffering_init_level() {
  * Prevent phpBB from exiting
  */
 function wpu_continue(&$hook) {
-	global $wpuRunning, $wpuBuffered, $wpuIntegrationMode;
+	global $wpuRunning, $wpuBuffered, $wpUnited;
+	
 	if (defined('PHPBB_EXIT_DISABLED') && !defined('WPU_FINISHED')) {
-		return "";
-	} else if ( $wpuBuffered && (!$wpuRunning) && ($wpuIntegrationMode == 'template-p-in-w') ) {
+		return '';
+	} else if ( $wpuBuffered && (!$wpuRunning) && $wpUnited->should_do_action('template-p-in-w') ) {
 		/** if someone else was buffering the page and are now asking to exit,
 		 * wpu_execute won't have run yet
 		 */
@@ -345,7 +283,7 @@ function wpu_continue(&$hook) {
  * hashed together with the path back to WordPress (so we can reload it).
  * Sets initial values to sensible deafaults if they haven't been set yet.
  */
-function get_integration_settings() {
+function wpu_get_integration_settings() {
 	global $config, $db;
 
 	$wpuString = '';

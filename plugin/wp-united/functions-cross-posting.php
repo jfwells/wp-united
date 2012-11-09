@@ -703,13 +703,13 @@ function wpu_comment_link($url, $comment, $args) {
  * 
  */
 function wpu_comments_open($open, $postID) {
-	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user, $wpuIntegrationMode;
+	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user;
 	static $status;
 	if(isset($status)) {
 		return $status;
 	}
 	
-	if($wpuIntegrationMode == 'template-p-in-w') {
+	if($wpUnited->should_do_action('template-p-in-w')) {
 		$status = false;
 		return $status;
 	}

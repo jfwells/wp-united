@@ -10,7 +10,9 @@
 * @author John Wells
 *
 */
-global $connectSuccess, $wpUnited, $forum_page_ID, $phpbbForum, $wpuIntegrationMode;
+
+//@TODO: CLEAN UP ALL THIS NONSENSE
+global $connectSuccess, $wpUnited, $forum_page_ID, $phpbbForum, $wpUnited;
 
 global $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $wpu_page_title, $wp_version, $lDebug;
 global $innerHeadInfo, $innerContent;
@@ -23,8 +25,9 @@ if($connectSuccess) {
 	
 	/**
 	 * We integrate logins here, as otherwise it happens too early.
+		// @TODO: CHECK IF THIS IS STILL NECESSARY. WP NATIVE INIT IS BETTER
 	 */
-	if($wpUnited->get_setting('integrateLogin') && ($wpuIntegrationMode == 'template-p-in-w')) { 
+	if($wpUnited->get_setting('integrateLogin') && ($wpUnited->should_do_action('template-p-in-w')) { 
 		if(!defined('WPU_CANNOT_OVERRIDE')) {
 			wp_get_current_user(true);
 			do_action('init');
@@ -43,7 +46,7 @@ if($connectSuccess) {
 		
 		wp();
 		if (!$latest ) {
-			if ($wpuIntegrationMode != 'template-p-in-w') {
+			if (!$wpUnited->should_do_action('template-p-in-w')) {
 				eval($wpUtdInt->fix_template_loader());
 			}
 		} else {
@@ -60,7 +63,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 	/**
 	 * Generate the WP header/footer for phpBB-in-WordPress
 	 */
-	if ($wpuIntegrationMode == 'template-p-in-w') { 
+	if ($wpUnited->should_do_action('template-p-in-w')) { 
 
 		//prevent WP 404 error
 		if ( !$wpuCache->use_template_cache() ) {

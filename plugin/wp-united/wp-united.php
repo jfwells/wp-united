@@ -70,9 +70,12 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function __construct($existingObject = false) {
 		
 		
-		//Rather than using the decorator pattern, we can just import the style keys.
+		//Rather than using the decorator pattern, we can just import the style keys
+		// TODO: Use a real decorator, and remove stored $wpUnited when saving. Then we can remove below getters from basics.php
 		if( (is_object($existingObject)) && ($existingObject instanceOf WP_United_Basics) ) {
 			$this->styleKeys = $existingObject->get_style_key();
+			$this->actions = $existingObject->get_actions(); // TODO: can remove once we use proper decorator
+			$this->actionsFor = $existingObject->actions_for_another(); // TODO: can remove once we use proper decorator
 		}
 		
 		// we want to override some actions. These must match the priority of the built-ins 
@@ -354,9 +357,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * template integration when WordPress CSS is first.
 	*/
 	public function add_head_marker() {
-		global $wpuIntegrationMode;
+		global $wpUnited;
 
-		if (($wpuIntegrationMode == 'template-p-in-w') && (!PHPBB_CSS_FIRST)) {
+		if ($wpUnited->should_do_action('template-p-in-w') && (!PHPBB_CSS_FIRST)) {
 			echo '<!--[**HEAD_MARKER**]-->';
 		}
 	}

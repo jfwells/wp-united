@@ -52,8 +52,8 @@ if ( isset($HTTP_GET_VARS['numposts']) ) {
  *  if a valid WordPress template cache is available, we just do that and don't need to run WordPress at all.
  *  If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
  */
-$wpContentVar = ($wpuIntegrationMode == 'template-p-in-w') ? 'outerContent' : 'innerContent';
-$phpBBContentVar = ($wpuIntegrationMode == 'template-p-in-w') ? 'innerContent' : 'outerContent';
+$wpContentVar = ($wpUnited->should_do_action('template-p-in-w')) ? 'outerContent' : 'innerContent';
+$phpBBContentVar = ($wpUnited->should_do_action('template-p-in-w')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
 
 if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) { 

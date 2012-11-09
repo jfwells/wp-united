@@ -32,7 +32,7 @@ if($wpuNoHead) {
 /**
  * Get phpBB header/footer
  */
-if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && ($wpuIntegrationMode != 'template-p-in-w') ) {
+if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && (!$wpUnited->should_do_action('template-p-in-w') ) {
 	//export header styles to template - before or after phpBB's CSS depending on settings.
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later
@@ -106,7 +106,7 @@ if ( $wpUnited->get_setting('integrateLogin') ) {
 /**
  * Output WordPress -- If this is a plain WordPress page, we can just output it here.
  */
-if ( ($wpuIntegrationMode != 'template-p-in-w') && !($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
+if ( !$wpUnited->should_do_action('template-p-in-w') && !($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
 	wpu_output_page($$wpContentVar);
 	unset($outerContent); unset($innerContent);
 }
@@ -115,7 +115,7 @@ if ( ($wpuIntegrationMode != 'template-p-in-w') && !($wpUnited->get_setting('sho
 /** 
  * Make modifications to $innerContent, and extract items for interleaving into $outerContent <head>
  */
-if ( ($wpuIntegrationMode == 'template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') )  { // phpBB is inner:
+if ( $wpUnited->should_do_action('template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') )  { // phpBB is inner:
 
 	//Get ltr, rtl & bgcolor, etc, from the body tag
 	preg_match('/<body[^>]+>/i', $innerContent, $pfBodyMatches);
@@ -134,7 +134,7 @@ if ( ($wpuIntegrationMode == 'template-p-in-w') || ($wpUnited->get_setting('show
 	process_body($innerContent);
 } 
 
-if ($wpuIntegrationMode == 'template-p-in-w') { 
+if ($wpUnited->should_do_action('template-p-in-w')) { 
 	
 	// replace outer title with phpBB title
 	$outerContent = preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $outerContent);
@@ -375,7 +375,7 @@ if ($wpUnited->get_setting('cssMagic')) {
 
 
 // Substitute in content
-if ( ($wpuIntegrationMode = 'template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
+if ( $wpUnited->should_do_action('template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
 	$outerContent = str_replace("<!--[**HEAD_MARKER**]-->", $innerHeadInfo, $outerContent); unset($innerHeadInfo);
 	$outerContent = str_replace("<!--[**INNER_CONTENT**]-->", $wpuOutputPreStr . $innerContent . $wpuOutputPostStr, $outerContent); unset($innerContent);
 	
@@ -390,7 +390,7 @@ if ( ($wpuIntegrationMode = 'template-p-in-w') || ($wpUnited->get_setting('showH
  * @return string the page <HEAD>
  */
 function process_head(&$retWpInc) {
-	global $wpUnited, $template, $wpuIntegrationMode;
+	global $wpUnited, $template;
 	//Locate where the WordPress <body> begins, and snip of everything above and including the statement
 	$bodyLocStart = strpos($retWpInc, "<body");
 	$bodyLoc = strpos($retWpInc, ">", $bodyLocStart);
@@ -420,7 +420,7 @@ function process_head(&$retWpInc) {
 	);
 	$header_info = head_snip($wpHead, $findItems);
 	//get the DTD if we're doing DTD switching
-		if ( ($wpUnited->get_setting('dtdSwitch')) && ($wpuIntegrationMode != 'template-p-in-w') ) {
+		if ( ($wpUnited->get_setting('dtdSwitch')) && !$wpUnited->should_do_action('template-p-in-w') ) {
 			$wp_dtd = head_snip($wpHead, array('<!DOCTYPE' => '>'));
 			$template->assign_var('WP_DTD', $wp_dtd);
 		}

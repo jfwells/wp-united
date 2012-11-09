@@ -552,13 +552,13 @@ if ( isset($_GET['page']) ) {
  * template integration when WordPress CSS is first.
 */
 function wpu_done_head() {
-	global $wpu_done_head, $wpUnited, $wp_the_query, $wpuIntegrationMode;
+	global $wpu_done_head, $wpUnited, $wp_the_query;
 	$wpu_done_head = true; 
 	//add the frontpage stylesheet, if needed: 
 	if ( ($wpUnited->get_setting('blUseCSS')) && ($wpUnited->get_setting('useBlogHome')) ) {
 		echo '<link rel="stylesheet" href="' . $wpUnited->pluginUrl . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
-	if ( ($wpuIntegrationMode == 'template-p-in-w') && (!PHPBB_CSS_FIRST) ) {
+	if ( ($wpUnited->should_do_action('template-p-in-w')) && (!PHPBB_CSS_FIRST) ) {
 		echo '<!--[**HEAD_MARKER**]-->';
 	}
 	
