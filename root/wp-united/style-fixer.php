@@ -81,15 +81,15 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 
 require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
-if(!isset($wpUnited->pluginPath) || !file_exists($wpUnited->pluginPath) || !$wpUnited->is_enabled()) {
+if(!isset($wpUnited->get_plugin_path()) || !file_exists($wpUnited->get_plugin_path()) || !$wpUnited->is_enabled()) {
 	die('not setup properly');
 }
 
 // We load the bare minimum to get our data
-require($wpUnited->pluginPath . 'functions-css-magic.php');
+require($wpUnited->get_plugin_path() . 'functions-css-magic.php');
 
 
-require($wpUnited->pluginPath . 'cache.php');
+require($wpUnited->get_plugin_path() . 'cache.php');
 $wpuCache = WPU_Cache::getInstance();
 
 $cssFileToFix = $wpUnited->get_style_key($cssFileToFix);
@@ -135,7 +135,7 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 	
 	// Load and CSS-Magic-ify the CSS file. If an outer file, just cache it
 	if(empty($css)) {
-		require($wpUnited->pluginPath . 'css-magic.php');
+		require($wpUnited->get_plugin_path() . 'css-magic.php');
 		$cssMagic = CSS_Magic::getInstance();
 		if($cssMagic->parseFile($cssFileToFix)) {
 

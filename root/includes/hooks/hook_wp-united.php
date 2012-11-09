@@ -27,16 +27,17 @@ if(!file_exists($phpbb_root_path . 'wp-united/')) {
 	return;
 }
 
-wpu_get_integration_settings();
+
+if(!wpu_bootstrap()) {
+	return;
+}
 
 // We don't need anything if this is a stylesheet call to css magic (style-fixer.php)
 if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
-if(!isset($wpUnited) || !is_object($wpUnited) || !$wpUnited->is_enabled()) {
-	return;
-}
+
 
 
 // If we don't need to run WP, we don't need to do anything else here...
@@ -57,7 +58,7 @@ $phpbb_hook->register('exit_handler', 'wpu_continue');
  * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
 */
 
-require_once($wpUnited->pluginPath . 'wordpress-runner.php'); 
+require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
 
 /**
  * Since WordPress uses PHP timezone handling in PHP 5.3+, we need to do in phpBB too to suppress warnings
@@ -112,7 +113,7 @@ function wpu_init(&$hook) {
 		
 
 		//Initialise the cache -- although we won't be using it, we may need some functionality
-		require_once($wpUnited->pluginPath . 'cache.php');
+		require_once($wpUnited->get_plugin_path() . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 		
 
@@ -130,7 +131,7 @@ function wpu_wp_shutdown() {
 		$phpbbForum->foreground();
 		
 		$wpContentVar = 'innerContent';
-		include ($wpUnited->pluginPath . 'integrator.php');
+		include ($wpUnited->get_plugin_path() . 'integrator.php');
 	}
 }
 
@@ -179,7 +180,7 @@ function wpu_execute(&$hook, $handle) {
 		//$hook->remove_hook(array('template', 'display'));
 		if(defined('SHOW_BLOG_LINK') && SHOW_BLOG_LINK) {
 			$template->assign_vars(array(
-				'U_BLOG'	 =>	append_sid($wpUnited->wpHomeUrl, false, false, $GLOBALS['user']->session_id),
+				'U_BLOG'	 =>	append_sid($wpUnited->get_wp_home_url(), false, false, $GLOBALS['user']->session_id),
 				'S_BLOG'	=>	TRUE,
 			)); 
 		}
@@ -194,7 +195,7 @@ function wpu_execute(&$hook, $handle) {
 				echo $innerContent;
 			} else { 
 				//insert phpBB into a wordpress page
-				include ($wpUnited->pluginPath .'integrator.php'); 
+				include ($wpUnited->get_plugin_path() .'integrator.php'); 
 			}
 			
 		
@@ -265,74 +266,21 @@ function wpu_set_buffering_init_level() {
 }
 
 
-/**
- * Get configuration setings from database
- * Configurations are stored as a serialized WP-United object that was initialised and send by WordPress, 
- * hashed together with the path back to WordPress (so we can reload it).
- * Sets initial values to sensible deafaults if they haven't been set yet.
- */
-function wpu_get_integration_settings() {
-	global $config, $db;
-
-	$wpuString = '';
-	$key = 1;
-	while(isset( $config["wpu_settings_{$key}"])) {
-		$wpuString .= $config["wpu_settings_{$key}"];
-		$key++;
-	}
-
-	// convert config value to a serialised string
-	if(empty($wpuString)) {
-		return false;
-	}
-	$wpuString =  gzuncompress(base64_decode($wpuString));
-	
-	// if $wpUnited doesn't already exist, create it by unserialising the stored object
-	global $wpUnited;
-	if(!is_object($wpUnited)) { 
-		$retrieved = unserialize($wpuString);
-		if( is_array($retrieved) && (sizeof($retrieved) == 2) ) { 
-			list($classLoc, $classDetails) = $retrieved;
-			if(file_exists($classLoc)) { 
-				require_once($classLoc . 'basics.php');
-				// Convert it from a saved WP_United_Plugin class to our base WP_United_Basics class. 
-				// Yes this is brittle/ugly but cleanest alternative for now and still beats duplicating
-				// TODO: Make WP_United_Plugin expose no additional public interfaces.
-				$classDetails = str_replace('WP_United_Plugin', 'WP_United_Basics', $classDetails);
-				$wpUnited = unserialize($classDetails);
+function wpu_bootstrap() {
+	global $config, $wpUnited;
+	if(!class_exists('WP_United_Plugin')) {
+		if(isset($config['wpu_location'])) {
+			if(file_exists($config['wpu_location'])) {
+				require_once($config['wpu_location'] . 'base-classes.php');
+				require_once($config['wpu_location'] . 'plugin-main.php');
+				$wpUnited = new WP_United_Plugin();	
 			}
 		}
 	}
-	if(!is_object($wpUnited)) {
+	if(!isset($wpUnited) || !is_object($wpUnited) || !$wpUnited->is_enabled()) {
 		return false;
 	}
-		
-	/**
-	 * Handle style keys for CSS Magic
-	 * We load them here so that we can auto-remove them if CSS Magic is disabled
-	 */
-	$key = 1;
-	if($wpUnited->get_setting('cssMagic')) {
-		$fullKey = '';
-		while(isset( $config["wpu_style_keys_{$key}"])) {
-			$fullKey .= $config["wpu_style_keys_{$key}"];
-			$key++;
-		}
-		if(!empty($fullKey)) {
-			$wpUnited->init_style_keys(unserialize(base64_decode($fullKey)));
-		} else {
-			$wpUnited->init_style_keys();
-		}
-	} else {
-		// Clear out the config keys
-		if(isset($config['wpu_style_keys_1'])) {
-			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
-				WHERE config_name LIKE \'wpu_style_keys_%\'';
-			$db->sql_query($sql);
-		}
-		$wpUnited->init_style_keys();
-	}
-	
+	return true;
 }
 
 
@@ -340,69 +288,17 @@ function wpu_get_integration_settings() {
  * Clear integration settings
  * Completely removes all traces of WP-united settings
  */
-function clear_integration_settings() {
-	global $db, $cache;
+function wpu_clear_integration_settings() {
+	global $wpUnited, $phpbbForum, $cache;
 	
-	wpu_clear_main_settings();
-	wpu_clear_style_keys();
+	$phpbbForum->clear_settings();
+	$wpUnited->clear_style_keys();
 	
 	$cache->destroy('config');
 }
 
-/** 
- * removes main settings from database
- * @access private
- */
-function wpu_clear_main_settings() {
-	global $db;
-	
-	$sql = 'DELETE FROM ' . CONFIG_TABLE . '
-			WHERE config_name LIKE \'wpu_settings_%\'';
-	$db->sql_query($sql);
-}
 
-/** 
- * removes main settings from database
- * @access private
- */
-function wpu_clear_style_keys() {
-	global $db, $config, $wpUnited;
-	
-	if(isset($config['wpu_style_keys_1'])) {
-		$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
-			WHERE config_name LIKE \'wpu_style_keys_%\'';
-		$db->sql_query($sql);
-	}
-	$wpUnited->init_style_keys();
-}
 
-/**
- * Write config settings to the database
- * Writes any configuration settings that are passed to the integration settings table.
- * We want changes to take place as a single transaction to avoid collisions, so we 
- * access DB directly rather than using set_config
-*/
-function set_integration_settings($dataIn) {
-		global $cache, $db;
-		
-		
-		
-		$currPtr=1;
-		$chunkStart = 0;
-		$sql = array();
-		wpu_clear_main_settings();
-		while($chunkStart < strlen($dataIn)) {
-			$sql[] = array(
-				'config_name' 	=> 	"wpu_settings_{$currPtr}",
-				'config_value' 	=>	substr($dataIn, $chunkStart, 255)
-			);
-			$chunkStart = $chunkStart + 255;
-			$currPtr++;
-		}
-		
-		$db->sql_multi_insert(CONFIG_TABLE, $sql);
-		$cache->destroy('config');
-}
 
 		
 /**

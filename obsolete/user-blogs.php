@@ -556,7 +556,7 @@ function wpu_done_head() {
 	$wpu_done_head = true; 
 	//add the frontpage stylesheet, if needed: 
 	if ( ($wpUnited->get_setting('blUseCSS')) && ($wpUnited->get_setting('useBlogHome')) ) {
-		echo '<link rel="stylesheet" href="' . $wpUnited->pluginUrl . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
+		echo '<link rel="stylesheet" href="' . $wpUnited->get_plugin_url() . 'theme/wpu-blogs-homepage.css" type="text/css" media="screen" />';
 	}
 	if ( ($wpUnited->should_do_action('template-p-in-w')) && (!PHPBB_CSS_FIRST) ) {
 		echo '<!--[**HEAD_MARKER**]-->';

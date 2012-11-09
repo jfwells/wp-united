@@ -54,7 +54,7 @@ class WPU_Actions {
 		
 		if ($wpUnited->get_setting('buttonsProfile')) {
 			if ( !empty($bloglink_id) ) {
-				$blog_uri = append_sid($wpUnited->wpHomeUrl . "?author=" . $bloglink_id);
+				$blog_uri = append_sid($wpUnited->get_wp_home_url() . "?author=" . $bloglink_id);
 				$blog_img = '';   //TODO: SET FOR SUBSILVER!!
 				$template->assign_vars(array(
 					'BLOG_IMG' 		=> $blog_img,
@@ -79,7 +79,7 @@ class WPU_Actions {
 						$cache['blog_link'] = '';
 					} else {
 						$cache['blog_img'] = '';   //TODO: SET FOR SUBSILVER!!
-						$cache['blog_link'] = append_sid($wpUnited->wpHomeUrl . "?author=" . $bloglink_id);			
+						$cache['blog_link'] = append_sid($wpUnited->get_wp_home_url() . "?author=" . $bloglink_id);			
 					}
 				}
 			}
@@ -109,9 +109,9 @@ class WPU_Actions {
 			return $cssIn; 
 		}
 		
-		require_once($wpUnited->pluginPath . 'functions-css-magic.php');
+		require_once($wpUnited->get_plugin_path() . 'functions-css-magic.php');
 
-		require_once($wpUnited->pluginPath . 'cache.php');
+		require_once($wpUnited->get_plugin_path() . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 
 		if(!isset($_GET['usecssm'])) {
@@ -150,7 +150,7 @@ class WPU_Actions {
 		}
 		
 		// Apply or load css magic
-		include($wpUnited->pluginPath . 'css-magic.php');
+		include($wpUnited->get_plugin_path() . 'css-magic.php');
 		$cssMagic = CSS_Magic::getInstance();
 		if(!$cssMagic->parseString($cssIn)) {
 			return $cssIn;
@@ -185,7 +185,7 @@ class WPU_Actions {
 	 */
 	function purge_cache() {
 		global $wpUnited, $phpEx;
-		require_once($wpUnited->pluginPath . 'cache.php');
+		require_once($wpUnited->get_plugin_path() . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 		$wpuCache->purge();
 	}
