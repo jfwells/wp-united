@@ -1,5 +1,4 @@
 <?php
-
 /** 
 *
 * WP-United Hooks
@@ -156,7 +155,7 @@ function wpu_execute(&$hook, $handle) {
 	if ( (!$wpuRunning)  && (isset($template->filename[$handle])) ) {
 	
 		// perform profile sync if required
-		if($wpUnited->should_do_action('profile') {
+		if($wpUnited->should_do_action('profile')) {
 			global $phpbbForum, $user;
 			
 			$idToFetch = ($wpUnited->actions_for_another()) ? $wpUnited->actions_for_another() : $user->data['user_id'];

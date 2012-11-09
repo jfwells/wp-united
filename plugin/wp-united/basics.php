@@ -14,8 +14,8 @@ class WP_United_Basics {
 		
 		$updatedStyleKeys = false,
 		$wordpressLoaded = false,
-		$settings = array();
-		$actions = array();
+		$settings = array(),
+		$actions = array(),
 		$actionsFor = 0;
 	
 	public
@@ -227,7 +227,7 @@ class WP_United_Basics {
 	 * Determine if we need to load WordPress, and compile a list of actions that will need to take place once we do
 	 */
 	protected function assess_required_wp_actions() {
-		
+		global $phpEx;
 		
 		if($this->wordpressLoaded || defined('WPU_PHPBB_IS_EMBEDDED')) {
 			return 0;
@@ -267,7 +267,7 @@ class WP_United_Basics {
 					$actionMode = request_var('mode', '');
 					$wpuActionsFor = (int)request_var('u', '');
 					if(!empty($wpuActionsFor) && (($actionMode == 'profile') || ($actionMode == 'overview') || ($actionMode == 'profile'))) {
-						$this->actions[] = 'profile'
+						$this->actions[] = 'profile';
 						$this->actionsFor = $wpuActionsFor;
 					}
 				}
@@ -283,7 +283,7 @@ class WP_United_Basics {
 	}
 	
 	public function should_run_wordpress() {
-		return $this->assess_required_wp_actions;
+		return $this->assess_required_wp_actions();
 	}
 	
 	public function get_actions() {
