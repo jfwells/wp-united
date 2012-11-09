@@ -71,6 +71,15 @@ class WP_United_Settings {
 
 	}
 	
+	public function update_settings($data) {
+		
+		if(function_exists('update_option')) { 
+			$data = array_merge($this->settings, (array)$data); 
+			update_option('wpu-settings', $data);
+			$this->settings = $data;
+		}
+	}
+	
 	
 	private function get_defaults() {
 		return array(

@@ -231,12 +231,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function update_settings($data) {
-
-		
-		$data = array_merge($this->settings, (array)$data); 
-		update_option('wpu-settings', $data);
-		$this->settings = $data;
-
+		$this->settings->update_settings($data);
 	}
 	
 	public function integrate_users() {
