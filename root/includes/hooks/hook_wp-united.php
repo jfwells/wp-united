@@ -38,28 +38,26 @@ if(defined('WPU_STYLE_FIXER')) {
 }
 
 
+if($wpUnited->get_num_actions()) { 
 
 
+	wpu_timer_start();
+	wpu_set_buffering_init_level();
 
-wpu_timer_start();
-wpu_set_buffering_init_level();
-
-// register our hooks.
-$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
-$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
-$phpbb_hook->register('exit_handler', 'wpu_continue');
+	$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
+	$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
+	$phpbb_hook->register('exit_handler', 'wpu_continue');
 
 
-// If we don't need to run WP, we don't need to do anything else here...
-if(!$wpUnited->should_run_wordpress()) {
-	return;
+	/**
+	 * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
+	*/
+
+	if($wpUnited->should_run_wordpress()) {
+		require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
+	}
+
 }
-
-/**
- * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
-*/
-
-require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
 
 /**
  * Since WordPress uses PHP timezone handling in PHP 5.3+, we need to do in phpBB too to suppress warnings
@@ -109,9 +107,7 @@ function wpu_init(&$hook) {
 	if (($wpUnited->get_setting('showHdrFtr') == 'REV') && !defined('WPU_BLOG_PAGE')) { 
 		ob_start();
 	}
-	if (($wpUnited->get_setting('showHdrFtr') == 'FWD') && defined('WPU_BLOG_PAGE') ) {
-		define('WPU_FWD_INTEGRATION', true); // TODO: clean this somehow
-		
+	if ($wpUnited->should_do_action('template-w-in-p')) {
 
 		//Initialise the cache -- although we won't be using it, we may need some functionality
 		require_once($wpUnited->get_plugin_path() . 'cache.php');
@@ -125,7 +121,7 @@ function wpu_init(&$hook) {
 
 function wpu_wp_shutdown() { 
 	global $innerContent, $wpContentVar, $phpbb_root_path, $phpbbForum, $wpuCache, $wpUnited;
-	if (defined('WPU_FWD_INTEGRATION') ) {
+	if ($wpUnited->should_do_action('template-w-in-p')) {
 		
 		$innerContent = ob_get_contents();
 		ob_end_clean(); 
@@ -171,7 +167,7 @@ function wpu_execute(&$hook, $handle) {
 		 * An additional check to ensure we don't act on a $template->assign_display('body') event --
 		 * if a mod is doing weird things with $template instead of creating their own $template object
 		 */
-		if(defined('WPU_FWD_INTEGRATION')) {
+		if($wpUnited->should_do_action('template-w-in-p')) {
 			if($wpuBuffered = wpu_am_i_buffered()) {
 				return;
 			}

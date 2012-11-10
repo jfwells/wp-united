@@ -341,7 +341,7 @@ class WP_United_Plugin_Base {
 	protected function assess_required_wp_actions() {
 		global $phpEx;
 		
-		if($this->is_wordpress_loaded() || defined('WPU_PHPBB_IS_EMBEDDED')) {
+		if(defined('WPU_PHPBB_IS_EMBEDDED')) { // phpBB embedded in WP admin page
 			return 0;
 		}
 		
@@ -350,53 +350,67 @@ class WP_United_Plugin_Base {
 			return $numActions;
 		}
 		
-		// Check for user integration-related actions
 		
-		if($this->get_setting('integrateLogin')) { 
-		
-			// Is this a login/out page or profile update?
-			if(preg_match("/\/ucp\.{$phpEx}/", $_SERVER['REQUEST_URI'])) { 
-				
-				$actionMode = request_var('mode', '');	
-				
-				if($actionMode == 'logout') {
-					$this->integActions[] = 'logout';
-				//} else if($actionMode == 'login') { 
-					//$this->integActions[] = 'login';
-				} else if(($actionMode == 'profile_info') || ($actionMode == 'reg_details') || ($actionMode == 'avatar')) {
-					
-					$didSubmit = request_var('submit', '');
-					if(!empty($didSubmit)) {
-						$this->integActions[] = 'profile';
-						$this->integActionsFor = 0;
-					}
-				}
-			// Or is it an admin editing a user's profile?
-			} else if(defined('ADMIN_START')) {
+		if(!$this->is_wordpress_loaded()) {
 			
-				$didSubmit = request_var('update', '');
+			// Check for user integration-related actions
+			if($this->get_setting('integrateLogin')) { 
+			
+				// Is this a login/out page or profile update?
+				if(preg_match("/\/ucp\.{$phpEx}/", $_SERVER['REQUEST_URI'])) { 
+					
+					$actionMode = request_var('mode', '');	
+					
+					if($actionMode == 'logout') {
+						$this->integActions[] = 'logout';
+					//} else if($actionMode == 'login') { 
+						//$this->integActions[] = 'login';
+					} else if(($actionMode == 'profile_info') || ($actionMode == 'reg_details') || ($actionMode == 'avatar')) {
+						
+						$didSubmit = request_var('submit', '');
+						if(!empty($didSubmit)) {
+							$this->integActions[] = 'profile';
+							$this->integActionsFor = 0;
+						}
+					}
+				// Or is it an admin editing a user's profile?
+				} else if(defined('ADMIN_START')) {
 				
-				if(!empty($didSubmit)) {
-					$actionMode = request_var('mode', '');
-					$wpuActionsFor = (int)request_var('u', '');
-					if(!empty($wpuActionsFor) && (($actionMode == 'profile') || ($actionMode == 'overview') || ($actionMode == 'profile'))) {
-						$this->integActions[] = 'profile';
-						$this->integActionsFor = $wpuActionsFor;
+					$didSubmit = request_var('update', '');
+					
+					if(!empty($didSubmit)) {
+						$actionMode = request_var('mode', '');
+						$wpuActionsFor = (int)request_var('u', '');
+						if(!empty($wpuActionsFor) && (($actionMode == 'profile') || ($actionMode == 'overview') || ($actionMode == 'profile'))) {
+							$this->integActions[] = 'profile';
+							$this->integActionsFor = $wpuActionsFor;
+						}
 					}
 				}
 			}
-		}
 		
-		// Check for template integration-related actions:
-		if ($this->get_setting('showHdrFtr') == 'REV') {
-			$this->integActions[] = 'template-p-in-w';
+			// Check for template integration-related actions:
+			if ($this->get_setting('showHdrFtr') == 'REV') {
+				$this->integActions[] = 'template-p-in-w';
+			}
+		
+		
+		// if wordpress is loaded, we're only interested if this is a forward integration
+		} else {
+			if ($this->get_setting('showHdrFtr') == 'FWD') {
+				$this->integActions[] = 'template-w-in-p';
+			}
 		}
 		
 		return sizeof($this->integActions);
 	}
 	
-	public function should_run_wordpress() {
+	public function get_num_actions() {
 		return $this->assess_required_wp_actions();
+	}
+	
+	public function should_run_wordpress() {
+		return (defined('ABSPATH')) ? false : $this->assess_required_wp_actions();
 	}
 	
 

@@ -56,8 +56,8 @@ $wpContentVar = ($wpUnited->should_do_action('template-p-in-w')) ? 'outerContent
 $phpBBContentVar = ($wpUnited->should_do_action('template-p-in-w')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
 
-if ( !$wpuCache->use_template_cache()  && !defined('WPU_FWD_INTEGRATION')) { 
-//if ( !defined('WPU_FWD_INTEGRATION')) { 
+if ( !$wpuCache->use_template_cache()) { 
+
 	require_once($wpUnited->get_plugin_path() . 'wp-integration-class.php');
 	$wpUtdInt = WPU_Integration::getInstance();
 
