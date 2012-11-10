@@ -392,7 +392,7 @@ Class WPU_Core_Patcher {
 	* The plugin fixer should extend a base general compatibility class in order to do so.
 	* This must be executed just-in-time as WPINC is not yet set
 	*/
-	public function fix_template_loader() {
+	public function load_template() {
 		$wpuTemplate = file_get_contents(ABSPATH . WPINC . '/template-loader.php');
 		$finds = array(
 			'return;',
@@ -411,7 +411,7 @@ Class WPU_Core_Patcher {
 			'} else { $wpuNoHead = true;'
 		);
 		$wpuTemplate = str_replace($finds, $repls, $wpuTemplate);
-		return "\n" . '?' . '>' . trim($wpuTemplate) . '[EOF]' . "\n";
+		eval("\n" . '?' . '>' . trim($wpuTemplate) . '?>');
 	}
 
 	

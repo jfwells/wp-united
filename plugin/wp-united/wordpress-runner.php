@@ -31,13 +31,9 @@ if ( isset($_SERVER['PATH_INFO']) ) {
 	$_SERVER['PATH_INFO'] = ( $_SERVER['PATH_INFO'] == "/" ) ? '' : $_SERVER['PATH_INFO'];
 }
 
-// If we have been called only to provide the latest posts via cURL, we won't want to do any integration
+// some WP pages don't want a phpBB header & footer (e.g. feeds). TODO: improve this check and move from wpUtdInt into a filter.
 $wpuNoHead = false;
-$latest = false;
-if ( isset($HTTP_GET_VARS['latest']) ) {
-	$latest = true; // run in latest posts mode, for showing latest posts on portal page, etc.
-	$wpuNoHead = true;
-}
+
 // number of posts to show on portal page in latest posts mode
 if ( isset($HTTP_GET_VARS['numposts']) ) {
 	$postsToShow = (int) $HTTP_GET_VARS['numposts'];

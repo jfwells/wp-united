@@ -18,63 +18,48 @@ global $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $wpu_page_title, $w
 global $innerHeadInfo, $innerContent;
 global $wpContentVar, $outerContent, $phpbb_root_path, $phpEx, $wpuCache;
 
-if($connectSuccess) {
+
+
+
+if($connectSuccess) { // Wordpress ran inside phpBB
 	
 	$phpbbForum->background();
 	
 	
-	/**
-	 * We integrate logins here, as otherwise it happens too early.
-		// @TODO: CHECK IF THIS IS STILL NECESSARY. WP NATIVE INIT IS BETTER
-	 */
-	if($wpUnited->get_setting('integrateLogin') && ($wpUnited->should_do_action('template-p-in-w'))) { 
-		if(!defined('WPU_CANNOT_OVERRIDE')) {
-			wp_get_current_user(true);
-			do_action('init');
-		}
-	}
-	
-	
 	// get the page
 	ob_start();
-		if ( $GLOBALS['latest']) {
-			define("WP_USE_THEMES", false);
-		} else {
-			define("WP_USE_THEMES", true);
-		};
-		global $wp_did_header; $wp_did_header = true;
-		
-		wp();
-		if (!$latest ) {
-			if (!$wpUnited->should_do_action('template-p-in-w')) {
-				eval($wpUtdInt->fix_template_loader());
-			}
-		} else {
-			include($wpUnited->get_plugin_path() . 'latest-posts.php');
-		}
-		
-		$$wpContentVar = ob_get_contents();
-		ob_end_clean();
+	define("WP_USE_THEMES", true);
+
+	global $wp_did_header; $wp_did_header = true;
+
+	wp();
+	if (!$wpUnited->should_do_action('template-p-in-w')) {
+		$wpUtdInt->load_template();
+	}
+	
+	$$wpContentVar = ob_get_contents();
+	ob_end_clean();
 	
 }
 
-if ( $wpuCache->use_template_cache() || $connectSuccess ) { 
+// WordPress ran inside phpBB, or we pulled a header/footer from the cache
+if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 	
 	/**
 	 * Generate the WP header/footer for phpBB-in-WordPress
 	 */
-	if ($wpUnited->should_do_action('template-p-in-w')) { 
+	if ($wpUnited->should_do_action('template-p-in-w')) {
 
 		//prevent WP 404 error
 		if ( !$wpuCache->use_template_cache() ) {
 			query_posts('showposts=1');
 		}
 
-		if ($wpUnited->get_setting('wpSimpleHdr')) { 
+		if ($wpUnited->get_setting('wpSimpleHdr')) {
 			//
 			//	Simple header and footer
 			//
-			if ( !$wpuCache->use_template_cache() ) { 
+			if ( !$wpuCache->use_template_cache() ) {
 				//
 				// Need to rebuld the cache
 				//
