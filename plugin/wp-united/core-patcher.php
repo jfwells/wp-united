@@ -2,11 +2,13 @@
 
 /** 
 *
-* WP-United -- Integration class (the bit that talks to WordPress!)
+* The core patcher for WordPress, when it needs to be run from the phPBB side
+* This still contains a lot of old compatibility cruft that is likely no longer necessary as WP will always be called in the global scope with the new
+* WP-United code flow. TODO: Remove wpu_compat paths and list of global vars
 *
 * @package WP-United
-* @version $Id: v0.8.5RC2 2010/02/06 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2010 wp-united.com
+* @version $Id: v0.9.0RC3 2012/11/10 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
@@ -23,21 +25,21 @@ if ( !defined('IN_PHPBB') ) exit;
  * It also handles modifying WordPress as necessary in order to integrate it.
  * @package WP-United Core Integration
  */
-Class WPU_Integration {
+Class WPU_Core_Patcher {
  
 	
 	// The instructions we build in order to execute WordPress
-	var $wpRun;
+	private $wpRun;
 	
 	/**
 	 * This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated, and restore them later. 
 	 */
-	var $varsToUnsetAndRestore = array('table_prefix', 'userdata', 'search', 'error', 'author');
+	private $varsToUnsetAndRestore = array('table_prefix', 'userdata', 'search', 'error', 'author');
 	
 	/**
 	 * More vars that phpBB or MODS could use, that MUST be unset before WP runs
 	 */
-	var $varsToUnset = array('m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search',
+	private $varsToUnset = array('m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search',
 		'exact', 'sentence', 'debug', 'calendar', 'page', 'paged', 'more', 'tb', 'pb', 
 		'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second',
 		'name', 'category_name', 'feed', 'author_name', 'static', 'pagename', 'page_id', 'error',
@@ -48,7 +50,7 @@ Class WPU_Integration {
 	 * A list of vars that we *know* WordPress will want in the global scope. 
 	 * These are ONLY needed on pages where WP is called from within a function -- which is only on message_die pages. On such pages, most of these won't be needed anyway
 	 */
-	var $globalVarNames = array(
+	public $globalVarNames = array(
 		// basic
 		'wpdb', 
 		'wp_db_version', 
@@ -116,7 +118,7 @@ Class WPU_Integration {
 	/**
 	 * these are set as references to objects in the global scope
 	 */
-	var $globalRefs = array( 
+	private $globalRefs = array( 
 		'wp', 
 		'wp_object_cache',
 		'wp_rewrite', 
@@ -126,36 +128,24 @@ Class WPU_Integration {
 		'wp_widget_factory'
 	);
 	
-	// We'll put phpBB's current variable state "on ice" in here.
-	var $sleepingVars = array();
-	var $varsToSave;
-	
-	var $phpbb_root;
-	var $phpEx;
-	var $phpbb_db_name;
-	
-	var $wpVersion;
-	
-	var $wpu_ver;
-	
-	// prevents the main WordPress script from being included more than once
-	var $wpLoaded;
-	
 
-	// Compatibility mode?
-	var $wpu_compat;
-	
-	var $debugBuffer;
-	var $debugBufferFull;
+	private 
+		$sleepingVars = array(),
+		$varsToSave,
+		$wpVersion,
+		$wpu_ver,
+		$wpLoaded, // prevents the main WordPress script from being included more than once
+		$wpu_compat; // Compatibility mode? TODO: REMOVE COMPAT MODE ONCE CONFIRMED UNNEEDED
+
 	
 	/*
 	 * This class MUST be called as a singleton using this method
 	 * @param array $varsToSave An array of variable names that should be saved in their current state
 	 */
-	function getInstance ($varsToSave = FALSE ) {
+	public static function getInstance ($varsToSave = FALSE ) {
 		static $instance;
 		if (!isset($instance)) {
-			$instance = new WPU_Integration($varsToSave);
+			$instance = new WPU_Core_patcher($varsToSave);
         } 
         	return $instance;
     	}
@@ -165,13 +155,10 @@ Class WPU_Integration {
 	 * Takes a snapshot of phpBB variables at this point.
 	 * When we exit WordPress, these can be restored.
 	 */
-	function WPU_Integration($varsToSave) {
+	public function __construct($varsToSave) {
 		global $wpUnited;
 		//these are constants that ain't gonna change - we're going to need them in our class
 		$this->wpRun = '';
-		$this->phpEx = $GLOBALS['phpEx'];
-		$this->phpbb_db_name = $GLOBALS['dbname'];
-		$this->phpbb_root = $GLOBALS['phpbb_root_path'];
 
 		// store all vars set by phpBB, ready for retrieval after we exit WP
 		/**
@@ -182,10 +169,7 @@ Class WPU_Integration {
 		}
 		$this->varsToSave = $varsToSave;
 		$this->wpLoaded = FALSE;
-		$this->debugBuffer = '';
-		$this->debugBufferFull = FALSE;
 		$this->wpVersion = 0;
-		
 		$this->wpu_ver = $GLOBALS['wpuVersion'];
 		
 		// Load plugin fixer -- must be loaded regardless of settings, as core cache may contain plugin fixes
@@ -196,21 +180,17 @@ Class WPU_Integration {
 	/**
 	 * Test connection to WordPress
 	 */
-	function can_connect_to_wp() {
+	public function can_connect_to_wp() {
 		global $wpUnited;
 	
-		$test = str_replace('http://', '', $wpUnited->get_wp_path()); // urls sometimes return true on php 5.. this makes sure they don't.
-		if ( !file_exists( $test . 'wp-settings.php') ) {
-			return FALSE;
-		} else {
-			return TRUE;
-		}
+		return file_exists( $wpUnited->get_wp_path() . 'wp-settings.php');
+
 	}
 	
 	/**
 	 * Tests if the core cache is ready
 	 */
-	function core_cache_ready() {
+	public function core_cache_ready() {
 		global $wpuCache;
 	
 		if ( !$wpuCache->core_cache_enabled() ){
@@ -228,7 +208,7 @@ Class WPU_Integration {
 	/**
 	 * Prepares code for execution by adding it to the internal code store
 	 */
-	function prepare($wpCode) {
+	private function prepare($wpCode) {
 		$this->wpRun .= $wpCode . "\n";
 	}
 	
@@ -237,7 +217,7 @@ Class WPU_Integration {
 	 * Returns the code to be executed.
 	 * eval() can be called directly on the returned string
 	 */	
-	function exec() {
+	public function exec() {
 		$code = $this->wpRun;
 
 		$this->wpRun = '';
@@ -247,7 +227,7 @@ Class WPU_Integration {
 	/**
 	 * Loads up the WordPress install, to just before the point that the template would be shown
 	 */
-	function enter_wp_integration() {
+	public function enter_wp_integration() {
 
 		global $wpuCache, $wpUnited;
 		//Tell phpBB that we're in WordPress. This controls the branching of the duplicate functions get_userdata and make_clickable
@@ -275,7 +255,8 @@ Class WPU_Integration {
 
 		//Determine if WordPress will be running in the global scope -- in rare ocasions, such as in message_die, it won't be. 
 		// This is fine - even preferable, but many third-party plugins are not prepared for this and we must hold their hands
-		$this->wpu_compat = ( isset($GLOBALS['amIGlobal']) ) ? TRUE : FALSE;
+		$this->wpu_compat = true;
+		//$this->wpu_compat = ( isset($GLOBALS['amIGlobal']) ) ? TRUE : FALSE;
 		
 		//Override site cookie path if set in options.php
 		if ( (defined('WP_ROOT_COOKIE')) && (WP_ROOT_COOKIE) ) {
@@ -293,7 +274,7 @@ Class WPU_Integration {
 		
 		// do nothing if WP is already loaded
 		if ($this->wpLoaded ) {
-			$this->prepare('$wpUtdInt->switch_db(\'TO_W\');');
+			$this->prepare('$GLOBALS[\'phpbbForum\']->background();');
 			return FALSE;
 		}
 		
@@ -322,9 +303,7 @@ Class WPU_Integration {
 			$cSet = file_get_contents($wpUnited->get_wp_path() . 'wp-settings.php');
 			 //Handle the make clickable conflict
 			if (file_exists($wpUnited->get_wp_path() . 'wp-includes/formatting.php')) {
-				$fName='formatting.php';  //WP >= 2.1
-			} elseif (file_exists($wpUnited->get_wp_path() . 'wp-includes/functions-formatting.php')) {
-				$fName='functions-formatting.php';  //WP< 2.1
+				$fName='formatting.php'; 
 			} else {
 				trigger_error($user->lang['Function_Duplicate']);
 			}
@@ -404,48 +383,16 @@ Class WPU_Integration {
 
 	}
 	
-	/**
-	 * Code wrapper for logging out of WordPress
-	 */
-	function wp_logout() {
-		$this->prepare('$GLOBALS[\'phpbbForum\']->logout();');
-	}
 
-
-	
-	/**
-	 * @todo No longer need to fill variable like this -- we can just return
-	 * Grabs the raw WordPress page and hands it back in $toVarName for processing.
-	 * We have to prepare everything here, because whe the code is returned it must be ALL executed in
-	 * the global scope
-	 * Even the if statements must be prepared, as the result is cached.
-	 * @param string $varName the name of the variable in the global scope to fill with the page contents.
-	 */
-	function get_wp_page($toVarName) {
-		$this->prepare('ob_start();');
-		$this->prepare('if ( $GLOBALS[\'latest\']) {define("WP_USE_THEMES", false);} else {define("WP_USE_THEMES", true);}');
-		$this->prepare('global $wp_did_header; $wp_did_header = true;');
-		$this->prepare('wp();');
-		$this->prepare('if (!$latest ):');
-			$this->prepare('if(!$GLOBALS[\'$wpUnited\']->should_do_action(\'template-p-in-w\'):');
-				$this->prepare('global $wpuNoHead, $wpUnited;');
-				$this->prepare('eval($wpUtdInt->fix_template_loader());');
-			$this->prepare('endif;');
-		$this->prepare('else:');
-			$this->prepare('include($phpbb_root_path . \'wp-united/latest-posts.\' . $phpEx);');
-		$this->prepare('endif;');
-		$this->prepare('$' . $toVarName . ' = ob_get_contents();');
-		$this->prepare('ob_end_clean();');
-	}
 	
 	/**
 	 * Fixes and returns template-loader
-	* @todo this can use the plugin fixer tools to enter and fix themes too
-	* @todo cache
+	* @TODO this can use the plugin fixer tools to enter and fix themes too
+	* @TODO cache
 	* The plugin fixer should extend a base general compatibility class in order to do so.
 	* This must be executed just-in-time as WPINC is not yet set
 	*/
-	function fix_template_loader() {
+	public function fix_template_loader() {
 		$wpuTemplate = file_get_contents(ABSPATH . WPINC . '/template-loader.php');
 		$finds = array(
 			'return;',
@@ -467,46 +414,13 @@ Class WPU_Integration {
 		return "\n" . '?' . '>' . trim($wpuTemplate) . '[EOF]' . "\n";
 	}
 
-	/**
-	 * Used by usercp_register.php - changes the WP username.
-	 * @param string $oldName The old WordPress username
-	 * @param string $newName The new WordPress username
-	 * TODO: REMOVE THIS FROM HERE!
-	 */
-	function wp_change_username($oldName, $newName) {
-			// set the global vars we need
-			foreach ($this->globalVarsStore as $varName => $varValue) {
-				if ( !array_key_exists($varName, $this->globalRefs) ) {
-					if ( !($varName == 'oldName') && !($varName == 'newName') ) {
-						global $$varName;
-						$$varName = $varValue;
-					}
-				}
-			}	
-		
-			//load relevant user data
-			$oldName = sanitize_user($oldName, true);
-			$newName = sanitize_user($newName, true);
-			$wpUserdata = get_userdatabylogin($oldName);
-			if ( !empty($wpUserdata) ) {
-				$wpID = $wpUserdata->ID;
-				$query = "UPDATE $wpdb->users SET user_login='$newName' WHERE ID = '$wpID'";
-
-				$wpdb->query( $query );
-				wp_cache_delete($wpUserdata->ID, 'users');
-				wp_cache_delete($wpUserdata->user_login, 'userlogins');
-				wp_cache_delete($newName, 'userlogins');
-				
-				// not much else to do after this - so no need to check for new vars in this fn.
-		}
-	}
 	
 
 	
 	/**
 	 * Exits this class, and cleans up, restoring phpBB variable state
 	 */
-	function exit_wp_integration() {
+	public function exit_wp_integration() {
 		global $phpbbForum;
 		// check, in case user has deactivated wpu-plugin
 		if(isset($phpbbForum)) {
@@ -530,34 +444,7 @@ Class WPU_Integration {
 		$this->wpRun = '';
 	}
 	
-	/**
-	 * switch DB must be called *every time* whenever we want to switch between the WordPress and phpBB DB
-	 * We can't just acces $db and $wpdb without doing this first.
-	 * @param string $direction Set to 'TO_P' to switch to phpBB, or 'TO_W' to switch to WordPress.
-	 */
-	function switch_db ($direction = 'TO_P') {
-		if ( ($this->wpLoaded) && (!$this->phpbb_db_name != DB_NAME) ) {
-			switch ( $direction ) {
-				case 'TO_P':			
-					global $db, $dbms;
-					if(!empty($db->db_connect_id)) {
-						if($dbms=='mysqli') {
-							@mysqli_select_db($this->phpbb_db_name, $db->db_connect_id);
-						} else if($dbms=='mysql') {
-							@mysql_select_db($this->phpbb_db_name, $db->db_connect_id);
-						}
-					}
-					break;
-				case 'TO_W':
-				default;
-					global $wpdb;
-					if(!empty($wpdb->dbh)) {
-						@mysql_select_db(DB_NAME, $wpdb->dbh);
-					} 				
-					break;
-			}
-		}
-	}
+
 
 }
 ?>

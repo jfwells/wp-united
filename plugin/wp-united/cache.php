@@ -274,16 +274,18 @@ class WPU_Cache {
 	 * @param bool $compat Whether the plugin should be run in compatibility (slow) mode or not.
 	 */
 	public function save_plugin($content, $pluginPath, $wpVer, $compat, $addPHP = '') {
-		global $phpEx;
+		global $phpEx, $phpbbForum;
 		$compat = ($compat) ? "_fast" : "_slow";
 		$fnDest = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
 		$content = $this->prepare_content($content, $addPHP); 
 		$this->save($content, $fnDest);
 		$this->log("Generated plugin cache: $fnDest");	
+		
 		// update plugin compile time
-		$GLOBALS['wpUtdInt']->switch_db('TO_P');
+		$fStateChanged = $phpbbForum->background();
 		set_config('wpu_plugins_compiled', filemtime($fnDest));
-		$GLOBALS['wpUtdInt']->switch_db('TO_W');
+		$phpbbForum->restore_state($fStateChanged);
+
 		return $fnDest;
 	}
 

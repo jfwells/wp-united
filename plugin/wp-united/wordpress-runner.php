@@ -58,8 +58,8 @@ $connectSuccess = false;
 
 if ( !$wpuCache->use_template_cache()) { 
 
-	require_once($wpUnited->get_plugin_path() . 'wp-integration-class.php');
-	$wpUtdInt = WPU_Integration::getInstance();
+	require_once($wpUnited->get_plugin_path() . 'core-patcher.php');
+	$wpUtdInt = WPU_Core_Patcher::getInstance();
 
 	//We really want WordPress to run in the global scope. So, our integration class really just prepares
 	// a whole set of code to run, and passes it back to us for us to eval.

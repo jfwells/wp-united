@@ -339,7 +339,7 @@ class WP_United_Plugin_Base {
 	 * Determine if we need to load WordPress, and compile a list of actions that will need to take place once we do
 	 */
 	protected function assess_required_wp_actions() {
-		global $phpEx;
+		global $phpEx, $user;
 		
 		if(defined('WPU_PHPBB_IS_EMBEDDED')) { // phpBB embedded in WP admin page
 			return 0;
@@ -391,7 +391,23 @@ class WP_United_Plugin_Base {
 		
 			// Check for template integration-related actions:
 			if ($this->get_setting('showHdrFtr') == 'REV') {
-				$this->integActions[] = 'template-p-in-w';
+				
+				/**
+				 *  We don't want to run template integration on an ACP page, unless this is the login message box.
+				 * However we need to decide whether to run wordpress now, before $user exists. So we have to pre-load the session
+				 * As it's only run on admin pages, it's not much of a bother even on busy forums.
+				 * TODO: In future, we could add a core file edit to adm/index.php to defer the decision if this is considered too ugly
+				 */
+				$inAdmin = false;
+				if(defined('ADMIN_START')) {
+					$user->session_begin();
+					 if(isset($user->data['session_admin']) && $user->data['session_admin']) {
+						$inAdmin = true;
+					}
+				}
+				if(!$inAdmin) {
+					$this->integActions[] = 'template-p-in-w';
+				}	
 			}
 		
 		
