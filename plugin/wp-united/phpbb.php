@@ -768,7 +768,7 @@ class WPU_Phpbb {
 		
 	}
 	
-	public function clear_style_keys()	{
+	public function erase_style_keys()	{
 		global $db, $config, $cache;
 
 		$fStateChanged = $this->foreground();
@@ -796,10 +796,10 @@ class WPU_Phpbb {
 	public function commit_style_keys($styleKeys) {
 		global $cache, $db;
 		
-		
+		$this->erase_style_keys();
 		$fStateChanged = $this->foreground();
 		
-		$fullLocs = (base64_encode(serialize($styleKeys)));
+		$fullLocs = (base64_encode(serialize($styleKeys))); 
 		$currPtr=1;
 		$chunkStart = 0;
 		$sql = array();

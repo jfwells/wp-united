@@ -260,7 +260,7 @@ class WP_United_Plugin_Base {
 		return false;
 	}
 	
-	public function init_style_keys() {
+	public function init_style_keys() { 
 		global $phpbbForum;
 		/**
 		 * Handle style keys for CSS Magic
@@ -279,7 +279,7 @@ class WP_United_Plugin_Base {
 			} else {
 				// Clear out the config keys
 				$this->clear_style_keys();
-			}
+			} 
 		}
 	}
 
@@ -287,7 +287,7 @@ class WP_United_Plugin_Base {
 	public function clear_style_keys()	{
 		global $phpbbForum;
 		
-		$phpbbForum->clear_style_keys();
+		$phpbbForum->erase_style_keys();
 		$this->styleKeys = array();
 	}
 
@@ -321,13 +321,13 @@ class WP_United_Plugin_Base {
 	 * 
 	 * @return int the number of config keys used
 	 */ 
-	public function commit_style_keys() {
-				
+	public function commit_style_keys() { 
+		global $phpbbForum;
+		
 		if(!$this->updatedStyleKeys) {
 			return sizeof($this->styleKeys) - 1;
 		}
-		
-		$this->clear_style_keys();
+
 		return $phpbbForum->commit_style_keys($this->styleKeys);
 
 	}

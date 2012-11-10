@@ -32,7 +32,7 @@ if($wpuNoHead) {
 /**
  * Get phpBB header/footer
  */
-if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && (!$wpUnited->should_do_action('template-p-in-w') ) {
+if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && (!$wpUnited->should_do_action('template-p-in-w')) ) {
 	//export header styles to template - before or after phpBB's CSS depending on settings.
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later

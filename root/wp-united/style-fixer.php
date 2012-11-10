@@ -81,7 +81,7 @@ if(isset($_GET['tv']) && $pos == 'inner') {
 
 require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
-if(!isset($wpUnited) || isset($wpUnited->get_plugin_path()) || !file_exists($wpUnited->get_plugin_path()) || !$wpUnited->is_enabled()) {
+if(!isset($wpUnited) || !$wpUnited->get_plugin_path() || !file_exists($wpUnited->get_plugin_path()) || !$wpUnited->is_enabled()) {
 	die('not setup properly');
 }
 

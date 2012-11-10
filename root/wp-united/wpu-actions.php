@@ -105,7 +105,7 @@ class WPU_Actions {
 		require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
 				
-		if(!isset($wpUnited) || $wpUnited->is_enabled()) {
+		if(!isset($wpUnited) || !$wpUnited->is_enabled()) {
 			return $cssIn; 
 		}
 		

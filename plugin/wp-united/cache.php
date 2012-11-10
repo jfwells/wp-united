@@ -111,7 +111,7 @@ class WPU_Cache {
 		}
 		// a p-in-w template action counts as 1 action, but can be cached. Are there more?
 		// If there are, we can't use the cache and need to load WP instead.
-		if ($wpUnited->should_load_wordpress() > 1) { 
+		if ($wpUnited->should_run_wordpress() > 1) { 
 			return false;
 		}
 		if(!$this->template_cache_enabled()) {

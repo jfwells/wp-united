@@ -302,9 +302,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	 * Sets wpu_done_head to true, so we can alter things like the home link without worrying.
-	 * (before the <HEAD>, we don't want to modify any links)
-	 * We also add the head marker for 
+	 * add the head marker for 
 	 * template integration when WordPress CSS is first.
 	*/
 	public function add_head_marker() {

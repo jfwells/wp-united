@@ -40,10 +40,6 @@ if(defined('WPU_STYLE_FIXER')) {
 
 
 
-// If we don't need to run WP, we don't need to do anything else here...
-if(!$wpUnited->should_run_wordpress()) {
-	return;
-}
 
 wpu_timer_start();
 wpu_set_buffering_init_level();
@@ -53,6 +49,11 @@ $phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
 $phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
 $phpbb_hook->register('exit_handler', 'wpu_continue');
 
+
+// If we don't need to run WP, we don't need to do anything else here...
+if(!$wpUnited->should_run_wordpress()) {
+	return;
+}
 
 /**
  * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.

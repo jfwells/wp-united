@@ -27,7 +27,7 @@ if($connectSuccess) {
 	 * We integrate logins here, as otherwise it happens too early.
 		// @TODO: CHECK IF THIS IS STILL NECESSARY. WP NATIVE INIT IS BETTER
 	 */
-	if($wpUnited->get_setting('integrateLogin') && ($wpUnited->should_do_action('template-p-in-w')) { 
+	if($wpUnited->get_setting('integrateLogin') && ($wpUnited->should_do_action('template-p-in-w'))) { 
 		if(!defined('WPU_CANNOT_OVERRIDE')) {
 			wp_get_current_user(true);
 			do_action('init');
@@ -156,7 +156,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 			$phpbbForum->foreground();
 		} */
 		
-		if (!DISABLE_PHPBB_CSS && PHPBB_CSS_FIRST) {
+		if (!DISABLE_PHPBB_CSS && PHPBB_CSS_FIRST) { 
 			$outerContent = str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $outerContent);
 		}
 
