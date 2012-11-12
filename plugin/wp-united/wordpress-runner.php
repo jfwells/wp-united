@@ -34,22 +34,12 @@ if ( isset($_SERVER['PATH_INFO']) ) {
 // some WP pages don't want a phpBB header & footer (e.g. feeds). TODO: improve this check and move from wpUtdInt into a filter.
 $wpuNoHead = false;
 
-// number of posts to show on portal page in latest posts mode
-if ( isset($HTTP_GET_VARS['numposts']) ) {
-	$postsToShow = (int) $HTTP_GET_VARS['numposts'];
-	$postsToShow = ($postsToShow > 10) ? 10 : $postsToShow;
-	$postsToShow = ($postsToShow < 1) ? 3 : $postsToShow;
-}
-
 
 /**
  *  Run WordPress
- *  If this is phpBB-in-wordpress, we just need to get WordPress header & footer, and store them in $outerContent
+ *  If this is phpBB-in-wordpress, we just need to get WordPress header & footer, and store them as "outer content"
  *  if a valid WordPress template cache is available, we just do that and don't need to run WordPress at all.
- *  If this is WordPress-in-phpBB, now we call WordPress too, but store it in $innerContent
  */
-$wpContentVar = ($wpUnited->should_do_action('template-p-in-w')) ? 'outerContent' : 'innerContent';
-$phpBBContentVar = ($wpUnited->should_do_action('template-p-in-w')) ? 'innerContent' : 'outerContent';
 $connectSuccess = false;
 
 if ( !$wpuCache->use_template_cache()) { 

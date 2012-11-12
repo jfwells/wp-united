@@ -18,6 +18,8 @@ class WP_United_Settings {
 		$enabled = false,
 		$settings = array();
 		
+
+		
 	
 
 	public function __construct() {
@@ -137,8 +139,9 @@ class WP_United_Plugin_Base {
 		$integActionsFor = 0,
 		$filters = array(),
 		$actions = array(),
-		$lastRun = false;
-
+		$lastRun = false,
+		$innerContent = '',
+		$outerContent = '';
 
 	/**
 	* Initialise the WP-United class
@@ -155,8 +158,6 @@ class WP_United_Plugin_Base {
 
 		$this->load_settings();
 	
-	
-
 	}
 
 	
@@ -444,6 +445,67 @@ class WP_United_Plugin_Base {
 		}
 		return false;
 	}
+	
+	public function set_inner_content($content) {
+		$this->innerContent = $content;
+	}
+	
+	public function set_outer_content($content) {
+		$this->innerContent = $content;
+	}	
+	
+	public function clear_inner_content() {
+		$this->innerContent = '';
+	}
+	
+	public function clear_content() {
+			$this->clear_inner_content();
+			$this->clear_outer_content();
+	}
+	
+	public function clear_outer_content($content) {
+		$this->outerContent = '';
+	}
+	
+	public function get_inner_content() {
+		return $this->innerContent;
+	}
+	
+	public function get_outer_content() {
+		return $this->outerContent;
+	}
+	
+	public function get_wp_content() {
+		if($this->should_do_action('template-p-in-w')) {
+			return $this->innerContent;
+		} else {
+			return $this->outerContent;
+		}
+	}
+	
+	public function get_phpbb_content() {
+		if($this->should_do_action('template-p-in-w')) {
+			return $this->outerContent;
+		} else {
+			return $this->innerContent;
+		}
+	}
+	
+	public function set_wp_content($content) {
+		if($this->should_do_action('template-p-in-w')) {
+			$this->innerContent = $content;
+		} else {
+			$this->outerContent = $content;
+		}
+	}
+	
+	public function set_phpbb_content($content) {
+		if($this->should_do_action('template-p-in-w')) {
+			$this->outerContent = $content;
+		} else {
+			$this->innerContent = $content;
+		}
+	}	
 	
 	
 	public function version() {

@@ -376,6 +376,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Since wp-cron could be invoked by any user, we treat logged in status etc differently
 	 */
 	public function future_to_published($post) {
+		
 		define("WPU_JUST_POSTED_{$postID}", TRUE);
 		$this->handle_new_post($post->ID, $post, true);
 	}
@@ -384,10 +385,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Turns our page place holder into the forum-in-a-full-page
 	 */
 	public function check_content_for_forum($postContent) {
+		
 		if (! defined('PHPBB_CONTENT_ONLY') ) {
 			$postContent = $this->censor_content($postContent);
 		} else {
-			global $innerContent, $wpuOutputPreStr, $wpuOutputPostStr;
 			$postContent = "<!--[**INNER_CONTENT**]-->";
 		}
 		return $postContent;

@@ -15,8 +15,8 @@
 global $connectSuccess, $wpUnited, $forum_page_ID, $phpbbForum, $wpUnited;
 
 global $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $wpu_page_title, $wp_version, $lDebug;
-global $innerHeadInfo, $innerContent;
-global $wpContentVar, $outerContent, $phpbb_root_path, $phpEx, $wpuCache;
+global $innerHeadInfo;
+global $phpbb_root_path, $phpEx, $wpuCache;
 
 
 
@@ -37,7 +37,7 @@ if($connectSuccess) { // Wordpress ran inside phpBB
 		$wpUtdInt->load_template();
 	}
 	
-	$$wpContentVar = ob_get_contents();
+	$wpUnited->set_wp_content(ob_get_contents());
 	ob_end_clean();
 	
 }
@@ -77,29 +77,29 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 					}
 				}
 				get_header();
-				$outerContent = ob_get_contents();
+				$wpUnited->set_outer_content(ob_get_contents());
 				ob_end_clean();
 		
 	
-				$outerContent .= "<!--[**INNER_CONTENT**]-->";
+				$wpUnited->set_outer_content($wpUnited->get_outer_content() . '<!--[**INNER_CONTENT**]-->');
 				if ( $wpuCache->template_cache_enabled() ) {
-					$outerContent .= "<!--cached-->";
+					$wpUnited->set_outer_content($wpUnited->get_outer_content() . '<!--cached-->');
 				}				
 				
 				ob_start();
 				get_footer();
-				$outerContent .= ob_get_contents();
+				$wpUnited->set_outer_content($wpUnited->get_outer_content() . ob_get_contents());
 				ob_end_clean();
 				
 				if ( $wpuCache->template_cache_enabled() ) {
-					$wpuCache->save_to_template_cache($wp_version, $outerContent);
+					$wpuCache->save_to_template_cache($wp_version, $wpUnited->get_outer_content());
 				}
 				
 			} else {
 				//
 				// Just pull the header and footer from the cache
 				//
-				$outerContent = $wpuCache->get_from_template_cache();
+				$wpUnited->set_outer_content($wpuCache->get_from_template_cache());
 
 			}
 		} else {
@@ -129,7 +129,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 
 			include($wpTemplateFile);
 	
-			$outerContent = ob_get_contents();
+			$wpUnited->set_outer_content(ob_get_contents());
 			ob_end_clean();
 
 		}
@@ -142,7 +142,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 		} */
 		
 		if (!DISABLE_PHPBB_CSS && PHPBB_CSS_FIRST) { 
-			$outerContent = str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $outerContent);
+			$wpUnited->set_outer_content(str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $wpUnited->get_outer_content()));
 		}
 
 	}
@@ -169,11 +169,11 @@ require($wpUnited->get_plugin_path() . 'template-integrator.php');
  * WordPress still appears inside the phpBB header/footer in these circumstances.
  */
 function wpu_complete() {
-	global $wpUnited, $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $latest, $wpu_page_title, $wp_version, $lDebug;
-	global $innerHeadInfo, $innerContent;
-	global $wpContentVar, $outerContent, $phpbb_root_path, $phpEx, $wpuCache;
+	global $wpUnited, $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $wpu_page_title, $wp_version, $lDebug;
+	global $innerHeadInfo;
+	global $phpbb_root_path, $phpEx, $wpuCache;
 	
-	$$wpContentVar = ob_get_contents();
+	$wpUnited->set_wp_content(ob_get_contents());
 	ob_end_clean();
 	// clean up, go back to normal :-)
 	if ( !$wpuCache->use_template_cache() ) {
