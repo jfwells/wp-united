@@ -37,27 +37,23 @@ if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
+wpu_timer_start();
+wpu_set_buffering_init_level();
 
-if($wpUnited->get_num_actions()) { 
-
-
-	wpu_timer_start();
-	wpu_set_buffering_init_level();
-
-	$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
-	$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
-	$phpbb_hook->register('exit_handler', 'wpu_continue');
+$phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
+$phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
+$phpbb_hook->register('exit_handler', 'wpu_continue');
 
 
-	/**
-	 * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
-	*/
 
-	if($wpUnited->should_run_wordpress()) {
-		require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
-	}
+/**
+ * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
+*/
 
+if($wpUnited->should_run_wordpress()) {
+	require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
 }
+
 
 /**
  * Since WordPress uses PHP timezone handling in PHP 5.3+, we need to do in phpBB too to suppress warnings
@@ -120,14 +116,13 @@ function wpu_init(&$hook) {
 }
 
 function wpu_wp_shutdown() { 
-	global $innerContent, $wpContentVar, $phpbb_root_path, $phpbbForum, $wpuCache, $wpUnited;
+	global $phpbbForum, $wpUnited;
 	if ($wpUnited->should_do_action('template-w-in-p')) {
 		
-		$innerContent = ob_get_contents();
+		$wpUnited->set_inner_content(ob_get_contents());
 		ob_end_clean(); 
 		$phpbbForum->foreground();
 		
-		$wpContentVar = 'innerContent';
 		include ($wpUnited->get_plugin_path() . 'integrator.php');
 	}
 }
@@ -137,17 +132,17 @@ function wpu_wp_shutdown() {
  * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) { 
-	global $wpUnited, $wpuBuffered, $wpuRunning, $template, $innerContent, $phpbb_root_path, $phpEx, $db, $cache;
+	global $wpUnited, $wpuBuffered, $wpuRunning, $template,  $phpbb_root_path, $phpEx, $db, $cache;
 	
 	// We only want this action to fire once, and only on a real $template->display('body') event
 	if ( (!$wpuRunning)  && (isset($template->filename[$handle])) ) {
-	
+
 		// perform profile sync if required
 		if($wpUnited->should_do_action('profile')) {
 			global $phpbbForum, $user;
-			
+
 			$idToFetch = ($wpUnited->actions_for_another()) ? $wpUnited->actions_for_another() : $user->data['user_id'];
-			
+
 			// have to reload data from scratch otherwise cached $user is used
 			$newUserData = $phpbbForum->fetch_userdata_for($idToFetch);
 
@@ -156,12 +151,12 @@ function wpu_execute(&$hook, $handle) {
 			wpu_sync_profiles($wpUserData, $newUserData, 'phpbb-update');
 			$phpbbForum->foreground();
 		}
-	
+
 
 		if($handle != 'body') {
 			return;
 		}
-		
+
 
 		/**
 		 * An additional check to ensure we don't act on a $template->assign_display('body') event --
@@ -173,7 +168,6 @@ function wpu_execute(&$hook, $handle) {
 			}
 		}
 		
-		$wpuRunning = true;
 		//$hook->remove_hook(array('template', 'display'));
 		if(defined('SHOW_BLOG_LINK') && SHOW_BLOG_LINK) {
 			$template->assign_vars(array(
@@ -185,12 +179,12 @@ function wpu_execute(&$hook, $handle) {
 
 		if($wpUnited->should_do_action('template-p-in-w')) { 
 			$template->display($handle);
-			$innerContent = ob_get_contents();
+			$wpUnited->set_inner_content(ob_get_contents());
 			ob_end_clean(); 
 			if(in_array($template->filename[$handle], (array)$GLOBALS['WPU_NOT_INTEGRATED_TPLS'])) {
 				//Don't reverse-integrate pages we know don't want header/footers
-				echo $innerContent;
-			} else { 
+				echo $wpUnited->get_inner_content();
+			} else {  
 				//insert phpBB into a wordpress page
 				include ($wpUnited->get_plugin_path() .'integrator.php'); 
 			}

@@ -20,7 +20,6 @@ global $phpbb_root_path, $phpEx, $wpuCache;
 
 
 
-
 if($connectSuccess) { // Wordpress ran inside phpBB
 	
 	$phpbbForum->background();
@@ -44,7 +43,7 @@ if($connectSuccess) { // Wordpress ran inside phpBB
 
 // WordPress ran inside phpBB, or we pulled a header/footer from the cache
 if ( $wpuCache->use_template_cache() || $connectSuccess ) {
-	
+
 	/**
 	 * Generate the WP header/footer for phpBB-in-WordPress
 	 */
@@ -95,7 +94,7 @@ if ( $wpuCache->use_template_cache() || $connectSuccess ) {
 					$wpuCache->save_to_template_cache($wp_version, $wpUnited->get_outer_content());
 				}
 				
-			} else {
+			} else { 
 				//
 				// Just pull the header and footer from the cache
 				//

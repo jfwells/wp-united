@@ -451,7 +451,7 @@ class WP_United_Plugin_Base {
 	}
 	
 	public function set_outer_content($content) {
-		$this->innerContent = $content;
+		$this->outerContent = $content;
 	}	
 	
 	public function clear_inner_content() {
@@ -459,8 +459,8 @@ class WP_United_Plugin_Base {
 	}
 	
 	public function clear_content() {
-			$this->clear_inner_content();
-			$this->clear_outer_content();
+		$this->clear_inner_content();
+		$this->clear_outer_content();
 	}
 	
 	public function clear_outer_content($content) {
@@ -478,7 +478,7 @@ class WP_United_Plugin_Base {
 	public function get_wp_content() {
 		if($this->should_do_action('template-p-in-w')) {
 			return $this->innerContent;
-		} else {
+		} else { 
 			return $this->outerContent;
 		}
 	}

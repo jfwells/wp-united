@@ -94,15 +94,6 @@ if ( $wpUnited->get_setting('integrateLogin') ) {
 
 
 
-/**
- * Output WordPress -- If this is a plain WordPress page, we can just output it here.
- */
-if ( !$wpUnited->should_do_action('template-p-in-w') && !($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
-	wpu_output_page($wpUnited->get_wp_content());
-	$wpUnited->clear_content();
-}
-
-
 /** 
  * Make modifications to inner content, and extract items for interleaving into outer content <head>
  */
@@ -120,7 +111,7 @@ if ( $wpUnited->should_do_action('template-p-in-w') || ($wpUnited->get_setting('
 	}
 	// process_remove_head removes the <head> during the process, leaving us with an insertable body (hehe).
 	$innerHeadInfo = process_remove_head($wpUnited->get_inner_content());
-	process_body($wpUnited->get_inner_content());
+	$wpUnited->set_inner_content(process_body($wpUnited->get_inner_content()));
 } 
 
 if ($wpUnited->should_do_action('template-p-in-w')) { 
@@ -439,7 +430,7 @@ function process_remove_head($retWpInc, $loc = 'inner') {
  * @param string $haystack the page to be modified -- or <head> -- or whatever -- to find items and snip them out. 
  * @param array $findItems stuff to be found, provided as an array of starting_token => ending_token.
  */
-function head_snip(&$haystack,$findItems) {
+function head_snip($haystack,$findItems) {
 	$wpHdrInfo = '';
 	foreach ( $findItems as $startToken => $endToken ) {
 		$foundStyle = 1;
@@ -473,7 +464,7 @@ function head_snip(&$haystack,$findItems) {
  * Process the <body> section of the integrated page
  * @param string $pageContent The page to be processed and modified. Must be passed by ref.
  */
-function process_body(&$pageContent) {	
+function process_body($pageContent) {	
 	//Process the body section for integrated page
 
 	// With our Base HREF set, any relative links will point to the wrong location. Let's fix them.
@@ -496,7 +487,7 @@ function process_body(&$pageContent) {
  * Does final clean-up of the integrated page, and sends it to the browser.
  * @param string $content The fully integrated page.
  */
-function wpu_output_page(&$content) {
+function wpu_output_page($content) {
 	global $wpuNoHead;
 	
 	//Add title back
