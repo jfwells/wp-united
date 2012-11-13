@@ -56,7 +56,7 @@ if ( !$wpuCache->use_template_cache()) {
 
 
 
-function wpu_initialie_wp() {
+function wpu_initialise_wp() {
 	global $phpbbForum, $wpUtdInt, $wpUnited;
 	
 	$phpbbForum->background();
@@ -87,9 +87,9 @@ function wpu_initialie_wp() {
 
 // WordPress ran inside phpBB, or we pulled a header/footer from the cache
 // this was either to integrate templates, or to perform actions.
-function get_wordpress() {
+function wpu_get_wordpress() {
 	global $wpUnited, $wpuCache, $phpbbForum, $wpUtdInt;
-	
+
 	// Initialise the loaded WP
 	if($wpUnited->ran_patched_wordpress()) { // Wordpress ran inside phpBB
 		$wpUnited->set_wp_content(wpu_initialise_wp());
@@ -214,9 +214,7 @@ function get_wordpress() {
  * WordPress still appears inside the phpBB header/footer in these circumstances.
  */
 function wpu_complete() {
-	global $wpUnited, $user, $wpuNoHead, $wpUtdInt, $phpbbForum, $template, $wpu_page_title, $wp_version, $lDebug;
-	global $innerHeadInfo;
-	global $phpbb_root_path, $phpEx, $wpuCache;
+	global $wpUnited, $wpUtdInt, $wpuCache;
 	
 	$wpUnited->set_wp_content(ob_get_contents());
 	ob_end_clean();
@@ -228,5 +226,7 @@ function wpu_complete() {
 
 	require($wpUnited->get_plugin_path() .'template-integrator.php');
 }
+
+
 
 ?>

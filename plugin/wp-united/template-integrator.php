@@ -14,20 +14,123 @@
 */
 
 
-/**
- *  Just output WordPress if $wpuNoHead
- */
+function wpu_integrate_templates() {
+	global $wpuNoHead, $wpUnited, $wpuCache, $wpUnited;
 
-if($wpuNoHead) {
-	wpu_output_page($wpUnited->get_wp_content());
+
+	if ( $wpuCache->use_template_cache() || $wpUnited->ran_patched_wordpress() ) {
+		wpu_get_wordpress();
+	}
+
+
+	/**
+	 *  Just output WordPress if $wpuNoHead
+	 */
+
+	if($wpuNoHead) {
+		wpu_output_page($wpUnited->get_wp_content());
+	}
+
+
+	if ( !$wpUnited->should_do_action('template-p-in-w') && ($wpUnited->get_setting('showHdrFtr') != 'FWD') ) {
+		return;
+	}
+
+	/**
+	 * Get phpBB header/footer
+	 */
+	if ($wpUnited->should_do_action('template-w-in-p') && !$wpuNoHead) {
+		
+		wpu_process_phpbb();
+	}
+
+
+	wpu_fix_wp_template();
+
+	$wpUnited->add_boilerplate();
+
+
+	/** 
+	 * Make modifications to inner content, and extract items for interleaving into outer content <head>
+	 */
+	if ( $wpUnited->should_do_action('template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') )  { // phpBB is inner:
+
+
+		
+
+		//Get ltr, rtl & bgcolor, etc, from the body tag
+		preg_match('/<body[^>]+>/i', $wpUnited->get_inner_content(), $pfBodyMatches);
+		if($pfBodyMatches[0]) {
+			$bodyDetails = trim(str_replace(array('<body', '>'), '', $pfBodyMatches[0]));
+			preg_match('/class\s*=\s*"[^"]+"/', $bodyDetails, $bodyClass);
+			if($bodyClass[0]) {
+				$bodyDetails = str_replace($bodyClass[0], "", $bodyDetails);
+				$bodyClass=trim(str_replace(array('class', '=', ' ', '"'), '', $bodyClass[0]));
+			}
+		}
+		// process_remove_head removes the <head> during the process, leaving us with an insertable body (hehe).
+		$wpUnited->set_inner_headinfo(process_remove_head($wpUnited->get_inner_content()));
+		$wpUnited->set_inner_content(process_body($wpUnited->get_inner_content()));
+	} 
+
+	if ($wpUnited->should_do_action('template-p-in-w')) { 
+		
+		// replace outer title with phpBB title
+		$wpUnited->set_outer_content(preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $wpUnited->get_outer_content()));
+	}
+
+
+	// So, we generate the phpBB outer page if required, then we're all set.
+
+
+
+	if ($wpUnited->get_setting('cssMagic')) { 
+
+		require($wpUnited->get_plugin_path() . 'css-magic.php');
+		require($wpUnited->get_plugin_path() . 'functions-css-magic.php');
+		
+		wpu_css_magic();
+	}
+
+
+
+	//Wrap $inner content in CSS Magic, padding, etc.
+	$padding = '';
+	if ($wpUnited->get_setting('phpbbPadding') != 'NOT_SET') {
+		$pad = explode('-', $wpUnited->get_setting('phpbbPadding'));
+		$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
+	}
+	if ($wpUnited->get_setting('cssMagic')) {
+		$wpuOutputPreStr = '<div id="wpucssmagic" style="' . $padding . 'margin: 0;"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
+		$wpuOutputPostStr = '</div></div></div>';
+	} else {
+		$wpuOutputPreStr = '<div style="'. $padding .' margin: 0px;" class="' . $bodyClass . '" ' . $bodyDetails . '>';
+		$wpuOutputPostStr = '</div>';
+	}
+
+
+
+
+	$wpUnited->set_outer_content(str_replace("<!--[**HEAD_MARKER**]-->", $wpUnited->get_inner_headinfo(), $wpUnited->get_outer_content())); 
+	$wpUnited->set_outer_content(str_replace("<!--[**INNER_CONTENT**]-->", $wpuOutputPreStr . $wpUnited->get_inner_content() . $wpuOutputPostStr, $wpUnited->get_outer_content())); 
+	
+	$wpUnited->clear_inner_content();
+	
+	
+	wpu_output_page($wpUnited->get_outer_content()); 
+	$wpUnited->clear_outer_content();
+	
+	
+	
 }
+	
+	
 
 
 
-/**
- * Get phpBB header/footer
- */
-if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && (!$wpUnited->should_do_action('template-p-in-w')) ) {
+function wpu_process_phpbb() {
+	global $wpUnited, $template, $user, $phpbbForum, $cache, $db;
+	
 	//export header styles to template - before or after phpBB's CSS depending on settings.
 	// Since we might want to do operations on the head info, 
 	//we just insert a marker, which we will substitute out later
@@ -58,8 +161,12 @@ if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && (!$wpUn
 	page_footer();
 	
 	//restore the DB connection that phpBB tried to close
-	$GLOBALS['db'] = $GLOBALS['bckDB'];
-	$GLOBALS['cache'] = $GLOBALS['bckCache'];
+	global $bckDB, $bckCache;
+	if(isset($bckDB) && isset($bckCache)) {
+		$db = $bckDB;
+		$cache = $bckCache;
+	}
+
 	
 	$wpUnited->set_outer_content(ob_get_contents());
 	
@@ -70,305 +177,36 @@ if ( ($wpUnited->get_setting('showHdrFtr') == 'FWD') && (!$wpuNoHead) && (!$wpUn
 }
 
 
-// Add copyright comment to the bottom of the page. It is also useful as a quick check to see if users actually have
-// WP-United installed.
-$copy = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2012 www.wp-united.com \n-->\n\n";
 
-$wpUnited->set_inner_content($wpUnited->get_inner_content() . $copy);
 
-/**
- * Clean up the WordPress body content as necessary
- */
+function wpu_fix_wp_template() {
+	global $wpUnited, $phpEx;
+	
+	//wpu_modify_loginout_links();
+	
+	
+	// Some trailing slashes are hard-coded into the WP templates. We don't want 'em.
+	$wpUnited->set_wp_content(str_replace(".php/?",  ".$phpEx?", $wpUnited->get_wp_content()));
+	$wpUnited->set_wp_content(str_replace(".$phpEx/\"",  ".$phpEx\"", $wpUnited->get_wp_content()));
 
-// Some trailing slashes are hard-coded into the WP templates. We don't want 'em.
-$wpUnited->set_wp_content(str_replace(".$phpEx/?",  ".$phpEx?", $wpUnited->get_wp_content()));
-$wpUnited->set_wp_content(str_replace(".$phpEx/\"",  ".$phpEx\"", $wpUnited->get_wp_content()));
 
-// re-point unintegrated login/out links
-if ( $wpUnited->get_setting('integrateLogin') ) {
-	$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
-	$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout') . '&amp;redirect=';
-	global $siteUrl;
-	$wpUnited->set_wp_content(str_replace("$siteUrl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $wpUnited->get_wp_content()));
-	$wpUnited->set_wp_content(str_replace("$siteUrl/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $wpUnited->get_wp_content()));
-	$wpUnited->set_wp_content(str_replace("$siteUrl/wp-login.php?action=logout", $phpbbForum->url . $logout_link, $wpUnited->get_wp_content()));
 }
 
 
 
-/** 
- * Make modifications to inner content, and extract items for interleaving into outer content <head>
- */
-if ( $wpUnited->should_do_action('template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') )  { // phpBB is inner:
-
-	//Get ltr, rtl & bgcolor, etc, from the body tag
-	preg_match('/<body[^>]+>/i', $wpUnited->get_inner_content(), $pfBodyMatches);
-	if($pfBodyMatches[0]) {
-		$bodyDetails = trim(str_replace(array('<body', '>'), '', $pfBodyMatches[0]));
-		preg_match('/class\s*=\s*"[^"]+"/', $bodyDetails, $bodyClass);
-		if($bodyClass[0]) {
-			$bodyDetails = str_replace($bodyClass[0], "", $bodyDetails);
-			$bodyClass=trim(str_replace(array('class', '=', ' ', '"'), '', $bodyClass[0]));
-		}
+function wpu_modify_loginout_links() {
+	global $wpUnited, $phpEx, $phpbbForum;
+	
+	// re-point unintegrated login/out links
+	if ( $wpUnited->get_setting('integrateLogin') ) {
+	
+		$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
+		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout') . '&amp;redirect=';
+		
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?action=logout", $phpbbForum->url . $logout_link, $wpUnited->get_wp_content()));
 	}
-	// process_remove_head removes the <head> during the process, leaving us with an insertable body (hehe).
-	$innerHeadInfo = process_remove_head($wpUnited->get_inner_content());
-	$wpUnited->set_inner_content(process_body($wpUnited->get_inner_content()));
-} 
-
-if ($wpUnited->should_do_action('template-p-in-w')) { 
-	
-	// replace outer title with phpBB title
-	$wpUnited->set_outer_content(preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $wpUnited->get_outer_content()));
-}
-
-
-// So, we generate the phpBB outer page if required, then we're all set.
-
-
-/**
- * CSS MAGIC
- * 
- * We now have properly separated inner/outer content
- * 
- * We now identify all the stylesheets and redirect them to CSS Magic.
- * We don't parse them now, as style.php is used for phpBB styles.
- * 
- * Once they have been parsed by CSS Magic, on subsequent run-throughs here, 
- * we can read CSS Magic's cache and look at the stylesheets for conflicting 
- * classes and IDs. Then, we modify the templates accordingly, and instruct CSS Magic
- * to make additional changes to the CSS the next time around.
- */
-if ($wpUnited->get_setting('cssMagic')) { 
-
-	require($wpUnited->get_plugin_path() . 'css-magic.php');
-	require($wpUnited->get_plugin_path() . 'functions-css-magic.php');
-
-	/** 
-	 * Get all links to stylesheets, and prepare appropriate replacement links to insert into the page content
-	 * The generated CSS links to insert into the HTML will need to carry information for the browser on the 
-	 * physical disk location of the CSS files on the server.
-	 * 
-	 * We cannot allow browsers to just request any file on the server by filename, so get_stylesheet_links pre-approves the
-	 * files and stores them in the DB under "style keys". Browsers then only need to know the 
-	 * appropriate style key, not the filename
-	 */
-	
-	$innerSSLinks = wpu_get_stylesheet_links($innerHeadInfo, "inner");
-	// also grep all inline css out of headers
-	$inCSSInner = wpu_extract_css($innerHeadInfo);
-	
-	
-
-	/**
-	 * Template Voodoo
-	 */
-	if ($wpUnited->get_setting('templateVoodoo')) {
-		
-		//For template voodoo, we also need the outer styles
-		$outerSSLinks = wpu_get_stylesheet_links($wpUnited->get_outer_content(), "outer");
-		$inCSSOuter = wpu_extract_css($wpUnited->get_outer_content());
-		
-		// First check if the cached CSS Magic files exist, and insert placeholders for TV cache location if they do
-		$foundInner = array();
-		$foundOuter = array();
-
-		foreach ((array)$innerSSLinks['keys'] as $index => $key) {
-			if($found = $wpuCache->get_css_magic($wpUnited->get_style_key($key), "inner", -1)) {
-				$foundInner[] = $found;
-				$innerSSLinks['replacements'][$index] .=  "[*FOUND*]";
-			} else {
-				$innerSSLinks['replacements'][$index] .=  "-1";
-			}
-		}
-		foreach ($outerSSLinks['keys'] as $index => $key) {
-			if($found = $wpuCache->get_css_magic($wpUnited->get_style_key($key), "outer", -1)) {
-				$foundOuter[] = $found;
-			}
-		}	
-
-		/**
-		 * Now we create a unique hash based on everything we've found, and use this to 
-		 * store our Template Voodoo instructions.
-		 * We append the template voodoo hash key to the end of the redirected stylesheets
-		 */
-		$tplVoodooKey = $wpuCache->get_template_voodoo_key(TEMPLATEPATH, $foundInner, $foundOuter, (array)$inCSSInner['orig'], (array)$inCSSOuter['orig']);	
-		$innerSSLinks['replacements'] = str_replace('[*FOUND*]', $tplVoodooKey, $innerSSLinks['replacements']);
-
-		if((sizeof($foundInner) || $inCSSInner['orig'] ) && (sizeof($foundOuter) || $inCSSOuter['orig'])) {
-			$classDupes = array();
-			$idDupes = array();
-			
-			if($templateVoodoo = $wpuCache->get_template_voodoo($tplVoodooKey)) {
-				/**
-				 * The template voodoo instructions already exist for this CSS combination
-				 */
-				if(isset($templateVoodoo['classes']) && isset($templateVoodoo['ids'])) {
-					$classDupes = $templateVoodoo['classes'];
-					$idDupes = $templateVoodoo['ids'];
-				} 
-			} else { 
-				/**
-				 * We don't have template voodoo for this yet, we need to do some legwork
-				 * and generate a set of instructions.
-				 * @todo move to separate function, generate_instructions().
-				 */
-				$outerCSS = new CSS_Magic();
-				$innerCSS = new CSS_Magic();
-		
-				foreach ($foundInner as $index => $cacheFile) {
-					$innerCSS->parseFile($cacheFile);
-				}
-				foreach ($foundOuter as $index => $cacheFile) {
-					$outerCSS->parseFile($cacheFile);
-				}				
-				foreach($inCSSInner['css'] as $index => $css) {
-					$innerCSS->parseString($css);
-				}
-				foreach($inCSSOuter['css'] as $index => $css) {
-					$outerCSS->parseString($css);
-				}
-
-				$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');
-				$innerKeys = $innerCSS->getKeyClassesAndIDs();
-				$outerKeys = $outerCSS->getKeyClassesAndIDs();
-
-				$innerCSS->clear();
-				$outerCSS->clear();
-				unset($innerCSS, $outerCSS);
-	
-				$classDupes = array_intersect($innerKeys['classes'], $outerKeys['classes']);
-				$idDupes = array_intersect($innerKeys['ids'], $outerKeys['ids']);
-
-				unset($innerKeys, $outerKeys);
-
-				// save to cache
-				$wpuCache->save_template_voodoo(array('classes' => $classDupes, 'ids' => $idDupes), $tplVoodooKey);
-			}
-	
-			/**
-			 * Now, we can modify the page, removing class and ID duplicates from inner content
-			 */
-			foreach($classDupes as $dupe) {
-				$findClass = substr($dupe, 1); //remove leading '.'
-				$wpUnited->set_inner_content(preg_replace('/(class=["\']([^\s^\'^"]*\s+)*)'.$findClass.'([\s\'"])/', '\\1wpu'.$findClass.'\\3', $wpUnited->get_inner_content()));
-			}
-			foreach($idDupes as $dupe) {
-				$findId = substr($dupe, 1); //remove leading '.'
-				$wpUnited->set_inner_content(preg_replace('/(id=["\']\s*)'.$findId.'([\s\'"])/', '\\1wpu'.$findId.'\\2', $wpUnited->get_inner_content()));
-			}
-		}
-	} // end template voodoo
-	
-		
-	/**
-	 * Now we can apply the CSS magic to any inline CSS
-	 */
-	$useTVStr =  ($wpUnited->get_setting('templateVoodoo')) ? 'TV' : '';
-	$tvKey = ($wpUnited->get_setting('templateVoodoo')) ? $tplVoodooKey : -1;
-	$numFixes = 0;
-	foreach($inCSSInner['css'] as $index => $innerCSSItem) {
-
-		if($inlineCache = $wpuCache->get_css_magic("{$index}-{$useTVStr}", 'inline', $tvKey)) {
-			$result = @file_get_contents($inlineCache);
-		} else {
-			$cssM = new CSS_Magic();
-			$cssM->parseString($innerCSSItem);
-			/**
-			 * @todo could split out to templatevoodoo file
-			 */
-			if ($wpUnited->get_setting('templateVoodoo')) {
-				if(isset($classDupes) && isset($idDupes)) {
-					$finds = array();
-					$repl = array();
-					foreach($classDupes as $classDupe) {
-						$finds[] = $classDupe;
-						$repl[] = ".wpu" . substr($classDupe, 1);
-					}
-					foreach($idDupes as $idDupe) {
-						$finds[] = $idDupe;
-						$repl[] = "#wpu" . substr($idDupe, 1);
-					}	
-
-					$cssM->modifyKeys($finds, $repl);
-				}
-			}
-			$cssM->makeSpecificByIdThenClass('wpucssmagic', false);
-			$result = $cssM->getCSS();
-			// save to cache
-			$wpuCache->save_css_magic($result, "{$index}-{$useTVStr}", 'inline', $tvKey);
-		
-		}
-		if(!empty($result)) {
-			//$result = '<style type="text/css">'  . $result . '</style>';
-			$innerHeadInfo = str_replace($inCSSInner['orig'][$index], $result, $innerHeadInfo);
-			$numFixes++;
-		}
-	}
-	
-	// Store the updated style keys
-	$wpUnited->commit_style_keys();
-	
-	// add link to reset stylesheet
-	$reset = "<link href=\"{$wpUnited->get_plugin_url()}theme/reset.css\" rel=\"stylesheet\" media=\"all\" type=\"text/css\" />";
-	$innerHeadInfo = $reset . $innerHeadInfo;
-
-	//write out the modified stylesheet links
-	$innerHeadInfo = str_replace($innerSSLinks['links'], $innerSSLinks['replacements'], $innerHeadInfo);
-	
-	if ($wpUnited->get_setting('templateVoodoo')) {
-		$wpUnited->set_outer_content(str_replace($outerSSLinks['links'], $outerSSLinks['replacements'], $wpUnited->get_outer_content()));
-	}
-	
-	/**
-	 * Elements (mainly third-party BBCodes) with height="" cannot override the height CSS rule set in CSS Magic's reset.css
-	 * This adds an inline CSS style attribute to any such elements
-	 * If the element already has an inline style attribute, the height rule will be appended to it
-	 */
-	$withInline = preg_replace_callback(
-		'/((<[^>]+\b)(?=height\s?=\s?[\'"]?\s?([0-9]+)\s?[\'"]?)([^>]*?))(\/?\s*>)/',
-		create_function(
-			'$m',
-			'if(preg_match(\'/(style\s?=\s?[\\\'"]([^\\\'"]+))([\\\'"])/\', $m[1], $r)) 
-				return  str_replace($r[0], "{$r[1]};height:{$m[3]}px;{$r[3]}", $m[1]) . $m[5];
-			return $m[1] . \' style="height:\' . $m[3] . \'px;" \' . $m[5];'
-		),
-		$wpUnited->get_inner_content()
-	);
-	
-	$wpUnited->set_inner_content($withInline);
-	
-
-	
-}
-
-
-//Wrap $inner content in CSS Magic, padding, etc.
-$padding = '';
-if ($wpUnited->get_setting('phpbbPadding') != 'NOT_SET') {
-	$pad = explode('-', $wpUnited->get_setting('phpbbPadding'));
-	$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
-}
-if ($wpUnited->get_setting('cssMagic')) {
-	$wpuOutputPreStr = '<div id="wpucssmagic" style="' . $padding . 'margin: 0;"><div class="wpucssmagic"><div class="' . $bodyClass . '" ' . $bodyDetails . '>';
-	$wpuOutputPostStr = '</div></div></div>';
-} else {
-	$wpuOutputPreStr = '<div style="'. $padding .' margin: 0px;" class="' . $bodyClass . '" ' . $bodyDetails . '>';
-	$wpuOutputPostStr = '</div>';
-}
-
-
-
-// Substitute in content
-if ( $wpUnited->should_do_action('template-p-in-w') || ($wpUnited->get_setting('showHdrFtr') == 'FWD') ) {
-	$wpUnited->set_outer_content(str_replace("<!--[**HEAD_MARKER**]-->", $innerHeadInfo, $wpUnited->get_outer_content())); unset($innerHeadInfo);
-	$wpUnited->set_outer_content(str_replace("<!--[**INNER_CONTENT**]-->", $wpuOutputPreStr . $wpUnited->get_inner_content() . $wpuOutputPostStr, $wpUnited->get_outer_content())); 
-	
-	$wpUnited->clear_inner_content();
-	
-	
-	wpu_output_page($wpUnited->get_outer_content()); 
-	$wpUnited->clear_outer_content();
 }
 
 /*

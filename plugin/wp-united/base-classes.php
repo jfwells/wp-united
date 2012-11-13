@@ -19,9 +19,6 @@ class WP_United_Settings {
 		$settings = array();
 		
 
-		
-	
-
 	public function __construct() {
 		
 	}
@@ -140,9 +137,12 @@ class WP_United_Plugin_Base {
 		$filters = array(),
 		$actions = array(),
 		$lastRun = false,
-		$connected_to_wp = false,
+		$connectedToWp = false,
 		$innerContent = '',
-		$outerContent = '';
+		$outerContent = '',
+		$innerHeadInfo = '';
+		
+		
 
 	/**
 	* Initialise the WP-United class
@@ -158,6 +158,7 @@ class WP_United_Plugin_Base {
 		$phpbbForum = new WPU_Phpbb();
 
 		$this->load_settings();
+		
 	
 	}
 
@@ -436,7 +437,8 @@ class WP_United_Plugin_Base {
 	}
 	
 	public function should_run_wordpress() {
-		return (defined('ABSPATH')) ? false : $this->assess_required_wp_actions();
+		$init = $this->assess_required_wp_actions();
+		return (defined('ABSPATH')) ? false : $init;
 	}
 	
 
@@ -465,6 +467,7 @@ class WP_United_Plugin_Base {
 	
 	public function clear_inner_content() {
 		$this->innerContent = '';
+		$this->innerHeadInfo = '';
 	}
 	
 	public function clear_content() {
@@ -486,35 +489,43 @@ class WP_United_Plugin_Base {
 	
 	public function get_wp_content() {
 		if($this->should_do_action('template-p-in-w')) {
-			return $this->innerContent;
-		} else { 
 			return $this->outerContent;
+		} else { 
+			return $this->innerContent;
 		}
 	}
 	
 	public function get_phpbb_content() {
 		if($this->should_do_action('template-p-in-w')) {
-			return $this->outerContent;
-		} else {
 			return $this->innerContent;
+		} else {
+			return $this->outerContent;
 		}
 	}
 	
 	public function set_wp_content($content) {
-		if($this->should_do_action('template-p-in-w')) {
-			$this->innerContent = $content;
-		} else {
+		if($this->should_do_action('template-p-in-w')) { 
 			$this->outerContent = $content;
+		} else {
+			$this->innerContent = $content;
 		}
 	}
 	
 	public function set_phpbb_content($content) {
 		if($this->should_do_action('template-p-in-w')) {
-			$this->outerContent = $content;
-		} else {
 			$this->innerContent = $content;
+		} else {
+			$this->outerContent = $content;
 		}
-	}	
+	}
+	
+	public function set_inner_headinfo($content) {
+		$this->innerHeadInfo = $content;
+	}
+	
+	public function get_inner_headinfo() {
+		return $this->innerHeadInfo;
+	}
 	
 	
 	public function version() {
@@ -524,6 +535,13 @@ class WP_United_Plugin_Base {
 			$this->version = $wpuVersion;
 		}
 		return $this->version;
+	}
+	
+	// Add copyright comment to the bottom of the page. It is also useful as a quick check to see if users actually have
+	// WP-United installed.	
+	public function add_boilerplate() {
+		$boilerplate = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2012 www.wp-united.com \n-->\n\n";
+		$this->innerContent = $this->innerContent . $boilerplate;
 	}
 	
 	protected function ajax_result($errMsg, $msgType = 'message') {

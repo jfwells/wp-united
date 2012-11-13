@@ -146,7 +146,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$phpEx = substr(strrchr(__FILE__, '.'), 1);
 		}
 		
-		if ( !defined('IN_PHPBB') ) {
+		if ( !defined('IN_PHPBB') ) { 
 			if(is_admin()) {
 				define('WPU_PHPBB_IS_EMBEDDED', TRUE);
 			} else {

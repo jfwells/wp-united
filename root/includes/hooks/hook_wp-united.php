@@ -123,7 +123,9 @@ function wpu_wp_shutdown() {
 		ob_end_clean(); 
 		$phpbbForum->foreground();
 		
-		include ($wpUnited->get_plugin_path() . 'integrator.php');
+		require_once($wpUnited->get_plugin_path() . 'template-integrator.php');
+		wpu_integrate_templates();
+
 	}
 }
 
@@ -132,7 +134,7 @@ function wpu_wp_shutdown() {
  * @todo: use better check to ensure hook is called on template->display and just drop for everything else
  */
 function wpu_execute(&$hook, $handle) { 
-	global $wpUnited, $wpuBuffered, $wpuRunning, $template,  $phpbb_root_path, $phpEx, $db, $cache;
+	global $wpUnited, $wpuBuffered, $wpuRunning, $template,  $db, $cache, $phpbbForum;
 	
 	// We only want this action to fire once, and only on a real $template->display('body') event
 	if ( (!$wpuRunning)  && (isset($template->filename[$handle])) ) {
@@ -157,7 +159,6 @@ function wpu_execute(&$hook, $handle) {
 			return;
 		}
 
-
 		/**
 		 * An additional check to ensure we don't act on a $template->assign_display('body') event --
 		 * if a mod is doing weird things with $template instead of creating their own $template object
@@ -168,7 +169,8 @@ function wpu_execute(&$hook, $handle) {
 			}
 		}
 		
-		//$hook->remove_hook(array('template', 'display'));
+		// nested hooks don't work, and append_sid calls a hook. Furthermore we will call ->display again anyway:
+		$hook->remove_hook(array('template', 'display'));
 		if(defined('SHOW_BLOG_LINK') && SHOW_BLOG_LINK) {
 			$template->assign_vars(array(
 				'U_BLOG'	 =>	append_sid($wpUnited->get_wp_home_url(), false, false, $GLOBALS['user']->session_id),
@@ -179,14 +181,16 @@ function wpu_execute(&$hook, $handle) {
 
 		if($wpUnited->should_do_action('template-p-in-w')) { 
 			$template->display($handle);
-			$wpUnited->set_inner_content(ob_get_contents());
+			$wpUnited->set_inner_content(ob_get_contents()); 
 			ob_end_clean(); 
 			if(in_array($template->filename[$handle], (array)$GLOBALS['WPU_NOT_INTEGRATED_TPLS'])) {
 				//Don't reverse-integrate pages we know don't want header/footers
 				echo $wpUnited->get_inner_content();
 			} else {  
 				//insert phpBB into a wordpress page
-				include ($wpUnited->get_plugin_path() .'integrator.php'); 
+				require_once($wpUnited->get_plugin_path() . 'template-integrator.php');
+				wpu_integrate_templates();
+
 			}
 			
 		
