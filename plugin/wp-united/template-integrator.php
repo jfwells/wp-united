@@ -22,6 +22,8 @@ if($wpuNoHead) {
 	wpu_output_page($wpUnited->get_wp_content());
 }
 
+
+
 /**
  * Get phpBB header/footer
  */

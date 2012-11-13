@@ -140,6 +140,7 @@ class WP_United_Plugin_Base {
 		$filters = array(),
 		$actions = array(),
 		$lastRun = false,
+		$connected_to_wp = false,
 		$innerContent = '',
 		$outerContent = '';
 
@@ -290,6 +291,14 @@ class WP_United_Plugin_Base {
 		
 		$phpbbForum->erase_style_keys();
 		$this->styleKeys = array();
+	}
+	
+	public function set_ran_patched_wordpress() {
+		$this->connectedToWp = true;
+	}
+	
+	public function ran_patched_wordpress() {
+		return $this->connectedToWp;
 	}
 
 	
