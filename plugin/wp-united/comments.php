@@ -93,6 +93,7 @@ class WPU_Comments {
 						p.bbcode_uid, 
 						p.post_edit_locked,
 						p.topic_id,
+						p.forum_id,
 						t.topic_replies AS all_replies,
 						t.topic_replies_real AS replies, 
 						u.username,
@@ -141,15 +142,15 @@ class WPU_Comments {
 						'user_id' => $comment['user_wpuint_id'],
 						'phpbb_id' => $comment['poster_id']
 					);
-					
+
 					// Fix relative paths in comment text
 					$pathsToFix = array('src="' . $phpbb_root_path, 'href="' . $phpbb_root_path);
 					$pathsFixed = array('src="' . $phpbbForum->url, 'href="' . $phpbbForum->url);
 					$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
-					
+
 					$phpbbCommentLinks[$comment['post_id']] = $phpbbForum->url;
 					$phpbbCommentLinks[$comment['post_id']] .= ($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}";
-					
+
 					$this->comments[] = new WPU_Comment($args);
 				}
 				$db->sql_freeresult($result);
