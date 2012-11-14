@@ -15,17 +15,17 @@ if ( !defined('IN_PHPBB') ) exit;
 
 class WPU_Comments {
 	
-	var $comments;
+	public $comments;
 	
 
 	/**
 	 * Class initialisartion
 	 */
-	function WPU_Comments() {
+	public function __construct() {
 		$this->comments = array();
 	}
 
-	function populate($wpPostID) {
+	public function populate($wpPostID) {
 		
 		global $phpbbForum, $phpbbCommentLinks, $auth, $db, $phpEx, $user, $phpbb_root_path;
 		
@@ -163,28 +163,29 @@ class WPU_Comments {
 
 class WPU_Comment {
 
-	var $comment_ID;
-	var $comment_post_ID;
-	var $comment_author;
-	var $comment_author_email;
-	var $comment_author_url;
-	var $comment_author_IP;
-	var $comment_date;
-	var $comment_date_gmt;
-	var $comment_content;
-	var $comment_karma;
-	var $comment_approved;
-	var $comment_agent;
-	var $comment_type;
-	var $phpbb_id;
-	var $user_id;
+	public
+		$comment_ID,
+		$comment_post_ID,
+		$comment_author,
+		$comment_author_email,
+		$comment_author_url,
+		$comment_author_IP,
+		$comment_date,
+		$comment_date_gmt,
+		$comment_content,
+		$comment_karma,
+		$comment_approved,
+		$comment_agent,
+		$comment_type,
+		$phpbb_id,
+		$user_id;
 	
 	/**
-	 * Class initialisartion
+	 * Class initialisation
 	 * All required args must be passed in
 	 * @param array $args: Array with all WordPress comment fields provided as 'variablename' => 'variablevalue'
 	 */
-	function WPU_Comment($args) {
+	public function __construct($args) {
 		if(is_array($args)) {
 			foreach($args as $argName => $argVal) {
 				$this->$argName = $argVal;
