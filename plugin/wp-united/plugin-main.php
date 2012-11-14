@@ -342,7 +342,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if( (!$future) && (defined("WPU_JUST_POSTED_{$postID}")) ) {
 			return;
 		}
-		
+
 		$did_xPost = false;
 
 		if (($post->post_status == 'publish' ) || $future) { 
@@ -357,7 +357,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				/**
 				 * @todo this doesn't need to happen every time
 				 */			
-				if(!$phpbbForum->update_blog_link($post->post_author())) {
+				if(!$phpbbForum->update_blog_link($post->post_author)) {
 					wp_die(__('Error accessing the phpBB database when updating Blog ID'));
 				}
 				

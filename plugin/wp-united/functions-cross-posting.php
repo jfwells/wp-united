@@ -37,7 +37,7 @@ add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
  */
 function wpu_add_xposting_box() {
 	global $phpbbForum, $wpUnited, $can_xpost_forumlist, $already_xposted, $forceXPosting;
-	
+
 	if($wpUnited->get_setting('xpostforce') > -1) {
 		// Add forced xposting info box
 		$forceXPosting = wpu_get_forced_forum_name($wpUnited->get_setting('xpostforce'));

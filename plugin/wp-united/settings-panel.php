@@ -1052,7 +1052,7 @@ function wpu_settings_page() {
 									<h4>Force all blog posts to be cross-posted?</h4>
 									<p>Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place.</p>
 									<select id="wpuxpostforce" name="wpuxpostforce">
-										<option value="0" <?php if($wpUnited->get_setting('xpostforce') == 0) { echo ' selected="selected" '; } ?>>-- Disabled --</option>
+										<option value="-1" <?php if($wpUnited->get_setting('xpostforce') == -1) { echo ' selected="selected" '; } ?>>-- Disabled --</option>
 										
 										<?php
 										if(defined('IN_PHPBB')) { 
@@ -1357,13 +1357,13 @@ function wpu_process_settings() {
 				}
 				
 				$data['xpostautolink'] =(isset($_POST['wpuxpostcomments'])) ? 1 : 0;
-				$data['xpostforce'] =( isset($_POST['wpuxpostforce'])) ? (int) $_POST['wpuxpostforce'] : 0;
+				$data['xpostforce'] =( isset($_POST['wpuxpostforce'])) ? (int) $_POST['wpuxpostforce'] : -1;
 			} else {
 				//cross-posting disabled, set to default
 				$data = array_merge($data, array(
 					'xposttype' 		=> 'excerpt',
 					'wpuxpostcomments'	=> 0,
-					'xpostforce' 		=> 0
+					'xpostforce' 		=> -1
 				));
 			}
 		} else {
@@ -1373,7 +1373,7 @@ function wpu_process_settings() {
 				'xposting' 				=> 0,
 				'xposttype' 			=> 'excerpt',
 				'wpuxpostcomments'		=> 0,
-				'xpostforce' 			=> 0,
+				'xpostforce' 			=> -1,
 				'avatarsync'			=> 0
 			));
 		}
