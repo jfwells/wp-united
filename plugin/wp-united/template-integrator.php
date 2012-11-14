@@ -31,7 +31,6 @@ function wpu_integrate_templates() {
 		wpu_output_page($wpUnited->get_wp_content());
 	}
 
-
 	if ( !$wpUnited->should_do_action('template-p-in-w') && ($wpUnited->get_setting('showHdrFtr') != 'FWD') ) {
 		return;
 	}
@@ -129,7 +128,7 @@ function wpu_integrate_templates() {
 
 
 function wpu_process_phpbb() {
-	global $wpUnited, $template, $user, $phpbbForum, $cache, $db;
+	global $wpUnited, $template, $user, $phpbbForum, $cache, $db, $phpbb_root_path;
 	
 	//export header styles to template - before or after phpBB's CSS depending on settings.
 	// Since we might want to do operations on the head info, 

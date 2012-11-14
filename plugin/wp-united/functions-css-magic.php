@@ -308,7 +308,7 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 				$cssLnk = $cssLnk[0];
 				$cssLnk = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $cssLnk) : $cssLnk;
 				
-				if( file_exists($cssLnk) && (stristr($cssLnk, "http:") === false) ) { 
+				if( file_exists($cssLnk) && (stristr($cssLnk, 'http:') === false) && (stristr($cssLnk, 'https:') === false) ) { 
 					$links[] = $el;
 					$cssLnk = realpath($cssLnk);
 					$key = $wpuCache->get_style_key($cssLnk, $position);
@@ -318,7 +318,7 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 			} elseif(stristr($el, "style.php?") !== false) {
 				/**
 				 * phpBB style.php css
-				 */
+				 */ 
 				$links[] = $el; 
 				$key = $wpuCache->get_style_key($el, $position);
 				$keys[] = $key;
