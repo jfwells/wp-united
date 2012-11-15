@@ -170,7 +170,7 @@ function wpu_execute(&$hook, $handle) {
 		}
 		
 		// nested hooks don't work, and append_sid calls a hook. Furthermore we will call ->display again anyway:
-		$hook->remove_hook(array('template', 'display'));
+		$wpuRunning = true;
 		if(defined('SHOW_BLOG_LINK') && SHOW_BLOG_LINK) {
 			$template->assign_vars(array(
 				'U_BLOG'	 =>	append_sid($wpUnited->get_wp_home_url(), false, false, $GLOBALS['user']->session_id),
@@ -203,7 +203,7 @@ function wpu_execute(&$hook, $handle) {
 			$GLOBALS['bckCache'] = $cache;
 			$db = ''; $cache = '';
 			
-			return "";
+			return '';
 		} 
 	}
 }

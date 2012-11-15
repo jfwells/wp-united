@@ -168,11 +168,13 @@ function wpu_process_phpbb() {
 
 	
 	$wpUnited->set_outer_content(ob_get_contents());
+	ob_end_clean();
 	
+		
 	//kill absolute paths that should be URIs
 	$wpUnited->set_outer_content(str_replace($phpbb_root_path, $phpbbForum->url, $wpUnited->get_outer_content()));
 	
-	ob_end_clean();
+	
 }
 
 

@@ -475,7 +475,7 @@ class WP_United_Plugin_Base {
 		$this->clear_outer_content();
 	}
 	
-	public function clear_outer_content($content) {
+	public function clear_outer_content() {
 		$this->outerContent = '';
 	}
 	
