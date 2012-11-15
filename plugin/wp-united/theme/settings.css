@@ -1036,3 +1036,14 @@ div.subsettings div.subsettings {
 	display: none;	
 	background: transparent url('../images/settings/ui-anim_basic_16x16.gif') 0 0 no-repeat;
 }
+
+#wpuintegsetupstatus {
+	font-weight: normal;
+	font-size: 12px !important;
+	line-height: 11px !important;
+	padding: 6px;
+}
+
+#wpuintegsetupstatus h4 {
+	margin: 3px 0;
+}

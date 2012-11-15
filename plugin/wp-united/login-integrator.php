@@ -413,7 +413,7 @@ function wpu_assess_newuser_perms() {
  * @return array permission details in the user's language
  */
 
-function wpu_assess_perms($groupList = '') {
+function wpu_get_perms($groupList = '') {
 	global $phpbbForum, $config, $db, $user;
 	
 	$fStateChanged = $phpbbForum->foreground();
@@ -540,6 +540,43 @@ function wpu_assess_perms($groupList = '') {
 	
 }
 
+
+function wpu_assess_perms($groupList = '') {
+	
+	$setPerms = wpu_get_perms($groupList);
+	$perms = wpu_permissions_list();
+								
+	$integratedGroups = array();
+	if(sizeof($setPerms)) {
+		
+		foreach($setPerms as $groupName => $permList) { 
+			$currLevel = '';
+			foreach($perms as $wpLevel => $permText) { 
+				$canIntegrate = true; $foundItem = false;
+				foreach($permList as $permItem) {
+					if($permItem['perm'] == $wpLevel) { 
+						$foundItem = true;
+						if($permItem['setting'] == ACL_NEVER) {
+							$canIntegrate = false;
+						}
+					}
+				}
+				if($foundItem && $canIntegrate) { 
+					$currLevel = $permText;
+				}
+			}
+			if(!empty($currLevel)) {
+				$integratedGroups[] = $groupName;
+			}
+		}	
+		
+	}
+	return $integratedGroups;
+	
+	
+	
+}
+
 /**
  * Gets the integration ID for the current phpBB user, or for a provided phpBB user ID
  * @param in $userID phpBB user ID (optional)
@@ -650,6 +687,7 @@ function wpu_get_user_level() {
 	return $userLevel;
 
 }
+
 
 /** 
  * returns an array of WP-United permissions

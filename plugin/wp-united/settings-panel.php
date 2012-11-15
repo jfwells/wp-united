@@ -422,7 +422,7 @@ function wpu_user_mapper() {
 					$db->sql_freeresult($result);
 					
 					$perms = wpu_permissions_list();
-					$permSettings = wpu_assess_perms(); 
+					$permSettings = wpu_get_perms(); 
 			
 					foreach ($groupTypes as $type) { ?>
 						<h4><?php echo "$type Groups"; ?></h4>
@@ -1011,9 +1011,29 @@ function wpu_settings_page() {
 					</div>
 					<?php if(!defined('WPU_CANNOT_OVERRIDE')) { ?>
 						<div id="wputab-user">
+							
+							<?php
+								if($wpUnited->get_setting('integrateLogin')) {
+									$setPerms = wpu_assess_perms();
+									if(sizeof($setPerms)) {
+										$integratedGroups = implode(', ', $setPerms);
+									} else {
+										$integratedGroups = __('None');
+									}
+									$newUsersCan = (sizeof(wpu_assess_newuser_perms())) ?__('Yes') : __('No: Appropriate permissions in phpBB are not set');
+								
+									echo '<div id="wpuintegsetupstatus" class="highlight"><h4>' . __('Current status:') . '</h4>';
+									echo '<ul><li><strong>' . __('phpBB groups that can automatically integrate: ') . '</strong>' . $integratedGroups . '</li>';
+									echo '<li><strong>' . __('New WordPress users can be given phpBB accounts? ') . '</strong>' . $newUsersCan . '</li></ul>';
+									echo '<p><small><em>' . __('Users are integrated according to WP-United permissions in phpBB. For more information and to change these, see <a href="admin.php?page=wpu-user-mapper">user Mapping &rarr; phpBB Permissions</a>.') . '</p></small></em></div>';
+								}
+							?>
+
 							<h3>Integrate logins?</h3>
 							<p>If you turn this option on, phpBB will create a WordPress account the first time each phpBB user <strong>with appropriate permissions</strong> visits the blog. If this WordPress install will be non-interactive (e.g., a blog by a single person, a portal page, or an information library with commenting disabled), you may want to turn this option off, as readers may not need accounts. You can also map existing WordPress users to phpBB users, using the mapping tool that will appear after you turn on this option.</p>
-							<p>You <strong>must set</strong> the privileges for each user using the WP-United permissions under the phpBB3 Users' and Groups' permissions settings.</p>
+							
+
+							
 							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if($wpUnited->get_setting('integrateLogin')) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 							
 							<div id="wpusettingsxpost" class="subsettings">
