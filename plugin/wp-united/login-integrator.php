@@ -56,10 +56,6 @@ function wpu_int_phpbb_logged_out() {
 		return false;
 	}
 
-	// TODO: THIS INTEGRATES **ALL** WP USERS TO A NEW PHPBB ACCOUNT IF THEY DON'T HAVE ONE ALREADY!!!
-	// TODO: Step 1 would be to check permissions of newly registered users in phpBB
-	
-	//if($wpUnited->get_settings('integsource') == 'wp') {
 		$createdUser = false;
 	
 		$phpbbId = wpu_get_integrated_phpbbuser($wpUser->ID);
@@ -67,15 +63,18 @@ function wpu_int_phpbb_logged_out() {
 		
 		if(!$phpbbId) { // The user has no account in phpBB, so we create one:
 			
-			// We just create standard users here for now, no setting of roles
-			$phpbbId = wpu_create_phpbb_user($wpUser->ID);
-					
-			if($phpbbId == 0) {
-				wp_die('Could not add user to phpBB');
-			} else if($phpbbId == -1) {
-				wp_die('A suitable username could not be found in phpBB');
+			if(sizeof(wpu_assess_newuser_perms())) {
+			
+				// We just create standard users here for now, no setting of roles
+				$phpbbId = wpu_create_phpbb_user($wpUser->ID);
+						
+				if($phpbbId == 0) {
+					wp_die('Could not add user to phpBB');
+				} else if($phpbbId == -1) {
+					wp_die('A suitable username could not be found in phpBB');
+				}
+				$createdUser = true;
 			}
-			$createdUser = true;
 		} 
 
 		// the user now has an integrated phpBB account, log them into it
@@ -90,7 +89,6 @@ function wpu_int_phpbb_logged_out() {
 		return $wpUser->ID;
 			
 
-	//}
 	
 	// this clears all WP-related cookies
 	// wp_clear_auth_cookie();
@@ -101,10 +99,6 @@ function wpu_int_phpbb_logged_out() {
 function wpu_int_phpbb_logged_in() { 
 	global $wpUnited, $lDebug, $phpbbForum, $wpUnited, $current_user;
 	
-	
-	//if($wpUnited->get_setting('integsource') != 'phpbb') {
-	//	return get_currentuserinfo();
-	//}
 	
 	// Should this user integrate? If not, we can just let WordPress do it's thing
 	if( !$userLevel = wpu_get_user_level() ) {
@@ -397,6 +391,13 @@ function wpu_create_phpbb_user($userID) {
 function wpu_assess_newuser_perms() {
 	global $config;
 
+	static $perms = false;
+	
+	if(is_array($perms)) {
+		return $perms;
+	}
+	
+	
 	// if 0, they aren't added to the group -- else they are in group until they have this number of posts
 	$newMemberGroup = ($config['new_member_post_limit'] != 0);
 		

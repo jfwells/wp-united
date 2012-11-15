@@ -1017,14 +1017,6 @@ function wpu_settings_page() {
 							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if($wpUnited->get_setting('integrateLogin')) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 							
 							<div id="wpusettingsxpost" class="subsettings">
-								<h4>Authentication source [ !NOT NEEDED, CURRENTLY IGNORED ! ]</h4>
-								<p>Choose whether phpBB or WordPress should act as the main database for user integration. </p>
-								<p>For example, if you choose 'phpBB', users will be logged into both packages based on their phpBB status.</p>
-								<p>For your end users, what you choose here will not make much difference. However, if you plan to integrate with an additional authentication module (e.g. a Facebook Connect plugin), you will need to select the appropriate side here.</p>
-								<p>if you are not sure, choose 'phpBB': it is how WP-United used to work prior to v0.9.</p>
-								<input type="radio" name="rad_integ_source" id="integphpbb" value="phpbb"  <?php if($wpUnited->get_setting('integsource') == 'phpbb') { ?>checked="checked"<?php } ?>  /><label for="integphpbb">phpBB</label>
-									<input type="radio" name="rad_integ_source" id="integwp" value="wp" <?php if($wpUnited->get_setting('integsource') == 'wp') { ?>checked="checked"<?php } ?>  /><label for="integwp">WordPress</label>
-								
 								
 								<h4>Sync avatars?</h4>
 								<p>Avatars will be synced between phpBB &amp; WordPress. If a user has an avatar in phpBB, it will show in WordPress. If they have a Gravatar, it will show in phpBB.</p>
@@ -1339,8 +1331,6 @@ function wpu_process_settings() {
 		
 		if($data['integrateLogin']) {
 			
-			$data['integsource'] =  (!isset($_POST['rad_integ_source'])) ? 'phpbb' : $_POST['rad_integ_source'];
-			$data['integsource'] = ($data['integsource'] == 'wp') ? 'wp' : 'phpbb';
 			
 			$data['xposting'] =   (isset($_POST['wpuxpost'])) ? 1 : 0;
 			$data['avatarsync'] = (isset($_POST['wpuavatar'])) ? 1 : 0;
@@ -1369,7 +1359,6 @@ function wpu_process_settings() {
 		} else {
 			// logins not integrated, set to default
 			$data = array_merge($data, array(
-				'integsource'			=> 'phpbb',
 				'xposting' 				=> 0,
 				'xposttype' 			=> 'excerpt',
 				'wpuxpostcomments'		=> 0,

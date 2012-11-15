@@ -1,13 +1,14 @@
 Current status:
 - user integration is working bi-directionally
-- Template integration usually works, but on many commits is broken as phpBB portion is still awaiting refactoring
+- Template integration works OK
+- Cross-posting works but awaiting minor changes
+- Widgets and template tags not working
 - Other options generally working but as yet not well tested.
-- Lots of work underway to simplify options and code paths. As this is done, many of the ponts below will disappear. Many of the comments/observations are from 2010/11, and will be irrelevant after refactoring.
 
 ---- user integration ---------
 -- remove phpBB/WordPress master option
 -- clean up first user mapper tab wording
--- Add "use phpBB to set roles" option, recommended but disabled by default to prevent admin stranding.
+-- Add "use phpBB to set roles" option, ** OR, MAP WP ROLES TO LOWEST GRANTED phpBB ROLE**, recommended but disabled by default to prevent admin stranding.
 -- sync avatar to phpBB as 'if gravatar' option?? Can likely leave to next version
 -- Check WordPress logout function -- is phpBB logging out or are we waiting 'til next page load?
 -- ensure phpbb_userLogin and userId are removed when mapping is broken.
