@@ -418,8 +418,11 @@ function wpu_assess_perms($groupList = '') {
 	
 	$fStateChanged = $phpbbForum->foreground();
 	
+	$permCacheKey = '';
+	
 	if( ($groupList == '') || $groupList == array() ) {
 		$where = '';
+		$permCacheKey = '[BLANK]';
 	} else {
 		$groupList = (array)$groupList;
 		if(sizeof($groupList) > 1) {
@@ -427,7 +430,16 @@ function wpu_assess_perms($groupList = '') {
 		} else {
 			$where = "AND group_name = '" . $db->sql_escape($groupList[0]) . "";
 		}
+		$permCacheKey = implode('|', $groupList);
 	}
+	
+	
+	static $cachedPerms = array();
+	
+	if (isset($cachedPerms[$permCacheKey])) {
+			return $cachedPerms[$permCacheKey];
+	}
+	
 	
 	
 	$user->add_lang('acp/permissions');
@@ -521,8 +533,10 @@ function wpu_assess_perms($groupList = '') {
 	$db->sql_freeresult($result);
 	
 	$phpbbForum->restore_state($fStateChanged);
+	
+	$cachedPerms[$permCacheKey] = (array)$calculatedPerms;
 
-	return (array)$calculatedPerms;
+	return $cachedPerms[$permCacheKey];
 	
 }
 
