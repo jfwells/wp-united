@@ -505,7 +505,7 @@ function wpu_user_mapper() {
 								} ?>
 								</tbody>
 							</table>
-							<small><em><?php _e('* Default new user group for new phpBB users'); ?></small></em>
+							<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></small></em>
 						<?php  } else {
 							echo '<p>' . sprintf(__('No %s groups to show'), $type) . '</p>';
 						}
