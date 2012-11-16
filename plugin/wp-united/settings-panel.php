@@ -368,16 +368,20 @@ function wpu_user_mapper() {
 
 			<div id="wpumaptab-perms">
 			
-				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB. This way, you can choose to integrate only some of your users. (For example, you could allow only phpBB administrators to write posts, or only a specific subset of members to be able to post comments.'); ?></p>
+				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB. This way, you have control over which users and groups get automatically integrated.'); ?></p>
 				
-				
+				<a class="wpuwhatis" href="#" onclick="return $('#wpupermmore').toggle();">More info &raquo;</a>
+				<div id="wpupermmore" style="display: none;">
 				<p><strong><?php _e('Notes:'); ?></strong></p>
 				<ul class="forcebullets">
+					<li><?php _e('If a user has an account in phpBB but not in WordPress, and they (or a group they belong to) has WP-United permissins, a WordPress account will be created fore them automatically.'); ?></li>
+					<li><?php _e('If a user has an account in WordPress but not phpBB, and the default New Users group (indicated below) has WP-United permissions, a phpBB account will be automatically created for them.'); ?></li>
 					<li><?php _e('If a user or group has multiple different WP-United permissions, the highest level shall prevail (i.e. if you set them as an author and an editor, they will be an editor)'); ?></li>
 					<li><?php _e('phpBB permissions have three states: <em>Yes</em>, <em>No</em> and <em>Never</em>. A <em>Never</em> setting for a user ensures that they will <strong>never</strong> get that permission. For example, if a user is a member of the <em>Registered Users</em> group which has Subscriber permissions set to <em>Yes</em>, and the <em>Newly Registered Users</em> group, which has Subscriber permissions set to <em>Never</em>, they will not be able to integrate as a subscriber.'); ?></li>
 					<li><?php _e('Permissions assigned to individual users are not shown here &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></li>
 					<li><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></li>
 				</ul>
+				</div>
 				<?php
 					global $phpbbForum, $db;
 					$phpbbForum->foreground();
@@ -429,7 +433,7 @@ function wpu_user_mapper() {
 					foreach ($groupTypes as $type) { ?>
 						<h4><?php echo "$type Groups"; ?></h4>
 						<?php if(($type == __('Built-In')) || ($numUserDefined > 0)) { ?>
-							<p><?php printf(__('Use the quick links below to change the permissions in a popup panel, or visit the %1$sphpBB ACP%2$s for more options.'), '<a href="' . append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id)  .'">', '</a>'); ?></p>
+							<p><?php printf(__('Use the quick links below to change the permissions in a popup panel, or visit the %1$sphpBB ACP%2$s for more options. To set the permissions, select whether you want User, Moderator or Administrator permissions, then choose "Advanced Permissions" to see the WP-United tab.'), '<a href="' . append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id)  .'">', '</a>'); ?></p>
 							<table class="widefat fixed">
 								<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
 									<<?php echo $tblHead; ?>>
