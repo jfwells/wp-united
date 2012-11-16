@@ -447,7 +447,7 @@ function wpu_user_mapper() {
 								<tbody>
 								<?php
 								$it = 0;
-								
+								$newUserGroupNames = $phpbbForum->get_newuser_group;
 								foreach ($groupData as $group_id => $row) {
 									if($row['type'] == $type) {
 										
@@ -455,7 +455,7 @@ function wpu_user_mapper() {
 										
 										?>
 										<tr <?php echo $class; ?>>
-											<td><p><?php echo $row['name']; ?><br />
+											<td><p><?php echo $row['name']; if(in_array($row['name'], $newUserGroupNames)) echo '<span style="color: red;">*</span>'; ?><br />
 											
 											<small><a class="wpuacppopup" href="<?php echo $row['url']; ?>" title = "<?php _e('This will open in a popup panel'); ?>"><?php _e('Edit Group Permissions'); ?></a></small></p></td>
 											<td><?php echo $row['total_members']; ?></td>
@@ -505,6 +505,7 @@ function wpu_user_mapper() {
 								} ?>
 								</tbody>
 							</table>
+							<small><em><?php _e('* Default new user group for new phpBB users'); ?></small></em>
 						<?php  } else {
 							echo '<p>' . sprintf(__('No %s groups to show'), $type) . '</p>';
 						}
@@ -514,7 +515,7 @@ function wpu_user_mapper() {
 			</div>
 			<div id="wpumaptab-map">
 				<p><?php _e('All your WordPress or phpBB users are shown on the left below, together with their integration status. On the right, you can see their corresponding integrated user, or &ndash; if they are not integrated &ndash; some suggestions for users they could integrate to.'); ?></p>
-				<p><?php _e('Choose the actions you wish to take, and then click &quot;Process Actions&quot; in the pop-up panel to apply them.'); ?></p>
+				<p><?php _e('Choose the actions you wish to take, and then click &quot;Process Actions&quot; in the pop-up panel to apply them..'); ?></p>
 				<div class="ui-widget-header ui-corner-all wpumaptoolbar">
 					<form name="wpumapdisp" id="wpumapdisp">
 						<fieldset>
@@ -1036,7 +1037,7 @@ function wpu_settings_page() {
 							?>
 
 							<h3>Integrate logins?</h3>
-							<p>If you turn this option on, phpBB will create a WordPress account the first time each phpBB user <strong>with appropriate permissions</strong> visits the blog. If this WordPress install will be non-interactive (e.g., a blog by a single person, a portal page, or an information library with commenting disabled), you may want to turn this option off, as readers may not need accounts. You can also map existing WordPress users to phpBB users, using the mapping tool that will appear after you turn on this option.</p>
+							<p>This will enable some or all of your users to have a seamless session across both phpBB and WordPress. If they are logged in to one, they will be logged in to the other. Accounts will be created in the respective part of the site as needed. Note that you will need to set permissions in the User Mapper section that will appear once this option is enabled. By default, only the phpBB founder user is integrated.</p>
 							
 
 							

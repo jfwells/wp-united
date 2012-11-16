@@ -389,7 +389,7 @@ function wpu_create_phpbb_user($userID) {
  */
  
 function wpu_assess_newuser_perms() {
-	global $config;
+	global $phpbbForum;
 
 	static $perms = false;
 	
@@ -397,11 +397,8 @@ function wpu_assess_newuser_perms() {
 		return $perms;
 	}
 	
-	
-	// if 0, they aren't added to the group -- else they are in group until they have this number of posts
-	$newMemberGroup = ($config['new_member_post_limit'] != 0);
-		
-	$groups = ($newMemberGroup) ? array('REGISTERED', 'NEWLY_REGISTERED') : array('REGISTERED');
+
+	$groups = $phpbbForum->get_newuser_group();
 	
 	return wpu_assess_perms($groups);
 }

@@ -834,6 +834,21 @@ class WPU_Phpbb {
 	
 	}
 	
+	// returns the default group for new phpBB users
+	public function get_newuser_group() {
+		global $config;
+		
+		$fStateChanged = $this->background();
+		
+		// if 0, they aren't added to the group -- else they are in group until they have this number of posts
+		$newMemberGroup = ($config['new_member_post_limit'] != 0);
+		
+		$this->restore_state($fStateChanged);
+		
+		return ($newMemberGroup) ? array('REGISTERED', 'NEWLY_REGISTERED') : array('REGISTERED');
+	
+	}
+	
 	
 	
 	// Update blog link column
