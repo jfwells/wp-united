@@ -544,7 +544,7 @@ function wpu_get_perms($groupList = '') {
  * @param bool $singleUser, all these groups belong to a single user, so remove any permissions from all groups if a "Never" is found.
  * @return aray
  */
-function wpu_assess_perms($groupList = '', $singleUser = false;) {
+function wpu_assess_perms($groupList = '', $singleUser = false) {
 	
 	$setPerms = wpu_get_perms($groupList);
 	$perms = wpu_permissions_list();
