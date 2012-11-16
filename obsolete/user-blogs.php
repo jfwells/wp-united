@@ -590,3 +590,449 @@ function wpu_content_parse_check($postContent) {
 	}
 	return $postContent;
 }
+
+
+/**
+ * 
+ * 
+ * 
+ *   TEMPLATE TAGS
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
+/**
+ * Prepares a sentence soliciting users to get started with their blogs
+ */
+function get_wpu_intro() {
+	global $wpUnited, $phpEx, $wpuGetBlogIntro, $phpbbForum;
+	if ( ($wpUnited->get_setting('useBlogHome')) && ($wpUnited->get_setting('usersOwnBlogs')) ) {
+		$reg_link =  'ucp.'.$phpEx.'?mode=register';
+		$redir = wpu_get_redirect_link();
+		$login_link = 'ucp.'.$phpEx.'?mode=login&amp;redirect='. $redir;	
+		
+		$isReg = $phpbbForum->get_userdata('is_registered');
+		if ( !empty($isReg) ) {
+			$wpuGetBlogIntro = ($phpbbForum->get_userdata('user_wpublog_id') > 0 ) ? $phpbbForum->lang['blog_intro_add'] : $phpbbForum->lang['blog_intro_get'];
+		} else {
+			$wpuGetBlogIntro =  ($wpUnited->get_setting('usersOwnBlogs')) ? $phpbbForum->lang['blog_intro_loginreg_ownblogs'] : $phpbbForum->lang['blog_intro_loginreg'];
+		}
+		
+		if ( ! $phpbbForum->user_logged_in() ) {
+			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro,'<a href="' . $phpbbForum->url . append_sid($reg_link) . '">', '</a>',  '<a href="'. $phpbbForum->url . $login_link . '">', '</a>') . '</p>';
+		} else {
+			$getStarted = '<p class="wpuintro">' . sprintf($wpuGetBlogIntro, '<a href="' . get_settings('siteurl') . '/wp-admin/">','</a>') . '</p>';
+		}
+		$intro = '<p>' . str_replace('{GET-STARTED}', $getStarted, $wpUnited->get_setting('blogIntro'));
+		return $intro;
+	} 	
+}
+
+
+/**
+ * Returns a nice paginated list of phpBB blogs
+ * @param bool $showAvatars Show phpBB avatars? Defaults to true
+ * @param int $maxEntries Maximum number to show per page. Defaults to 5.
+ */
+function get_wpu_bloglist($showAvatars = TRUE, $maxEntries = 5) {
+	global $wpdb, $authordata, $phpbbForum, $phpEx;
+	$start = 0;
+	$start = (integer)trim($_GET['start']);
+	$start = ($start < 0) ? 0 : $start;
+	//get total count
+	$sql = "SELECT count(DISTINCT u.ID) AS total
+			FROM {$wpdb->users} AS u 
+			INNER JOIN {$wpdb->posts} AS p
+			ON p.ID = p.post_author
+			WHERE u.user_login <> 'admin' 
+			AND p.post_type = 'post' 
+			AND p.post_status = 'publish'
+			";
+	$count = $wpdb->get_results($sql);
+	$numAuthors = $count[0]->total;
+	
+	$maxEntries = ($maxEntries < 1) ? 5 : $maxEntries;
+	//pull the data we want to display -- this doesn't appear to be very efficient, but it is the same method as  the built-in WP function
+	// wp_list_authors uses. Let's hope the data gets cached!
+	$sql = "SELECT DISTINCT u.ID, u.user_login, u.user_nicename 
+			FROM {$wpdb->users} AS u
+			INNER JOIN {$wpdb->posts} AS p 
+			ON u.ID=p.post_author 
+			WHERE u.user_login<>'admin' 
+			AND p.post_type = 'post' 
+			AND p.post_status = 'publish'
+			ORDER BY u.display_name LIMIT $start, $maxEntries";
+	$authors= $wpdb->get_results($sql);
+
+	if ( count($authors) > 0 ) {
+		$d = get_settings('time_format');
+		$time = mysql2date($d, $time);
+		$itern = 1;
+		$blogList = '';
+		foreach ( (array) $authors as $author ) {
+			$posts = 0;  $avatar = '';
+			$blogTitle = ''; $blogDesc = ''; $blogPath = '';
+			$path_to_profile = ''; $lastPostID = 0; $post = ''; 
+			$lastPostTitle = ''; $lastPostURL = ''; $time = ''; $lastPostTime = '';
+
+			$posts = count_user_posts($author->ID);
+			if ($posts) {
+				$author = get_userdata( $author->ID );
+				$pID = (int) $author->phpbb_userid;
+				$name = $author->nickname;
+				if ( $show_fullname && ($author->first_name != '' && $author->last_name != '') ) {
+					$name = "{$author->first_name} {$author->last_name}";
+				}
+				$avatar = wpu_avatar_create_image($author); 
+				$blogTitle = ( empty($author->blog_title) ) ? $phpbbForum->lang['default_blogname'] : wpu_censor($author->blog_title);
+				$blogDesc = ( empty($author->blog_tagline) ) ? $phpbbForum->lang['default_blogdesc'] : wpu_censor($author->blog_tagline);
+				$blogPath = get_author_posts_url($author->ID, $author->user_nicename);
+				$wUsrName = sanitize_user($author->user_login, true);
+				if ( ($wUsrName == $author->user_login) ) {
+					$pUsrName = $author->user_login;
+				} else {
+					$pUsrName == $author->phpbb_userLogin;
+				}
+				$profile_path =  "memberlist.$phpEx";
+				$path_to_profile = ( empty($pID) ) ? append_sid($blogPath) : append_sid($phpbbForum->url . $profile_path .'?mode=viewprofile&amp;u=' .$pID); 
+				$rssLink = get_author_rss_link(0, $author->ID, $author->user_nicename);
+				$lastPostID = $author->wpu_last_post;
+				if ( empty($lastPostID) ) {
+					global $wp_query, $post;
+					$_oldQuery = $wp_query;
+					$_oldPost = $post;
+					$lastPost = new WP_Query();
+					$lastPost->query('author=' . $author->ID . '&showposts=1&post_status=publish&orderby=date');
+					$lastPost->the_post();
+					$lastPostID = get_the_ID();
+					update_user_meta($author->ID, 'wpu_last_post', $lastPostID);
+					unset($wp_query); $wp_query = $_oldQuery;
+					unset($GLOBALS['post']);
+					$GLOBALS['post'] = $_oldPost;
+				}
+				$post = get_post($lastPostID);
+				$lastPostTitle = wpu_censor($post->post_title); 
+				$blogTitle = wpu_censor($blogTitle);
+				$blogDesc = wpu_censor($blogDesc);
+
+				$lastPostURL = get_permalink($lastPostID); 
+				$time = $post->post_date;
+				$lastPostTime = apply_filters('get_the_time', $time, $d, FALSE);
+				$itern = ( $itern == 0 ) ? 1 : 0;
+				$blogList .= "<div class=\"wpubl$itern\">\n\n";
+				if ( !empty($avatar) ) {
+					$blogList .=  "<img src=\"$avatar\" alt=\"avatar\"/>\n"; 
+				}
+				$blogList .=  sprintf($phpbbForum->lang['wpu_blog_intro'], "<h2 class=\"wpublsubject\" ><a href=\"$blogPath\">$blogTitle</a>", ' <a href="' . $path_to_profile . '">' . $name . "</a></h2>\n\n");
+				$blogList .=  '<p class="wpubldesc">' . $blogDesc . "</p>\n\n";
+				$blogList .=  '<small class="wpublnumposts">' .$phpbbForum->lang['wpu_total_entries'] . $posts . "</small><br />\n\n";
+				$blogList .=  '<small class="wpublastpost">' . sprintf($phpbbForum->lang['wpu_last_entry'],  ' <a href="' . $lastPostURL . '">' . $lastPostTitle . '</a>',   $time) . "</small><br />\n\n";
+				if ( !empty($rssLink) ) {
+					$blogList .=  '<small class="wpublrss">' . $phpbbForum->lang['wpu_rss_feed'] . ' <a href="' . $rssLink . '">' . $phpbbForum->lang['wpu_rss_subscribe'] . "</a></small><br />\n\n";
+				}
+				$blogList .=  "<p class=\"wpublclr\">&nbsp;</p></div>\n\n";
+			}
+		}
+	} else {
+		$blogList .= "<div class=\"wpubl\">\n";
+		$blogList .= '<p class="wpubldesc">' . $phpbbForum->lang['wpu_no_user_blogs'] . "</p>\n";
+		$blogList .= "</div>\n";
+	}
+	if ( $numAuthors > $maxEntries ) { 
+		$phpbbForum->foreground();
+		$base_url = append_sid(strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) . '://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING']);
+		$pagination = generate_pagination($base_url, $numAuthors, $maxEntries, $start, TRUE);
+		$phpbbForum->background();
+		$blogList .= '<p class="wpublpages">' . $pagination . '</p>';
+	}
+
+	return $blogList;
+}
+
+/**
+ * Displays the blog list
+ * @param bool $showAvatars Show phpBB avatars? Defaults to true
+ * @param int $maxEntries Maximum number to show per page. Defaults to 5.
+ * @author John Wells
+ */
+function wpu_bloglist($showAvatars = true, $maxEntries = 10) {
+	echo wpu_bloglist($showAvatars, $maxEntries);
+}
+
+/**
+ * Displays the blog list
+ * Synonym of wpu_bloglist
+ * @author John Wells
+ */
+function wpu_blogs_home() {
+	echo get_wpu_blogs_home();
+}
+
+/**
+ * Returns the blog listing without displaying it.
+ * @author John Wells
+ */
+function get_wpu_blogs_home() {
+	global $wpUnited;
+	$postContent = get_wpu_intro(); 
+	$postContent .= get_wpu_bloglist(true, $wpUnited->get_setting('blogsPerPage')); 
+	return $postContent;
+}
+
+
+/**
+ * Displays the latest updated user blogs
+ * Based on a contribution by Quentin qsc AT mypozzie DOT co DOT za
+ * @param string $args
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ */
+function wpu_latest_blogs($args = '') {
+	echo get_wpu_latest_blogs($args);
+}
+
+/**
+ * Returns the latest updated user blogs without displaying them
+ * Based on a contribution by Quentin qsc AT mypozzie DOT co DOT za
+ * @param string $args
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ */
+function get_wpu_latest_blogs($args = '') {
+	global $phpbbForum, $wpdb;
+
+	$defaults = array('limit' => '20','before' => '<li>', 'after' => '</li>');
+	extract(_wpu_process_args($args, $defaults));
+
+	if ( '' != $limit ) {
+		$limit = (int) $limit;
+		$limit_sql = ' LIMIT '.$limit;
+	} 
+	$orderby_sql = "post_date DESC ";
+	
+	$posts = $wpdb->get_results("SELECT DISTINCT post_author FROM $wpdb->posts 
+		WHERE post_type = 'post' 
+		AND post_author <> 1
+		AND post_status = 'publish' 
+		ORDER BY $orderby_sql 
+		$limit_sql");
+	if ( $posts ) {
+		$blogLinks = ''; 
+		foreach ( $posts as $post ) {
+			$blogTitle = wpu_censor(strip_tags(get_user_meta($post->post_author, 'blog_title', true)));
+			$blogTitle = ( $blogTitle == '' ) ? $phpbbForum->lang['default_blogname'] : $blogTitle;
+			if ( function_exists('get_author_posts_url') ) {
+				//WP >= 2.1 branch
+				$blogPath = get_author_posts_url($post->post_author);
+			} else {
+				//deprecated branch
+				$blogPath = get_author_link(false, $author->post_author); 
+			}
+			$blogLinks .= get_archives_link($blogPath, $blogTitle, '', $before, $after);
+		}
+		return $blogLinks;
+	}
+} 
+
+/**
+ * Displays the latest user blog posts, together with blog details
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ */
+function wpu_latest_blogposts($args = '') {
+	echo get_wpu_latest_blogposts($args);
+}
+
+/**
+ * Returns the latest user blog posts, together with blog details
+ * @example wpu_latest_blogs('limit=20&before=<li>&after=</li>');
+ * @author John Wells
+ */
+function get_wpu_latest_blogposts($args = '') {
+	global $phpbbForum, $wpdb;
+	
+	$defaults = array('limit' => '20','before' => '<li>', 'after' => '</li>');
+	extract(_wpu_process_args($args, $defaults));
+
+	if ( '' != $limit ) {
+		$limit = (int) $limit;
+		$limit_sql = ' LIMIT '.$limit;
+	} 
+	$orderby_sql = "post_date DESC ";
+	
+	$posts = $wpdb->get_results("SELECT ID, post_author, post_title FROM $wpdb->posts 
+		WHERE post_type = 'post' 
+		AND post_author <> 1
+		AND post_status = 'publish' 
+		ORDER BY $orderby_sql 
+		$limit_sql");
+	if ( $posts ) {
+		$htmlOut = ''; 
+		foreach ( $posts as $post ) {
+			$lastPostTitle = wpu_censor(strip_tags($post->post_title));
+			$blogTitle = wpu_censor(strip_tags(get_user_meta($post->post_author, 'blog_title', true)));
+			$blogTitle = ( $blogTitle == '' ) ? $phpbbForum->lang['default_blogname'] : $blogTitle;
+			$lastPostURL = get_permalink($post->ID); 
+			if ( function_exists('get_author_posts_url') ) {
+				//WP >= 2.1 branch
+				$blogPath = get_author_posts_url($post->post_author);
+			} else {
+				//deprecated branch
+				$blogPath = get_author_link(false, $author->post_author); 
+			}
+			$postLink = get_archives_link($lastPostURL, $lastPostTitle, '', $before, '');
+			$blogLink = get_archives_link($blogPath, $blogTitle, '', '', $after);
+			$htmlOut .= sprintf($phpbbForum->lang['wpu_latest_blogposts_format'], trim($postLink), $blogLink);
+		}
+		return $htmlOut;
+	}
+} 
+
+
+/**
+ * 
+ * 
+ * 
+ *  Widgets
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
+
+/**
+ * Wrapper function for initialising widgets
+ */
+function wpu_widgets_init_old() {
+
+	// Check for the required plugin functions. 
+	if ( !function_exists('register_sidebar_widget') )
+		return;
+		
+
+	/**
+	 * List of latest blogs widget
+	 * Returns a lsit of blogs in order of most recently updated
+	 */
+	function widget_wpulatestblogs($args) {
+		if(!is_admin()) {		
+			extract($args);
+
+			$options = get_option('widget_wpulatestblogs');
+			$title = $options['title'];
+			$maxEntries = $options['max'];
+		
+		
+			//generate the widget output
+			if ( !function_exists('wpu_latest_blogs') ) return false;
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
+			echo '<ul>';
+			wpu_latest_blogs('limit='.$maxEntries);
+			echo '</ul>' . $after_widget;
+		}
+	}
+	
+	/**
+	 * Widget control pane
+	 */
+	function widget_wpulatestblogs_control() {
+		global $phpbbForum;
+		$options = get_option('widget_wpulatestblogs');
+		
+		if ( !is_array($options) ) {
+			$options = array('title'=> $phpbbForum->lang['wpu_bloglist_panel_title'], 'max'=>20);
+		}
+		// handle form submission
+		if ( $_POST['widget_wpu_lb'] ) {
+			$options['title'] = strip_tags(stripslashes($_POST['wpu-lb-title']));
+			$options['max'] = (int) strip_tags(stripslashes($_POST['wpu-lb-max']));
+			update_option('widget_wpulatestblogs', $options);
+		}
+
+		// set form values
+		$title = htmlspecialchars($options['title'], ENT_QUOTES);
+		$max = htmlspecialchars($options['max'], ENT_QUOTES);
+		
+		// Show form
+		echo '<p style="text-align:right;"><label for="wpu-lb-title">' . $phpbbForum->lang['wpu_panel_heading'] . ' <input style="width: 200px;" id="wpu-lb-title" name="wpu-lb-title" type="text" value="'.$title.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lb-max">' . $phpbbForum->lang['wpu_panel_max_entries'] . ' <input style="width: 50px;" id="wpu-lb-max" name="wpu-lb-max" type="text" value="'.$max.'" /></label></p>';
+		
+		echo '<input type="hidden" id="widget_wpu_lb" name="widget_wpu_lb" value="1" />';
+	}	
+	
+
+
+
+	/**
+	 * List of latest blog posts widget
+	 * Returns a lsit of recent posts, in the format XXXXX in YYYYYY. both XXXXX and YYYYYY are links.
+	*/
+	function widget_wpulatestblogposts($args) {
+		if(!is_admin()) {		
+			extract($args);
+
+			$options = get_option('widget_wpulatestblogposts');
+			$title = $options['title'];
+			$maxEntries = $options['max'];
+		
+		
+			//generate the widget output
+			// wpu_template_funcs.php MUST be available!
+			if ( !function_exists('wpu_latest_blogposts') ) return false;
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
+			echo '<ul class="wpulatestblogposts">';
+			wpu_latest_blogposts('limit='.$maxEntries);
+			echo '</ul>' . $after_widget;
+		}
+	}
+	
+	/**
+	 * The widget control pane
+	 */
+	function widget_wpulatestblogposts_control() {
+		global $phpbbForum;
+		$options = get_option('widget_wpulatestblogposts');
+		
+		if ( !is_array($options) ) {
+			$options = array('title'=> $phpbbForum->lang['wpu_blogposts_panel_title'], 'max'=>20);
+		}
+		// handle form submission
+		if ( $_POST['widget_wpu_lbp'] ) {
+			$options['title'] = strip_tags(stripslashes($_POST['wpu-lbp-title']));
+			$options['max'] = (int) strip_tags(stripslashes($_POST['wpu-lbp-max']));
+			update_option('widget_wpulatestblogposts', $options);
+		}
+
+		// set form values
+		$title = htmlspecialchars($options['title'], ENT_QUOTES);
+		$max = htmlspecialchars($options['max'], ENT_QUOTES);
+		
+		// Show form
+		echo '<p style="text-align:right;"><label for="wpu-lbp-title">' . $phpbbForum->lang['wpu_panel_heading'] . ' <input style="width: 200px;" id="wpu-lbp-title" name="wpu-lbp-title" type="text" value="'.$title.'" /></label></p>';
+		echo '<p style="text-align:right;"><label for="wpu-lbp-max">' . $phpbbForum->lang['wpu_panel_max_entries'] . ' <input style="width: 50px;" id="wpu-lbp-max" name="wpu-lbp-max" type="text" value="'.$max.'" /></label></p>';
+		
+		echo '<input type="hidden" id="widget_wpu_lbp" name="widget_wpu_lbp" value="1" />';
+	}
+	
+	
+	global $wpUnited, $phpbbForum;
+	//print_r($phpbbForum->lang);
+
+	if($wpUnited->get_setting('usersOwnBlogs')) {
+		register_sidebar_widget(array($phpbbForum->lang['wpu_bloglist_desc'], 'widgets'), 'widget_wpulatestblogs');
+		register_sidebar_widget(array($phpbbForum->lang['wpu_blogposts_desc'], 'widgets'), 'widget_wpulatestblogposts');	
+	}
+	/**
+	 * Register all control panes
+	 */
+	if($wpUnited->get_setting('usersOwnBlogs')) {	
+		register_widget_control(array($phpbbForum->lang['wpu_bloglist_desc'], 'widgets'), 'widget_wpulatestblogs_control', 300, 100);
+	}
+		
+}

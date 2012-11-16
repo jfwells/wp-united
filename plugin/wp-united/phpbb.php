@@ -25,27 +25,29 @@ if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) exit;
 class WPU_Phpbb {
 
 
-	private $wpTablePrefix;
-	private $wpUser;
-	private $wpCache;
-	private $phpbbTablePrefix;
-	private $phpbbUser;
-	private $phpbbCache;
-	private $phpbbDbName;
-	private $phpbbTemplate;
-	private $wpTemplate;
-	private $state;
-	private $was_out;
-	private $_savedID;
-	private $_savedIP;
-	private $_savedAuth;
-	private $tokens;
-	private $_loaded;
+	private 
+		$wpTablePrefix,
+		$wpUser,
+		$wpCache,
+		$phpbbTablePrefix,
+		$phpbbUser,
+		$phpbbCache,
+		$phpbbDbName,
+		$phpbbTemplate,
+		$wpTemplate,
+		$state,
+		$was_out,
+		$_savedID,
+		$_savedIP,
+		$_savedAuth,
+		$tokens,
+		$_loaded;
 	
-	public $lang;
-	public $seo;
-	public $url;
-	public $_transitioned_user;		
+	public 
+		$lang,
+		$seo,
+		$url,
+		$_transitioned_user;		
 	
 	/**
 	 * Class initialisation
@@ -330,7 +332,7 @@ class WPU_Phpbb {
 	 * $forum_list limits to a specific forum (comma delimited list). $limit sets the number of posts fetched. 
 	 */
 	public function get_recent_topics($forum_list = '', $limit = 50) {
-		global $db, $auth;
+		global $db, $auth, $wpUnited;
 		
 		$fStateChanged = $this->foreground();
 
@@ -361,7 +363,7 @@ class WPU_Phpbb {
 			$posts[$i] = array(
 				'topic_id' 		=> $row['topic_id'],
 				'topic_replies' => $row['topic_replies'],
-				'topic_title' 	=> wpu_censor($row['topic_title']),
+				'topic_title' 	=> $wpUnited->censor_content($row['topic_title']),
 				'user_id' 		=> $row['user_id'],
 				'username' 		=> $row['username'],
 				'forum_id' 		=> $row['forum_id'],

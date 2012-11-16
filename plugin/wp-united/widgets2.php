@@ -22,15 +22,14 @@ if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) {
 /**
  * Returns a nice block containing info about the phpBB user that is currently logged in *to phpBB*
  */
-class WPU_Login_User_info extends WP_Widget {
+class WPU_Login_User_info_Widget extends WP_Widget {
 	
-	function WPU_Login_User_Info() {
-		global $phpbbForum;
+	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-loginuser-info', 'description' => __('Displays the logged-in user\'s details, such as username, avatar, and number of posts since last visit, together with varius meta links. If the user is logged out, displays a phpBB login form.') );
 		$this->WP_Widget('wp-united-loginuser-info', __('WP-United Login / User Info Box'), $widget_ops);
 	}
 	
-	function widget($args, $instance) {
+	public function widget($args, $instance) {
 		// prints the widget
 		global $phpbbForum;
 		
@@ -56,10 +55,10 @@ class WPU_Login_User_info extends WP_Widget {
 		echo $after_widget;
 	}
  
-	function update($new_instance, $old_instance) {
+	public function update($new_instance, $old_instance) {
 		//save the widget
 		$instance = $old_instance;
-		$input = array(_);
+
 		$instance['title-logged-in'] = strip_tags(stripslashes($new_instance['title-logged-in']));
 		$instance['title-logged-out'] = strip_tags(stripslashes($new_instance['title-logged-out']));
 		
@@ -72,13 +71,12 @@ class WPU_Login_User_info extends WP_Widget {
 		return $instance;
 	}
  
-	function form($instance) {
+	public function form($instance) {
 		//widget form
-		global $phpbbForum;
 		
 		$instance = wp_parse_args( (array) $instance, array( 
-			'title-logged-in'=> $phpbbForum->lang['wpu_loginbox_loggedin'],
-			'title-logged-out'=>$phpbbForum->lang['wpu_loginbox_loggedout'],
+			'title-logged-in'=> __('You are logged in as:'),
+			'title-logged-out'=> __('You are not logged in.'),
 			'rank'=>1, 
 			'new'=>1, 
 			'write' => 0,
@@ -96,13 +94,13 @@ class WPU_Login_User_info extends WP_Widget {
 		$loginForm = (!empty($instance['login-form'])) ? 'checked="checked"' : '';
 		?>
 		
-		<p><label for="<?php echo $this->get_field_id('title-logged-in'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_loggedin'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-in'); ?>" name="<?php echo $this->get_field_name('title-logged-in'); ?>" type="text" value="<?php echo esc_attr($titleLoggedIn); ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id('title-logged-out'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_loggedout'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-out'); ?>" name="<?php echo $this->get_field_name('title-logged-out'); ?>" type="text" value="<?php echo esc_attr($titleLoggedOut); ?>" /></label></p>
-		<p><input id="<?php echo $this->get_field_id('rank'); ?>" name="<?php echo $this->get_field_name('rank'); ?>" type="checkbox" value="rank" <?php echo $rank ?> /> <label for="<?php echo $this->get_field_id('rank'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_rank'] ?></label></p>
-		<p><input id="<?php echo $this->get_field_id('new'); ?>" name="<?php echo $this->get_field_name('new'); ?>" type="checkbox" value="new"  <?php echo $new ?> /> <label for="<?php echo $this->get_field_id('new'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_newposts'] ?></label></p>
-		<p><input id="<?php echo $this->get_field_id('write'); ?>" name="<?php echo $this->get_field_name('write'); ?>" type="checkbox" value="write" <?php echo $write ?> /> <label for="<?php echo $this->get_field_id('write'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_write'] ?></label></p>
-		<p><input id="<?php echo $this->get_field_id('admin'); ?>" name="<?php echo $this->get_field_name('admin'); ?>" type="checkbox" value="admin" <?php echo $admin ?> /> <label for="<?php echo $this->get_field_id('admin'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_admin'] ?></label></p>
-		<p><input id="<?php echo $this->get_field_id('login-form'); ?>" name="<?php echo $this->get_field_name('login-form'); ?>" type="checkbox" value="login-form" <?php echo $loginForm ?> /> <label for="<?php echo $this->get_field_id('login-form'); ?>"><?php echo $phpbbForum->lang['wpu_loginbox_panel_loginform'] ?></label></p>
+		<p><label for="<?php echo $this->get_field_id('title-logged-in'); ?>"><?php _e('You are logged in as:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-in'); ?>" name="<?php echo $this->get_field_name('title-logged-in'); ?>" type="text" value="<?php echo esc_attr($titleLoggedIn); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title-logged-out'); ?>"><?php _e('You are not logged in.'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title-logged-out'); ?>" name="<?php echo $this->get_field_name('title-logged-out'); ?>" type="text" value="<?php echo esc_attr($titleLoggedOut); ?>" /></label></p>
+		<p><input id="<?php echo $this->get_field_id('rank'); ?>" name="<?php echo $this->get_field_name('rank'); ?>" type="checkbox" value="rank" <?php echo $rank ?> /> <label for="<?php echo $this->get_field_id('rank'); ?>"><?php _e('Show rank title &amp; image?'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('new'); ?>" name="<?php echo $this->get_field_name('new'); ?>" type="checkbox" value="new"  <?php echo $new ?> /> <label for="<?php echo $this->get_field_id('new'); ?>"><?php _e('Show new posts?');?></label></p>
+		<p><input id="<?php echo $this->get_field_id('write'); ?>" name="<?php echo $this->get_field_name('write'); ?>" type="checkbox" value="write" <?php echo $write ?> /> <label for="<?php echo $this->get_field_id('write'); ?>"><?php _e('Show write post link?'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('admin'); ?>" name="<?php echo $this->get_field_name('admin'); ?>" type="checkbox" value="admin" <?php echo $admin ?> /> <label for="<?php echo $this->get_field_id('admin'); ?>"><?php _e('Show Admin link?'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('login-form'); ?>" name="<?php echo $this->get_field_name('login-form'); ?>" type="checkbox" value="login-form" <?php echo $loginForm ?> /> <label for="<?php echo $this->get_field_id('login-form'); ?>"><?php _e('Show phpBB login form if logged out?'); ?></label></p>
 		
 		<?php
 	}	
@@ -113,17 +111,15 @@ class WPU_Login_User_info extends WP_Widget {
  * Latest phpBB topics widget
  * Returns a lsit of recent topics, in the format XXXXX posted by YYYYYY in ZZZZZZZ.
  */
-class WPU_Latest_Phpbb_Topics extends WP_Widget {
+class WPU_Latest_Phpbb_Topics_Widget extends WP_Widget {
 	
-	function WPU_Latest_Phpbb_Topics() {
-		global $phpbbForum;
+	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-latest-topics', 'description' => __('Shows the latest topics posted in the phpBB forum.') );
 		$this->WP_Widget('wp-united-latest-topics', __('WP-United Latest phpBB Topics'), $widget_ops);
 	}
 	
-	function widget($args, $instance) {
+	public function widget($args, $instance) {
 		// prints the widget
-		global $phpbbForum;
 		
 		extract($args, EXTR_SKIP);
 		
@@ -139,7 +135,7 @@ class WPU_Latest_Phpbb_Topics extends WP_Widget {
 
 	}
  
-	function update($new_instance, $old_instance) {
+	public function update($new_instance, $old_instance) {
 		//save the widget
 		$instance = $old_instance;
 
@@ -149,12 +145,11 @@ class WPU_Latest_Phpbb_Topics extends WP_Widget {
 		return $instance;
 	}
  
-	function form($instance) {
+	public function form($instance) {
 		//widget form
-		global $phpbbForum;
 		
 		$instance = wp_parse_args((array) $instance, array( 
-			'title' => $phpbbForum->lang['wpu_forumtopics_panel_title'],
+			'title' => __('Recent Forum Topics'),
 			'max' => 25
 		));
 		
@@ -162,8 +157,8 @@ class WPU_Latest_Phpbb_Topics extends WP_Widget {
 		$max = strip_tags($instance['max']);
 
 		?>
-		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo $phpbbForum->lang['wpu_panel_heading'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php echo $phpbbForum->lang['wpu_panel_max_entries'] ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo esc_attr($max); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title: '); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php _e('Maximum Entries:') ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo esc_attr($max); ?>" /></label></p>
 		<?php
 	}	
 }
@@ -172,9 +167,9 @@ class WPU_Latest_Phpbb_Topics extends WP_Widget {
  * Latest phpBB posts widget
  * Returns a lsit of recent posts
  */
-class WPU_Latest_Phpbb_Posts extends WP_Widget {
+class WPU_Latest_Phpbb_Posts_Widget extends WP_Widget {
 	
-	function WPU_Latest_Phpbb_Posts() {
+	public function __construct() {
 		global $phpbbForum;
 		$widget_ops = array('classname' => 'wp-united-latest-posts', 'description' => __('Shows the latest posts posted in the phpBB forum.') );
 		$this->WP_Widget('wp-united-latest-posts', __('WP-United Latest Forum Posts'), $widget_ops);
@@ -182,7 +177,6 @@ class WPU_Latest_Phpbb_Posts extends WP_Widget {
 	
 	function widget($args, $instance) {
 		// prints the widget
-		global $phpbbForum;
 		
 		extract($args, EXTR_SKIP);
 		
@@ -198,7 +192,7 @@ class WPU_Latest_Phpbb_Posts extends WP_Widget {
 
 	}
  
-	function update($new_instance, $old_instance) {
+	public function update($new_instance, $old_instance) {
 		//save the widget
 		$instance = $old_instance;
 
@@ -208,12 +202,11 @@ class WPU_Latest_Phpbb_Posts extends WP_Widget {
 		return $instance;
 	}
  
-	function form($instance) {
+	public function form($instance) {
 		//widget form
-		global $phpbbForum;
 		
 		$instance = wp_parse_args((array) $instance, array( 
-			'title' => $phpbbForum->lang['wpu_forumposts_panel_title'],
+			'title' => __('Recent Forum Posts'),
 			'max' => 25
 		));
 		
@@ -221,10 +214,130 @@ class WPU_Latest_Phpbb_Posts extends WP_Widget {
 		$max = strip_tags($instance['max']);
 
 		?>
-		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php echo $phpbbForum->lang['wpu_panel_heading'] ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php echo $phpbbForum->lang['wpu_panel_max_entries'] ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo esc_attr($max); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php  _e('Title: '); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php _e('Maximum Entries: ') ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo esc_attr($max); ?>" /></label></p>
 		<?php
 	}	
+}
+
+
+class WPU_Forum_Stats_Widget extends WP_Widget {
+	public function __construct() {
+		$widget_ops = array('classname' => 'wp-united-forum-stats', 'description' => __('Show key forum statistics and information.') );
+		$this->WP_Widget('wp-united-forum-stats', __('WP-United Forum Statistics'), $widget_ops);
+	}
+	
+	public function widget($args, $instance) {
+		
+		extract($args, EXTR_SKIP);
+		
+		$title = empty($instance['title']) ? '&nbsp;' : apply_filters('widget_title', $instance['title']);
+		
+		if ( !function_exists('wpu_phpbb_stats') ) return false;
+		echo $before_widget;
+		echo $before_title . $title . $after_title;
+		echo '<ul class="wpuforumstats">';
+		wpu_phpbb_stats();
+		echo '</ul>' . $after_widget;
+		
+		
+	}
+	
+	public function update($new_instance, $old_instance) {
+		//save the widget
+		$instance = $old_instance;
+
+		$instance['title'] = strip_tags(stripslashes($new_instance['title']));
+		
+		return $instance;
+	}
+	
+	public function form($instance) {
+		//widget form
+		
+		$instance = wp_parse_args((array) $instance, array( 
+			'title' => __('Forum Stats')
+		));
+		
+		$title = strip_tags($instance['title']);
+
+		?>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php  _e('Title: '); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<?php		
+	}
+	
+	
+	
+	
+}
+
+class WPU_Forum_Users_Online_Widget extends WP_Widget {
+	public function __construct() {
+		$widget_ops = array('classname' => 'wp-united-users-online', 'description' => __('Show information about users that are currently online, in the usual phpBB format.') );
+		$this->WP_Widget('wp-united-users-online', __('WP-United Users Online'), $widget_ops);
+	}
+	
+	public function widget($args, $instance) {
+		
+		extract($args, EXTR_SKIP);
+		
+		$title = empty($instance['title']) ? '&nbsp;' : apply_filters('widget_title', $instance['title']);
+		$showBreakdown = $instance['showBreakdown'];
+		$showRecord = $instance['showRecord'];
+		$showLegend = $instance['showLegend'];
+		
+
+		if ( !function_exists('wpu_useronlinelist') ) return false;
+		echo $before_widget;
+		echo $before_title . $title . $after_title;
+		echo '<div class="wpuusersonline textwidget">';
+		wpu_useronlinelist("before= &after=<br />&showBreakdown={$showBreakdown}&showRecord={$showRecord}&showLegend={$showLegend}");
+		echo '</div>' . $after_widget;
+
+	}
+	
+	public function update($new_instance, $old_instance) {
+		//save the widget
+		$instance = $old_instance;
+
+		$instance['title'] = strip_tags(stripslashes($new_instance['title']));
+		
+		$instance['showBreakdown'] 	= (strip_tags(stripslashes($new_instance['showBreakdown'])) == 	'brk')? 1 : 0;
+		$instance['showRecord'] 	= (strip_tags(stripslashes($new_instance['showRecord'])) 	== 	'rec')? 1 : 0;
+		$instance['showLegend'] 	= (strip_tags(stripslashes($new_instance['showLegend'])) 	== 	'leg')? 1 : 0;
+		
+		return $instance;
+	}
+	
+	public function form($instance) {
+		//widget form
+		
+		$instance = wp_parse_args( (array) $instance, array( 
+			'title' 			=> __('Users Online'),
+			'showBreakdown'		=> 1, 
+			'showRecord'		=> 1, 
+			'showLegend' 		=> 1
+		));
+		
+		$title = strip_tags($instance['title']);
+		 
+		$showBreakdown	= (!empty($instance['showBreakdown'])) 	? 'checked="checked"' : '';
+		$showRecord 	= (!empty($instance['showRecord'])) 	? 'checked="checked"' : '';
+		$showLegend 	= (!empty($instance['showLegend'])) 	? 'checked="checked"' : '';
+
+		?>
+		
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php  _e('Title: '); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<p><input id="<?php echo $this->get_field_id('showBreakdown'); ?>" name="<?php echo $this->get_field_name('showBreakdown'); ?>" type="checkbox" value="brk"  <?php echo $showBreakdown ?> /> <label for="<?php echo $this->get_field_id('showBreakdown'); ?>"><?php _e('Show a breakdown of user types?'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showRecord'); ?>" name="<?php echo $this->get_field_name('showRecord'); ?>" type="checkbox" value="rec" <?php echo $showRecord ?> /> <label for="<?php echo $this->get_field_id('showRecord'); ?>"><?php _e('Show record number of users?'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showLegend'); ?>" name="<?php echo $this->get_field_name('showLegend'); ?>" type="checkbox" value="leg" <?php echo $showLegend ?> /> <label for="<?php echo $this->get_field_id('showLegend'); ?>"><?php _e('Show legend?'); ?></label></p>
+		
+		<?php
+	}
+	
+	
+	
+	
 }
 
 
@@ -232,7 +345,9 @@ class WPU_Latest_Phpbb_Posts extends WP_Widget {
  * Wrapper function for initialising widgets
  */
 function wpu_widgets_init() {
-	register_widget('WPU_Login_User_info');
-	register_widget('WPU_Latest_Phpbb_Topics');
-	register_widget('WPU_Latest_Phpbb_Posts');
+	register_widget('WPU_Login_User_info_Widget');
+	register_widget('WPU_Latest_Phpbb_Topics_Widget');
+	register_widget('WPU_Latest_Phpbb_Posts_Widget');
+	register_widget('WPU_Forum_Stats_Widget');
+	register_widget('WPU_Forum_Users_Online_Widget');
 }
