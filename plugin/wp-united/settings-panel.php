@@ -357,7 +357,7 @@ function wpu_user_mapper() {
 		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together. Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
 		<ul>
 			<li><?php echo '<strong>' . __('User Permissions') . ':</strong> ' . __('Setting up permissions so that users can be automatically given mapped accounts'); ?></li>
-			<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up the linkage between user accounts that already existed in both phPBB and WordPress before you installed WP-United, or manually changing linkages.'); ?></li>
+			<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up and checking the linkage between user accounts in phPBB and WordPress.'); ?></li>
 		</ul>
 		<p><?php _e('Select a tab below to get started.'); ?></p>
 		<div id="wputabs">
@@ -369,11 +369,13 @@ function wpu_user_mapper() {
 			<div id="wpumaptab-perms">
 			
 				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB. This way, you can choose to integrate only some of your users. (For example, you could allow only phpBB administrators to write posts, or only a specific subset of members to be able to post comments.'); ?></p>
+				
+				
 				<p><strong><?php _e('Notes:'); ?></strong></p>
 				<ul class="forcebullets">
 					<li><?php _e('If a user or group has multiple different WP-United permissions, the highest level shall prevail (i.e. if you set them as an author and an editor, they will be an editor)'); ?></li>
 					<li><?php _e('phpBB permissions have three states: <em>Yes</em>, <em>No</em> and <em>Never</em>. A <em>Never</em> setting for a user ensures that they will <strong>never</strong> get that permission. For example, if a user is a member of the <em>Registered Users</em> group which has Subscriber permissions set to <em>Yes</em>, and the <em>Newly Registered Users</em> group, which has Subscriber permissions set to <em>Never</em>, they will not be able to integrate as a subscriber.'); ?></li>
-					<li><?php _e('Permissions assigned to individual users are not shown &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></li>
+					<li><?php _e('Permissions assigned to individual users are not shown here &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></li>
 					<li><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></li>
 				</ul>
 				<?php
