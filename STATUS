@@ -6,16 +6,9 @@ Current status:
 - Other options generally working but as yet not well tested.
 
 ---- user integration ---------
--- remove phpBB/WordPress master option
--- clean up first user mapper tab wording
--- Add "use phpBB to set roles" option, ** OR, MAP WP ROLES TO LOWEST GRANTED phpBB ROLE**, recommended but disabled by default to prevent admin stranding.
--- sync avatar to phpBB as 'if gravatar' option?? Can likely leave to next version
--- Check WordPress logout function -- is phpBB logging out or are we waiting 'til next page load?
+-- Use wpu_set_newuser_role to retain roles of new users by implementing phpBB permissions for them if their group role is different.
 -- ensure phpbb_userLogin and userId are removed when mapping is broken.
--- disable all mapper buttons if an action affects the current user
--- consider adding options to force redirection to P or W login/register (?)
 -- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
--- [ An old comment from 2011: still relevant?]: Add warning to ACP if bi-di integ is on but new users won't be integrated due to perms problems (use new wpu_assess_perms)
 -- on login (in WP or phpBB), also check username of integrated user if different and login failed
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
 -- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
@@ -36,7 +29,6 @@ Current status:
 -- Check user mapper CSS, and that it is always clickable
 -- once settings panels are ready, split into separate files in subfolder (?)
 -- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
--- check all defaults -- ensure all options disabled by default (different from v0.8x defaults!)
 -- add plugin activate action that describes next steps in bubble
 -- integrate phpBB ACP link into dashboard dropdown & menu
 -- add plugin deactivate action that warns of consequences, and asks if they want a complete removal.
@@ -49,34 +41,19 @@ Current status:
 -- do check on plugin activation for php and wordpress version
 -- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
 -- Move user-integration-relevant functions in settings-panel to login-integrator, and remove duplication of functions, get_phpbb_intdata in settings_panel, and $phpbbForum->fetch_userdata_for **
--- when connecting to phpBB, check version for compatibility
 -- modify version.php to contain compatibility information
 -- Completely rewrite hook, and combine integrator and template-integrator, since they are now the same
--- re-base file structure so phpBB mod sits under plugin
--- split plugin files into folders -- e.g. split off settings panel
--- move wp-integration-class into general parser class that can be used by both P & W and plugin fixers
--- remove global checker from plugin fixers, and get them to check for new WP3 syntax -- consider removing altogether
--- consider lightening phpBB & WP load by removing unneeded functions in WP & phpBB.
--- consider only loading phpBB if user needs to integrate and they aren't logged in, if this is a cross-post or if widgets need it -- e.g. bootstrap_phpbb (as we did in v0.7x)
+-- remove $compat from core-patcher
+-- in plugin, only load necessary portions, and load phpBB late only if needed.
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
 -- LANG strings -- move back again to WP po/mo (arrgh - we ported them to phpBB in v0.8!)
-
--- make_clickable removal still needs to run on rev int pages!
-
+-- check status of make_clickable and registration collisions
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
--- remove 90% of all defines, clean up unused globals
--- remove all old user blog options (e.g. split uploads, etc.)
--- check all function arbitration is still working, use dynamic args if needed
--- remove legacy backwards-compat paths, clean up old TODOs
-
 
 ----- template integration ------------
--- need to remove admin bar on cached templates now
--- WP top bar gets very upset on forward integration --- due to css magic not altering inline styles in head after styles reset??
 -- DTD option not having any effect
 -- WPU cache not cleared on style changes [should be fixed]
 -- update css magic to work with subdomains
--- re-evaluate parsing of inline css with tVoodoo: performance hit may not be worth it
 -- get acp login page to integrate too -- otherwise looks bad if user removes header/footer
 -- auto-clear of template cache when nav settings changed in WP3
 -- re-enable wordpress-in-phpbb integration
@@ -99,7 +76,8 @@ Current status:
 -- reconnect blog buttons, consider removing blogid from phpBB
 
 
---------- possible ---------------
+--------- possible for future versions ---------------
+-- sync avatar to phpBB as 'if gravatar' option?? Can likely leave to next version
 -- Add user lookup to permissions mapping tab
 -- Add pre-mod routines and scratch/plugins loader folder for plugins or premium options
 -- Finish "advanced settings" panel page -- first see what options are around and whether still necessary
@@ -107,7 +85,7 @@ Current status:
 -- support custom post types with per-type cross-posting settings
 -- add ability to send settings to WP-United.com for analysis/feedback (likely deferred til 1.0)
 -- check that we at least load up with Buddypress
-
+-- when connecting to phpBB, check version for compatibility
 
 ------- pie in the sky -----------
 -- draggable permissions mapping using e.g. jsPlumb
@@ -163,6 +141,12 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+
+- All old user blog settings removed to separate temporary file
+- Refactored and removed most old globals and defines
+- Showing a warning in settings panel if new users can'tbe created in phpBB due to permissions prolems
+- removed phpBB/WordPress master option
+- cleaned up first user mapper tab wording
 - Hacks for serializing $wpUnited now removed, $wpUnited now decorates itself appropriately with a self-loading WPU_Settings object that can be stored in phpBB or created in WordPress.
 - Old integrator and template-integrator cleaned up. Everythign moved out of integrator.php and either into wordpress-runner or template-integrator.php. Global scope no longer required or expected.
 - removed globally set actions defines and internalised logic into $wpUnited class

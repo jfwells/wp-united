@@ -1034,15 +1034,14 @@ function wpu_settings_page() {
 									echo '<div id="wpuintegsetupstatus" class="highlight"><h4>' . __('Current status:') . '</h4>';
 									echo '<ul><li><strong>' . __('phpBB groups that can automatically integrate: ') . '</strong>' . $integratedGroups . '</li>';
 									echo '<li><strong>' . __('New WordPress users can be given phpBB accounts? ') . '</strong>' . $newUsersCan . '</li></ul>';
-									echo '<p><small><em>' . __('Users are integrated according to WP-United permissions in phpBB. For more information and to change these, see <a href="admin.php?page=wpu-user-mapper">user Mapping &rarr; phpBB Permissions</a>.') . '</p></small></em></div>';
+									echo '<p><small><em>' . __('Users are integrated according to WP-United permissions in phpBB. For more information and to change these, see <a href="admin.php?page=wpu-user-mapper">User Mapping &rarr; New User Permissions</a>.') . '</p></small></em></div>';
 								}
 							?>
 
 							<h3>Integrate logins?</h3>
-							<p>This will enable some or all of your users to have a seamless session across both phpBB and WordPress. If they are logged in to one, they will be logged in to the other. Accounts will be created in the respective part of the site as needed. Note that you will need to set permissions in the User Mapper section that will appear once this option is enabled. By default, only the phpBB founder user is integrated.</p>
+							<p>This will enable some or all of your users to have a seamless session across both phpBB and WordPress. If they are logged in to one, they will be logged in to the other. Accounts will be created in the respective part of the site as needed. Note that you will need to set permissions in the User Mapper section that will appear once this option is enabled. Otherwise, by default, only the phpBB founder user is integrated.</p>
 							
 
-							
 							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if($wpUnited->get_setting('integrateLogin')) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 							
 							<div id="wpusettingsxpost" class="subsettings">
