@@ -417,9 +417,11 @@ function wpu_user_mapper() {
 						$groupData[$row['group_id']] = array(
 							'type' 						=> 	($row['group_type'] == GROUP_SPECIAL) ? __('Built-In') : __('User-Defined'),
 							'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
+							'db_name'					=>	$row['group_name'],
 							'total_members' 	=> 	$row['count'],
 							'url'							=>	$phpbbForum->url . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
 						);
+
 						if($groupData[$row['group_id']]['type'] == __('User-Defined')) {
 							$numUserDefined++;
 						}
@@ -447,7 +449,7 @@ function wpu_user_mapper() {
 								<tbody>
 								<?php
 								$it = 0;
-								$newUserGroupNames = $phpbbForum->get_newuser_group;
+								$newUserGroups = $phpbbForum->get_newuser_group();
 								foreach ($groupData as $group_id => $row) {
 									if($row['type'] == $type) {
 										
@@ -455,7 +457,7 @@ function wpu_user_mapper() {
 										
 										?>
 										<tr <?php echo $class; ?>>
-											<td><p><?php echo $row['name']; if(in_array($row['name'], $newUserGroupNames)) echo '<span style="color: red;">*</span>'; ?><br />
+											<td><p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?><br />
 											
 											<small><a class="wpuacppopup" href="<?php echo $row['url']; ?>" title = "<?php _e('This will open in a popup panel'); ?>"><?php _e('Edit Group Permissions'); ?></a></small></p></td>
 											<td><?php echo $row['total_members']; ?></td>
