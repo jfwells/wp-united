@@ -127,9 +127,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$this->set_last_run('working');
 		
 			require_once($this->get_plugin_path() . 'widgets.php');
-			require_once($this->get_plugin_path() . 'widgets2.php');
-			
-			//add_action('widgets_init', 'wpu_widgets_init_old');
 			add_action('widgets_init', 'wpu_widgets_init');
 		
 		}
