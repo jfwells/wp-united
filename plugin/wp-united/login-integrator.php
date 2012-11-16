@@ -400,7 +400,8 @@ function wpu_assess_newuser_perms() {
 
 	$groups = $phpbbForum->get_newuser_group();
 	
-	return wpu_assess_perms($groups);
+	return wpu_assess_perms($groups, true);
+
 }
 
 /**
@@ -537,13 +538,21 @@ function wpu_get_perms($groupList = '') {
 	
 }
 
-
-function wpu_assess_perms($groupList = '') {
+/**
+ * Assess permissions for a group or groups, returning an array of groups and "Yes" permissions.
+ * @param mixed array|empty string $groupList, the groups to check
+ * @param bool $singleUser, all these groups belong to a single user, so remove any permissions from all groups if a "Never" is found.
+ * @return aray
+ */
+function wpu_assess_perms($groupList = '', $singleUser = false;) {
 	
 	$setPerms = wpu_get_perms($groupList);
 	$perms = wpu_permissions_list();
 								
 	$integratedGroups = array();
+	$nevers = array();
+	$yeses = array();
+	$results = array();
 	if(sizeof($setPerms)) {
 		
 		foreach($setPerms as $groupName => $permList) { 
@@ -555,15 +564,27 @@ function wpu_assess_perms($groupList = '') {
 						$foundItem = true;
 						if($permItem['setting'] == ACL_NEVER) {
 							$canIntegrate = false;
+							$nevers[] = $permText;
+						} else {
+							$yeses[] = $permText;
 						}
 					}
 				}
 				if($foundItem && $canIntegrate) { 
 					$currLevel = $permText;
 				}
+				if($singleUser) {
+					foreach($yeses as $yes) {
+						if(!in_array($yes, $nevers)) {
+							$results[] = $yes;
+						}
+					}
+				}
 			}
 			if(!empty($currLevel)) {
-				$integratedGroups[] = $groupName;
+				if( (!$singleUser) || ($singleUser && sizeof($results)) ) {
+					$integratedGroups[] = $groupName;
+				}
 			}
 		}	
 		
