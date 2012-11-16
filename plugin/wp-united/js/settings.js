@@ -364,6 +364,7 @@ function setupUserMapperPage() {
 		}
 	});		
 	setupAcpPopups();
+	$('.wpuwhatis').button();
 	
 	/**
 	 * Delegates actions via a single event listener (to improve performance)
