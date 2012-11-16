@@ -60,7 +60,6 @@ Current status:
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
 
 ---- widgets --------
--- finish moving widgets from widgets1 to widgets2
 -- add username colours to topics, posts & loginuserinfo widget
 -- login can use ajax->refresh with bidi integration (but still logs into phpBB)
 -- other widget suggestions from forum
@@ -141,7 +140,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
-
+- All widgets now use new API
 - All old user blog settings removed to separate temporary file
 - Refactored and removed most old globals and defines
 - Showing a warning in settings panel if new users can'tbe created in phpBB due to permissions prolems
