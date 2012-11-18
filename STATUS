@@ -7,7 +7,6 @@ Current status:
 
 ---- user integration ---------
 -- Use wpu_set_newuser_role to retain roles of new users by implementing phpBB permissions for them if their group role is different.
--- ensure phpbb_userLogin and userId are removed when mapping is broken.
 -- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
 -- on login (in WP or phpBB), also check username of integrated user if different and login failed
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
@@ -27,7 +26,6 @@ Current status:
 
 ----- panel general --------
 -- Check user mapper CSS, and that it is always clickable
--- once settings panels are ready, split into separate files in subfolder (?)
 -- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
 -- add plugin activate action that describes next steps in bubble
 -- integrate phpBB ACP link into dashboard dropdown & menu

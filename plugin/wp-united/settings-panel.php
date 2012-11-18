@@ -105,7 +105,7 @@ function wpu_settings_menu() {
 		
 		
 	// only show other menu items if WP-United is set up
-	if($wpUnited->get_last_run() == 'working') {
+	if($wpUnited->get_last_run() == 'working' && $wpUnited->is_enabled()) {
 		add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
 
 			if($wpUnited->get_setting('integrateLogin')) {
@@ -258,28 +258,36 @@ function wpu_setup_menu() {
 			$needPreview = true;
 		}
 	}
-				
+		
 	$buttonDisplay = 'display: block;';
 	
-	switch($wpUnited->get_last_run()) {
-		case 'working':
-			$statusText = __('OK');
-			$statusColour = "updated allok";
-			$statusDesc =  __('WP-United is connected and working.');
-			$buttonDisplay = 'display: none;';
-			break;
-		case 'connected':
-			$statusText = __('Connected, but not ready or disabled due to errors');
-			$statusColour = "updated highlight allok";
-			$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
-			break;
-		default:
-			$statusText = __('Not Connected');
+	if(!$wpUnited->is_enabled() && ($wpUnited->get_last_run() == 'working')) {
+			$statusText = __('Disabled');
 			$statusColour = "error";
-			$statusDesc = _('WP-United is not connected yet. Select your forum location below and then click &quot;Connect&quot;') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.');
-			$buttonDisplay = (!$wpUnited->is_enabled()) ? 'display: block;' : 'display: none;';
-	}
+			$statusDesc = _('WP-United is disabled. Select your forum location below and then click &quot;Connect&quot;') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.');
+			$buttonDisplay = 'display: block;';		
+	} else {
 	
+		switch($wpUnited->get_last_run()) {
+			case 'working':
+				$statusText = __('OK');
+				$statusColour = "updated allok";
+				$statusDesc =  __('WP-United is connected and working.');
+				$buttonDisplay = 'display: none;';
+				break;
+			case 'connected':
+				$statusText = __('Connected, but not ready or disabled due to errors');
+				$statusColour = "updated highlight allok";
+				$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
+				break;
+			default:
+				$statusText = __('Not Connected');
+				$statusColour = "error";
+				$statusDesc = _('WP-United is not connected yet. Select your forum location below and then click &quot;Connect&quot;') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.');
+				$buttonDisplay = (!$wpUnited->is_enabled()) ? 'display: block;' : 'display: none;';
+		}
+	}
+		
 	if(!is_writable($wpUnited->get_plugin_path() . 'cache/')) {
 		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpUnited->get_plugin_path() . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
 	}
@@ -293,7 +301,7 @@ function wpu_setup_menu() {
 	
 			
 	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . '</strong>';
-	if($wpUnited->get_last_run() == 'working') {
+	if($wpUnited->get_last_run() == 'working' && $wpUnited->is_enabled()) {
 		echo '<button style="float: right;margin-bottom: 6px;" class="button-secondary" onclick="return wpu_manual_disable(\'wp-united-setup\');">Disable</button>';
 	}
 	echo "<br /><br />$statusDesc";

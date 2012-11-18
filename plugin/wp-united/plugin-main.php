@@ -96,13 +96,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
 		$this->process_adminpanel_actions();
 
-
-		if(!$this->is_enabled()) { 
-			$this->set_last_run('disconnected');
-			return;
-		} else {
-			$this->get_last_run();
-		}		
+	
 		
 		// disable login integration if we couldn't override pluggables
 		if(defined('WPU_CANNOT_OVERRIDE')) {
@@ -120,7 +114,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		$this->set_last_run('connected');
 
-		if($this->is_enabled()) {
+		if($this->is_enabled()) { 
 		
 			$this->load_phpbb();
 			
@@ -166,6 +160,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		//if WPU was disabled, we need to initialise phpBB first
 		// phpbbForum is already inited, however -- we just need to load
 		if (!defined('IN_PHPBB')) {
+			
+			$this->set_last_run('connected');
+			
 			$this->load_phpbb();
 		}
 	
@@ -195,11 +192,11 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	private function set_last_run($status) {
-		if($this->lastRun != $status) {
+		if($this->get_last_run() != $status) { 
 			// transitions cannot go from 'working' to 'connected'.
 			if( ($this->lastRun == 'working') && ($status == 'connected') ) {
 				return;
-			}
+			} 
 			$this->lastRun = $status;
 			update_option('wpu-last-run', $status);
 		}
@@ -210,7 +207,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if(empty($this->lastRun)) {
 			$this->lastRun = get_option('wpu-last-run');
 		}
-		
+
 		 return $this->lastRun;
 	}
 	

@@ -200,12 +200,12 @@ class WP_United_Plugin_Base {
 	}
 	
 	
-	public function is_enabled() {
+	public function is_enabled() { 
 		
 		if (defined('WPU_DISABLE') && WPU_DISABLE) { 
 			return false;
 		}
-	
+
 		if($this->is_wordpress_loaded()) {
 			$this->settings->enabled = get_option('wpu-enabled'); 
 		}
