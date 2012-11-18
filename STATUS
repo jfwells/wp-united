@@ -14,7 +14,7 @@ Current status:
 
 
 ------ cross-posting and comments ---------
--- Add cross-posting permissions to an additional column in the permissions tab (?)
+-- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
 -- move cross-posting from per-topic to per-post (and topic!) to reduce query load
 -- check excerpt/full settings are working
 -- rework html-to-bbcode translation for images with captions
