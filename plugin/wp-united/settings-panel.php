@@ -92,6 +92,7 @@ function wpu_settings_menu() {
 			wp_enqueue_script('filetree', $wpUnited->get_plugin_url() . 'js/filetree.js', array('jquery'), false, false);				
 			wp_enqueue_script('colorbox', $wpUnited->get_plugin_url() . 'js/colorbox-min.js', array('jquery'), false, false);				
 			wp_enqueue_script('splitter', $wpUnited->get_plugin_url() . 'js/splitter-min.js', array('jquery'), false, false);				
+			wp_enqueue_script('jsplumb', $wpUnited->get_plugin_url() . 'js/jsplumb-wpu-min.js', array('jquery', 'jquery-ui-core'), false, false);				
 			wp_enqueue_script('wpu-settings', $wpUnited->get_plugin_url() . 'js/settings.js', array('jquery', 'jquery-ui-core'), false, false);				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-support'))) {
