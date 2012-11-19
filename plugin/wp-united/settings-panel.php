@@ -458,10 +458,20 @@ function wpu_user_mapper() {
 						<?php if(($type == __('Built-In')) || ($numUserDefined > 0)) { ?>
 							<p><?php printf(__('Use the quick links below to change the permissions in a popup panel, or visit the %1$sphpBB ACP%2$s for more options. To set the permissions, select whether you want User, Moderator or Administrator permissions, then choose "Advanced Permissions" to see the WP-United tab.'), '<a href="' . append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id)  .'">', '</a>'); ?></p>
 
-
-
-
 							
+
+
+						  <table class="widefat fixed">
+                                                               <?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
+                                                                       <<?php echo $tblHead; ?>>
+                                                                               <tr class="thead">
+                                                                                       <th scope="col"><?php _e('phpBB Group'); ?></th>
+                                                                                       <th scope="col"><?php _e('WordPress Role'); ?></th>
+                                                                               </tr>
+                                                                       </<?php echo $tblHead; ?>>
+                                                               <?php } ?>
+                                                               <tbody>
+							<tr><td colspan="2">
 							
 							<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
 								<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
@@ -471,11 +481,11 @@ function wpu_user_mapper() {
 									if($row['type'] == $type) {
 										
 										?>
-										<div>
+										<div class="wpuplumbgroupl ui-widget-header ui-corner-all">
 											<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
-											<?php echo '<strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?></p>
+											<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?></p>
 										</div>
-										<div>
+										<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
 										<?php 
 										if(isset($permSettings[$row['name']])) {
 											// search from bottom-up in the standard wp-united permissions
@@ -513,13 +523,13 @@ function wpu_user_mapper() {
 										} else {
 											echo '<p style="font-weight: bold; text-align: center;">' . __('No WP-United permissions set') . '</p>';
 										}
-										</div>
+									?>	</div> <?php
 									}
 								} ?>
-
+							<br style="clear: both;" />
 							</div>
 
-
+							</td></tr></table>
 
 
 							

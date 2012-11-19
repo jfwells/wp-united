@@ -1047,3 +1047,24 @@ div.subsettings div.subsettings {
 #wpuintegsetupstatus h4 {
 	margin: 3px 0;
 }
+
+.wpuplumbgroupl, .wpuplumbgroupr {
+        width: 250px;
+        border: 1px solid #cccccc;
+        padding: 3px;
+        margin: 8px 0 8px 8px;
+}
+
+.wpuplumbgroupl {
+	float: left;
+	clear: left;
+}
+
+.wpuplumbgroupr {
+	float: right;
+}
+
+.wpuplumbcanvas {
+	border: 1px solid #cccccc;
+	background-color: #eeeeee;
+}
