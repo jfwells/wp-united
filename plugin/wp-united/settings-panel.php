@@ -460,6 +460,9 @@ function wpu_user_mapper() {
 
 							
 
+							
+							
+							
 
 							<table class="widefat fixed">
 							   <?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
@@ -524,18 +527,21 @@ function wpu_user_mapper() {
 												}
 											?> 
 											</div>
-											<div class="wpuplumbright">
-												
-											<?php foreach($perms as $permSetting => $wpName) { ?>
-
-												<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
-													<?php echo $wpName; ?>
-												</div>
-											<?php } ?>
-											</div>
+											
 											<?php
 										}
 									} ?>
+									</div>
+									<div class="wpuplumbright">
+												
+									<?php foreach($perms as $permSetting => $wpName) { ?>
+
+										<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
+											<?php echo $wpName; ?>
+										</div>
+									<?php } ?>
+									</div>
+
 								<br style="clear: both;" />
 								</div>
 
