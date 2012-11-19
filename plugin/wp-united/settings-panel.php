@@ -461,73 +461,83 @@ function wpu_user_mapper() {
 							
 
 
-						  <table class="widefat fixed">
-                                                               <?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
-                                                                       <<?php echo $tblHead; ?>>
-                                                                               <tr class="thead">
-                                                                                       <th scope="col"><?php _e('phpBB Group'); ?></th>
-                                                                                       <th scope="col"><?php _e('WordPress Role'); ?></th>
-                                                                               </tr>
-                                                                       </<?php echo $tblHead; ?>>
-                                                               <?php } ?>
-                                                               <tbody>
-							<tr><td colspan="2">
+							<table class="widefat fixed">
+							   <?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
+									   <<?php echo $tblHead; ?>>
+											   <tr class="thead">
+													   <th scope="col"><?php _e('phpBB Group'); ?></th>
+													   <th scope="col" style="text-align: right;"><?php _e('WordPress Role'); ?></th>
+											   </tr>
+									   </<?php echo $tblHead; ?>>
+							   <?php } ?>
+							   <tbody><tr><td colspan="2">
 							
-							<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
-								<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
-								<?php
-								$newUserGroups = $phpbbForum->get_newuser_group();
-								foreach ($groupData as $group_id => $row) {
-									if($row['type'] == $type) {
-										
-										?>
-										<div class="wpuplumbgroupl ui-widget-header ui-corner-all">
-											<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
-											<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?></p>
-										</div>
-										<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
-										<?php 
-										if(isset($permSettings[$row['name']])) {
-											// search from bottom-up in the standard wp-united permissions
-											$nevers =$yes =  array();
-											foreach($perms as $perm => $permText)  {
-												foreach($permSettings[$row['name']] as $permSetting) {
-													if($permSetting['perm'] == $perm) {
-														if($permSetting['setting'] == ACL_NEVER) {
-															$nevers[] = array(
-																'perm' 		=>	$permText,
-																'rolename' 	=>	$permSetting['rolename'],
-																'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
-															);
-														} elseif($permSetting['setting'] == ACL_YES) {
-															$yes = array(
-																'perm' 		=>	$permText,
-																'rolename' 	=>	$permSetting['rolename'],
-																'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
-															);
+								<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
+									<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
+									
+									<div class="wpuplumbleft">
+									<?php
+									$newUserGroups = $phpbbForum->get_newuser_group();
+									foreach ($groupData as $group_id => $row) {
+										if($row['type'] == $type) {
+											
+											?>
+											<div class="wpuplumbgroupl ui-widget-header ui-corner-all">
+												<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
+												<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?></p>
+											
+												<?php 
+												if(isset($permSettings[$row['name']])) {
+													// search from bottom-up in the standard wp-united permissions
+													$nevers =$yes =  array();
+													foreach($perms as $perm => $permText)  {
+														foreach($permSettings[$row['name']] as $permSetting) {
+															if($permSetting['perm'] == $perm) {
+																if($permSetting['setting'] == ACL_NEVER) {
+																	$nevers[] = array(
+																		'perm' 		=>	$permText,
+																		'rolename' 	=>	$permSetting['rolename'],
+																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
+																	);
+																} elseif($permSetting['setting'] == ACL_YES) {
+																	$yes = array(
+																		'perm' 		=>	$permText,
+																		'rolename' 	=>	$permSetting['rolename'],
+																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
+																	);
+																}
+															}
 														}
 													}
+													foreach($nevers as $never) {
+														$roleText = (!empty($never['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $never['rolename'], '<a href="' . $never['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
+														//echo '<p class="wpupermnever">' . sprintf(__('Can NEVER integrate as a WordPress %s'), __($never['perm'])) . $roleText . '</p>';
+													}
+													if(sizeof($yes)) {
+														$roleText = (!empty($yes['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $yes['rolename'], '<a href="' . $yes['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
+														//echo '<p class="wpupermyes">' . sprintf(__('Can integrate as a WordPress %s'), __($yes['perm'])) . $roleText . '</p>';
+													}
+																					
+																	
+												} else {
+													//echo '<p style="font-weight: bold; text-align: center;">' . __('No WP-United permissions set') . '</p>';
 												}
-											}
-											foreach($nevers as $never) {
-												$roleText = (!empty($never['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $never['rolename'], '<a href="' . $never['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
-												echo '<p class="wpupermnever">' . sprintf(__('Can NEVER integrate as a WordPress %s'), __($never['perm'])) . $roleText . '</p>';
-											}
-											
-											if(sizeof($yes)) {
-												$roleText = (!empty($yes['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $yes['rolename'], '<a href="' . $yes['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
-												echo '<p class="wpupermyes">' . sprintf(__('Can integrate as a WordPress %s'), __($yes['perm'])) . $roleText . '</p>';
-											}
-																			
-															
-										} else {
-											echo '<p style="font-weight: bold; text-align: center;">' . __('No WP-United permissions set') . '</p>';
+											?> 
+											</div>
+											<div class="wpuplumbright">
+												
+											<?php foreach($permSettings[$row['name']] as $permSetting => $wpName) { ?>
+
+												<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
+													<?php echo $permName; ?>
+												</div>
+											<?php } ?>
+											</div>
+											<?php
 										}
-									?>	</div> <?php
-									}
-								} ?>
-							<br style="clear: both;" />
-							</div>
+									} ?>
+								<br style="clear: both;" />
+								</div>
 
 							</td></tr></table>
 
