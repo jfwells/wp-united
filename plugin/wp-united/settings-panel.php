@@ -450,7 +450,9 @@ function wpu_user_mapper() {
 					
 					$perms = wpu_permissions_list();
 					$permSettings = wpu_get_perms(); 
-
+					$linkages = array();
+					$elsL = array();
+					$elsR = array();
 					$typeId = 0;
 					foreach ($groupTypes as $type) { 
 						$typeId++; ?>
@@ -460,7 +462,13 @@ function wpu_user_mapper() {
 
 							
 
+							<?php  
 							
+							$effectivePerms = wpu_get_wp_role_for_group();
+							$linkages[$typeId] = array();
+							$elsL[$typeId] = array();
+							$elsR[$typeId] = array();
+							?>
 							
 							
 
@@ -478,54 +486,28 @@ function wpu_user_mapper() {
 								<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
 									<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
 									
+									<?php echo 'TODO: FIX THIS FOR NEWUSERS: '; print_r(wpu_get_wp_role_for_group()); ?>
+									
+									
 									<div class="wpuplumbleft">
 									<?php
 									$newUserGroups = $phpbbForum->get_newuser_group();
 									foreach ($groupData as $group_id => $row) {
 										if($row['type'] == $type) {
-											
+											$blockIdL = "wpu-perm-l-{$typeId}-{$row['db_name']}";
+											$elsL[$typeId][] = $blockIdL;
 											?>
-											<div class="wpuplumbgroupl ui-widget-header ui-corner-all">
+											
+											<div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
 												<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
 												<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?></p>
 											
 												<?php 
-												if(isset($permSettings[$row['name']])) {
-													// search from bottom-up in the standard wp-united permissions
-													$nevers =$yes =  array();
-													foreach($perms as $perm => $permText)  {
-														foreach($permSettings[$row['name']] as $permSetting) {
-															if($permSetting['perm'] == $perm) {
-																if($permSetting['setting'] == ACL_NEVER) {
-																	$nevers[] = array(
-																		'perm' 		=>	$permText,
-																		'rolename' 	=>	$permSetting['rolename'],
-																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
-																	);
-																} elseif($permSetting['setting'] == ACL_YES) {
-																	$yes = array(
-																		'perm' 		=>	$permText,
-																		'rolename' 	=>	$permSetting['rolename'],
-																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
-																	);
-																}
-															}
-														}
-													}
-													foreach($nevers as $never) {
-														$roleText = (!empty($never['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $never['rolename'], '<a href="' . $never['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
-														//echo '<p class="wpupermnever">' . sprintf(__('Can NEVER integrate as a WordPress %s'), __($never['perm'])) . $roleText . '</p>';
-													}
-													if(sizeof($yes)) {
-														$roleText = (!empty($yes['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $yes['rolename'], '<a href="' . $yes['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
-														//echo '<p class="wpupermyes">' . sprintf(__('Can integrate as a WordPress %s'), __($yes['perm'])) . $roleText . '</p>';
-													}
-																					
-																	
-												} else {
-													//echo '<p style="font-weight: bold; text-align: center;">' . __('No WP-United permissions set') . '</p>';
-												}
-											?> 
+												
+												if(isset($effectivePerms[$row['name']])) {
+													$linkages[$typeId][$blockIdL] = "wpu-perm-r-{$typeId}-{$effectivePerms[$row['name']]}";
+												} 
+												?> 
 											</div>
 											
 											<?php
@@ -534,9 +516,10 @@ function wpu_user_mapper() {
 									</div>
 									<div class="wpuplumbright">
 												
-									<?php foreach($perms as $permSetting => $wpName) { ?>
-
-										<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
+									<?php foreach($perms as $permSetting => $wpName) {
+										$blockIdR = "wpu-perm-r-{$typeId}-{$wpName}";
+										$elsR[$typeId][] = $blockIdR;  ?>
+										<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
 											<?php echo 'WordPress ' . $wpName; ?>
 										</div>
 									<?php } ?>
@@ -549,8 +532,7 @@ function wpu_user_mapper() {
 
 
 							
-							
-							
+
 							
 							
 							
@@ -641,6 +623,89 @@ function wpu_user_mapper() {
 					}
 					$phpbbForum->background();
 				?>
+				
+				
+				
+				<script type="text/javascript">
+				// <[CDATA[
+					
+				
+				
+				$(function() {
+					
+					jsPlumb.importDefaults({
+						DragOptions : { cursor: 'pointer', zIndex:2000 },
+						PaintStyle : { strokeStyle:'#666' },
+						EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
+						Endpoint : "Rectangle",
+						Anchors : ["TopCenter", "TopCenter"],
+						Container : $("body")
+					});	
+					
+					var wpuDropOptions = {
+						tolerance:'touch',
+						hoverClass:'dropHover',
+						activeClass:'dragActive'
+					};
+					
+					var wpuStartPoint = {
+						endpoint:["Dot", { radius:15 }],
+						paintStyle:{ fillStyle:'#000061' },
+						isSource:true,
+						scope:"green dot",
+						connectorStyle:{ strokeStyle:'#000061', lineWidth:8 },
+						connector: ["Bezier", { curviness:63 } ],
+						maxConnections:1,
+						dropOptions : wpuDropOptions
+					};
+					var wpuEndPoint = {
+						endpoint:["Dot", { radius:15 }],
+						paintStyle:{ fillStyle:'#000061' },
+						scope:"green dot",
+						connectorStyle:{ strokeStyle:'#000061', lineWidth:6 },
+						connector: ["Bezier", { curviness:63 } ],
+						maxConnections:10,
+						isTarget:true,
+						dropOptions : wpuDropOptions
+					};					
+
+					<?php 
+						foreach($elsL as $typeId => $els) {
+							foreach($els as $el) { 
+								$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
+								var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuStartPoint);
+							<?php }
+						}
+						
+						foreach($elsR as $typeId => $els) {
+							foreach($els as $el) { 
+								$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
+								var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuEndPoint);
+							<?php }
+						}
+						
+						foreach($linkages as $typeId => $linkage) {
+							foreach($linkage as $linkL => $linkR) {
+								$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
+								$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR))	?>		
+								
+								jsPlumb.connect({
+									source: <?php echo $varL; ?>,
+									target: <?php echo $varR; ?>
+								});
+								
+							<?php }
+						}	?>							
+							
+					
+				});
+				
+				
+				
+				// ]]>
+				</script>				
+				
+				
 			</div>
 			<div id="wpumaptab-map">
 				<p><?php _e('All your WordPress or phpBB users are shown on the left below, together with their integration status. On the right, you can see their corresponding integrated user, or &ndash; if they are not integrated &ndash; some suggestions for users they could integrate to.'); ?></p>
@@ -1145,7 +1210,7 @@ function wpu_settings_page() {
 							
 							<?php
 								if($wpUnited->get_setting('integrateLogin')) {
-									$setPerms = wpu_assess_perms();
+									$setPerms = array_keys(wpu_assess_perms());
 									if(sizeof($setPerms)) {
 										$integratedGroups = implode(', ', $setPerms);
 									} else {

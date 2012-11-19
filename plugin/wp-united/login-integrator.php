@@ -544,19 +544,22 @@ function wpu_get_perms($groupList = '') {
  * @param bool $singleUser, all these groups belong to a single user, so remove any permissions from all groups if a "Never" is found.
  * @return aray
  */
+ 
+ // TODO: SIMPLIFY LOOP LOGIC HERE
 function wpu_assess_perms($groupList = '', $singleUser = false) {
 	
 	$setPerms = wpu_get_perms($groupList);
 	$perms = wpu_permissions_list();
 								
 	$integratedGroups = array();
-	$nevers = array();
-	$yeses = array();
-	$results = array();
+
 	if(sizeof($setPerms)) {
 		
 		foreach($setPerms as $groupName => $permList) { 
 			$currLevel = '';
+			$nevers = array();
+			$yeses = array();
+			$results = array();
 			foreach($perms as $wpLevel => $permText) { 
 				$canIntegrate = true; $foundItem = false;
 				foreach($permList as $permItem) {
@@ -575,7 +578,7 @@ function wpu_assess_perms($groupList = '', $singleUser = false) {
 				}
 				if($singleUser) {
 					foreach($yeses as $yes) {
-						if(!in_array($yes, $nevers)) {
+						if(!in_array($yes, $nevers) && !in_array($yes, $results) ) {
 							$results[] = $yes;
 						}
 					}
@@ -583,7 +586,7 @@ function wpu_assess_perms($groupList = '', $singleUser = false) {
 			}
 			if(!empty($currLevel)) {
 				if( (!$singleUser) || ($singleUser && sizeof($results)) ) {
-					$integratedGroups[] = $groupName;
+					$integratedGroups[$groupName] = $results;
 				}
 			}
 		}	
@@ -591,9 +594,23 @@ function wpu_assess_perms($groupList = '', $singleUser = false) {
 	}
 	return $integratedGroups;
 	
+
+}
+
+function wpu_get_wp_role_for_group($groupList = '') {
 	
+	$permArr = wpu_assess_perms($groupList, true);
+	
+	$result = array();
+	// get the highest role  for the given group(s), as nothing else really matters
+	foreach($permArr as $group => $roleArr) {
+		$result[$group] = $roleArr[sizeof($roleArr) - 1];
+	}
+	
+	return $result;
 	
 }
+
 
 /**
  * Gets the integration ID for the current phpBB user, or for a provided phpBB user ID
