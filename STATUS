@@ -7,7 +7,6 @@ Current status:
 
 ---- user integration ---------
 -- Use wpu_set_newuser_role to retain roles of new users by implementing phpBB permissions for them if their group role is different.
--- add warning to settings-panel if WP & phpBB cookie domains or paths do not overlap
 -- on login (in WP or phpBB), also check username of integrated user if different and login failed
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
 -- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
@@ -25,7 +24,6 @@ Current status:
 
 
 ----- panel general --------
--- Check user mapper CSS, and that it is always clickable
 -- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
 -- add plugin activate action that describes next steps in bubble
 -- integrate phpBB ACP link into dashboard dropdown & menu
@@ -74,6 +72,7 @@ Current status:
 
 
 --------- possible for future versions ---------------
+-- increase cookie domain check to also check matching of cookie paths
 -- sync avatar to phpBB as 'if gravatar' option?? Can likely leave to next version
 -- Add user lookup to permissions mapping tab
 -- Add pre-mod routines and scratch/plugins loader folder for plugins or premium options
@@ -138,6 +137,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- Added more panel warnings, now also checks that wordpress and phpBB cookie paths overlap.
 - All widgets now use new API
 - All old user blog settings removed to separate temporary file
 - Refactored and removed most old globals and defines

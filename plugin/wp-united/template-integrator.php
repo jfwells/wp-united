@@ -357,15 +357,7 @@ function wpu_output_page($content) {
 	}
 	
 
-	
-	//optional bandwidth tweak -- this section does a bit of minor extra HTML compression by stripping white space.
-	// It is unnecessary for gzipped setups, and might be liable to kill some JS or CSS, so it is hidden in options.php
-	if ( (defined('WPU_MAX_COMPRESS')) && (WPU_MAX_COMPRESS) && !$wpuNoHead ) {
-		$search = array('/\>[^\S ]+/s',	'/[^\S ]+\</s','/(\s)+/s');
-		$replace = array('>', '<', '\\1');
-		$content = preg_replace($search, $replace, $content);
-	}	
-	
+
 	echo $content; 
 	// Finally -- clean up
 	define('WPU_FINISHED', true);

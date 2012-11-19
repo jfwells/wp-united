@@ -36,14 +36,6 @@ if ( !defined('IN_PHPBB') && !(defined('ABSPATH')) ) {
  */
 define('WPU_DISABLE', FALSE);
 
-/**
- *UNINSTALL WP-UNITED
- * If you want to uninstall WP-United, you need to set this to TRUE, and then run the "Uninstall WP-United"
- * option in the WP-United tab in the phpBB ACP.
- * 
- * If you change your mind, set this back to FALSE and WP-United will re-install itself
- */
-define('WPU_UNINSTALL', FALSE);
 
 /**
  * USE TEMPLATE CACHE?
@@ -129,17 +121,6 @@ define('WPU_SHOW_TAGCATS', TRUE);
  */
 define('WPU_INTEG_DEFAULT_STYLE', FALSE);
 
-
-
-/**
- * COMPRESS HTML OUTPUT FURTHER?
- * This section does a bit of minor extra HTML compression by stripping white space, at the expense of a little processing time.
- * Doesn't yield much (about 5% reduction at the very most) if gzip is on. If gzip is off, it makes a significant difference. 
- * However, it CAN break some page output, especially uncompressed JavaScript in the page head. 
- * It's off by default, but you could turn it on by changing FALSE to TRUE.
- * Note that this will make your page source a little harder to read -- andis therefore not recommended if you're still building and debugging your site.
- */
-define('WPU_MAX_COMPRESS', FALSE);
 
 
 /**

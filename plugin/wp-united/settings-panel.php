@@ -287,19 +287,9 @@ function wpu_setup_menu() {
 				$buttonDisplay = (!$wpUnited->is_enabled()) ? 'display: block;' : 'display: none;';
 		}
 	}
-		
-	if(!is_writable($wpUnited->get_plugin_path() . 'cache/')) {
-		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpUnited->get_plugin_path() . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
-	}
-
-	if( defined('WPU_CANNOT_OVERRIDE') ) {
-		echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United user integration is unavailable.</p></div>';
-	}
-	if( defined('DEBUG') || defined('DEBUG_EXTRA') ) {
-		echo '<div id="debugerror" class="error highlight"><p>WARNING: phpBB Debug is set. To prevent notices from showing due to switching between phpBB and WordPress, delete or comment out the two DEBUG lines from your phpBB\'s config.php. If this is a live site, debug MUST be disabled.</p></div>';
-	}
 	
-			
+	wpu_panel_warnings();
+		
 	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s'), $statusText) . '</strong>';
 	if($wpUnited->get_last_run() == 'working' && $wpUnited->is_enabled()) {
 		echo '<button style="float: right;margin-bottom: 6px;" class="button-secondary" onclick="return wpu_manual_disable(\'wp-united-setup\');">Disable</button>';
@@ -352,6 +342,26 @@ function wpu_setup_menu() {
 
 		
 <?php
+
+}
+
+function wpu_panel_warnings() {
+	global $wpUnited, $phpbbForum;
+	
+	if(!is_writable($wpUnited->get_plugin_path() . 'cache/')) {
+		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpUnited->get_plugin_path() . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
+	}
+
+	if( defined('WPU_CANNOT_OVERRIDE') ) {
+		echo '<div id="pluggableerror" class="error highlight"><p>' . __('WARNING: Another plugin is overriding WordPress login. WP-United user integration is unavailable.') . '</p></div>';
+	}
+	if( defined('DEBUG') || defined('DEBUG_EXTRA') ) {
+		echo '<div id="debugerror" class="error highlight"><p>' . __('WARNING: phpBB Debug is set. To prevent notices from showing due to switching between phpBB and WordPress, delete or comment out the two DEBUG lines from your phpBB\'s config.php. If this is a live site, debug MUST be disabled.') . '</p></div>';
+	}
+	
+	if($wpUnited->is_enabled() && $wpUnited->get_setting('integrateLogins') && defined('COOKIE_DOMAIN') && ($phpbbForum->get_cookie_domain() != COOKIE_DOMAIN)) {
+		echo '<div id="debugerror" class="error highlight"><p>' . __('WARNING: phpBB and WordPress cookie domains do not match! For user integration to work properly, please edit the cookie domain in phpBB or set the WordPress COOKIE_DOMAIN so that both phpBB &amp; WordPress can set cookies for each other.') . '</p></div>';
+	}
 
 }
 
@@ -987,12 +997,7 @@ function wpu_settings_page() {
 				}
 			}
 			
-			if( defined('WPU_CANNOT_OVERRIDE') ) {
-				echo '<div id="pluggableerror" class="error highlight"><p>WARNING: Another plugin is overriding WordPress login. WP-United user integration is unavailable.</p></div>';
-			}
-			if( defined('DEBUG') || defined('DEBUG_EXTRA') ) {
-				echo '<div id="debugerror" class="error highlight"><p>WARNING: phpBB Debug is set. To prevent notices from showing due to switching between phpBB and WordPress, delete or comment out the two DEBUG lines from your phpBB\'s config.php. If this is a live site, debug MUST be disabled.</p></div>';
-			}
+			wpu_panel_warnings();
 			
 			if($needPreview) {
 				wpu_reload_preview();

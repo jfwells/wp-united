@@ -414,7 +414,36 @@ class WPU_Phpbb {
 		
 		$this->restore_state($fStateChanged);
 		 
-	}	
+	}
+	
+	public function get_cookie_domain() {
+		global $config;
+		
+		if(!$this->is_phpbb_loaded()) {
+			return false;
+		}
+		
+		$fStateChanged = $phpbbForum->foreground();
+		$cookieDomain = $config['cookie_domain'];
+		$this->restore_state($fStateChanged);
+
+		return $cookieDomain;
+	}
+	
+	public function get_cookie_path() {
+		global $config;
+		
+		if(!$this->is_phpbb_loaded()) {
+			return false;
+		}
+		
+		$fStateChanged = $phpbbForum->foreground();
+		$cookieDomain = $config['cookie_path'];
+		$this->restore_state($fStateChanged);
+
+		return $cookieDomain;
+	}
+		
 	
 	/**
 	 * Logs out the current user
