@@ -1052,7 +1052,11 @@ div.subsettings div.subsettings {
         width: 250px;
         border: 1px solid #cccccc;
         padding: 3px;
-        margin: 8px 0 8px 8px;
+        margin: 8px;
+	height: 60px;
+	text-align: center;
+	vertical-align: middle;
+	
 }
 
 .wpuplumbgroupl {
@@ -1063,6 +1067,7 @@ div.subsettings div.subsettings {
 .wpuplumbgroupr {
 	float: right;
 	clear: right;
+	line-height: 48px;
 }
 
 .wpuplumbcanvas {
@@ -1073,10 +1078,12 @@ div.subsettings div.subsettings {
 .wpuplumbleft {
 	float: left;
 	width: 40%;
+	padding-left: 6px;
 }
 
 .wpuplumbright; {
 	float: right;
 	width: 40%;
+	padding-right: 6px;
 }
 
