@@ -537,7 +537,7 @@ function wpu_user_mapper() {
 									<?php foreach($perms as $permSetting => $wpName) { ?>
 
 										<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
-											<?php echo $wpName; ?>
+											<?php echo 'WordPress ' . $wpName; ?>
 										</div>
 									<?php } ?>
 									</div>

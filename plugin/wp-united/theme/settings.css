@@ -1062,9 +1062,21 @@ div.subsettings div.subsettings {
 
 .wpuplumbgroupr {
 	float: right;
+	clear: right;
 }
 
 .wpuplumbcanvas {
 	border: 1px solid #cccccc;
 	background-color: #eeeeee;
 }
+
+.wpuplumbleft {
+	float: left;
+	width: 40%;
+}
+
+.wpuplumbright; {
+	float: right;
+	width: 40%;
+}
+
