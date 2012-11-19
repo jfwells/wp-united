@@ -450,11 +450,87 @@ function wpu_user_mapper() {
 					
 					$perms = wpu_permissions_list();
 					$permSettings = wpu_get_perms(); 
-			
-					foreach ($groupTypes as $type) { ?>
+
+					$typeId = 0;
+					foreach ($groupTypes as $type) { 
+						$typeId++; ?>
 						<h4><?php echo "$type Groups"; ?></h4>
 						<?php if(($type == __('Built-In')) || ($numUserDefined > 0)) { ?>
 							<p><?php printf(__('Use the quick links below to change the permissions in a popup panel, or visit the %1$sphpBB ACP%2$s for more options. To set the permissions, select whether you want User, Moderator or Administrator permissions, then choose "Advanced Permissions" to see the WP-United tab.'), '<a href="' . append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id)  .'">', '</a>'); ?></p>
+
+
+
+
+							
+							
+							<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
+								<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
+								<?php
+								$newUserGroups = $phpbbForum->get_newuser_group();
+								foreach ($groupData as $group_id => $row) {
+									if($row['type'] == $type) {
+										
+										?>
+										<div>
+											<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
+											<?php echo '<strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?></p>
+										</div>
+										<div>
+										<?php 
+										if(isset($permSettings[$row['name']])) {
+											// search from bottom-up in the standard wp-united permissions
+											$nevers =$yes =  array();
+											foreach($perms as $perm => $permText)  {
+												foreach($permSettings[$row['name']] as $permSetting) {
+													if($permSetting['perm'] == $perm) {
+														if($permSetting['setting'] == ACL_NEVER) {
+															$nevers[] = array(
+																'perm' 		=>	$permText,
+																'rolename' 	=>	$permSetting['rolename'],
+																'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
+															);
+														} elseif($permSetting['setting'] == ACL_YES) {
+															$yes = array(
+																'perm' 		=>	$permText,
+																'rolename' 	=>	$permSetting['rolename'],
+																'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
+															);
+														}
+													}
+												}
+											}
+											foreach($nevers as $never) {
+												$roleText = (!empty($never['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $never['rolename'], '<a href="' . $never['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
+												echo '<p class="wpupermnever">' . sprintf(__('Can NEVER integrate as a WordPress %s'), __($never['perm'])) . $roleText . '</p>';
+											}
+											
+											if(sizeof($yes)) {
+												$roleText = (!empty($yes['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $yes['rolename'], '<a href="' . $yes['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
+												echo '<p class="wpupermyes">' . sprintf(__('Can integrate as a WordPress %s'), __($yes['perm'])) . $roleText . '</p>';
+											}
+																			
+															
+										} else {
+											echo '<p style="font-weight: bold; text-align: center;">' . __('No WP-United permissions set') . '</p>';
+										}
+										</div>
+									}
+								} ?>
+
+							</div>
+
+
+
+
+							
+							
+							
+							
+							
+							
+							
+
+
 							<table class="widefat fixed">
 								<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
 									<<?php echo $tblHead; ?>>
@@ -526,6 +602,12 @@ function wpu_user_mapper() {
 								} ?>
 								</tbody>
 							</table>
+
+
+
+
+
+
 							<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></small></em>
 						<?php  } else {
 							echo '<p>' . sprintf(__('No %s groups to show'), $type) . '</p>';
