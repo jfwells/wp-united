@@ -526,10 +526,10 @@ function wpu_user_mapper() {
 											</div>
 											<div class="wpuplumbright">
 												
-											<?php foreach($permSettings[$row['name']] as $permSetting => $wpName) { ?>
+											<?php foreach($perms as $permSetting => $wpName) { ?>
 
 												<div class="wpuplumbgroupr ui-widget-header ui-corner-all">
-													<?php echo $permName; ?>
+													<?php echo $wpName; ?>
 												</div>
 											<?php } ?>
 											</div>
