@@ -650,7 +650,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				// create new integrated user in phpBB to match
 				$phpbbID = wpu_create_phpbb_user($userID);
 				$justCreatedUser = $userID;
-				wpu_sync_profiles($user, $phpbbForum->fetch_userdata_for($phpbbID), 'sync');
+				wpu_sync_profiles($user, $phpbbForum->get_userdata('', $phpbbID), 'sync');
 			}
 			
 		}
@@ -667,7 +667,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$wpData = get_userdata($userId);
 			$phpbbId = wpu_get_integrated_phpbbuser($userID);
 			if($phpbbId) {
-				wpu_sync_profiles($wpData, $phpbbForum->fetch_userdata_for($phpbbId), 'wp-update'); 
+				wpu_sync_profiles($wpData, $phpbbForum->get_userdata('', $phpbbId), 'wp-update'); 
 			}
 		}
 	}

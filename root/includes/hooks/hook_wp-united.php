@@ -146,7 +146,7 @@ function wpu_execute(&$hook, $handle) {
 			$idToFetch = ($wpUnited->actions_for_another()) ? $wpUnited->actions_for_another() : $user->data['user_id'];
 
 			// have to reload data from scratch otherwise cached $user is used
-			$newUserData = $phpbbForum->fetch_userdata_for($idToFetch);
+			$newUserData = $phpbbForum->get_userdata('', $idToFetch, true);
 
 			$phpbbForum->background(); 
 			$wpUserData = get_userdata($newUserData['user_wpuint_id']);

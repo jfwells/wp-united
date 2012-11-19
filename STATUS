@@ -31,6 +31,8 @@ Current status:
 -- add deinstallation routine using ajax front-end so it can't crash out
 
 ---- general cleanup ----
+-- check on Win servers
+-- suppress warnings for opendir_basename restrictions
 -- decide what to do with $phpEx global
 -- append_sid is requiring to be fed the session ID -- why?
 -- several old links where & should be &amp; -- run through validator
@@ -38,7 +40,6 @@ Current status:
 -- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
 -- Move user-integration-relevant functions in settings-panel to login-integrator, and remove duplication of functions, get_phpbb_intdata in settings_panel, and $phpbbForum->fetch_userdata_for **
 -- modify version.php to contain compatibility information
--- Completely rewrite hook, and combine integrator and template-integrator, since they are now the same
 -- remove $compat from core-patcher
 -- in plugin, only load necessary portions, and load phpBB late only if needed.
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
@@ -137,6 +138,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- $phpbbForum->fetch_userdata_for now private and access rolled into $phpbbForum->get_userdata(), which can now take an argument for a specific user and caches lookups for the session.
 - Added more panel warnings, now also checks that wordpress and phpBB cookie paths overlap.
 - All widgets now use new API
 - All old user blog settings removed to separate temporary file

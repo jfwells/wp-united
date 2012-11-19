@@ -974,4 +974,35 @@ function wpu_set_role($id, $userLevel) {
 	}
 }
 
+/**
+ * Sets the phpBB permissions for a user if they don't have permission to do that already
+ * @param int $id phpBB ID
+ * @param string $perm phPBB WP-United permission
+ */
+function wpu_set_phpbb_permissions($id, $perm) {
+	global $phpbbForum;
+	
+
+	// Not a valid WP-United permission
+	if(!in_array($perm, array_keys(wpu_permissions_list()))) {
+		return false;
+	}
+	
+	$fStateChanged = $phpbbForum->foreground();
+	
+	$userData = $phpbbForum->get_userdata('', $id);
+	
+	$userAuth = new auth();
+	$userAuth->acl($userData);
+	
+	if(!$userAuth->acl_get($perm)) {
+		$phpbbForum->update_user_permissions('grant', $id, $perm, ACL_YES);
+	}
+	
+	$phpbbForum->restore_state($fStateChanged);
+	
+	return true;
+}
+
+
 ?>

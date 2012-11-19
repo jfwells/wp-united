@@ -239,23 +239,56 @@ class WPU_Phpbb {
 	}
 	
 	/**
-	 * Returns something from $user->userdata
+	 * Returns a userdata item (or full data array) for a user
+	 * Caches the result for the session
 	 */
-	public function get_userdata($key = '') {
+	public function get_userdata($key = '', $userID = false, $refreshCache = false) {
+		
+		static $userDataCache = array();
+		
+		$userCacheKey = ($userID === false) ? '[BLANK]' : $userID;
+	
+		if(!$refreshCache) {
+			if(isset($userDataCache[$userCacheKey])) {
+				if(empty($key)) {
+					return $userDataCache[$userCacheKey];
+				} else {
+					if(isset($userDataCache[$userCacheKey][$key])) {
+						return $userDataCache[$userCacheKey][$key];
+					}
+				}
+			}
+		}
+		
+		
 		$fStateChanged = $this->foreground();
-		if ( !empty($key) ) {
-			$result = $GLOBALS['user']->data[$key];
+		
+
+		if($userID !== false) {
+			$result = $this->fetch_userdata_for($userID);
 		} else {
 			$result = $GLOBALS['user']->data;
 		}
+		$userDataCache[$userCacheKey] = $result;
+		
 		$this->restore_state($fStateChanged);
-		return $result;		
+		
+		if ( !empty($key) ) {
+			if(isset($userDataCache[$userCacheKey][$key])) {
+				return $userDataCache[$userCacheKey][$key];
+			} else {
+				return false;
+			}
+		} else {
+			return $userDataCache[$userCacheKey];
+		}
+
 	}
 	
 	/**
 	 * 	fetch data for a specific user
 	 */
-	public function fetch_userdata_for($id) {
+	private function fetch_userdata_for($id) {
 		global $db;
 		
 		
@@ -423,7 +456,7 @@ class WPU_Phpbb {
 			return false;
 		}
 		
-		$fStateChanged = $phpbbForum->foreground();
+		$fStateChanged = $this->foreground();
 		$cookieDomain = $config['cookie_domain'];
 		$this->restore_state($fStateChanged);
 
@@ -437,11 +470,108 @@ class WPU_Phpbb {
 			return false;
 		}
 		
-		$fStateChanged = $phpbbForum->foreground();
+		$fStateChanged = $this->foreground();
 		$cookieDomain = $config['cookie_path'];
 		$this->restore_state($fStateChanged);
 
 		return $cookieDomain;
+	}
+	
+	/**
+	 * Sets a phpBB permission for a specific user if they don't have permission to do that already
+	 * Lifted from https://www.phpbb.com/kb/article/permission-system-overview-for-mod-authors-part-two/
+	 * 
+	 * @param grant|remove $mode defines whether roles are granted to removed
+	 * @param strong $role_name role name to update
+	 * @param mixed $options auth_options to grant (a auth_option has to be specified)
+	 * @param ACL_YES|ACL_NO|ACL_NEVER $auth_setting defines the mode acl_options are getting set with
+	 *
+	 */
+	public function update_user_permissions($mode = 'grant', $user_id, $options = array(), $auth_setting = ACL_YES) {
+		global $db, $auth, $cache;
+		
+		if(!$user_id) {
+			return false;
+		}
+		
+		$fStateChanged = $this->foreground();
+
+		//Get All Current Options For User
+		$user_options = array();
+		$sql = "SELECT auth_option_id
+			FROM " . ACL_USERS_TABLE . "
+			WHERE user_id = " . (int) $user_id . "
+			GROUP BY auth_option_id";
+		$result = $db->sql_query($sql);
+		while ($row = $db->sql_fetchrow($result)) {
+			$user_options[] = $row;
+		}
+		$db->sql_freeresult($result);
+
+		//Get Option ID Values For Options Granting Or Removing
+		$acl_options_ids = array();
+		$sql = "SELECT auth_option_id
+			FROM " . ACL_OPTIONS_TABLE . "
+			WHERE " . $db->sql_in_set('auth_option', $options) . "
+			GROUP BY auth_option_id";
+		$result = $db->sql_query($sql);
+		while ($row = $db->sql_fetchrow($result)) {
+			$acl_options_ids[] = $row;
+		}
+		$db->sql_freeresult($result);
+
+
+		//If Granting Permissions
+		if ($mode == 'grant') {
+			//Make Sure We Have Option IDs
+			if (empty($acl_options_ids)) {
+				$this->restore_state($fStateChanged);
+				return false;
+			}
+			
+			//Build SQL Array For Query
+			$sql_ary = array();
+			for ($i = 0, $count = sizeof($acl_options_ids);$i < $count; $i++) {
+
+				//If Option Already Granted To User Then Skip It
+				if (in_array($acl_options_ids[$i]['auth_option_id'], $user_options)) {
+					continue;
+				}
+				$sql_ary[] = array(
+					'user_id'        => (int) $user_id,
+					'auth_option_id'    => (int) $acl_options_ids[$i]['auth_option_id'],
+					'auth_setting'        => $auth_setting,
+				);
+			}
+
+			$db->sql_multi_insert(ACL_USERS_TABLE, $sql_ary);
+			$cache->destroy('acl_options');
+			$auth->acl_clear_prefetch();
+		}
+
+		//If Removing Permissions
+		if ($mode == 'remove') {
+			//Make Sure We Have Option IDs
+			if (empty($acl_options_ids)) {
+				$this->restore_state($fStateChanged);
+				return false;
+			}
+			
+			//Process Each Option To Remove
+			for ($i = 0, $count = sizeof($acl_options_ids);$i < $count; $i++) {
+				$sql = "DELETE
+					FROM " . ACL_USERS_TABLE . "
+					WHERE auth_option_id = " . $acl_options_ids[$i]['auth_option_id'];
+
+				$db->sql_query($sql);
+			}
+
+			$cache->destroy('acl_options');
+			$auth->acl_clear_prefetch();
+		}
+		
+		$this->restore_state($fStateChanged);
+		return;
 	}
 		
 	
