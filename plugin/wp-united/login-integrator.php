@@ -1022,4 +1022,26 @@ function wpu_set_phpbb_permissions($id, $perm) {
 }
 
 
+
+/**
+ * Sets the phpBB permissions for a group if they don't have permission to do that already
+ * @param int $id phpBB ID
+ * @param string $perm phPBB WP-United permission
+ */
+function wpu_set_phpbb_group_permissions($groupName, $perm) {
+	global $phpbbForum;
+	
+
+	// Not a valid WP-United permission
+	if(!in_array($perm, array_keys(wpu_permissions_list()))) {
+		return false;
+	}
+	$phpbbForum->update_group_permissions('grant', $groupName, $perm, ACL_YES);
+	return true;
+}
+
+
+
+
+
 ?>

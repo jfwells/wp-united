@@ -6,7 +6,6 @@ Current status:
 - Other options generally working but as yet not well tested.
 
 ---- user integration ---------
--- New permissions panel is up and reads permissions. Need to get it to set group permissions.
 -- wpu_assess_perms is bugged right now -- for new users it will return OK even if one of the groups has a "never" set.
 -- on login (in WP or phpBB), also check username of integrated user if different and login failed
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
@@ -115,14 +114,6 @@ Once that is ready to release, we need a migrator that can:
 Other (older) things noticed that may no longer be relevant
 ---------------------
 
--- warn about unsuitable admin mappings
-
--- add 2 new columns to users table -- "wp_username" (Fill it in if the username in WP is different) and use_wp_username (whether to use the WP username when logging in). Add WP usermeta use_phpbbLogin
--- add global option -- which username to use by default if different in phpBB & WordPress. Can be overridden for individual users via the user mapper
--- add check and panel warning if "allow wordpress registrations?" but wpu_can_phpbb_register not true
--- add user_activated check to wordpress? if so check how it behaves
--- add warning / initial integrate admin user and "should disable site" dialog when enabling / disabling user integration
-
 -- map custom WP roles to phpBB perms. (consider: When roles are changed, phpBB is updated?)
 - move wp_change_username somewhere better
 - consider manually doing make_clickable() on xposted comment text
@@ -136,6 +127,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- New permissions mapping UI now fully working, can set and read group permissions
 - New permissions mapping UI using jsPlumb connections
 - removed duplicated-functionality items from settings-panel
 - $phpbbForum->fetch_userdata_for now private and access rolled into $phpbbForum->get_userdata(), which can now take an argument for a specific user and caches lookups for the session.

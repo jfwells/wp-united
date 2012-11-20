@@ -573,6 +573,133 @@ class WPU_Phpbb {
 		$this->restore_state($fStateChanged);
 		return;
 	}
+	
+	/**
+	* Update group-specific ACL options. Function can grant or remove options. If option already granted it will NOT be updated.
+	* Lifted from https://www.phpbb.com/kb/article/permission-system-overview-for-mod-authors-part-two/
+	*
+	* @param grant|remove $mode defines whether roles are granted to removed
+	* @param string $group_name group name to update
+	* @param mixed $options auth_options to grant (a auth_option has to be specified)
+	* @param ACL_YES|ACL_NO|ACL_NEVER $auth_setting defines the mode acl_options are getting set with
+	*
+	*/
+	public function update_group_permissions($mode = 'grant', $group_name, $options = array(), $auth_setting = ACL_YES) {
+		global $db, $auth, $cache;
+		
+		$fStateChanged = $this->foreground();
+		
+		//First We Get Role ID
+		$sql = "SELECT g.group_id
+			FROM " . GROUPS_TABLE . " g
+			WHERE group_name = '$group_name'";
+		$result = $db->sql_query($sql);
+		$group_id = (int) $db->sql_fetchfield('group_id');
+		$db->sql_freeresult($result);
+
+		//Now Lets Get All Current Options For Role
+		$group_options = array();
+		$sql = "SELECT auth_option_id
+			FROM " . ACL_GROUPS_TABLE . "
+			WHERE group_id = " . (int) $group_id . "
+			GROUP BY auth_option_id";
+		$result = $db->sql_query($sql);
+		while ($row = $db->sql_fetchrow($result)) {
+			$group_options[] = $row;
+		}
+		$db->sql_freeresult($result);
+
+		//Get Option ID Values For Options Granting Or Removing
+		$sql = "SELECT auth_option_id
+			FROM " . ACL_OPTIONS_TABLE . "
+			WHERE " . $db->sql_in_set('auth_option', $options) . "
+			GROUP BY auth_option_id";
+		$result = $db->sql_query($sql);
+		while ($row = $db->sql_fetchrow($result)) {
+			$acl_options_ids[] = $row;
+		}
+		$db->sql_freeresult($result);
+
+
+		//If Granting Permissions
+		if ($mode == 'grant') {
+			//Make Sure We Have Option IDs
+			if (empty($acl_options_ids)) {
+				return false;
+			}
+			
+			//Build SQL Array For Query
+			$sql_ary = array();
+			for ($i = 0, $count = sizeof($acl_options_ids);$i < $count; $i++) {
+				
+				//If Option Already Granted To Role Then Skip It
+				if (in_array($acl_options_ids[$i]['auth_option_id'], $group_options)) {
+					continue;
+				}
+				$sql_ary[] = array(
+					'group_id'        => (int) $group_id,
+					'auth_option_id'    => (int) $acl_options_ids[$i]['auth_option_id'],
+					'auth_setting'        => $auth_setting,
+				);
+			}
+
+			$db->sql_multi_insert(ACL_GROUPS_TABLE, $sql_ary);
+			$cache->destroy('acl_options');
+			$auth->acl_clear_prefetch();
+		}
+
+		//If Removing Permissions
+		if ($mode == 'remove') {
+			//Make Sure We Have Option IDs
+			if (empty($acl_options_ids)) {
+				return false;
+			}
+			
+			//Process Each Option To Remove
+			for ($i = 0, $count = sizeof($acl_options_ids);$i < $count; $i++) {
+				$sql = "DELETE
+					FROM " . ACL_GROUPS_TABLE . "
+					WHERE auth_option_id = " . $acl_options_ids[$i]['auth_option_id'];
+
+				$db->sql_query($sql);
+			}
+
+			$cache->destroy('acl_options');
+			$auth->acl_clear_prefetch();
+		}
+		
+		$this->restore_state($fStateChanged);
+
+		return;
+	}
+	
+	/**
+	 * Remove all WP-United permissions from phpBB groups
+	 */
+	
+	public function clear_group_permissions() {
+		global $db;
+		
+		$perms = array_keys(wpu_permissions_list());
+		
+		$fStateChanged = $this->foreground();
+		
+		$sql = 'SELECT group_name FROM ' . GROUPS_TABLE;
+		$result = $db->sql_query($sql);
+
+		$groups = array();
+		while ($row = $db->sql_fetchrow($result)) {
+			$groups[] = $row['group_name'];
+		}
+		$db->sql_freeresult($result);
+		
+		foreach($groups as $group) {
+			$this->update_group_permissions('remove', $group, $perms);
+		}
+		
+		$this->restore_state($fStateChanged);
+	}
+
 		
 	
 	/**

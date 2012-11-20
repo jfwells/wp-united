@@ -223,7 +223,7 @@ function checkPadding(evt) {
 function wpu_transmit(type, formID, urlToRefresh) {
 	$('#wpustatus').hide();
 	window.scrollTo(0,0);
-	$("#wputransmit").dialog({
+	$('#wputransmit').dialog({
 		modal: true,
 		title: 'Connecting...',
 		width: 360,
@@ -463,6 +463,42 @@ function setupUserMapperPage() {
 
 
 function wpuApplyPerms() {
+	
+	var connections = jsPlumb.getConnections('wpuplumb');
+	var results = [];
+	for(var i=0;i<connections.length;i++) {
+		results.push(connections[i].sourceId.split(/-/g)[2] + '=' + connections[i].targetId.split(/-/g)[1]);
+	}
+	
+	window.scrollTo(0,0);
+	$('#wpu-reload').dialog({
+		modal: true,
+		title: 'Connecting...',
+		width: 360,
+		height: 160,
+		draggable: false,
+		disabled: true,
+		closeOnEscape: false,
+		resizable: false,
+		show: 'puff'
+	});
+	$('.ui-dialog-titlebar').hide();
+	$('#wpu-desc').html('<strong>Processing permission mappings...</strong><br />Please wait...');
+	
+	//TODO: setup error handler here
+	
+	$.post('admin.php?page=wpu-user-mapper', 'wpusetperms=' + makeMsgSafe(results.join(',')) + '&_ajax_nonce=' + firstMapActionNonce, function(response) { 
+		if(response=='OK') {
+			// the settings were applied
+		}
+				
+		$('#wpu-reload').dialog('destroy');
+		window.location.reload();
+		
+	});
+	return false;
+	;
+	
 	return false;
 }
 

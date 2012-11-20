@@ -68,7 +68,14 @@ function wpu_settings_menu() {
 				
 				wpu_process_mapaction();
 				die();
-			}			
+			}
+			if( isset($_POST['wpusetperms']) && check_ajax_referer('wp-united-mapaction') ) {
+				// Send user mapper html data
+				
+				wpu_process_perms();
+				die();
+			}
+						
 		}
 	}	
 	
@@ -381,7 +388,7 @@ function wpu_user_mapper() {
 		<p><?php _e('Select a tab below to get started.'); ?></p>
 		<div id="wputabs">
 			<ul>
-				<li><a href="#wpumaptab-perms">New User Permissions</a></li>
+				<li><a href="#wpumaptab-perms">User Permissions</a></li>
 				<li><a href="#wpumaptab-map">User Mapping</a></li>
 			</ul>
 
@@ -401,7 +408,7 @@ function wpu_user_mapper() {
 					<li><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></li>
 				</ul>
 				</div>
-				<p><strong>(work in progress. For now, please edit phpBB permissions manually).</strong> <?php _e(' Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. When happy, click &quot;Apply&quot;'); ?></p>
+				<p><?php _e(' Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. When happy, click &quot;Apply&quot;'); ?></p>
 				<?php
 					global $phpbbForum, $db;
 					$phpbbForum->foreground();
@@ -438,8 +445,8 @@ function wpu_user_mapper() {
 							'type' 						=> 	($row['group_type'] == GROUP_SPECIAL) ? __('Built-In') : __('User-Defined'),
 							'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
 							'db_name'					=>	$row['group_name'],
-							'total_members' 	=> 	$row['count'],
-							'url'							=>	$phpbbForum->url . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
+							'total_members' 			=> 	$row['count'],
+							'url'						=>	$phpbbForum->url . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
 						);
 
 						if($groupData[$row['group_id']]['type'] == __('User-Defined')) {
@@ -449,7 +456,6 @@ function wpu_user_mapper() {
 					
 					$db->sql_freeresult($result);
 				?>	
-					
 					
 				<table class="widefat fixed">
 					<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
@@ -529,22 +535,22 @@ function wpu_user_mapper() {
 						<?php 
 							foreach($elsL as $typeId => $els) {
 								foreach($els as $el) { 
-									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $el);		?>
+									$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
 									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.5,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
 								<?php }
 							}
 							
 							foreach($elsR as $typeId => $els) {
 								foreach($els as $el) { 
-									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $el);		?>
+									$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
 									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.5,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
 								<?php }
 							}
 							
 							foreach($linkages as $typeId => $linkage) {
 								foreach($linkage as $linkL => $linkR) {
-									$varL = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $linkL);	
-									$varR = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $linkR);	?>		
+									$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
+									$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
 									
 									jsPlumb.connect({
 										source: <?php echo $varL; ?>,
@@ -666,6 +672,29 @@ function wpu_user_mapper() {
 }
 
 
+
+function wpu_process_perms() {
+	global $phpbbForum;
+	
+	$conns = stripslashes(base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), (string)$_POST['wpusetperms'])));
+	$conns = explode(',', $conns);
+	$permsList = wpu_permissions_list();
+	
+	$phpbbForum->clear_group_permissions();
+	
+	foreach($conns as $conn) {
+		list($phpbbGroup, $wpRole) = explode('=', $conn);
+		$wpuPermName = array_search($wpRole, $permsList);
+		if(!empty($wpuPermName)) {
+			wpu_set_phpbb_group_permissions($phpbbGroup, $wpuPermName);
+		}
+	}
+
+	die('OK');
+}	
+
+
+
 function wpu_map_show_data() {
 	global $wpUnited, $wpdb, $phpbbForum, $db, $user;
 	
@@ -774,6 +803,9 @@ function wpu_map_show_data() {
 	echo ']]></bulk></wpumapper>';
 	
 }
+
+
+
 
 /**
  * Perform an action requested by the user mapper
@@ -1034,7 +1066,7 @@ function wpu_settings_page() {
 									echo '<div id="wpuintegsetupstatus" class="highlight"><h4>' . __('Current status:') . '</h4>';
 									echo '<ul><li><strong>' . __('phpBB groups that can automatically integrate: ') . '</strong>' . $integratedGroups . '</li>';
 									echo '<li><strong>' . __('New WordPress users can be given phpBB accounts? ') . '</strong>' . $newUsersCan . '</li></ul>';
-									echo '<p><small><em>' . __('Users are integrated according to WP-United permissions in phpBB. For more information and to change these, see <a href="admin.php?page=wpu-user-mapper">User Mapping &rarr; New User Permissions</a>.') . '</p></small></em></div>';
+									echo '<p><small><em>' . __('Users are integrated according to WP-United permissions in phpBB. For more information and to change these, see <a href="admin.php?page=wpu-user-mapper">User Mapping &rarr; User Permissions</a>.') . '</p></small></em></div>';
 								}
 							?>
 
