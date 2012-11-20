@@ -460,7 +460,7 @@ function wpu_user_mapper() {
 						</<?php echo $tblHead; ?>>
 					<?php } ?>
 					<tbody><tr><td colspan="2">
-						<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
+						<div id="wpuplumbcanvas" class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
 							<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
 							
 							<?php 
@@ -491,7 +491,7 @@ function wpu_user_mapper() {
 												?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
 													<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
 													<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?><br />
-													<?php echo '<br /><strong>' . __('Group type: ') . '</strong>' . $type; ?></p>
+													<?php echo '<strong>' . __('Group type: ') . '</strong>' . $type; ?></p>
 													<?php 
 														if(isset($effectivePerms[$row['name']])) {
 															$linkages[$typeId][$blockIdL] = "wpupermr-{$effectivePerms[$row['name']]}";
@@ -512,7 +512,7 @@ function wpu_user_mapper() {
 										<?php echo 'WordPress ' . $wpName; ?>
 									</div>
 								<?php } ?>
-							</div><?php
+							</div>
 							<br style="clear: both;" />
 						</div>
 
@@ -524,62 +524,50 @@ function wpu_user_mapper() {
 				
 				<script type="text/javascript"> // <[CDATA[
 
-					$(function() {
+					jsPlumb.ready(function() {
 						
+
 						jsPlumb.importDefaults({
 							DragOptions : { cursor: 'pointer', zIndex:2000 },
 							PaintStyle : { strokeStyle:'#666' },
 							EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
-							Anchors : ['RightMiddle', 'RightMiddle'],
-							Container : $('body')
+							Container : $('#wpuplumbcanvas')
 						});	
 						
 						var wpuDropOptions = {
-							tolerance:'touch',
-							hoverClass:'dropHover',
-							activeClass:'dragActive'
-						};
-						
-						var wpuStartPoint = {
-							endpoint:['Dot', { radius:15 }],
-							paintStyle:{ fillStyle:'#000061' },
-							isSource:true,
-							scope:'wpuplumb',
-							connectorStyle:{ strokeStyle:'#000061', lineWidth:8 },
-							connector: ['Bezier', { curviness:63 } ],
-							maxConnections:1,
-							dropOptions : wpuDropOptions
+							//tolerance:'touch',
+							//hoverClass:'dropHover',
+							//activeClass:'dragActive'
 						};
 						var wpuEndPoint = {
-							endpoint:["Dot", { radius:15 }],
+							endpoint:['Dot', { radius:15 }],
 							paintStyle:{ fillStyle:'#000061' },
 							scope:'wpuplumb',
 							connectorStyle:{ strokeStyle:'#000061', lineWidth:6 },
 							connector: ['Bezier', { curviness:63 } ],
 							maxConnections:10,
-							isTarget:true,
 							dropOptions : wpuDropOptions
 						};					
 
 						<?php 
 							foreach($elsL as $typeId => $els) {
 								foreach($els as $el) { 
-									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $el);		?>
-									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuStartPoint);
+									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $el);		?>
+									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.5,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
 								<?php }
 							}
 							
 							foreach($elsR as $typeId => $els) {
 								foreach($els as $el) { 
-									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $el);		?>
-									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuEndPoint);
+									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $el);		?>
+									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.5,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
 								<?php }
 							}
 							
 							foreach($linkages as $typeId => $linkage) {
 								foreach($linkage as $linkL => $linkR) {
-									$varL = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $linkL)	
-									$varR = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $linkR)	?>		
+									$varL = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $linkL);	
+									$varR = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu'), $linkR);	?>		
 									
 									jsPlumb.connect({
 										source: <?php echo $varL; ?>,
