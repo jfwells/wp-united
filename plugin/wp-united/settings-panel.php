@@ -524,30 +524,7 @@ function wpu_user_mapper() {
 				
 				<script type="text/javascript"> // <[CDATA[
 
-					jsPlumb.ready(function() {
-						
-
-						jsPlumb.importDefaults({
-							DragOptions : { cursor: 'pointer', zIndex:2000 },
-							PaintStyle : { strokeStyle:'#666' },
-							EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
-							Container : $('#wpuplumbcanvas')
-						});	
-						
-						var wpuDropOptions = {
-							//tolerance:'touch',
-							//hoverClass:'dropHover',
-							//activeClass:'dragActive'
-						};
-						var wpuEndPoint = {
-							endpoint:['Dot', { radius:15 }],
-							paintStyle:{ fillStyle:'#000061' },
-							scope:'wpuplumb',
-							connectorStyle:{ strokeStyle:'#000061', lineWidth:6 },
-							connector: ['Bezier', { curviness:63 } ],
-							maxConnections:10,
-							dropOptions : wpuDropOptions
-						};					
+					function initPlumbing() {
 
 						<?php 
 							foreach($elsL as $typeId => $els) {
@@ -578,7 +555,7 @@ function wpu_user_mapper() {
 							}	?>							
 								
 						
-					});
+					}
 				
 
 				// ]]>
