@@ -6,7 +6,8 @@ Current status:
 - Other options generally working but as yet not well tested.
 
 ---- user integration ---------
--- Use wpu_set_newuser_role to retain roles of new users by implementing phpBB permissions for them if their group role is different.
+-- New permissions panel is up and reads permissions. Need to get it to set group permissions.
+-- wpu_assess_perms is bugged right now -- for new users it will return OK even if one of the groups has a "never" set.
 -- on login (in WP or phpBB), also check username of integrated user if different and login failed
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
 -- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
@@ -38,7 +39,6 @@ Current status:
 -- several old links where & should be &amp; -- run through validator
 -- do check on plugin activation for php and wordpress version
 -- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
--- Move user-integration-relevant functions in settings-panel to login-integrator, and remove duplication of functions, get_phpbb_intdata in settings_panel, and $phpbbForum->fetch_userdata_for **
 -- modify version.php to contain compatibility information
 -- remove $compat from core-patcher
 -- in plugin, only load necessary portions, and load phpBB late only if needed.
@@ -85,10 +85,8 @@ Current status:
 -- when connecting to phpBB, check version for compatibility
 
 ------- pie in the sky -----------
--- draggable permissions mapping using e.g. jsPlumb
 -- finish "post to blog" in phpBB, integrate with pressIt
 -- search integration
--- split pane help panel popup with all strings pre-loaded (definitely need for v1.0)
 -- Add AutoMod engine (may defer to v0.9.x > .0 if not trivial)
 
 
@@ -138,6 +136,8 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- New permissions mapping UI using jsPlumb connections
+- removed duplicated-functionality items from settings-panel
 - $phpbbForum->fetch_userdata_for now private and access rolled into $phpbbForum->get_userdata(), which can now take an argument for a specific user and caches lookups for the session.
 - Added more panel warnings, now also checks that wordpress and phpBB cookie paths overlap.
 - All widgets now use new API
