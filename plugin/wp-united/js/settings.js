@@ -343,7 +343,8 @@ var wpuTypedMatches = new Array();
 var wpuSuggCache;
 var panelOpen = false;
 var panelHidden = false;
-
+var wpuDropOptions;
+var wpuEndPoint;
 /**
  * Initialises the user mapper page
  */
@@ -351,7 +352,7 @@ function setupUserMapperPage() {
 	$('#wputabs').tabs({
 		select: function(event, ui) {                   
 			window.location.hash = ui.tab.hash;
-		}
+		},
 		show: function(event, ui) {
 			jsPlumb.repaintEverything();
 		}
@@ -376,12 +377,12 @@ function setupUserMapperPage() {
 		Container : $('#wpuplumbcanvas')
 	});	
 	
-	var wpuDropOptions = {
+	wpuDropOptions = {
 		//tolerance:'touch',
 		//hoverClass:'dropHover',
 		//activeClass:'dragActive'
 	};
-	var wpuEndPoint = {
+	wpuEndPoint = {
 		endpoint:['Dot', { radius:15 }],
 		paintStyle:{ fillStyle:'#000061' },
 		scope:'wpuplumb',
