@@ -461,13 +461,10 @@ function wpu_user_mapper() {
 					<?php } ?>
 					<tbody><tr><td colspan="2">
 						<div id="wpuplumbcanvas" class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
-							<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
-							
-							<?php 
-							echo 'TODO: FIX THIS FOR NEWUSERS: '; print_r(wpu_get_wp_role_for_group()); 
-					
+							<?php
 							$perms = wpu_permissions_list();
 							$permSettings = wpu_get_perms(); 
+							$newUserGroups = $phpbbForum->get_newuser_group();
 							$linkages = array();
 							$elsL = array();
 							$elsR = array();
@@ -483,7 +480,6 @@ function wpu_user_mapper() {
 									$elsR[$typeId] = array();
 									
 									?><div class="wpuplumbleft"><?php
-										$newUserGroups = $phpbbForum->get_newuser_group();
 										foreach ($groupData as $group_id => $row) {
 											if($row['type'] == $type) {
 												$blockIdL = "wpuperml-{$typeId}-{$row['db_name']}";
@@ -502,7 +498,9 @@ function wpu_user_mapper() {
 										} 
 									?></div><?php
 								}
-							} ?>
+							} 
+							$phpbbForum->background();
+							?>
 							<div class="wpuplumbright">
 									
 								<?php foreach($perms as $permSetting => $wpName) {
@@ -519,13 +517,16 @@ function wpu_user_mapper() {
 					</td></tr></tbody>
 				</table>
 				<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></em></small>
-				<?php	$phpbbForum->background();
-				?>
+				<div id="wpupermactions">
+					<small>
+						<button class="wpuprocess" onclick="return wpuApplyPerms();">><?php _e('Apply'); ?></button>
+						<button class="wpuclear" onclick="return wpuClearPerms();">><?php _e('Reset'); ?></button>
+					</small>
+				</div>
 				
+
 				<script type="text/javascript"> // <[CDATA[
-
 					function initPlumbing() {
-
 						<?php 
 							foreach($elsL as $typeId => $els) {
 								foreach($els as $el) { 
@@ -550,14 +551,9 @@ function wpu_user_mapper() {
 										source: <?php echo $varL; ?>,
 										target: <?php echo $varR; ?>
 									});
-									
 								<?php }
 							}	?>							
-								
-						
 					}
-				
-
 				// ]]>
 				</script>				
 				
@@ -569,12 +565,12 @@ function wpu_user_mapper() {
 				<div class="ui-widget-header ui-corner-all wpumaptoolbar">
 					<form name="wpumapdisp" id="wpumapdisp">
 						<fieldset>
-							<label for="wpumapside">Show on left: </label>
+							<label for="wpumapside"><?php _e('Show on left: '); ?></label>
 							<select id="wpumapside" name="wpumapside">
-								<option value="wp">WordPress users</option>
-								<option value="phpbb">phpBB users</option>
+								<option value="wp"><?php _e('WordPress users'); ?></option>
+								<option value="phpbb"><?php _e('phpBB users'); ?></option>
 							</select> 
-							<label for="wpunumshow">Number to show: </label>
+							<label for="wpunumshow"><?php _e('Number to show: '); ?></label>
 							<select id="wpunumshow" name="wpunumshow">
 								<option value="1">1</option>
 								<option value="5">5</option>
@@ -586,13 +582,13 @@ function wpu_user_mapper() {
 								<option value="500">500</option>
 								<option value="1000">1000</option>-->
 							</select> 	
-							<label for="wputypeshow">Show: </label>
+							<label for="wputypeshow"><?php _e('Show: '); ?></label>
 							<select id="wputypeshow" name="wputypeshow">
-								<option value="all">All</option>
-								<option value="int">All Integrated</option>
-								<option value="unint">All Unintegrated</option>
-								<option value="posts">All With Posts</option>
-								<option value="noposts">All Without Posts</option>
+								<option value="all"><?php _e('All'); ?></option>
+								<option value="int"><?php _e('All Integrated'); ?></option>
+								<option value="unint"><?php _e('All Unintegrated'); ?></option>
+								<option value="posts"><?php _e('All With Posts'); ?></option>
+								<option value="noposts"><?php _e('All Without Posts'); ?></option>
 							</select>
 							<input type="hidden" name="wpufirstitem" id="wpufirstitem" value="0" />			
 						</fieldset>
@@ -604,18 +600,18 @@ function wpu_user_mapper() {
 				<div id="wpumapcontainer">
 					<div id="wpumapscreen">
 						<div class="wpuloading">
-							<p>Loading...</p>
+							<p><?php _e('Loading...'); ?></p>
 							<img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" />
 						</div>
 					</div>
 					<div id="wpumappanel" class="ui-widget">
-						<h3 class="ui-widget-header ui-corner-all">Actions to process</h3>
+						<h3 class="ui-widget-header ui-corner-all">><?php _e('Actions to process'); ?></h3>
 						<ul id="wpupanelactionlist">
 						</ul>
 						<div id="wpupanelactions">
 							<small>
-								<button class="wpuprocess" onclick="return wpuProcess();">Process actions</button>
-								<button class="wpuclear" onclick="return wpuMapClearAll();">Clear all</button>
+								<button class="wpuprocess" onclick="return wpuProcess();">><?php _e('Process actions'); ?></button>
+								<button class="wpuclear" onclick="return wpuMapClearAll();">><?php _e('Clear all'); ?></button>
 							</small>
 						</div>
 					</div>

@@ -1049,13 +1049,14 @@ div.subsettings div.subsettings {
 }
 
 .wpuplumbgroupl, .wpuplumbgroupr {
-        width: 250px;
-        border: 1px solid #cccccc;
-        padding: 3px;
-        margin: 8px;
+	width: 250px;
+	border: 1px solid #cccccc;
+	padding: 3px;
+	margin: 8px;
 	height: 60px;
 	text-align: center;
 	vertical-align: middle;
+	font-weight: normal;
 	
 }
 

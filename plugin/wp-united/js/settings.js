@@ -462,6 +462,29 @@ function setupUserMapperPage() {
 }
 
 
+wpuApplyPerms() {
+	return false;
+}
+
+wpuResetPerms() {
+	window.scrollTo(0,0);
+	$('#wpu-desc').html('<strong>Clearing changes</strong><br />Please wait...');
+	$("#wpu-reload").dialog({
+		modal: true,
+		title: 'Resetting...',
+		width: 360,
+		height: 160,
+		draggable: false,
+		disabled: true,
+		closeOnEscape: false,
+		resizable: false
+	});
+	$('.ui-dialog-titlebar').hide();
+	window.location.reload(1);	
+}
+
+
+
 /**
  * Sends the filter fields to the back-end, processes the returned user mapper html, and
  * sets up all contained buttons/fields/etc.
@@ -630,6 +653,7 @@ function wpuProcessMapActionButton(btnID) {
 		return false;	
 	
 }
+
 
 
 
