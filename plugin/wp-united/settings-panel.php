@@ -447,261 +447,152 @@ function wpu_user_mapper() {
 					}
 					
 					$db->sql_freeresult($result);
+				?>	
 					
-					$perms = wpu_permissions_list();
-					$permSettings = wpu_get_perms(); 
-					$linkages = array();
-					$elsL = array();
-					$elsR = array();
-					$typeId = 0;
-					foreach ($groupTypes as $type) { 
-						$typeId++; ?>
-						<h4><?php echo "$type Groups"; ?></h4>
-						<?php if(($type == __('Built-In')) || ($numUserDefined > 0)) { ?>
-							<p><?php printf(__('Use the quick links below to change the permissions in a popup panel, or visit the %1$sphpBB ACP%2$s for more options. To set the permissions, select whether you want User, Moderator or Administrator permissions, then choose "Advanced Permissions" to see the WP-United tab.'), '<a href="' . append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id)  .'">', '</a>'); ?></p>
+					
+				<table class="widefat fixed">
+					<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
+						<<?php echo $tblHead; ?>>
+						<tr class="thead">
+							<th scope="col"><?php _e('phpBB Group'); ?></th>
+							<th scope="col" style="text-align: right;"><?php _e('WordPress Role'); ?></th>
+						</tr>
+						</<?php echo $tblHead; ?>>
+					<?php } ?>
+					<tbody><tr><td colspan="2">
+						<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
+							<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
+							
+							<?php 
+							echo 'TODO: FIX THIS FOR NEWUSERS: '; print_r(wpu_get_wp_role_for_group()); 
+					
+							$perms = wpu_permissions_list();
+							$permSettings = wpu_get_perms(); 
+							$linkages = array();
+							$elsL = array();
+							$elsR = array();
+							$typeId = 0;
+				
+							foreach ($groupTypes as $type) { 
+								$typeId++;
+								if(($type == __('Built-In')) || ($numUserDefined > 0)) {
 
-							
-
-							<?php  
-							
-							$effectivePerms = wpu_get_wp_role_for_group();
-							$linkages[$typeId] = array();
-							$elsL[$typeId] = array();
-							$elsR[$typeId] = array();
-							?>
-							
-							
-
-							<table class="widefat fixed">
-							   <?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
-									   <<?php echo $tblHead; ?>>
-											   <tr class="thead">
-													   <th scope="col"><?php _e('phpBB Group'); ?></th>
-													   <th scope="col" style="text-align: right;"><?php _e('WordPress Role'); ?></th>
-											   </tr>
-									   </<?php echo $tblHead; ?>>
-							   <?php } ?>
-							   <tbody><tr><td colspan="2">
-							
-								<div class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
-									<p><strong>(THIS AREA IS TEMPORARY WHILE WE INVESTIGATE A NEW WAY TO DISPLAY THESE PERMISSIONS. PLEASE IGNORE)</strong></p>
+									$effectivePerms = wpu_get_wp_role_for_group();
+									$linkages[$typeId] = array();
+									$elsL[$typeId] = array();
+									$elsR[$typeId] = array();
 									
-									<?php echo 'TODO: FIX THIS FOR NEWUSERS: '; print_r(wpu_get_wp_role_for_group()); ?>
+									?><div class="wpuplumbleft"><?php
+										$newUserGroups = $phpbbForum->get_newuser_group();
+										foreach ($groupData as $group_id => $row) {
+											if($row['type'] == $type) {
+												$blockIdL = "wpuperml-{$typeId}-{$row['db_name']}";
+												$elsL[$typeId][] = $blockIdL;
+												?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
+													<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
+													<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?><br />
+													<?php echo '<br /><strong>' . __('Group type: ') . '</strong>' . $type; ?></p>
+													<?php 
+														if(isset($effectivePerms[$row['name']])) {
+															$linkages[$typeId][$blockIdL] = "wpupermr-{$effectivePerms[$row['name']]}";
+														} 
+													?> 
+												</div> <?php
+											}
+										} 
+									?></div><?php
+								}
+							} ?>
+							<div class="wpuplumbright">
 									
-									
-									<div class="wpuplumbleft">
-									<?php
-									$newUserGroups = $phpbbForum->get_newuser_group();
-									foreach ($groupData as $group_id => $row) {
-										if($row['type'] == $type) {
-											$blockIdL = "wpu-perm-l-{$typeId}-{$row['db_name']}";
-											$elsL[$typeId][] = $blockIdL;
-											?>
-											
-											<div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
-												<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
-												<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?></p>
-											
-												<?php 
-												
-												if(isset($effectivePerms[$row['name']])) {
-													$linkages[$typeId][$blockIdL] = "wpu-perm-r-{$typeId}-{$effectivePerms[$row['name']]}";
-												} 
-												?> 
-											</div>
-											
-											<?php
-										}
-									} ?>
+								<?php foreach($perms as $permSetting => $wpName) {
+									$blockIdR = "wpupermr-{$wpName}";
+									$elsR[$typeId][] = $blockIdR;  ?>
+									<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
+										<?php echo 'WordPress ' . $wpName; ?>
 									</div>
-									<div class="wpuplumbright">
-												
-									<?php foreach($perms as $permSetting => $wpName) {
-										$blockIdR = "wpu-perm-r-{$typeId}-{$wpName}";
-										$elsR[$typeId][] = $blockIdR;  ?>
-										<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
-											<?php echo 'WordPress ' . $wpName; ?>
-										</div>
-									<?php } ?>
-									</div>
-
-								<br style="clear: both;" />
-								</div>
-
-							</td></tr></table>
-
-
-							
-
-							
-							
-							
-							
-
-
-							<table class="widefat fixed">
-								<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
-									<<?php echo $tblHead; ?>>
-										<tr class="thead">
-											<th scope="col"><?php _e('Group Name'); ?></th>
-											<th scope="col"><?php _e('No. of members'); ?></th>
-											<th scope="col"><?php _e('WP-United Permissions'); ?></th>
-										</tr>
-									</<?php echo $tblHead; ?>>
 								<?php } ?>
-								<tbody>
-								<?php
-								$it = 0;
-								$newUserGroups = $phpbbForum->get_newuser_group();
-								foreach ($groupData as $group_id => $row) {
-									if($row['type'] == $type) {
-										
-										$class = ($it == 0) ? ' class="alternate" ' : '';
-										
-										?>
-										<tr <?php echo $class; ?>>
-											<td><p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?><br />
-											
-											<small><a class="wpuacppopup" href="<?php echo $row['url']; ?>" title = "<?php _e('This will open in a popup panel'); ?>"><?php _e('Edit Group Permissions'); ?></a></small></p></td>
-											<td><?php echo $row['total_members']; ?></td>
-											<td><?php 
-												if(isset($permSettings[$row['name']])) {
-													// search from bottom-up in the standard wp-united permissions
-													$nevers =$yes =  array();
-													foreach($perms as $perm => $permText)  {
-														foreach($permSettings[$row['name']] as $permSetting) {
-															if($permSetting['perm'] == $perm) {
-																if($permSetting['setting'] == ACL_NEVER) {
-																	$nevers[] = array(
-																		'perm' 		=>	$permText,
-																		'rolename' 	=>	$permSetting['rolename'],
-																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
-																	);
-																} elseif($permSetting['setting'] == ACL_YES) {
-																	$yes = array(
-																		'perm' 		=>	$permText,
-																		'rolename' 	=>	$permSetting['rolename'],
-																		'roleurl'		=>	$phpbbForum->url . append_sid('adm/index.php?i=permission_roles&amp;mode=' . $permSetting['roletype'] . '_roles&amp;action=edit&amp;role_id=' . $permSetting['roleid'], false, true, $GLOBALS['user']->session_id)
-																	);
-																}
-															}
-														}
-													}
-													foreach($nevers as $never) {
-														$roleText = (!empty($never['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $never['rolename'], '<a href="' . $never['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
-														echo '<p class="wpupermnever">' . sprintf(__('Can NEVER integrate as a WordPress %s'), __($never['perm'])) . $roleText . '</p>';
-													}
-													
-													if(sizeof($yes)) {
-														$roleText = (!empty($yes['rolename'])) ? '<br /><small>' . sprintf(__('Set by role: %1$s %2$sEdit Role%3$s'), $yes['rolename'], '<a href="' . $yes['roleurl'] . '" class="wpuacppopup"  title = "This will open in a popup panel">', '</a>') . '</small>' : '';
-														echo '<p class="wpupermyes">' . sprintf(__('Can integrate as a WordPress %s'), __($yes['perm'])) . $roleText . '</p>';
-													}
-																					
-																	
-												} else {
-													echo '<p style="font-weight: bold; text-align: center;">' . __('No WP-United permissions set') . '</p>';
-												}
-												?>
-											</td>
-										</tr>
-										<?php
-										$it = ($it == 0) ? 1 : 0;
-									}
-								} ?>
-								</tbody>
-							</table>
+							</div><?php
+							<br style="clear: both;" />
+						</div>
 
-
-
-
-
-
-							<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></small></em>
-						<?php  } else {
-							echo '<p>' . sprintf(__('No %s groups to show'), $type) . '</p>';
-						}
-					}
-					$phpbbForum->background();
+					</td></tr></tbody>
+				</table>
+				<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></em></small>
+				<?php	$phpbbForum->background();
 				?>
 				
-				
-				
-				<script type="text/javascript">
-				// <[CDATA[
-					
-				
-				
-				$(function() {
-					
-					jsPlumb.importDefaults({
-						DragOptions : { cursor: 'pointer', zIndex:2000 },
-						PaintStyle : { strokeStyle:'#666' },
-						EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
-						Endpoint : "Rectangle",
-						Anchors : ["TopCenter", "TopCenter"],
-						Container : $("body")
-					});	
-					
-					var wpuDropOptions = {
-						tolerance:'touch',
-						hoverClass:'dropHover',
-						activeClass:'dragActive'
-					};
-					
-					var wpuStartPoint = {
-						endpoint:["Dot", { radius:15 }],
-						paintStyle:{ fillStyle:'#000061' },
-						isSource:true,
-						scope:"green dot",
-						connectorStyle:{ strokeStyle:'#000061', lineWidth:8 },
-						connector: ["Bezier", { curviness:63 } ],
-						maxConnections:1,
-						dropOptions : wpuDropOptions
-					};
-					var wpuEndPoint = {
-						endpoint:["Dot", { radius:15 }],
-						paintStyle:{ fillStyle:'#000061' },
-						scope:"green dot",
-						connectorStyle:{ strokeStyle:'#000061', lineWidth:6 },
-						connector: ["Bezier", { curviness:63 } ],
-						maxConnections:10,
-						isTarget:true,
-						dropOptions : wpuDropOptions
-					};					
+				<script type="text/javascript"> // <[CDATA[
 
-					<?php 
-						foreach($elsL as $typeId => $els) {
-							foreach($els as $el) { 
-								$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
-								var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuStartPoint);
-							<?php }
-						}
+					$(function() {
 						
-						foreach($elsR as $typeId => $els) {
-							foreach($els as $el) { 
-								$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
-								var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuEndPoint);
-							<?php }
-						}
+						jsPlumb.importDefaults({
+							DragOptions : { cursor: 'pointer', zIndex:2000 },
+							PaintStyle : { strokeStyle:'#666' },
+							EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
+							Anchors : ['RightMiddle', 'RightMiddle'],
+							Container : $('body')
+						});	
 						
-						foreach($linkages as $typeId => $linkage) {
-							foreach($linkage as $linkL => $linkR) {
-								$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
-								$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR))	?>		
-								
-								jsPlumb.connect({
-									source: <?php echo $varL; ?>,
-									target: <?php echo $varR; ?>
-								});
-								
-							<?php }
-						}	?>							
+						var wpuDropOptions = {
+							tolerance:'touch',
+							hoverClass:'dropHover',
+							activeClass:'dragActive'
+						};
+						
+						var wpuStartPoint = {
+							endpoint:['Dot', { radius:15 }],
+							paintStyle:{ fillStyle:'#000061' },
+							isSource:true,
+							scope:'wpuplumb',
+							connectorStyle:{ strokeStyle:'#000061', lineWidth:8 },
+							connector: ['Bezier', { curviness:63 } ],
+							maxConnections:1,
+							dropOptions : wpuDropOptions
+						};
+						var wpuEndPoint = {
+							endpoint:["Dot", { radius:15 }],
+							paintStyle:{ fillStyle:'#000061' },
+							scope:'wpuplumb',
+							connectorStyle:{ strokeStyle:'#000061', lineWidth:6 },
+							connector: ['Bezier', { curviness:63 } ],
+							maxConnections:10,
+							isTarget:true,
+							dropOptions : wpuDropOptions
+						};					
+
+						<?php 
+							foreach($elsL as $typeId => $els) {
+								foreach($els as $el) { 
+									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $el);		?>
+									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuStartPoint);
+								<?php }
+							}
 							
-					
-				});
+							foreach($elsR as $typeId => $els) {
+								foreach($els as $el) { 
+									$var = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $el);		?>
+									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), wpuEndPoint);
+								<?php }
+							}
+							
+							foreach($linkages as $typeId => $linkage) {
+								foreach($linkage as $linkL => $linkR) {
+									$varL = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $linkL)	
+									$varR = 'plumb' . str_replace(array('-', '_'), array('WPU', 'wpuwpu') $linkR)	?>		
+									
+									jsPlumb.connect({
+										source: <?php echo $varL; ?>,
+										target: <?php echo $varR; ?>
+									});
+									
+								<?php }
+							}	?>							
+								
+						
+					});
 				
-				
-				
+
 				// ]]>
 				</script>				
 				
