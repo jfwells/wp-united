@@ -1065,6 +1065,10 @@ div.subsettings div.subsettings {
 	clear: left;
 }
 
+.wpuplumbgroupl small {
+	line-height: 10px;
+}
+
 .wpuplumbgroupr {
 	float: right;
 	clear: right;
@@ -1088,3 +1092,13 @@ div.subsettings div.subsettings {
 	padding-right: 6px;
 }
 
+.wpuprocess *, .wpuclear * {
+	float: left !important;
+}
+.wpuprocess, .wpuclear {
+	min-width: 65px;
+}
+
+#wpupermactions button {
+	margin: 8px;
+}

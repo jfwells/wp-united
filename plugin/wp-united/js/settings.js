@@ -462,11 +462,11 @@ function setupUserMapperPage() {
 }
 
 
-wpuApplyPerms() {
+function wpuApplyPerms() {
 	return false;
 }
 
-wpuResetPerms() {
+function wpuClearPerms() {
 	window.scrollTo(0,0);
 	$('#wpu-desc').html('<strong>Clearing changes</strong><br />Please wait...');
 	$("#wpu-reload").dialog({
@@ -480,7 +480,7 @@ wpuResetPerms() {
 		resizable: false
 	});
 	$('.ui-dialog-titlebar').hide();
-	window.location.reload(1);	
+	window.location.reload(1);
 }
 
 

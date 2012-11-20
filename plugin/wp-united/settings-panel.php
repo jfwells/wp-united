@@ -387,7 +387,7 @@ function wpu_user_mapper() {
 
 			<div id="wpumaptab-perms">
 			
-				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB. This way, you have control over which users and groups get automatically integrated.'); ?></p>
+				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB. This way, you have control over which users and groups get automatically integrated. This page provides an easy way to assign permissions.'); ?></p>
 				
 				<a class="wpuwhatis" href="#" onclick="return $('#wpupermmore').toggle();">More info &raquo;</a>
 				<div id="wpupermmore" style="display: none;">
@@ -401,6 +401,7 @@ function wpu_user_mapper() {
 					<li><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></li>
 				</ul>
 				</div>
+				<p><strong>(work in progress. For now, please edit phpBB permissions manually).</strong> <?php _e(' Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. When happy, click &quot;Apply&quot;'); ?></p>
 				<?php
 					global $phpbbForum, $db;
 					$phpbbForum->foreground();
@@ -485,9 +486,9 @@ function wpu_user_mapper() {
 												$blockIdL = "wpuperml-{$typeId}-{$row['db_name']}";
 												$elsL[$typeId][] = $blockIdL;
 												?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
-													<p><?php echo $row['name']; if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
-													<?php echo '<br /><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?><br />
-													<?php echo '<strong>' . __('Group type: ') . '</strong>' . $type; ?></p>
+													<p><strong><?php echo $row['name'];?></strong> <?php if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
+													<?php echo '<br /><small><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?><br />
+													<?php echo '<strong>' . __('Group type: ') . '</strong>' . $type; ?></small></p>
 													<?php 
 														if(isset($effectivePerms[$row['name']])) {
 															$linkages[$typeId][$blockIdL] = "wpupermr-{$effectivePerms[$row['name']]}";
@@ -507,7 +508,7 @@ function wpu_user_mapper() {
 									$blockIdR = "wpupermr-{$wpName}";
 									$elsR[$typeId][] = $blockIdR;  ?>
 									<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
-										<?php echo 'WordPress ' . $wpName; ?>
+										<strong><?php echo 'WordPress ' . $wpName; ?></strong>
 									</div>
 								<?php } ?>
 							</div>
@@ -518,10 +519,8 @@ function wpu_user_mapper() {
 				</table>
 				<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></em></small>
 				<div id="wpupermactions">
-					<small>
-						<button class="wpuprocess" onclick="return wpuApplyPerms();">><?php _e('Apply'); ?></button>
-						<button class="wpuclear" onclick="return wpuClearPerms();">><?php _e('Reset'); ?></button>
-					</small>
+					<button class="wpuprocess" onclick="return wpuApplyPerms();"><?php _e('Apply'); ?></button>
+					<button class="wpuclear" onclick="return wpuClearPerms();"><?php _e('Reset'); ?></button>
 				</div>
 				
 
@@ -610,8 +609,8 @@ function wpu_user_mapper() {
 						</ul>
 						<div id="wpupanelactions">
 							<small>
-								<button class="wpuprocess" onclick="return wpuProcess();">><?php _e('Process actions'); ?></button>
-								<button class="wpuclear" onclick="return wpuMapClearAll();">><?php _e('Clear all'); ?></button>
+								<button class="wpuprocess" onclick="return wpuProcess();"><?php _e('Process actions'); ?></button>
+								<button class="wpuclear" onclick="return wpuMapClearAll();"><?php _e('Clear all'); ?></button>
 							</small>
 						</div>
 					</div>
