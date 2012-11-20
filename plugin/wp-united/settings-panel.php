@@ -604,7 +604,7 @@ function wpu_user_mapper() {
 						</div>
 					</div>
 					<div id="wpumappanel" class="ui-widget">
-						<h3 class="ui-widget-header ui-corner-all">><?php _e('Actions to process'); ?></h3>
+						<h3 class="ui-widget-header ui-corner-all"><?php _e('Actions to process'); ?></h3>
 						<ul id="wpupanelactionlist">
 						</ul>
 						<div id="wpupanelactions">
@@ -844,7 +844,7 @@ function wpu_process_mapaction() {
 					die('<status>FAIL</status><details>Database error: Could not integrate</details></wpumapaction>');
 				}
 				// Sync profiles
-				$wpuNewDetails = wpu_get_phpbb_intdata($pUserID);
+				$wpuNewDetails = $phpbbForum->get_userdata('', $pUserID);
 				$phpbbForum->background($fStateChanged);
 				$wpUsrData = get_userdata($wUserID);
 				wpu_sync_profiles($wpUsrData, $wpuNewDetails, 'sync');
@@ -874,7 +874,7 @@ function wpu_process_mapaction() {
 			} else {
 
 				// create user in WordPress
-				$wpuNewDetails = wpu_get_phpbb_intdata($userID);
+				$wpuNewDetails = $phpbbForum->get_userdata('', $userID);
 				
 				require_once( ABSPATH . WPINC . '/registration.php');
 				
@@ -911,44 +911,6 @@ function wpu_process_mapaction() {
 	
 }
 
-
-
-function wpu_get_phpbb_intdata($userID) {
-	global $phpbbForum, $db;
-	
-	$fStateChanged = $phpbbForum->foreground();
-	
-	$sql = 	"SELECT *
-					FROM " . USERS_TABLE . " 
-					WHERE user_id = $userID"; 
-	if (!$pUserData = $db->sql_query($sql)) {
-		die('<status>FAIL</status><details>Database error: Could not get details</details></wpumapaction>');
-	}
-	$data = $db->sql_fetchrow($pUserData);
-	$db->sql_freeresult($pUserData);
-	$password = $data['user_password'];
-
-	$wpuNewDetails = array(
-		'user_id' 		=>  	$userID,
-		'user_ip' 		=>  	(isset($data['user_ip'])) ? $data['user_ip'] : '',
-		'username' 		=>  	(isset($data['username'])) ? $data['username'] : '',
-		'user_email' 		=> 	(isset($data['user_email'])) ? $data['user_email'] : '',
-		'user_password' 	=> 	(isset($password)) ? $password : '',
-		'user_aim'		=> 	(isset($data['user_aim'])) ? $data['user_aim'] : '',
-		'user_yim'		=> 	(isset($data['user_yim'])) ? $data['user_yim'] : '',
-		'user_jabber'		=> 	(isset($data['user_jabber'])) ? $data['user_jabber'] : '',
-		'user_website'		=> 	(isset($data['user_website'])) ? $data['user_website'] : '',							
-		'user_avatar' 			=> 	(isset($data['user_avatar'])) ? $data['user_avatar'] : '',
-		'user_avatar_type'		=> 	(isset($data['user_avatar_type'])) ? $data['user_avatar_type'] : '',
-		'user_avatar_width'		=> 	(isset($data['user_avatar_width'])) ? $data['user_avatar_width'] : '',
-		'user_avatar_height'		=> 	(isset($data['user_avatar_height'])) ? $data['user_avatar_height'] : ''							
-	);
-				
-	$phpbbForum->restore_state($fStateChanged);
-	
-	return $wpuNewDetails;
-	
-}
 
 function wpu_map_break($intID) {
 	global $phpbbForum, $db;
