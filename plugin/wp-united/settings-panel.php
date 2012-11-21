@@ -408,7 +408,7 @@ function wpu_user_mapper() {
 					<li><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></li>
 				</ul>
 				</div>
-				<p><?php _e(' Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. When happy, click &quot;Apply&quot;'); ?></p>
+				<p><?php _e(' Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. Remember that phpBB users can belong to more than one group, so connect the red squares if you want to ensure a mapping <em>never</em> happens.When happy, click &quot;Apply&quot;'); ?></p>
 				<?php
 					global $phpbbForum, $db;
 					$phpbbForum->foreground();
@@ -470,9 +470,9 @@ function wpu_user_mapper() {
 						<div id="wpuplumbcanvas" class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
 							<?php
 							$perms = wpu_permissions_list();
-							$permSettings = wpu_get_perms(); 
 							$newUserGroups = $phpbbForum->get_newuser_group();
 							$linkages = array();
+							$neverLinkages = array();
 							$elsL = array();
 							$elsR = array();
 							$typeId = 0;
@@ -481,11 +481,12 @@ function wpu_user_mapper() {
 								$typeId++;
 								if(($type == __('Built-In')) || ($numUserDefined > 0)) {
 
-									$effectivePerms = wpu_get_wp_role_for_group();
+									$effectivePerms = wpu_assess_perms('', false, false); //wpu_get_wp_role_for_group();
+									$nevers = wpu_assess_perms('', false, true);
 									$linkages[$typeId] = array();
+									$neverLinkages[$typeId] = array();
 									$elsL[$typeId] = array();
 									$elsR[$typeId] = array();
-									
 									?><div class="wpuplumbleft"><?php
 										foreach ($groupData as $group_id => $row) {
 											if($row['type'] == $type) {
@@ -497,7 +498,14 @@ function wpu_user_mapper() {
 													<?php echo '<strong>' . __('Group type: ') . '</strong>' . $type; ?></small></p>
 													<?php 
 														if(isset($effectivePerms[$row['name']])) {
-															$linkages[$typeId][$blockIdL] = "wpupermr-{$effectivePerms[$row['name']]}";
+															foreach($effectivePerms[$row['name']] as $permItem) {
+																$linkages[$typeId][$blockIdL] = "wpupermr-{$permItem}";
+															}
+														} 
+														if(isset($nevers[$row['name']])) {
+															foreach($nevers[$row['name']] as $neverItem) {
+																$neverLinkages[$typeId][$blockIdL] = "wpupermr-{$neverItem}";
+															}
 														} 
 													?> 
 												</div> <?php
@@ -511,7 +519,7 @@ function wpu_user_mapper() {
 							<div class="wpuplumbright">
 									
 								<?php foreach($perms as $permSetting => $wpName) {
-									$blockIdR = "wpupermr-{$wpName}";
+									$blockIdR = "wpupermr-{$permSetting}";
 									$elsR[$typeId][] = $blockIdR;  ?>
 									<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
 										<strong><?php echo 'WordPress ' . $wpName; ?></strong>
@@ -536,14 +544,16 @@ function wpu_user_mapper() {
 							foreach($elsL as $typeId => $els) {
 								foreach($els as $el) { 
 									$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
-									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.5,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
+									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
+									var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true}, wpuNeverEndPoint);
 								<?php }
 							}
 							
 							foreach($elsR as $typeId => $els) {
 								foreach($els as $el) { 
 									$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
-									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.5,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
+									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
+									var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);
 								<?php }
 							}
 							
@@ -557,7 +567,19 @@ function wpu_user_mapper() {
 										target: <?php echo $varR; ?>
 									});
 								<?php }
-							}	?>							
+							}						
+							foreach($neverLinkages as $typeId => $linkage) {
+								foreach($linkage as $linkL => $linkR) {
+									$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
+									$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
+									
+									jsPlumb.connect({
+										source: <?php echo "n$varL"; ?>,
+										target: <?php echo "n$varR"; ?>
+									});
+								<?php }
+							}
+						?>							
 					}
 				// ]]>
 				</script>				
@@ -678,15 +700,22 @@ function wpu_process_perms() {
 	
 	$conns = stripslashes(base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), (string)$_POST['wpusetperms'])));
 	$conns = explode(',', $conns);
-	$permsList = wpu_permissions_list();
+	$nevers = stripslashes(base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), (string)$_POST['wpusetnevers'])));
+	$nevers = explode(',', $nevers);	
+	$permsList = array_keys(wpu_permissions_list());
 	
 	$phpbbForum->clear_group_permissions();
-	
+
 	foreach($conns as $conn) {
-		list($phpbbGroup, $wpRole) = explode('=', $conn);
-		$wpuPermName = array_search($wpRole, $permsList);
-		if(!empty($wpuPermName)) {
+		list($phpbbGroup, $wpuPermName) = explode('=', $conn);
+		if(in_array($wpuPermName, $permsList)) {
 			wpu_set_phpbb_group_permissions($phpbbGroup, $wpuPermName);
+		}
+	}
+	foreach($nevers as $never) {
+		list($phpbbGroup, $wpuPermName) = explode('=', $never);
+		if(in_array($wpuPermName, $permsList)) {
+			wpu_set_phpbb_group_permissions($phpbbGroup, $wpuPermName, ACL_NEVER);
 		}
 	}
 

@@ -344,7 +344,8 @@ var wpuSuggCache;
 var panelOpen = false;
 var panelHidden = false;
 var wpuDropOptions;
-var wpuEndPoint;
+var wpuEndPoint
+var wpuNeverEndPoint;
 /**
  * Initialises the user mapper page
  */
@@ -391,6 +392,15 @@ function setupUserMapperPage() {
 		maxConnections:10,
 		dropOptions : wpuDropOptions
 	};
+	wpuNeverEndPoint = {
+		endpoint:['Rectangle', { width:15, height: 15 }],
+		paintStyle:{ fillStyle:'#dd0000' },
+		scope:'wpuplumbnever',
+		connectorStyle:{ strokeStyle:'#dd0000', lineWidth:6 },
+		connector: ['Bezier', { curviness:63 } ],
+		maxConnections:10,
+		dropOptions : wpuDropOptions
+	};	
 	
 	initPlumbing();
 	
@@ -465,10 +475,15 @@ function setupUserMapperPage() {
 function wpuApplyPerms() {
 	
 	var connections = jsPlumb.getConnections('wpuplumb');
+	var nevers = jsPlumb.getConnections('wpuplumbnever');
 	var results = [];
 	for(var i=0;i<connections.length;i++) {
 		results.push(connections[i].sourceId.split(/-/g)[2] + '=' + connections[i].targetId.split(/-/g)[1]);
 	}
+	var resultsNever = [];
+	for(var i=0;i<nevers.length;i++) {
+		resultsNever.push(nevers[i].sourceId.split(/-/g)[2] + '=' + nevers[i].targetId.split(/-/g)[1]);
+	}	
 	
 	window.scrollTo(0,0);
 	$('#wpu-reload').dialog({
@@ -487,7 +502,7 @@ function wpuApplyPerms() {
 	
 	//TODO: setup error handler here
 	
-	$.post('admin.php?page=wpu-user-mapper', 'wpusetperms=' + makeMsgSafe(results.join(',')) + '&_ajax_nonce=' + firstMapActionNonce, function(response) { 
+	$.post('admin.php?page=wpu-user-mapper', 'wpusetperms=' + makeMsgSafe(results.join(',')) + '&wpusetnevers=' + makeMsgSafe(resultsNever.join(',')) + '&_ajax_nonce=' + firstMapActionNonce, function(response) { 
 		if(response=='OK') {
 			// the settings were applied
 		}

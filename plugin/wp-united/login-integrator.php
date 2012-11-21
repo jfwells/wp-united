@@ -538,75 +538,100 @@ function wpu_get_perms($groupList = '') {
 	
 }
 
+
+
 /**
  * Assess permissions for a group or groups, returning an array of groups and "Yes" permissions.
  * @param mixed array|empty string $groupList, the groups to check
  * @param bool $singleUser, all these groups belong to a single user, so remove any permissions from all groups if a "Never" is found.
+ * @param bool $getNevers, just get a list of never permissions
  * @return aray
  */
- 
- // TODO: SIMPLIFY LOOP LOGIC HERE
-function wpu_assess_perms($groupList = '', $singleUser = false) {
+ function wpu_assess_perms($groupList = '', $singleUser = false, $getNevers = false) {
 	
-	$setPerms = wpu_get_perms($groupList);
-	$perms = wpu_permissions_list();
-								
-	$integratedGroups = array();
+	static $cachedResults = array();
+	
+	$cachedGroupList = (empty($groupList)) ? '[EMPTY]' : implode(',', $groupList);
+	
+	if(!isset($cachedResults[$cachedGroupList])) {
 
-	if(sizeof($setPerms)) {
+		$cachedResults[$cachedGroupList] = array();
+		$cachedResults[$cachedGroupList]['yeses'] = array();
+		$cachedResults[$cachedGroupList]['nevers'] = array();
+		$cachedResults[$cachedGroupList]['yeses-single'] = array();
 		
-		foreach($setPerms as $groupName => $permList) { 
-			$currLevel = '';
-			$nevers = array();
-			$yeses = array();
-			$results = array();
-			foreach($perms as $wpLevel => $permText) { 
-				$canIntegrate = true; $foundItem = false;
-				foreach($permList as $permItem) {
-					if($permItem['perm'] == $wpLevel) { 
-						$foundItem = true;
-						if($permItem['setting'] == ACL_NEVER) {
-							$canIntegrate = false;
-							$nevers[] = $permText;
-						} else {
-							$yeses[] = $permText;
+		$setPerms = wpu_get_perms($groupList);
+									
+		$yeses = array();
+		$nevers = array();
+
+		if(sizeof($setPerms)) {
+			
+			foreach($setPerms as $groupName => $permList) { 
+				foreach($permList as $permItem) { 
+					if($permItem['setting'] == ACL_YES) {
+						if(!isset($yeses[$groupName])) {
+							$yeses[$groupName] = array();
 						}
+						$yeses[$groupName][] = $permItem['perm'];
+					} else if($permItem['setting'] == ACL_NEVER) {
+						if(!isset($nevers[$groupName])) {
+							$nevers[$groupName] = array();
+						}					
+						$nevers[$groupName][] = $permItem['perm'];
 					}
 				}
-				if($foundItem && $canIntegrate) { 
-					$currLevel = $permText;
+				// remove ACL_NEVERS for corresponding groups
+				if(isset($yeses[$groupName]) && isset($nevers[$groupName])) {
+					$yeses[$groupName] = array_diff($yeses[$groupName], $nevers[$groupName]);
 				}
-				if($singleUser) {
-					foreach($yeses as $yes) {
-						if(!in_array($yes, $nevers) && !in_array($yes, $results) ) {
-							$results[] = $yes;
-						}
+			}
+			
+			$cachedResults[$cachedGroupList]['yeses'] = $yeses;
+			$cachedResults[$cachedGroupList]['nevers'] = $nevers;
+			$cachedResults[$cachedGroupList]['yeses-single'] = $yeses;
+			// if all these groups belong to a single user, also remove *any* items which also have ACL_NEVER set
+			if(sizeof($nevers)) {
+				$y = array();
+				$n = array();
+				foreach(array_values($nevers) as $never => $perm) {
+					$n = array_merge($n, $perm);
+				}
+				
+				foreach($yeses as $groupName => $perms) {
+					$result = array_diff($perms, $n);
+					if(sizeof($result)) {
+						$y[$groupName] = $result;
 					}
 				}
+				$cachedResults[$cachedGroupList]['yeses-single'] = $y;
 			}
-			if(!empty($currLevel)) {
-				if( (!$singleUser) || ($singleUser && sizeof($results)) ) {
-					$integratedGroups[$groupName] = $results;
-				}
-			}
-		}	
-		
+		}
 	}
-	return $integratedGroups;
 	
-
+	if($singleUser) {
+		return $cachedResults[$cachedGroupList]['yeses-single'];
+	} else if($getNevers) {
+		return $cachedResults[$cachedGroupList]['nevers'];
+	} else {
+		return $cachedResults[$cachedGroupList]['yeses'];
+	}
 }
 
 function wpu_get_wp_role_for_group($groupList = '') {
 	
-	$permArr = wpu_assess_perms($groupList, true);
-	
+	$permArr = wpu_assess_perms($groupList, false);
+
 	$result = array();
+	$wpuPerms = array_keys(wpu_permissions_list());
 	// get the highest role  for the given group(s), as nothing else really matters
 	foreach($permArr as $group => $roleArr) {
-		$result[$group] = $roleArr[sizeof($roleArr) - 1];
+		foreach($wpuPerms as $wpuPerm) {
+			if(in_array($wpuPerm, $roleArr)) {
+				$result[$group] = $wpuPerm;
+			}
+		}
 	}
-	
 	return $result;
 	
 }
@@ -1028,7 +1053,7 @@ function wpu_set_phpbb_permissions($id, $perm) {
  * @param int $id phpBB ID
  * @param string $perm phPBB WP-United permission
  */
-function wpu_set_phpbb_group_permissions($groupName, $perm) {
+function wpu_set_phpbb_group_permissions($groupName, $perm, $type = ACL_YES) {
 	global $phpbbForum;
 	
 
@@ -1036,7 +1061,7 @@ function wpu_set_phpbb_group_permissions($groupName, $perm) {
 	if(!in_array($perm, array_keys(wpu_permissions_list()))) {
 		return false;
 	}
-	$phpbbForum->update_group_permissions('grant', $groupName, $perm, ACL_YES);
+	$phpbbForum->update_group_permissions('grant', $groupName, $perm, $type);
 	return true;
 }
 
