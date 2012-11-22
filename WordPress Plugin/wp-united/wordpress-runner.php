@@ -173,10 +173,10 @@ function wpu_get_wordpress() {
 			}
 	
 			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpUnited->get_setting('wpPageName'));
-			if ( !file_exists($wpTemplateFile) ) {
+			if ( !@file_exists($wpTemplateFile) ) {
 				$wpTemplateFile = TEMPLATEPATH . "/page.php";
 				// Fall back to index.php for Classic template
-				if(!file_exists($wpTemplateFile)) {
+				if(!@file_exists($wpTemplateFile)) {
 					$wpTemplateFile = TEMPLATEPATH . "/index.php";
 				}
 			}

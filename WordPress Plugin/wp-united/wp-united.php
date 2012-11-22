@@ -74,7 +74,7 @@ function wpu_uninstall() {
 		
 		$commonLoc = $phpbb_root_path . 'common.' . $phpEx;
 		
-		if(file_exists($commonLoc)) {
+		if(@file_exists($commonLoc)) {
 			include($phpbb_root_path . 'common.' . $phpEx);
 			
 			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 

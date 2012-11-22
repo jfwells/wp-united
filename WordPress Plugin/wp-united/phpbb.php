@@ -79,10 +79,34 @@ class WPU_Phpbb {
 		return $this->_loaded;
 	}
 	
+	public function can_connect_to_phpbb() {
+		global $wpUnited;
+		
+		$rootPath = $wpUnited->get_setting('phpbb_path');
+		
+		if(!$rootPath) {
+			return false;
+		}
+		
+		static $canConnect = false;
+		static $triedToConnect = false;
+		
+		if($triedToConnect) {
+			return $canConnect;
+		}
+		
+		 $canConnect = @file_exists($rootPath);
+		 $triedToConnect = true;
+		 
+		 
+		 return $canConnect;
+		
+	}
+	
 	/**
 	 * Loads the phpBB environment if it is not already
 	 */
-	public function load($rootPath) {
+	public function load() {
 		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpUnited;
 		global $dbms, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
 		
@@ -93,15 +117,20 @@ class WPU_Phpbb {
 			
 		$this->backup_wp_conflicts();
 		
-		define('IN_PHPBB', true);
+
+		if ( !defined('IN_PHPBB') ) {
+			$phpEx = substr(strrchr(__FILE__, '.'), 1);
+			define('IN_PHPBB', true);
+		}
 		
-		$phpbb_root_path = $rootPath;
+		$phpbb_root_path = $wpUnited->get_setting('phpbb_path');
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
 		
 		$this->make_phpbb_env();
 		
-		if(!file_exists($phpbb_root_path . 'common.' . $phpEx)) {
-			$wpUnited->disable_connection('error');
+		if(!$this->can_connect_to_phpbb()) {
+			$wpUnited->disable_connection('error'); 
+			die();
 		}
 		require_once($phpbb_root_path . 'common.' . $phpEx);
 		
@@ -151,7 +180,7 @@ class WPU_Phpbb {
 		//fix phpBB SEO mod
 		global $phpbb_seo;
 		if (empty($phpbb_seo) ) {
-			if(file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx)) {
+			if(@file_exists($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx)) {
 				require_once($phpbb_root_path . 'phpbb_seo/phpbb_seo_class.'.$phpEx);
 				$phpbb_seo = new phpbb_seo();
 				$this->seo = true;

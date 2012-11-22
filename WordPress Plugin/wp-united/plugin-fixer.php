@@ -72,11 +72,11 @@ class WPU_WP_Plugins {
 		$this->mainEntry = $mainEntry;
 		
 		if (stripos($plugin, 'wpu-plugin') === false) {
-			if( !file_exists($plugin) ) {
+			if( !@file_exists($plugin) ) {
 				// plugin file not found -- not an absolute path. Look in plugin folder
 				$plugin = $workingDir . $plugin; 
 			}
-			if(file_exists($plugin)) {
+			if(@file_exists($plugin)) {
 				$cached = $wpuCache->get_plugin($plugin, $this->wpVer, $this->strCompat);
 				if (!$cached) {
 					if(!$cached = $this->process_file($plugin)) {

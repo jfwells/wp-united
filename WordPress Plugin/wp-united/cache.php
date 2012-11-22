@@ -298,7 +298,7 @@ class WPU_Cache {
 		$lastCompiled = $GLOBALS['config']['wpu_plugins_compiled'];
 		$compat = ($compat) ? "_fast" : "_slow";
 		$fnPlugin = $this->baseCacheLoc . "plugin-" . md5("{$this->salt}-{$pluginPath}-{$wpVer}-{$this->wpuVer}{$compat}") . ".{$phpEx}";
-		if(file_exists($fnPlugin)) {
+		if(@file_exists($fnPlugin)) {
 			if(filemtime($fnPlugin) <= $lastCompiled) {
 				return $fnPlugin;
 			}
@@ -346,7 +346,7 @@ class WPU_Cache {
 			return false;
 		}
 		$fileName = $this->baseCacheLoc . $wpUnited->get_style_key($key);
-		if(file_exists($fileName)) { 
+		if(@file_exists($fileName)) { 
 			$templateVoodoo = @file_get_contents($fileName);
 			if(!empty($templateVoodoo)) {
 				$templateVoodoo = @unserialize($templateVoodoo);
@@ -373,7 +373,7 @@ class WPU_Cache {
 	 */
 	public function get_css_magic($fileName, $pos, $incTplVoodoo = -1) {
 		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
-		if(file_exists($cacheFileName)) {
+		if(@file_exists($cacheFileName)) {
 			if(@filemtime($cacheFileName) > @filemtime($fileName)) {
 				return  $cacheFileName;
 			}

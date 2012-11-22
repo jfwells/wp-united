@@ -142,7 +142,7 @@ class CSS_Magic {
 	public function parseFile($filename, $clear = false) {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
-		if(file_exists($filename)) {
+		if(@file_exists($filename)) {
 			return $this->parseString(file_get_contents($filename), $clear);
 		} else {
 			return false;

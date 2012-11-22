@@ -1347,11 +1347,11 @@ function wpu_process_settings() {
 	$wpuPhpbbPath = (string)$_POST['wpu-path'];
 	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
 	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
-	if(!file_exists($wpUnited->get_plugin_path()))  {
+	if(!@file_exists($wpUnited->get_plugin_path()))  {
 		die('[ERROR] ERROR:The path you selected for phpBB\'s config.php is not valid');
 		return;
 	}
-	if(!file_exists($wpuPhpbbPath . 'config.php'))  {
+	if(!@file_exists($wpuPhpbbPath . 'config.php'))  {
 		die('[ERROR] ERROR: phpBB\'s config.php could not be found at the location you chose');
 		return;
 	}
@@ -1605,20 +1605,20 @@ function wpu_filetree() {
 		$fileLoc = str_replace('//', '/', $fileLoc);
 	}
 
-	if( file_exists($fileLoc) ) {
+	if( @file_exists($fileLoc) ) {
 		$files = scandir($fileLoc);
 		natcasesort($files);
 		if( count($files) > 2 ) { /* The 2 accounts for . and .. */
 			echo "<ul class=\"jqueryFileTree\" style=\"display: none;\">";
 			// All dirs
 			foreach( $files as $file ) {
-				if( file_exists($fileLoc. $file) && $file != '.' && $file != '..' && is_dir($fileLoc . $file) ) {
+				if( @file_exists($fileLoc. $file) && $file != '.' && $file != '..' && is_dir($fileLoc . $file) ) {
 					echo "<li class=\"directory collapsed\"><a href=\"#\" rel=\"" . htmlentities($fileLoc . $file) . "/\">" . htmlentities($file) . "</a></li>";
 				}
 			}
 			// All files
 			foreach( $files as $file ) {
-				if( file_exists($fileLoc . $file) && $file != '.' && $file != '..' && !is_dir($fileLoc . $file) ) {
+				if( @file_exists($fileLoc . $file) && $file != '.' && $file != '..' && !is_dir($fileLoc . $file) ) {
 					$ext = preg_replace('/^.*\./', '', $file);
 					echo "<li class=\"file ext_$ext\"><a href=\"#\" rel=\"" . htmlentities($fileLoc . $file) . "\">" . htmlentities($file) . "</a></li>";
 				}

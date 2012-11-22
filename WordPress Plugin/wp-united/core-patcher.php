@@ -183,7 +183,7 @@ Class WPU_Core_Patcher {
 	public function can_connect_to_wp() {
 		global $wpUnited;
 	
-		return file_exists( $wpUnited->get_wp_path() . 'wp-settings.php');
+		return @file_exists( $wpUnited->get_wp_path() . 'wp-settings.php');
 
 	}
 	
@@ -297,12 +297,12 @@ Class WPU_Core_Patcher {
 		if (!$this->core_cache_ready()) {
 			
 			// Now wp-config can be moved one level up, so we try that as well:
-			$wpConfigLoc = (!file_exists($wpUnited->get_wp_path() . 'wp-config.php')) ? $wpUnited->get_wp_path() . '../wp-config.php' : $wpUnited->get_wp_path() . 'wp-config.php';
+			$wpConfigLoc = (!@file_exists($wpUnited->get_wp_path() . 'wp-config.php')) ? $wpUnited->get_wp_path() . '../wp-config.php' : $wpUnited->get_wp_path() . 'wp-config.php';
 
 			$cConf = file_get_contents($wpConfigLoc);
 			$cSet = file_get_contents($wpUnited->get_wp_path() . 'wp-settings.php');
 			 //Handle the make clickable conflict
-			if (file_exists($wpUnited->get_wp_path() . 'wp-includes/formatting.php')) {
+			if (@file_exists($wpUnited->get_wp_path() . 'wp-includes/formatting.php')) {
 				$fName='formatting.php'; 
 			} else {
 				trigger_error($user->lang['Function_Duplicate']);

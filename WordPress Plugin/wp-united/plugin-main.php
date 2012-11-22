@@ -103,7 +103,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$this->settings['integrateLogin'] = 0;
 		}		
 
-		if(!$this->get_setting('phpbb_path') || !file_exists($this->get_setting('phpbb_path'))) {
+		if(!$this->get_setting('phpbb_path') || !$phpbbForum->can_connect_to_phpbb()) {
 			$this->set_last_run('disconnected');
 			return;
 		}
@@ -130,20 +130,16 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function load_phpbb() {
-		global $phpbb_root_path, $phpEx, $phpbbForum;
+		global $phpbbForum;
 
-		if ( !defined('IN_PHPBB') ) {
-			$phpbb_root_path = $this->get_setting('phpbb_path');
-			$phpEx = substr(strrchr(__FILE__, '.'), 1);
-		}
-		
+
 		if ( !defined('IN_PHPBB') ) { 
 			if(is_admin()) {
 				define('WPU_PHPBB_IS_EMBEDDED', TRUE);
 			} else {
 				define('WPU_BLOG_PAGE', 1);
 			}
-			$phpbbForum->load($phpbb_root_path);
+			$phpbbForum->load();
 			
 			$this->set_last_run('working');
 			$this->init_style_keys();
