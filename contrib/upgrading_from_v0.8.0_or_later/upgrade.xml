@@ -21,8 +21,8 @@ Visit http://www.wp-united.com for more help or information.
     <mod-version>0.9.0RC3</mod-version>
     <installation>
       <level>intermediate</level>
-      <time>912</time>
-      <target-version>3.0.7</target-version>
+      <time>900</time>
+      <target-version>3.0.11</target-version>
     </installation>
   <link-group>
 	<link type="parent" href="../../install.xml" lang="en">Main install file</link>
@@ -34,23 +34,17 @@ Visit http://www.wp-united.com for more help or information.
   </header>
   
   <action-group>
-      <diy-instructions lang="en-gb"><![CDATA[When copying, don't forget to overwrite your old blog.php, remembering that you may have moved or renamed it to a different location. After doing so, open it and provide the path back to phpBB where indicated.
+      <diy-instructions lang="en-gb"><![CDATA[When copying, files, you can delete everything in your old phpbb-root/wp-united directory before copying files over.
 
 Following this, visit your phpBB Admin Control Panel, and purge your phpBB cache.  
 
-Then, run the WP-United Setup Wizard all the way through.
+The control panel can now be found within WordPress, under WP-United.
 
 ]]></diy-instructions>
     <copy>
-      <file from="/root/blog.php" to="/blog.php" />
-      <file from="/root/adm/style/acp_wp_united.html" to="/adm/style/acp_wp_united.html" />
       <file from="/root/includes/hooks/hook_wp-united.php" to="/includes/hooks/hook_wp-united.php" />
-      <file from="/root/includes/acp/acp_wp_united.php" to="/includes/acp/acp_wp_united.php" />
-      <file from="/root/includes/acp/info/acp_wp_united.php" to="/includes/acp/info/acp_wp_united.php" />
-      <file from="/root/language/en/mods/admin_wp-united.php" to="/language/en/mods/admin_wp-united.php" />
       <file from="/root/language/en/mods/permissions_wp-united.php" to="/language/en/mods/permissions_wp-united.php" />
       <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
-      <file from="/root/styles/prosilver/template/blog.html" to="/styles/prosilver/template/blog.html" />
       <file from="/root/wp-united/" to="/wp-united/" />
     </copy>
     
@@ -67,6 +61,18 @@ Then, run the WP-United Setup Wizard all the way through.
 function phpbb_validate_username($username, $allowed_username = false)]]></action>
 
       </edit>
+	  
+	  
+        <edit><find><![CDATA[			require_once($GLOBALS['phpbb_root_path'] . 'wp-united/wpu-actions.' . $GLOBALS['phpEx']);
+			$GLOBALS['wpu_actions']->profile_update('avatar', ($custom_userdata === false) ? $user->data['user_id'] : $custom_userdata['user_id'], ($custom_userdata === false) ? $user->data['user_wpuint_id'] : $custom_userdata['user_wpuint_id'], $sql_ary);
+						]]></find>
+        <action type="replace-with"></action>
+		<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+      </edit>	  
+	  
+	  
+	  
+	  
      </open>
      
 						
@@ -111,8 +117,45 @@ function phpbb_make_clickable($text, $server_url = false, $class = 'postlink')
 					$GLOBALS['wpu_actions']->purge_cache();]]></action>
   </edit>
 </open>
+
+ <open src="ucp.php">
+  <edit>
+	<find><![CDATA[		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->do_logout();	]]></find>
+	<action type="replace-with"></action>
+	<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+  </edit>
+</open>
+<open src="includes/ucp/ucp_profile.php">
+  <edit>
+	<find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+					$GLOBALS['wpu_actions']->profile_update('reg_details', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></find>
+	<action type="replace-with"></action>
+	<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+  </edit>
+  <edit>
+	<find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+					$GLOBALS['wpu_actions']->profile_update('profile_info', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></find>
+	<action type="replace-with"></action>
+  </edit>
+  <comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+</open>
+    <open src="includes/acp/acp_users.php">
+      <edit>
+        <find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('reg_details', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></find>
+        <action type="replace-with"></action>
+		<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+      </edit>
+      <edit>
+        <find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('profile_info', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></find>
+        <action type="replace-with"></action>
+		<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+      </edit>
+	  
+    </open>
     
-    
-    
+
       </action-group>
 </mod>

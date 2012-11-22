@@ -1,15 +1,11 @@
-WP-UNITED: WordPress Integration Mod v0.9.0 RC3 for phpBB3
+WP-UNITED: phpBB - WordPress Integration v0.9.0 RC3
 -----------------------------------------------
-Last updated: <> 2010, by John Wells
+Last updated: 22/11/2012, by John Wells
 
 This software is PRE-RELEASE and UNDER CONSTRUCTION. Use on a test board only until we near the final releae of v0.9!
 **************************************
 NOTE: TO INSTALL THIS PRE-RELEASE VERSION, INSTALL THE MOD AS NORMAL, THEN COPY ALL FILES in PLUGIN/ TO YOUE WORDPRESS PLUGIN FOLDER
 THEN ACTIVATE THE NEW WP-UNITED PLUGIN AND VISIT THE SETTINGS PAGE.
-
-*MANY* THINGS ARE TEMPORARILY BROKEN AND ON THE FLOOR
-
-
 **************************************
 
 
@@ -21,18 +17,34 @@ Thank you for downloading WP-United! This file introduces how to get up and runn
 BEFORE YOU BEGIN
 ------------------------
 
-Make sure you have already installed phpBB and WordPress, and have verified that they are working OK. I recommend the latest versions - at this time of writing, that means phpBB3 1.0.3 & WordPress 2.7.
+1. Make sure you have already installed phpBB and WordPress, and have verified that they are working OK. I recommend the latest versions - at this time of writing, that means phpBB3 3.0.11 & WordPress 3.4.x
 
-If these are not new installations, back up your phpBB & WordPress files and databases!
+2. Check that your phpBB and wordpress settings are correct -- please pay attention to your phpBB "script path" and cookie settings and ensure they are correct.
 
-You have two options to install this mod. -- manually, by altering code in your phpBB files, or automatically, using AutoMod.
+3. If these are not new installations, back up your phpBB & WordPress files and databases!
+
+4. Install the two portions of WP-United. WP-United consists of two parts: A WordPress plugin and a phpBB "MOD".
+
+4a) Install the wordpress plugin by uploading the plugin/wp-united directory to your WordPress plugins directory. and clicking "Activate" next to WP-United in the plugins menu.
+
+4b) You have two options to install the phpBB MOD -- manually, by altering code in your phpBB files, or automatically, using AutoMod. Details are below.
+
+5. Follow the instructions in the WordPress WP-United panel to connect to your phpBB board, and activate the WP-United elements you need
+
+INSTALLING THE phpBB MOD AUTOMATICALLY 
+-------------------------------------
+
+1. Download and install AutoMod from https://www.phpbb.com/mods/automod/
+
+2. Upload the phpbb/ folder and all files to your forum's "store" folder.
+
+3. Follow the instructions in AutoMod
 
 
-
-INSTALLING 
+INSTALLING THE phpBB MOD MAUNALLY (NOT RECOMMENDED)
 --------------
 
-An install.xml file has been included. To read this properly, unpack the archive to your hard drive, and access the install.xml file from its unpacked location (it needs the accompanying .xsl file to display properly).
+An install.xml file has been included. To read this properly, unpack the archive to your hard drive, and open the install.xml file from its unpacked location in your browser (it needs the accompanying .xsl file to display properly).
 
 The  file will tell you which files to upload to your forum and where they should go, and will give instructions on which files to modify and how. 
 
@@ -42,21 +54,6 @@ Some additional translations may have been provided in the /languages folder -- 
 
 If you need further help on what the directives mean, take a look at the phpBB forums -- http://www.phpbb.com/mods/installing/ . Make sure you back up your files before making any changes!
 
-Once you have installed the mod, you should visit the phpBB Admin Control Panel ("ACP"), logged in as an administrator with *founder* permissions. WP-United will automatically add a "WP-United" tab to the ACP. If you don't see it, it is because either: (1) you are not a founder user, or (2) some other error -- look in the phpBB Administrator actions log, and look for the "Installed WP-United" information.
-
-You should then be able to run the WP-United Setup Wizard, located under the WP-United tab in the phpBB Admin Control Panel.
-
-The Setup Wizard will try to install a plugin into your WordPress wp-content/plugins folder. That folder is usually writable, but if it is not, please copy the file wpu-plugin from [phpbb]/wp-united there yourself (please remember to *copy* it, NOT move it!), and then continue or run the WP-United Setup Wizard again. Let the WP-United Setup Wizard activate the plugin, you don't need to do it yourself.
-
-
-PERMISSIONS & INTEGRATING USERS
--------------------------------
-
-If you elect to integrate users, you need to visit your phpBB ACP permissions tab and choose which users / groups can integrate, and what level in WordPress they get (there is a WP-United tab in advanced user/group permissions).
-
-If you already have WordPress users set up, you can import them into phpBB using the included mapping tool, available under the WP-United ACP tab.
-
-If you want to allow users to cross-post blog posts to the forum, you need to give them the appropriate WP-United permission (there is a WP-United tab in advanced user/group forum permissions).
 
 
 UPGRADES
@@ -67,13 +64,6 @@ Instructions on converting from previous versions of WP-United are included in t
 Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/cache folder, and then run the WP-United setup Wizard again.
 
 
-UNINSTALLING  (Noooo)
------------------------------
-
-Uninstalling is easy:
-
-1. open wp-united/options.php, find the WPU_UNINSTALL option, and set it to TRUE
-2. Click the uninstall link under the WP-United tab in the Admin Control Panel. 
 
 
 CONTINGENCIES
@@ -81,7 +71,9 @@ CONTINGENCIES
 
 If you encounter errors that make your forums inaccessible, WP-United can be manually disabled temporarily, so that you can get into your phpBB ACP and change settings.
 
-To disable WP-United, open <phpbb>/wp-united/options.php, and set the option WPU_DISABLE to TRUE where indicated
+The easy way is simply to delete or rename the WP-United plugin folder in WordPress, and delete the phpbb/includes/hook/hook_wp-united.php file.
+
+
 
 
 
@@ -481,6 +473,7 @@ v0.8.5.8 BETA
 
 v0.8.5.0 ALPHA
 -- FIXED: When new WP users were created, the page had to be refreshed before they could log in.
+
 v0.8.5.0	ALPHA
 -- NEW: Integrated login.
 
