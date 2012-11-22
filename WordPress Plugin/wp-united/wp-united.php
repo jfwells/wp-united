@@ -48,6 +48,7 @@ function wpu_uninstall() {
 		'wpu-settings',
 		'wpu-last-run',
 		'wpu-enabled',
+		'wpu-admin-user',
 		'widget_wp-united-loginuser-info',
 		'widget_wp-united-latest-topics',
 		'widget_wp-united-latest-posts'

@@ -149,10 +149,15 @@ class WP_United_Plugin_Base {
 	*/
 	public function __construct() {
 		
+		
 		$currPath = dirname(__FILE__);
 		require_once($currPath . '/functions-general.php');
 		require_once($currPath . '/options.php');
+		require_once($currPath . '/debugger.php');
 		require_once($currPath . '/phpbb.php');
+		
+		global $wpuDebug;
+		$wpuDebug = new WPU_Debug();
 
 		global $phpbbForum;
 		$phpbbForum = new WPU_Phpbb();
@@ -198,6 +203,33 @@ class WP_United_Plugin_Base {
 	public function get_plugin_url() {
 		return $this->settings->pluginUrl;
 	}
+	
+	public function get_orphaned_admin_id() {
+		static $id = -1;
+		
+		if($id == -1) {
+			if($this->is_wordpress_loaded()) {
+				$id = get_option('wpu-admin-user');
+			}
+		} 
+		return ($id == -1) ? false : $id;
+	}
+	
+	public function set_orphaned_admin_id($id) {
+
+		if($this->is_wordpress_loaded()) {
+			update_option('wpu-admin-user', $id);	
+		}
+		
+	}
+	
+	public function clear_orphaned_admin_id() {
+
+		if($this->is_wordpress_loaded()) {
+			delete_option('wpu-admin-user');	
+		}
+		
+	}	
 	
 	
 	public function is_enabled() { 
@@ -554,6 +586,7 @@ class WP_United_Plugin_Base {
 	protected function ajax_ok() {
 		$this->ajax_result('OK', 'message');
 	}
+	
 	
 
 	protected function add_actions() { 

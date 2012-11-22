@@ -337,9 +337,9 @@ function wpu_output_page($content) {
 
 	// Add login debugging if requested
 	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) && !$wpuNoHead ) {
-		global $lDebug;
-		if(is_object($lDebug)) {
-			$content = str_replace('</body>', $lDebug->get() . '</body>', $content);
+		global $wpuDebug;
+		if(is_object($wpuDebug)) {
+			$content = str_replace('</body>', $wpuDebug->get() . '</body>', $content);
 		}
 	}
 

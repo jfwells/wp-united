@@ -22,17 +22,14 @@ if ( !defined('ABSPATH') ) {
  * The main login integration routine
  */
 function wpu_integrate_login() { 
-	global $wpUnited, $lDebug, $phpbbForum;
+	global $wpUnited, $phpbbForum;
 
 	// sometimes this gets called early, e.g. for admin ajax calls.
 	if(!$phpbbForum->is_phpbb_loaded()) {
 		return;
 	}
 
-	require_once($wpUnited->get_plugin_path() . 'debugger.php'); 
-
-	$lDebug = new WPU_Debug();
-				// TODO: CHECK WE ARE NOT **IN** PHPBB!!!
+			
 	if( !$phpbbForum->user_logged_in() ) { 
 		return  wpu_int_phpbb_logged_out(); 
 	}
@@ -48,7 +45,7 @@ function wpu_integrate_login() {
  * However this is left open as a prelude to bi-directional user integration
  */
 function wpu_int_phpbb_logged_out() { 
-	global $lDebug, $phpbbForum, $wpUnited, $user;
+	global $wpuDebug, $phpbbForum, $wpUnited, $user;
 
 	// Check if user is logged into WP
 	global $current_user; get_currentuserinfo();  $wpUser = $current_user;
@@ -97,7 +94,7 @@ function wpu_int_phpbb_logged_out() {
 }
 
 function wpu_int_phpbb_logged_in() { 
-	global $wpUnited, $lDebug, $phpbbForum, $wpUnited, $current_user;
+	global $wpUnited, $wpuDebug, $phpbbForum, $wpUnited, $current_user;
 	
 	
 	// Should this user integrate? If not, we can just let WordPress do it's thing
@@ -714,14 +711,28 @@ function wpu_get_integrated_phpbbuser($userID = 0) {
 
 /**
  * Gets the logged-in user's effective WP-United permissions
- * @return mixed WordPress user level, or false if no permissions
+ * @return mixed string|bool WordPress user level, or false if no permissions
  */
 function wpu_get_user_level() {
-	global $phpbbForum, $lDebug, $auth;
+	global $wpUnited, $phpbbForum, $wpuDebug, $auth, $wpuAdminIsOrphaned;
 
 	$fStateChanged = $phpbbForum->foreground();
+		
+	$couldBeOrphaned = false;
+	$wpuAdminIsOrphaned = false;
 	
 	$userLevel = false;
+
+	// if this is a grandfathered admin, don't remove their access
+	$orphanedAdmin = $wpUnited->get_orphaned_admin_id();
+	if(!empty($orphanedAdmin)) { 
+		global $current_user;
+		get_currentuserinfo();
+		if($current_user->ID == $orphanedAdmin) { 
+			$couldBeOrphaned = true;
+		}
+	}
+	
 	
 	// if checking for the current user, do a sanity check
 	if ( (!$phpbbForum->user_logged_in()) || !in_array($phpbbForum->get_userdata('user_type'), array(USER_NORMAL, USER_FOUNDER)) ) {
@@ -740,10 +751,16 @@ function wpu_get_user_level() {
 		}
 	}
 	
-	$lDebug->add($debug);
-	$lDebug->add('User level set to: ' . $userLevel);
+	$wpuDebug->add($debug);
+	$wpuDebug->add('User level set to: ' . $userLevel);
 	
 	$phpbbForum->restore_state($fStateChanged);
+	
+	if($couldBeOrphaned && ($userLevel != 'administrator')) {
+		$userLevel = 'administrator';
+		$wpuAdminIsOrphaned = true;
+	}
+	
 	return $userLevel;
 
 }
@@ -917,24 +934,26 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	 *
 	 */	
 	if(($action == 'phpbb-update') || ($action == 'sync')) { // updating phpBB profile or syncing
-		
-		// convert password to WP format for comparison, as that will be the destination if it is different
-		$pData['user_password'] = wpu_convert_password_format($pData['user_password'], 'to-wp');
-		// wp_update_user double-hashes the password so we handle it separately, now
-		if($pData['user_password'] != $wpData['user_pass']) {
-			$wpdb->update($wpdb->users, array('user_pass' => stripslashes($pData['user_password'])) , array('ID' => (int)$wpData['ID']), '%s', '%d');
-			wp_cache_delete($wpData['ID'], 'users');
-			wp_cache_delete($wpData['ID'], 'userlogins');
+		if(!empty($pData['user_password'])) {
+			// convert password to WP format for comparison, as that will be the destination if it is different
+			$pData['user_password'] = wpu_convert_password_format($pData['user_password'], 'to-wp');
+			// wp_update_user double-hashes the password so we handle it separately, now
+			if($pData['user_password'] != $wpData['user_pass']) {
+				$wpdb->update($wpdb->users, array('user_pass' => stripslashes($pData['user_password'])) , array('ID' => (int)$wpData['ID']), '%s', '%d');
+				wp_cache_delete($wpData['ID'], 'users');
+				wp_cache_delete($wpData['ID'], 'userlogins');
+			}
 		}
 		
 	} else if($action == 'wp-update') {	// updating WP profile 
-		
-		// convert password to phpBB format for comparison, as that will be the destination if it is different
-		$wpData['user_pass'] = wpu_convert_password_format($wpData['user_pass'], 'to-phpbb');
+		if(!empty($wpData['user_pass'])) { 
+			// convert password to phpBB format for comparison, as that will be the destination if it is different
+			$wpData['user_pass'] = wpu_convert_password_format($wpData['user_pass'], 'to-phpbb');
 
-		// for phpBB we can update along with everything else
-		if($pData['user_password'] != $wpData['user_pass']) {
-			$updates['phpbb']['user_password'] = $wpData['user_password'];
+			// for phpBB we can update along with everything else
+			if($pData['user_password'] != $wpData['user_pass']) {
+				$updates['phpbb']['user_password'] = $wpData['user_pass'];
+			}
 		}
 		
 	}

@@ -354,7 +354,7 @@ function wpu_setup_menu() {
 }
 
 function wpu_panel_warnings() {
-	global $wpUnited, $phpbbForum;
+	global $wpUnited, $phpbbForum, $wpuAdminIsOrphaned;
 	
 	if(!is_writable($wpUnited->get_plugin_path() . 'cache/')) {
 		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpUnited->get_plugin_path() . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
@@ -368,9 +368,14 @@ function wpu_panel_warnings() {
 	}
 	
 	if($wpUnited->is_enabled() && $wpUnited->get_setting('integrateLogins') && defined('COOKIE_DOMAIN') && ($phpbbForum->get_cookie_domain() != COOKIE_DOMAIN)) {
-		echo '<div id="debugerror" class="error highlight"><p>' . __('WARNING: phpBB and WordPress cookie domains do not match! For user integration to work properly, please edit the cookie domain in phpBB or set the WordPress COOKIE_DOMAIN so that both phpBB &amp; WordPress can set cookies for each other.') . '</p></div>';
+		echo '<div id="cookieerror" class="error highlight"><p>' . __('WARNING: phpBB and WordPress cookie domains do not match! For user integration to work properly, please edit the cookie domain in phpBB or set the WordPress COOKIE_DOMAIN so that both phpBB &amp; WordPress can set cookies for each other.') . '</p></div>';
 	}
-
+	
+	$orphanedAdmin = $wpUnited->get_orphaned_admin_id();
+	if($wpuAdminIsOrphaned) { 
+		echo '<div id="orphanerror" class="error highlight"><p>' . sprintf(__('WARNING! The user you are currently logged in as does NOT have administrator permissions mapped to it, but it is integrated in phpBB! You must grant this user valid integration permissions using the %sUser Mapping panel%s!'), '<a href="admin.php?page=wpu-user-mapper">', '</a>') . '</p></div>';
+	}
+	
 }
 
 function wpu_user_mapper() { 
@@ -1535,6 +1540,16 @@ function wpu_process_settings() {
 		
 	}
 
+	// if user integration is turning on,ensure we don't lock out the current admin user
+	if((!$wpUnited->get_setting('integrateLogin')||!$wpUnited->is_enabled()) && !empty($data['integrateLogin'])) {
+		
+		global $current_user;
+		get_currentuserinfo();
+		$wpUnited->set_orphaned_admin_id($current_user->ID);
+		
+	} else if(empty($data['integrateLogin'])) {
+		$wpUnited->clear_orphaned_admin_id();
+	}
 	
 	$wpUnited->update_settings($data);
 }
