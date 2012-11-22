@@ -21,4 +21,4 @@ if ( !defined('IN_PHPBB') ) {
 global $wpuVersion;
 $wpuVersion = '0.9.0';
 
-?>
+
