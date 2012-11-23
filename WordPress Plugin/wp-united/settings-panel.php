@@ -286,7 +286,9 @@ function wpu_setup_menu() {
 			case 'connected':
 				$statusText = __('Connected, but not ready or disabled due to errors');
 				$statusColour = "updated highlight allok";
-				$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), '<a href=\"#\">', '</a>', '<a href=\"http://www.phpbb.com/mods/automod/\">', '</a>', '<a href=\"http://www.phpbb.com/mods/installing/\">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
+				global $wpuAutoPackage;
+				$wpuWpPackage = (isset(($wpuAutoPackage)) ? 'wp-united-nightly-phpbb' : 'wp-united-latest-phpbb';
+				$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.');
 				break;
 			default:
 				$statusText = __('Not Connected');
