@@ -483,18 +483,20 @@ function wpu_user_mapper() {
 							$elsL = array();
 							$elsR = array();
 							$typeId = 0;
-				
-							foreach ($groupTypes as $type) { 
-								$typeId++;
-								if(($type == __('Built-In')) || ($numUserDefined > 0)) {
+							
+							?><div class="wpuplumbleft"><?php
+							
+								foreach ($groupTypes as $type) { 
+									$typeId++;
+									if(($type == __('Built-In')) || ($numUserDefined > 0)) {
 
-									$effectivePerms = wpu_assess_perms('', false, false); //wpu_get_wp_role_for_group();
-									$nevers = wpu_assess_perms('', false, true);
-									$linkages[$typeId] = array();
-									$neverLinkages[$typeId] = array();
-									$elsL[$typeId] = array();
-									$elsR[$typeId] = array();
-									?><div class="wpuplumbleft"><?php
+										$effectivePerms = wpu_assess_perms('', false, false); //wpu_get_wp_role_for_group();
+										$nevers = wpu_assess_perms('', false, true);
+										$linkages[$typeId] = array();
+										$neverLinkages[$typeId] = array();
+										$elsL[$typeId] = array();
+										$elsR[$typeId] = array();
+										
 										foreach ($groupData as $group_id => $row) {
 											if($row['type'] == $type) {
 												$blockIdL = "wpuperml-{$typeId}-{$row['db_name']}";
@@ -518,9 +520,9 @@ function wpu_user_mapper() {
 												</div> <?php
 											}
 										} 
-									?></div><?php
-								}
-							} 
+									}
+								} 
+							?></div><?php
 							$phpbbForum->background();
 							?>
 							<div class="wpuplumbright">
