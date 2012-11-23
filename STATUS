@@ -7,8 +7,6 @@ Current status:
 
 ---- user integration ---------
 
--- wpu_set_role should only be applied to creation of new WP user
--- Add two options to user integration: Create phpBB accounts for unintegrated WordPress users when they visit or register?, Create WordPress accounts for unintegrated phpBB users when they visit or register?
 -- on login (in WP or phpBB), also check username of integrated user if different and login failed
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
 -- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
@@ -129,6 +127,8 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- wpu_set_role is now only applied to creation of new WP user
+- Added two options to user integration: Create phpBB accounts for unintegrated WordPress users when they visit or register, Create WordPress accounts for unintegrated phpBB users when they visit or register
 - permissions UI now handles nevers and provides 1:1  visualisation of phpBB state.
 - wpu_assess_perms is now fixed and more flexible. Also caches results for the session.
 - New permissions mapping UI now fully working, can set and read group permissions

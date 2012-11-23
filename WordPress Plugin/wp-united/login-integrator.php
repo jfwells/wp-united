@@ -24,19 +24,28 @@ if ( !defined('ABSPATH') ) {
 function wpu_integrate_login() { 
 	global $wpUnited, $phpbbForum;
 
-	// sometimes this gets called early, e.g. for admin ajax calls.
-	if(!$phpbbForum->is_phpbb_loaded()) {
-		return;
-	}
-
-			
-	if( !$phpbbForum->user_logged_in() ) { 
-		return  wpu_int_phpbb_logged_out(); 
-	}
-
-	return  wpu_int_phpbb_logged_in();
+	// cache and prevent recursion
+	static $result = -1;
+	static $doneLogin;
 	
+	if(!$doneLogin) {
 	
+		// sometimes this gets called early, e.g. for admin ajax calls.
+		if(!$phpbbForum->is_phpbb_loaded()) {
+			return;
+		}
+		
+		$doneLogin = true;
+		
+		if( !$phpbbForum->user_logged_in() ) { 
+			$result = wpu_int_phpbb_logged_out(); 
+		} else {
+			$result = wpu_int_phpbb_logged_in();
+		}
+	}
+	
+	return $result;
+
 }
 
 /**
@@ -45,63 +54,51 @@ function wpu_integrate_login() {
  * However this is left open as a prelude to bi-directional user integration
  */
 function wpu_int_phpbb_logged_out() { 
-	global $wpuDebug, $phpbbForum, $wpUnited, $user;
+	global $wpuDebug, $phpbbForum, $wpUnited, $user, $current_user;
 
 	// Check if user is logged into WP
-	global $current_user; get_currentuserinfo();  $wpUser = $current_user;
+	get_currentuserinfo();  $wpUser = $current_user;
 	if(!$wpUser->ID) {
 		return false;
 	}
 
-		$createdUser = false;
+	$createdUser = false;
+
+	$phpbbId = wpu_get_integrated_phpbbuser($wpUser->ID);
 	
-		$phpbbId = wpu_get_integrated_phpbbuser($wpUser->ID);
+	if(!$phpbbId) { // The user has no account in phpBB, so we create one:
 		
+		if(!$wpUnited->get_setting('integcreatephpbb')) {
+			return $wpUser->ID;
+		}
 		
-		if(!$phpbbId) { // The user has no account in phpBB, so we create one:
-			
-			if(sizeof(wpu_assess_newuser_perms())) {
-			
-				// We just create standard users here for now, no setting of roles
-				$phpbbId = wpu_create_phpbb_user($wpUser->ID);
-						
-				if($phpbbId == 0) {
-					wp_die('Could not add user to phpBB');
-				} else if($phpbbId == -1) {
-					wp_die('A suitable username could not be found in phpBB');
-				}
-				$createdUser = true;
-			}
-		} 
+		// We just create standard users here for now, no setting of roles
+		$phpbbId = wpu_create_phpbb_user($wpUser->ID);
+				
+		if($phpbbId == 0) {
+			// TODO: debug
+			//We couldn't create a user in phPBB. Before we wp_die()d. But just handle it silently.
+			return $wpUser->ID;
+		}
+		$createdUser = true;
+	} 
 
-		// the user now has an integrated phpBB account, log them into it
-		$fStateChanged = $phpbbForum->foreground();
-		$user->session_create($phpbbId);
-		$phpbbForum->restore_state($fStateChanged);
-		
-		if($createdUser) {
-			wpu_sync_profiles($wpUsr, $phpbbForum->get_userdata(), 'sync');
-		} 
-
-		return $wpUser->ID;
-			
-
+	// the user now has an integrated phpBB account, log them into it
+	$fStateChanged = $phpbbForum->foreground();
+	$user->session_create($phpbbId);
+	$phpbbForum->restore_state($fStateChanged);
 	
-	// this clears all WP-related cookies
-	// wp_clear_auth_cookie();
-	// return false; // old
-	return $user;
+	if($createdUser) {
+		wpu_sync_profiles($wpUsr, $phpbbForum->get_userdata(), 'sync');
+	} 
+
+	return $wpUser->ID;
+
 }
 
 function wpu_int_phpbb_logged_in() { 
 	global $wpUnited, $wpuDebug, $phpbbForum, $wpUnited, $current_user;
 	
-	
-	// Should this user integrate? If not, we can just let WordPress do it's thing
-	if( !$userLevel = wpu_get_user_level() ) {
-		global $current_user; get_currentuserinfo();  return $current_user;
-	}
-
 
 	// This user is logged in to phpBB and needs to be integrated. Do they already have an integrated WP account?
 	if($integratedID = wpu_get_integration_id() ) {
@@ -111,23 +108,25 @@ function wpu_int_phpbb_logged_in() {
 			return false;
 		}
 		
-		// must set this here to prevent recursion
-		wp_set_current_user($wpUser->ID);
-
-		wpu_set_role($wpUser->ID, $userLevel);   // TODO: Stop killing main WP admin role
-		
+		wp_set_current_user($wpUser->ID);		
 		wp_set_auth_cookie($wpUser->ID);
 		return $wpUser->ID;
 		
 	} else {  
-		
-
-		static $createdUser;
-
-		// to prevent against recursion in strange error scenarios
-		if(isset($createdUser) && $createdUser > 0) {
-			return $createdUser;
+	
+		//Is this user already logged into WP? If so then just link the two logged in accounts
+		get_currentuserinfo();  $wpUser = $current_user;
+		if($wpUser->ID) {
+			wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
+			wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync');
+			return $wpUser->ID; 
 		}
+	
+		// Should this phpBB user get an account? If not, we can just stay unintegrated
+		if(!$wpUnited->get_setting('integcreatewp') || !$userLevel = wpu_get_user_level()) {
+			return false;
+		}
+
 		// they don't have an account yet, create one
 		$signUpName = $phpbbForum->get_username();
 		

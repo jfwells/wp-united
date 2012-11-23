@@ -373,11 +373,6 @@ function wpu_panel_warnings() {
 		echo '<div id="cookieerror" class="error highlight"><p>' . __('WARNING: phpBB and WordPress cookie domains do not match! For user integration to work properly, please edit the cookie domain in phpBB or set the WordPress COOKIE_DOMAIN so that both phpBB &amp; WordPress can set cookies for each other.') . '</p></div>';
 	}
 	
-	$orphanedAdmin = $wpUnited->get_orphaned_admin_id();
-	if($wpuAdminIsOrphaned) { 
-		echo '<div id="orphanerror" class="error highlight"><p>' . sprintf(__('WARNING! The user you are currently logged in as does NOT have administrator permissions mapped to it, but it is integrated in phpBB! You must grant this user valid integration permissions using the %sUser Mapping panel%s!'), '<a href="admin.php?page=wpu-user-mapper">', '</a>') . '</p></div>';
-	}
-	
 }
 
 function wpu_user_mapper() { 
@@ -389,13 +384,13 @@ function wpu_user_mapper() {
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
 		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together. Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
 		<ul>
-			<li><?php echo '<strong>' . __('User Permissions') . ':</strong> ' . __('Setting up permissions so that users can be automatically given mapped accounts'); ?></li>
+			<li><?php echo '<strong>' . __('New User Permissions') . ':</strong> ' . __('Setting up permissions so that existing and new phpBB users can be automatically given new WordPress accounts with the correct privileges.'); ?></li>
 			<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up and checking the linkage between user accounts in phPBB and WordPress.'); ?></li>
 		</ul>
 		<p><?php _e('Select a tab below to get started.'); ?></p>
 		<div id="wputabs">
 			<ul>
-				<li><a href="#wpumaptab-perms">User Permissions</a></li>
+				<li><a href="#wpumaptab-perms">New User Permissions</a></li>
 				<li><a href="#wpumaptab-map">User Mapping</a></li>
 			</ul>
 
@@ -1091,23 +1086,6 @@ function wpu_settings_page() {
 					<?php if(!defined('WPU_CANNOT_OVERRIDE')) { ?>
 						<div id="wputab-user">
 							
-							<?php
-								if($wpUnited->get_setting('integrateLogin')) {
-									$setPerms = array_keys(wpu_assess_perms());
-									if(sizeof($setPerms)) {
-										$integratedGroups = implode(', ', $setPerms);
-									} else {
-										$integratedGroups = __('None');
-									}
-									$newUsersCan = (sizeof(wpu_assess_newuser_perms())) ?__('Yes') : __('No: Appropriate permissions in phpBB are not set');
-								
-									echo '<div id="wpuintegsetupstatus" class="highlight"><h4>' . __('Current status:') . '</h4>';
-									echo '<ul><li><strong>' . __('phpBB groups that can automatically integrate: ') . '</strong>' . $integratedGroups . '</li>';
-									echo '<li><strong>' . __('New WordPress users can be given phpBB accounts? ') . '</strong>' . $newUsersCan . '</li></ul>';
-									echo '<p><small><em>' . __('Users are integrated according to WP-United permissions in phpBB. For more information and to change these, see <a href="admin.php?page=wpu-user-mapper">User Mapping &rarr; User Permissions</a>.') . '</p></small></em></div>';
-								}
-							?>
-
 							<h3>Integrate logins?</h3>
 							<p>This will enable some or all of your users to have a seamless session across both phpBB and WordPress. If they are logged in to one, they will be logged in to the other. Accounts will be created in the respective part of the site as needed. Note that you will need to set permissions in the User Mapper section that will appear once this option is enabled. Otherwise, by default, only the phpBB founder user is integrated.</p>
 							
@@ -1115,6 +1093,14 @@ function wpu_settings_page() {
 							<input type="checkbox" id="wpuloginint" name="wpuloginint" <?php if($wpUnited->get_setting('integrateLogin')) { ?>checked="checked"<?php } ?> /><label for="wpuloginint">Enable Login Integration?</label>		
 							
 							<div id="wpusettingsxpost" class="subsettings">
+								
+								<h4>Auto-create WordPress accounts when needed?</h4>
+								<p>Create WordPress accounts for unintegrated phpBB users with appropriate permissions when they visit or register?</p>
+								<input type="checkbox" id="wpucreatewacct" name="wpucreatewacct" <?php if($wpUnited->get_setting('integcreatewp')) { echo ' checked="checked" '; } ?>/><label for="wpucreatewacct">Auto-create WordPress accounts?</label>	
+								
+								<h4>Auto-create phpBB accounts when needed?</h4>
+								<p>Create phpBB accounts for unintegrated WordPress users when they visit or register?</p>
+								<input type="checkbox" id="wpucreatepacct" name="wpucreatepacct" <?php if($wpUnited->get_setting('integcreatephpbb')) { echo ' checked="checked" '; } ?>/><label for="wpucreatepacct">Auto-create phpBB accounts?</label>	
 								
 								<h4>Sync avatars?</h4>
 								<p>Avatars will be synced between phpBB &amp; WordPress. If a user has an avatar in phpBB, it will show in WordPress. If they have a Gravatar, it will show in phpBB.</p>
@@ -1429,9 +1415,10 @@ function wpu_process_settings() {
 		
 		if($data['integrateLogin']) {
 			
-			
-			$data['xposting'] =   (isset($_POST['wpuxpost'])) ? 1 : 0;
+			$data['integcreatewp'] = (isset($_POST['wpucreatewacct'])) ? 1 : 0;
+			$data['integcreatephpbb'] = (isset($_POST['wpucreatepacct'])) ? 1 : 0;
 			$data['avatarsync'] = (isset($_POST['wpuavatar'])) ? 1 : 0;
+			$data['xposting'] =   (isset($_POST['wpuxpost'])) ? 1 : 0;
 			
 			if($data['xposting'] ) { 
 				
@@ -1457,11 +1444,13 @@ function wpu_process_settings() {
 		} else {
 			// logins not integrated, set to default
 			$data = array_merge($data, array(
+				'integcreatewp'			=> 1,
+				'integcreatephpbb'		=> 1,			
+				'avatarsync'			=> 1,
 				'xposting' 				=> 0,
 				'xposttype' 			=> 'excerpt',
 				'wpuxpostcomments'		=> 0,
-				'xpostforce' 			=> -1,
-				'avatarsync'			=> 0
+				'xpostforce' 			=> -1
 			));
 		}
 			
