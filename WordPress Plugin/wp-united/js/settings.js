@@ -343,21 +343,12 @@ var wpuTypedMatches = new Array();
 var wpuSuggCache;
 var panelOpen = false;
 var panelHidden = false;
-var wpuDropOptions;
-var wpuEndPoint
-var wpuNeverEndPoint;
+
 /**
  * Initialises the user mapper page
  */
 function setupUserMapperPage() {
-	$('#wputabs').tabs({
-		select: function(event, ui) {                   
-			window.location.hash = ui.tab.hash;
-		},
-		show: function(event, ui) {
-			jsPlumb.repaintEverything();
-		}
-    });
+
 	$('.wpuprocess').button({
 		icons: {
 			primary: 'ui-icon-transferthick-e-w'
@@ -369,40 +360,6 @@ function setupUserMapperPage() {
 		}
 	});		
 	setupAcpPopups();
-	$('.wpuwhatis').button();
-	
-	jsPlumb.importDefaults({
-		DragOptions : { cursor: 'pointer', zIndex:2000 },
-		PaintStyle : { strokeStyle:'#666' },
-		EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
-		Container : $('#wpuplumbcanvas')
-	});	
-	
-	wpuDropOptions = {
-		//tolerance:'touch',
-		//hoverClass:'dropHover',
-		//activeClass:'dragActive'
-	};
-	wpuEndPoint = {
-		endpoint:['Dot', { radius:15 }],
-		paintStyle:{ fillStyle:'#000061' },
-		scope:'wpuplumb',
-		connectorStyle:{ strokeStyle:'#000061', lineWidth:6 },
-		connector: ['Bezier', { curviness:63 } ],
-		maxConnections:10,
-		dropOptions : wpuDropOptions
-	};
-	wpuNeverEndPoint = {
-		endpoint:['Rectangle', { width:15, height: 15 }],
-		paintStyle:{ fillStyle:'#dd0000' },
-		scope:'wpuplumbnever',
-		connectorStyle:{ strokeStyle:'#dd0000', lineWidth:6 },
-		connector: ['Bezier', { curviness:63 } ],
-		maxConnections:10,
-		dropOptions : wpuDropOptions
-	};	
-	
-	initPlumbing();
 	
 	/**
 	 * Delegates actions via a single event listener (to improve performance)
@@ -469,6 +426,47 @@ function setupUserMapperPage() {
 		wpuShowMapper(true);
 	});
 	wpuShowMapper(true);
+}
+
+var wpuEndPoint;
+var wpuNeverEndPoint;
+function wpuSetupPermsMapper() {
+	
+	$('#wputabs').tabs({
+		select: function(event, ui) {                   
+			window.location.hash = ui.tab.hash;
+		},
+		show: function(event, ui) {
+			jsPlumb.repaintEverything();
+		}
+    });
+	
+	jsPlumb.importDefaults({
+		DragOptions : { cursor: 'pointer', zIndex:2000 },
+		PaintStyle : { strokeStyle:'#666' },
+		EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
+		Container : $('#wpuplumbcanvas')
+	});	
+	
+	wpuEndPoint = {
+		endpoint:['Dot', { radius:15 }],
+		paintStyle:{ fillStyle:'#000061' },
+		scope:'wpuplumb',
+		connectorStyle:{ strokeStyle:'#000061', lineWidth:6 },
+		connector: ['Bezier', { curviness:63 } ],
+		maxConnections:10,
+	};
+	wpuNeverEndPoint = {
+		endpoint:['Rectangle', { width:15, height: 15 }],
+		paintStyle:{ fillStyle:'#dd0000' },
+		scope:'wpuplumbnever',
+		connectorStyle:{ strokeStyle:'#dd0000', lineWidth:6 },
+		connector: ['Bezier', { curviness:63 } ],
+		maxConnections:10
+	};	
+
+	initPlumbing();	
+	
 }
 
 

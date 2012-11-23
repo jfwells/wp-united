@@ -206,34 +206,6 @@ class WP_United_Plugin_Base {
 		return $this->settings->pluginUrl;
 	}
 	
-	public function get_orphaned_admin_id() {
-		static $id = -1;
-		
-		if($id == -1) {
-			if($this->is_wordpress_loaded()) {
-				$id = get_option('wpu-admin-user');
-			}
-		} 
-		return ($id == -1) ? false : $id;
-	}
-	
-	public function set_orphaned_admin_id($id) {
-
-		if($this->is_wordpress_loaded()) {
-			update_option('wpu-admin-user', $id);	
-		}
-		
-	}
-	
-	public function clear_orphaned_admin_id() {
-
-		if($this->is_wordpress_loaded()) {
-			delete_option('wpu-admin-user');	
-		}
-		
-	}	
-	
-	
 	public function is_enabled() { 
 		
 		if (defined('WPU_DISABLE') && WPU_DISABLE) { 

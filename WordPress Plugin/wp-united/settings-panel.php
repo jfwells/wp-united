@@ -376,220 +376,220 @@ function wpu_panel_warnings() {
 }
 
 function wpu_user_mapper() { 
-	global $wpUnited; ?>
+	global $wpUnited, $phpbbForum; ?>
 	<div class="wrap" id="wp-united-setup">
 	
 		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United User Integration Mapping'); ?> </h2>
-		<p><?php _e('Integrated users have an account both in WordPress and phpBB. These accounts are mapped together. Managing user integration between phpBB and WordPress has two aspects:'); ?></p>
-		<ul>
-			<li><?php echo '<strong>' . __('New User Permissions') . ':</strong> ' . __('Setting up permissions so that existing and new phpBB users can be automatically given new WordPress accounts with the correct privileges.'); ?></li>
-			<li><?php echo '<strong>' . __('User Mapping') . ':</strong> ' . __('Manually setting up and checking the linkage between user accounts in phPBB and WordPress.'); ?></li>
-		</ul>
-		<p><?php _e('Select a tab below to get started.'); ?></p>
+		<p><?php _e('Integrated users have an account both in WordPress and phpBB. The user mapper tool allows you to manually control which accounts are mapped together.'); ?></p>
+		
+		<?php if($wpUnited->get_setting('integcreatewp')) { ?>
+			<p><?php _e('In addition, you need to tell WP-United how to allocate WordPress roles to users when WordPress accounts are automatically given to them.'); ?></p>
+			<p><?php _e('Select a tab below to get started.'); ?></p>
+		<?php } ?>
 		<div id="wputabs">
-			<ul>
-				<li><a href="#wpumaptab-perms">New User Permissions</a></li>
-				<li><a href="#wpumaptab-map">User Mapping</a></li>
-			</ul>
-
-			<div id="wpumaptab-perms">
-			
-				<p><?php _e('Users are integrated if they have WP-United permissions in phpBB. This way, you have control over which users and groups get automatically integrated. This page provides an easy way to assign permissions.'); ?></p>
-				
-				<a class="wpuwhatis" href="#" onclick="return $('#wpupermmore').toggle();">More info &raquo;</a>
-				<div id="wpupermmore" style="display: none;">
-				<p><strong><?php _e('Notes:'); ?></strong></p>
-				<ul class="forcebullets">
-					<li><?php _e('If a user has an account in phpBB but not in WordPress, and they (or a group they belong to) has WP-United permissins, a WordPress account will be created fore them automatically.'); ?></li>
-					<li><?php _e('If a user has an account in WordPress but not phpBB, and the default New Users group (indicated below) has WP-United permissions, a phpBB account will be automatically created for them.'); ?></li>
-					<li><?php _e('If a user or group has multiple different WP-United permissions, the highest level shall prevail (i.e. if you set them as an author and an editor, they will be an editor)'); ?></li>
-					<li><?php _e('phpBB permissions have three states: <em>Yes</em>, <em>No</em> and <em>Never</em>. A <em>Never</em> setting for a user ensures that they will <strong>never</strong> get that permission. For example, if a user is a member of the <em>Registered Users</em> group which has Subscriber permissions set to <em>Yes</em>, and the <em>Newly Registered Users</em> group, which has Subscriber permissions set to <em>Never</em>, they will not be able to integrate as a subscriber.'); ?></li>
-					<li><?php _e('Permissions assigned to individual users are not shown here &ndash; however you can include/exclude specific users using the phpBB permissions system.'); ?></li>
-					<li><?php _e('phpBB founder users automatically have all permissions, so they will always integrate with full permissions. For everyone else, you will need to add permissions using the phpBB permissions system.'); ?></li>
+			<?php if($wpUnited->get_setting('integcreatewp')) { ?>
+		
+				<ul>
+					<li><a href="#wpumaptab-map">User Mapping</a></li>
+					<li><a href="#wpumaptab-perms">New User Permissions</a></li> 
 				</ul>
-				</div>
-				<p><?php _e(' Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. Remember that phpBB users can belong to more than one group, so connect the red squares if you want to ensure a mapping <em>never</em> happens.When happy, click &quot;Apply&quot;'); ?></p>
-				<?php
-					global $phpbbForum, $db;
-					$phpbbForum->foreground();
+			<?php } 
+			if($wpUnited->get_setting('integcreatewp')) { ?>
+				<div id="wpumaptab-perms">
+				
+					<p><?php _e('Unintegrated phpBB users are automatically given accounts if they have WP-United permissions. These can be set in the phpBB Administration Control Panel, but this tool makes them easier to set and visualise.'); ?></p>
+					<p><?php _e('phpBB groups are linked to WordPress roles by dragging connections. Blue connections grant permissions. However, since phpBB users can belong to more than one group, you may want to apply &quot;Never&quot; connections. These red connections take priority over blue connections and mean that this mapping can NEVER occur.'); ?></p>
+					<p><?php _e('This gives you complete control over who does what in WordPress. For some example permissions recipes, visit wp-united.com '); ?></p>
+					<p><?php _e('Remember that these mappings only affect users who don\'t have WordPress accounts yet. You should map existing accounts together using the User Mapping tool.'); ?></p>
 					
-					$groupTypes = array(__('Built-In'), __('User-Defined'));
-					$numUserDefined = 0;
+				
+					<p><?php _e(' Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. Connect the red squares if you want to ensure a mapping <em>never</em> happens.When happy, click &quot;Apply&quot;'); ?></p>
+					<?php
+						global $db;
+						$phpbbForum->foreground();
 						
-					// Get all the groups, and associated info
-					$sqlArr = array(
-						'SELECT'			=>	'COUNT(ug.user_id) AS count, g.group_id, g.group_type, g.group_name',
-						
-						'FROM'			=>	array(
-							GROUPS_TABLE	=>	'g',
-						),
-						
-						'LEFT_JOIN'		=>	array(
-							array(
-								'FROM'	=>	array(USER_GROUP_TABLE	=>	'ug'),
-								'ON'			=>	'g.group_id = ug.group_id'
-							)
-						),
-						
-						'GROUP_BY'	=>	'g.group_id',
-						
-						'ORDER_BY'	=> 'g.group_type DESC, g.group_name ASC'
-					);
-
-					$sql = $db->sql_build_query('SELECT',$sqlArr);
-					$result = $db->sql_query($sql);
-	
-					$groupData = array();
-					while ($row = $db->sql_fetchrow($result)) {
-						$groupData[$row['group_id']] = array(
-							'type' 						=> 	($row['group_type'] == GROUP_SPECIAL) ? __('Built-In') : __('User-Defined'),
-							'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
-							'db_name'					=>	$row['group_name'],
-							'total_members' 			=> 	$row['count'],
-							'url'						=>	$phpbbForum->url . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
+						$groupTypes = array(__('Built-In'), __('User-Defined'));
+						$numUserDefined = 0;
+							
+						// Get all the groups, and associated info
+						$sqlArr = array(
+							'SELECT'			=>	'COUNT(ug.user_id) AS count, g.group_id, g.group_type, g.group_name',
+							
+							'FROM'			=>	array(
+								GROUPS_TABLE	=>	'g',
+							),
+							
+							'LEFT_JOIN'		=>	array(
+								array(
+									'FROM'	=>	array(USER_GROUP_TABLE	=>	'ug'),
+									'ON'			=>	'g.group_id = ug.group_id'
+								)
+							),
+							
+							'GROUP_BY'	=>	'g.group_id',
+							
+							'ORDER_BY'	=> 'g.group_type DESC, g.group_name ASC'
 						);
 
-						if($groupData[$row['group_id']]['type'] == __('User-Defined')) {
-							$numUserDefined++;
+						$sql = $db->sql_build_query('SELECT',$sqlArr);
+						$result = $db->sql_query($sql);
+		
+						$groupData = array();
+						while ($row = $db->sql_fetchrow($result)) {
+							$groupData[$row['group_id']] = array(
+								'type' 						=> 	($row['group_type'] == GROUP_SPECIAL) ? __('Built-In') : __('User-Defined'),
+								'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
+								'db_name'					=>	$row['group_name'],
+								'total_members' 			=> 	$row['count'],
+								'url'						=>	$phpbbForum->url . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
+							);
+
+							if($groupData[$row['group_id']]['type'] == __('User-Defined')) {
+								$numUserDefined++;
+							}
 						}
-					}
-					
-					$db->sql_freeresult($result);
-				?>	
-					
-				<table class="widefat fixed">
-					<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
-						<<?php echo $tblHead; ?>>
-						<tr class="thead">
-							<th scope="col"><?php _e('phpBB Group'); ?></th>
-							<th scope="col" style="text-align: right;"><?php _e('WordPress Role'); ?></th>
-						</tr>
-						</<?php echo $tblHead; ?>>
-					<?php } ?>
-					<tbody><tr><td colspan="2">
-						<div id="wpuplumbcanvas" class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
-							<?php
-							$perms = wpu_permissions_list();
-							$newUserGroups = $phpbbForum->get_newuser_group();
-							$linkages = array();
-							$neverLinkages = array();
-							$elsL = array();
-							$elsR = array();
-							$typeId = 0;
-							
-							?><div class="wpuplumbleft"><?php
-							
-								foreach ($groupTypes as $type) { 
-									$typeId++;
-									if(($type == __('Built-In')) || ($numUserDefined > 0)) {
+						
+						$db->sql_freeresult($result);
+					?>	
+						
+					<table class="widefat fixed">
+						<?php foreach(array('thead', 'tfoot') as $tblHead) { ?>
+							<<?php echo $tblHead; ?>>
+							<tr class="thead">
+								<th scope="col"><?php _e('phpBB Group'); ?></th>
+								<th scope="col" style="text-align: right;"><?php _e('WordPress Role'); ?></th>
+							</tr>
+							</<?php echo $tblHead; ?>>
+						<?php } ?>
+						<tbody><tr><td colspan="2">
+							<div id="wpuplumbcanvas" class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
+								<?php
+								$perms = wpu_permissions_list();
+								$newUserGroups = $phpbbForum->get_newuser_group();
+								$linkages = array();
+								$neverLinkages = array();
+								$elsL = array();
+								$elsR = array();
+								$typeId = 0;
+								
+								?><div class="wpuplumbleft"><?php
+								
+									foreach ($groupTypes as $type) { 
+										$typeId++;
+										if(($type == __('Built-In')) || ($numUserDefined > 0)) {
 
-										$effectivePerms = wpu_assess_perms('', false, false); //wpu_get_wp_role_for_group();
-										$nevers = wpu_assess_perms('', false, true);
-										$linkages[$typeId] = array();
-										$neverLinkages[$typeId] = array();
-										$elsL[$typeId] = array();
-										$elsR[$typeId] = array();
+											$effectivePerms = wpu_assess_perms('', false, false); //wpu_get_wp_role_for_group();
+											$nevers = wpu_assess_perms('', false, true);
+											$linkages[$typeId] = array();
+											$neverLinkages[$typeId] = array();
+											$elsL[$typeId] = array();
+											$elsR[$typeId] = array();
+											
+											foreach ($groupData as $group_id => $row) {
+												if($row['type'] == $type) {
+													$blockIdL = "wpuperml-{$typeId}-{$row['db_name']}";
+													$elsL[$typeId][] = $blockIdL;
+													?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
+														<p><strong><?php echo $row['name'];?></strong> <?php if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
+														<?php echo '<br /><small><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?><br />
+														<?php echo '<strong>' . __('Group type: ') . '</strong>' . $type; ?></small></p>
+														<?php 
+															if(isset($effectivePerms[$row['name']])) {
+																foreach($effectivePerms[$row['name']] as $permItem) {
+																	$linkages[$typeId][$blockIdL] = "wpupermr-{$permItem}";
+																}
+															} 
+															if(isset($nevers[$row['name']])) {
+																foreach($nevers[$row['name']] as $neverItem) {
+																	$neverLinkages[$typeId][$blockIdL] = "wpupermr-{$neverItem}";
+																}
+															} 
+														?> 
+													</div> <?php
+												}
+											} 
+										}
+									} 
+								?></div><?php
+								$phpbbForum->background();
+								?>
+								<div class="wpuplumbright">
 										
-										foreach ($groupData as $group_id => $row) {
-											if($row['type'] == $type) {
-												$blockIdL = "wpuperml-{$typeId}-{$row['db_name']}";
-												$elsL[$typeId][] = $blockIdL;
-												?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
-													<p><strong><?php echo $row['name'];?></strong> <?php if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
-													<?php echo '<br /><small><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?><br />
-													<?php echo '<strong>' . __('Group type: ') . '</strong>' . $type; ?></small></p>
-													<?php 
-														if(isset($effectivePerms[$row['name']])) {
-															foreach($effectivePerms[$row['name']] as $permItem) {
-																$linkages[$typeId][$blockIdL] = "wpupermr-{$permItem}";
-															}
-														} 
-														if(isset($nevers[$row['name']])) {
-															foreach($nevers[$row['name']] as $neverItem) {
-																$neverLinkages[$typeId][$blockIdL] = "wpupermr-{$neverItem}";
-															}
-														} 
-													?> 
-												</div> <?php
-											}
-										} 
-									}
-								} 
-							?></div><?php
-							$phpbbForum->background();
-							?>
-							<div class="wpuplumbright">
-									
-								<?php foreach($perms as $permSetting => $wpName) {
-									$blockIdR = "wpupermr-{$permSetting}";
-									$elsR[$typeId][] = $blockIdR;  ?>
-									<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
-										<strong><?php echo 'WordPress ' . $wpName; ?></strong>
-									</div>
-								<?php } ?>
+									<?php foreach($perms as $permSetting => $wpName) {
+										$blockIdR = "wpupermr-{$permSetting}";
+										$elsR[$typeId][] = $blockIdR;  ?>
+										<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
+											<strong><?php echo 'WordPress ' . $wpName; ?></strong>
+										</div>
+									<?php } ?>
+								</div>
+								<br style="clear: both;" />
 							</div>
-							<br style="clear: both;" />
-						</div>
 
-					</td></tr></tbody>
-				</table>
-				<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></em></small>
-				<div id="wpupermactions">
-					<button class="wpuprocess" onclick="return wpuApplyPerms();"><?php _e('Apply'); ?></button>
-					<button class="wpuclear" onclick="return wpuClearPerms();"><?php _e('Reset'); ?></button>
+						</td></tr></tbody>
+					</table>
+					<small><em><span style="color: red;">* </span><?php _e('Default new user group for new phpBB users'); ?></em></small>
+					<div id="wpupermactions">
+						<button class="wpuprocess" onclick="return wpuApplyPerms();"><?php _e('Apply'); ?></button>
+						<button class="wpuclear" onclick="return wpuClearPerms();"><?php _e('Reset'); ?></button>
+					</div>
+					
+
+					<script type="text/javascript"> // <[CDATA[
+						function initPlumbing() {  
+							<?php 
+								foreach($elsL as $typeId => $els) {
+									foreach($els as $el) { 
+										$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?> 
+										var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
+										var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true}, wpuNeverEndPoint);
+									<?php }
+								}
+								
+								foreach($elsR as $typeId => $els) {
+									foreach($els as $el) { 
+										$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
+										var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
+										var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);
+									<?php }
+								}
+								
+								foreach($linkages as $typeId => $linkage) {
+									foreach($linkage as $linkL => $linkR) {
+										$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
+										$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
+										
+										jsPlumb.connect({
+											source: <?php echo $varL; ?>,
+											target: <?php echo $varR; ?>
+										});
+									<?php }
+								}						
+								foreach($neverLinkages as $typeId => $linkage) {
+									foreach($linkage as $linkL => $linkR) {
+										$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
+										$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
+										
+										jsPlumb.connect({
+											source: <?php echo "n$varL"; ?>,
+											target: <?php echo "n$varR"; ?>
+										});
+									<?php }
+								}
+							?>							
+						}
+						$(function() {
+							wpuSetupPermsMapper();
+						});
+						
+					// ]]>
+					</script>				
+					
+					
 				</div>
-				
-
-				<script type="text/javascript"> // <[CDATA[
-					function initPlumbing() {
-						<?php 
-							foreach($elsL as $typeId => $els) {
-								foreach($els as $el) { 
-									$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
-									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
-									var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true}, wpuNeverEndPoint);
-								<?php }
-							}
-							
-							foreach($elsR as $typeId => $els) {
-								foreach($els as $el) { 
-									$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
-									var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
-									var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);
-								<?php }
-							}
-							
-							foreach($linkages as $typeId => $linkage) {
-								foreach($linkage as $linkL => $linkR) {
-									$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
-									$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
-									
-									jsPlumb.connect({
-										source: <?php echo $varL; ?>,
-										target: <?php echo $varR; ?>
-									});
-								<?php }
-							}						
-							foreach($neverLinkages as $typeId => $linkage) {
-								foreach($linkage as $linkL => $linkR) {
-									$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
-									$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
-									
-									jsPlumb.connect({
-										source: <?php echo "n$varL"; ?>,
-										target: <?php echo "n$varR"; ?>
-									});
-								<?php }
-							}
-						?>							
-					}
-				// ]]>
-				</script>				
-				
-				
-			</div>
+			<?php } ?>
 			<div id="wpumaptab-map">
 				<p><?php _e('All your WordPress or phpBB users are shown on the left below, together with their integration status. On the right, you can see their corresponding integrated user, or &ndash; if they are not integrated &ndash; some suggestions for users they could integrate to.'); ?></p>
 				<p><?php _e('Choose the actions you wish to take, and then click &quot;Process Actions&quot; in the pop-up panel to apply them..'); ?></p>
@@ -1533,16 +1533,6 @@ function wpu_process_settings() {
 		
 	}
 
-	// if user integration is turning on,ensure we don't lock out the current admin user
-	if((!$wpUnited->get_setting('integrateLogin')||!$wpUnited->is_enabled()) && !empty($data['integrateLogin'])) {
-		
-		global $current_user;
-		get_currentuserinfo();
-		$wpUnited->set_orphaned_admin_id($current_user->ID);
-		
-	} else if(empty($data['integrateLogin'])) {
-		$wpUnited->clear_orphaned_admin_id();
-	}
 	
 	$wpUnited->update_settings($data);
 }

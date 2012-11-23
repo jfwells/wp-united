@@ -713,24 +713,13 @@ function wpu_get_integrated_phpbbuser($userID = 0) {
  * @return mixed string|bool WordPress user level, or false if no permissions
  */
 function wpu_get_user_level() {
-	global $wpUnited, $phpbbForum, $wpuDebug, $auth, $wpuAdminIsOrphaned;
+	global $wpUnited, $phpbbForum, $wpuDebug, $auth;
 
 	$fStateChanged = $phpbbForum->foreground();
 		
-	$couldBeOrphaned = false;
-	$wpuAdminIsOrphaned = false;
-	
+
 	$userLevel = false;
 
-	// if this is a grandfathered admin, don't remove their access
-	$orphanedAdmin = $wpUnited->get_orphaned_admin_id();
-	if(!empty($orphanedAdmin)) { 
-		global $current_user;
-		get_currentuserinfo();
-		if($current_user->ID == $orphanedAdmin) { 
-			$couldBeOrphaned = true;
-		}
-	}
 	
 	
 	// if checking for the current user, do a sanity check
@@ -757,7 +746,6 @@ function wpu_get_user_level() {
 	
 	if($couldBeOrphaned && ($userLevel != 'administrator')) {
 		$userLevel = 'administrator';
-		$wpuAdminIsOrphaned = true;
 	}
 	
 	return $userLevel;
