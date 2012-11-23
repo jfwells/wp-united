@@ -108,7 +108,7 @@ function wpu_settings_menu() {
 		}
 	}	
 		
-	$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpUnited->get_plugin_url() . 'images/tiny.gif', 2 );
+	$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpUnited->get_plugin_url() . 'images/tiny.gif', 2.0000012549 );
 	add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
 		
 		
