@@ -118,7 +118,8 @@ function wpu_int_phpbb_logged_in() {
 		get_currentuserinfo();  $wpUser = $current_user;
 		if($wpUser->ID) {
 			wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
-			wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync');
+			// sync but don't modify passwords:
+			wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync', true);
 			return $wpUser->ID; 
 		}
 	
@@ -809,7 +810,7 @@ function wpu_update_int_id($pID, $intID) {
  * @param string $action = sync | phpbb-update | wp-update
  * @return bool true if something was updated
 */
-function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
+function wpu_sync_profiles($wpData, $pData, $action = 'sync', $ignorePassword = false) {
 	global $wpUnited, $phpbbForum, $wpdb;
 
 	if(is_object($wpData)) { 
@@ -919,30 +920,32 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync') {
 	 * 
 	 *	Compare and update passwords
 	 *
-	 */	
-	if(($action == 'phpbb-update') || ($action == 'sync')) { // updating phpBB profile or syncing
-		if(!empty($pData['user_password'])) {
-			// convert password to WP format for comparison, as that will be the destination if it is different
-			$pData['user_password'] = wpu_convert_password_format($pData['user_password'], 'to-wp');
-			// wp_update_user double-hashes the password so we handle it separately, now
-			if($pData['user_password'] != $wpData['user_pass']) {
-				$wpdb->update($wpdb->users, array('user_pass' => stripslashes($pData['user_password'])) , array('ID' => (int)$wpData['ID']), '%s', '%d');
-				wp_cache_delete($wpData['ID'], 'users');
-				wp_cache_delete($wpData['ID'], 'userlogins');
+	 */
+	if(!$ignorePassword) {
+		if(($action == 'phpbb-update') || ($action == 'sync')) { // updating phpBB profile or syncing
+			if(!empty($pData['user_password'])) {
+				// convert password to WP format for comparison, as that will be the destination if it is different
+				$pData['user_password'] = wpu_convert_password_format($pData['user_password'], 'to-wp');
+				// wp_update_user double-hashes the password so we handle it separately, now
+				if($pData['user_password'] != $wpData['user_pass']) {
+					$wpdb->update($wpdb->users, array('user_pass' => stripslashes($pData['user_password'])) , array('ID' => (int)$wpData['ID']), '%s', '%d');
+					wp_cache_delete($wpData['ID'], 'users');
+					wp_cache_delete($wpData['ID'], 'userlogins');
+				}
 			}
-		}
-		
-	} else if($action == 'wp-update') {	// updating WP profile 
-		if(!empty($wpData['user_pass'])) { 
-			// convert password to phpBB format for comparison, as that will be the destination if it is different
-			$wpData['user_pass'] = wpu_convert_password_format($wpData['user_pass'], 'to-phpbb');
+			
+		} else if($action == 'wp-update') {	// updating WP profile 
+			if(!empty($wpData['user_pass'])) { 
+				// convert password to phpBB format for comparison, as that will be the destination if it is different
+				$wpData['user_pass'] = wpu_convert_password_format($wpData['user_pass'], 'to-phpbb');
 
-			// for phpBB we can update along with everything else
-			if($pData['user_password'] != $wpData['user_pass']) {
-				$updates['phpbb']['user_password'] = $wpData['user_pass'];
+				// for phpBB we can update along with everything else
+				if($pData['user_password'] != $wpData['user_pass']) {
+					$updates['phpbb']['user_password'] = $wpData['user_pass'];
+				}
 			}
+			
 		}
-		
 	}
 
 

@@ -912,7 +912,8 @@ function wpu_process_mapaction() {
 				$wpuNewDetails = $phpbbForum->get_userdata('', $pUserID);
 				$phpbbForum->background($fStateChanged);
 				$wpUsrData = get_userdata($wUserID);
-				wpu_sync_profiles($wpUsrData, $wpuNewDetails, 'sync');
+				// Don't modify passwords
+				wpu_sync_profiles($wpUsrData, $wpuNewDetails, 'sync', true);
 				echo '<status>OK</status>';
 			}
 		break;

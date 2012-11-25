@@ -147,10 +147,13 @@ function wpu_execute(&$hook, $handle) {
 
 			// have to reload data from scratch otherwise cached $user is used
 			$newUserData = $phpbbForum->get_userdata('', $idToFetch, true);
-
+			
+			// only sync password if it is changing
+			$ignorePassword = (request_var('new_password', '') == '');
+			
 			$phpbbForum->background(); 
 			$wpUserData = get_userdata($newUserData['user_wpuint_id']);
-			wpu_sync_profiles($wpUserData, $newUserData, 'phpbb-update');
+			wpu_sync_profiles($wpUserData, $newUserData, 'phpbb-update', $ignorePassword);
 			$phpbbForum->foreground();
 		}
 

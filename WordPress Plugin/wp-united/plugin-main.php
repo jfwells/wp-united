@@ -663,7 +663,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$wpData = get_userdata($userId);
 			$phpbbId = wpu_get_integrated_phpbbuser($userID);
 			if($phpbbId) {
-				wpu_sync_profiles($wpData, $phpbbForum->get_userdata('', $phpbbId), 'wp-update'); 
+				 // only sync password if it has changed, not just because it is different
+				 $ignorePassword = ($wpData->data->user_pass == $oldUserdata->user_pass);
+				 wpu_sync_profiles($wpData, $phpbbForum->get_userdata('', $phpbbId), 'wp-update', $ignorePassword); 
 			}
 		}
 	}
