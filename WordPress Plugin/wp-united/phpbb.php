@@ -1178,7 +1178,28 @@ class WPU_Phpbb {
 	
 	}
 	
-	
+	public function login($username, $password) {
+		global $auth;
+		
+		$authenticated = false;
+		
+		$fStateChanged = $this->foreground();
+		
+		$result = $auth->login($username, $password);
+		
+		if($result['status'] == LOGIN_SUCCESS) {
+			if($this->user_logged_in()) {
+				$authenticated = $this->get_userdata('user_id');
+			}
+		}
+
+		$this->restore_state($fStateChanged);
+		
+		return $authenticated;
+		
+	}
+		
+
 	
 	// Update blog link column
 	/**

@@ -8,6 +8,8 @@ Current status:
 ---- user integration ---------
 
 -- on login (in WP or phpBB), also check username of integrated user if different and login failed
+---- can now check phpBB authentication from WP form. Also check phpBB username with WP password combo, and vice-versa if integrated
+---- also do same checks in phpBB
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
 -- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
 
@@ -46,10 +48,10 @@ Current status:
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 
 ----- template integration ------------
+-- body class is getting stripped on template integration, affects e.g. WP login page
 -- DTD option not having any effect
 -- WPU cache not cleared on style changes [should be fixed]
 -- update css magic to work with subdomains
--- get acp login page to integrate too -- otherwise looks bad if user removes header/footer
 -- auto-clear of template cache when nav settings changed in WP3
 -- re-enable wordpress-in-phpbb integration
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
@@ -126,7 +128,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
-
+- can now intercept WP login to integrate or login with phpBB credentials
 - only sync passwords when they change, as the user may expect unsynced passwords.
 - suppressing warnings for opendir_basename restrictions
 - wpu_set_role is now only applied to creation of new WP user
@@ -141,7 +143,7 @@ Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 - All widgets now use new API
 - All old user blog settings removed to separate temporary file
 - Refactored and removed most old globals and defines
-- Showing a warning in settings panel if new users can'tbe created in phpBB due to permissions prolems
+- acp login page is now template integrated too
 - removed phpBB/WordPress master option
 - cleaned up first user mapper tab wording
 - Hacks for serializing $wpUnited now removed, $wpUnited now decorates itself appropriately with a self-loading WPU_Settings object that can be stored in phpBB or created in WordPress.

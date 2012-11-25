@@ -27,8 +27,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			'edit_post'				=>		'just_editing_post',
 			'wp_insert_post'		=>		array('capture_future_post', 10, 2),
 			'publish_post'			=>		array('handle_new_post', 10, 2),
-			'future_to_publish'		=>		array('future_to_published', 10),
-			'switch_theme'			=>		'clear_header_cache',
+			'future_to_publish'	=>		array('future_to_published', 10),
+			'switch_theme'		=>		'clear_header_cache',
 			'shutdown'				=>		array('buffer_end_flush_all', 1),
 			'admin_menu'			=>		'add_xposting_box',
 			'wp_head' 				=>		'add_scripts',
@@ -38,17 +38,18 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		),
 
 		$filters = array(
-			'plugin_row_meta'		=>		array('add_plugin_menu_link', 10, 2),
+			'plugin_row_meta'	=>		array('add_plugin_menu_link', 10, 2),
 			'page_link'				=>		array('fix_forum_link', 10, 2),
-			'admin_footer_text'		=>		'admin_footer_text',
+			'admin_footer_text'=>		'admin_footer_text',
 			'the_content'			=>		'check_content_for_forum',
-			'comment_text'			=>		'censor_content',
+			'comment_text'		=>		'censor_content',
 			'the_title'				=>		'censor_content',
 			'the_excerpt'			=>		'censor_content',
 			'get_avatar'			=>		array('get_avatar', 10, 5),
-			'comment_text'			=>		'smilies',
+			'comment_text'		=>		'smilies',
 			'pre_user_login'		=>		'fix_blank_username',
-			'validate_username'		=>		'validate_username_conflict'
+			'validate_username'	=>		'validate_username_conflict',
+			'authenticate'			=>		array('authenticate', 21, 3)
 		);
 		
 		private
@@ -668,6 +669,60 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				 wpu_sync_profiles($wpData, $phpbbForum->get_userdata('', $phpbbId), 'wp-update', $ignorePassword); 
 			}
 		}
+	}
+	
+	/**
+	 * checks a login with username and password. If it failed, but the user they tried to log in as
+	 * has an integrated phpBB user with a correct username and password, allow the login to proceed
+	 * @param mixed $user WP_User|WP_Error|null a user object if the user has already successfully authenticated
+	 * @param string $username attempted username
+	 * @param string $password attempted password
+	 */
+	 
+	public function authenticate($user, $username, $password) {
+		global $phpbbForum;
+
+		if (is_a($user, 'WP_User')) { 
+			return $user;
+		}
+		
+		if(!$this->is_enabled() || !$this->is_phpbb_loaded()) {
+			return $user;
+		}
+
+		if(!$this->get_setting('integrateLogin')) {
+			return;
+		}
+
+
+		if(!$phpbbForum->login($username, $password)) {
+			return $user; // return an error
+		}
+
+		if($integratedID = wpu_get_integration_id() ) {
+			return(get_userdata($integratedID));
+		}
+
+		// If we've got here, we have a valid phpBB user that isn't integrated in WordPress
+
+		// Should this phpBB user get an account? If not, we can just stay unintegrated
+		if(!$this->get_setting('integcreatewp') || !$userLevel = wpu_get_user_level()) {
+			return $user;
+		}
+
+		$signUpName = $phpbbForum->get_username();
+		$newUserID = wpu_create_wp_user($signUpName, $phpbbForum->get_userdata('user_password'), $phpbbForum->get_userdata('user_email'));
+
+		if($newUserID) { 
+			if(!is_a($newUserID, 'WP_Error')) {
+				return(get_userdata($newUserID));
+			}
+		}
+
+
+		//just return whatever error was passed in
+		return $user;
+
 	}
 	
 	/**
