@@ -385,7 +385,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 	
 	public function get_profile_link() {
 		global $phpEx, $phpbbForum;
-		return add_trailing_slash($phpbbForum->url) .  "memberlist.{$phpEx}?mode=viewprofile&amp;u={$this->userID}";
+		return $phpbbForum->get_board_url() .  "memberlist.{$phpEx}?mode=viewprofile&amp;u={$this->userID}";
 	}
 	
 	/**
@@ -396,7 +396,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		global $phpbbForum;
 		
 		$fStateChanged = $phpbbForum->foreground();
-		$this->adminLink = $phpbbForum->url . append_sid('adm/index.php?i=users&amp;mode=overview&amp;u=' . $this->userID, false, true, $GLOBALS['user']->session_id);
+		$this->adminLink = $phpbbForum->get_board_url() . append_sid('adm/index.php?i=users&amp;mode=overview&amp;u=' . $this->userID, false, true, $GLOBALS['user']->session_id);
 		$phpbbForum->background($fStateChanged);
 	}
 	
@@ -422,7 +422,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		
 		if(!empty($av)) {
 			$av = explode('"', $av); 
-			$av = str_replace($phpbb_root_path, $phpbbForum->url, $av[1]);
+			$av = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $av[1]);
 			$av = "<img src='{$av}' class='avatar avatar-50'  />";
 		}
 		

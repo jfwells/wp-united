@@ -155,7 +155,7 @@ function wpu_avatar_create_image($user) {
 				require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
 				$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
 				$avatar = explode('"', $avatar);
-				$avatar = str_replace($phpbb_root_path, $phpbbForum->url, $avatar[1]); //stops trailing slashes in URI from killing avatars
+				$avatar = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $avatar[1]); //stops trailing slashes in URI from killing avatars
 			}
 		}
 
@@ -208,7 +208,7 @@ function get_wpu_phpbb_profile_link($wpID = '') {
 	$phpbb_usr_id = get_user_meta($wpID, 'phpbb_userid', true);
 	if (!empty($phpbb_usr_id)) {
 		$profile_path = "memberlist.$phpEx";
-		return add_trailing_slash($phpbbForum->url) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
+		return add_trailing_slash($phpbbForum->get_board_url()) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
 	}
 	return false;
 }
@@ -309,7 +309,7 @@ function get_wpu_phpbb_stats($args='') {
 	$output = $before .  sprintf($phpbbForum->lang['wpu_forum_stats_posts'],  '<strong>' 	. $phpbbForum->stats('num_posts') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_threads'], '<strong>' 	. $phpbbForum->stats('num_topics') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf($phpbbForum->lang['wpu_forum_stats_users'], '<strong>' 	. $phpbbForum->stats('num_users')  . '</strong>') . "$after\n";	
-	$output .= $before . sprintf($phpbbForum->lang['wpu_forum_stats_newest_user'], '<a href="' . $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $phpbbForum->stats('newest_user_id') . '"><strong>' . $phpbbForum->stats('newest_username') . '</strong></a>') . "$after\n";
+	$output .= $before . sprintf($phpbbForum->lang['wpu_forum_stats_newest_user'], '<a href="' . $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $phpbbForum->stats('newest_user_id') . '"><strong>' . $phpbbForum->stats('newest_username') . '</strong></a>') . "$after\n";
 	$phpbbForum->restore_state($fStateChanged);
 	return $output;
 
@@ -332,7 +332,7 @@ function wpu_newposts_link() {
 function get_wpu_newposts_link() {
 	global $phpbbForum, $phpEx;
 	if( $phpbbForum->user_logged_in() ) {
-		return '<a href="'. append_sid($phpbbForum->url . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". $phpbbForum->lang['Search_new'] . "</a>";
+		return '<a href="'. append_sid($phpbbForum->get_board_url() . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". $phpbbForum->lang['Search_new'] . "</a>";
 	}
 }
 
@@ -413,9 +413,9 @@ function get_wpu_latest_phpbb_posts($args='') {
 		while ($row = $db->sql_fetchrow($result)) {
 			$first = ($i==0) ? 'wpufirst ' : '';
 			$topic_link = ($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}";
-			$topic_link = '<a href="' . $phpbbForum->url. $topic_link . '" title="' . $wpUnited->censor_content($row['topic_title']) . '">' . $wpUnited->censor_content($row['topic_title']) . '</a>';
+			$topic_link = '<a href="' . $phpbbForum->get_board_url(). $topic_link . '" title="' . $wpUnited->censor_content($row['topic_title']) . '">' . $wpUnited->censor_content($row['topic_title']) . '</a>';
 			$user_link = ($phpbbForum->seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
-			$user_link = '<a href="' . $phpbbForum->url . $user_link . '">' . $row['username'] .'</a>';
+			$user_link = '<a href="' . $phpbbForum->get_board_url() . $user_link . '">' . $row['username'] .'</a>';
 			$ret .= _wpu_add_class($before, $first . 'wpuforum' . $row['forum_id']) .  sprintf($phpbbForum->lang['wpu_phpbb_post_summary'],$topic_link, $user_link,  $user->format_date($row['post_time']))  ."$after\n";
 			$i++;
 		}
@@ -454,9 +454,9 @@ function get_wpu_latest_phpbb_topics($args = '') {
 		$output = '';
 		foreach ($posts as $post) {
 			$first = ($i==0) ? 'wpufirst ' : '';
-			$topic_link = '<a href="' . $phpbbForum->url . "viewtopic.$phpEx?f={$post['forum_id']}&t={$post['topic_id']}\">" . $post['topic_title'] . '</a>';
-			$forum_link = '<a href="' . $phpbbForum->url . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-			$user_link = '<a href="' . $phpbbForum->url . "$profile_path?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
+			$topic_link = '<a href="' . $phpbbForum->get_board_url() . "viewtopic.$phpEx?f={$post['forum_id']}&t={$post['topic_id']}\">" . $post['topic_title'] . '</a>';
+			$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
+			$user_link = '<a href="' . $phpbbForum->get_board_url() . "$profile_path?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
 			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf($phpbbForum->lang['wpu_phpbb_topic_summary'],$topic_link, $user_link, $forum_link)  ."$after\n";
 			$i++;
 		}
@@ -517,9 +517,9 @@ global $comment, $phpbb_root_path, $phpbbForum;
 		return (empty($link)) ? '<a href="' . $comment->comment_author_url . '" rel="nofollow">' . $comment->comment_author . '</a>' : $link;
 	} else {
 		if ($phpbbForum->seo) {
-			return $wpu_link = '<a href="' . $phpbbForum->url . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
+			return $wpu_link = '<a href="' . $phpbbForum->get_board_url() . 'member' . $uID . '.html">' . $comment->comment_author . '</a>';
 		} else {
-			return $wpu_link = '<a href="' . $phpbbForum->url . 'memberlist.php?mode=viewprofile&u=' . $uID  . '" rel="nofollow">' . $comment->comment_author . '</a>';
+			return $wpu_link = '<a href="' . $phpbbForum->get_board_url() . 'memberlist.php?mode=viewprofile&u=' . $uID  . '" rel="nofollow">' . $comment->comment_author . '</a>';
 		}
 	}
 }
@@ -598,7 +598,7 @@ function get_wpu_useronlinelist($args = '') {
 			if ($row['group_name'] == 'BOTS' || ($phpbbForum->get_userdata('user_id') != ANONYMOUS && !$auth->acl_get('u_viewprofile'))) {
 				$legend[] = '<span' . $colour_text . '>' . $group_name . '</span>';
 			} else {
-				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbbForum->url}memberlist.{$phpEx}", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
+				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbbForum->get_board_url()}memberlist.{$phpEx}", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
 			}
 		}
 		$db->sql_freeresult($result);
@@ -609,7 +609,7 @@ function get_wpu_useronlinelist($args = '') {
 		$l_online_time = sprintf($phpbbForum->lang[$l_online_time], $config['load_online_time']);
 		$l_online_record = sprintf($phpbbForum->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date']));
 		$l_online_users = $list['l_online_users'];
-		$theList = str_replace($phpbb_root_path, $phpbbForum->url, $list['online_userlist']);
+		$theList = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $list['online_userlist']);
 		
 		$phpbbForum->restore_state($fStateChanged);
 			
@@ -657,7 +657,7 @@ function get_wpu_login_user_info($args) {
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 
 
-			$ret .= _wpu_add_class($before, 'wpu-widget-lu-username'). '<a href="' . $phpbbForum->url . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
+			$ret .= _wpu_add_class($before, 'wpu-widget-lu-username'). '<a href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
 			$ret .= _wpu_add_class($before, 'wpu-widget-lu-avatar') . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
 
 		if ( $showRankBlock ) {
@@ -673,11 +673,11 @@ function get_wpu_login_user_info($args) {
 			if ($phpbbForum->get_userdata('user_new_privmsg')) {
 				$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
 				$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
-				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 			} else {
 				$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
 				$s_privmsg_new = false;
-				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->url . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 			}	
 		}
 
@@ -692,7 +692,7 @@ function get_wpu_login_user_info($args) {
 			}
 			$fStateChanged = $phpbbForum->foreground();
 			if($auth->acl_get('a_')) {
-				$ret .= $before . '<a href="'.$phpbbForum->url . append_sid('adm/index.php', false, false, $GLOBALS['user']->session_id) . '" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
+				$ret .= $before . '<a href="'.$phpbbForum->get_board_url() . append_sid('adm/index.php', false, false, $GLOBALS['user']->session_id) . '" title="Admin Forum">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
 			$phpbbForum->restore_state($fStateChanged);
 		}
@@ -701,15 +701,15 @@ function get_wpu_login_user_info($args) {
 		if ( $showLoginForm ) {
 			$redir = wpu_get_redirect_link();
 			$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=' . $redir;
-			$ret .= '<form class="wpuloginform" method="post" action="' . $phpbbForum->url . $login_link . '">';
+			$ret .= '<form class="wpuloginform" method="post" action="' . $phpbbForum->get_board_url() . $login_link . '">';
 			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
 			$ret .= $before . '<label for="phpbb_password">' . $phpbbForum->lang['PASSWORD'] . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
 			if ( $config['allow_autologin'] ) {
 				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . $phpbbForum->lang['LOG_ME_IN'] . '</label>' . $after;
 			}
 			$ret .= $before . '<input type="submit" name="login" class="wpuloginsubmit" value="' . $phpbbForum->lang['LOGIN'] . '" />' . $after;
-			$ret .= $before . '<a href="' . append_sid($phpbbForum->url."ucp.php?mode=register") . '">' . $phpbbForum->lang['REGISTER'] . '</a>' . $after;
-			$ret .= $before . '<a href="'.append_sid($phpbbForum->url).'ucp.php?mode=sendpassword">' . $phpbbForum->lang['FORGOT_PASS'] . '</a>' . $after;
+			$ret .= $before . '<a href="' . append_sid($phpbbForum->get_board_url()."ucp.php?mode=register") . '">' . $phpbbForum->lang['REGISTER'] . '</a>' . $after;
+			$ret .= $before . '<a href="'.append_sid($phpbbForum->get_board_url()).'ucp.php?mode=sendpassword">' . $phpbbForum->lang['FORGOT_PASS'] . '</a>' . $after;
 			$ret .= '</form>';
 		} else {
 			$ret .= $before . get_wp_loginout() . $after;
@@ -829,7 +829,7 @@ function _wpu_get_user_rank_info($userID = '') {
 	$fStateChanged = $phpbbForum->foreground();
 	$rank = $phpbbForum->get_user_rank_info($userID);
 	$phpbbForum->restore_state($fStateChanged);
-	$rank['image'] = (empty($rank['image'])) ? '' : $phpbbForum->url . $rank['image'];
+	$rank['image'] = (empty($rank['image'])) ? '' : $phpbbForum->get_board_url() . $rank['image'];
 	return $rank;
 }
 	

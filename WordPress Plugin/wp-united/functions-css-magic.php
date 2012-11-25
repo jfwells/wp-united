@@ -294,8 +294,8 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 				 * We try various methods to find the file
 				 */
 				// Absolute path to CSS, in phpBB
-				if(stristr($el, $phpbbForum->url) !== false) {
-					$cssLnk = str_replace($phpbbForum->url, "", $el); 
+				if(stristr($el, $phpbbForum->get_board_url()) !== false) {
+					$cssLnk = str_replace($phpbbForum->get_board_url(), "", $el); 
 				// Absolute path to CSS, in WordPress
 				} elseif(stristr($el, $wpUnited->get_wp_base_url()) !== false) {
 					$cssLnk = str_replace($wpUnited->get_wp_base_url(), $wpUnited->get_wp_path(), $el);
@@ -313,7 +313,7 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 					$cssLnk = realpath($cssLnk);
 					$key = $wpuCache->get_style_key($cssLnk, $position);
 					$keys[] = $key;
-					$repl[] = "{$phpbbForum->url}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
+					$repl[] = "{$phpbbForum->get_board_url()}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
 				}
 			} elseif(stristr($el, "style.php?") !== false) {
 				/**

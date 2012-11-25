@@ -124,7 +124,7 @@ class WPU_Comments {
 						(($comment['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
 						(($comment['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
 					
-					$link = $phpbbForum->url . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
+					$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
 					$args = array(
 						'comment_ID' => $comment['post_id'],
 						'comment_post_ID' => $wpPostID,
@@ -145,10 +145,10 @@ class WPU_Comments {
 
 					// Fix relative paths in comment text
 					$pathsToFix = array('src="' . $phpbb_root_path, 'href="' . $phpbb_root_path);
-					$pathsFixed = array('src="' . $phpbbForum->url, 'href="' . $phpbbForum->url);
+					$pathsFixed = array('src="' . $phpbbForum->get_board_url(), 'href="' . $phpbbForum->get_board_url());
 					$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
 
-					$phpbbCommentLinks[$comment['post_id']] = $phpbbForum->url;
+					$phpbbCommentLinks[$comment['post_id']] = $phpbbForum->get_board_url();
 					$phpbbCommentLinks[$comment['post_id']] .= ($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}";
 
 					$this->comments[] = new WPU_Comment($args);

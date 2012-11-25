@@ -139,7 +139,7 @@ function wpu_process_phpbb() {
 		$wpStyleLoc => '<!--[**HEAD_MARKER**]-->',
 		'S_SHOW_HDR_FTR' => TRUE,
 		// We need to set the base HREF correctly, so that images and links in the phpBB header and footer work properly
-		'PHPBB_BASE' =>  $phpbbForum->url
+		'PHPBB_BASE' =>  $phpbbForum->get_board_url()
 	));
 	
 	
@@ -172,7 +172,7 @@ function wpu_process_phpbb() {
 	
 		
 	//kill absolute paths that should be URIs
-	$wpUnited->set_outer_content(str_replace($phpbb_root_path, $phpbbForum->url, $wpUnited->get_outer_content()));
+	$wpUnited->set_outer_content(str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $wpUnited->get_outer_content()));
 	
 	
 }
@@ -204,9 +204,9 @@ function wpu_modify_loginout_links() {
 		$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
 		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout') . '&amp;redirect=';
 		
-		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $wpUnited->get_wp_content()));
-		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->url . $login_link, $wpUnited->get_wp_content()));
-		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?action=logout", $phpbbForum->url . $logout_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->get_board_url() . $login_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->get_board_url() . $login_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?action=logout", $phpbbForum->get_board_url() . $logout_link, $wpUnited->get_wp_content()));
 	}
 }
 

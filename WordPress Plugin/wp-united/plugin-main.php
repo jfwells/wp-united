@@ -278,7 +278,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$forumPage = get_option('wpu_set_forum');
 			if(!empty($forumPage) && ($forumPage == $post)) {
 				// If the forum and blog are both in root, add index.php to the end
-				$forumPage = ($phpbbForum->url == get_option('siteurl')) ? $phpbbForum->url . 'index.' . $phpEx : $phpbbForum->url;
+				$forumPage = ($phpbbForum->get_board_url() == get_option('siteurl')) ? $phpbbForum->get_board_url() . 'index.' . $phpEx : $phpbbForum->get_board_url();
 				return $forumPage; 
 			}
 		}

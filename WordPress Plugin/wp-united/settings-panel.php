@@ -39,7 +39,7 @@ function wpu_settings_menu() {
 	if(isset($_GET['page'])) {
 		if($_GET['page'] == 'wpu_acp') {
 			global $phpbbForum;
-			wp_redirect(append_sid($phpbbForum->url .  'adm/index.php', false, true, $GLOBALS['user']->session_id), 302);
+			wp_redirect(append_sid($phpbbForum->get_board_url()  .  'adm/index.php', false, true, $GLOBALS['user']->session_id), 302);
 			die();
 		}
 		if($_GET['page'] == 'wpu-user-mapper') {
@@ -202,8 +202,8 @@ function wpu_reload_preview() {
 	if ($wpUnited->get_setting('showHdrFtr') == 'FWD') {
 		$previewUrl = get_site_url();
 	} else if($wpUnited->get_setting('showHdrFtr') == 'REV')  {
-		if(is_object($phpbbForum) && !empty($phpbbForum->url)) {
-			$previewUrl = $phpbbForum->url;
+		if(is_object($phpbbForum)) {
+			$previewUrl = $phpbbForum->get_board_url();
 		}
 	}
 	if(empty($previewUrl)) {
@@ -443,7 +443,7 @@ function wpu_user_mapper() {
 								'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
 								'db_name'					=>	$row['group_name'],
 								'total_members' 			=> 	$row['count'],
-								'url'						=>	$phpbbForum->url . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
+								'url'						=>	$phpbbForum->get_board_url() . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
 							);
 
 							if($groupData[$row['group_id']]['type'] == __('User-Defined')) {

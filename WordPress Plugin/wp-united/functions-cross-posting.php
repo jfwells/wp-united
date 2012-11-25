@@ -643,7 +643,7 @@ function wpu_comment_redirector($postID) {
 	} else if(!empty($_POST['redirect_to'])) {
 		$location = $_POST['redirect_to'] . '#comment-' . $data['post_id'];
 	} else {
-		$location = str_replace(array('&amp;', $phpbb_root_path), array('&', $phpbbForum->url), $postUrl);
+		$location = str_replace(array('&amp;', $phpbb_root_path), array('&', $phpbbForum->get_board_url()), $postUrl);
 	}
 	wp_redirect($location); exit();
 }

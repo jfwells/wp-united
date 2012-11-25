@@ -41,12 +41,12 @@ class WPU_Phpbb {
 		$_savedIP,
 		$_savedAuth,
 		$tokens,
-		$_loaded;
+		$_loaded,
+		$url;
 	
 	public 
 		$lang,
 		$seo,
-		$url,
 		$_transitioned_user;		
 	
 	/**
@@ -55,7 +55,6 @@ class WPU_Phpbb {
 	public function __construct() {
 		if(defined('IN_PHPBB')) { 
 			$this->lang = $GLOBALS['user']->lang;
-			$this->calculate_url();
 			$this->state = 'phpbb';
 			$this->phpbbTemplate = $GLOBALS['template'];
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
@@ -65,6 +64,7 @@ class WPU_Phpbb {
 		$this->tokens = array();
 		$this->was_out = false;
 		$this->seo = false;
+		$this->url = '';
 		
 		$this->_transitioned_user = false;
 		$this->_savedID = -1;
@@ -145,7 +145,6 @@ class WPU_Phpbb {
 		
 		
 		
-		$this->calculate_url();
 		
 		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
 		// so we just set it global here
@@ -193,6 +192,19 @@ class WPU_Phpbb {
 		$this->switch_to_wp_db();
 		$this->restore_wp_conflicts();
 		$this->make_wp_env();
+	}
+	
+	public function get_board_url() {
+		
+		if(empty($this->url)) {
+			$fStateChanged = $this->foreground();
+			$this->url = add_trailing_slash(generate_board_url());
+			$this->restore_state($fStateChanged);
+		}
+		
+		return $this->url;
+		
+		
 	}
 	
 	/**
@@ -770,7 +782,7 @@ class WPU_Phpbb {
 				$smlOutput .=  '<span id="wpu-smiley-more" style="display:none">';
 			}
 		
-			$smlOutput .= '<a href="#"><img src="'.$this->url.'images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /></a> ';
+			$smlOutput .= '<a href="#"><img src="'.$this->get_board_url() . 'images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /></a> ';
 			$i++;
 		}
 		$db->sql_freeresult($result);
@@ -813,7 +825,7 @@ class WPU_Phpbb {
 		
 		
 		// convert path to URL for returned avatar HTML
-		$phpbbAvatar = str_replace('src="' . $phpbb_root_path, 'src="' . $this->url, $phpbbAvatar);
+		$phpbbAvatar = str_replace('src="' . $phpbb_root_path, 'src="' . $this->get_board_url(), $phpbbAvatar);
 
 		return $phpbbAvatar;
 	}
@@ -1210,7 +1222,7 @@ class WPU_Phpbb {
 					continue; 
 				} 
 				$match[] = '(?<=^|[\n .])' . preg_quote($row['code'], '#') . '(?![^<>]*>)';
-				$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $this->url . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
+				$replace[] = '<!-- s' . $row['code'] . ' --><img src="' . $this->get_board_url() . '/images/smilies/' . $row['smiley_url'] . '" alt="' . $row['code'] . '" title="' . $row['emotion'] . '" /><!-- s' . $row['code'] . ' -->';
 			}
 			$db->sql_freeresult($result);
 			
@@ -1229,20 +1241,6 @@ class WPU_Phpbb {
 		
 		return $postContent;
 	}	
-	
-	
-	
-	/**
-	 * Calculates the URL to the forum
-	 * @access private
-	 */
-	private function calculate_url() {
-			global $config;
-			$server = $config['server_protocol'] . add_trailing_slash($config['server_name']);
-			$scriptPath = add_trailing_slash($config['script_path']);
-			$scriptPath= ( $scriptPath[0] == "/" ) ? substr($scriptPath, 1) : $scriptPath;
-			$this->url = $server . $scriptPath;
-	}
 	
 	
 	/**
