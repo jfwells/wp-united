@@ -534,36 +534,35 @@ function wpu_user_mapper() {
 					<script type="text/javascript"> // <[CDATA[
 						function initPlumbing() {  
 							<?php 
-								$currVar = 0;
-								$varLookups = array();
-								foreach($elsL as $el) { 
-									$varLookups[$el] = $var;
-									$var++;
-									var <?php echo "wpuPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
-									var <?php echo "wpunPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true}, wpuNeverEndPoint);
-								<?php }
+							$currVar = 0;
+							$varLookups = array();
+							foreach($elsL as $el) { 
+								$varLookups[$el] = $var;
+								$var++;
+								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
+								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
+							}
+						
+							foreach($elsR as $el) { 
+								$varLookups[$el] = $var;
+								$var++;
+								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);";
+								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);";
+							}
 							
-								foreach($elsR as $el) { 
-									$varLookups[$el] = $var;
-									$var++;
-									var <?php echo "wpuPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
-									var <?php echo "wpunPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);
-								<?php }
-								
-								foreach($linkages as $linkL => $linkR) {
-									jsPlumb.connect({
-										source: <?php echo "wpuPlumb{$varLookups[$linkL]}"; ?>,
-										target: <?php echo "wpuPlumb{$varLookups[$linkR]}"; ?>
-									});
-								<?php }
-				
-								foreach($neverLinkages as $linkL => $linkR) {
-									jsPlumb.connect({
-										source: <?php echo "wpunPlumb{$varLookups[$linkL]}"; ?>,
-										target: <?php echo "wpunPlumb{$varLookups[$linkR]}"; ?>
-									});
-								<?php }
-							?>							
+							foreach($linkages as $linkL => $linkR) {
+								?>jsPlumb.connect({
+									source: <?php echo "wpuPlumb{$varLookups[$linkL]}"; ?>,
+									target: <?php echo "wpuPlumb{$varLookups[$linkR]}"; ?>
+								});
+							<?php }
+			
+							foreach($neverLinkages as $linkL => $linkR) {
+								?>jsPlumb.connect({
+									source: <?php echo "wpunPlumb{$varLookups[$linkL]}"; ?>,
+									target: <?php echo "wpunPlumb{$varLookups[$linkR]}"; ?>
+								});
+							<?php } ?>							
 						}
 						$(function() {
 							wpuSetupPermsMapper();
