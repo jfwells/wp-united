@@ -464,7 +464,7 @@ function wpu_user_mapper() {
 							</<?php echo $tblHead; ?>>
 						<?php } ?>
 						<tbody><tr><td colspan="2">
-							<div id="wpuplumbcanvas" class="wpuplumbcanvas" id="wpuplumb<?php echo $typeId; ?>">
+							<div id="wpuplumbcanvas" class="wpuplumbcanvas" id="wpuplumb">
 								<?php
 								$perms = wpu_permissions_list();
 								$newUserGroups = $phpbbForum->get_newuser_group();
@@ -472,25 +472,19 @@ function wpu_user_mapper() {
 								$neverLinkages = array();
 								$elsL = array();
 								$elsR = array();
-								$typeId = 0;
 								
 								?><div class="wpuplumbleft"><?php
 								
 									foreach ($groupTypes as $type) { 
-										$typeId++;
 										if(($type == __('Built-In')) || ($numUserDefined > 0)) {
 
 											$effectivePerms = wpu_assess_perms('', false, false); //wpu_get_wp_role_for_group();
 											$nevers = wpu_assess_perms('', false, true);
-											$linkages[$typeId] = array();
-											$neverLinkages[$typeId] = array();
-											$elsL[$typeId] = array();
-											$elsR[$typeId] = array();
 											
 											foreach ($groupData as $group_id => $row) {
 												if($row['type'] == $type) {
-													$blockIdL = "wpuperml-{$typeId}-{$row['db_name']}";
-													$elsL[$typeId][] = $blockIdL;
+													$blockIdL = "wpuperml-{$row['db_name']}";
+													$elsL[] = $blockIdL;
 													?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
 														<p><strong><?php echo $row['name'];?></strong> <?php if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
 														<?php echo '<br /><small><strong>' . __('No. of members: ') . '</strong>' . $row['total_members']; ?><br />
@@ -498,12 +492,12 @@ function wpu_user_mapper() {
 														<?php 
 															if(isset($effectivePerms[$row['name']])) {
 																foreach($effectivePerms[$row['name']] as $permItem) {
-																	$linkages[$typeId][$blockIdL] = "wpupermr-{$permItem}";
+																	$linkages[$blockIdL] = "wpupermr-{$permItem}";
 																}
 															} 
 															if(isset($nevers[$row['name']])) {
 																foreach($nevers[$row['name']] as $neverItem) {
-																	$neverLinkages[$typeId][$blockIdL] = "wpupermr-{$neverItem}";
+																	$neverLinkages[$blockIdL] = "wpupermr-{$neverItem}";
 																}
 															} 
 														?> 
@@ -519,7 +513,7 @@ function wpu_user_mapper() {
 										
 									<?php foreach($perms as $permSetting => $wpName) {
 										$blockIdR = "wpupermr-{$permSetting}";
-										$elsR[$typeId][] = $blockIdR;  ?>
+										$elsR[] = $blockIdR;  ?>
 										<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
 											<strong><?php echo 'WordPress ' . $wpName; ?></strong>
 										</div>
@@ -540,44 +534,35 @@ function wpu_user_mapper() {
 					<script type="text/javascript"> // <[CDATA[
 						function initPlumbing() {  
 							<?php 
-								foreach($elsL as $typeId => $els) {
-									foreach($els as $el) { 
-										$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?> 
-										var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
-										var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true}, wpuNeverEndPoint);
-									<?php }
-								}
+								$currVar = 0;
+								$varLookups = array();
+								foreach($elsL as $el) { 
+									$varLookups[$el] = $var;
+									$var++;
+									var <?php echo "wpuPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true}, wpuEndPoint);
+									var <?php echo "wpunPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true}, wpuNeverEndPoint);
+								<?php }
+							
+								foreach($elsR as $el) { 
+									$varLookups[$el] = $var;
+									$var++;
+									var <?php echo "wpuPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
+									var <?php echo "wpunPlumb$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);
+								<?php }
 								
-								foreach($elsR as $typeId => $els) {
-									foreach($els as $el) { 
-										$var = 'plumb' . strtolower(str_replace(array('-', '_'), '', $el));		?>
-										var <?php echo $var; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);
-										var <?php echo "n$var"; ?> = jsPlumb.addEndpoint($('#<?php echo $el; ?>'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);
-									<?php }
-								}
-								
-								foreach($linkages as $typeId => $linkage) {
-									foreach($linkage as $linkL => $linkR) {
-										$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
-										$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
-										
-										jsPlumb.connect({
-											source: <?php echo $varL; ?>,
-											target: <?php echo $varR; ?>
-										});
-									<?php }
-								}						
-								foreach($neverLinkages as $typeId => $linkage) {
-									foreach($linkage as $linkL => $linkR) {
-										$varL = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkL));	
-										$varR = 'plumb' . strtolower(str_replace(array('-', '_'), '', $linkR));	?>		
-										
-										jsPlumb.connect({
-											source: <?php echo "n$varL"; ?>,
-											target: <?php echo "n$varR"; ?>
-										});
-									<?php }
-								}
+								foreach($linkages as $linkL => $linkR) {
+									jsPlumb.connect({
+										source: <?php echo "wpuPlumb{$varLookups[$linkL]}"; ?>,
+										target: <?php echo "wpuPlumb{$varLookups[$linkR]}"; ?>
+									});
+								<?php }
+				
+								foreach($neverLinkages as $linkL => $linkR) {
+									jsPlumb.connect({
+										source: <?php echo "wpunPlumb{$varLookups[$linkL]}"; ?>,
+										target: <?php echo "wpunPlumb{$varLookups[$linkR]}"; ?>
+									});
+								<?php }
 							?>							
 						}
 						$(function() {

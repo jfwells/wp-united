@@ -7,9 +7,6 @@ Current status:
 
 ---- user integration ---------
 
--- on login (in WP or phpBB), also check username of integrated user if different and login failed
----- can now check phpBB authentication from WP form. Also check phpBB username with WP password combo, and vice-versa if integrated
----- also do same checks in phpBB
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
 -- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
 
