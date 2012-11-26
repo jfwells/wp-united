@@ -492,12 +492,12 @@ function wpu_user_mapper() {
 														<?php 
 															if(isset($effectivePerms[$row['name']])) {
 																foreach($effectivePerms[$row['name']] as $permItem) {
-																	$linkages[$blockIdL] = "wpupermr-{$permItem}";
+																	$linkages[$blockIdL] = 'wpupermr-' . str_replace(array('+', '=', '/'), array('_pls', '_eq', '_sl'), base64_encode($permItem));
 																}
 															} 
 															if(isset($nevers[$row['name']])) {
 																foreach($nevers[$row['name']] as $neverItem) {
-																	$neverLinkages[$blockIdL] = "wpupermr-{$neverItem}";
+																	$neverLinkages[$blockIdL] = 'wpupermr-' . str_replace(array('+', '=', '/'), array('_pls', '_eq', '_sl'), base64_encode($neverItem));
 																}
 															} 
 														?> 
@@ -549,14 +549,14 @@ function wpu_user_mapper() {
 								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);";
 								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);";
 							}
-							
+
 							foreach($linkages as $linkL => $linkR) {
 								?>jsPlumb.connect({
 									source: <?php echo "wpuPlumb{$varLookups[$linkL]}"; ?>,
 									target: <?php echo "wpuPlumb{$varLookups[$linkR]}"; ?>
 								});
 							<?php }
-			
+							
 							foreach($neverLinkages as $linkL => $linkR) {
 								?>jsPlumb.connect({
 									source: <?php echo "wpunPlumb{$varLookups[$linkL]}"; ?>,
