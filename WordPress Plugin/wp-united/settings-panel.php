@@ -260,7 +260,7 @@ function wpu_setup_menu() {
 	if(isset($_GET['msg'])) {
 		if($_GET['msg'] == 'fail') {
 			$msg = (string)stripslashes($_GET['msgerr']);
-			$msg = base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), $msg));
+			$msg = base64_decode(str_replace(array('%2B', '%3D', '%2F'), array('+', '=', '/'), $msg));
 		} else {
 			// $msg is succcess, do preview reloads to init Template Voodoo:
 			$needPreview = true;
@@ -483,7 +483,7 @@ function wpu_user_mapper() {
 											
 											foreach ($groupData as $group_id => $row) {
 												if($row['type'] == $type) {
-													$blockIdL = "wpuperml-{$row['db_name']}";
+													$blockIdL = 'wpuperml-' . base64_encode(str_replace(array('+', '=', '/'), array('-pls-', '-eq-', '-sl-'), $row['db_name']));
 													$elsL[] = $blockIdL;
 													?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
 														<p><strong><?php echo $row['name'];?></strong> <?php if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
@@ -512,7 +512,7 @@ function wpu_user_mapper() {
 								<div class="wpuplumbright">
 										
 									<?php foreach($perms as $permSetting => $wpName) {
-										$blockIdR = "wpupermr-{$permSetting}";
+										$blockIdR = 'wpupermr-' . base64_encode(str_replace(array('+', '=', '/'), array('-pls-', '-eq-', '-sl-'), $permSetting));
 										$elsR[] = $blockIdR;  ?>
 										<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
 											<strong><?php echo 'WordPress ' . $wpName; ?></strong>
@@ -686,9 +686,9 @@ function wpu_user_mapper() {
 function wpu_process_perms() {
 	global $phpbbForum;
 	
-	$conns = stripslashes(base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), (string)$_POST['wpusetperms'])));
+	$conns = stripslashes(base64_decode(str_replace(array('%2B', '%3D', '%2F'), array('+', '=', '/'), (string)$_POST['wpusetperms'])));
 	$conns = explode(',', $conns);
-	$nevers = stripslashes(base64_decode(str_replace(array('[pls]', '[eq]'), array('+', '='), (string)$_POST['wpusetnevers'])));
+	$nevers = stripslashes(base64_decode(str_replace(array('%2B', '%3D', '%2F'), array('+', '=', '/'), (string)$_POST['wpusetnevers'])));
 	$nevers = explode(',', $nevers);	
 	$permsList = array_keys(wpu_permissions_list());
 	
@@ -696,20 +696,29 @@ function wpu_process_perms() {
 
 	foreach($conns as $conn) {
 		list($phpbbGroup, $wpuPermName) = explode('=', $conn);
-		if(in_array($wpuPermName, $permsList)) {
-			wpu_set_phpbb_group_permissions($phpbbGroup, $wpuPermName);
+		$wpuPerm = base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $wpuPermName);
+		if(in_array($wpuPerm, $permsList)) {
+
+			wpu_set_phpbb_group_permissions(
+				base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $phpbbGroup), 
+				$wpuPerm
+			);
 		}
 	}
 	foreach($nevers as $never) {
 		list($phpbbGroup, $wpuPermName) = explode('=', $never);
-		if(in_array($wpuPermName, $permsList)) {
-			wpu_set_phpbb_group_permissions($phpbbGroup, $wpuPermName, ACL_NEVER);
+		$wpuPerm = base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $wpuPermName);
+		if(in_array($wpuPerm, $permsList)) {
+			wpu_set_phpbb_group_permissions(
+				base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $phpbbGroup), 
+				$wpuPerm, 
+				ACL_NEVER
+			);
 		}
 	}
 
 	die('OK');
 }	
-
 
 
 function wpu_map_show_data() {

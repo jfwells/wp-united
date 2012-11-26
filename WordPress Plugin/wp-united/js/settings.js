@@ -300,8 +300,9 @@ function wpu_process_error(transmitMessage) {
  */
 function makeMsgSafe(msg) {
 	msg = Base64.encode(msg)
-	msg = msg.replace(/\+/ig, '[pls]');
-	msg = msg.replace(/\=/ig, '[eq]');
+	msg = msg.replace(/\+/ig, '%2B');
+	msg = msg.replace(/\=/ig, '%3D');
+	msg = msg.replace(/\//ig, '%2F');
 	return escape(msg);
 }
 
