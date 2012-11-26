@@ -483,7 +483,7 @@ function wpu_user_mapper() {
 											
 											foreach ($groupData as $group_id => $row) {
 												if($row['type'] == $type) {
-													$blockIdL = 'wpuperml-' . base64_encode(str_replace(array('+', '=', '/'), array('-pls-', '-eq-', '-sl-'), $row['db_name']));
+													$blockIdL = 'wpuperml-' . str_replace(array('+', '=', '/'), array('-pls-', '-eq-', '-sl-'), base64_encode($row['db_name']));
 													$elsL[] = $blockIdL;
 													?><div class="wpuplumbgroupl ui-widget-header ui-corner-all" id="<?php echo $blockIdL; ?>">
 														<p><strong><?php echo $row['name'];?></strong> <?php if(in_array($row['db_name'], $newUserGroups)) echo ' <span style="color: red;">*</span>'; ?>
@@ -512,7 +512,7 @@ function wpu_user_mapper() {
 								<div class="wpuplumbright">
 										
 									<?php foreach($perms as $permSetting => $wpName) {
-										$blockIdR = 'wpupermr-' . base64_encode(str_replace(array('+', '=', '/'), array('-pls-', '-eq-', '-sl-'), $permSetting));
+										$blockIdR = 'wpupermr-' . str_replace(array('+', '=', '/'), array('-pls-', '-eq-', '-sl-'), base64_encode($permSetting));
 										$elsR[] = $blockIdR;  ?>
 										<div class="wpuplumbgroupr ui-widget-header ui-corner-all" id="<?php echo $blockIdR; ?>">
 											<strong><?php echo 'WordPress ' . $wpName; ?></strong>
@@ -696,21 +696,21 @@ function wpu_process_perms() {
 
 	foreach($conns as $conn) {
 		list($phpbbGroup, $wpuPermName) = explode('=', $conn);
-		$wpuPerm = base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $wpuPermName);
+		$wpuPerm = base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $wpuPermName));
 		if(in_array($wpuPerm, $permsList)) {
 
 			wpu_set_phpbb_group_permissions(
-				base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $phpbbGroup), 
+				base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $phpbbGroup)), 
 				$wpuPerm
 			);
 		}
 	}
 	foreach($nevers as $never) {
 		list($phpbbGroup, $wpuPermName) = explode('=', $never);
-		$wpuPerm = base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $wpuPermName);
+		$wpuPerm = base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $wpuPermName));
 		if(in_array($wpuPerm, $permsList)) {
 			wpu_set_phpbb_group_permissions(
-				base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $phpbbGroup), 
+				base64_decode(str_replace(array('-pls-', '-eq-', '-sl-'), array('+', '=', '/'), $phpbbGroup)), 
 				$wpuPerm, 
 				ACL_NEVER
 			);
