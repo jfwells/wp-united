@@ -6,9 +6,7 @@ Current status:
 - Other options generally working but as yet not well tested.
 
 ---- user integration ---------
-
 -- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
--- clean out all link rewrite cruft from plugin and template-integrator -- they are no longer needed. (message on wp-register if disabled or rewrite/redirect?)
 
 
 ------ cross-posting and comments ---------
@@ -33,7 +31,6 @@ Current status:
 -- check on Win servers
 -- decide what to do with $phpEx global
 -- append_sid is requiring to be fed the session ID -- why?
--- several old links where & should be &amp; -- run through validator
 -- do check on plugin activation for php and wordpress version
 -- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
 -- modify version.php to contain compatibility information
@@ -41,15 +38,13 @@ Current status:
 -- in plugin, only load necessary portions, and load phpBB late only if needed.
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
 -- LANG strings -- move back again to WP po/mo (arrgh - we ported them to phpBB in v0.8!)
--- check status of make_clickable and registration collisions
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 
 ----- template integration ------------
--- body class is getting stripped on template integration, affects e.g. WP login page
+-- relative image paths still problematic
 -- DTD option not having any effect
 -- WPU cache not cleared on style changes [should be fixed]
 -- update css magic to work with subdomains
--- auto-clear of template cache when nav settings changed in WP3
 -- re-enable wordpress-in-phpbb integration
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
 

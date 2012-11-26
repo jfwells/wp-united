@@ -308,7 +308,7 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 				$cssLnk = $cssLnk[0];
 				$cssLnk = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $cssLnk) : $cssLnk;
 				
-				if( @file_exists($cssLnk) && (stristr($cssLnk, 'http:') === false) && (stristr($cssLnk, 'https:') === false) ) { 
+				if(  (stristr($cssLnk, 'http:') === false) && (stristr($cssLnk, 'https:') === false) && @file_exists($cssLnk) ) { 
 					$links[] = $el;
 					$cssLnk = realpath($cssLnk);
 					$key = $wpuCache->get_style_key($cssLnk, $position);
@@ -362,7 +362,8 @@ function wpu_fix_css_urls($filePath, &$css) {
 	if(is_array($urls[0])) {
 		foreach($urls[0] as $url) {
 			$replaceUrl = false;
-			if(stristr($url, "http:") === false) {
+			
+			if((stristr($url, "http:") === false)  && (stristr($url, "https:") === false)) {
 				$out = str_replace("url(", "", $url);
 				$out = str_replace(")", "", $out);
 				$out = str_replace("'", "", $out);
