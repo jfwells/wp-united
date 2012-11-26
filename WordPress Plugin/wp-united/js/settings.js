@@ -477,11 +477,11 @@ function wpuApplyPerms() {
 	var nevers = jsPlumb.getConnections('wpuplumbnever');
 	var results = [];
 	for(var i=0;i<connections.length;i++) {
-		results.push(connections[i].sourceId.split(/-/g)[2] + '=' + connections[i].targetId.split(/-/g)[1]);
+		results.push(connections[i].sourceId.split(/-/g)[1] + '=' + connections[i].targetId.split(/-/g)[1]);
 	}
 	var resultsNever = [];
 	for(var i=0;i<nevers.length;i++) {
-		resultsNever.push(nevers[i].sourceId.split(/-/g)[2] + '=' + nevers[i].targetId.split(/-/g)[1]);
+		resultsNever.push(nevers[i].sourceId.split(/-/g)[1] + '=' + nevers[i].targetId.split(/-/g)[1]);
 	}	
 	
 	window.scrollTo(0,0);
