@@ -534,7 +534,7 @@ function wpu_user_mapper() {
 					<script type="text/javascript"> // <[CDATA[
 						function initPlumbing() {  
 							<?php 
-							$currVar = 0;
+							$var = 0;
 							$varLookups = array();
 							foreach($elsL as $el) { 
 								$varLookups[$el] = $var;
