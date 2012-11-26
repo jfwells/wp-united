@@ -537,15 +537,15 @@ function wpu_user_mapper() {
 							$var = 0;
 							$varLookups = array();
 							foreach($elsL as $el) { 
-								$varLookups[$el] = $var;
 								$var++;
+								$varLookups[$el] = $var;
 								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
 								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
 							}
 						
 							foreach($elsR as $el) { 
+								$var++;							
 								$varLookups[$el] = $var;
-								$var++;
 								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);";
 								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);";
 							}
