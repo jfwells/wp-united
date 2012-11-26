@@ -539,8 +539,8 @@ function wpu_user_mapper() {
 							foreach($elsL as $el) { 
 								$varLookups[$el] = $var;
 								$var++;
-								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
-								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
+								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
+								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
 							}
 						
 							foreach($elsR as $el) { 
