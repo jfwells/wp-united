@@ -206,9 +206,9 @@ function wpu_modify_loginout_links() {
 		$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=';
 		$logout_link = append_sid('ucp.'.$phpEx.'?mode=logout') . '&amp;redirect=';
 		
-		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->get_board_url() . $login_link, $wpUnited->get_wp_content()));
-		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?redirect_to=", $phpbbForum->get_board_url() . $login_link, $wpUnited->get_wp_content()));
-		$wpUnited->set_wp_content(str_replace("{$wpUnited->wpBaseUrl}/wp-login.php?action=logout", $phpbbForum->get_board_url() . $logout_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->get_wp_base_url()}/wp-login.php?redirect_to=", $phpbbForum->get_board_url() . $login_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->get_wp_base_url()}/wp-login.php?redirect_to=", $phpbbForum->get_board_url() . $login_link, $wpUnited->get_wp_content()));
+		$wpUnited->set_wp_content(str_replace("{$wpUnited->get_wp_base_url()}/wp-login.php?action=logout", $phpbbForum->get_board_url() . $logout_link, $wpUnited->get_wp_content()));
 	}
 }
 
@@ -313,12 +313,12 @@ function process_body($pageContent) {
 	// With our Base HREF set, any relative links will point to the wrong location. Let's fix them.
 	if(defined('WPU_BLOG_PAGE')) {
 		$fullWpURL = strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) . '://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING'];
-		$pageContent = str_replace("a href=\"#", "a href=\"$fullWpURL#", $pageContent);
+		$pageContent = str_replace('a href="#', "a href=\"$fullWpURL#", $pageContent);
 	}
 
 	//cut out any </body> and </html> tags
-	$pageContent = str_replace("</body>", "", $pageContent);
-	$pageContent = str_replace("</html>", "", $pageContent);
+	$pageContent = str_replace('</body>', '', $pageContent);
+	$pageContent = str_replace('</html>', '', $pageContent);
 	
 	
 	return $pageContent;
