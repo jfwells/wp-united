@@ -250,7 +250,7 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 	global $phpbb_root_path, $wpuCache, $wpUnited, $phpbbForum;
 
 	$package = ($position == 'outer') ? $wpUnited->get_outer_package() : $wpUnited->get_inner_package();
-	$package = 'pkg=' . $package;
+	$pkg = 'pkg=' . $package;
 	$pos = "pos=" . $position;
 	
 	// grep all styles
@@ -401,7 +401,7 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 								array_pop($result);
 							} else {
 								$result[] = $part;
-							
+							}
 						}
 						if($canModify) {
 							$out = implode('/', $result);
