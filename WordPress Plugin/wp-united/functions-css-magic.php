@@ -364,11 +364,14 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 	
 	$urlToCssfile = false;
 	if($pkg == 'phpbb') {
-		$urlToCssFile = explode('/', str_replace('\\', '/', str_replace(realPath($phpbb_root_path), $phpbbForum->get_board_url(), $filePath)));
+		$urlToCssFile = str_replace(realPath($phpbb_root_path), $phpbbForum->get_board_url(), basename(filePath));
 	} else if($pkg == 'wp') {
-		$urlToCssFile = explode('/', str_replace('\\', '/', str_replace(realPath($wpUnited->get_wp_path()), $wpUnited->get_wp_base_url(), $filePath)));
+		$urlToCssFile = str_replace(realPath($wpUnited->get_wp_path()), $wpUnited->get_wp_base_url(), basename($filePath));
 	}
-	
+	if($urlToCssFile) {
+		// replace win slashes and double slashes
+		$urlToCssFile = explode('/', str_replace(array('\\', '//'), '/', $urlToCssFile));
+	}
 	
 	preg_match_all('/url\(.*?\)/', $css, $urls);
 	if(is_array($urls[0])) {
