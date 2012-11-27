@@ -75,7 +75,7 @@ function wpu_integrate_templates() {
 	if ($wpUnited->should_do_action('template-p-in-w')) { 
 		
 		// replace outer title with phpBB title
-		$wpUnited->set_outer_content(preg_replace('/<title>[^<]*<\/title>/', '<title>[**PAGE_TITLE**]</title>', $wpUnited->get_outer_content()));
+		$wpUnited->set_outer_content(preg_replace('/<title>[^<]*<\/title>/', '<title><!--[**PAGE_TITLE**]--></title>', $wpUnited->get_outer_content()));
 	}
 
 
@@ -144,6 +144,13 @@ function wpu_process_phpbb() {
 	//we just insert a marker, which we will substitute out later
 	$wpStyleLoc = ( PHPBB_CSS_FIRST ) ? 'WP_HEADERINFO_LATE' : 'WP_HEADERINFO_EARLY';
 	
+		//set the DTD marker if we're doing DTD switching
+		if ( $wpUnited->get_setting('dtdSwitch') ) {
+			$template->assign_var('WP_DTD', '<!--[**WP_DTD**]-->'); 
+		}
+
+	
+	
 	$template->assign_vars(array(
 		$wpStyleLoc => '<!--[**HEAD_MARKER**]-->',
 		'S_SHOW_HDR_FTR' => TRUE,
@@ -154,12 +161,12 @@ function wpu_process_phpbb() {
 	
 	// If the user wants CSS magic, we will need to inspect the phpBB Head, so we buffer the output 
 	ob_start();
-	page_header('[**PAGE_TITLE**]');
+	page_header('<!--[**PAGE_TITLE**]-->');
 	
 	
 	$template->assign_vars(array(
 		'WORDPRESS_BODY' => '<!--[**INNER_CONTENT**]-->',
-		'WP_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com" target="_blank">', '</a>')
+		'WP_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com">', '</a>')
 	)); 
 	
 	//Stop phpBB from exiting
@@ -226,11 +233,12 @@ function wpu_modify_loginout_links() {
  * Removes the head from the rest of the page.
  * @param string $retWpInc The page content for modification, must be passed by reference.
  * @return string the page <HEAD>
+ * TODO: Remove global variables
  */
 function process_remove_head($retWpInc, $loc = 'inner') {
-	global $wpUnited, $template;
+	global $wpUnited, $wpu_dtd, $wpu_page_title;
 	
-	//Locate where the WordPress <body> begins, and snip of everything above and including the statement
+	//Locate where the WordPress <body> begins, and snip off everything above and including the statement
 	$bodyLocStart = strpos($retWpInc, "<body");
 	$bodyLoc = strpos($retWpInc, ">", $bodyLocStart);
 	$wpHead = substr($retWpInc, 0, $bodyLoc + 1);
@@ -242,7 +250,7 @@ function process_remove_head($retWpInc, $loc = 'inner') {
 	$wpTitleStr = substr($wpHead, $begTitleLoc +7, $titleLen - 7);
 
 	// set page title 
-	$GLOBALS['wpu_page_title'] = trim($wpTitleStr); 
+	$wpu_page_title = trim($wpTitleStr); 
 	
 
 	//get anything inportant from the WP or phpBB <head> and integrate it into our phpBB page...
@@ -258,10 +266,11 @@ function process_remove_head($retWpInc, $loc = 'inner') {
 		'<!-- wpu-debug -->' => '<!-- /wpu-debug -->'
 	);
 	$header_info = head_snip($wpHead, $findItems);
-	//get the DTD if we're doing DTD switching
+	
+		//get the DTD if we're doing DTD switching
 		if ( ($wpUnited->get_setting('dtdSwitch')) && !$wpUnited->should_do_action('template-p-in-w') ) {
-			$wp_dtd = head_snip($wpHead, array('<!DOCTYPE' => '>'));
-			$template->assign_var('WP_DTD', $wp_dtd);
+			$wpu_dtd = head_snip($wpHead, array('<!DOCTYPE' => '>'));
+			
 		}
 
 	//fix font sizes coded in pixels  by phpBB -- un-comment this line if WordPress text looks too small
@@ -340,11 +349,15 @@ function process_body($pageContent) {
  * @param string $content The fully integrated page.
  */
 function wpu_output_page($content) {
-	global $wpuNoHead;
+	global $wpuNoHead, $wpu_page_title, $wpu_dtd;
 	
 	//Add title back
-	global $wpu_page_title;
-	$content = str_replace("[**PAGE_TITLE**]", $wpu_page_title, $content);
+	$content = str_replace("<!--[**PAGE_TITLE**]-->", $wpu_page_title, $content);
+	
+	//Add DTD if needed
+	if(isset($wpu_dtd)) {
+		$content = str_replace("<!--[**WP_DTD**]-->", $wpu_dtd, $content);
+	}
 
 	// Add login debugging if requested
 	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) && !$wpuNoHead ) {

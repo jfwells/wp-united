@@ -38,8 +38,6 @@ Current status:
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 
 ----- template integration ------------
-
--- DTD option not having any effect
 -- WPU cache not cleared on style changes [should be fixed]
 -- re-enable wordpress-in-phpbb integration
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
@@ -116,6 +114,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- Use WordPress DTD option now working again
 - Disable padding on wp-in-phpbb integrations, and only show relevant advanced template integration options for this type of integration
 - User mapper now rates email matches higher than usernames
 - Fixed relative image paths in template-integrated CSS in edge cases by subbing in known URLs
