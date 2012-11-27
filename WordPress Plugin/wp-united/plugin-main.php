@@ -90,7 +90,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		$this->doneInit = true;
 		
 		require_once($this->get_plugin_path() . 'template-tags.php');
-		require_once($this->get_plugin_path() . 'login-integrator.php'); 
+		require_once($this->get_plugin_path() . 'user-integrator.php'); 
 		require_once($this->get_plugin_path() . 'functions-cross-posting.php');
 		
 		
