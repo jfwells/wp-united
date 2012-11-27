@@ -195,8 +195,9 @@ class WPU_Phpbb {
 	}
 	
 	public function get_board_url() {
-		
+		global $config;
 		if(empty($this->url)) {
+			$config['force_server_vars'] = 1;
 			$fStateChanged = $this->foreground();
 			$this->url = add_trailing_slash(generate_board_url());
 			$this->restore_state($fStateChanged);

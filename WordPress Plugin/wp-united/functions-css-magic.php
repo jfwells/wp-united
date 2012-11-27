@@ -364,15 +364,13 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 	
 	$urlToCssfile = false;
 	if($pkg == 'phpbb') {
-		$urlToCssFile = str_replace(realPath($phpbb_root_path), $phpbbForum->get_board_url(), basename(filePath));
+		$urlToCssFile = str_replace(realPath($phpbb_root_path), $phpbbForum->get_board_url(), dirname(filePath));
 	} else if($pkg == 'wp') {
-		$urlToCssFile = str_replace(realPath($wpUnited->get_wp_path()), $wpUnited->get_wp_base_url(), basename($filePath));
+		$urlToCssFile = str_replace(realPath($wpUnited->get_wp_path()), $wpUnited->get_wp_base_url(), dirname($filePath));
 	}
 	if($urlToCssFile) {
-		// replace win slashes and double slashes
-		$urlToCssFile = explode('/', str_replace(array('\\', '//'), '/', $urlToCssFile));
+		$urlToCssFile = explode('/', str_replace('\\', '/', $urlToCssFile));
 	}
-	
 	preg_match_all('/url\(.*?\)/', $css, $urls);
 	if(is_array($urls[0])) {
 		foreach($urls[0] as $url) {
@@ -394,7 +392,7 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 						$canModify = true;
 						$result = $urlToCssFile;
 						foreach($urlParts as $part) {
-							if ($part == '.') {
+							if (($part == '.') || ($part == '')) {
 								continue;
 							} else if ($part == '..') {
 								if(!sizeof($result)) {
