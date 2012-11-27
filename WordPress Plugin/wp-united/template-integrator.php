@@ -194,7 +194,9 @@ function wpu_fix_wp_template() {
 }
 
 
-
+/**
+ * This is deprecated, we no longer use it
+ */
 function wpu_modify_loginout_links() {
 	global $wpUnited, $phpEx, $phpbbForum;
 	

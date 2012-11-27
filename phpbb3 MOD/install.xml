@@ -4,9 +4,9 @@
 <mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.3.xsd">
   <header>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
-    <title lang="en-gb">WP-UNITED: WordPress-phpBB Integration Package</title>
-    <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
-    <author-notes lang="en-gb">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
+    <title lang="en">WP-UNITED: WordPress-phpBB Integration Package</title>
+    <description lang="en">Tightly integrates phpBB3 and WordPress.</description>
+    <author-notes lang="en">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
 Visit http://www.wp-united.com for more help or information.
 </author-notes>
     <author-group>
@@ -79,7 +79,7 @@ if ($config['load_cpf_viewtopic'])]]></find>
 	$template->assign_block_vars('postrow', $postrow);	]]></find>
         <action type="before-add"><![CDATA[	$GLOBALS['wpu_actions']->show_viewtopic_link($user_cache[$poster_id], $postrow);
 ]]></action>
-        <comment lang="en-gb">	</comment>
+        <comment lang="en">	</comment>
       </edit>
     </open>
    
@@ -173,16 +173,16 @@ h1, #page-header h1 {
 	/* Forum name */
 	padding: 0;
 	text-align: left;	</action>
-        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
+        <comment lang="en">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
       </edit>
       <edit>
         <find>#site-description {</find>
         <action type="after-add">	text-align: left;
 </action>
-        <comment lang="en-gb">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
+        <comment lang="en">	You only need to make this alteration if you will be using template integration. It is for compatibility with the default WordPress template.</comment>
       </edit>
     </open>    
-    <diy-instructions lang="en-gb"><![CDATA[	
+    <diy-instructions lang="en"><![CDATA[	
 
 THEME CHANGES
 -------------

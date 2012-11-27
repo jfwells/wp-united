@@ -4,9 +4,9 @@
 <mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.3.xsd">
   <header>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
-    <title lang="en-gb">WP-United: Upgrade from v0.5.5, v0.6x or v0.7x</title>
-    <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
-    <author-notes lang="en-gb">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
+    <title lang="en">WP-United: Upgrade from v0.5.5, v0.6x or v0.7x</title>
+    <description lang="en">Tightly integrates phpBB3 and WordPress.</description>
+    <author-notes lang="en">Make sure you follow the instructions in the DIY INSTRUCTIONS section, in order for this MOD to work properly!
 Visit http://www.wp-united.com for more help or information.
 </author-notes>
     <author-group>
@@ -34,7 +34,7 @@ Visit http://www.wp-united.com for more help or information.
   </header>
   
   <action-group>
-      <diy-instructions lang="en-gb"><![CDATA[	
+      <diy-instructions lang="en"><![CDATA[	
 
 
 Note that during the upgrade procedure, portions of your site will produce errors or be inaccessible -- you should bring your site offline while upgrading.
@@ -63,7 +63,7 @@ The control panel can now be found within WordPress, under WP-United.
 	$GLOBALS['wpu_actions']->do_tail();
 	]]></find>
         <action type="replace-with"></action>
-        <comment lang="en-gb">Delete the lines you added for a previous version of WP-United.</comment>
+        <comment lang="en">Delete the lines you added for a previous version of WP-United.</comment>
       </edit>
       <edit>
         <find><![CDATA[
@@ -71,7 +71,7 @@ The control panel can now be found within WordPress, under WP-United.
 	$GLOBALS['wpu_actions']->do_head($template);
 ]]></find>
         <action type="replace-with"></action>
-        <comment lang="en-gb">Delete the lines you added for a previous version of WP-United.</comment>
+        <comment lang="en">Delete the lines you added for a previous version of WP-United.</comment>
       </edit>      
     </open>
         <open src="language/en/common.php">
@@ -101,7 +101,7 @@ The control panel can now be found within WordPress, under WP-United.
       </edit>
 
       <action type="replace-with"></action>
-        <comment lang="en-gb">Delete any lines you added for a previous version of WP-United.</comment>
+        <comment lang="en">Delete any lines you added for a previous version of WP-United.</comment>
 		  
     </open>
     
@@ -139,7 +139,7 @@ function phpbb_validate_username($username, $allowed_username = false)]]></actio
 			$GLOBALS['wpu_actions']->profile_update('avatar', ($custom_userdata === false) ? $user->data['user_id'] : $custom_userdata['user_id'], ($custom_userdata === false) ? $user->data['user_wpuint_id'] : $custom_userdata['user_wpuint_id'], $sql_ary);
 						]]></find>
         <action type="replace-with"></action>
-		<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+		<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
       </edit>	  
 
      </open>
@@ -181,7 +181,7 @@ function phpbb_make_clickable($text, $server_url = false, $class = 'postlink')
 	<find><![CDATA[		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 	$GLOBALS['wpu_actions']->do_logout();	]]></find>
 	<action type="replace-with"></action>
-	<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+	<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
   </edit>
 </open>
 <open src="includes/ucp/ucp_profile.php">
@@ -189,27 +189,27 @@ function phpbb_make_clickable($text, $server_url = false, $class = 'postlink')
 	<find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 					$GLOBALS['wpu_actions']->profile_update('reg_details', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></find>
 	<action type="replace-with"></action>
-	<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+	<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
   </edit>
   <edit>
 	<find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 					$GLOBALS['wpu_actions']->profile_update('profile_info', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></find>
 	<action type="replace-with"></action>
   </edit>
-  <comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+  <comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
 </open>
     <open src="includes/acp/acp_users.php">
       <edit>
         <find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 						$GLOBALS['wpu_actions']->profile_update('reg_details', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></find>
         <action type="replace-with"></action>
-		<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+		<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
       </edit>
       <edit>
         <find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 						$GLOBALS['wpu_actions']->profile_update('profile_info', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></find>
         <action type="replace-with"></action>
-		<comment lang="en-gb">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+		<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
       </edit>
 	  
     </open>
