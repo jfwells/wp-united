@@ -1175,74 +1175,79 @@ function wpu_settings_page() {
 							
 							<div id="wpusettingstpladv" class="subsettings">
 								<h4>Advanced Settings</h4>
-								<p><strong>Use full page?</strong>
-									<a class="wpuwhatis" href="#" title="Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try 'full page'. This option could be a little slower.">What is this?</a>
-								</p>
-								<select id="wpuhdrftrspl" name="wpuhdrftrspl">
-									
-									<option value="0"<?php if($wpUnited->get_setting('wpSimpleHdr') == 1) { echo ' selected="selected" '; } ?>>-- Simple Header &amp; Footer (recommended) --</option>
-									<?php
-										$files = scandir(TEMPLATEPATH);
-										if(sizeof($files)) {
-											foreach($files as $file) {
-												// no stripos for ph4 compatibility
-												if(strpos(strtolower($file), '.php') == (strlen($file) - 4)) {
-													echo '<option value="' . $file . '"';
-													if( ($wpUnited->get_setting('wpPageName') == $file) && ($wpUnited->get_setting('wpSimpleHdr') == 0) ) {
-														echo ' selected="selected" ';
+								<div id="wputemplate-p-in-w-opts">
+							
+							
+									<p><strong>Use full page?</strong>
+										<a class="wpuwhatis" href="#" title="Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try 'full page'. This option could be a little slower.">What is this?</a>
+									</p>
+									<select id="wpuhdrftrspl" name="wpuhdrftrspl">
+										
+										<option value="0"<?php if($wpUnited->get_setting('wpSimpleHdr') == 1) { echo ' selected="selected" '; } ?>>-- Simple Header &amp; Footer (recommended) --</option>
+										<?php
+											$files = scandir(TEMPLATEPATH);
+											if(sizeof($files)) {
+												foreach($files as $file) {
+													// no stripos for ph4 compatibility
+													if(strpos(strtolower($file), '.php') == (strlen($file) - 4)) {
+														echo '<option value="' . $file . '"';
+														if( ($wpUnited->get_setting('wpPageName') == $file) && ($wpUnited->get_setting('wpSimpleHdr') == 0) ) {
+															echo ' selected="selected" ';
+														}
+														echo '>Full Page: ' . $file . '</option>';
 													}
-													echo '>Full Page: ' . $file . '</option>';
 												}
 											}
-										}
-									?>
-								</select>
-								
-								<p><strong>Padding around phpBB</strong>
-								<?php $padding = explode('-', $wpUnited->get_setting('phpbbPadding')); ?>
-								
-									<a class="wpuwhatis" href="#" title="phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not '0'), and style the 'phpbbforum' DIV in your stylesheet.">What is this?</a>
-								</p>
-									<table>
-										<tr>
-											<td>
-												<label for="wpupadtop">Top:</label><br />
-											</td>
-											<td>
-												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="<?php echo $padding[0]; ?>" />px<br />
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<label for="wpupadright">Right:</label><br />
-											</td>
-											<td>
-												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="<?php echo $padding[1]; ?>" />px<br />
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<label for="wpupadbtm">Bottom:</label><br />
-											</td>
-											<td>
-												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="<?php echo $padding[2]; ?>" />px<br />
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<label for="wpupadleft">Left:</label><br />
-											</td>
-											<td>
-												<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="<?php echo $padding[3]; ?>" />px<br />
-											</td>
-										</tr>
-										</table>
-									<p><a href="#" onclick="return false;">Reset to defaults</a></p>
+										?>
+									</select>
 									
-									<p>
-										<input type="checkbox" id="wpudtd" name="wpudtd" <?php if($wpUnited->get_setting('dtdSwitch')) { echo ' checked="checked" '; } ?>/> <label for="wpudtd"><Strong>Use Different Document Type Declaration?</Strong></label>
-										<a class="wpuwhatis" href="#" title="The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3's prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional  or XHTML 5 DTD. In most cases, this doesn't matter -- however, If you want to use WordPress' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed.">What is this?</a>
+									<p><strong><?php _e('Padding around phpBB'); ?></strong>
+									<?php $padding = explode('-', $wpUnited->get_setting('phpbbPadding')); ?>
+									
+										<a class="wpuwhatis" href="#" title="<?php _e("phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not '0'), and style it in your stylesheet instead."); ?>">What is this?</a>
 									</p>
+										<table>
+											<tr>
+												<td>
+													<label for="wpupadtop"><?php _e('Top:'); ?></label><br />
+												</td>
+												<td>
+													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="<?php echo $padding[0]; ?>" />px<br />
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label for="wpupadright"><?php _e('Right:'); ?></label><br />
+												</td>
+												<td>
+													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="<?php echo $padding[1]; ?>" />px<br />
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label for="wpupadbtm"><?php _e('Bottom:'); ?></label><br />
+												</td>
+												<td>
+													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="<?php echo $padding[2]; ?>" />px<br />
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label for="wpupadleft"><?php _e('Left:'); ?></label><br />
+												</td>
+												<td>
+													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="<?php echo $padding[3]; ?>" />px<br />
+												</td>
+											</tr>
+											</table>
+										<p><a href="#" onclick="return false;">Reset to defaults</a></p>
+									</div>
+									<div id="wputemplate-w-in-p-opts">
+										<p>
+											<input type="checkbox" id="wpudtd" name="wpudtd" <?php if($wpUnited->get_setting('dtdSwitch')) { echo ' checked="checked" '; } ?>/> <label for="wpudtd"><Strong><?php _e("Use WordPress' Document Type Declaration?"); ?></Strong></label>
+											<a class="wpuwhatis" href="#" title="<?php _e("The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3's prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional  or HTML 5 DTD. In most cases, this doesn't matter -- however, If you want to use WordPress' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed."); ?>">What is this?</a>
+										</p>
+									</div>
 								</div>
 						</div>
 					</div>

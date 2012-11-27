@@ -41,7 +41,6 @@ Current status:
 
 -- DTD option not having any effect
 -- WPU cache not cleared on style changes [should be fixed]
--- update css magic to work with subdomains
 -- re-enable wordpress-in-phpbb integration
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
 
@@ -117,6 +116,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- Disable padding on wp-in-phpbb integrations, and only show relevant advanced template integration options for this type of integration
 - User mapper now rates email matches higher than usernames
 - Fixed relative image paths in template-integrated CSS in edge cases by subbing in known URLs
 - can now intercept WP login to integrate or login with phpBB credentials

@@ -95,7 +95,7 @@ function wpu_integrate_templates() {
 
 	//Wrap $inner content in CSS Magic, padding, etc.
 	$padding = '';
-	if ($wpUnited->get_setting('phpbbPadding') != 'NOT_SET') {
+	if ($wpUnited->should_do_action('template_p-in-w') && ($wpUnited->get_setting('phpbbPadding') != 'NOT_SET')) {
 		$pad = explode('-', $wpUnited->get_setting('phpbbPadding'));
 		$padding = 'padding: ' . (int)$pad[0] . 'px ' .(int)$pad[1] . 'px ' .(int)$pad[2] . 'px ' .(int)$pad[3] . 'px;';
 	}

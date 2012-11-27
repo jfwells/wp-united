@@ -110,7 +110,19 @@ function setupHelpButtons() {
 function settingsFormSetup() {
 	if($('#wpuxpost').is(':checked')) $('#wpusettingsxpostxtra').show();
 	if($('#wpuloginint').is(':checked')) $('#wpusettingsxpost').show();
-	if($('#wputplint').is(':checked')) $('#wpusettingstpl').show();
+	if($('#wputplint').is(':checked')) {
+		$('#wpusettingstpl').show();
+		if($('#wputplrev').is(':checked')) {
+			$('#wputemplate-w-in-p-opts').hide();
+		} else {
+			$('#wputemplate-p-in-w-opts').hide();
+		}
+	}
+	
+	$('input[name=rad_tpl]').change(function() {
+		$('#wputemplate-p-in-w-opts').toggle();
+		$('#wputemplate-w-in-p-opts').toggle();
+	});
 
 	$('#wpuloginint').change(function() {
 			$('#wpusettingsxpost').toggle("slide", "slow");
