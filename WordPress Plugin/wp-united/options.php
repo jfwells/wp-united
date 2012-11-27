@@ -100,7 +100,7 @@ $GLOBALS['WPU_NOT_INTEGRATED_TPLS'] =  array('posting_smilies.html', 'tag_board.
  * If you change these, you my need to purge the cache for them to take effect properly.
  */
 define('DISABLE_PHPBB_CSS', FALSE);
-define('PHPBB_CSS_FIRST', TRUE);
+define('PHPBB_CSS_FIRST', FALSE);
 
 /**
  * Show blog link

@@ -189,11 +189,6 @@ function wpu_get_wordpress() {
 		}
 		
 		
-		if (!DISABLE_PHPBB_CSS && PHPBB_CSS_FIRST) { 
-			$wpUnited->set_outer_content(str_replace('</title>', '</title>' . "\n\n" . '<!--[**HEAD_MARKER**]-->', $wpUnited->get_outer_content()));
-		}
-
-
 		// clean up, go back to normal :-)
 		if ( !$wpuCache->use_template_cache() ) {
 			$wpUtdInt->exit_wp_integration();

@@ -358,7 +358,7 @@ function wpu_extract_css($content) {
  * @param string $css a string containing valid CSS to be modified
  */
 function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
-	global $phpbb_root_path, $wpUnited;
+	global $phpbb_root_path, $wpUnited, $phpbbForum;
 	require_once($wpUnited->get_plugin_path() . 'functions-general.php');
 	$relPath = wpu_compute_path_difference($filePath, realpath(add_trailing_slash(getcwd()) . 'style-fixer.php'));
 	

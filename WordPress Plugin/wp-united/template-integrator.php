@@ -107,11 +107,20 @@ function wpu_integrate_templates() {
 		$wpuOutputPostStr = '</div>';
 	}
 
+	// If the WP theme didn't set the head marker, do it now
+	if (!DISABLE_PHPBB_CSS) {
+		$headMarker = '<!--[**HEAD_MARKER**]-->';
+		if( PHPBB_CSS_FIRST) {
+			$wpUnited->set_outer_content(str_replace('</title>', '</title>' . "\n\n" . $headMarker . "\n\n", $wpUnited->get_outer_content()));
+		} else if(strstr($wpUnited->get_outer_content(), $headMarker) === false)  {
+			$headMarker = '</head>';
+			$wpUnited->set_inner_headinfo($wpUnited->get_inner_headinfo() . "\n\n</head>");	
+		}
+		$wpUnited->set_outer_content(str_replace($headMarker, $wpUnited->get_inner_headinfo(), $wpUnited->get_outer_content())); 
+	}
 
 
-
-	$wpUnited->set_outer_content(str_replace("<!--[**HEAD_MARKER**]-->", $wpUnited->get_inner_headinfo(), $wpUnited->get_outer_content())); 
-	$wpUnited->set_outer_content(str_replace("<!--[**INNER_CONTENT**]-->", $wpuOutputPreStr . $wpUnited->get_inner_content() . $wpuOutputPostStr, $wpUnited->get_outer_content())); 
+	$wpUnited->set_outer_content(str_replace('<!--[**INNER_CONTENT**]-->', $wpuOutputPreStr . $wpUnited->get_inner_content() . $wpuOutputPostStr, $wpUnited->get_outer_content())); 
 	
 	$wpUnited->clear_inner_content();
 	
