@@ -55,11 +55,11 @@ Current status:
 
 
 -------- user blogs --> wp-ms ----------
--- check we don't crash out on WP-ms load
 -- check permissions mapping and user creation -- add check for whether they should be given a blog or not when being created
 -- check css magic / template voodoo with many different user blog templates at once. (or disallow/warn against wordpress-in-phpbb with wp-ms)
 -- add back userblog permissions
 -- reconnect blog buttons, consider removing blogid from phpBB
+-- check where forum homepage gets added on multiple sites
 
 
 --------- possible for future versions ---------------
@@ -118,6 +118,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- basic activation and operation work on wp multisite
 - Use WordPress DTD option now working again
 - Disable padding on wp-in-phpbb integrations, and only show relevant advanced template integration options for this type of integration
 - User mapper now rates email matches higher than usernames
