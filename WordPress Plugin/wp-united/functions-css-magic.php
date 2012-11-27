@@ -389,7 +389,7 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 					if($urlToCssFile) {
 						$urlParts = explode('/', $out);
 						$canModify = true;
-						$result = $urlToCssFile
+						$result = $urlToCssFile;
 						foreach($urlParts as $part) {
 							if ($part == '.') {
 								continue;
