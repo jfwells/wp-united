@@ -69,6 +69,7 @@ $user = false;
  * Initialise variables
  */
 $pos = (request_var('pos', 'outer') == 'inner') ? 'inner' : 'outer';
+$pkg = (request_var('pkg', 'wp') == 'phpbb') ? 'phpbb' : 'wp';
 
 $cssFileToFix = request_var('style', 0);
 
@@ -154,7 +155,7 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 			$cssMagic->clear();
 	
 			//fix relative URLs in the CSS
-			wpu_fix_css_urls($cssFileToFix, $css);
+			wpu_fix_css_urls($cssFileToFix, $css, $pkg);
 		}
 			
 		//cache fixed CSS

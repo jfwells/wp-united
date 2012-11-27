@@ -48,7 +48,7 @@ function wpu_css_magic() {
 	 * appropriate style key, not the filename
 	 */
 	
-	$innerSSLinks = wpu_get_stylesheet_links($wpUnited->get_inner_headinfo(), "inner");
+	$innerSSLinks = wpu_get_stylesheet_links($wpUnited->get_inner_headinfo(), 'inner');
 	// also grep all inline css out of headers
 	$inCSSInner = wpu_extract_css($wpUnited->get_inner_headinfo());
 	
@@ -246,9 +246,13 @@ function wpu_css_magic() {
  * for the inner portion of the page (defaults to "outer")
  * @return array an array of stylesheet links and modifications
  */
-function wpu_get_stylesheet_links($headerInfo, $position="outer") {
+function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 	global $phpbb_root_path, $wpuCache, $wpUnited, $phpbbForum;
 
+	$package = ($position == 'outer') ? $wpUnited->get_outer_package() : $wpUnited->get_inner_package();
+	$package = 'pkg=' . $package;
+	$pos = "pos=" . $position;
+	
 	// grep all styles
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
 	preg_match_all('/@import url\([^\)]+?\)/i', $headerInfo, $matches2);
@@ -256,7 +260,7 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 	$matches = array_merge($matches[0], $matches2[0], $matches3[0]);
 	$links = array(); $repl = array(); $keys = array();
 	if(is_array($matches)) {
-		$pos = "pos=" . $position;
+		
 		foreach($matches as $match) {
 			// extract css location
 			$and = '&';
@@ -313,7 +317,7 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 					$cssLnk = realpath($cssLnk);
 					$key = $wpuCache->get_style_key($cssLnk, $position);
 					$keys[] = $key;
-					$repl[] = "{$phpbbForum->get_board_url()}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$tv}";
+					$repl[] = "{$phpbbForum->get_board_url()}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$and}{$pkg}{$tv}";
 				}
 			} elseif(stristr($el, "style.php?") !== false) {
 				/**
@@ -322,7 +326,7 @@ function wpu_get_stylesheet_links($headerInfo, $position="outer") {
 				$links[] = $el; 
 				$key = $wpuCache->get_style_key($el, $position);
 				$keys[] = $key;
-				$repl[] = "{$el}{$and}usecssm=1{$and}{$pos}{$and}cloc={$key}{$tv}";
+				$repl[] = "{$el}{$and}usecssm=1{$and}{$pos}{$and}cloc={$key}{$and}{$pkg}{$tv}";
 			} 
 		}
 	}
@@ -353,27 +357,63 @@ function wpu_extract_css($content) {
  * @param string $filePath the path to the current file
  * @param string $css a string containing valid CSS to be modified
  */
-function wpu_fix_css_urls($filePath, &$css) {
+function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 	global $phpbb_root_path, $wpUnited;
 	require_once($wpUnited->get_plugin_path() . 'functions-general.php');
 	$relPath = wpu_compute_path_difference($filePath, realpath(add_trailing_slash(getcwd()) . 'style-fixer.php'));
-
+	
+	$urlToCssfile = false;
+	if($pkg == 'phpbb') {
+		$urlToCssFile = explode('/', str_replace('\\', '/', str_replace(realPath($phpbb_root_path), $phpbbForum->get_board_url(), $filePath)));
+	} else if($pkg == 'wp') {
+		$urlToCssFile = explode('/', str_replace('\\', '/', str_replace(realPath($wpUnited->get_wp_path()), $wpUnited->get_wp_base_url(), $filePath)));
+	}
+	
+	
 	preg_match_all('/url\(.*?\)/', $css, $urls);
 	if(is_array($urls[0])) {
 		foreach($urls[0] as $url) {
 			$replaceUrl = false;
 			
 			if((stristr($url, "http:") === false)  && (stristr($url, "https:") === false)) {
-				$out = str_replace("url(", "", $url);
-				$out = str_replace(")", "", $out);
-				$out = str_replace("'", "", $out);
-				$out = str_replace('"', '', $out);
-				if ($out[0] != "/") {
+			
+				$out = str_replace(array('url', '(', ')', "'", '"', ' '), '', $url);
+				if ($out != "/") {
 					$replace = true;
 				}
 			}
 			if ($replace) {
-				$css = str_replace($url, "url('{$relPath}{$out}')", $css);
+			
+				// We try to sub in the absolute URL for the file path. If that fails then we use the computed relative path difference.
+				if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
+					if($urlToCssFile) {
+						$urlParts = explode('/', $out);
+						$canModify = true;
+						$result = $urlToCssFile
+						foreach($urlParts as $part) {
+							if ($part == '.') {
+								continue;
+							} else if ($part == '..') {
+								if(!sizeof($result) {
+									$canModify = false;
+									break;
+								}
+								array_pop($result);
+							} else {
+								$result[] = $part;
+							
+						}
+						if($canModify) {
+							$out = implode('/', $result);
+						}	
+					}
+					
+					if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
+						$out = $relPath.$out;
+					}
+										
+					$css = str_replace($url, "url('{$out}')", $css);
+				}
 			}
 		}
 	}

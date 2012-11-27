@@ -533,6 +533,24 @@ class WP_United_Plugin_Base {
 		return $this->innerHeadInfo;
 	}
 	
+	public function get_inner_package() {
+		if ($this->should_do_action('template-p-in-w')) {
+			return 'phpbb';
+		} else if ($this->should_do_action('template-w-in-p')) {
+			return 'wp';
+		}
+		return 'none';
+	}
+	
+	public function get_outer_package() {
+		if ($this->should_do_action('template-p-in-w')) {
+			return 'wp';
+		} else if ($this->should_do_action('template-w-in-p')) {
+			return 'phpbb';
+		}
+		return 'none';	
+	}
+	
 	
 	public function version() {
 		if(empty($this->version)) {
