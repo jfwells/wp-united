@@ -251,7 +251,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 	}
 	
 	/**
-	 * Provides a formatted block of suggested usernames this use could integrate to
+	 * Provides a formatted block of suggested usernames this user could integrate to
 	 */
 	public function get_suggested_matches() {
 		if($this->is_integrated()) {
@@ -286,7 +286,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			return;
 		}
 		
-		$matches = '';
+		$matches = array();;
 		while($result = $db->sql_fetchrow($results)) {
 			$integText = (empty($result['user_wpuint_id'])) ? __('Available') : __('Cannot integrate (already integrated)');
 			$integLink =  (!empty($result['user_wpuint_id'])) ? '' : sprintf(
@@ -298,8 +298,17 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 				$this->get_email(),
 				$result['user_email']
 			);
-			$matches .= '<p><strong>' . $result['username'] . '</strong> <em>' . $result['user_email'] . '</em><br />' . $integText . ' ' . $integLink . '</p>';
+			$match = '<p><strong>' . $result['username'] . '</strong> <em>' . $result['user_email'] . '</em><br />' . $integText . ' ' . $integLink . '</p>';
+			
+			// e-mail matches go first in the returned list
+			if(strtolower($result['user_email']) == strtolower($this->get_email())) {
+				array_unshift($matches, $match);
+			} else {
+				$matches[] = $match;
+			}
 		}
+		
+		$matches = implode('', $matches);
 		
 		$db->sql_freeresult();
 		$phpbbForum->background($fStateChanged);

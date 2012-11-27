@@ -6,19 +6,19 @@
  */
 class WPU_User_Mapper {
 	
-	private $leftSide = 'wp';
-	private $numToShow = 50;
-	private $showUsers = 0;
-	private $usersToShow = 0;
-	private $showSpecificUsers = false;
-	private $showUsersLike = false;
-	private $numStart = 0;
-	private $showOnlyInt = 0;
-	private $showOnlyUnInt = 0;
-	private $showOnlyPosts = 0;
-	private $showOnlyNoPosts = 0;
-	
-	private $numUsers = 0;
+	private 
+		$leftSide = 'wp',
+		$numToShow = 50,
+		$showUsers = 0,
+		$usersToShow = 0,
+		$showSpecificUsers = false,
+		$showUsersLike = false,
+		$numStart = 0,
+		$showOnlyInt = 0,
+		$showOnlyUnInt = 0,
+		$showOnlyPosts = 0,
+		$showOnlyNoPosts = 0,
+		$numUsers = 0;
 	
 	public $users;
 	

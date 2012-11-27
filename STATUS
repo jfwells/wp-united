@@ -5,9 +5,6 @@ Current status:
 - Widgets and template tags working OK
 - Other options generally working but as yet not well tested.
 
----- user integration ---------
--- use new algorithm for identifying potential usermapper mappings: weight e-mail higher than username
-
 
 ------ cross-posting and comments ---------
 -- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
@@ -41,7 +38,7 @@ Current status:
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 
 ----- template integration ------------
--- relative image paths still problematic
+
 -- DTD option not having any effect
 -- WPU cache not cleared on style changes [should be fixed]
 -- update css magic to work with subdomains
@@ -120,6 +117,8 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- User mapper now rates email matches higher than usernames
+- Fixed relative image paths in template-integrated CSS in edge cases by subbing in known URLs
 - can now intercept WP login to integrate or login with phpBB credentials
 - only sync passwords when they change, as the user may expect unsynced passwords.
 - suppressing warnings for opendir_basename restrictions
