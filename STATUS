@@ -16,6 +16,10 @@ Current status:
 -- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
 -- consider allowing guest posting of comments (IF akismet is installed?).
 
+------- behaviour ----------
+
+- Smilies not showing in 2012 comment form
+- Check censor
 
 ----- panel general --------
 -- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php

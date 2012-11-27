@@ -16,7 +16,12 @@
 /**
  * Add menu options for WP-United Settings panel
  */
- add_action('admin_menu', 'wpu_settings_menu');
+ if(!is_multisite()) {
+	add_action('admin_menu', 'wpu_settings_menu');
+} else {
+	add_action('network_admin_menu', 'wpu_settings_menu');
+}
+
 function wpu_settings_menu() {  
 	global $wpUnited;
 	
