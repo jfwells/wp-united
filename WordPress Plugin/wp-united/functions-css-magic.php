@@ -394,7 +394,7 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 							if ($part == '.') {
 								continue;
 							} else if ($part == '..') {
-								if(!sizeof($result) {
+								if(!sizeof($result)) {
 									$canModify = false;
 									break;
 								}
