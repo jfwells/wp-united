@@ -582,7 +582,8 @@ class WP_United_Plugin_Base {
 	
 
 	protected function add_actions() { 
-		foreach($this->actions as $action => $details) {
+		foreach($this->actions as $actionArray) {
+			list($action, $details, $whenToLoad) = $actionArray;
 			switch(sizeof((array)$details)) {
 				case 3:
 					add_action($action, array($this, $details[0]), $details[1], $details[2]);
@@ -598,7 +599,8 @@ class WP_United_Plugin_Base {
 	}
 	
 	protected function add_filters() {
-		foreach($this->filters as $filter => $details) {
+		foreach($this->filters as $filterArray) {
+			list($filter, $details, $whenToLoad) = $filterArray;
 			switch(sizeof((array)$details)) {
 				case 3:
 					add_filter($filter, array($this, $details[0]), $details[1], $details[2]);

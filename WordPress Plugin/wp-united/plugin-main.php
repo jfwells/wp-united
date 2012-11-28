@@ -19,37 +19,37 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 	protected
 		$actions = array(
-			'plugins_loaded'		=>		'init_plugin',  // this should be 'init', but we want to play with current_user, which comes earlier
-			'set_current_user'		=>		'integrate_users',
-			'wp_logout'				=>		'phpbb_logout',
-			'comment_form'			=> 		'generate_smilies',
-			'wp_head'				=>		'add_head_marker',
-			'edit_post'				=>		'just_editing_post',
-			'wp_insert_post'		=>		array('capture_future_post', 10, 2),
-			'publish_post'			=>		array('handle_new_post', 10, 2),
-			'future_to_publish'	=>		array('future_to_published', 10),
-			'switch_theme'		=>		'clear_header_cache',
-			'shutdown'				=>		array('buffer_end_flush_all', 1),
-			'admin_menu'			=>		'add_xposting_box',
-			'wp_head' 				=>		'add_scripts',
-			'register_post'			=>		array('validate_new_user', 10, 3),
-			'user_register'			=>		array('process_new_wp_reg', 10, 1),
-			'profile_update'		=>		array('profile_update', 10, 2),
+			array('plugins_loaded', 		'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
+			array('set_current_user', 		'integrate_users',							'user-int'),
+			array('wp_logout', 				'phpbb_logout',								'user-int'),
+			array('comment_form', 			'generate_smilies',							'use-smilies'),
+			array('wp_head', 				'add_head_marker',							'template-int'),
+			array('edit_post', 				'just_editing_post',						'x-posting'),
+			array('wp_insert_post', 		array('capture_future_post', 10, 2),		'x-posting'),
+			array('publish_post', 			array('handle_new_post', 10, 2),			'x-posting'),
+			array('future_to_publish', 		array('future_to_published', 10),			'x-posting'),
+			array('switch_theme', 			'clear_header_cache',						'template-int'),
+			array('shutdown', 				array('buffer_end_flush_all', 1),			'all'),
+			array('admin_menu', 			'add_xposting_box',							'x-posting'),
+			array('wp_head', 				'add_scripts',								'all'),
+			array('register_post', 			array('validate_new_user', 10, 3),			'user-int'),
+			array('user_register', 			array('process_new_wp_reg', 10, 1),			'user-int'),
+			array('profile_update', 		array('profile_update', 10, 2),				'user-int')
 		),
 
 		$filters = array(
-			'plugin_row_meta'	=>		array('add_plugin_menu_link', 10, 2),
-			'page_link'				=>		array('fix_forum_link', 10, 2),
-			'admin_footer_text'=>		'admin_footer_text',
-			'the_content'			=>		'check_content_for_forum',
-			'comment_text'		=>		'censor_content',
-			'the_title'				=>		'censor_content',
-			'the_excerpt'			=>		'censor_content',
-			'get_avatar'			=>		array('get_avatar', 10, 5),
-			'comment_text'		=>		'smilies',
-			'pre_user_login'		=>		'fix_blank_username',
-			'validate_username'	=>		'validate_username_conflict',
-			'authenticate'			=>		array('authenticate', 21, 3)
+			array('plugin_row_meta', 		array('add_plugin_menu_link', 10, 2), 		'all'),
+			array('page_link', 				array('fix_forum_link', 10, 2), 			'all'),
+			array('admin_footer_text', 		'admin_footer_text', 						'all'),
+			array('the_content', 			'check_content_for_forum', 					'all'),
+			array('comment_text', 			'censor_content', 							'phpbb-censor'),
+			array('the_title', 				'censor_content', 							'phpbb-censor'),
+			array('the_excerpt', 			'censor_content', 							'phpbb-censor'),
+			array('get_avatar', 			array('get_avatar', 10, 5), 				'user-int'),
+			array('comment_text', 			'smilies', 									'use-smilies'),
+			array('pre_user_login', 		'fix_blank_username', 						'user-int'),
+			array('validate_username', 		'validate_username_conflict', 				'user-int'),
+			array('authenticate', 			array('authenticate', 21, 3) 				'user-int')
 		);
 		
 		private
