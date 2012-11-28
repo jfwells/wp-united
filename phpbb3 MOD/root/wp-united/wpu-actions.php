@@ -42,10 +42,6 @@ class WPU_Actions {
 	
 
 	
-	
-	
-	
-	
 	/**
 	 * adds blog links to users' profiles.
 	 */
@@ -185,9 +181,11 @@ class WPU_Actions {
 	 */
 	function purge_cache() {
 		global $wpUnited, $phpEx;
-		require_once($wpUnited->get_plugin_path() . 'cache.php');
-		$wpuCache = WPU_Cache::getInstance();
-		$wpuCache->purge();
+		if($wpUnited->is_enabled()) {
+			require_once($wpUnited->get_plugin_path() . 'cache.php');
+			$wpuCache = WPU_Cache::getInstance();
+			$wpuCache->purge();
+		}
 	}
 			
 	
