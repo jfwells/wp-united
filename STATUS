@@ -5,6 +5,12 @@ Current status:
 - Widgets and template tags working OK
 - Other options generally working but as yet not well tested.
 
+------ Reported errors -----------
+- Win server errors with file tree
+- jQuery conflicts (should be fixed now)
+- Incorrrect font size on rev int
+- error on password change in phpBB
+
 
 ------ cross-posting and comments ---------
 -- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
@@ -16,9 +22,6 @@ Current status:
 -- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
 -- consider allowing guest posting of comments (IF akismet is installed?).
 
-------- behaviour ----------
-
-- Check censor
 
 ----- panel general --------
 -- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
@@ -117,6 +120,8 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- Added ability for filters and actions to be selectively loaded
+- Censor text now works again to censor comments too
 - basic activation and operation work on wp multisite
 - Use WordPress DTD option now working again
 - Disable padding on wp-in-phpbb integrations, and only show relevant advanced template integration options for this type of integration
