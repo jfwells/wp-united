@@ -544,15 +544,15 @@ function wpu_user_mapper() {
 							foreach($elsL as $el) { 
 								$var++;
 								$varLookups[$el] = $var;
-								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
-								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
+								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint(\$wpu('#{$el}'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
+								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint(\$wpu('#{$el}'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
 							}
 						
 							foreach($elsR as $el) { 
 								$var++;							
 								$varLookups[$el] = $var;
-								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);";
-								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);";
+								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint(\$wpu('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);";
+								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint(\$wpu('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);";
 							}
 
 							foreach($linkages as $linkL => $linkR) {
