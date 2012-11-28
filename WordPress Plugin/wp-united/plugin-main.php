@@ -49,7 +49,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('comment_text', 			'smilies', 									'use-smilies'),
 			array('pre_user_login', 		'fix_blank_username', 						'user-int'),
 			array('validate_username', 		'validate_username_conflict', 				'user-int'),
-			array('authenticate', 			array('authenticate', 21, 3) 				'user-int')
+			array('authenticate', 			array('authenticate', 21, 3), 				'user-int')
 		);
 		
 		private
