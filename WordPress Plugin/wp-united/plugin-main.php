@@ -395,14 +395,13 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if(!$this->is_phpbb_loaded()) {
 			return $postContent;
 		}
-		//if (! defined('PHPBB_CONTENT_ONLY') ) {  Commented out as we DO want this to to work on a full reverse page.
-			if ( !is_admin() ) {
-				if ( $this->get_setting('phpbbCensor') ) { 
-					return $phpbbForum->censor($postContent);
-				}
+
+		if ( !is_admin() ) {
+			if ( $this->get_setting('phpbbCensor') ) { 
+				return $phpbbForum->censor($postContent);
 			}
-			return $postContent;
-		//}
+		}
+		return $postContent;
 	}
 	
 	/**
