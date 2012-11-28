@@ -223,7 +223,7 @@ function wpu_reload_preview() {
 		function wpuIncPrevCtr() {
 			if(ctr < 2) {
 				ctr++;
-				$('#wpulastprocessing').show();
+				$wpu('#wpulastprocessing').show();
 				// in case the site has frame breakout code that tries to redirect this parent page.
 				window.onbeforeUnload = function(e) { 
 					return '<?php _e('Please stay on this page for a few more moments until processing is complete. Stay on this page?'); ?>';
@@ -234,7 +234,7 @@ function wpu_reload_preview() {
 			} else {
 				window.onbeforeunload = null;
 				try {
-					$('#wpulastprocessing, #wpupreviewreload').hide('slow');
+					$wpu('#wpulastprocessing, #wpupreviewreload').hide('slow');
 				} catch(e) {}
 			}
 		}
@@ -346,7 +346,7 @@ function wpu_setup_menu() {
 		var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
 		var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
 		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
-		jQuery(document).ready(function($) { 
+		jQuery(document).ready(function($wpu) { 
 			createFileTree();
 			<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
 				setPath('setup');
@@ -544,15 +544,15 @@ function wpu_user_mapper() {
 							foreach($elsL as $el) { 
 								$var++;
 								$varLookups[$el] = $var;
-								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
-								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
+								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [1,0.25,1,0], maxConnections: 1, isSource: true},  wpuEndPoint);";
+								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [1,0.75,1,0], maxConnections: 1, isSource: true},  wpuNeverEndPoint);";
 							}
 						
 							foreach($elsR as $el) { 
 								$var++;							
 								$varLookups[$el] = $var;
-								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);";
-								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);";
+								echo "var wpuPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [0,0.25,-1,0], maxConnections: 10, isTarget: true},  wpuEndPoint);";
+								echo "var wpunPlumb{$var} = jsPlumb.addEndpoint($wpu('#{$el}'), {anchor: [0,0.75,-1,0], maxConnections: 10, isTarget: true},  wpuNeverEndPoint);";
 							}
 
 							foreach($linkages as $linkL => $linkR) {
@@ -675,7 +675,7 @@ function wpu_user_mapper() {
 		
 		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.'); ?>';
 		
-		jQuery(document).ready(function($) {
+		jQuery(document).ready(function($wpu) {
 			setupUserMapperPage();
 			
 		});			
@@ -1304,7 +1304,7 @@ function wpu_settings_page() {
 			?>
 			var cssmVal = '<?php echo $cssmVal; ?>';
 
-			jQuery(document).ready(function($) { 
+			jQuery(document).ready(function($wpu) { 
 				
 				setupSettingsPage();
 				<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
