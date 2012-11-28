@@ -19,19 +19,14 @@
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.8.3RC2</mod-version>
+    <mod-version>0.9.0RC3</mod-version>
     <installation>
       <level>easy</level>
       <time>60</time>
-      <target-version>3.0.6</target-version>
+      <target-version>3.0.11</target-version>
     </installation>
 	<link-group>
 	<link type="parent" href="../../install.xml" lang="en">Main install file</link>
-	<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
-	<link type="language" href="languages/sv.xml" lang="sv">Swedish</link>
-	<link type="contrib" href="contrib/upgrading_from_v0.8.0_or_later/upgrade.xml" lang="en">Upgrading from WP-United v0.8.0 or later</link>
-	<link type="contrib" href="contrib/upgrading_from_v0.5.5_v0.6x_or_v0.7x/upgrade.xml" lang="en">Upgrading from WP-United v0.5.5, v0.6x or v0.7x</link>
-	<link type="contrib" href="contrib/upgrading_from_v0.5.0_or_v0.5.1/upgrade.xml" lang="en">Upgrading from WP-United v0.5.0 or v0.5.1</link>	
   </link-group> 
   </header>
   
@@ -40,7 +35,6 @@
     <copy>
       <file from="/root/language/sv/mods/wp-united.php" to="/language/sv/mods/wp-united.php" />
       <file from="/root/language/sv/mods/permissions_wp-united.php" to="/language/sv/mods/permissions_wp-united.php" />
-      <file from="/root/language/sv/mods/admin_wp-united.php" to="/language/sv/mods/admin_wp-united.php" />
     </copy>
   </action-group>
 </mod>

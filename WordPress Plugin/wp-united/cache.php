@@ -175,11 +175,7 @@ class WPU_Cache {
 	 * @param bool $compat False if WordPress should be run in compatibility (slow) mode
 	 */
 	public function use_core_cache($wpVer, $compat) {
-		global $latest;
-		
-		if($latest) {
-			return false;
-		}
+
 		
 		switch($this->_useCoreCache) {
 			case "USE":
@@ -188,15 +184,15 @@ class WPU_Cache {
 			case "REFRESH":
 				return false;
 				break;
-			default:
+			default: 
 				@$dir = opendir($this->baseCacheLoc);
 				while( $entry = @readdir($dir) ) {
 					if ( $entry == $this->get_core_cache_name($wpVer, $compat) )  {
 						$entry = $this->baseCacheLoc . $entry;
-						$compareDate = filemtime($entry);
-						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) {
+						$compareDate = filemtime($entry);  echo $compareDate;
+						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) { 
 							$this->coreCacheLoc = $entry;
-							$this->_useCoreCache = "USE";
+							$this->_useCoreCache = "USE"; 
 							return true;
 						}
 					}

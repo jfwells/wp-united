@@ -42,7 +42,7 @@ function wpu_add_xposting_box() {
 		// Add forced xposting info box
 		$forceXPosting = wpu_get_forced_forum_name($wpUnited->get_setting('xpostforce'));
 		if($forceXPosting !== false) {
-			add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_forcexpost_box_title'], 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
+			add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
 		}
 	} else {	
 		// Add xposting choice box
@@ -51,7 +51,7 @@ function wpu_add_xposting_box() {
 		}
 
 		if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
-			add_meta_box('postWPUstatusdiv', __($phpbbForum->lang['wpu_xpost_box_title'], 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
+			add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
 		}
 	}
 }
@@ -63,13 +63,13 @@ function wpu_add_xposting_box() {
  * Callback function to add box to the write/(edit) post page.
  */
 function wpu_add_postboxes() {
-	global $can_xpost_forumlist, $already_xposted, $phpbbForum, $wpUnited;
+	global $can_xpost_forumlist, $already_xposted, $wpUnited;
 ?>
 	<div id="wpuxpostdiv" class="inside">
-	<?php if ($already_xposted) echo '<strong><small>' . sprintf($phpbbForum->lang['wpu_already_xposted'], $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
+	<?php if ($already_xposted) echo '<strong><small>' . sprintf(__('Already cross-posted (Topic ID = %s)'), $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
 	<label for="wpu_chkxpost" class="selectit">
 		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1001" />
-		<?php echo $phpbbForum->lang['wpu_xpost_box_title']; ?><br />
+		<?php _e('Cross-post to Forums?'); ?><br />
 	</label><br />
 	<label for="wpu_selxpost">Select Forum:</label><br />
 		<select name="sel_wpuxpost" id="wpu_selxpost" <?php if ($already_xposted) echo 'disabled="disabled"'; ?>> 
@@ -95,8 +95,8 @@ function wpu_add_postboxes() {
 						$excerptState = '';
 					}
 				}
-				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
-				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . __('Post Excerpt'). '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . __('Post Full Post');
 			} ?>
 
 	</div>
@@ -109,7 +109,7 @@ function wpu_add_postboxes() {
 function wpu_add_forcebox($forumName) {
 	global $forceXPosting, $phpbbForum, $wpUnited;
 
-	$showText =  (wpu_get_xposted_details()) ? $phpbbForum->lang['wpu_forcexpost_update'] : $phpbbForum->lang['wpu_forcexpost_details'];
+	$showText =  (wpu_get_xposted_details()) ? __("This post is already cross-posted. It will be edited in forum '%s'") : __("This post will be cross-posted to the forum: '%s'");
 
 ?>
 	<div id="wpuxpostdiv" class="inside">
@@ -124,8 +124,8 @@ function wpu_add_forcebox($forumName) {
 						$excerptState = '';
 					}
 				}
-				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . $phpbbForum->lang['wpu_excerpt'] . '<br />';
-				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . $phpbbForum->lang['wpu_fullpost'];
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . __('Post Excerpt'). '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . __('Post Full Post');
 			} ?>
 	</div>
 <?php
@@ -177,7 +177,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	}
 	
 	$mode = 'post';
-	$subject = $phpbbForum->lang['blog_title_prefix'] . $post->post_title;
+	$subject = __('[BLOG] ') . $post->post_title;
 	$data = array();
 	$data['post_time'] = 0;
 	$topicUsername = $phpbbForum->get_username();
@@ -276,11 +276,11 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			$tag_list = __('No tags defined.');
 		}
 		
-		$tags = (!empty($tag_list)) ? "[b]{$phpbbForum->lang['blog_post_tags']}[/b]{$tag_list}\n" : '';
-		$cats = (!empty($cat_list)) ? "[b]{$phpbbForum->lang['blog_post_cats']}[/b]{$cat_list}\n" : '';
+		$tags = (!empty($tag_list)) ? '[b]' . __('Tags: ') .  "[/b]{$tag_list}\n" : '';
+		$cats = (!empty($cat_list)) ? '[b]' . __('Posted under: ') . "[/b]{$cat_list}\n" : '';
 	}
 	
-	$content = sprintf($phpbbForum->lang['blog_post_intro'], '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
+	$content = sprintf(__('This is a %1sblog post%2s. To read the original post, please %3sclick here &raquo;%4s'), '[b]', '[/b]', '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
 
 	$phpbbForum->foreground();
 
@@ -332,7 +332,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			
 			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID .  "{$utcTimeSql} WHERE post_id = {$data['post_id']}";
 			if (!$result = $db->sql_query($sql)) {
-				wp_die($phpbbForum->lang['WP_DBErr_Retrieve']);
+				wp_die(__('Could not access the WP-United database fields. Please ensure WP-United is installed correctly. '));
 			}
 			if($utcTime !== false) {
 				$sql = 'UPDATE ' . TOPICS_TABLE . " SET topic_time = {$utcTime} WHERE topic_id = {$data['topic_id']}";
@@ -677,7 +677,7 @@ function wpu_edit_comment_link($link, $comment_ID) {
 			return $link;
 		}
 		$href = $phpbbCommentLinks[$comment_ID];
-		return '<a class="comment-edit-link" href="' . $href . '" title="' . $phpbbForum->lang['wpu_comment_view_link'] . '">' . $phpbbForum->lang['wpu_comment_view_link'] . '</a>';
+		return '<a class="comment-edit-link" href="' . $href . '" title="' . __('(View in Forum)') . '">' . __('(View in Forum)'). '</a>';
 
 	}
 	

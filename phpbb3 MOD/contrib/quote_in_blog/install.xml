@@ -25,8 +25,7 @@ Visit http://www.wp-united.com for more help or information.
       <target-version>3.0.6</target-version>
     </installation>
     <link-group>
-	<link type="parent" href="../../install.xml" lang="en">Main install file</link>
-	<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
+			<link type="parent" href="../../install.xml" lang="en">Main install file</link>
   </link-group>
   </header>
   <action-group>

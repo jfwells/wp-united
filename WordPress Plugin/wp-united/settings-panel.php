@@ -247,7 +247,7 @@ function wpu_reload_preview() {
 
 
 function wpu_setup_menu() {
-	global $wpUnited;
+	global $wpUnited, $phpbbForum;
 	
 	?>
 		<div class="wrap" id="wp-united-setup">
@@ -283,9 +283,9 @@ function wpu_setup_menu() {
 	
 		switch($wpUnited->get_last_run()) {
 			case 'working':
-				$statusText = __('OK');
+				$statusText = __('OK') . '&nbsp;' . $phpbbForum->add_smilies(':-)', 1);
 				$statusColour = "updated allok";
-				$statusDesc =  __('WP-United is connected and working.');
+				$statusDesc =  __('WP-United is connected and working.') . '<br />' . '<br />'. __('If you ever need to uninstall WP-United, disable it here first before disabling the plugin, so that it can be removed from phpBB.');
 				$buttonDisplay = 'display: none;';
 				break;
 			case 'connected':

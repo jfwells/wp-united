@@ -328,7 +328,7 @@ function wpu_blogname($default) {
 			$blog_title = get_user_meta($authorID, 'blog_title', true);
 			if ( empty($blog_title) ) {
 				if ( !is_admin() ) {
-					$blog_title = $phpbbForum->lang['default_blogname']; 
+					$blog_title = __('My Blog'); 
 				}
 			}
 			$blog_title = wpu_censor($blog_title);

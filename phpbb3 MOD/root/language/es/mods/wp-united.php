@@ -41,61 +41,11 @@ if (empty($lang) || !is_array($lang))
 // in a url you again do not need to specify an order e.g., 'Click %sHERE%s' is fine
 
 $lang = array_merge($lang, array(
-	// Moved out from istall.xml
+
 	'BLOG'         =>    'WordPress Blog',
 	'VISIT_BLOG'      =>   'Visitar el Blog del Usuario',
-	'ACP_WP_UNITED'    =>    'WP-United',
-	'ACP_WPU_MAINPAGE'   =>   'AdministraciÃ³n de WP-United',
-	'ACP_WPU_CATMAIN'   =>    'AdministraciÃ³n WP-United',
-	'ACP_WPU_CATSETUP'   =>   'Ajustar WP-United',
-	'ACP_WPU_CATMANAGE'   =>   'Administrar la integraciÃ³n de usuarios',
-	'ACP_WPU_CATSUPPORT'   =>   'Apoyar WP-United',
-	'ACP_WPU_CATOTHER'   =>   'Otro',
-	'ACP_WPU_MAINTITLE'   =>   'PÃ¡gina Principal',
-	'ACP_WPU_DETAILED'   =>   'Todos los ajustes en una pÃ¡gina',
-	'ACP_WPU_WIZARD'   =>    'Instalador',
-	'ACP_WPU_USERMAP'   =>    'Utilidad de IntegraciÃ³n de Usuarios',
-	'ACP_WPU_PERMISSIONS'   =>    'Administrar Permisos',      
-	'ACP_WPU_DONATE'   =>    'Donar a WP-United',
-	'ACP_WPU_UNINSTALL'   =>    'Desinstalar WP-United',
-	'ACP_WPU_RESET'      =>    'Reiniciar WP-United',
-	'ACP_WPU_DEBUG'		=>	'Debug Info to Post',	
-	'WP_UNINSTALLED' => 'Desinstalado WP-United',
-	'WP_INSTALLED' => 'Instalado WP-United',
-
-
-	'WP_DBErr_Gen'          =>   'No se ha podido acceder a la tabla de configuración de Wordpress en la base de datos. Por favor,asegurate de que usaste la consulta SQL incluida cuando instalaste el mod,y luego lo configuraste en el panel de administración.',
-	'WP_No_Login_Details'    =>   'Error: No se ha podido crear una cuenta de Wordpress para ti. Por favor,contacta al administrador.',
-	'WP_DTD'             =>   '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
 	'Function_Duplicate'    =>   'Un nombre duplicado de función ha sido detectadp. Esto es probablemente a un foro muy modificado. Porfavor,visita www.wp-united.com para reportar el error.',
-	'WP_Not_Installed_Yet'    =>   'WP-United no ha sido instalado correctamente todavía en tu sitio. Por favor,utiliza el instalador localizado en el panel de administración.',
 	'WPU_Credit'          =>   'Integración por %sWP-United%s',
-	'get_blog'             =>   'Crea tu blog',
-	'add_to_blog'          =>   'Añade a tu Blog',
-	'go_wp_admin'      =>      'Ve al Panel de Administración',
-	'blog_intro_get'       =>   "%sClick aquí%s para comenzar hoy con tu blog!",
-	'blog_intro_add'       =>   "%sClick aquí%s para añadir tu blog.",
-	'blog_intro_loginreg_ownblogs'    =>   "%sRegístrate%s o %sLogeate%s para iniciar tu blog.",
-	'blog_intro_loginreg'    =>   "%sRegistrate%s o %sLogeate%s para participar",
-	'Latest_Blog_Posts'    =>   'Últimos Posts de Blog',
-	'Article_By'          =>   'por',
-	'WP_Category'          =>   'Categoría',
-	'WP_Posted_On'          =>   'Posteado en',
-	'default_blogname'       =>   'Mi Blog',
-	'default_blogdesc'       =>   'Necesito dar una descripción de mi blog...',
-	'Log_me_in'          =>   'Recordarme',
-	'submit'               =>   'Enviar',
-	'Search_new'      => 'Posts desde la última visita',
-	// Please translate me:
-	'read_more'				=> '%1sRead the rest of this blog post blog &raquo;%3s',
-	'blog_post_cats'		=>	'Posted under: ',	
-	'write_post'			=>	'Write Post',
-	'admin_site'			=>	'Admin Site',
-	'admin_forum'			=>	'Admin Forum',
-	'newest_user'			=>	'Newest User: ',
-	'registered_users'		=>	'Registered Users: ',
-	'forum_posts'			=>	'Forum Posts: ',
-	'forum_topics'			=>	'Forum Topics: ',
 ));
 
 ?>

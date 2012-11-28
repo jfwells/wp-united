@@ -166,7 +166,7 @@ function wpu_process_phpbb() {
 	
 	$template->assign_vars(array(
 		'WORDPRESS_BODY' => '<!--[**INNER_CONTENT**]-->',
-		'WP_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com">', '</a>')
+		'WPU_CREDIT' => sprintf($user->lang['WPU_Credit'], '<a href="http://www.wp-united.com">', '</a>')
 	)); 
 	
 	//Stop phpBB from exiting

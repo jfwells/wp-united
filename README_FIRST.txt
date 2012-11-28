@@ -1,37 +1,33 @@
 WP-UNITED: phpBB - WordPress Integration v0.9.0 RC3
 -----------------------------------------------
-Last updated: 22/11/2012, by John Wells
-
-This software is PRE-RELEASE and UNDER CONSTRUCTION. Use on a test board only until we near the final releae of v0.9!
-**************************************
-NOTE: TO INSTALL THIS PRE-RELEASE VERSION, INSTALL THE MOD AS NORMAL, THEN COPY ALL FILES in PLUGIN/ TO YOUE WORDPRESS PLUGIN FOLDER
-THEN ACTIVATE THE NEW WP-UNITED PLUGIN AND VISIT THE SETTINGS PAGE.
-**************************************
-
+Last updated: 28/11/2012, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
 Thank you for downloading WP-United! This file introduces how to get up and running with your integrated phpBB & WordPress install.
 
+Sorry for the delay in releasing v0.9!
+
+The method for installing and using WP-United v0.9 has changed. Please disregard any instructions for v0.8.5 or earlier.
 
 BEFORE YOU BEGIN
 ------------------------
 
-1. Make sure you have already installed phpBB and WordPress, and have verified that they are working OK. I recommend the latest versions - at this time of writing, that means phpBB3 3.0.11 & WordPress 3.4.x
+1. Make sure you have already installed phpBB and WordPress, and have verified that they are working OK. I recommend the latest versions - at this time of writing, that means phpBB3 3.0.11 & WordPress 3.5.x.
 
-2. Check that your phpBB and wordpress settings are correct -- please pay attention to your phpBB "script path" and cookie settings and ensure they are correct.
+2. Check that your phpBB and wordpress settings are correct -- please pay attention to your phpBB "script path" and cookie settings in your phpBB ACP "Server Settings" and ensure they are correct.
 
 3. If these are not new installations, back up your phpBB & WordPress files and databases!
 
-4. Install the two portions of WP-United. WP-United consists of two parts: A WordPress plugin and a phpBB "MOD".
+4. Install the two portions of WP-United. WP-United consists of two parts: a WordPress plugin and a phpBB "MOD".
 
 4a) Install the wordpress plugin by uploading the plugin/wp-united directory to your WordPress plugins directory. and clicking "Activate" next to WP-United in the plugins menu.
 
-4b) You have two options to install the phpBB MOD -- manually, by altering code in your phpBB files, or automatically, using AutoMod. Details are below.
+4b) You have two options to install the phpBB MOD -- manually, by altering code in your phpBB files (not recommended), or automatically, using AutoMod (recommended). Details are below.
 
 5. Follow the instructions in the WordPress WP-United panel to connect to your phpBB board, and activate the WP-United elements you need
 
-INSTALLING THE phpBB MOD AUTOMATICALLY 
+INSTALLING THE phpBB MOD AUTOMATICALLY (recommended)
 -------------------------------------
 
 1. Download and install AutoMod from https://www.phpbb.com/mods/automod/
@@ -61,6 +57,8 @@ UPGRADES
 
 Instructions on converting from previous versions of WP-United are included in the contrib folder.
 
+When copying files over, delete any old files that WP-United copied for the previous version first. (v0.9 has a lot fewer files!)
+
 Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/cache folder, and then run the WP-United setup Wizard again.
 
 
@@ -75,6 +73,10 @@ The easy way is simply to delete or rename the WP-United plugin folder in WordPr
 
 
 
+UNINSTALLING (Noooooo!)
+-----------------------------------
+If you want to uninstall WP-United, be sure to click the "disable" button in the WP-United - >Setup/Status panel before deactivating the WordPress plugin. Otherwise, phpBB won't know that WP-United has been disabled.
+
 
 
 SUPPORT WP-UNITED   (*Please!*)
@@ -88,7 +90,7 @@ Want to help improve the software? Or just want to put a smile on the developer'
 - Cash --  Oh wait... 
 
 
-**Thanks** To everyone who has donated so far.
+**Thanks** To everyone who has donated or helped out so far.
 
 HAPPY BLOGGING!
 -John
@@ -100,6 +102,29 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+
+v0.9.0 RELEASE CANDIDATE 3
+- WP-United is, for the most part, completely rewritten, to improve flexibility and compatibility
+- The vast majority of WP-United now sits under WordPress rather than phpBB. Find plugin, click install, done... that's what the aim is.
+- Brand new, modern, admin panel
+--- A completely re-imagined settings panel, with modern UI and with most options significantly simplified.
+--- No more Wizards!
+--- Panel comunicates with phpBB asynchronously -- no more blank pages!
+--- New interactive user mapper that can integate, break integrations, create, delete and edit users in a few clicks
+--- New draggable, connectable permissions mapper to hide the arcane phpBB permissions UI
+--- Less options, more sensible defaults, all in one place
+- Completely re-written user integration
+--- User integration is now bi-directional. Log in or register in WordPress or phpBB, and seamlessly access the site
+--- Roles are now set at user creation time, not every visit -- much more flexible
+--- Bi-directional profile sync. Update your profile anywhere and it works
+--- Auto-synced avatars. Get your Gravatar in phpBB -- without having to anything
+--- Designed to work with external auth providers. e.g. click the Facebook button in the oneall plugin, and you get both a phpBB and WordPress account
+- Widgets all ported to new WordPress API
+- Numerous bugs addressed
+- User blogs has been removed. It will be added back, working with WP-MS, in the next release.
+- Translations all moved to WordPress
+
 
 v0.8.5 RELEASE CANDIDATE 2
 - Fixed plugin fixer not covering all global variables

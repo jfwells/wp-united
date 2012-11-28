@@ -28,8 +28,7 @@ $wpUnited->wp_init();
 
 
 function wpu_deactivate() {
-	// No actions currently defined
-	wpu_uninstall();  /** TEMP FOR RESETTING WHILE TESTING **/ // TODO: MUST DISABLE THIS BEFORE RELEASE!!!!!!!!!!!
+	delete_option('wpu_enabled');
 }
 
 /**
@@ -37,6 +36,10 @@ function wpu_deactivate() {
  * As the plugin is deactivated at this point, we can't reliably uninstall from phpBB (yet)
  */
 function wpu_uninstall() {
+	
+	if(!defined('WP_UNINSTALL_PLUGIN')) {
+		return;
+	}
 	
 	$forum_page_ID = get_option('wpu_set_forum');
 	if ( !empty($forum_page_ID) ) {
@@ -57,40 +60,7 @@ function wpu_uninstall() {
 		delete_option($option);
 	}
 	
-	// TODO: ALSO SET ANY USER OPTIONS, EG INTEG ID & AVATAR
-	
-	/*
-	if(isset($wpUnited->get_setting('phpbb_path'))) {
-		
-		global $db;
-		
-		$phpbb_root_path = $wpUnited->get_setting('phpbb_path');
-		$phpEx = substr(strrchr(__FILE__, '.'), 1);
-	
-		define('IN_PHPBB', true);
-		define('WPU_UNINSTALLING', true);
-		
-		$phpEx = substr(strrchr(__FILE__, '.'), 1);
-		
-		$commonLoc = $phpbb_root_path . 'common.' . $phpEx;
-		
-		if(@file_exists($commonLoc)) {
-			include($phpbb_root_path . 'common.' . $phpEx);
-			
-			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
-						  DROP user_wpuint_id';
-			$db->sql_query($sql);
-			
-			$sql = 'ALTER TABLE ' . USERS_TABLE . '
-						DROP user_wpublog_id';
-			$db->sql_query($sql);
-					
-			$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
-						DROP post_wpu_xpost';
-			$db->sql_query($sql);
-			
-		}
-	} */
+	return "DEACTIVATED!!!";
 	
 	
 }

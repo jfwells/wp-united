@@ -172,7 +172,7 @@ class WPU_Phpbb {
 		
 		if(defined('WPU_BLOG_PAGE') && !defined('WPU_HOOK_ACTIVE')) {
 			$cache->purge();
-			trigger_error($user->lang['wpu_hook_error'], E_USER_ERROR);
+			trigger_error(__('The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it is missing, or you need to clear the phpBB cache. <br /><br />Attempted to automatically clear the phpBB cache. Try <a href="#" onclick="document.location.reload(); return false;">refreshing the page</a> to see if it worked. <br /><br />If this error persists, check that includes/hooks/hook_wp-united.php exists, and try manually purging your phpBB cache.'), E_USER_ERROR);
 		}
 		
 		
@@ -383,7 +383,7 @@ class WPU_Phpbb {
 						FROM ' . USERS_TABLE .
 						' WHERE user_wpuint_id = ' . $userID;
 				if(!($result = $db->sql_query($sql))) {
-					wp_die($this->lang['WP_DBErr_Retrieve']);
+					wp_die(__('Could not access the database.'));
 				}
 				$usrData = $db->sql_fetchrow($result);
 		}
@@ -429,7 +429,7 @@ class WPU_Phpbb {
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
-			wp_die($this->lang['WP_DBErr_Retrieve']);
+			wp_die(__('Could not access the database.'));
 		}		
 
 		$posts = array();

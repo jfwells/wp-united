@@ -3,7 +3,10 @@ Current status:
 - Template integration works OK
 - Cross-posting works but awaiting minor changes
 - Widgets and template tags working OK
-- Other options generally working but as yet not well tested.
+- Behaviour options all working OK
+- User blogs removed -- may be completed by v0.9 but happy to release without if not ready
+- ** template tags need reviewing. In particular, avatar etc. settings don't need to be coded for any more.
+- Minor cleanup tasks and bug-fixing remain
 
 ------ Reported errors -----------
 - Win server errors with file tree
@@ -26,9 +29,6 @@ Current status:
 ----- panel general --------
 -- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
 -- add plugin activate action that describes next steps in bubble
--- integrate phpBB ACP link into dashboard dropdown & menu
--- add plugin deactivate action that warns of consequences, and asks if they want a complete removal.
--- add deinstallation routine using ajax front-end so it can't crash out
 
 ---- general cleanup ----
 -- check on Win servers
@@ -40,15 +40,12 @@ Current status:
 -- remove $compat from core-patcher
 -- in plugin, only load necessary portions, and load phpBB late only if needed.
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
--- LANG strings -- move back again to WP po/mo (arrgh - we ported them to phpBB in v0.8!)
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 
 ----- template integration ------------
--- WPU cache not cleared on style changes [should be fixed]
--- re-enable wordpress-in-phpbb integration
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
 
----- widgets --------
+---- widgets  (v0.9 not contingent on this) --------
 -- add username colours to topics, posts & loginuserinfo widget
 -- login can use ajax->refresh with bidi integration (but still logs into phpBB)
 -- other widget suggestions from forum
@@ -56,7 +53,7 @@ Current status:
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
 
 
--------- user blogs --> wp-ms ----------
+-------- user blogs --> wp-ms  (v0.9 not contingent on this) ----------
 -- check permissions mapping and user creation -- add check for whether they should be given a blog or not when being created
 -- check css magic / template voodoo with many different user blog templates at once. (or disallow/warn against wordpress-in-phpbb with wp-ms)
 -- add back userblog permissions
@@ -82,26 +79,6 @@ Current status:
 -- Add AutoMod engine (may defer to v0.9.x > .0 if not trivial)
 
 
---------- v0.8x -> v0.9.0 migrator / upgrader --------------
-These are comments from 2010: Below is too sophisticated TBH. Easier to just add check when settings are installed.
-
-In order to ensure a clean break and new features and code, work on this is deferred until we have a solid v0.9x
-Once that is ready to release, we need a migrator that can:
-
-- run in phpBB and compile a list of actions before any settings are overwritten (or before files are changed in case they get errors)
-- remove old settings in WP & phpBB
-- remove old widget options
-- remove a_wpu_manage permission
-- remove ACP modules
-- add new user table columns
-- ensure meta::phpbb_userId and phpbb_userLogin exists for all integrated users, and not for unintegrated users
-- migrate cross-posts to post marker system
-- create ghost posts for cross-posted comments (if needed)
-- auto-create wp-ms blogs for users with own blogs and move posts into them
-- check for old files that should be deleted
-- provide instructions for moving from blog.php to new system (or auto-detect the settings)
-
-
 
 
 Other (older) things noticed that may no longer be relevant
@@ -120,8 +97,9 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
-- Added ability for filters and actions to be selectively loaded
-- Censor text now works again to censor comments too
+
+- Most phpBB language translation strings removed. Translations cleaned up rady for translation using WP po/mo rather than phpBB
+- Finalised uninstall regime on WordPress side
 - basic activation and operation work on wp multisite
 - Use WordPress DTD option now working again
 - Disable padding on wp-in-phpbb integrations, and only show relevant advanced template integration options for this type of integration

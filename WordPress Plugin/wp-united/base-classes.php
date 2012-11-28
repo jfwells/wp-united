@@ -105,20 +105,6 @@ class WP_United_Settings {
 			'cssMagic' 					=> 1,
 			'templateVoodoo' 			=> 1,
 			'useForumPage' 				=> 1
-			
-			//'usersOwnBlogs' 			=> 0,
-			//'buttonsProfile'			=> 0,
-			//'buttonsPost' 			=> 0,
-			//'allowStyleSwitch' 		=> 0,
-			//'useBlogHome' 			=> 0,
-			//'blogListHead' 			=> $user->lang['WPWiz_BlogListHead_Default'],
-			//'blogIntro' 				=> $user->lang['WPWiz_blogIntro_Default'],
-			//'blogsPerPage' 			=> 6,
-			//'blUseCSS' 				=> 1,			
-			//'mustLogin' 				=> 0,
-			//'upgradeRun' 				=> 0,
-			//'pluginFixes' 			=> 0,			
-	
 		);
 	}
 	
