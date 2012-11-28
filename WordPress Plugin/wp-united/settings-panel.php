@@ -346,7 +346,7 @@ function wpu_setup_menu() {
 		var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
 		var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
 		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
-		jQuery(document).ready(function($wpu) { 
+		$wpu(document).ready(function() {  
 			createFileTree();
 			<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
 				setPath('setup');
@@ -569,7 +569,7 @@ function wpu_user_mapper() {
 								});
 							<?php } ?>							
 						}
-						$(function() {
+						$wpu(document).ready(function() { 
 							wpuSetupPermsMapper();
 						});
 						
@@ -675,7 +675,7 @@ function wpu_user_mapper() {
 		
 		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.'); ?>';
 		
-		jQuery(document).ready(function($wpu) {
+		$wpu(document).ready(function() { 
 			setupUserMapperPage();
 			
 		});			
@@ -1304,7 +1304,7 @@ function wpu_settings_page() {
 			?>
 			var cssmVal = '<?php echo $cssmVal; ?>';
 
-			jQuery(document).ready(function($wpu) { 
+			$wpu(document).ready(function() { 
 				
 				setupSettingsPage();
 				<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
