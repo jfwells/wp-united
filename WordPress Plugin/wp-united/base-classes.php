@@ -146,6 +146,7 @@ class WP_United_Plugin_Base {
 		
 		global $wpuDebug;
 		$wpuDebug = new WPU_Debug();
+		$wpuDebug->start_stats();
 
 		global $phpbbForum;
 		$phpbbForum = new WPU_Phpbb();
@@ -247,7 +248,11 @@ class WP_United_Plugin_Base {
 	
 	
 	
-	public function get_setting($key) { 
+	public function get_setting($key = '') { 
+		
+		if(!$key) {
+			return (array) $this->settings->settings;
+		}
 		
 		if(isset($this->settings->settings[$key])) { 
 			return $this->settings->settings[$key];

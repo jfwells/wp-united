@@ -359,25 +359,17 @@ function wpu_output_page($content) {
 		$content = str_replace("<!--[**WP_DTD**]-->", $wpu_dtd, $content);
 	}
 
+	
+	global $wpuDebug;
+	
 	// Add login debugging if requested
 	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) && !$wpuNoHead ) {
-		global $wpuDebug;
-		if(is_object($wpuDebug)) {
-			$content = str_replace('</body>', $wpuDebug->get() . '</body>', $content);
-		}
+		$content = $wpuDebug->add_debug_box($content, 'login');
 	}
-
 
 	// Add stats if requested
 	if(defined('WPU_SHOW_STATS') && WPU_SHOW_STATS && !$wpuNoHead) {
-		global $wpuScriptTime, $wpuCache;
-		$endTime = explode(' ', microtime());
-		$endTime = $endTime[1] + $endTime[0];
-		$pageLoad = round($endTime - $wpuScriptTime, 4) . " seconds";
-	
-		$memUsage = (function_exists('memory_get_peak_usage')) ? round(memory_get_peak_usage()/1024, 0) . "kB" : (function_exists('memory_get_usage')) ? round(memory_get_usage() / 1024, 0) . "kB" : "[Not supported on your server]";
-		$stats = "<p style='background-color: #999999;color: #ffffff !important;display: block;'><strong style='text-decoration: underline;'>WP-United Statistics </strong><br />Script Time: " . $pageLoad . "<br />Memory usage: " . $memUsage . "<br />" . $wpuCache->get_logged_actions() . "</p>";
-		$content = str_replace('</body>', $stats . '</body>', $content);
+		$content = $wpuDebug->add_stats_box($content);
 	}
 	
 

@@ -37,7 +37,6 @@ if(defined('WPU_STYLE_FIXER')) {
 	return;
 }
 
-wpu_timer_start();
 wpu_set_buffering_init_level();
 
 $phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
@@ -296,15 +295,4 @@ function wpu_clear_integration_settings() {
 }
 
 
-
-
-		
-/**
- * Start the script timer
-*/
-function wpu_timer_start() {
-	global $wpuScriptTime;
-	$wpuScriptTime = explode(' ', microtime());
-	$wpuScriptTime = $wpuScriptTime[0] + $wpuScriptTime[1];
-}
 ?>
