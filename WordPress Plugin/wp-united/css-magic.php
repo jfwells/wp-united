@@ -109,7 +109,7 @@ class CSS_Magic {
 		// find nested stylesheets
 		preg_match_all('/(\@[^\{]*\{)([^\{^\}]*(\{[^\@^\{^\}]*\}[^\{^\}]*)*?)\}/', $str, $nested);
 		$nestIndex = sizeof($this->nestedItems);
-		if(sizeof($nested[1])) {
+		if(sizeof($nested[0]) && isset($nested[1]) && is_array($nested[1]) && sizeof($nested[1])) {
 			foreach($nested[1] as $nestNum => $nestSel) {
 				if(!empty($nestSel) && isset($nested[2]) && is_array($nested[2]) && isset($nested[2][$nestNum])) {
 					
@@ -121,7 +121,7 @@ class CSS_Magic {
 						'content'	=> $subSheet
 					);
 					
-					$str = str_replace($nest, '[WPU_NESTED] {' . $nestIndex . '}', $str);
+					$str = str_replace($nested[0][$nestNum], '[WPU_NESTED] {' . $nestIndex . '}', $str);
 					$nestIndex++;
 				}
 			}
