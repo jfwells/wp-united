@@ -13,7 +13,6 @@
 * 
 */
 
-
 function wpu_integrate_templates() {
 	global $wpuNoHead, $wpUnited, $wpuCache, $wpUnited;
 
@@ -353,7 +352,7 @@ function wpu_output_page($content) {
 	
 	//Add title back
 	$content = str_replace("<!--[**PAGE_TITLE**]-->", $wpu_page_title, $content);
-	
+
 	//Add DTD if needed
 	if(isset($wpu_dtd)) {
 		$content = str_replace("<!--[**WP_DTD**]-->", $wpu_dtd, $content);

@@ -189,7 +189,7 @@ class WPU_Cache {
 				while( $entry = @readdir($dir) ) {
 					if ( $entry == $this->get_core_cache_name($wpVer, $compat) )  {
 						$entry = $this->baseCacheLoc . $entry;
-						$compareDate = filemtime($entry);  echo $compareDate;
+						$compareDate = filemtime($entry);
 						if ( !($compareDate < @filemtime($this->wpVersionLoc))  ) { 
 							$this->coreCacheLoc = $entry;
 							$this->_useCoreCache = "USE"; 
