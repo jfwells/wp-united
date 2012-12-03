@@ -62,7 +62,8 @@ if ( !defined('IN_PHPBB') )
 class CSS_Magic {
 	private 	$css,
 				$filename,
-				$nestedItems;
+				$nestedItems,
+				$totalItems;
 	
 	/**
 	 * If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
@@ -82,6 +83,7 @@ class CSS_Magic {
 		$this->clear();
 		$this->filename = '';
 		$this->nestedItems = array();
+		$this->totalItems = 0;
 	}
 	/**
 	 * initialise or clear out internal representation
@@ -104,13 +106,21 @@ class CSS_Magic {
 		$str = preg_replace("/\/\*(.*)?\*\//Usi", "", $str);
 		$str = str_replace("\t", "", $str);
 		$str = str_replace("}\\", '[TANTEK]', $str);
-		// for now we just leave all nested stylesheets untouched
-		preg_match_all('/\@[^\{]*\{[^\{^\}]*(\{[^\{^\}]*\}[^\{^\}]*)*?\}/', $str, $nested);
+		// find nested stylesheets
+		preg_match_all('/(\@[^\{]*\{)([^\{^\}]*(\{[^\@^\{^\}]*\}[^\{^\}]*)*?)\}/', $str, $nested);
 		$nestIndex = sizeof($this->nestedItems);
-		if(sizeof($nested[0])) {
-			foreach($nested[0] as $nest) {
-				if(!empty($nest)) {
-					$this->nestedItems[$nestIndex] = $nest;
+		if(sizeof($nested[1])) {
+			foreach($nested[1] as $nestNum => $nestSel) {
+				if(!empty($nestSel) && isset($nested[2]) && is_array($nested[2]) && isset($nested[2][$nestNum])) {
+					
+					$subSheet = new CSS_Magic();
+					$this->totalItems = $this->totalItems + $subSheet->parseString($nested[2][$nestNum]);
+				
+					$this->nestedItems[$nestIndex] = array(
+						'selector'	=> $nestSel,
+						'content'	=> $subSheet
+					);
+					
 					$str = str_replace($nest, '[WPU_NESTED] {' . $nestIndex . '}', $str);
 					$nestIndex++;
 				}
@@ -132,7 +142,10 @@ class CSS_Magic {
 				}
 			}
 		}
-		return (count($this->css) > 0);
+		
+		// process nested stylesheets too
+		$this->totalItems = $this->totalItems + count($this->css);
+		return ($this->totalItems);
 	}
 	/**
 	 * Opens and parses a CSS file
@@ -238,7 +251,7 @@ class CSS_Magic {
 	 * @param string prefix the prefix to apply
 	 * @param bool  $removeBody: set to true to ignore body keys
 	 */
-	private function _makeSpecific($prefix, $removeBody = false) {
+	public function _makeSpecific($prefix, $removeBody = false) {
 		$fixed = array();
 		// things that could be delimiting a "body" selector at the beginning of our string.
 		$seps = array(' ', '>', '<', '.', '#', ':', '+', '*', '[', ']', '?');
@@ -293,6 +306,8 @@ class CSS_Magic {
 				
 			} else { // nested
 				$fixedKeys = array('[WPU_NESTED]');
+				$nestedCodeKey = (int)$cssCode;
+				$this->nestedItems[$nestedCodeKey]['content']->_makeSpecific($prefix, $removeBody);
 			}
 			
 			// recreate the fixed key
@@ -316,6 +331,7 @@ class CSS_Magic {
 	/**
 	 * Removes common elements from CSS selectors
 	 * For example, this can be used to undo CSS magic additions
+	 * TODO: MAKE WORK FOR NESTED STYLESHEETS
 	 */
 	public function removeCommonKeyEl($txt) {
 		$newCSS = array();
@@ -332,6 +348,7 @@ class CSS_Magic {
 	/**
 	 * Returns all key classes and IDs
 	 * @return an array with all classes and IDs
+	 * TODO: ADD NESTED STYLESHEET SEARCH!
 	 */
 	public function getKeyClassesAndIDs() {
 		$classes = array();
@@ -394,7 +411,8 @@ class CSS_Magic {
 			$keyString = str_replace('__ ', '', $keyString);
 			$cssCode = str_replace('[TANTEK]', "}\\", $cssCode);
 			if($keyString == '[WPU_NESTED]') {
-				$response .= $this->nestedItems[(int)$cssCode];
+				$response .= $this->nestedItems[(int)$cssCode]['selector'];
+				$response .= $this->nestedItems[(int)$cssCode]['content']->getCSS() . "}\n\n";;
 			} else {
 				$response .= $keyString . '{' . $cssCode . "}\n\n";
 			}
