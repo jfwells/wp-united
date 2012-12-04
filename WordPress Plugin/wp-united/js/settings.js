@@ -26,7 +26,7 @@ function createFileTree() {
 		root: '/',
 		script: treeScript,
 		multiFolder: false,
-		loadMessage: "Loading..."
+		loadMessage: fileTreeLdgText
 	}, function(file) { 
 		var parts = file.split('/');
 		if ((parts.length) > 1) {
@@ -187,14 +187,14 @@ function wpuCancelChange() {
 function setCSSMLevel(level) {
 	var lvl, desc;
 	if(level == 0) {
-		lvl = "Off";
-		desc = "All automatic CSS integration is disabled";
+		lvl = statusCSSMDisabled;
+		desc = descCSSMDisabled;
 	} else if(level == 1) {
-		lvl = "Medium";
-		desc = "CSS Magic is enabled, Template Voodoo is disabled: <ul><li>Styles are reset to stop outer styles applying to the inner part of the page.</li><li>Inner CSS is made more specific so it does affect the outer portion of the page.</li><li>Some HTML IDs and class names may be duplicated.</li></ul>";
+		lvl = statusCSSMMed;
+		desc = descCSSMMed;
 	} else if(level == 2) {
-		lvl = "Full";
-		desc = "CSS Magic and Template Voodoo are enabled:<ul><li>Styles are reset to stop outer styles applying to the inner part of the page.</li><li>Inner CSS is made more specific so it does affect the outer portion of the page.</li><li>HTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.</li></ul>";							
+		lvl = statusCSSMFull;
+		desc = descCSSMFull;							
 	}
 	$wpu("#wpucssmlvlfield").val(level);
 	$wpu("#cssmlvltitle").html(lvl);
@@ -324,7 +324,7 @@ function makeMsgSafe(msg) {
 function wpu_manual_disable(type) {
 	$wpu("#wputransmit").dialog({
 		modal: true,
-		title: 'Connecting...',
+		title: connectingText,
 		width: 360,
 		height: 160,
 		draggable: false,
@@ -499,7 +499,7 @@ function wpuApplyPerms() {
 	window.scrollTo(0,0);
 	$wpu('#wpu-reload').dialog({
 		modal: true,
-		title: 'Connecting...',
+		title: wpuConnectingText,
 		width: 360,
 		height: 160,
 		draggable: false,
@@ -509,7 +509,7 @@ function wpuApplyPerms() {
 		show: 'puff'
 	});
 	$wpu('.ui-dialog-titlebar').hide();
-	$wpu('#wpu-desc').html('<strong>Processing permission mappings...</strong><br />Please wait...');
+	$wpu('#wpu-desc').html('<strong>' + wpuProcessingText + '</strong><br />' + wpuWaitText);
 	
 	//TODO: setup error handler here
 	
@@ -530,7 +530,7 @@ function wpuApplyPerms() {
 
 function wpuClearPerms() {
 	window.scrollTo(0,0);
-	$wpu('#wpu-desc').html('<strong>Clearing changes</strong><br />Please wait...');
+	$wpu('#wpu-desc').html('<strong>' + wpuClearingText + '</strong><br />Please wait...');
 	$wpu("#wpu-reload").dialog({
 		modal: true,
 		title: 'Resetting...',

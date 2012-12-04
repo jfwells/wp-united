@@ -362,6 +362,8 @@ function wpu_setup_menu() {
 		var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
 		var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
 		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
+		var fileTreeLdgText = '<?php _e('Loading...'); ?>';
+		var connectingText = '<?php _e('Connecting...'); ?>';
 		$wpu(document).ready(function() {  
 			createFileTree();
 			<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
@@ -688,6 +690,11 @@ function wpu_user_mapper() {
 		var actionCreateDets 	=	'<?php _e('integrated counterpart for %1$s in %2$s'); ?>';
 		var actionIntegrate		=	'<?php _e('Integrate '); ?>';
 		var actionIntegrateDets =	'<?php _e('%1$s user %2$s to %3$s user %4$s'); ?>';
+		
+		var wpuProcessingText = 	'<?php _e('Processing permission mappings...'); ?>';
+		var wpuWaitText = 			'<?php _e('Please wait...'); ?>';
+		var wpuConnectingText = 	'<?php _e('Connecting...'); ?>';
+		var wpuClearingText = 		'<?php _e('Clearing changes'); ?>';
 		
 		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.'); ?>';
 		
@@ -1310,6 +1317,16 @@ function wpu_settings_page() {
 			var blankPageMsg = '<?php _e('Blank page received: check your error log.'); ?>';
 			var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
 			var treeScript =  '<?php echo $wpUnited->get_plugin_url() . 'js/filetree.php'; ?>';
+			
+			var statusCSSMDisabled = '<?php _e('Off'); ?>';
+			var descCSSMDisabled = '<?php _e('All automatic CSS integration is disabled'); ?>';
+			var statusCSSMMed = '<?php _e('Medium'); ?>';
+			var descCSSMMed = '<?php sprintf(_e('%1sStyles are reset to stop outer styles applying to the inner part of the page.%2sInner CSS is made more specific so it does affect the outer portion of the page.%2sSome HTML IDs and class names may be duplicated.%3s'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
+			var statusCSSMFull = '<?php _e('Full'); ?>';
+			var descCSSMFull = '<?php sprintf(_e('%1sStyles are reset to stop outer styles applying to the inner part of the page.%2sInner CSS is made more specific so it does affect the outer portion of the page.%2sHTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.%3s'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
+			
+			
+			
 			<?php 
 					$cssmVal = 0;
 					if($wpUnited->get_setting('cssMagic')){
