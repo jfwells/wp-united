@@ -120,7 +120,7 @@ class WPU_Debug {
 		
 		foreach($settings as $setting => $value) {
 			if($setting != 'phpbb_path') {
-				$result .= '[b]<strong>' . $setting . '</strong>[/b]: ' . $value . '<br />';
+				$result .= '[b]<strong>' . $setting . '</strong>[/b]' . str_repeat('&nbsp;', 25 - strlen($setting)) . ':' . str_repeat('&nbsp;', 5) . $value . '<br />';
 			}
 		}
 		return $result;

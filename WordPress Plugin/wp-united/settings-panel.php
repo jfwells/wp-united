@@ -173,7 +173,7 @@ function wpu_get_help() {
 		<h2> <?php _e('Get help or support'); ?> </h2>
 		<h3><?php _e('Community support &amp; bug reporting'); ?></h3>
 		<p><?php _e('Free community support is available from the WP-United forum. Please search there for any other users who may be experiencing the same problem, and discuss any issues with fellow users.'); ?></p>
-		<p><?php _e('Please post the following information into a new topic post when you are seeking support. This will help us understand your setup at a glance.'); ?> </p>
+		<p><?php _e('Please post the following information into a new topic post when you are seeking support. This will help us understand your setup at a glance. It is sanitized to protect your private server information and contains BBCode formatting.'); ?> </p>
 		<div style="border: 1px solid #cccccc;"><?php echo $wpuDebug->get_debug_info(); ?></div>
 	</div>
 	<?
