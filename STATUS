@@ -89,6 +89,7 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- Now fully translatable (apart from 3 or 4 phpBB strings) using gettext! Translations can be done online on Launchpad.net
 - Fixed appending sid's for direct links to ACP in admin panel.
 - debugger cleaned up (but still not pervasive). Re-implemented "debug info to post" panel
 - Most phpBB language translation strings removed. Translations cleaned up rady for translation using WP po/mo rather than phpBB
