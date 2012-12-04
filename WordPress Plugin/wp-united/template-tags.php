@@ -133,9 +133,12 @@ function wpu_avatar_create_image($userID) {
 	}
 		
 	if(!empty($avatar)) {
-			$avatar = explode('"', $avatar);
-			$avatar = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $avatar[1]); //stops trailing slashes in URI from killing avatars
-			return $avatar;
+		if(!preg_match('/src\s*=\s*[\'"]([^\'"]+)[\'"]/', $avatar, $matches)) {
+			return '';
+		} 
+		$avatar = $matches[1];
+		$avatar = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $avatar[1]); //stops trailing slashes in URI from killing avatars
+		return $avatar;
 	}
 
 	return '';
