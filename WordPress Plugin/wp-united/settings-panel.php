@@ -466,7 +466,7 @@ function wpu_user_mapper() {
 								'name'						=>	(!empty($phpbbForum->lang['G_' . $row['group_name']]))? $phpbbForum->lang['G_' . $row['group_name']] : $row['group_name'],
 								'db_name'					=>	$row['group_name'],
 								'total_members' 			=> 	$row['count'],
-								'url'						=>	$phpbbForum->get_board_url() . append_sid('adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'], false, true, $GLOBALS['user']->session_id)
+								'url'						=>	$phpbbForum->append_sid($phpbbForum->get_board_url() . 'adm/index.php?i=permissions&amp;mode=setting_group_global&amp;group_id[0]=' . $row['group_id'])
 							);
 
 							if($groupData[$row['group_id']]['type'] == __('User-Defined')) {
