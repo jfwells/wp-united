@@ -147,7 +147,7 @@ class WPU_Debug {
 				$toSan = explode('.', $sanB);
 				$innerResult = array();
 				foreach($toSan as $item) {
-					if(!sizeof($item) || (strtolower($item) == 'http:') || (strtolower($item) == 'https:')) {
+					if(!strlen($item) || (strtolower($item) == 'http:') || (strtolower($item) == 'https:')) {
 						$innerResult[] = $item;
 						continue;
 					}
