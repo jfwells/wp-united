@@ -63,7 +63,7 @@ function wpu_integrate_templates() {
 			preg_match('/class\s*=\s*"[^"]+"/', $bodyDetails, $bodyClass);
 			if($bodyClass[0]) {
 				$bodyDetails = str_replace($bodyClass[0], "", $bodyDetails);
-				$bodyClass=trim(str_replace(array('class', '=', ' ', '"'), '', $bodyClass[0]));
+				$bodyClass = trim(str_replace(array('class', '=', '"'), '', $bodyClass[0]));
 			}
 		}
 		// process_remove_head removes the <head> during the process, leaving us with an insertable body (hehe).

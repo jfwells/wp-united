@@ -1223,7 +1223,7 @@ function wpu_settings_page() {
 														if( ($wpUnited->get_setting('wpPageName') == $file) && ($wpUnited->get_setting('wpSimpleHdr') == 0) ) {
 															echo ' selected="selected" ';
 														}
-														echo '>' __('Full Page: ') . $file . '</option>';
+														echo '>' .  __('Full Page: ') . $file . '</option>';
 													}
 												}
 											}
@@ -1283,12 +1283,12 @@ function wpu_settings_page() {
 					
 					<div id="wputab-behav">
 
-						<h3><?php _e('Use phpBB Word Censor?');</h3>
-						<p><?php _e('Turn this option on if you want WordPress posts to be passed through the phpBB word censor.');</p>
+						<h3><?php _e('Use phpBB Word Censor?'); ?></h3>
+						<p><?php _e('Turn this option on if you want WordPress posts to be passed through the phpBB word censor.'); ?></p>
 						<input type="checkbox" id="wpucensor" name="wpucensor" <?php if($wpUnited->get_setting('phpbbCensor')) { echo ' checked="checked" '; } ?>/><label for="wpucensor">Enable word censoring in WordPress</label>
 						
-						<h3><?php _e('Use phpBB smilies?');</h3>
-						<p><?php _e('Turn this option on if you want to use phpBB smilies in WordPress comments and posts.');</p>
+						<h3><?php _e('Use phpBB smilies?'); ?></h3>
+						<p><?php _e('Turn this option on if you want to use phpBB smilies in WordPress comments and posts.'); ?></p>
 						<input type="checkbox" id="wpusmilies" name="wpusmilies" <?php if($wpUnited->get_setting('phpbbSmilies')) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Use phpBB smilies in WordPress</label>	
 						
 					</div>
@@ -1321,9 +1321,9 @@ function wpu_settings_page() {
 			var statusCSSMDisabled = '<?php _e('Off'); ?>';
 			var descCSSMDisabled = '<?php _e('All automatic CSS integration is disabled'); ?>';
 			var statusCSSMMed = '<?php _e('Medium'); ?>';
-			var descCSSMMed = '<?php sprintf(_e('%1sStyles are reset to stop outer styles applying to the inner part of the page.%2sInner CSS is made more specific so it does affect the outer portion of the page.%2sSome HTML IDs and class names may be duplicated.%3s'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
+			var descCSSMMed = '<?php echo sprintf(__('%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sSome HTML IDs and class names may be duplicated.%3$s'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
 			var statusCSSMFull = '<?php _e('Full'); ?>';
-			var descCSSMFull = '<?php sprintf(_e('%1sStyles are reset to stop outer styles applying to the inner part of the page.%2sInner CSS is made more specific so it does affect the outer portion of the page.%2sHTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.%3s'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
+			var descCSSMFull = '<?php echo sprintf(__('%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sHTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.%3$s'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
 			
 			
 			

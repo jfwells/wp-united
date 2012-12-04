@@ -131,7 +131,7 @@ function wpu_avatar_create_image($userID) {
 		// default is get from WP
 		$avatar = get_avatar($userID);
 	}
-		
+	
 	if(!empty($avatar)) {
 		if(!preg_match('/src\s*=\s*[\'"]([^\'"]+)[\'"]/', $avatar, $matches)) {
 			return '';

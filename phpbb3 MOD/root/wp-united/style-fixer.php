@@ -139,7 +139,6 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 		require($wpUnited->get_plugin_path() . 'css-magic.php');
 		$cssMagic = CSS_Magic::getInstance();
 		if($cssMagic->parseFile($cssFileToFix)) {
-
 			if($pos=='inner') {
 				// Apply Template Voodoo
 				if($useTV > -1) {
