@@ -542,16 +542,6 @@ class WP_United_Plugin_Base {
 		return 'none';	
 	}
 	
-	
-	public function version() {
-		if(empty($this->version)) {
-			require_once ($this->get_plugin_path() . 'version.php');
-			global $wpuVersion;
-			$this->version = $wpuVersion;
-		}
-		return $this->version;
-	}
-	
 	// Add copyright comment to the bottom of the page. It is also useful as a quick check to see if users actually have
 	// WP-United installed.	
 	public function add_boilerplate() {

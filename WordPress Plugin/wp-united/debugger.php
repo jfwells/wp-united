@@ -98,11 +98,11 @@ class WPU_Debug {
 	}
 	
 	public function get_debug_info() {
-		global $wpUnited, $wpuVersion, $wp_version, $phpbbForum;
+		global $wpUnited, $wp_version, $phpbbForum;
 		
 		$settings = $wpUnited->get_setting();
 		$mainEntries = array(
-			'WP-United Version' 		=> 	$wpuVersion,
+			'WP-United Version' 		=> 	$wpUnited->get_version(),
 			'WordPress Version' 		=> 	$wp_version,
 			'PHP Version'				=>	PHP_VERSION,
 			'WP-United enabled?'		=>	($wpUnited->is_enabled)? 'Yes' : 'No',
