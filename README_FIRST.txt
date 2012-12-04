@@ -61,7 +61,7 @@ When copying files over, delete any old files that WP-United copied for the prev
 
 Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/cache folder, and then run the WP-United setup Wizard again.
 
-
+If you were using WP-United template tags in your template in versions prior to v0.9, note that a number of them have changed. Any template tags pertaining to per-user blogs are now gone. In addition, the template tags for avatars no longer accept a "default" parameter.
 
 
 CONTINGENCIES

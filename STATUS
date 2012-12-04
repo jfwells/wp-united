@@ -4,8 +4,8 @@ Current status:
 - Cross-posting works but awaiting minor changes
 - Widgets and template tags working OK
 - Behaviour options all working OK
+- Template tags updated and working OK
 - User blogs removed -- may be completed by v0.9 but happy to release without if not ready
-- ** template tags need reviewing. In particular, avatar etc. settings don't need to be coded for any more.
 - Minor cleanup tasks and bug-fixing remain
 
 ------ Reported errors -----------
