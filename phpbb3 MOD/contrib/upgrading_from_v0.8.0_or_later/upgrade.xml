@@ -38,11 +38,9 @@ The control panel can now be found within WordPress, under WP-United.
 
 ]]></diy-instructions>
     <copy>
-      <file from="/root/includes/hooks/hook_wp-united.php" to="/includes/hooks/hook_wp-united.php" />
-      <file from="/root/language/en/mods/permissions_wp-united.php" to="/language/en/mods/permissions_wp-united.php" />
-      <file from="/root/language/en/mods/wp-united.php" to="/language/en/mods/wp-united.php" />
-      <file from="/root/wp-united/" to="/wp-united/" />
+      <file from="/root/*.*" to="/*.*" />
     </copy>
+
     
     <open src="includes/functions_user.php">
       <edit>
