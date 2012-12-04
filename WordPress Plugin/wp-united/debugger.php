@@ -148,7 +148,7 @@ class WPU_Debug {
 				$innerResult = array();
 				foreach($toSan as $item) {
 					if(!sizeof($item) || (strtolower($item) == 'http:') || (strtolower($item) == 'https:')) {
-						$result[] = $item;
+						$innerResult[] = $item;
 						continue;
 					}
 					$alreadyUsed = array_keys($this->sanitisedParts);
