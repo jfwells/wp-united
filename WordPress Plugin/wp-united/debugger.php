@@ -20,10 +20,13 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 
 class WPU_Debug {
 	
-	private $debugBuffer;
+	private 
+		$debugBuffer,
+		$sanitisedParts;
 	
 	public function __construct() {
 		$this->debugBuffer = array();
+		$this->sanitisedParts = array();
 	}
 	
 	public function add($debug, $type = 'login') {
@@ -95,21 +98,84 @@ class WPU_Debug {
 	}
 	
 	public function get_debug_info() {
-		global $wpUnited, $wpuVersion, $wp_version;
+		global $wpUnited, $wpuVersion, $wp_version, $phpbbForum;
 		
 		$settings = $wpUnited->get_setting();
 		$mainEntries = array(
-			'WP-United Version' 	=> 	$wpu_version,
-			'WordPress Version' 	=> 	$wp_version,
-			'PHP Version'				=>	PHP_VERSION
+			'WP-United Version' 		=> 	$wpu_version,
+			'WordPress Version' 		=> 	$wp_version,
+			'PHP Version'				=>	PHP_VERSION,
+			'WP-United enabled?'		=>	($wpUnited->is_enabled)? 'Yes' : 'No',
+			'WordPress Home URL'		=>	$this->sanitise($wpUnited->get_wp_home_url()),
+			'WordPress Base URL'		=>	$this->sanitise($wpUnited->get_wp_base_url()),
+			'WordPress Plugin URL'		=>	$this->sanitise($wpUnited->get_plugin_url()),			
+			'phpBB URL'					=>	($wpUnited->is_enabled() && $phpbbForum->is_phpbb_loaded())? $this->sanitise($phpbbForum->get_board_url()) : 'Unknown',			
+			'Plugin Path'				=>	$this->sanitise($wpUnited->get_plugin_path()),
+			'WordPress Path'			=>	$this->sanitise($wpUnited->get_wp_path()),
+			'phpBB Path'				=>	$this->sanitise($wpUnited->get_setting('phpbb_path'))
 		); 
+		
 		$settings = array_merge($mainEntries, $settings);
 		$result  = '';
+		
 		foreach($settings as $setting => $value) {
-			$result .= '[b]<strong>' . $setting . '</strong>[/b]: ' . $value . '<br />';
+			if($setting != 'phpbb_path') {
+				$result .= '[b]<strong>' . $setting . '</strong>[/b]: ' . $value . '<br />';
+			}
 		}
 		return $result;
 		
+	}
+	
+	private function sanitise($pathOrUrl) {
+	
+		$san = array(
+			'san', 'it', 'ised', 'all', 'ele', 'ments', 
+			'are', 'hidden', 'for', 'safety', 'some', 
+			'thing', 'here', 'there', 'this', 'that',
+			'abc', 'def', 'ghi', 'jkl', 'mno', 'pqr', 
+			'stu', 'vwx', 'yz'
+		);
+		
+		$toSanA = explode('\\', $pathOrUrl);
+		$result = array();
+		
+		foreach($toSanA as $sanA) {
+			$toSanB = explode('/', $sanA);
+			$resultB = array();
+			foreach($toSanB as $sanB) {
+				$toSan = explode('.', $sanB);
+				$innerResult = array();
+				foreach($toSan as $item) {
+					if(!sizeof($item) || (strtolower($item) == 'http:') || (strtolower($item) == 'https:')) {
+						$result[] = $item;
+						continue;
+					}
+					$alreadyUsed = array_keys($this->sanitisedParts);
+					if(!in_array($item, $alreadyUsed)) {
+						$newSanIndex = sizeof($alreadyUsed);
+						$suffix = '';
+						$index = $newSanIndex;
+						if ($newSanIndex > (sizeof($san) -1)) {
+							$suffix = (int)($newSanIndex / (sizeof($san) -1));
+							$index = $newSanIndex - ($suffix * (sizeof($san) -1));
+						}
+						$this->sanitisedParts[$item] =  $san[$index] . $suffix;
+					}
+					$innerResult[] = $this->sanitisedParts[$item];
+						
+				}
+				$resultB[] = implode('.', $innerResult);
+			}
+			
+			$result[] = implode('/', $resultB);
+		
+		}
+		
+		$result = implode('\\', $result);
+		
+		return $result;
+	
 	}
 }
 

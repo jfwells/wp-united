@@ -107,28 +107,29 @@ function wpu_settings_menu() {
 			wp_enqueue_script('jsplumb', $wpUnited->get_plugin_url() . 'js/jsplumb-wpu-min.js', array('jquery', 'jquery-ui-core'), false, false);				
 			wp_enqueue_script('wpu-settings', $wpUnited->get_plugin_url() . 'js/settings.js', array('jquery', 'jquery-ui-core'), false, false);				
 		}
-		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-support'))) {
+		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-help', 'wp-united-support'))) {
 			wp_register_style('wpuSettingsStyles', $wpUnited->get_plugin_url() . 'theme/settings.css');
 			wp_enqueue_style('wpuSettingsStyles');
 		}
 	}	
 		
-	$top = add_menu_page('WP-United ', 'WP-United', 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpUnited->get_plugin_url() . 'images/tiny.gif', '2.0000000123' );
-	add_submenu_page('wp-united-setup', 'WP-United Setup', 'Setup / Status', 'manage_options','wp-united-setup');
+	$top = add_menu_page('WP-United ', __('WP-United'), 'manage_options', 'wp-united-setup', 'wpu_setup_menu', $wpUnited->get_plugin_url() . 'images/tiny.gif', '2.0000000123' );
+	add_submenu_page('wp-united-setup', __('WP-United Setup'), __('Setup / Status'), 'manage_options','wp-united-setup');
 		
 		
 	// only show other menu items if WP-United is set up
 	if($wpUnited->get_last_run() == 'working' && $wpUnited->is_enabled()) {
-		add_submenu_page('wp-united-setup', 'WP-United Settings', 'Settings', 'manage_options','wp-united-settings', 'wpu_settings_page');
+		add_submenu_page('wp-united-setup', __('WP-United Settings'), __('Settings'), 'manage_options','wp-united-settings', 'wpu_settings_page');
 
 			if($wpUnited->get_setting('integrateLogin')) {
 					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu-user-mapper', 'wpu_user_mapper');
 			}
-		add_submenu_page('wp-united-setup', 'WP-United Advanced Options', 'Advanced Options', 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
-		add_submenu_page('wp-united-setup', 'Visit phpBB ACP', 'Visit phpBB ACP', 'manage_options', 'wpu_acp', 'wpu_acp');
+		add_submenu_page('wp-united-setup', __('WP-United Advanced Options'), __('Advanced Options'), 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
+		add_submenu_page('wp-united-setup', __('Visit phpBB ACP'), __('Visit phpBB ACP'), 'manage_options', 'wpu_acp', 'wpu_acp');
 	}
 	
-	add_submenu_page('wp-united-setup', 'Please Help Support WP-United!', 'Support WP-United', 'manage_options','wp-united-support', 'wpu_support');
+	add_submenu_page('wp-united-setup', __('Get help'), __('Get help'), 'manage_options','wp-united-help', 'wpu_get_help');
+	add_submenu_page('wp-united-setup', __('Please Help Support WP-United!'), __('Support WP-United'), 'manage_options','wp-united-support', 'wpu_support');
 	
 }
 
@@ -161,6 +162,22 @@ function wpu_advanced_options() {
 			wpu_show_advanced_options();
 	}
 	?></div> <?php
+}
+
+function wpu_get_help() {
+	global $wpUnited, $wpuDebug;
+	?>
+	<div class="wrap" id="wp-united-setup">
+		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+		<?php screen_icon('options-general'); ?>
+		<h2> <?php _e('Get help or support'); ?> </h2>
+		<h3><?php _e('Community support &amp; bug reporting'); ?></h3>
+		<p><?php _e('Free community support is available from the WP-United forum. Please search there for any other users who may be experiencing the same problem, and discuss any issues with fellow users.'); ?></p>
+		<p><?php _e('Please post the following information into a new topic post when you are seeking support. This will help us understand your setup at a glance.'); ?> </p>
+		<div style="border: 1px solid #cccccc;"><?php echo $wpuDebug->get_debug_info(); ?></div>
+	</div>
+	<?
+
 }
 
 function wpu_support() {
