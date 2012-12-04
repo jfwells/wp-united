@@ -10,7 +10,6 @@ Current status:
 
 ------ Reported errors -----------
 - Win server errors with file tree
-- jQuery conflicts (should be fixed now)
 - Incorrrect font size on rev int
 - error on password change in phpBB
 
@@ -26,14 +25,10 @@ Current status:
 -- consider allowing guest posting of comments (IF akismet is installed?).
 
 
------ panel general --------
--- re-implement "debug info to post" panel -- combine with debug class. Remove lDebug, change to wpuDebug and change in options.php
--- add plugin activate action that describes next steps in bubble
 
 ---- general cleanup ----
 -- check on Win servers
 -- decide what to do with $phpEx global
--- append_sid is requiring to be fed the session ID -- why?
 -- do check on plugin activation for php and wordpress version
 -- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
 -- modify version.php to contain compatibility information
@@ -76,15 +71,12 @@ Current status:
 ------- pie in the sky -----------
 -- finish "post to blog" in phpBB, integrate with pressIt
 -- search integration
--- Add AutoMod engine (may defer to v0.9.x > .0 if not trivial)
-
 
 
 
 Other (older) things noticed that may no longer be relevant
 ---------------------
 
--- map custom WP roles to phpBB perms. (consider: When roles are changed, phpBB is updated?)
 - move wp_change_username somewhere better
 - consider manually doing make_clickable() on xposted comment text
 - Last post time reported different from topic time
@@ -97,7 +89,8 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
-
+- Fixed appending sid's for direct links to ACP in admin panel.
+- debugger cleaned up (but still not pervasive). Re-implemented "debug info to post" panel
 - Most phpBB language translation strings removed. Translations cleaned up rady for translation using WP po/mo rather than phpBB
 - Finalised uninstall regime on WordPress side
 - basic activation and operation work on wp multisite
