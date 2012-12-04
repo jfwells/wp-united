@@ -151,7 +151,7 @@ function wpu_advanced_options() {
 		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Advanced Options'); ?> </h2>
-		<p><?php echo sprintf(__('Some additional options can be set in the included file, %1s. These do not normally need to be changed. However, to review and change these options, please open %1s in a text editor.'), add_trailing_slash($wpUnited->get_plugin_path()) . 'options.php'); ?></p>
+		<p><?php echo sprintf(__('Some additional options can be set in the included file, %s. These do not normally need to be changed. However, to review and change these options, please open the file in a text editor.'), '<strong>' . add_trailing_slash($wpUnited->get_plugin_path()) . 'options.php</strong>' ) ; ?></p>
 
 		<?php
 		if(isset($_POST['wpuadvanced-submit'])) {
