@@ -1575,18 +1575,26 @@ function wpu_show_advanced_options() {
 	
 	global $phpbbForum; 
 	?>
-
-		<form name="wpu-advoptions" id="wpuoptions" action="admin.php?page=wp-united-advanced" method="post">
+		<div class="wrap" id="wp-united-setup">
+			<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+			<?php screen_icon('options-general'); ?>
+			<h2> <?php _e('Advanced Options'); ?> </h2>
+			<p><?php echo sprintf(__('Some additional options can be set in the included file, %s1. These do not normally need to be changed. However, to review and change these options, please open %s1 in a text editor.'), add_trailing_slash($wpUnited->get_plugin_path()) . 'options.php'); ?></p>
+	
+	
+			<?php
+			<!-- <form name="wpu-advoptions" id="wpuoptions" action="admin.php?page=wp-united-advanced" method="post">
+			
+			
+			<?php wp_nonce_field('wp-united-advanced'); ?>
+			
+			<p class="submit">
+				<input type="submit" class="button-primary" value="<?php  _e('Save') ?>" name="wpuadvanced-submit" />
+			</p>
+			
+			</form> -->
 		
-		_EDITOR_HERE_
-		
-		<?php wp_nonce_field('wp-united-advanced'); ?>
-		
-		<p class="submit">
-			<input type="submit" class="button-primary" value="<?php  _e('Save') ?>" name="wpuadvanced-submit" />
-		</p>
-		
-		</form>
+		</div>
 		
 	<?php
 
