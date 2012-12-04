@@ -331,7 +331,6 @@ class CSS_Magic {
 	/**
 	 * Removes common elements from CSS selectors
 	 * For example, this can be used to undo CSS magic additions
-	 * TODO: MAKE WORK FOR NESTED STYLESHEETS
 	 */
 	public function removeCommonKeyEl($txt) {
 		$newCSS = array();
@@ -343,12 +342,15 @@ class CSS_Magic {
 		}
 		$this->css = $newCSS;
 		unset($newCSS);
+		
+		foreach($this->nestedItems as $index => $nestedItem) {
+			$nestedItem['content']->removeCommonKeyEl($txt);
+		}
 	}
 	
 	/**
 	 * Returns all key classes and IDs
 	 * @return an array with all classes and IDs
-	 * TODO: ADD NESTED STYLESHEET SEARCH!
 	 */
 	public function getKeyClassesAndIDs() {
 		$classes = array();
@@ -364,9 +366,19 @@ class CSS_Magic {
 			if(sizeof($id[0])) {
 				$ids = array_merge($ids, $id[0]);
 			}			
-			
-			
 		}
+		
+		
+		foreach($this->nestedItems as $index => $nestedItem) {
+			$nestedEls = $nestedItem['content']->getKeyClassesAndIDs();
+			if(sizeof($nestedEls['classes'])) {
+				$classes = array_merge($classes, $nestedEls['classess']);
+			}
+			if(sizeof($nestedEls['ids'])) {
+				$ids = array_merge($ids, $nestedEls['ids']);
+			}
+		}
+		
 		if(sizeof($classes)) {
 			$classes = array_unique($classes);
 		}
