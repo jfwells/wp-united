@@ -137,7 +137,7 @@ function wpu_avatar_create_image($userID) {
 			return '';
 		} 
 		$avatar = $matches[1];
-		$avatar = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $avatar[1]); //stops trailing slashes in URI from killing avatars
+		$avatar = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $avatar); //stops trailing slashes in URI from killing avatars
 		return $avatar;
 	}
 
