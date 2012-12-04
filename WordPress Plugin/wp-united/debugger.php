@@ -102,7 +102,7 @@ class WPU_Debug {
 		
 		$settings = $wpUnited->get_setting();
 		$mainEntries = array(
-			'WP-United Version' 		=> 	$wpu_version,
+			'WP-United Version' 		=> 	$wpuVersion,
 			'WordPress Version' 		=> 	$wp_version,
 			'PHP Version'				=>	PHP_VERSION,
 			'WP-United enabled?'		=>	($wpUnited->is_enabled)? 'Yes' : 'No',
