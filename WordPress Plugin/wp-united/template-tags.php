@@ -116,7 +116,7 @@ function wpu_avatar_create_image($userID) {
 	
 	
 	// get from WP if this user is integrated or if we have no ID
-	if (empty($userID) || ($wpUnited->get_setting('integrateLogin') && wpu_get_integrated_phpbbuser($userID))) {
+	if (empty($userID) || ($wpUnited->get_setting('avatarsync') && $wpUnited->get_setting('integrateLogin') && wpu_get_integrated_phpbbuser($userID))) {
 		
 		// get from WP
 		$avatar = get_avatar($userID);
