@@ -603,7 +603,7 @@ class WP_United_Plugin_Base {
 	public function disable_connection($type) {
 		
 		if(!$this->is_enabled()) {
-			$this->ajax_result(__('WP-United is already disabled'), 'message');
+			$this->ajax_result(__('WP-United is already disabled', 'wp-united'), 'message');
 		}
 		
 		$this->disable();
@@ -612,23 +612,23 @@ class WP_United_Plugin_Base {
 			case 'error':
 				switch ($this->get_last_run()) {
 					case 'disconnected':
-						$this->ajax_result(__('WP-United could not find phpBB at the selected path. WP-United is not connected.'), 'error');
+						$this->ajax_result(__('WP-United could not find phpBB at the selected path. WP-United is not connected.', 'wp-united'), 'error');
 					break;
 					case 'connected':
-						$this->ajax_result(__('WP-United could not successfully run phpBB at the selected path. WP-United is halted.'), 'error');
+						$this->ajax_result(__('WP-United could not successfully run phpBB at the selected path. WP-United is halted.', 'wp-united'), 'error');
 					break;
 					default:
-						$this->ajax_result(__('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.'), 'error');
+						$this->ajax_result(__('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.', 'wp-united'), 'error');
 				}
 			break;
 			case 'server-error':
 				$this->ajax_ok();
 			break;
 			case 'manual':
-				$this->ajax_result(__('WP-United Disabled Successfully'), 'message');
+				$this->ajax_result(__('WP-United Disabled Successfully', 'wp-united'), 'message');
 			break;
 			default:
-				_e('WP-United Disabled');
+				_e('WP-United Disabled', 'wp-united');
 		}
 		
 		return;

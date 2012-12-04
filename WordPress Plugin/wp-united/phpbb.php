@@ -172,7 +172,7 @@ class WPU_Phpbb {
 		
 		if(defined('WPU_BLOG_PAGE') && !defined('WPU_HOOK_ACTIVE')) {
 			$cache->purge();
-			trigger_error(__('The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it is missing, or you need to clear the phpBB cache. <br /><br />Attempted to automatically clear the phpBB cache. Try <a href="#" onclick="document.location.reload(); return false;">refreshing the page</a> to see if it worked. <br /><br />If this error persists, check that includes/hooks/hook_wp-united.php exists, and try manually purging your phpBB cache.'), E_USER_ERROR);
+			trigger_error(__('The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it is missing, or you need to clear the phpBB cache. <br /><br />Attempted to automatically clear the phpBB cache. Try <a href="#" onclick="document.location.reload(); return false;">refreshing the page</a> to see if it worked. <br /><br />If this error persists, check that includes/hooks/hook_wp-united.php exists, and try manually purging your phpBB cache.', 'wp-united'), E_USER_ERROR);
 		}
 		
 		
@@ -393,7 +393,7 @@ class WPU_Phpbb {
 						FROM ' . USERS_TABLE .
 						' WHERE user_wpuint_id = ' . $userID;
 				if(!($result = $db->sql_query($sql))) {
-					wp_die(__('Could not access the database.'));
+					wp_die(__('Could not access the database.', 'wp-united'));
 				}
 				$usrData = $db->sql_fetchrow($result);
 		}
@@ -439,7 +439,7 @@ class WPU_Phpbb {
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
-			wp_die(__('Could not access the database.'));
+			wp_die(__('Could not access the database.', 'wp-united'));
 		}		
 
 		$posts = array();
@@ -707,7 +707,7 @@ class WPU_Phpbb {
 		if($i >= 7) {
 			$smlOutput .= '</span>';
 			if($i>7) {
-				$smlOutput .= '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . __('More smilies') . '&nbsp;&raquo;</a></span>';
+				$smlOutput .= '<a id="wpu-smiley-toggle" href="#" onclick="return wpuSmlMore();">' . __('More smilies', 'wp-united') . '&nbsp;&raquo;</a></span>';
 			}
 		}
 		$smlOutput .= '</span>';
@@ -849,7 +849,7 @@ class WPU_Phpbb {
 		$fStateChanged = $this->foreground();
 				
 		$adminLog = array();
-		$adminLog[] = __('Receiving settings from WP-United...');
+		$adminLog[] = __('Receiving settings from WP-United...', 'wp-united');
 		
 		if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
 			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
@@ -858,7 +858,7 @@ class WPU_Phpbb {
 			if (!$result = $db->sql_query($sql)) {
 				trigger_error('ERROR: Cannot add the integration column to the users table', E_USER_ERROR); exit();
 			}
-			$adminLog[] = __('Modified USERS Table (Integration ID)');
+			$adminLog[] = __('Modified USERS Table (Integration ID)', 'wp-united');
 		}
 		
 		if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
@@ -867,7 +867,7 @@ class WPU_Phpbb {
 			if (!$result = $db->sql_query($sql)) {
 				trigger_error('ERROR: Cannot add blog ID column to users table', E_USER_ERROR); exit();
 			}
-			$adminLog[] = __('Modified USERS Table (Blog ID)');
+			$adminLog[] = __('Modified USERS Table (Blog ID)', 'wp-united');
 		}
 		
 		$sql = 'SELECT * FROM ' . POSTS_TABLE;
@@ -882,13 +882,13 @@ class WPU_Phpbb {
 			if (!$result = $db->sql_query($sql)) {
 				trigger_error('ERROR: Cannot add cross-posting column to posts table', E_USER_ERROR); exit();
 			}
-			$adminLog[] = __('Modified POSTS Table (Cross-Posting Link)');
+			$adminLog[] = __('Modified POSTS Table (Cross-Posting Link)', 'wp-united');
 		}
 		
 		$db->sql_freeresult($result);
 
 		
-		$adminLog[] = __('Adding WP-United Permissions');
+		$adminLog[] = __('Adding WP-United Permissions', 'wp-united');
 		
 		// Setup $auth_admin class so we can add permission options
 		include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
@@ -900,7 +900,7 @@ class WPU_Phpbb {
 			'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
 		));
 
-		$adminLog[] = __('Storing the new WP-United settings');
+		$adminLog[] = __('Storing the new WP-United settings', 'wp-united');
 		
 		// this stores the passed-in settings object, which is a bit brittle
 		// TODO: ask $wpUnited->settings to store/reload itself, without making it public
@@ -928,7 +928,7 @@ class WPU_Phpbb {
 
 		if($wpUnited->get_setting('integrateLogin') && $wpUnited->get_setting('avatarsync')) {
 			if(!$config['allow_avatar'] || !$config['allow_avatar_remote']) {
-				$adminLog[] = __('Updating avatar settings');
+				$adminLog[] = __('Updating avatar settings', 'wp-united');
 
 				$sql = 'UPDATE ' . CONFIG_TABLE . ' 
 					SET config_value = 1
@@ -941,12 +941,12 @@ class WPU_Phpbb {
 
 		
 		// clear out the WP-United cache on settings change
-		$adminLog[] = __('Purging the WP-United cache');
+		$adminLog[] = __('Purging the WP-United cache', 'wp-united');
 		require_once($wpUnited->get_plugin_path() . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 		$wpuCache->purge();
 		
-		$adminLog[] = __('Completed successfully');
+		$adminLog[] = __('Completed successfully', 'wp-united');
 		
 		// Save the admin log in a nice dropdown in phpBB admin log. 
 		// Requires a bit of template hacking using JS since we don't want to have to do a mod edit for new script
@@ -977,7 +977,7 @@ class WPU_Phpbb {
 		// ]]>
 		</script>";
 		
-		$ln .= '<strong><a href="#" onclick="return wputgl' . $randSeed . '();" title="click to see details">' . __('Changed WP-United Settings (click for details)') . '<span id="wpulogexp' . $randSeed . '">+</span></a></strong>' . $bodyContent . '</span>{*';
+		$ln .= '<strong><a href="#" onclick="return wputgl' . $randSeed . '();" title="click to see details">' . __('Changed WP-United Settings (click for details)', 'wp-united') . '<span id="wpulogexp' . $randSeed . '">+</span></a></strong>' . $bodyContent . '</span>{*';
 
 		add_log('admin', $ln);
 		

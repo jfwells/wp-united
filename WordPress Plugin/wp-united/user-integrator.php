@@ -284,16 +284,16 @@ function wpu_validate_new_user($username, $email, $errors) {
 		if($result !== false) {
 			switch($result) {
 				case 'INVALID_CHARS':
-					$errors->add('phpbb_invalid_chars', __('The username contains invalid characters'));
+					$errors->add('phpbb_invalid_chars', __('The username contains invalid characters', 'wp-united'));
 					$foundErrors++;
 					break;
 				case 'USERNAME_TAKEN':
-					$errors->add('phpbb_username_taken', __('The username is already taken'));
+					$errors->add('phpbb_username_taken', __('The username is already taken', 'wp-united'));
 					$foundErrors++;
 					break;
 				case 'USERNAME_DISALLOWED':
 					default;
-					$errors->add('phpbb_username_disallowed', __('The username you chose is not allowed'));
+					$errors->add('phpbb_username_disallowed', __('The username you chose is not allowed', 'wp-united'));
 					$foundErrors++;
 					break;
 			}
@@ -302,19 +302,19 @@ function wpu_validate_new_user($username, $email, $errors) {
 		if($emailResult !== false) {
 			switch($emailResult) {
 				case 'DOMAIN_NO_MX_RECORD':
-					$errors->add('phpbb_invalid_email_mx', __('The email address does not appear to exist (No MX record)'));
+					$errors->add('phpbb_invalid_email_mx', __('The email address does not appear to exist (No MX record)', 'wp-united'));
 					$foundErrors++;
 					break;
 				case 'EMAIL_BANNED':
-					$errors->add('phpbb_email_banned', __('The e-mail address is banned'));
+					$errors->add('phpbb_email_banned', __('The e-mail address is banned', 'wp-united'));
 					$foundErrors++;
 					break;
 				case 'EMAIL_TAKEN':
-					$errors->add('phpbb_email_taken', __('The e-mail address is already taken'));
+					$errors->add('phpbb_email_taken', __('The e-mail address is already taken', 'wp-united'));
 					break;
 				case 'EMAIL_INVALID':
 					default;
-					$errors->add('phpbb_invalid_email', __('The email address is invalid'));
+					$errors->add('phpbb_invalid_email', __('The email address is invalid', 'wp-united'));
 					$foundErrors++;
 					break;									
 			}
@@ -790,7 +790,7 @@ function wpu_update_int_id($pID, $intID) {
 			SET user_wpuint_id = $intID 
 			WHERE user_id = '$pID'";
 		if(!$result = $db->sql_query($sql)) {
-			trigger_error(__('WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.'));
+			trigger_error(__('WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.', 'wp-united'));
 		} else {
 			$updated = TRUE;
 		}
@@ -798,7 +798,7 @@ function wpu_update_int_id($pID, $intID) {
 	//Switch back to the WP DB:
 	$phpbbForum->restore_state($fStateChanged);
 	if ( !$updated ) {
-		trigger_error(__('Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.'));
+		trigger_error(__('Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error.', 'wp-united'));
 	}
 }	
 

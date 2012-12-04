@@ -232,7 +232,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function add_plugin_menu_link($links, $file) {
 
 		if ($file == 'wp-united/wp-united.php') {
-			$links[] = '<a href="admin.php?page=wp-united-setup">' . __('Setup / Status') . '</a>';
+			$links[] = '<a href="admin.php?page=wp-united-setup">' . __('Setup / Status', 'wp-united') . '</a>';
 		}
 		return $links;
 	}
@@ -289,7 +289,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function admin_footer_text($inbound) {
-		$inbound .= ' <span id="footer-wpunited">' . __('phpBB integration by <a href="http://www.wp-united.com/">WP-United</a>.') . '</span>';
+		$inbound .= ' <span id="footer-wpunited">' . __('phpBB integration by <a href="http://www.wp-united.com/">WP-United</a>.', 'wp-united') . '</span>';
 		return $inbound;
 	}
 	
@@ -350,7 +350,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				 * @todo this doesn't need to happen every time
 				 */			
 				if(!$phpbbForum->update_blog_link($post->post_author)) {
-					wp_die(__('Error accessing the phpBB database when updating Blog ID'));
+					wp_die(__('Error accessing the phpBB database when updating Blog ID', 'wp-united'));
 				}
 				
 				if ( (($phpbbForum->user_logged_in()) || $future) && ($this->get_setting('xposting')) ) {
@@ -436,7 +436,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			return $avatar;
 		}
 
-		$safe_alt = (false === $alt) ? esc_attr(__('Avatar image')) : esc_attr($alt);
+		$safe_alt = (false === $alt) ? esc_attr(__('Avatar image', 'wp-united')) : esc_attr($alt);
 
 
 		if ( !is_numeric($size) )
@@ -523,9 +523,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if ( $this->get_setting('phpbbSmilies') ) {
 			echo "\n<script type=\"text/javascript\">//<![CDATA[\nvar wpuLang ={";
 			$langStrings = array(
-				'wpu_more_smilies' 	=> 		__('More smilies'), 
-				'wpu_less_smilies'	=>		__('Less smilies'), 
-				'wpu_smiley_error'	=>		__('Your smiley could not be inserted. You can add it manually by typing this code: %s')
+				'wpu_more_smilies' 	=> 		__('More smilies', 'wp-united'), 
+				'wpu_less_smilies'	=>		__('Less smilies', 'wp-united'), 
+				'wpu_smiley_error'	=>		__('Your smiley could not be inserted. You can add it manually by typing this code: %s', 'wp-united')
 			);
 			
 			foreach($langStrings as $key => $lang) {
@@ -637,9 +637,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				// An error occurred validating the new WP user, remove the user.
 				
 				wp_delete_user($userID,  0);
-				$message = '<h1>' . __('Error:') . '</h1>';
+				$message = '<h1>' . __('Error:', 'wp-united') . '</h1>';
 				$message .= '<p>' . implode('</p><p>', $errors->get_error_messages()) . '</p><p>';
-				$message .= __('Please go back and try again, or contact an administrator if you keep seeing this error.') . '</p>';
+				$message .= __('Please go back and try again, or contact an administrator if you keep seeing this error.', 'wp-united') . '</p>';
 				wp_die($message);
 				
 				exit();

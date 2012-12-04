@@ -89,7 +89,7 @@ abstract class WPU_Mapped_User {
 		}
 		
 		$action = sprintf(
-			'<a href="#" class="wpumapactionbrk" id="wpuaction-break-%s-%d-%d">' . __('Break Integration') . '</a>',
+			'<a href="#" class="wpumapactionbrk" id="wpuaction-break-%s-%d-%d">' . __('Break Integration', 'wp-united') . '</a>',
 			$this->type,
 			$this->userID,
 			$this->integratedUser->userID
@@ -101,10 +101,10 @@ abstract class WPU_Mapped_User {
 	 * Returns html markup for create counterpart action
 	 */
 	public function create_action() {
-		$altPackage = ($this->type == 'wp') ? __('phpBB') : __('WordPress');
+		$altPackage = ($this->type == 'wp') ? __('phpBB', 'wp-united') : __('WordPress', 'wp-united');
 		
 		$action = sprintf(
-			'<a href="#" class="wpumapactioncreate" id="wpuaction-create-%s-%d">' . sprintf(__('Create user in %s'), $altPackage) . '</a>',
+			'<a href="#" class="wpumapactioncreate" id="wpuaction-create-%s-%d">' . sprintf(__('Create user in %s', 'wp-united'), $altPackage) . '</a>',
 			$this->type,
 			$this->userID
 		);
@@ -117,7 +117,7 @@ abstract class WPU_Mapped_User {
 	public function delboth_action() {
 		
 $action = sprintf(
-			'<a href="#" class="wpumapactiondel" id="wpuaction-delboth-%s-%d-%d">' . __('Delete user from both phpBB and WordPress') . '</a>',
+			'<a href="#" class="wpumapactiondel" id="wpuaction-delboth-%s-%d-%d">' . __('Delete user from both phpBB and WordPress', 'wp-united') . '</a>',
 			$this->type,
 			$this->userID,
 			($this->integrated) ? $this->integratedUser->userID : 0
@@ -126,9 +126,9 @@ $action = sprintf(
 	}
 	
 	public function del_action() {
-		$package = ($this->type == 'phpbb') ? __('phpBB') : __('WordPress');
+		$package = ($this->type == 'phpbb') ? __('phpBB', 'wp-united') : __('WordPress', 'wp-united');
 		$action = sprintf(
-			'<a href="#" class="wpumapactiondel" id="wpuaction-del-%s-%d">' . sprintf(__('Delete user from %s'), $package) . '</a>',
+			'<a href="#" class="wpumapactiondel" id="wpuaction-del-%s-%d">' . sprintf(__('Delete user from %s', 'wp-united'), $package) . '</a>',
 			$this->type,
 			$this->userID
 			
@@ -185,14 +185,14 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		parent::__construct($userID);
 		
 		$this->templateFields = array(
-			'displayname' 	=> 	'<p><strong>' . __('Display name:') . '</strong> %s</p>',
-			'email' 				=> 	'<p><strong>' . __('E-mail:') . '</strong> %s</p>',
-			'website' 			=> 	'<p><strong>' . __('Website:') . '</strong> %s</p>',
+			'displayname' 	=> 	'<p><strong>' . __('Display name:', 'wp-united') . '</strong> %s</p>',
+			'email' 				=> 	'<p><strong>' . __('E-mail:', 'wp-united') . '</strong> %s</p>',
+			'website' 			=> 	'<p><strong>' . __('Website:', 'wp-united') . '</strong> %s</p>',
 			'roletext'				=>	'<p>%s ',			
 			'rolelist' 				=> 	'<strong>%s</strong> ',
-			'posts' 				=> 	'<p><strong>' . __('Posts:') . '</strong> %s / <strong>',
-			'comments'			=>	__('Comments:') . '</strong> %s</p>',
-			'regdate' 			=> 	'<p>' . __('Registered:') . '</strong> %s</p>',
+			'posts' 				=> 	'<p><strong>' . __('Posts:', 'wp-united') . '</strong> %s / <strong>',
+			'comments'			=>	__('Comments:', 'wp-united') . '</strong> %s</p>',
+			'regdate' 			=> 	'<p>' . __('Registered:', 'wp-united') . '</strong> %s</p>',
 		);
 		
 		$this->className = 'wpuwpuser';
@@ -227,9 +227,9 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		$this->userDetails = array(
 			'displayname'		=>	$wpUser->display_name,
 			'email'					=>	$wpUser->user_email,
-			'website'				=>	 !empty($wpUser->user_url) ? $wpUser->user_url : __('n/a'),
+			'website'				=>	 !empty($wpUser->user_url) ? $wpUser->user_url : __('n/a', 'wp-united'),
 			'rolelist'				=>	 implode(', ', (array)$wpUser->roles),
-			'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:') : __('Role:'),
+			'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:', 'wp-united') : __('Role:', 'wp-united'),
 			/* @TODO in wp3: this is count_user_posts() */ 
 			'posts'					=>	count_user_posts($this->userID),
 			
@@ -240,7 +240,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 	}
 	
 	public function edit_action() {
-		$action = '<a href="user-edit.php?user_id=' . $this->userID . '" class="wpumapactionedit">' . __('Edit user') . '</a>';
+		$action = '<a href="user-edit.php?user_id=' . $this->userID . '" class="wpumapactionedit">' . __('Edit user', 'wp-united') . '</a>';
 		return $action;
 	}
 	
@@ -256,7 +256,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			return;
 		}
 		
-		$noMatch = '<p><em>' . __('No suggested matches found.') . '</em></p>';
+		$noMatch = '<p><em>' . __('No suggested matches found.', 'wp-united') . '</em></p>';
 		
 		// Search for suggested matches in phpBB...
 		
@@ -286,9 +286,9 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		
 		$matches = array();;
 		while($result = $db->sql_fetchrow($results)) {
-			$integText = (empty($result['user_wpuint_id'])) ? __('Available') : __('Cannot integrate (already integrated)');
+			$integText = (empty($result['user_wpuint_id'])) ? __('Available', 'wp-united') : __('Cannot integrate (already integrated)', 'wp-united');
 			$integLink =  (!empty($result['user_wpuint_id'])) ? '' : sprintf(
-				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate') . '</a>',
+				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate', 'wp-united') . '</a>',
 				$this->userID,
 				$result['user_id'],
 				$this->loginName,
@@ -335,12 +335,12 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		parent::__construct($userID);
 		
 		$this->templateFields = array(
-			'group' 		=> '<p><strong>' . __('Default group:') . '</strong> %s</p>',
-			'email' 		=> '<p><strong>' . __('E-mail:') . '</strong> %s</p>',
-			'rank' 			=> '<p><strong>' . __('Rank:') . '</strong> %s</p>',
-			'posts' 		=> '<p><strong>' . __('Posts:') . '</strong> %s</p>',
-			'regdate' 	=> '<p><strong>' . __('Registered:') . '</strong> %s</p>',
-			'lastvisit' 	=> '<p><strong>' . __('Last visited:') . '</strong> %s</p>',
+			'group' 		=> '<p><strong>' . __('Default group:', 'wp-united') . '</strong> %s</p>',
+			'email' 		=> '<p><strong>' . __('E-mail:', 'wp-united') . '</strong> %s</p>',
+			'rank' 			=> '<p><strong>' . __('Rank:', 'wp-united') . '</strong> %s</p>',
+			'posts' 		=> '<p><strong>' . __('Posts:', 'wp-united') . '</strong> %s</p>',
+			'regdate' 	=> '<p><strong>' . __('Registered:', 'wp-united') . '</strong> %s</p>',
+			'lastvisit' 	=> '<p><strong>' . __('Last visited:', 'wp-united') . '</strong> %s</p>',
 		);
 		
 		$this->className = 'wpuphpbbuser';
@@ -409,7 +409,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 	
 
 	public function edit_action() {
-		$action = '<a href="' . $this->adminLink . '" class="wpumapactionedit">' . __('Edit user') . '</a>';
+		$action = '<a href="' . $this->adminLink . '" class="wpumapactionedit">' . __('Edit user', 'wp-united') . '</a>';
 		return $action;
 	}	
 	
@@ -452,7 +452,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 			return;
 		}
 		
-		$noMatch = '<p><em>' . __('No suggested matches found.') . '</em></p>';
+		$noMatch = '<p><em>' . __('No suggested matches found.', 'wp-united') . '</em></p>';
 		
 		// Search for suggested matches in WordPress
 		
@@ -500,9 +500,9 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		
 		$matches = '';
 		foreach($users as $userID => $user) {
-			$integText = (!$user['integrated']) ? __('Available') : __('Cannot integrate (already integrated)');
+			$integText = (!$user['integrated']) ? __('Available', 'wp-united') : __('Cannot integrate (already integrated)', 'wp-united');
 			$integLink = ($user['integrated']) ? '' : sprintf(
-				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate') . '</a>',
+				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate', 'wp-united') . '</a>',
 				$this->userID,
 				$userID,
 				$this->loginName,

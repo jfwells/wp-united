@@ -318,7 +318,7 @@ class WPU_User_Mapper {
 			'rank'							=> 	(isset($phpbbForum->lang[$dbResult['rank_title']])) ? $phpbbForum->lang[$dbResult['rank_title']] : $dbResult['rank_title'],
 			'numposts'					=> 	(int)$dbResult['user_posts'],
 			'regdate'						=> 	$user->format_date($dbResult['user_regdate']),
-			'lastvisit'						=> 	(!empty($dbResult['user_lastvisit'])) ? $user->format_date($dbResult['user_lastvisit']) : __('n/a')
+			'lastvisit'						=> 	(!empty($dbResult['user_lastvisit'])) ? $user->format_date($dbResult['user_lastvisit']) : __('n/a', 'wp-united')
 		);
 		$phpbbForum->background($fStateChanged);
 		
@@ -396,7 +396,7 @@ class WPU_User_Mapper {
 		$json = array();
 		foreach($this->users as $user) {
 			$statusCode = ($user->is_integrated()) ? 0 : 1;
-			$status = ($statusCode == 0) ? __('Already integrated') : __('Available');
+			$status = ($statusCode == 0) ? __('Already integrated', 'wp-united') : __('Available', 'wp-united');
 			
 			$data = '{' .
 				'"value": ' . $user->userID . ',' . 

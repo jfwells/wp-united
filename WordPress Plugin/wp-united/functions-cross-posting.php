@@ -42,7 +42,7 @@ function wpu_add_xposting_box() {
 		// Add forced xposting info box
 		$forceXPosting = wpu_get_forced_forum_name($wpUnited->get_setting('xpostforce'));
 		if($forceXPosting !== false) {
-			add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post'), 'wpu_add_forcebox', 'post', 'side');
+			add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post', 'wp-united'), 'wpu_add_forcebox', 'post', 'side');
 		}
 	} else {	
 		// Add xposting choice box
@@ -51,7 +51,7 @@ function wpu_add_xposting_box() {
 		}
 
 		if ( (sizeof($can_xpost_forumlist)) || $already_xposted ) {
-			add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post'), 'wpu_add_postboxes', 'post', 'side');
+			add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post', 'wp-united'), 'wpu_add_postboxes', 'post', 'side');
 		}
 	}
 }
@@ -66,10 +66,10 @@ function wpu_add_postboxes() {
 	global $can_xpost_forumlist, $already_xposted, $wpUnited;
 ?>
 	<div id="wpuxpostdiv" class="inside">
-	<?php if ($already_xposted) echo '<strong><small>' . sprintf(__('Already cross-posted (Topic ID = %s)'), $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
+	<?php if ($already_xposted) echo '<strong><small>' . sprintf(__('Already cross-posted (Topic ID = %s)', 'wp-united'), $already_xposted['topic_id']) . "</small></strong><br /> <input type=\"hidden\" name=\"wpu_already_xposted_post\" value=\"{$already_xposted['post_id']}\" /><input type=\"hidden\" name=\"wpu_already_xposted_forum\" value=\"{$already_xposted['forum_id']}\" />"; ?>
 	<label for="wpu_chkxpost" class="selectit">
 		<input type="checkbox" <?php if ($already_xposted) echo 'disabled="disabled" checked="checked"'; ?>name="chk_wpuxpost" id="wpu_chkxpost" value="1001" />
-		<?php _e('Cross-post to Forums?'); ?><br />
+		<?php _e('Cross-post to Forums?', 'wp-united'); ?><br />
 	</label><br />
 	<label for="wpu_selxpost">Select Forum:</label><br />
 		<select name="sel_wpuxpost" id="wpu_selxpost" <?php if ($already_xposted) echo 'disabled="disabled"'; ?>> 
@@ -95,8 +95,8 @@ function wpu_add_postboxes() {
 						$excerptState = '';
 					}
 				}
-				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . __('Post Excerpt'). '<br />';
-				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . __('Post Full Post');
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . __('Post Excerpt', 'wp-united'). '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . __('Post Full Post', 'wp-united');
 			} ?>
 
 	</div>
@@ -109,7 +109,7 @@ function wpu_add_postboxes() {
 function wpu_add_forcebox($forumName) {
 	global $forceXPosting, $phpbbForum, $wpUnited;
 
-	$showText =  (wpu_get_xposted_details()) ? __("This post is already cross-posted. It will be edited in forum '%s'") : __("This post will be cross-posted to the forum: '%s'");
+	$showText =  (wpu_get_xposted_details()) ? __("This post is already cross-posted. It will be edited in forum '%s'", 'wp-united') : __("This post will be cross-posted to the forum: '%s'", 'wp-united');
 
 ?>
 	<div id="wpuxpostdiv" class="inside">
@@ -124,8 +124,8 @@ function wpu_add_forcebox($forumName) {
 						$excerptState = '';
 					}
 				}
-				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . __('Post Excerpt'). '<br />';
-				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . __('Post Full Post');
+				echo '<br /><input type="radio" name="rad_xpost_type" value="excerpt" ' . $excerptState . ' />' . __('Post Excerpt', 'wp-united'). '<br />';
+				echo '<input type="radio" name="rad_xpost_type" value="fullpost" ' . $fullState . ' />' . __('Post Full Post', 'wp-united');
 			} ?>
 	</div>
 <?php
@@ -177,7 +177,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	}
 	
 	$mode = 'post';
-	$subject = __('[BLOG] ') . $post->post_title;
+	$subject = __('[BLOG] ', 'wp-united') . $post->post_title;
 	$data = array();
 	$data['post_time'] = 0;
 	$topicUsername = $phpbbForum->get_username();
@@ -210,18 +210,18 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	// If we are editing a post, check other permissions if it has been made global/sticky etc.
 	if($mode == 'edit') {
 		if( ($data['topic_type'] == POST_GLOBAL)  && (!$auth->acl_getf('f_announce', 0)) )  {
-			wp_die(__('You do not have permission required to edit global announcements'));		
+			wp_die(__('You do not have permission required to edit global announcements', 'wp-united'));		
 		}
 		
 		if( ($data['topic_type'] == POST_ANNOUNCE) && (!$auth->acl_getf('f_announce', $forum_id)) )  {
-			wp_die(__('You do not have the permission required to edit this announcement'));
+			wp_die(__('You do not have the permission required to edit this announcement', 'wp-united'));
 		}
 		if( ($data['topic_type'] == POST_STICKY) && (!$auth->acl_getf('f_sticky', $forum_id)) ) {
-			wp_die(__('You do not have the permission required to edit stickies'));
+			wp_die(__('You do not have the permission required to edit stickies', 'wp-united'));
 		}
 		
 		if(!$auth->acl_getf('f_edit', $forum_id)) {
-			wp_die(__('You do not have the permission required to edit posts in this forum'));		
+			wp_die(__('You do not have the permission required to edit posts in this forum', 'wp-united'));		
 		}
 		
 	}
@@ -273,14 +273,14 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		$tag_list = '';
 		$tag_list = get_the_term_list($post->ID, 'post_tag', '', ', ', '');
 		if ($tag_list == "") {
-			$tag_list = __('No tags defined.');
+			$tag_list = __('No tags defined.', 'wp-united');
 		}
 		
-		$tags = (!empty($tag_list)) ? '[b]' . __('Tags: ') .  "[/b]{$tag_list}\n" : '';
-		$cats = (!empty($cat_list)) ? '[b]' . __('Posted under: ') . "[/b]{$cat_list}\n" : '';
+		$tags = (!empty($tag_list)) ? '[b]' . __('Tags: ', 'wp-united') .  "[/b]{$tag_list}\n" : '';
+		$cats = (!empty($cat_list)) ? '[b]' . __('Posted under: ', 'wp-united') . "[/b]{$cat_list}\n" : '';
 	}
 	
-	$content = sprintf(__('This is a %1sblog post%2s. To read the original post, please %3sclick here &raquo;%4s'), '[b]', '[/b]', '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
+	$content = sprintf(__('This is a %1sblog post%2s. To read the original post, please %3sclick here &raquo;%4s', 'wp-united'), '[b]', '[/b]', '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
 
 	$phpbbForum->foreground();
 
@@ -332,7 +332,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			
 			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID .  "{$utcTimeSql} WHERE post_id = {$data['post_id']}";
 			if (!$result = $db->sql_query($sql)) {
-				wp_die(__('Could not access the WP-United database fields. Please ensure WP-United is installed correctly. '));
+				wp_die(__('Could not access the WP-United database fields. Please ensure WP-United is installed correctly. ', 'wp-united'));
 			}
 			if($utcTime !== false) {
 				$sql = 'UPDATE ' . TOPICS_TABLE . " SET topic_time = {$utcTime} WHERE topic_id = {$data['topic_id']}";
@@ -570,7 +570,7 @@ function wpu_comment_redirector($postID) {
 	}
 	
 	if(!$phpbbForum->user_logged_in()) {
-		wp_die( __('You must be logged in to comment in the forum'));
+		wp_die( __('You must be logged in to comment in the forum', 'wp-united'));
 	}	
 	
 	if( empty($xPostDetails['topic_approved'])) {
@@ -584,17 +584,17 @@ function wpu_comment_redirector($postID) {
 	if ($xPostDetails['forum_id'] == 0) {
 		// global announcement
 		if(!$auth->acl_getf_global('f_noapprove') ) {
-			wp_die( __('You do not have permission to respond to this announcement'));			
+			wp_die( __('You do not have permission to respond to this announcement', 'wp-united'));			
 		}
 	} else {
 		if (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id'])) { 
-			wp_die( __('You do not have permission to comment in this forum'));
+			wp_die( __('You do not have permission to comment in this forum', 'wp-united'));
 		}
 	}
 	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
 	
 	if(empty($content)) {
-		wp_die(__('Error: Please type a comment!'));
+		wp_die(__('Error: Please type a comment!', 'wp-united'));
 	}
 	
 	wpu_html_to_bbcode($content); 
@@ -677,7 +677,7 @@ function wpu_edit_comment_link($link, $comment_ID) {
 			return $link;
 		}
 		$href = $phpbbCommentLinks[$comment_ID];
-		return '<a class="comment-edit-link" href="' . $href . '" title="' . __('(View in Forum)') . '">' . __('(View in Forum)'). '</a>';
+		return '<a class="comment-edit-link" href="' . $href . '" title="' . __('(View in Forum)', 'wp-united') . '">' . __('(View in Forum)', 'wp-united'). '</a>';
 
 	}
 	
