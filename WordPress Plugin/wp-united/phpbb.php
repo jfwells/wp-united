@@ -716,7 +716,7 @@ class WPU_Phpbb {
 		 
 	}
 	
-	public function get_avatar($phpbbId, $width=0, $height=0, $alt) {
+	public function get_avatar($phpbbId, $width=0, $height=0, $alt='') {
 		global $db, $config, $phpbb_root_path, $phpEx;
 		
 		$fStateChanged = $this->foreground();

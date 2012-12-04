@@ -22,22 +22,12 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 
 
 /**
- * Displays a sentence soliciting users to get started with their blogs
- * @author John Wells
- */
-function wpu_intro() {
- echo get_wpu_intro();
-}
-
-
-
-/**
  * Inserts the commenter's avatar
  * @param bool $default Use default avatars if no avatar is present? Defaults to true
  * @param int $id User ID (optional)
  * @author John Wells
  */
-function avatar_commenter($default = true, $id = '') {
+function avatar_commenter($id = '') {
 	echo get_avatar_commenter($default, $id);
 }
 
@@ -47,30 +37,16 @@ function avatar_commenter($default = true, $id = '') {
  * @param int $id User ID (optional)
  * @author John Wells
  */
-function get_avatar_commenter($default=TRUE, $id = '') {
-global $comment, $images, $wpUnited;
+function get_avatar_commenter($id = '') {
+	global $comment, $images, $wpUnited;
 
 	if ( empty($id) ) {
 		if ( !empty($comment) ) {
 			$id = $comment->user_id;
 		} 
-		if ( empty($id) ) {
-			if ( $default ) {
-				return $wpUnited->get_plugin_url() . 'images/wpu_unregistered.gif';
-			}
-			return '';
-		}
 	}
-	//Now we have ID
-	$author = get_userdata($id);
-	$image = wpu_avatar_create_image($author);
-	if ( !empty($image) ) {
-		return $image;
-	} 
-	if ( $default ) {
-		return $wpUnited->get_plugin_url() . 'images/wpu_no_avatar.gif';
-	}
-	return '';
+	return wpu_avatar_create_image($id);
+
 }
 
 
@@ -80,7 +56,7 @@ global $comment, $images, $wpUnited;
  * @param bool $default Use default avatars if no avatar is present? Defaults to true
   * @author John Wells
  */
-function avatar_poster($default = true) {
+function avatar_poster() {
 	echo get_avatar_poster($default);
 }
 
@@ -89,16 +65,9 @@ function avatar_poster($default = true) {
  * @param bool $default Use default avatars if no avatar is present? Defaults to true
  * @author John Wells
  */
-function get_avatar_poster($default = true) {
+function get_avatar_poster() {
 	global $images, $authordata, $phpbbForum;
-	$image = wpu_avatar_create_image($authordata);
-	if ( !empty($image) ) {
-		return $image;
-	} 
-	if ( $default ) {
-		return $wpUnited->get_plugin_url() . 'images/wpu_no_avatar.gif';
-	}
-	return '';
+	return wpu_avatar_create_image($authordata->ID);
 }
 
 
@@ -109,7 +78,7 @@ function get_avatar_poster($default = true) {
  * @param bool $default Use default avatars if no avatar is present? Defaults to true
  * @author John Wells
  */
-function avatar_reader($default = true) {
+function avatar_reader() {
 	echo get_avatar_reader($default);
 }
 
@@ -118,24 +87,10 @@ function avatar_reader($default = true) {
  * @param bool $default Use default avatars if no avatar is present? Defaults to true
  * @author John Wells
  */
-function get_avatar_reader($default = true) {
+function get_avatar_reader() {
 	global $images, $wpUnited, $userdata, $user_ID;
 	get_currentuserinfo();
-	$image = false;
-	if ( !empty($user_ID) ) {
-		$image = wpu_avatar_create_image($userdata);
-	}
-	if ( !empty($image) ) {
-		return $image;
-	} elseif ( $image === false ) {
-		if ( $default ) {
-			return  $wpUnited->get_plugin_url() . 'images/wpu_unregistered.gif';
-		}
-	}
-	if ( $default ) {
-		return  $wpUnited->get_plugin_url() . 'images/wpu_no_avatar.gif';
-	}
-	return '';
+	return wpu_avatar_create_image($user_ID);
 }
 
 
@@ -145,22 +100,46 @@ function get_avatar_reader($default = true) {
  * @author John Wells
  * @access private
  */
-function wpu_avatar_create_image($user) {
-	$avatar = '';
-	if ( !empty($user->ID) ) {
-		global $phpbbForum, $phpbb_root_path, $phpEx;
-		
-		if(isset($user->wpu_avatar)) {
-			if ($user->wpu_avatar_type && $user->wpu_avatar) {
-				require_once($phpbb_root_path . 'includes/functions_display.' . $phpEx); 
-				$avatar = get_user_avatar($user->wpu_avatar, $user->wpu_avatar_type, $user->wpu_avatar_width, $user->wpu_avatar_height);
-				$avatar = explode('"', $avatar);
-				$avatar = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $avatar[1]); //stops trailing slashes in URI from killing avatars
-			}
-		}
+function wpu_avatar_create_image($userID) {
+	global $wpUnited, $phpbbForum, $user_ID;
 
-	} 
-	return $avatar;
+	$avatar = '';
+	$phpbbUserID = 0;
+	
+	get_currentuserinfo();
+	if($userID == $user_ID) {
+		if($phpbbForum->user_logged_in()) {
+			$phpbbUserData = $phpbbForum->get_userdata();
+			$phpbbUserID = $phpbbUserData['user_id'];
+		}
+	}
+	
+	
+	// get from WP if this user is integrated or if we have no ID
+	if (empty($userID) || ($wpUnited->get_setting('integrateLogin') && wpu_get_integrated_phpbbuser($userID))) {
+		
+		// get from WP
+		$avatar = get_avatar($userID);
+	
+	// get from phpBB if the current user is logged in and they want the current user avatar
+	} else if ($phpbbUserID) {
+	
+		// get from phpBB
+		$avatar = $phpbbForum->get_avatar($phpbbUserID);
+		
+	} else {
+		// default is get from WP
+		$avatar = get_avatar($userID);
+	}
+		
+	if(!empty($avatar)) {
+			$avatar = explode('"', $avatar);
+			$avatar = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $avatar[1]); //stops trailing slashes in URI from killing avatars
+			return $avatar;
+	}
+
+	return '';
+	
 }
 
 

@@ -606,6 +606,17 @@ function wpu_content_parse_check($postContent) {
  * 
  */
 
+ /**
+ * Displays a sentence soliciting users to get started with their blogs
+ * @author John Wells
+ */
+function wpu_intro() {
+ echo get_wpu_intro();
+}
+
+
+ 
+ 
 /**
  * Prepares a sentence soliciting users to get started with their blogs
  */
