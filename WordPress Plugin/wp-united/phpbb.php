@@ -194,6 +194,16 @@ class WPU_Phpbb {
 		$this->make_wp_env();
 	}
 	
+	public function append_sid($url) {
+		global $user;
+		
+		$fStateChanged = $this->foreground();
+		$result = append_sid($url, false, true, $user->session_id);
+		$this->restore_state($fStateChanged);
+		
+		return $result;
+	}
+	
 	public function get_board_url() {
 		global $config;
 		if(empty($this->url)) {

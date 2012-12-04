@@ -23,7 +23,7 @@
 }
 
 function wpu_settings_menu() {  
-	global $wpUnited;
+	global $wpUnited, $phpbbForum;
 	
 	if (!current_user_can('manage_options'))  {
 		return;
@@ -44,7 +44,7 @@ function wpu_settings_menu() {
 	if(isset($_GET['page'])) {
 		if($_GET['page'] == 'wpu_acp') {
 			global $phpbbForum;
-			wp_redirect(append_sid($phpbbForum->get_board_url()  .  'adm/index.php', false, true, $GLOBALS['user']->session_id), 302);
+			wp_redirect($phpbbForum->append_sid($phpbbForum->get_board_url()  .  'adm/index.php'), 302);
 			die();
 		}
 		if($_GET['page'] == 'wpu-user-mapper') {
