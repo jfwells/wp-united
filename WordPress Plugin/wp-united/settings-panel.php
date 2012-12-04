@@ -145,23 +145,24 @@ function wpu_acp() {
  * Decide whether to show the advanced options, or save them
  */
 function wpu_advanced_options() {
-
+	global $wpUnited;
 	?>
-		<div class="wrap" id="wp-united-setup">
+	<div class="wrap" id="wp-united-setup">
+		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
 		<?php screen_icon('options-general'); ?>
-		<h2> <?php _e('WP-United Advanced Options<br />[UNDER CONSTRUCTION - USE SETTINGS PAGE FOR NOW]'); ?> </h2>
-		<p><?php _e('Here you can set advanced options that control WP-United by editing the options.php file. You should not normally have to edit these.') ?></p>
-		<p><?php _e('Note that these options could be overwritten during a WP-United upgrade.') ?></p>
-	<?php
-	if(isset($_POST['wpuadvanced-submit'])) {
-		// process form
-		if(check_admin_referer( 'wp-united-advanced')) {
-			wpu_process_advanced_options();
+		<h2> <?php _e('WP-United Advanced Options'); ?> </h2>
+		<p><?php echo sprintf(__('Some additional options can be set in the included file, %s1. These do not normally need to be changed. However, to review and change these options, please open %s1 in a text editor.'), add_trailing_slash($wpUnited->get_plugin_path()) . 'options.php'); ?></p>
+
+		<?php
+		if(isset($_POST['wpuadvanced-submit'])) {
+			// process form
+			if(check_admin_referer( 'wp-united-advanced')) {
+				wpu_process_advanced_options();
+			}
+		} else {
+				wpu_show_advanced_options();
 		}
-	} else {
-			wpu_show_advanced_options();
-	}
-	?></div> <?php
+		?></div> <?php
 }
 
 function wpu_get_help() {
@@ -1572,17 +1573,10 @@ function wpu_panel_error($type, $text) {
 
 
 function wpu_show_advanced_options() {	
-	
-	global $phpbbForum; 
+
 	?>
-		<div class="wrap" id="wp-united-setup">
-			<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
-			<?php screen_icon('options-general'); ?>
-			<h2> <?php _e('Advanced Options'); ?> </h2>
-			<p><?php echo sprintf(__('Some additional options can be set in the included file, %s1. These do not normally need to be changed. However, to review and change these options, please open %s1 in a text editor.'), add_trailing_slash($wpUnited->get_plugin_path()) . 'options.php'); ?></p>
-	
-	
-			<?php
+		
+
 			<!-- <form name="wpu-advoptions" id="wpuoptions" action="admin.php?page=wp-united-advanced" method="post">
 			
 			
@@ -1593,8 +1587,7 @@ function wpu_show_advanced_options() {
 			</p>
 			
 			</form> -->
-		
-		</div>
+
 		
 	<?php
 
