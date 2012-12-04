@@ -5,26 +5,24 @@
  */
 abstract class WPU_Mapped_User {
 
-	protected $templateFields;
-	protected $userDetails;
-	protected $loginName;
-	protected $avatar;
-	protected $integratedUser;
-	protected $integrated;
-	
-	protected $adminLink;
-	
-	protected $className;
-	protected $htmlID;
-	protected $loginHtmlID;
-	protected $loginClassName;
-	
-	protected $side;
-	
-	protected $type;
+	protected 
+		$templateFields,
+		$userDetails,
+		$loginName,
+		$avatar,
+		$integratedUser,
+		$integrated,
+		$adminLink,
+		$className,
+		$htmlID,
+		$loginHtmlID,
+		$loginClassName,
+		$side,
+		$type;
 	
 	
-	public $userID;
+	public 
+		$userID;
 
 	
 	public function __construct($userID) {

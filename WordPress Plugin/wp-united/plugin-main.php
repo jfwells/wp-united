@@ -86,8 +86,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if($this->has_inited()) {
 			return false;
 		}
-		
 		$this->doneInit = true;
+		
+		load_plugin_textdomain('wp-united', false, $this->get_plugin_path() . 'languages/' );
 		
 		require_once($this->get_plugin_path() . 'template-tags.php');
 		require_once($this->get_plugin_path() . 'user-integrator.php'); 
