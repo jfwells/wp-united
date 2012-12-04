@@ -372,7 +372,7 @@ class CSS_Magic {
 		foreach($this->nestedItems as $index => $nestedItem) {
 			$nestedEls = $nestedItem['content']->getKeyClassesAndIDs();
 			if(sizeof($nestedEls['classes'])) {
-				$classes = array_merge($classes, $nestedEls['classess']);
+				$classes = array_merge($classes, $nestedEls['classes']);
 			}
 			if(sizeof($nestedEls['ids'])) {
 				$ids = array_merge($ids, $nestedEls['ids']);
