@@ -10,8 +10,11 @@ Current status:
 
 ------ Reported errors -----------
 - Win server errors with file tree
-- Incorrrect font size on rev int
+- Incorrrect font size on fwd int now
+- is blog.php template still needed or used on fwd int ???
 - error on password change in phpBB
+- admin bar not moved to right place on wp-united.com, + broken styling
+- phpbb_validate_username error reported
 
 
 ------ cross-posting and comments ---------
