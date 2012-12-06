@@ -53,6 +53,7 @@ class WPU_Phpbb {
 	 * Class initialisation
 	 */
 	public function __construct() {
+		$this->_loaded = false;
 		if(defined('IN_PHPBB')) { 
 			$this->lang = $GLOBALS['user']->lang;
 			$this->state = 'phpbb';
@@ -60,6 +61,7 @@ class WPU_Phpbb {
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
 			$this->phpbbUser = $GLOBALS['user'];
 			$this->phpbbCache = $GLOBALS['cache'];
+			$this->_loaded = true;
 		}
 		$this->tokens = array();
 		$this->was_out = false;
@@ -70,9 +72,7 @@ class WPU_Phpbb {
 		$this->_savedID = -1;
 		$this->_savedIP = '';
 		$this->_savedAuth = NULL;
-		
-		$this->_loaded = false;
-		
+
 	}	
 	
 	public function is_phpbb_loaded() {

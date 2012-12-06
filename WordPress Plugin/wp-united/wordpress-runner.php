@@ -125,7 +125,6 @@ function wpu_get_wordpress() {
 				// some theme/plugin options and workarounds for reverse integration
 				// inove -- no sidebar on simple page
 				global $inove_sidebar; $inove_sidebar = true;
-
 		
 				ob_start();
 				if($wpUnited->get_setting('useForumPage')) {
@@ -170,7 +169,7 @@ function wpu_get_wordpress() {
 			ob_start();
 			
 			// We have to run this again as phpBB didn't have $user set up when WP was run
-			if($wpUnited->get_setting('integrateLogin') {
+			if($wpUnited->get_setting('integrateLogin')) {
 				do_action('set_current_user');
 			}
 			
@@ -192,7 +191,7 @@ function wpu_get_wordpress() {
 			}
 
 			include($wpTemplateFile);
-	
+
 			$wpUnited->set_outer_content(ob_get_contents());
 			ob_end_clean();
 

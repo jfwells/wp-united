@@ -36,8 +36,8 @@ function wpu_integrate_login() {
 		}
 		
 		$doingLogin = true;
-		
-		if( !$phpbbForum->user_logged_in() ) { 
+
+		if( !$phpbbForum->user_logged_in() ) {
 			$result = wpu_int_phpbb_logged_out(); 
 		} else {
 			$result = wpu_int_phpbb_logged_in();
@@ -101,7 +101,6 @@ function wpu_int_phpbb_logged_out() {
 function wpu_int_phpbb_logged_in() { 
 	global $wpUnited, $wpuDebug, $phpbbForum, $wpUnited, $current_user;
 	
-
 	// This user is logged in to phpBB and needs to be integrated. Do they already have an integrated WP account?
 	if($integratedID = wpu_get_integration_id() ) {
 	
