@@ -110,8 +110,8 @@ msgstr ""
 #: functions-cross-posting.php:283
 #, php-format
 msgid ""
-"This is a %1$sblog post%2s. To read the original post, please %3$sclick here "
-"&raquo;%4s"
+"This is a %1$sblog post%2$s. To read the original post, please %3$sclick here "
+"&raquo;%4$s"
 msgstr ""
 
 #: functions-cross-posting.php:335
@@ -1311,7 +1311,7 @@ msgstr ""
 
 #: template-tags.php:442
 #, php-format
-msgid "%1$s, posted by %2s in %3$s"
+msgid "%1$s, posted by %2$s in %3$s"
 msgstr ""
 
 #: template-tags.php:668
