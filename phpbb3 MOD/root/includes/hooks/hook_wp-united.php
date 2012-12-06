@@ -4,7 +4,7 @@
 * WP-United Hooks
 *
 * @package WP-United
-* @version $Id: v0.9RC3 2012/11/01 John Wells (Jhong) Exp $
+* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells

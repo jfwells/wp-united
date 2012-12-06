@@ -5,7 +5,7 @@
 *
 * @package WP-United
 * @version $Id: wp-united.php,v 0.7.1 japgalaxy (japgalaxy.altervista.org) 2009/05/18
-* @copyright (c) 2006, 2007 wp-united.com
+* @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */

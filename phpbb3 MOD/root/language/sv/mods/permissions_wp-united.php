@@ -4,8 +4,8 @@
 * WP-United Permissions
 *
 * @package WP-United
-* @version $Id: v0.8.4RC2 2010/01/14 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2010 wp-united.com
+* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * @translation by Oz
 */

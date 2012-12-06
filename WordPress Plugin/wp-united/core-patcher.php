@@ -2,15 +2,15 @@
 
 /** 
 *
-* The core patcher for WordPress, when it needs to be run from the phPBB side
-* This still contains a lot of old compatibility cruft that is likely no longer necessary as WP will always be called in the global scope with the new
-* WP-United code flow. TODO: Remove wpu_compat paths and list of global vars
-*
 * @package WP-United
-* @version $Id: v0.9.0RC3 2012/11/10 John Wells (Jhong) Exp $
+* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
+*
+* The core patcher for WordPress, when it needs to be run from the phPBB side
+* This still contains a lot of old compatibility cruft that is likely no longer necessary as WP will always be called in the global scope with the new
+* WP-United code flow. TODO: Remove wpu_compat paths and list of global vars
 *
 */
 
