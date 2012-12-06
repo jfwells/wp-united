@@ -910,10 +910,10 @@ function wpuMapIntegrate(el, userID, toUserID, userName, toUserName, userEmail, 
 	}
 	showPanel();
 	var actionType = actionIntegrate;
-	var actionDets = actionIntegrateDets.replace('%1$wpus', leftSide)
-		.replace ('%2$wpus','<em>' + userName + '</em>')
-		.replace('%3$wpus', rightSide)
-		.replace ('%4$wpus', '<em>' + toUserName + '</em>');
+	var actionDets = actionIntegrateDets.replace('%1$s', leftSide)
+		.replace ('%2$s','<em>' + userName + '</em>')
+		.replace('%3$s', rightSide)
+		.replace ('%4$s', '<em>' + toUserName + '</em>');
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 	
@@ -950,8 +950,8 @@ function wpuMapBreak(userID, intUserID, userName, intUserName) {
 
 	showPanel();
 	var actionType = actionBreak;
-	var actionDets = actionBreakDets.replace('%1$wpus', '<em>' + userName + '</em>')
-			.replace('%2$wpus', '<em>' + intUserName + '</em>');
+	var actionDets = actionBreakDets.replace('%1$s', '<em>' + userName + '</em>')
+			.replace('%2$s', '<em>' + intUserName + '</em>');
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 
@@ -985,10 +985,10 @@ function wpuMapDelBoth(userID, intUserID, userName, intUserName) {
 	showPanel();
 	var actionType = actionDelBoth;
 	var actionDets = actionDelBothDets
-		.replace('%1$wpus', '<em>' + userName + '</em>')
-		.replace ('%2$wpus', leftSide)
-		.replace('%3$wpus', '<em>' + intUserName + '</em>')
-		.replace ('%4$wpus', rightSide);
+		.replace('%1$s', '<em>' + userName + '</em>')
+		.replace ('%2$s', leftSide)
+		.replace('%3$s', '<em>' + intUserName + '</em>')
+		.replace ('%4$s', rightSide);
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 
@@ -1021,8 +1021,8 @@ function wpuMapDel(userID, pckg, userName) {
 	showPanel();
 	var actionType = actionDel;
 	var actionDets = actionDelDets
-		.replace('%1$wpus', '<em>' + userName + '</em>')
-		.replace ('%2$wpus', txtPackage);
+		.replace('%1$s', '<em>' + userName + '</em>')
+		.replace ('%2$s', txtPackage);
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 
@@ -1060,8 +1060,8 @@ function wpuMapCreate(userID, altPckg, userName) {
 	showPanel();
 	var actionType = actionCreate;
 	var actionDets = actionCreateDets
-		.replace('%1$wpus', '<em>' + userName + '</em>')
-		.replace ('%2$wpus', txtAltPackage);
+		.replace('%1$s', '<em>' + userName + '</em>')
+		.replace ('%2$s', txtAltPackage);
 	var actionsIndex= wpuMapActions.length;
 	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
 	

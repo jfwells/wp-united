@@ -398,7 +398,7 @@ function get_wpu_latest_phpbb_posts($args='') {
 			$topic_link = '<a href="' . $phpbbForum->get_board_url(). $topic_link . '" title="' . $wpUnited->censor_content($row['topic_title']) . '">' . $wpUnited->censor_content($row['topic_title']) . '</a>';
 			$user_link = ($phpbbForum->seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
 			$user_link = '<a href="' . $phpbbForum->get_board_url() . $user_link . '">' . $row['username'] .'</a>';
-			$ret .= _wpu_add_class($before, $first . 'wpuforum' . $row['forum_id']) .  sprintf(__('%1s, posted by %2s on %3s'),$topic_link, $user_link,  $user->format_date($row['post_time']))  ."$after\n";
+			$ret .= _wpu_add_class($before, $first . 'wpuforum' . $row['forum_id']) .  sprintf(__('%1$s, posted by %2$s on %3$s'),$topic_link, $user_link,  $user->format_date($row['post_time']))  ."$after\n";
 			$i++;
 		}
 	}
@@ -439,7 +439,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
 			$topic_link = '<a href="' . $phpbbForum->get_board_url() . "viewtopic.$phpEx?f={$post['forum_id']}&t={$post['topic_id']}\">" . $post['topic_title'] . '</a>';
 			$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
 			$user_link = '<a href="' . $phpbbForum->get_board_url() . "$profile_path?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
-			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1s, posted by %2s in %3s'),$topic_link, $user_link, $forum_link)  ."$after\n";
+			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s'),$topic_link, $user_link, $forum_link)  ."$after\n";
 			$i++;
 		}
 	} else {
