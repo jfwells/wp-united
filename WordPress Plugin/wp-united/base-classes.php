@@ -564,7 +564,7 @@ class WP_United_Plugin_Base {
 		foreach($this->actions as $actionArray) {
 			list($action, $details, $whenToLoad) = $actionArray;
 	
-			if(!$this->should_load_filteraction($whenToLoad) {
+			if(!$this->should_load_filteraction($whenToLoad)) {
 				return false;
 			}
 			
@@ -586,7 +586,7 @@ class WP_United_Plugin_Base {
 		foreach($this->filters as $filterArray) {
 			list($filter, $details, $whenToLoad) = $filterArray;
 			
-			if(!$this->should_load_filteraction($whenToLoad) {
+			if(!$this->should_load_filteraction($whenToLoad)) {
 				return false;
 			}
 			

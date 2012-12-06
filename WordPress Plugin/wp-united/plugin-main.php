@@ -56,11 +56,11 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('validate_username', 					array('validate_username_conflict', 10, 2),	'user-int'),
 			array('authenticate', 						array('authenticate', 21, 3), 				'user-int'),
 			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
-			array('comments_array', 					array('load_phpbb_comments', 10, 2)			'x-posting'),
-			array('get_comments_number', 				array('comments_count', 10, 2)				'x-posting'),
-			array('pre_option_comment_registration', 	'no_guest_comment_posting'					'x-posting'),
-			array('edit_comment_link', 					array('edit_comment_link', 10, 2)			'x-posting'),
-			array('get_comment_link', 					array('comment_link', 10, 3)				'x-posting')		
+			array('comments_array', 					array('load_phpbb_comments', 10, 2),			'x-posting'),
+			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
+			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
+			array('edit_comment_link', 					array('edit_comment_link', 10, 2),			'x-posting'),
+			array('get_comment_link', 					array('comment_link', 10, 3),				'x-posting')		
 		);
 		
 		private
@@ -459,7 +459,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return wpu_comments_count($count, $postID = false);
 	}
 	public function no_guest_comment_posting() {
-		return wpu_no_guest_comment_posting( ;
+		return wpu_no_guest_comment_posting();
 	}
 	public function edit_comment_link($link, $comment_ID) {
 		return wpu_edit_comment_link($link, $comment_ID);
