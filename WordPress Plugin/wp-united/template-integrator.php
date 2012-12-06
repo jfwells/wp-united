@@ -298,7 +298,7 @@ function head_snip($haystack,$findItems) {
 		$numLoops = 0; 	
 		$styleLen = 0;
 		$begStyleLoc = false;
-		while (($foundStyle == 1) && ($numLoops <=20)) { //If we find more than 20 of one needle, something's probably wrong
+		while (($foundStyle == 1) && ($numLoops <=200)) { //If we find more than 200 of one needle, something's probably wrong
 		   $numLoops++; 
 		   $begStyleLoc = strpos($haystack, $startToken, $searchOffset);
 		   if (!($begStyleLoc === false)) { 
