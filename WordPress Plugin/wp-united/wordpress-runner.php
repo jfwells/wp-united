@@ -102,11 +102,16 @@ function wpu_get_wordpress() {
 	 * Generate the WP header/footer for phpBB-in-WordPress
 	 */
 	if ($wpUnited->should_do_action('template-p-in-w')) {
+	
+		define('PHPBB_CONTENT_ONLY', TRUE);
+	
 
 		//prevent WP 404 error
 		if ( !$wpuCache->use_template_cache() ) {
 			query_posts('showposts=1');
 		}
+		
+		
 
 		if ($wpUnited->get_setting('wpSimpleHdr')) {
 			//
@@ -160,9 +165,14 @@ function wpu_get_wordpress() {
 			//
 			//	Full WP page
 			//
-			define('PHPBB_CONTENT_ONLY', TRUE);
+			
 
 			ob_start();
+			
+			// We have to run this again as phpBB didn't have $user set up when WP was run
+			if($wpUnited->get_setting('integrateLogin') {
+				do_action('set_current_user');
+			}
 			
 			if($wpUnited->get_setting('useForumPage')) {
 				// set the page query so that the forum page is selected if in header

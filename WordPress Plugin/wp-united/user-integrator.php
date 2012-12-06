@@ -26,22 +26,24 @@ function wpu_integrate_login() {
 
 	// cache and prevent recursion
 	static $result = -1;
-	static $doneLogin;
+	static $doingLogin;
 	
-	if(!$doneLogin) {
+	if(!$doingLogin) {
 	
 		// sometimes this gets called early, e.g. for admin ajax calls.
 		if(!$phpbbForum->is_phpbb_loaded()) {
 			return;
 		}
 		
-		$doneLogin = true;
+		$doingLogin = true;
 		
 		if( !$phpbbForum->user_logged_in() ) { 
 			$result = wpu_int_phpbb_logged_out(); 
 		} else {
 			$result = wpu_int_phpbb_logged_in();
 		}
+		
+		$doingLogin = false;
 	}
 	
 	return $result;

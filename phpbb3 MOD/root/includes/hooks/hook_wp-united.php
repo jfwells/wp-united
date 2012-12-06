@@ -70,14 +70,13 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
 function wpu_init(&$hook) { 
 	global $wpUnited, $template, $user, $config, $phpbbForum, $wpuCache;
 	
+	
 	if($wpUnited->should_do_action('logout')) { 
 		$phpbbForum->background();
 		wp_logout();
 		$phpbbForum->foreground();
 	}
 	
-		
-		
 	// Add lang strings if this isn't blog.php
 	if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
 		$user->add_lang('mods/wp-united');
@@ -151,6 +150,10 @@ function wpu_execute(&$hook, $handle) {
 			$ignorePassword = (request_var('new_password', '') == '');
 			
 			$phpbbForum->background(); 
+			
+			// We have to run this again as phpBB didn't have $user set up when WP was run
+			do_action('set_current_user');
+			
 			$wpUserData = get_userdata($newUserData['user_wpuint_id']);
 			wpu_sync_profiles($wpUserData, $newUserData, 'phpbb-update', $ignorePassword);
 			$phpbbForum->foreground();
