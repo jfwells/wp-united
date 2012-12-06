@@ -10,10 +10,7 @@ Current status:
 
 ------ Reported errors -----------
 - Win server errors with file tree
-- Incorrrect font size on fwd int now
-- is blog.php template still needed or used on fwd int ???
 - error on password change in phpBB
-- admin bar not moved to right place on wp-united.com, + broken styling
 - phpbb_validate_username error reported
 
 
@@ -36,7 +33,6 @@ Current status:
 -- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
 -- modify version.php to contain compatibility information
 -- remove $compat from core-patcher
--- in plugin, only load necessary portions, and load phpBB late only if needed.
 -- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 

@@ -17,19 +17,6 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 	exit;
 }
 
-// Cross-posting related actions and filters. Hooks related to adding the postboxes are in wp-united.php;
-add_action('comment_form', 'wpu_comment_redir_field');
-add_action('pre_comment_on_post', 'wpu_comment_redirector');
-add_action('comments_open', 'wpu_comments_open', 10, 2);
-
-add_filter('get_comment_author_link', 'wpu_get_comment_author_link');
-add_filter('comments_array', 'wpu_load_phpbb_comments', 10, 2);
-add_filter('get_comments_number', 'wpu_comments_count', 10, 2);
-add_filter('pre_option_comment_registration', 'wpu_no_guest_comment_posting');
-add_filter('edit_comment_link', 'wpu_edit_comment_link', 10, 2);
-add_filter('get_comment_link', 'wpu_comment_link', 10, 3);
-
-
 
 /**
  *  Display the relevant cross-posting box, and store the permissions list in global vars for future use.
@@ -130,15 +117,6 @@ function wpu_add_forcebox($forumName) {
 	</div>
 <?php
 }
-
-
-
-
-
-
-
-
-
 
 
 /**

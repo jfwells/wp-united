@@ -12,12 +12,13 @@ Last Updated: 9 November 2012
 */
 
 
-// this file will also be called in wp admin panel, when phpBB is not loaded. So we don't check IN_PHPBB.
-// ABSPATH should *always* be set though!
 if ( !defined('ABSPATH') ) {
 	exit;
 }
 
+// The WP-United class may be called as a base class from the phpBB side, or a fully fledged plugin class from here. 
+// This file could be invoked from either side to instantiate the object.
+// The WP-United class then decorates itself with a cross-package settings object.
 if( !class_exists( 'WP_United_Plugin' ) ) {
 	require_once(plugin_dir_path(__FILE__) . 'base-classes.php');
 	require_once(plugin_dir_path(__FILE__) . 'plugin-main.php');
@@ -60,12 +61,16 @@ function wpu_uninstall() {
 		delete_option($option);
 	}
 	
-	return "DEACTIVATED!!!";
-	
-	
+	return 'DEACTIVATED!!!';
+
 }
 
 register_deactivation_hook('wp-united/wp-united.php', 'wpu_deactivate');
 register_uninstall_hook('wp-united/wp-united.php', 'wpu_uninstall');
+
+// That is all. WP-United is a very large plugin. To understand the code, start in:
+// plugin-main.php: The main plugin class that contains all the hooks and filters which are loaded as needed
+// <phpbb>/includes/hooks/hook_wp-united.php: The phpBB hook file that loads WP-United from the phpBB side if needed
+
 
 ?>

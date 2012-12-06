@@ -560,11 +560,14 @@ class WP_United_Plugin_Base {
 		$this->ajax_result('OK', 'message');
 	}
 	
-	
-
 	protected function add_actions() { 
 		foreach($this->actions as $actionArray) {
 			list($action, $details, $whenToLoad) = $actionArray;
+	
+			if(!$this->should_load_filteraction($whenToLoad) {
+				return false;
+			}
+			
 			switch(sizeof((array)$details)) {
 				case 3:
 					add_action($action, array($this, $details[0]), $details[1], $details[2]);
@@ -582,6 +585,11 @@ class WP_United_Plugin_Base {
 	protected function add_filters() {
 		foreach($this->filters as $filterArray) {
 			list($filter, $details, $whenToLoad) = $filterArray;
+			
+			if(!$this->should_load_filteraction($whenToLoad) {
+				return false;
+			}
+			
 			switch(sizeof((array)$details)) {
 				case 3:
 					add_filter($filter, array($this, $details[0]), $details[1], $details[2]);
@@ -595,6 +603,46 @@ class WP_United_Plugin_Base {
 			}
 		}	
 	}	
+	// Should we load this filter or action? 
+	private function should_load_filteraction($whenToLoad) {
+	
+		switch($whenToLoad) {
+			case 'user-int':
+				if(!$this->get_setting('integrateLogin')) {
+					return false;
+				}
+			break;
+			case 'template-int':
+				if($this->get_setting('showHdrFtr') == 'NONE') {
+					return false;
+				}				
+			break;
+			case 'x-posting':
+				if(!$this->get_setting('xposting')) {
+					return false;
+				}						
+			break;
+			case 'phpbb-censor':
+				if(!$this->get_setting('phpbbCensor')) {
+					return false;
+				}					
+			break;
+			case 'phpbb-smilies':
+				if(!$this->get_setting('phpbbSmilies')) {
+					return false;
+				}					
+			break;
+			case 'all':
+			default:
+				return true;
+			break;
+		}
+		
+		return true;
+
+	}
+	
+	
 	
 	/**
 	 * Disable WPU and output result directly to the calling script
