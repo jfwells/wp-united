@@ -181,7 +181,7 @@ class WPU_Actions {
 	 */
 	public function purge_cache() {
 		global $wpUnited, $phpEx;
-		if($wpUnited->is_enabled()) {
+		if(is_object($wpUnited) && $wpUnited->is_enabled()) {
 			require_once($wpUnited->get_plugin_path() . 'cache.php');
 			$wpuCache = WPU_Cache::getInstance();
 			$wpuCache->purge();

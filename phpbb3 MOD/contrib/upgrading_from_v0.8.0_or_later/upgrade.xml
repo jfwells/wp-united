@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
-<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
-<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.3.xsd">
+<!--For security purposes, please check: http
+://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.5.xsd">
   <header>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
     <title lang="en">WP-United: Upgrade from v0.8.x</title>
@@ -37,8 +38,14 @@ Following this, visit your phpBB Admin Control Panel, and purge your phpBB cache
 The control panel can now be found within WordPress, under WP-United.
 
 ]]></diy-instructions>
+
+	<delete>
+      <file name="wp-united/*.*" />
+    </delete>
+
+
     <copy>
-      <file from="/root/*.*" to="/*.*" />
+      <file from="root/*.*" to="*.*" />
     </copy>
 
     
@@ -57,10 +64,9 @@ function phpbb_validate_username($username, $allowed_username = false)]]></actio
       </edit>
 	  
 	  
-        <edit><find><![CDATA[			require_once($GLOBALS['phpbb_root_path'] . 'wp-united/wpu-actions.' . $GLOBALS['phpEx']);
+        <edit><remove><![CDATA[			require_once($GLOBALS['phpbb_root_path'] . 'wp-united/wpu-actions.' . $GLOBALS['phpEx']);
 			$GLOBALS['wpu_actions']->profile_update('avatar', ($custom_userdata === false) ? $user->data['user_id'] : $custom_userdata['user_id'], ($custom_userdata === false) ? $user->data['user_wpuint_id'] : $custom_userdata['user_wpuint_id'], $sql_ary);
-						]]></find>
-        <action type="replace-with"></action>
+						]]></remove>
 		<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
       </edit>	  
 	  
@@ -114,37 +120,33 @@ function phpbb_make_clickable($text, $server_url = false, $class = 'postlink')
 
  <open src="ucp.php">
   <edit>
-	<find><![CDATA[		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-	$GLOBALS['wpu_actions']->do_logout();	]]></find>
-	<action type="replace-with"></action>
+	<remove><![CDATA[		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+	$GLOBALS['wpu_actions']->do_logout();	]]></remove>
 	<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
   </edit>
 </open>
 <open src="includes/ucp/ucp_profile.php">
   <edit>
-	<find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-					$GLOBALS['wpu_actions']->profile_update('reg_details', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></find>
-	<action type="replace-with"></action>
+	<remove><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+					$GLOBALS['wpu_actions']->profile_update('reg_details', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></remove>
 	<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
   </edit>
   <edit>
-	<find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-					$GLOBALS['wpu_actions']->profile_update('profile_info', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></find>
-	<action type="replace-with"></action>
-  </edit>
+	<remove><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+					$GLOBALS['wpu_actions']->profile_update('profile_info', $user->data['user_id'], $user->data['user_wpuint_id'], $sql_ary);]]></remove>
+  
   <comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
+  </edit>
 </open>
     <open src="includes/acp/acp_users.php">
       <edit>
-        <find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-						$GLOBALS['wpu_actions']->profile_update('reg_details', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></find>
-        <action type="replace-with"></action>
+        <remove><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('reg_details', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></remove>
 		<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
       </edit>
       <edit>
-        <find><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-						$GLOBALS['wpu_actions']->profile_update('profile_info', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></find>
-        <action type="replace-with"></action>
+        <remove><![CDATA[						require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+						$GLOBALS['wpu_actions']->profile_update('profile_info', $user_id, $user_row['user_wpuint_id'], $sql_ary);]]></remove>
 		<comment lang="en">Delete the found lines -- they were added in an older version of WP-United and are no longer needed</comment>
       </edit>
 	  
