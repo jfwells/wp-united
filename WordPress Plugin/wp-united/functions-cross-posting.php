@@ -258,7 +258,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		$cats = (!empty($cat_list)) ? '[b]' . __('Posted under: ', 'wp-united') . "[/b]{$cat_list}\n" : '';
 	}
 	
-	$content = sprintf(__('This is a %1sblog post%2s. To read the original post, please %3sclick here &raquo;%4s', 'wp-united'), '[b]', '[/b]', '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
+	$content = sprintf(__('This is a %1$sblog post%2$s. To read the original post, please %3sclick here &raquo;%4s', 'wp-united'), '[b]', '[/b]', '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
 
 	$phpbbForum->foreground();
 
