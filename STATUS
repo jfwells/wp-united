@@ -6,10 +6,16 @@ Current status:
 - Behaviour options all working OK
 - Template tags updated and working OK
 - User blogs removed -- may be completed by v0.9 but happy to release without if not ready
-- Minor cleanup tasks and bug-fixing remain
+
 
 ------ Reported errors -----------
 - Win server errors with file tree
+
+
+
+Below changes scheduled for v0.9.x > v0.9.0  ( :-)  )
+
+
 
 
 ------ cross-posting and comments ---------
@@ -74,14 +80,11 @@ Current status:
 Other (older) things noticed that may no longer be relevant
 ---------------------
 
-- move wp_change_username somewhere better
 - consider manually doing make_clickable() on xposted comment text
 - Last post time reported different from topic time
 - Cross-posted post reported not read, even after reading
-- $_SERVER['DOCUMENT_ROOT'] unreliable as source for path computation on open_basedir restricted servers
 - ? author permalinks not working if author permalink with space in username
 - wpu_get_xposted_details called multiple times on page view (comments_open, comment load). Result should be cached.
-- Check "posts since last visit" algorithm
 
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
