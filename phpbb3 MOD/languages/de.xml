@@ -3,12 +3,14 @@
 <!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
 <mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.3.xsd">
   <header>
-    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2</license>
+    <license>WP-United is licensed under the http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2. However, the text of this translation is licensed under the BSD license.</license>
     <title lang="en-gb">WP-UNITED [German User-Facing Translation]</title>
     <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
-    <author-notes lang="en-gb">THIS TRANSLATION HAS BEEN KINDLY PROVIDED BY psm
+    <author-notes lang="en-gb">THIS TRANSLATION HAS BEEN KINDLY PROVIDED BY way2vet, www.way2vet.eu
     
     Make sure you follow the instructions in the main install.xml file!
+	
+	The WordPress portion of WP-United will display in German automatically.
 </author-notes>
     <author-group>
       <author>
