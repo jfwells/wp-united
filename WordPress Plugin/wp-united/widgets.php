@@ -124,7 +124,7 @@ class WPU_Latest_Phpbb_Topics_Widget extends WP_Widget {
 		extract($args, EXTR_SKIP);
 		
 		$title = empty($instance['title']) ? '&nbsp;' : apply_filters('widget_title', $instance['title']);
-		$maxEntries = empty($instance['max']) ? 25 : $instance['title'];
+		$maxEntries = empty($instance['max']) ? 25 : $instance['max'];
 
 		if ( !function_exists('wpu_latest_phpbb_topics') ) return false;
 		echo $before_widget;
