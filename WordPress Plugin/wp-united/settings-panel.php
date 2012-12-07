@@ -96,13 +96,13 @@ function wpu_settings_menu() {
 			// Plugins can add things later, so defer deregistration to the last moment
 			add_action('admin_head', 'wpu_deregister_conflicts', 1000);
 			
-			wp_enqueue_script('jquery', $wpUnited->get_plugin_url() . 'js/jquery-wpu-min.js', array(), false, false);
-			wp_enqueue_script('jquery-ui-core', $wpUnited->get_plugin_url() . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
-			wp_enqueue_script('filetree', $wpUnited->get_plugin_url() . 'js/filetree.js', array('jquery'), false, false);				
-			wp_enqueue_script('colorbox', $wpUnited->get_plugin_url() . 'js/colorbox-min.js', array('jquery'), false, false);				
-			wp_enqueue_script('splitter', $wpUnited->get_plugin_url() . 'js/splitter-min.js', array('jquery'), false, false);				
-			wp_enqueue_script('jsplumb', $wpUnited->get_plugin_url() . 'js/jsplumb-wpu-min.js', array('jquery', 'jquery-ui-core'), false, false);				
-			wp_enqueue_script('wpu-settings', $wpUnited->get_plugin_url() . 'js/settings.js', array('jquery', 'jquery-ui-core'), false, false);				
+			wp_enqueue_script('wpu-jquery', $wpUnited->get_plugin_url() . 'js/jquery-wpu-min.js', array(), false, false);
+			wp_enqueue_script('wpu-jquery-ui-core', $wpUnited->get_plugin_url() . 'js/jqueryui-wpu-min.js', array('wpu-jquery'), false, false);
+			wp_enqueue_script('filetree', $wpUnited->get_plugin_url() . 'js/filetree.js', array('wpu-jquery'), false, false);				
+			wp_enqueue_script('colorbox', $wpUnited->get_plugin_url() . 'js/colorbox-min.js', array('wpu-jquery'), false, false);				
+			wp_enqueue_script('splitter', $wpUnited->get_plugin_url() . 'js/splitter-min.js', array('wpu-jquery'), false, false);				
+			wp_enqueue_script('jsplumb', $wpUnited->get_plugin_url() . 'js/jsplumb-wpu-min.js', array('wpu-jquery', 'wpu-jquery-ui-core'), false, false);				
+			wp_enqueue_script('wpu-settings', $wpUnited->get_plugin_url() . 'js/settings.js', array('wpu-jquery', 'wpu-jquery-ui-core'), false, false);				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-help', 'wp-united-support'))) {
 			wp_register_style('wpuSettingsStyles', $wpUnited->get_plugin_url() . 'theme/settings.css');
