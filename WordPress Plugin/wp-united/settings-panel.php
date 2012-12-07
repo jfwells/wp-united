@@ -91,14 +91,11 @@ function wpu_settings_menu() {
 		
 	if(isset($_GET['page'])) {
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper'))) {
-
-			// Deregister wordpress scripts where we want our stuff in front
-			$scriptsToDereg = array('jquery', 'jquery-ui-core');//, 'jquery-color');
-			foreach($scriptsToDereg as $script) {
-				if(wp_script_is($script, 'registered')) {
-					wp_deregister_script($script);
-				}
-			}
+			
+			// Deregister wordpress scripts where we want our stuff in front.
+			// Plugins can add things later, so defer deregistration to the last moment
+			add_action('admin_head', 'wpu_deregister_conflicts', 1000);
+			
 			wp_enqueue_script('jquery', $wpUnited->get_plugin_url() . 'js/jquery-wpu-min.js', array(), false, false);
 			wp_enqueue_script('jquery-ui-core', $wpUnited->get_plugin_url() . 'js/jqueryui-wpu-min.js', array('jquery'), false, false);
 			wp_enqueue_script('filetree', $wpUnited->get_plugin_url() . 'js/filetree.js', array('jquery'), false, false);				
@@ -131,6 +128,15 @@ function wpu_settings_menu() {
 	add_submenu_page('wp-united-setup', __('Get help', 'wp-united'), __('Get help', 'wp-united'), 'manage_options','wp-united-help', 'wpu_get_help');
 	add_submenu_page('wp-united-setup', __('Please Help Support WP-United!', 'wp-united'), __('Support WP-United', 'wp-united'), 'manage_options','wp-united-support', 'wpu_support');
 	
+}
+
+function wpu_deregister_conflicts() {
+	$scriptsToDereg = array('jquery', 'jquery-ui-core');//, 'jquery-color');
+	foreach($scriptsToDereg as $script) {
+		if(wp_script_is($script, 'registered')) {
+			wp_deregister_script($script);
+		}
+	}
 }
 
 /** 
