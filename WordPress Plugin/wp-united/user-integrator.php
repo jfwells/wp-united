@@ -26,7 +26,7 @@ function wpu_integrate_login() {
 
 	// cache and prevent recursion
 	static $result = -1;
-	static $doingLogin;
+	static $doingLogin = false;
 	
 	if(!$doingLogin) {
 	
