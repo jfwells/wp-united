@@ -63,7 +63,7 @@ class WPU_Debug {
 		if(stristr($content, '</body>') !== false) {
 			return str_replace('</body>', $this->get_block($type) . '</body>', $content);
 		} else {
-			return $content . $$this->get_block($type);
+			return $content . $this->get_block($type);
 		}
 		
 	}
