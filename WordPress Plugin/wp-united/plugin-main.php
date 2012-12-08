@@ -559,12 +559,12 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		// enqueue any JS we need
 		if ( $this->get_setting('phpbbSmilies') && !is_admin() ) {
-			wp_enqueue_script('wp-united', $this->get_plugin_url() . 'js/wpu-min.js', array(), false, true);
+			wp_enqueue_script('wp-united', $this->get_plugin_url() . 'js/smilies.js', array(), false, true);
 		}
 		
 		// fix broken admin bar on integrated page
 		if(($this->get_setting('showHdrFtr') == 'FWD') && $this->get_setting('cssMagic')) {
-			wp_enqueue_script('wpu-fix-adminbar', $this->get_plugin_url() . 'js/wpu-fix-bar.js', array('admin-bar'), false, true);
+			wp_enqueue_script('wpu-fix-adminbar', $this->get_plugin_url() . 'js/fix-admin-bar.js', array('admin-bar'), false, true);
 		}
 
 		// Rather than outputting the script, we just signpost any language strings we will need

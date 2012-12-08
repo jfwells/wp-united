@@ -84,25 +84,53 @@ function wpu_settings_menu() {
 		}
 	}	
 	
-	
-	
+
 	wp_register_style('wpuSettingsStyles', $wpUnited->get_plugin_url() . 'theme/settings.css');
 	wp_enqueue_style('wpuSettingsStyles'); 
 		
 	if(isset($_GET['page'])) {
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper'))) {
 			
-			// Deregister wordpress scripts where we want our stuff in front.
-			// Plugins can add things later, so defer deregistration to the last moment
-			add_action('admin_head', 'wpu_deregister_conflicts', 1000);
+			wp_enqueue_script('filetree', $wpUnited->get_plugin_url() . 'js/filetree.js', array('jquery'), false, false);				
+			wp_enqueue_script('colorbox', $wpUnited->get_plugin_url() . 'js/colorbox.js', array('jquery'), false, false);				
+			wp_enqueue_script('splitter', $wpUnited->get_plugin_url() . 'js/splitter.js', array('jquery', 'jquery-effects-core'), false, false);				
 			
-			wp_enqueue_script('wpu-jquery', $wpUnited->get_plugin_url() . 'js/jquery-wpu-min.js', array(), false, false);
-			wp_enqueue_script('wpu-jquery-ui-core', $wpUnited->get_plugin_url() . 'js/jqueryui-wpu-min.js', array('wpu-jquery'), false, false);
-			wp_enqueue_script('filetree', $wpUnited->get_plugin_url() . 'js/filetree.js', array('wpu-jquery'), false, false);				
-			wp_enqueue_script('colorbox', $wpUnited->get_plugin_url() . 'js/colorbox-min.js', array('wpu-jquery'), false, false);				
-			wp_enqueue_script('splitter', $wpUnited->get_plugin_url() . 'js/splitter-min.js', array('wpu-jquery'), false, false);				
-			wp_enqueue_script('jsplumb', $wpUnited->get_plugin_url() . 'js/jsplumb-wpu-min.js', array('wpu-jquery', 'wpu-jquery-ui-core'), false, false);				
-			wp_enqueue_script('wpu-settings', $wpUnited->get_plugin_url() . 'js/settings.js', array('wpu-jquery', 'wpu-jquery-ui-core'), false, false);				
+			
+			wp_enqueue_script(
+				'jsplumb', 
+				$wpUnited->get_plugin_url() . 'js/jsplumb.js', 
+				array(
+					'jquery', 
+					'jquery-ui-core', 
+					'jquery-ui-draggable', 
+					'jquery-ui-droppable'
+				), 
+				false, 
+				false
+			);				
+			
+			wp_enqueue_script(
+				'wpu-settings', 
+				$wpUnited->get_plugin_url() . 'js/settings.js', 
+				array( 
+					'jsplumb', 
+					'splitter', 
+					'colorbox', 
+					'filetree', 
+					'jquery-ui-widget',
+					'jquery-ui-tabs', 
+					'jquery-ui-button', 
+					'jquery-ui-slider',
+					'jquery-ui-dialog',
+					'jquery-ui-autocomplete',
+					'jquery-effects-core',
+					'jquery-effects-slide',
+					'jquery-effects-highlight'
+				), 
+				false, 
+				false
+			);	
+				
 		}
 		if(in_array($_GET['page'], array('wp-united-settings', 'wp-united-setup', 'wpu-user-mapper', 'wpu-advanced-options', 'wp-united-help', 'wp-united-support'))) {
 			wp_register_style('wpuSettingsStyles', $wpUnited->get_plugin_url() . 'theme/settings.css');
@@ -130,14 +158,6 @@ function wpu_settings_menu() {
 	
 }
 
-function wpu_deregister_conflicts() {
-	$scriptsToDereg = array('jquery', 'jquery-ui-core');//, 'jquery-color');
-	foreach($scriptsToDereg as $script) {
-		if(wp_script_is($script, 'registered')) {
-			wp_deregister_script($script);
-		}
-	}
-}
 
 /** 
  * Just a stub for the menu to redirect to the phpBB ACP
