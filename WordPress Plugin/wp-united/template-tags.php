@@ -664,13 +664,13 @@ function get_wpu_login_user_info($args) {
 		}
 
 		if ($showWriteLink) {
-			if (current_user_can('publish_posts')) {
+			if (current_user_can('edit_posts')) {
 				$ret .= $before . '<a href="'. $wpUnited->get_wp_base_url() .'wp-admin/post-new.php" title="' . __('Write a Post') . '">' . __('Write a Post') . '</a>' . $after;
 			}
 		}
 		if ($showAdminLinks) {
-			if (current_user_can('publish_posts')) {
-				$ret .= $before . '<a href="'.$wpUnited->get_wp_base_url() .'wp-admin/" title="Admin Site">' . __('Dashboard') . '</a>' . $after;
+			if (current_user_can('read')) {
+				$ret .= $before . '<a href="'.$wpUnited->get_wp_base_url() .'wp-admin/" title="' . __('Dashboard') . '">' . __('Dashboard') . '</a>' . $after;
 			}
 			$fStateChanged = $phpbbForum->foreground();
 			if($auth->acl_get('a_')) {
