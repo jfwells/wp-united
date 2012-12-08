@@ -203,7 +203,7 @@ function wpu_get_help() {
 		<p><?php _e('Please copy and paste the following information into a new topic post when you are seeking support. This will help us understand your setup at a glance. It is sanitized to protect your private server information and contains BBCode formatting.', 'wp-united'); ?> </p>
 		<div style="border: 1px solid #cccccc;font-family: monospace;padding: 6px;"><?php echo $wpuDebug->get_debug_info(); ?></div>
 	</div>
-	<?
+	<?php
 
 }
 
