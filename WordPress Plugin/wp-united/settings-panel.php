@@ -147,7 +147,7 @@ function wpu_settings_menu() {
 		add_submenu_page('wp-united-setup', __('WP-United Settings', 'wp-united'), __('Settings', 'wp-united'), 'manage_options','wp-united-settings', 'wpu_settings_page');
 
 			if($wpUnited->get_setting('integrateLogin')) {
-					add_submenu_page('wp-united-setup', 'WP-United User Mapping', 'User Mapping', 'manage_options','wpu-user-mapper', 'wpu_user_mapper');
+					add_submenu_page('wp-united-setup', __('WP-United User Mapping', 'wp-united'), __('User Mapping', 'wp-united'), 'manage_options','wpu-user-mapper', 'wpu_user_mapper');
 			}
 		add_submenu_page('wp-united-setup', __('WP-United Advanced Options', 'wp-united'), __('Advanced Options', 'wp-united'), 'manage_options','wpu-advanced-options', 'wpu_advanced_options');
 		add_submenu_page('wp-united-setup', __('Visit phpBB ACP', 'wp-united'), __('Visit phpBB ACP', 'wp-united'), 'manage_options', 'wpu_acp', 'wpu_acp');
@@ -366,9 +366,9 @@ function wpu_setup_menu() {
 	<form name="wpu-setup" id="wpusetup" method="post" onsubmit="return wpu_transmit('wp-united-setup', this.id);">
 		<?php wp_nonce_field('wp-united-setup');  ?>
 		
-		<p><?php _e('WP-United needs to know where phpBB is installed on your server.', 'wp-united'); ?> <span id="txtselpath">Find and select your phpBB's config.php below.</span><span id="txtchangepath" style="display: none;">Click &quot;Change Location&quot; to change the stored location.</span></p>
+		<p><?php _e('WP-United needs to know where phpBB is installed on your server.', 'wp-united'); ?> <span id="txtselpath"><?php _e("Find and select your phpBB's config.php below.", 'wp-united'); ?></span><span id="txtchangepath" style="display: none;"><?php _e('Click &quot;Change Location&quot; to change the stored location.', 'wp-united'); ?></span></p>
 		<div id="phpbbpath">&nbsp;</div>
-		<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php echo "Not selected"; ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;">Change Location &raquo;</a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();">Cancel Change</a></p>
+		<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php _e('Not selected', 'wp-united'); ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;"><?php _e('Change Location &raquo;', 'wp-united'); ?></a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();"><?php _e('Cancel Change', 'wp-united'); ?></a></p>
 		<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
 	
 		<p class="submit">
@@ -441,8 +441,8 @@ function wpu_user_mapper() {
 			<?php if($wpUnited->get_setting('integcreatewp')) { ?>
 		
 				<ul>
-					<li><a href="#wpumaptab-map">User Mapping</a></li>
-					<li><a href="#wpumaptab-perms">New User Permissions</a></li> 
+					<li><a href="#wpumaptab-map"><?php _e('User Mapping', 'wp-united'); ?></a></li>
+					<li><a href="#wpumaptab-perms"><?php _e('New User Permissions', 'wp-united'); ?></a></li> 
 				</ul>
 			<?php } 
 			if($wpUnited->get_setting('integcreatewp')) { ?>
@@ -830,7 +830,7 @@ function wpu_map_show_data() {
 					$haveUnintegratedUsers = true; ?>
 				
 					<div class="wpuintegnot ui-widget-header ui-corner-all">
-						<p>Status: <?php _e('Not Integrated', 'wp-united'); ?></p>
+						<p><?php echo __('Status: ', 'wp-united') . __('Not Integrated', 'wp-united'); ?></p>
 						<p class="wpubuttonset">
 							<?php echo $user->create_action(); ?>
 							<?php echo $user->del_action(); ?>
@@ -848,7 +848,7 @@ function wpu_map_show_data() {
 				<?php } else { 
 					$haveIntegratedUsers = true;?>
 					<div class="wpuintegok ui-widget-header ui-corner-all">
-						<p>Status: Integrated</p>
+						<p><?php echo __('Status: ', 'wp-united') . __('Integrated', 'wp-united'); ?></p>
 						<p class="wpubuttonset">
 							<?php echo $user->break_action(); ?>
 							<?php echo $user->delboth_action(); ?>
@@ -1113,12 +1113,12 @@ function wpu_settings_page() {
 				
 				<div id="wputabs">
 					<ul>
-						<li><a href="#wputab-basic">Basic Settings</a></li>
+						<li><a href="#wputab-basic"><?php _e('Basic Settings', 'wp-united'); ?></a></li>
 						<?php if(!defined('WPU_CANNOT_OVERRIDE')) { ?>
-							<li><a href="#wputab-user">User Integration</a></li>
+							<li><a href="#wputab-user"><?php _e('User Integration', 'wp-united'); ?></a></li>
 						<?php } ?>
-						<li><a href="#wputab-theme">Theme Integration</a></li>
-						<li><a href="#wputab-behav">Behaviour Integration</a></li>
+						<li><a href="#wputab-theme"><?php _e('Theme Integration', 'wp-united'); ?></a></li>
+						<li><a href="#wputab-behav"><?php _e('Behaviour Integration', 'wp-united'); ?></a></li>
 					<!--	<li><a href="#wputab-blogs">User Blogs</a></li>-->
 					</ul>
 

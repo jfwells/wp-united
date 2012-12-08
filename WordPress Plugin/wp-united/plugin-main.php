@@ -73,8 +73,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		// (re)load our settings
 		$this->load_settings();
 		
-		
-		load_plugin_textdomain('wp-united', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+		load_plugin_textdomain('wp-united', false, 'wp-united/languages/');
 		
 		require_once($this->get_plugin_path() . 'template-tags.php');
 		
