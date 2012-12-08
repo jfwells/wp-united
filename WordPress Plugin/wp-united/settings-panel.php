@@ -320,7 +320,7 @@ function wpu_setup_menu() {
 			default:
 				$statusText = __('Not Connected', 'wp-united');
 				$statusColour = "error";
-				$statusDesc = _('WP-United is not connected yet. Select your forum location below and then click &quot;Connect&quot;', 'wp-united') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.', 'wp-united');
+				$statusDesc = __('WP-United is not connected yet. Select your forum location below and then click &quot;Connect&quot;', 'wp-united') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.', 'wp-united');
 				$buttonDisplay = (!$wpUnited->is_enabled()) ? 'display: block;' : 'display: none;';
 		}
 	}
