@@ -27,7 +27,7 @@ Visit http://www.wp-united.com for more help or information.
     </installation>
     <link-group>
 		<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
-		<link type="language" href="languages/de.xml" lang="de">Deutsch</link>	
+		<link type="language" href="languages/de" lang="de">Deutsch</link>	
 		<link type="contrib" href="contrib/upgrading_from_v0.8.0_or_later/upgrade.xml" lang="en">Upgrading from WP-United v0.8.0 or later</link>
 		<link type="contrib" href="contrib/upgrading_from_v0.5.5_v0.6x_or_v0.7x/upgrade.xml" lang="en">Upgrading from WP-United v0.5.5, v0.6x or v0.7x</link>
 		<link type="contrib" href="contrib/upgrading_from_v0.5.0_or_v0.5.1/upgrade.xml" lang="en">Upgrading from WP-United v0.5.0 or v0.5.1</link>
