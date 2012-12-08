@@ -319,7 +319,7 @@ function wpu_setup_menu() {
 	if(!$wpUnited->is_enabled() && ($wpUnited->get_last_run() == 'working')) {
 			$statusText = __('Disabled', 'wp-united');
 			$statusColour = "error";
-			$statusDesc = _('WP-United is disabled. Select your forum location below and then click &quot;Connect&quot;', 'wp-united') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.', 'wp-united');
+			$statusDesc = __('WP-United is disabled. Select your forum location below and then click &quot;Connect&quot;', 'wp-united') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.', 'wp-united');
 			$buttonDisplay = 'display: block;';		
 	} else {
 	
