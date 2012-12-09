@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== WP-United ===
 Contributors: jhong
 Donate link: http://www.wp-united.com/
 Tags: phpbb, phpBB3, forum, social, integration, widgets, template, sign-on, user integration, database
