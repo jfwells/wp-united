@@ -1,5 +1,5 @@
 === WP-United ===
-Contributors: jhong
+Contributors: Jhong
 Donate link: http://www.wp-united.com/
 Tags: phpbb, phpBB3, forum, social, integration, widgets, template, sign-on, user integration, database
 Requires at least: 3.4.0
@@ -20,13 +20,9 @@ WP-United is fully modular and individual features can be turned on and off. The
 * **Template integration**: Have your phpBB forum appear inside your WordPress site. Or vice-versa; integrate your WordPress blog appear inside your phpBB header and footer. Includes a "one-click" mode that analyses your theme's CSS and modifies it on the fly to avoid CSS and HTML conflicts. This is no iFrame solution, it is a complete and automatic template integration.
 * **Behaviour integration**: Use phpBB smilies and word censor features in WordPress 
 * **Cross-posting**: Post something in WordPress and have it cross-posted to your forum -- Automatically or manually, you choose! Once an item is cross-posted, comments in phpBB and WordPress can be set to sync up under the blog item too!
-
+* **Widgets**: A set of WordPress widgets that show information about your phpBB forum: Latest posts, latest topics, users online, forum stats and an integrated login/meta/avatar/profile widget.
 
 == Installation ==
-
-This section describes how to install the plugin and get it working.
-
-e.g.
 
 1. Back up the current state of your site, just to be on the safe side.
 1. Upload the `wp-united` directory and all its contents to the `/wp-content/plugins/` directory.
