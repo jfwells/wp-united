@@ -366,7 +366,8 @@ function get_wpu_latest_phpbb_posts($args='') {
 			$output = '';
 			foreach ($posts as $post) {
 				$first = ($i==0) ? 'wpufirst ' : '';
-				$post_link = '<a href="' . $phpbbForum->get_board_url() . "viewtopic.$phpEx?f={$post['forum_id']}&t={$post['topic_id']}\">" . $post['topic_title'] . '</a>';
+				$post_link = ($phpbbForum->seo) ? "post{$post['post_id']}.html#p{$post['post_id']}" : "viewtopic.$phpEx?f={$post['forum_id']}&amp;t={$post['topic_id']}&amp;p={$post['post_id']}#p{$post['post_id']}";
+				$post_link = '<a href="' . $phpbbForum->get_board_url() .  $phpbbForum->append_sid($post_link) . '">' . $post['post_title'] . '</a>';
 				$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
 				$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) .  sprintf(__('%1$s, posted by %2$s on %3$s'),$post_link, $post['user_link'],  $post['post_time'])  ."$after\n";
 				$i++;
@@ -406,7 +407,11 @@ function get_wpu_latest_phpbb_topics($args = '') {
 		$output = '';
 		foreach ($posts as $post) {
 			$first = ($i==0) ? 'wpufirst ' : '';
-			$topic_link = '<a href="' . $phpbbForum->get_board_url() . "viewtopic.$phpEx?f={$post['forum_id']}&t={$post['topic_id']}\">" . $post['topic_title'] . '</a>';
+			
+			$topic_link = ($phpbbForum->seo) ? "topic{$post['topic_id']}.html" : "viewtopic.$phpEx?f={$post['forum_id']}&amp;t={$post['topic_id']}";
+			$topic_link = '<a href="' . $phpbbForum->get_board_url() .  $phpbbForum->append_sid($topic_link) .  '">' . $post['topic_title'] . '</a>';
+
+
 			$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
 			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s'),$topic_link, $post['user_link'], $forum_link)  ."$after\n";
 			$i++;

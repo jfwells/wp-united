@@ -429,15 +429,12 @@ class WPU_Phpbb {
 			return FALSE;
 		}
 			
-		$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, f.forum_name, p.poster_id, u.username, f.forum_id, u.user_type, u.user_colour 
+		$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, p.post_subject, f.forum_name, p.poster_id, u.username, f.forum_id, u.user_type, u.user_colour 
             FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f, ' . USERS_TABLE . ' AS u
 			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
 			AND  p.topic_id = t.topic_id
 			AND u.user_id = p.poster_id
 			AND f.forum_id = p.forum_id
-			AND p.forum_id = t.forum_id
-			AND p.post_id = t.topic_last_post_id
-			GROUP BY p.topic_id
 			ORDER BY post_time DESC'; 	
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
@@ -450,6 +447,7 @@ class WPU_Phpbb {
 			$posts[$i] = array(
 				'post_id' 				=> $row['post_id'],
 				'topic_title' 			=> $wpUnited->censor_content($row['topic_title']),
+				'post_title' 			=> $wpUnited->censor_content($row['post_subject']),
 				'post_time'			=>  $user->format_date($row['post_time']),
 				'user_id' 				=> $row['poster_id'],
 				'username' 			=> $row['username'],
@@ -522,9 +520,11 @@ class WPU_Phpbb {
 	 * returns a coloured username link for a phpBB user
 	 */
 	 public function get_username_link($type, $id, $username, $colour) {
-	
+		global $phpbb_root_path;
+		
 		$fStateChanged = $this->foreground();
 		$string = get_username_string(($type <> USER_IGNORE) ? 'full' : 'no_profile', $id, $username, $colour);
+		$string = str_replace($phpbb_root_path, $this->get_board_url(), $string);
 		$this->restore_state($fStateChanged);
 		return $string;
 	}
