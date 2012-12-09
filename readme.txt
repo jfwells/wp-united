@@ -73,6 +73,7 @@ There are several ways to debug problems. We suggest you try the following, in o
 
 * WP-United is, for the most part, completely rewritten, to improve flexibility and compatibility
 * The vast majority of WP-United now sits under WordPress rather than phpBB. Find plugin, click install, done... that's what the aim is.
+* Modular -- hooks and files are only loaded if those options are selected
 * Brand new, modern, admin panel:
 	* A completely re-imagined settings panel, with modern UI and with most options significantly simplified
 	* No more Wizards!
@@ -86,7 +87,8 @@ There are several ways to debug problems. We suggest you try the following, in o
 	* Bi-directional profile sync. Update your profile anywhere and it works
 	* Auto-synced avatars. Get your Gravatar in phpBB -- without having to anything
 	* Designed to work with external auth providers. e.g. click the Facebook button in the oneall plugin, and you get both a phpBB and WordPress account
-* Widgets all ported to new WordPress API
+* Widgets all ported to new WordPress API. 
+* Widgets now colour phpBB usernames according to default group colour.
 * Numerous bugs addressed
 * User blogs has been removed. It will be added back, working with WP-MS, in the next release.
 * Translations all moved to WordPress

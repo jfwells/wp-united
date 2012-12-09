@@ -107,6 +107,7 @@ WP-United :: Public Releases
 v0.9.0 RELEASE CANDIDATE 3
 - WP-United is, for the most part, completely rewritten, to improve flexibility and compatibility
 - The vast majority of WP-United now sits under WordPress rather than phpBB. Find plugin, click install, done... that's what the aim is.
+- Modular -- now only hooks and files that are needed are loaded
 - Brand new, modern, admin panel
 --- A completely re-imagined settings panel, with modern UI and with most options significantly simplified.
 --- No more Wizards!
@@ -121,6 +122,7 @@ v0.9.0 RELEASE CANDIDATE 3
 --- Auto-synced avatars. Get your Gravatar in phpBB -- without having to anything
 --- Designed to work with external auth providers. e.g. click the Facebook button in the oneall plugin, and you get both a phpBB and WordPress account
 - Widgets all ported to new WordPress API
+- Widgets now colour phpBB usernames according to default group colours
 - Numerous bugs addressed
 - User blogs has been removed. It will be added back, working with WP-MS, in the next release.
 - Translations all moved to WordPress

@@ -443,10 +443,10 @@ function wpu_get_forced_forum_name($forumID) {
  * @since v0.8.0
  */
 function wpu_load_phpbb_comments($commentArray, $postID) {
-	global $wpUnited, $phpbb_root_path, $phpEx, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
+	global $wpUnited, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
 
 	if ( 
-		(empty($phpbb_root_path)) || 
+		(!$wpUnited->is_enabled()) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) ||
 		(empty($postID))
@@ -454,7 +454,7 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 		return $commentArray;
 	}
 	
-	require_once($wpUnited->get_plugin_path() . 'comments.' . $phpEx);
+	require_once($wpUnited->get_plugin_path() . 'comments.php');
 
 	$phpBBComments = new WPU_Comments();
 	if ( !$phpBBComments->populate($postID) ) {
@@ -504,7 +504,7 @@ function wpu_comments_count($count, $postID = false) {
 	} 
 	// else, get the details
 	if ( 
-		(empty($phpbb_root_path)) || 
+		(!$wpUnited->is_enabled()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) 
@@ -531,7 +531,7 @@ function wpu_comments_count($count, $postID = false) {
 function wpu_comment_redirector($postID) {
 	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user;
 	if ( 
-		(empty($phpbb_root_path)) || 
+		(!$wpUnited->is_enabled()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) 
@@ -547,9 +547,13 @@ function wpu_comment_redirector($postID) {
 		return;
 	}
 	
-	if(!$phpbbForum->user_logged_in()) {
-		wp_die( __('You must be logged in to comment in the forum', 'wp-united'));
-	}	
+	
+	if ($phpbbForum->user_logged_in()) {
+		$username = $phpbbForum->get_username();
+	} else {
+		$username = strip_tags(stripslashes(request_var('author', 'Anonymous')));
+		$username = wpu_find_next_avail_name($username, 'phpbb');
+	}
 	
 	if( empty($xPostDetails['topic_approved'])) {
 		wp_die($phpbbForum->lang['ITEM_LOCKED']);
@@ -561,11 +565,11 @@ function wpu_comment_redirector($postID) {
 
 	if ($xPostDetails['forum_id'] == 0) {
 		// global announcement
-		if(!$auth->acl_getf_global('f_noapprove') ) {
+		if(!$auth->acl_getf_global('f_reply') ) {
 			wp_die( __('You do not have permission to respond to this announcement', 'wp-united'));			
 		}
 	} else {
-		if (!$auth->acl_get('f_noapprove', $xPostDetails['forum_id'])) { 
+		if (!$auth->acl_get('f_reply', $xPostDetails['forum_id'])) { 
 			wp_die( __('You do not have permission to comment in this forum', 'wp-united'));
 		}
 	}
@@ -605,7 +609,7 @@ function wpu_comment_redirector($postID) {
 		'topic_title' => $subject
 	); 
 
-	$postUrl = submit_post('reply', $subject, $phpbbForum->get_username(), POST_NORMAL, $poll, $data);
+	$postUrl = submit_post('reply', $subject, $username, POST_NORMAL, $poll, $data);
 
 	$phpbbForum->restore_state($fStateChanged);
 	
@@ -681,11 +685,14 @@ function wpu_comment_link($url, $comment, $args) {
  * 
  */
 function wpu_comments_open($open, $postID) {
-	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user;
+	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user, $wpuPermsProblem;
 	static $status;
+	
 	if(isset($status)) {
 		return $status;
 	}
+	
+	$wpuPermsProblem = false;
 	
 	if($wpUnited->should_do_action('template-p-in-w')) {
 		$status = false;
@@ -697,7 +704,7 @@ function wpu_comments_open($open, $postID) {
 	}
 	
 	if ( 
-		(empty($phpbb_root_path)) || 
+		(!$wpUnited->is_enabled()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) 
@@ -706,13 +713,6 @@ function wpu_comments_open($open, $postID) {
 		return $status;
 	}
 	
-	/** if user is logged out, we need to return default wordpress comment status
-	 * Then the template can display "you need to log in", as opposed to "comments are closed"
-	 */
-	if(!$phpbbForum->user_logged_in()) {
-		$status = $open;
-		return $status;
-	}
 	
 	$fStateChanged = $phpbbForum->foreground();
 	if(!($dets = wpu_get_xposted_details($postID))) {
@@ -721,31 +721,28 @@ function wpu_comments_open($open, $postID) {
 		return $status;			
 	}
 
+	$permsProblem = false;
+
 	if (
 		(empty($dets['topic_approved'])) || 
-		($dets['topic_status'] == ITEM_LOCKED)
+		($dets['topic_status'] == ITEM_LOCKED) ||
+		(($dets['forum_id'] == 0) && (!$auth->acl_getf_global('f_reply'))) || // global announcement
+		(!$auth->acl_get('f_reply', $dets['forum_id']) )
 	) { 
-		$phpbbForum->restore_state($fStateChanged);
-		$status = false;
-		return $status;
-	}
-	
-	if($dets['forum_id'] == 0) {
-		// global announcement
-		if(!$auth->acl_getf_global('f_noapprove')) {
-			$phpbbForum->restore_state($fStateChanged);
-			$status = false;
-			return $status;			
+			$permsProblem = true;		
 		}
-	} else {
-		if (!$auth->acl_get('f_reply', $dets['forum_id']) ) { 
-			$phpbbForum->restore_state($fStateChanged);
-			$status = false;
-			return $status;
-		}
-	}
 
 	$phpbbForum->restore_state($fStateChanged);
+	
+	/** if user is logged out, we need to return default wordpress comment status
+	 * Then the template can display "you need to log in", as opposed to "comments are closed"
+	 */
+	if($permsProblem && !$phpbbForum->user_logged_in()) { 
+		$wpuPermsProblem = true;
+		$status = $open;
+		return $status;
+	}
+
 	
 	$status = true;
 	return $status;
@@ -757,10 +754,11 @@ function wpu_comments_open($open, $postID) {
  * If we return false, get_option does its thing.
  */
 function wpu_no_guest_comment_posting() {
-	global $usePhpBBComments;
+	global $usePhpBBComments, $wpuPermsProblem;
 	
+	// users don't need to register if permissions have already been resolved for them
 	if($usePhpBBComments) {
-		return true;
+		return $wpuPermsProblem;
 	}
 	
 

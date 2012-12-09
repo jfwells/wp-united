@@ -8,13 +8,15 @@ Current status:
 - User blogs removed -- may be completed by v0.9 but happy to release without if not ready
 
 
------- Reported errors -----------
-- comment count incorrect
-
-
 Below changes scheduled for v0.9.x > v0.9.0  ( :-)  )
 
 ------ cross-posting and comments ---------
+-- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
+	-- Posts awaiting approval in phpBB don't show up in WP yet
+	-- we just die on a username that is already in use, when we should really display a nice msg
+	-- e-mail and website don't get saved, and username gets sent back to WP as 'Anonymous'
+	-- No checking for username or e-mail clashes in WP
+	-- No checking for e-mail clashes in phpBB (we do check for username clash though)
 -- Move x-posting to its own tab, independent of user integration
 -- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
 -- move cross-posting from per-topic to per-post (and topic!) to reduce query load
@@ -22,7 +24,7 @@ Below changes scheduled for v0.9.x > v0.9.0  ( :-)  )
 -- make wpu_get_xposted_details() cacheable, and implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
 -- for each cross-posted comment insert a ghost comment into wordpress with a marker to the phpBB comment (? -- unless we can cleanly generate "comments list to load", see below)
 -- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
--- consider allowing guest posting of comments (IF akismet is installed?).
+
 
 
 
@@ -80,6 +82,8 @@ Other (older) things noticed that may no longer be relevant
 
 Fixed/Committed for vNext. For all changes prior to v0.9, see changelog
 ------------------------------------
+- Username colours in widgets!
+- Now completely moduar -- only needed portions and hooks are loaded
 - Now fully translatable (apart from 3 or 4 phpBB strings) using gettext! Translations can be done online on Launchpad.net
 - Fixed appending sid's for direct links to ACP in admin panel.
 - debugger cleaned up (but still not pervasive). Re-implemented "debug info to post" panel

@@ -405,8 +405,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Handles parsing of posts through the phpBB word censor.
 	 * We also use this hook to suppress everything if this is a forum page.
 	*/
-	public function censor_content($postContent) {
-		global $phpbbForum;
+	public function censor_content($postContent) { 
+		global $phpbbForum; 
 		
 		if(!$this->is_phpbb_loaded()) {
 			return $postContent;
@@ -455,7 +455,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return wpu_load_phpbb_comments($commentArray, $postID);
 	}
 	public function comments_count($count, $postID = false) {
-		return wpu_comments_count($count, $postID = false);
+		return wpu_comments_count($count, $postID);
 	}
 	public function no_guest_comment_posting() {
 		return wpu_no_guest_comment_posting();
