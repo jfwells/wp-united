@@ -201,7 +201,14 @@ function wpu_get_help() {
 		<h3><?php _e('Community support &amp; bug reporting', 'wp-united'); ?></h3>
 		<p><?php _e('Free community support is available from the WP-United forum. Please search there for any other users who may be experiencing the same problem, and discuss any issues with fellow users.', 'wp-united'); ?></p>
 		<p><?php _e('Please copy and paste the following information into a new topic post when you are seeking support. This will help us understand your setup at a glance. It is sanitized to protect your private server information and contains BBCode formatting.', 'wp-united'); ?> </p>
-		<div style="border: 1px solid #cccccc;font-family: monospace;padding: 6px;"><?php echo $wpuDebug->get_debug_info(); ?></div>
+		<?php 
+			$san = (isset($_GET['showfull'])) ? true : false; 
+			$changeLink = ($san) ? '' : '&amp;showfull=1';
+			$changeText = ($san) ? __('Hide sensitive information' , 'wp-united') : __('Show sensitive information', 'wp-united');	
+		?>
+		<p><small><a href="<?php echo get_admin_url() . 'admin.php?page=wp-united-help' . $changeLink; ?>"><?php echo $changeText; ?></a></small></p>
+	
+		<div style="border: 1px solid #cccccc;font-family: monospace;padding: 6px;"><?php echo $wpuDebug->get_debug_info(!$san); ?></div>
 	</div>
 	<?php
 

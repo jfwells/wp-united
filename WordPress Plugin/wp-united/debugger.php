@@ -97,22 +97,24 @@ class WPU_Debug {
 		
 	}
 	
-	public function get_debug_info() {
+	public function get_debug_info($sanitise) {
 		global $wpUnited, $wp_version, $phpbbForum;
+		
+		$s = $sanitise;
 		
 		$settings = $wpUnited->get_setting();
 		$mainEntries = array(
-			'WP-United Version' 		=> 	$wpUnited->get_version(),
-			'WordPress Version' 		=> 	$wp_version,
-			'PHP Version'				=>	PHP_VERSION,
-			'WP-United enabled?'		=>	($wpUnited->is_enabled)? 'Yes' : 'No',
-			'WordPress Home URL'		=>	$this->sanitise($wpUnited->get_wp_home_url()),
-			'WordPress Base URL'		=>	$this->sanitise($wpUnited->get_wp_base_url()),
-			'WordPress Plugin URL'		=>	$this->sanitise($wpUnited->get_plugin_url()),			
-			'phpBB URL'					=>	($wpUnited->is_enabled() && $phpbbForum->is_phpbb_loaded())? $this->sanitise($phpbbForum->get_board_url()) : 'Unknown',			
-			'Plugin Path'				=>	$this->sanitise($wpUnited->get_plugin_path()),
-			'WordPress Path'			=>	$this->sanitise($wpUnited->get_wp_path()),
-			'phpBB Path'				=>	$this->sanitise($wpUnited->get_setting('phpbb_path'))
+			'WP-United Version' 			=> 	$wpUnited->get_version(),
+			'WordPress Version' 			=> 	$wp_version,
+			'PHP Version'						=>	PHP_VERSION,
+			'WP-United enabled?'			=>	($wpUnited->is_enabled)? 'Yes' : 'No',
+			'WordPress Home URL'		=>	($s) ? $this->sanitise($wpUnited->get_wp_home_url()) : $wpUnited->get_wp_home_url(),
+			'WordPress Base URL'		=>	($s) ? $this->sanitise($wpUnited->get_wp_base_url()) : $wpUnited->get_wp_base_url(),
+			'WordPress Plugin URL'		=>	($s) ? $this->sanitise($wpUnited->get_plugin_url()) : $wpUnited->get_plugin_url(),			
+			'phpBB URL'					=>	($wpUnited->is_enabled() && $phpbbForum->is_phpbb_loaded())? (($s) ? $this->sanitise($phpbbForum->get_board_url()) : $phpbbForum->get_board_url()): 'Unknown',			
+			'Plugin Path'				=>	($s) ? $this->sanitise($wpUnited->get_plugin_path()) : $wpUnited->get_plugin_path(),
+			'WordPress Path'			=>	($s) ? $this->sanitise($wpUnited->get_wp_path()) : $wpUnited->get_wp_path(),
+			'phpBB Path'				=>	($s) ? $this->sanitise($wpUnited->get_setting('phpbb_path')) : $wpUnited->get_setting('phpbb_path')
 		); 
 		
 		$settings = array_merge($mainEntries, $settings);
@@ -137,6 +139,10 @@ class WPU_Debug {
 			'stu', 'vwx', 'yz'
 		);
 		
+		$ignores = array(
+			'http:', 'https:', 'localhost', 'localdomain', 'com'. 'net', 'org', 'www', '127', '0', '1', 'php'
+		);
+		
 		$toSanA = explode('\\', $pathOrUrl);
 		$result = array();
 		
@@ -147,7 +153,7 @@ class WPU_Debug {
 				$toSan = explode('.', $sanB);
 				$innerResult = array();
 				foreach($toSan as $item) {
-					if(!strlen($item) || (strtolower($item) == 'http:') || (strtolower($item) == 'https:')) {
+					if(!strlen($item) || (in_array(strtolower($item), $ignores))) {
 						$innerResult[] = $item;
 						continue;
 					}
