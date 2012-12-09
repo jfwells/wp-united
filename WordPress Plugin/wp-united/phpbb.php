@@ -410,10 +410,64 @@ class WPU_Phpbb {
 		}
 		$this->restore_state($fStateChanged);
 	}
-	
+
+	/**
+	 * Lifts latest phpBB posts from the DB. 
+	 * $forum_list limits to a specific forum (comma delimited list). $limit sets the number of posts fetched. 
+	 */
+	public function get_recent_posts($forum_list = '', $limit = 50) {
+		global $db, $auth, $wpUnited, $user;
+		
+		$fStateChanged = $this->foreground();
+
+		$forum_list = (empty($forum_list)) ? array() :  explode(',', $forum_list); //forums to explicitly check
+		$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true))); //forums authorised to read posts in
+		if (sizeof($forum_list)) {
+			$forums_check = array_intersect($forums_check, $forum_list);
+		}
+		if (!sizeof($forums_check)) {
+			return FALSE;
+		}
+			
+		$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, f.forum_name, p.poster_id, u.username, f.forum_id, u.user_type, u.user_colour 
+            FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f, ' . USERS_TABLE . ' AS u
+			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
+			AND  p.topic_id = t.topic_id
+			AND u.user_id = p.poster_id
+			AND f.forum_id = p.forum_id
+			AND p.forum_id = t.forum_id
+			AND p.post_id = t.topic_last_post_id
+			GROUP BY p.topic_id
+			ORDER BY post_time DESC'; 	
+			
+		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
+			wp_die(__('Could not access the database.', 'wp-united'));
+		}		
+
+		$posts = array();
+		$i = 0;
+		while ($row = $db->sql_fetchrow($result)) {
+			$posts[$i] = array(
+				'post_id' 				=> $row['post_id'],
+				'topic_title' 			=> $wpUnited->censor_content($row['topic_title']),
+				'post_time'			=>  $user->format_date($row['post_time']),
+				'user_id' 				=> $row['poster_id'],
+				'username' 			=> $row['username'],
+				'forum_id' 			=> $row['forum_id'],
+				'forum_name' 	=> $row['forum_name'],
+				'user_type'			=> $row['user_type'],
+				'user_colour'		=> $row['user_colour'],
+				'user_link'			=> $this->get_username_link($row['user_type'], $row['poster_id'], $row['username'], $row['user_colour'])
+			);
+			$i++;
+		}
+		$db->sql_freeresult($result);
+		$this->restore_state($fStateChanged);
+		return $posts;
+	}
 	
 	/**
-	 * Lifts latest phpBB topics from the DB. (this is the phpBB2 version) 
+	 * Lifts latest phpBB topics from the DB.
 	 * $forum_list limits to a specific forum (comma delimited list). $limit sets the number of posts fetched. 
 	 */
 	public function get_recent_topics($forum_list = '', $limit = 50) {
@@ -430,7 +484,7 @@ class WPU_Phpbb {
 			return FALSE;
 		}
 		$sql = 'SELECT t.topic_id, t.topic_time, t.topic_title, u.username, u.user_id,
-				t.topic_replies, t.forum_id, t.topic_poster, t.topic_status, f.forum_name
+				t.topic_replies, t.forum_id, t.topic_poster, t.topic_status, f.forum_name, u.user_type, u.user_colour 
 			FROM ' . TOPICS_TABLE . ' AS t, ' . USERS_TABLE . ' AS u, ' . FORUMS_TABLE . ' AS f 
 			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
 				AND t.topic_poster = u.user_id 
@@ -446,20 +500,34 @@ class WPU_Phpbb {
 		$i = 0;
 		while ($row = $db->sql_fetchrow($result)) {
 			$posts[$i] = array(
-				'topic_id' 		=> $row['topic_id'],
-				'topic_replies' => $row['topic_replies'],
-				'topic_title' 	=> $wpUnited->censor_content($row['topic_title']),
-				'user_id' 		=> $row['user_id'],
-				'username' 		=> $row['username'],
-				'forum_id' 		=> $row['forum_id'],
-				'forum_name' 	=> $row['forum_name']
+				'topic_id' 			=> $row['topic_id'],
+				'topic_replies' 	=> $row['topic_replies'],
+				'topic_title' 			=> $wpUnited->censor_content($row['topic_title']),
+				'user_id' 				=> $row['user_id'],
+				'username' 			=> $row['username'],
+				'forum_id' 			=> $row['forum_id'],
+				'forum_name' 	=> $row['forum_name'],
+				'user_type'			=> $row['user_type'],
+				'user_colour'		=> $row['user_colour'],
+				'user_link'			=> $this->get_username_link($row['user_type'], $row['user_id'], $row['username'], $row['user_colour'])
 			);
 			$i++;
 		}
 		$db->sql_freeresult($result);
 		$this->restore_state($fStateChanged);
 		return $posts;
-	}	
+	}
+	
+	/**
+	 * returns a coloured username link for a phpBB user
+	 */
+	 public function get_username_link($type, $id, $username, $colour) {
+	
+		$fStateChanged = $this->foreground();
+		$string = get_username_string(($type <> USER_IGNORE) ? 'full' : 'no_profile', $id, $username, $colour);
+		$this->restore_state($fStateChanged);
+		return $string;
+	}
 	
 	/**
 	 * Transitions to/from the currently logged-in user

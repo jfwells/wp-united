@@ -14,13 +14,10 @@ Current status:
 
 Below changes scheduled for v0.9.x > v0.9.0  ( :-)  )
 
-
-
-
 ------ cross-posting and comments ---------
+-- Move x-posting to its own tab, independent of user integration
 -- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
 -- move cross-posting from per-topic to per-post (and topic!) to reduce query load
--- check excerpt/full settings are working
 -- rework html-to-bbcode translation for images with captions
 -- make wpu_get_xposted_details() cacheable, and implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
 -- for each cross-posted comment insert a ghost comment into wordpress with a marker to the phpBB comment (? -- unless we can cleanly generate "comments list to load", see below)
@@ -30,23 +27,18 @@ Below changes scheduled for v0.9.x > v0.9.0  ( :-)  )
 
 
 ---- general cleanup ----
--- check on Win servers
+-- Move to modular architecture with extensible plugins 'extras' folder to add new tabs
 -- decide what to do with $phpEx global
 -- do check on plugin activation for php and wordpress version
--- Profile db queries on page load and integration, and cache commonly-pulled items (some phpbbForum->get_userdata calls pull multiple times). Also rely more on phpbb_userid if we can.
+-- Profile db queries on page load and integration, and cache more commonly-pulled items 
 -- modify version.php to contain compatibility information
 -- remove $compat from core-patcher
--- use common-lite.php for phpBB to remove unneeded options in admin (and potentially on WP pages).
 -- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 
 ----- template integration ------------
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
 
----- widgets  (v0.9 not contingent on this) --------
--- add username colours to topics, posts & loginuserinfo widget
--- login can use ajax->refresh with bidi integration (but still logs into phpBB)
--- other widget suggestions from forum
--- include gpl userblog widgets
+---- widgets  --------
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
 
 
@@ -64,15 +56,15 @@ Below changes scheduled for v0.9.x > v0.9.0  ( :-)  )
 -- Add user lookup to permissions mapping tab
 -- Add pre-mod routines and scratch/plugins loader folder for plugins or premium options
 -- Finish "advanced settings" panel page -- first see what options are around and whether still necessary
--- Override WP version check?
 -- support custom post types with per-type cross-posting settings
 -- add ability to send settings to WP-United.com for analysis/feedback (likely deferred til 1.0)
 -- check that we at least load up with Buddypress
--- when connecting to phpBB, check version for compatibility
 
-------- pie in the sky -----------
+------- additional features or 'extras' -----------
 -- finish "post to blog" in phpBB, integrate with pressIt
 -- search integration
+-- use Akismet for phpBB antispam
+-- WP media browser in phpBB posting
 
 
 

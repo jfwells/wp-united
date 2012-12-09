@@ -291,7 +291,7 @@ function get_wpu_phpbb_stats($args='') {
 	$output = $before .  sprintf(__('Forum Posts: %s'),  '<strong>' 	. $phpbbForum->stats('num_posts') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf(__('Forum Threads: %s'), '<strong>' 	. $phpbbForum->stats('num_topics') . '</strong>') . "$after\n";
 	$output .= $before .  sprintf(__('Registered Users: %s'), '<strong>' 	. $phpbbForum->stats('num_users')  . '</strong>') . "$after\n";	
-	$output .= $before . sprintf(__(' Newest User: %s'), '<a href="' . $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $phpbbForum->stats('newest_user_id') . '"><strong>' . $phpbbForum->stats('newest_username') . '</strong></a>') . "$after\n";
+	$output .= $before . sprintf(__(' Newest User: %s'), $phpbbForum->get_username_link('full', $phpbbForum->stats('newest_user_id'), $phpbbForum->stats('newest_username'), $phpbbForum->stats('newest_user_colour'))) . "$after\n";
 	$phpbbForum->restore_state($fStateChanged);
 	return $output;
 
@@ -341,7 +341,7 @@ function get_wpu_newposts() {
 
 /**
  * Displays a nice list of latest phpBB forum posts
- * @author Japgalaxy & John Wells
+ * @author John Wells
  * @example: wpu_latest_phpbb_posts('limit=10&forum=1,2,3&before=<li>&after=</li>&dateformat=Y-m-j')
  */
 function wpu_latest_phpbb_posts($args='') {
@@ -354,59 +354,29 @@ function wpu_latest_phpbb_posts($args='') {
  * Modified for v0.8x to use proper WP widget styling and args, and date format
  */
 function get_wpu_latest_phpbb_posts($args='') {
-	global $phpbbForum, $db, $auth, $phpEx, $user, $wpUnited;
-	
-	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '');
-	
-	extract(_wpu_process_args($args, $defaults));
-	$limit = ($limit > 50 ) ? 50 : $limit;
-	
-	$ret = '';
-	
-	$fStateChanged = $phpbbForum->foreground();
-	$forum_list = (empty($forum)) ? array() :  explode(',', $forum); //forums to explicitly check
-	$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true)));
-	if (sizeof($forum_list)) {
-		$forums_check = array_intersect($forums_check, $forum_list);
-	}
-	if (!sizeof($forums_check)) {
-		$phpbbForum->restore_state($fStateChanged);
-		return $before. __('No access') . $after;
-	}	
-	$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, f.forum_name, p.poster_id, u.username, f.forum_id
-            FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f, ' . USERS_TABLE . ' AS u
-			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
-			AND  p.topic_id = t.topic_id
-			AND u.user_id = p.poster_id
-			AND f.forum_id = p.forum_id
-			AND p.forum_id = t.forum_id
-			AND p.post_id = t.topic_last_post_id
-			GROUP BY p.topic_id
-			ORDER BY post_time DESC'; 
-			
-	if(!($result = $db->sql_query_limit($sql, $limit, 0))) { 
-		$ret = __('Could not access WordPress integration configuration in the database. Please ensure that you have installed WP-United properly.'). $after;
-	}
-	
-	if (!sizeof($result)) {
-		$ret = $before. __('Nothing found.') . $after;
-	} else {
-		$i =0;
-		while ($row = $db->sql_fetchrow($result)) {
-			$first = ($i==0) ? 'wpufirst ' : '';
-			$topic_link = ($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}";
-			$topic_link = '<a href="' . $phpbbForum->get_board_url(). $topic_link . '" title="' . $wpUnited->censor_content($row['topic_title']) . '">' . $wpUnited->censor_content($row['topic_title']) . '</a>';
-			$user_link = ($phpbbForum->seo) ? 'member' . $row['poster_id'] . '.html' : "memberlist.{$phpEx}?mode=viewprofile&u=" . $row['poster_id'];
-			$user_link = '<a href="' . $phpbbForum->get_board_url() . $user_link . '">' . $row['username'] .'</a>';
-			$ret .= _wpu_add_class($before, $first . 'wpuforum' . $row['forum_id']) .  sprintf(__('%1$s, posted by %2$s on %3$s'),$topic_link, $user_link,  $user->format_date($row['post_time']))  ."$after\n";
-			$i++;
+		global $phpEx, $phpbbForum;
+		$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '');
+		extract(_wpu_process_args($args, $defaults));
+		
+		$limit = ($limit > 50 ) ? 50 : $limit;
+		
+		if ($posts = $phpbbForum->get_recent_posts($forum, $limit)) {
+			$profile_path = "memberlist.$phpEx";
+			$i=0;
+			$output = '';
+			foreach ($posts as $post) {
+				$first = ($i==0) ? 'wpufirst ' : '';
+				$post_link = '<a href="' . $phpbbForum->get_board_url() . "viewtopic.$phpEx?f={$post['forum_id']}&t={$post['topic_id']}\">" . $post['topic_title'] . '</a>';
+				$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
+				$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) .  sprintf(__('%1$s, posted by %2$s on %3$s'),$post_link, $post['user_link'],  $post['post_time'])  ."$after\n";
+				$i++;
+			}
+		} else {
+			$output = $before. __('Nothing found.'). $after;
 		}
+		return $output;
+		
 	}
-	
-	$db->sql_freeresult($result);
-	$phpbbForum->restore_state($fStateChanged);
-	return $ret;
-}
 
 
 /**
@@ -438,8 +408,7 @@ function get_wpu_latest_phpbb_topics($args = '') {
 			$first = ($i==0) ? 'wpufirst ' : '';
 			$topic_link = '<a href="' . $phpbbForum->get_board_url() . "viewtopic.$phpEx?f={$post['forum_id']}&t={$post['topic_id']}\">" . $post['topic_title'] . '</a>';
 			$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-			$user_link = '<a href="' . $phpbbForum->get_board_url() . "$profile_path?mode=viewprofile&amp;u=" . $post['user_id'] . '">' . $post['username'] . '</a>';
-			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s'),$topic_link, $user_link, $forum_link)  ."$after\n";
+			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s'),$topic_link, $post['user_link'], $forum_link)  ."$after\n";
 			$i++;
 		}
 	} else {
@@ -638,9 +607,10 @@ function get_wpu_login_user_info($args) {
 	
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 
-
-			$ret .= _wpu_add_class($before, 'wpu-widget-lu-username'). '<a href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '"><strong>' . $wpu_usr . '</strong></a>' . $after;
-			$ret .= _wpu_add_class($before, 'wpu-widget-lu-avatar') . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
+		$colour = $phpbbForum->get_userdata('user_colour');
+		$colour = ($colour) ? ' style="color: #' . $colour . '" ' : '';
+		$ret .= _wpu_add_class($before, 'wpu-widget-lu-username'). '<a href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '" ' . $colour . '><strong>' . $wpu_usr . '</strong></a>' . $after;
+		$ret .= _wpu_add_class($before, 'wpu-widget-lu-avatar') . '<img src="' . get_avatar_reader() . '" alt="' . $phpbbForum->lang['USER_AVATAR'] . '" />' . $after; 
 
 		if ( $showRankBlock ) {
 			$ret .= _wpu_add_class($before, 'wpu-widget-lu-rankblock') . get_wpu_phpbb_rankblock() . $after;
