@@ -16,7 +16,7 @@ WP-United glues together WordPress sites and phpBB forums. Get the full power of
 
 WP-United is fully modular and individual features can be turned on and off. These features include:
 
-* **User integration**: including single sign-on, syncronised profiles and avatars, and user management. Works with external registration modules such as social login plugins. Users in phpBB get accounts in WordPress and vice versa. Completely controllable and customisable by setting permissions for who can integrate and at what level, using a unique drag-and-drop interface.
+* **User integration**: including single sign-on, synchronised profiles and avatars, and user management. Works with external registration modules such as social login plugins. Users in phpBB get accounts in WordPress and vice versa. Completely controllable and customisable by setting permissions for who can integrate and at what level, using a unique drag-and-drop interface.
 * **Template integration**: Have your phpBB forum appear inside your WordPress site. Or vice-versa; integrate your WordPress blog appear inside your phpBB header and footer. Includes a "one-click" mode that analyses your theme's CSS and modifies it on the fly to avoid CSS and HTML conflicts. This is no iFrame solution, it is a complete and automatic template integration.
 * **Behaviour integration**: Use phpBB smilies and word censor features in WordPress 
 * **Cross-posting**: Post something in WordPress and have it cross-posted to your forum -- Automatically or manually, you choose! Once an item is cross-posted, comments in phpBB and WordPress can be set to sync up under the blog item too!
@@ -37,10 +37,10 @@ e.g.
 
 == Frequently Asked Questions ==
 
-= Does this work with WordPress multisite =
+= Does this work with WordPress multisite? =
 It works but is not recommended for use, especially with single sign-on currently, as it does not behave as expected. In future versions WP-United will allow per-user blogs with WordPress multisite, so stay tuned.
 
-= I enabled the plugin but nothing is happening =
+= I enabled the plugin but nothing is happening! =
 
 Follow the instructions to connect to your phpBB forum in the WP-United section of the admin panel.
 
@@ -48,7 +48,7 @@ Follow the instructions to connect to your phpBB forum in the WP-United section 
 
 Ensure you have installed the phpBB modification package. You can download it from (WP-United.com)[http://www.wp-united.com/releases/wp-united-latest-phpbb]
 
-= I am getting blank pages, I have no idea what is wrong =
+= I am getting blank pages, I have no idea what is wrong! =
 
 There are several ways to debug problems. We suggest you try the following, in order:
 
@@ -59,6 +59,7 @@ There are several ways to debug problems. We suggest you try the following, in o
 * Look in your php error log.
 
 == Screenshots ==
+
 1. The WP-United connection screen
 2. The WP-United settings panel
 3. The WP-United user mapper
@@ -77,7 +78,7 @@ There are several ways to debug problems. We suggest you try the following, in o
 * Brand new, modern, admin panel:
 	* A completely re-imagined settings panel, with modern UI and with most options significantly simplified
 	* No more Wizards!
-	* Panel comunicates with phpBB asynchronously -- no more blank pages!
+	* Panel communicates with phpBB asynchronously -- no more blank pages!
 	* New interactive user mapper that can integate, break integrations, create, delete and edit users in a few clicks
 	* New draggable, connectable permissions mapper to hide the arcane phpBB permissions UI
 	* Less options, more sensible defaults, all in one place
@@ -88,7 +89,7 @@ There are several ways to debug problems. We suggest you try the following, in o
 	* Auto-synced avatars. Get your Gravatar in phpBB -- without having to anything
 	* Designed to work with external auth providers. e.g. click the Facebook button in the oneall plugin, and you get both a phpBB and WordPress account
 * Widgets all ported to new WordPress API. 
-* Widgets now colour phpBB usernames according to default group colour.
+* Widgets now colour phpBB usernames according to default group colour
 * Numerous bugs addressed
 * User blogs has been removed. It will be added back, working with WP-MS, in the next release.
 * Translations all moved to WordPress
