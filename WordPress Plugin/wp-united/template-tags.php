@@ -314,7 +314,7 @@ function wpu_newposts_link() {
 function get_wpu_newposts_link() {
 	global $phpbbForum, $phpEx;
 	if( $phpbbForum->user_logged_in() ) {
-		return '<a href="'. append_sid($phpbbForum->get_board_url() . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". __('Posts since last visit') . "</a>";
+		return '<a href="'. append_sid($phpbbForum->get_board_url() . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". __('posts since last visit') . "</a>";
 	}
 }
 
@@ -630,11 +630,11 @@ function get_wpu_login_user_info($args) {
 			if ($phpbbForum->get_userdata('user_new_privmsg')) {
 				$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
 				$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
-				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 			} else {
 				$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
 				$s_privmsg_new = false;
-				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.php?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
 			}	
 		}
 
@@ -649,7 +649,7 @@ function get_wpu_login_user_info($args) {
 			}
 			$fStateChanged = $phpbbForum->foreground();
 			if($auth->acl_get('a_')) {
-				$ret .= $before . '<a href="'.$phpbbForum->get_board_url() . append_sid('adm/index.php', false, false, $GLOBALS['user']->session_id) . '" title="' .  $phpbbForum->lang['ACP'] . '">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
+				$ret .= $before . '<a href="'.$phpbbForum->get_board_url() . append_sid('adm/index.' . $phpEx, false, false, $GLOBALS['user']->session_id) . '" title="' .  $phpbbForum->lang['ACP'] . '">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
 			$phpbbForum->restore_state($fStateChanged);
 		}

@@ -334,10 +334,143 @@ class WPU_Forum_Users_Online_Widget extends WP_Widget {
 		
 		<?php
 	}
+
+}
+
+class WPU_Useful_Forum_Links_Widget extends WP_Widget {
+
+	public	$defaultArgs;
+
+
+
+
+	public function __construct() {
+		
+		$this->defaultArgs = array( 
+			'title' 			=> __('Useful Forum Links', 'wp-united'),
+			'showForumIndex'	=> 1,
+			'showForumSearch'	=> 1,
+			'showUnanswered'	=> 0,
+			'showActive'		=> 0,
+			'showMyPosts'		=> 1,
+			'showNewPosts'		=> 1,
+			'showProfile'		=> 1,
+			'showPMs'			=> 1,
+			'showACP'			=> 0
+		);
 	
 	
+		$widget_ops = array('classname' => 'wp-united-useful-links', 'description' => __('Useful customizable links to forum features', 'wp-united') );
+		$this->WP_Widget('wp-united-useful-links', __('WP-United Useful Forum Links', 'wp-united'), $widget_ops);
+	}
 	
+	public function widget($args, $instance) {
+		global $phpbbForum, $phpEx, $auth;
+		
+		extract($args, EXTR_SKIP);
+		
+		$title = empty($instance['title']) ? '&nbsp;' : apply_filters('widget_title', $instance['title']);
+		
+		echo $before_widget;
+		echo $before_title . $title . $after_title;
+		$before = '<li><a href="';
+		$after = '</a></li>';
+		$adj = '">';
+		echo '<ul class="wpuusefullinks">';
+		if($instance['showForumIndex']) {
+			echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url()) . $adj . $phpbbForum->lang['FORUM_INDEX'] . $after;
+		}
+		if($instance['showForumSearch']) {
+			echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.' . $phpEx) . $adj . $phpbbForum->lang['SEARCH'] . $after;
+		}
+		if($instance['showUnanswered']) {
+			echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.' . $phpEx . '?search_id=unanswered') . $adj . $phpbbForum->lang['SEARCH_UNANSWERED'] . $after;
+		}
+		if($instance['showActive']) {
+			echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.' . $phpEx . '?search_id=active_topics') . $adj . $phpbbForum->lang['SEARCH_ACTIVE_TOPICS'] . $after;
+		}		
+		if($phpbbForum->user_logged_in()) {
+			if($instance['showMyPosts']) {
+				echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.' . $phpEx . '?search_id=egosearch') . $adj . $phpbbForum->lang['SEARCH_SELF'] . $after;
+			}
+			if($instance['showNewPosts']) {
+				echo '<li>' . get_wpu_newposts_link() . '</li>';
+			}
+			if($instance['showProfile']) {
+				echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx) . $adj . $phpbbForum->lang['PROFILE'] . $after;
+			}				
+			if($instance['showPMs']) {
+				if ($phpbbForum->get_userdata('user_new_privmsg')) {
+					$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
+					$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
+					echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox') . $adj . $l_privmsgs_text . $after;
+				} else {
+					$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
+					$s_privmsg_new = false;
+					echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox') . $adj . $l_privmsgs_text . $after;
+				}	
+			}
+			if($instance['showACP']) {
+				$fStateChanged = $phpbbForum->foreground();
+				if($auth->acl_get('a_')) {
+					echo $before . $phpbbForum->append_sid($phpbbForum->get_board_url() . ('adm/index.' . $phpEx)) . $adj . $phpbbForum->lang['ACP'] . $after;
+				}
+				$phpbbForum->restore_state($fStateChanged);
+			}	
+		}
+		
+		echo '</ul>';
+	}
 	
+	public function update($new_instance, $old_instance) {
+
+		//save the widget
+		$instance = $old_instance;
+		
+		$instance['title'] = strip_tags(stripslashes($new_instance['title']));
+
+		foreach($this->defaultArgs as $var => $default) {
+			if($var == 'title') {
+				$instance[$var] = strip_tags(stripslashes($new_instance[$var]));
+			} else {
+				$instance[$var] = (strip_tags(stripslashes($new_instance[$var])) == 'ok')? 1 : 0;
+			}
+		}
+
+		return $instance;
+	}
+	
+	public function form($instance) {
+		//widget form
+		
+		
+		$instance = wp_parse_args( (array) $instance, $this->defaultArgs);
+		 
+		foreach ($this->defaultArgs as $var => $default) {
+			if($var == 'title') {
+				$$var = strip_tags($instance[$var]);
+			} else {
+				$$var = (!empty($instance[$var])) ? 'checked="checked"' : '';
+			}
+		}
+
+
+		?>
+
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php  _e('Title: ', 'wp-united'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<p><input id="<?php echo $this->get_field_id('showForumIndex'); ?>" name="<?php echo $this->get_field_name('showForumIndex'); ?>" type="checkbox" value="ok"  <?php echo $showForumIndex ?> /> <label for="<?php echo $this->get_field_id('showForumIndex'); ?>"><?php _e('Show forum index link?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showForumSearch'); ?>" name="<?php echo $this->get_field_name('showForumSearch'); ?>" type="checkbox" value="ok" <?php echo $showForumSearch ?> /> <label for="<?php echo $this->get_field_id('showForumSearch'); ?>"><?php _e('Show search link?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showUnanswered'); ?>" name="<?php echo $this->get_field_name('showUnanswered'); ?>" type="checkbox" value="ok" <?php echo $showUnanswered ?> /> <label for="<?php echo $this->get_field_id('showUnanswered'); ?>"><?php _e('Show unanswered posts link?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showActive'); ?>" name="<?php echo $this->get_field_name('showActive'); ?>" type="checkbox" value="ok" <?php echo $showActive ?> /> <label for="<?php echo $this->get_field_id('showActive'); ?>"><?php _e('Show active topics link?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showMyPosts'); ?>" name="<?php echo $this->get_field_name('showMyPosts'); ?>" type="checkbox" value="ok" <?php echo $showMyPosts ?> /> <label for="<?php echo $this->get_field_id('showMyPosts'); ?>"><?php _e('Show my posts link?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showNewPosts'); ?>" name="<?php echo $this->get_field_name('showNewPosts'); ?>" type="checkbox" value="ok" <?php echo $showNewPosts ?> /> <label for="<?php echo $this->get_field_id('showNewPosts'); ?>"><?php _e('Show new posts?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showProfile'); ?>" name="<?php echo $this->get_field_name('showProfile'); ?>" type="checkbox" value="ok" <?php echo $showProfile ?> /> <label for="<?php echo $this->get_field_id('showProfile'); ?>"><?php _e('Show User Control Panel link?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showPMs'); ?>" name="<?php echo $this->get_field_name('showPMs'); ?>" type="checkbox" value="ok" <?php echo $showPMs ?> /> <label for="<?php echo $this->get_field_id('showPMs'); ?>"><?php _e('Show PMs?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showACP'); ?>" name="<?php echo $this->get_field_name('showACP'); ?>" type="checkbox" value="ok" <?php echo $showACP ?> /> <label for="<?php echo $this->get_field_id('showACP'); ?>"><?php _e('Show Admin link?', 'wp-united'); ?></label></p>
+
+		<?php
+	}
+
 }
 
 
@@ -350,4 +483,5 @@ function wpu_widgets_init() {
 	register_widget('WPU_Latest_Phpbb_Posts_Widget');
 	register_widget('WPU_Forum_Stats_Widget');
 	register_widget('WPU_Forum_Users_Online_Widget');
+	register_widget('WPU_Useful_Forum_Links_Widget');
 }

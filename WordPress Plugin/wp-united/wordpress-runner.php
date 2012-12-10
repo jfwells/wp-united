@@ -125,6 +125,9 @@ function wpu_get_wordpress() {
 				// some theme/plugin options and workarounds for reverse integration
 				// inove -- no sidebar on simple page
 				global $inove_sidebar; $inove_sidebar = true;
+				
+				// Disable the admin bar on cached/simple phpBB-in-WordPress:
+				add_filter('show_admin_bar', '__return_false');
 		
 				ob_start();
 				if($wpUnited->get_setting('useForumPage')) {

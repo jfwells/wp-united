@@ -1,5 +1,11 @@
 current target: v0.9.1
 
+
+>> COMMITTED FOR v0.9.1:
+-- NEW: New widget: Useful forum links
+-- BUGFIX: Explicitly disable WP admin bar on simple header & footer phpBB-in-WordPress pages
+
+
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
 	-- Posts awaiting approval in phpBB don't show up in WP yet
@@ -32,7 +38,7 @@ current target: v0.9.1
 
 ---- widgets  --------
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
-
+-- Forum top bar widget
 
 -------- user blogs --> wp-ms  (v0.9 not contingent on this) ----------
 -- check permissions mapping and user creation -- add check for whether they should be given a blog or not when being created
