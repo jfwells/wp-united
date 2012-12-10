@@ -240,7 +240,7 @@ class WP_United_Plugin_Base {
 	public function get_version() {
 		if(empty($this->version)) {
 			require_once ($this->get_plugin_path() . 'version.php');
-			global $wpuVersion;
+			global $wpuVersion; 
 			$this->version = $wpuVersion;
 		}
 		return $this->version;

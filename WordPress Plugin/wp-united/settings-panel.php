@@ -192,7 +192,7 @@ function wpu_advanced_options() {
 }
 
 function wpu_get_help() {
-	global $wpUnited, $wpuDebug;
+	global $wpUnited, $wpuDebug; 
 	?>
 	<div class="wrap" id="wp-united-setup">
 		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />

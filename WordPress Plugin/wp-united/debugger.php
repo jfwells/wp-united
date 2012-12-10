@@ -107,7 +107,7 @@ class WPU_Debug {
 			'WP-United Version' 			=> 	$wpUnited->get_version(),
 			'WordPress Version' 			=> 	$wp_version,
 			'PHP Version'						=>	PHP_VERSION,
-			'WP-United enabled?'			=>	($wpUnited->is_enabled)? 'Yes' : 'No',
+			'WP-United enabled?'			=>	($wpUnited->is_enabled())? 'Yes' : 'No',
 			'WordPress Home URL'		=>	($s) ? $this->sanitise($wpUnited->get_wp_home_url()) : $wpUnited->get_wp_home_url(),
 			'WordPress Base URL'		=>	($s) ? $this->sanitise($wpUnited->get_wp_base_url()) : $wpUnited->get_wp_base_url(),
 			'WordPress Plugin URL'		=>	($s) ? $this->sanitise($wpUnited->get_plugin_url()) : $wpUnited->get_plugin_url(),			
@@ -116,7 +116,7 @@ class WPU_Debug {
 			'WordPress Path'			=>	($s) ? $this->sanitise($wpUnited->get_wp_path()) : $wpUnited->get_wp_path(),
 			'phpBB Path'				=>	($s) ? $this->sanitise($wpUnited->get_setting('phpbb_path')) : $wpUnited->get_setting('phpbb_path')
 		); 
-		
+	
 		$settings = array_merge($mainEntries, $settings);
 		$result  = '';
 		
