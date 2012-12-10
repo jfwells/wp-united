@@ -137,3 +137,8 @@ There are several ways to debug problems. We suggest you try the following, in o
 * ... and several other minor bug fixes
 
 For previous changes, please view the included `CHANGELOG` file.
+
+== Upgrade Notice ==
+
+= 0.9.0.2 =
+This version fixes a few minor bugs reported just after release of v0.9. You can update automatically or by simply copying over the WordPress plugin; You do not need to update the phpBB side.
