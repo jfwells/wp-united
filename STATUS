@@ -4,6 +4,8 @@ current target: v0.9.1
 >> COMMITTED FOR v0.9.1:
 -- NEW: New widget: Useful forum links
 -- BUGFIX: Explicitly disable WP admin bar on simple header & footer phpBB-in-WordPress pages
+-- BUGFIX: Link to post not displaying in cross-post
+-- BUGFIX: Cross-post box not honouring excerpt/fullpost/askme choice
 
 
 ------ cross-posting and comments ---------

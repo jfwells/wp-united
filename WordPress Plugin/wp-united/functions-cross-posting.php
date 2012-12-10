@@ -72,7 +72,7 @@ function wpu_add_postboxes() {
 			} ?>
 			</select>
 	
-			 <?php if($wpUnited->get_setting('xposttype') == 'ASKME') {
+			 <?php if($wpUnited->get_setting('xposttype') == 'askme') {
 				$excerptState = 'checked="checked"';
 				$fullState = '';
 				if (isset($_GET['post'])) {
@@ -101,7 +101,7 @@ function wpu_add_forcebox($forumName) {
 ?>
 	<div id="wpuxpostdiv" class="inside">
 	<p> <?php echo sprintf($showText, $forceXPosting); ?></p>
-	<?php if($wpUnited->get_setting('xposttype') == 'ASKME') {
+	<?php if($wpUnited->get_setting('xposttype') == 'askme') {
 				$excerptState = 'checked="checked"';
 				$fullState = '';
 				if (isset($_GET['post'])) {
@@ -217,11 +217,11 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	
 	// should we post an excerpt, or a full post?
 	$postType = 'excerpt';
-	if($wpUnited->get_setting('xposttype') == 'ASKME') { 
+	if($wpUnited->get_setting('xposttype') == 'askme') { 
 		if (isset($_POST['rad_xpost_type'])) {
 			$postType = ($_POST['rad_xpost_type'] == 'fullpost') ? 'fullpost' : 'excerpt';
 		}
-	} else if($wpUnited->get_setting('xposttype') == 'FULLPOST') {
+	} else if($wpUnited->get_setting('xposttype') == 'fullpost') {
 		$postType = 'fullpost';
 	}
 	update_post_meta($postID, '_wpu_posttype', $postType);
@@ -258,7 +258,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		$cats = (!empty($cat_list)) ? '[b]' . __('Posted under: ', 'wp-united') . "[/b]{$cat_list}\n" : '';
 	}
 	
-	$content = sprintf(__('This is a %1$sblog post%2$s. To read the original post, please %3sclick here &raquo;%4s', 'wp-united'), '[b]', '[/b]', '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
+	$content = sprintf(__('This is a %1$sblog post%2$s. To read the original post, please %3$sclick here &raquo;%4$s', 'wp-united'), '[b]', '[/b]', '[url=' . get_permalink($postID) . ']', '[/url]') . "\n\n" . $content . "\n\n" . $tags . $cats;
 
 	$phpbbForum->foreground();
 
