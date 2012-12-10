@@ -104,7 +104,14 @@ WP-United :: Public Releases
 **** phpBB3 releases: ****
 
 
-v0.9.0 RELEASE CANDIDATE 3
+v0.9.0.2 RELEASE CANDIDATE 3
+
+- NEW: New widget: Useful forum links
+- BUGFIX: Explicitly disable WP admin bar on simple header & footer phpBB-in-WordPress pages
+- BUGFIX: Link to post not displaying in cross-post
+- BUGFIX: Cross-post box not honouring excerpt/fullpost/askme choice
+
+v0.9.0/1 RELEASE CANDIDATE 3
 - WP-United is, for the most part, completely rewritten, to improve flexibility and compatibility
 - The vast majority of WP-United now sits under WordPress rather than phpBB. Find plugin, click install, done... that's what the aim is.
 - Modular -- now only hooks and files that are needed are loaded
