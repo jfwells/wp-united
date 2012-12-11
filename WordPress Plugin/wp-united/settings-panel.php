@@ -821,7 +821,7 @@ function wpu_map_show_data() {
 	echo '<pagination><![CDATA[<p><em class="wpumapcount">' . sprintf(__('Showing %1$d to %2$d of %3$d %4$s.', 'wp-united'), ($first + 1), $to, $total, $packageUsers) . ' </em>' . $pagination . '</p>]]></pagination>';
 	
 	echo '<mapcontent><![CDATA[';
-	
+	ob_start();
 	$haveUnintegratedUsers = false;
 	$haveIntegratedUsers = false;
 	
@@ -875,7 +875,10 @@ function wpu_map_show_data() {
 		echo '</table>';
 	}
 	
-	echo ']]></mapcontent><bulk><![CDATA[';
+	$content = base64_encode(ob_get_contents());
+	ob_end_clean();
+	
+	echo $content . ']]></mapcontent><bulk><![CDATA[';
 	if($total>0) {
 		echo '<div id="wpubulk"><select id="wpuquicksel" name="wpuquicksel">
 			<option value="0">---- ' . __('Bulk actions', 'wp-united') . ' ----</option>';

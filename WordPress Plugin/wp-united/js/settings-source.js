@@ -589,8 +589,8 @@ function wpuShowMapper(repaginate) {
 		$wpu('#wpumappaginate1').html(pag);
 		$wpu('#wpumappaginate2').html(bulk + pag);
 		// wrap content in an additional div to speed DOM insertion
-		
-		$wpu('#wpuoffscreen').html($wpu(response).find('mapcontent').text());
+		var content = Base64.decode($wpu(response).find('mapcontent').text());
+		$wpu('#wpuoffscreen').html(content);
 
 		
 		setTimeout('setupMapButtons()', 200);

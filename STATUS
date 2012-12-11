@@ -8,6 +8,7 @@ Outstanding reported bugs:
 * NEW: Synchronize profiles user mapper button and bulk action
 * UPDATED: User mapper allows processing up to 250 users at once
 * UPDATED: Don't repaginate user mapper after processing actions
+* BUGFIX: User mapper dying on entities in usernames
 * BUGFIX: User mapper not displaying user names in alphabetical order when phpBB was on left
 * UPDATED: More permissive in returned messages from server when connecting and enabling (fixes errors on servers where files have leading or trailing garbage).
 
