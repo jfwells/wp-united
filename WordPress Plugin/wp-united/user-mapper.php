@@ -226,8 +226,8 @@ class WPU_User_Mapper {
 		$fStateChanged = $phpbbForum->foreground();
 		
 		// for normal requests, get the count first
-		if(empty($this->showSpecificUsers) && empty($this->showUsersLike)) {
-			$countSql =$this->phpbb_userlist_sql(false, false, true); 
+		if(empty($this->showSpecificUsers)) {
+			$countSql =$this->phpbb_userlist_sql(false, $this->showUsersLike, true); 
 			if($countResult = $db->sql_query($countSql)) {  
 				if($count = $db->sql_fetchrow($countResult)) {
 					$this->numUsers = $count['numusers'];
