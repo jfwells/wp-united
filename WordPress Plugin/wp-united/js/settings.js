@@ -448,7 +448,6 @@ var mapTxtInputState = '';
 function wpuUnbindMapForm() {
 	$wpu('#wpumapdisp input').unbind('change');
 	$wpu('#wpumapsearchbox').unbind('keyup');
-	mapTxtInputState = $wpu('#wpumapsearchbox').val();
 }
 
 function wpuBindMapForm() {
@@ -456,9 +455,11 @@ function wpuBindMapForm() {
 		wpuShowMapper(true);
 	});
 	$wpu('#wpumapsearchbox').bind('keyup', function() {
+		if(generatingMapper) {
+			return;
+		}
 		var newState = $wpu(this).val();
 		if(newState != mapTxtInputState) {
-			$wpu(this).unbind();
 			mapTxtInputState = newState;
 			wpuShowMapper(true);
 		}
@@ -585,10 +586,12 @@ function wpuClearPerms() {
  * sets up all contained buttons/fields/etc.
  */
 var selContainsCurrUser = false;
+var generatingMapper = false;
 function wpuShowMapper(repaginate) {
 	
 	wpuUnbindMapForm();
-
+	generatingMapper = true;
+	
 	if(repaginate == true) {
 		$wpu('#wpufirstitem').val(0);
 	}
@@ -697,6 +700,7 @@ function wpuShowMapper(repaginate) {
 		});
 		
 		currAction = 0;
+		generatingMapper = false;
 
 	});
 	
