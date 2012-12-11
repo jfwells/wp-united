@@ -110,7 +110,7 @@ class WPU_User_Mapper {
 		} else if(!empty($this->showUsersLike)) {
 			// find similar users for autocomplete
 			$where =  $wpdb->prepare('WHERE UCASE(user_login) LIKE %s', '%' . strtoupper($this->showUsersLike) . '%');
-		
+	
 		/** 
 		 * For all normal queries we need to calculate a total user count so the results can be paginated
 		 * @TODO: This pulls post count and/or integrated phpBB usr info. These are pulled later on again as
