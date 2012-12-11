@@ -994,7 +994,7 @@ function wpuMapSync(userID, intUserID, userName, intUserName) {
 	$wpu('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');
 			
 	return false;
-	
+}	
 	
 /**
  * Generates a "break integration" action
