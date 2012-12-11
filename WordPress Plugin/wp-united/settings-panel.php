@@ -857,6 +857,7 @@ function wpu_map_show_data() {
 					<div class="wpuintegok ui-widget-header ui-corner-all">
 						<p><?php echo __('Status: ', 'wp-united') . __('Integrated', 'wp-united'); ?></p>
 						<p class="wpubuttonset">
+							<?php echo $user->sync_profiles_action(); ?>
 							<?php echo $user->break_action(); ?>
 							<?php echo $user->delboth_action(); ?>
 						</p>
@@ -881,6 +882,7 @@ function wpu_map_show_data() {
 		}
 		if($haveIntegratedUsers) {
 			echo '<option value="break">' . __('Break all integrated', 'wp-united') . '</option>';
+			echo '<option value="sync">' . __('Sync all integrated profiles', 'wp-united') . '</option>';
 		}
 		if($haveUnintegratedUsers) {
 			echo  '<option value="create">' . __('Create users for all unintegrated', 'wp-united') . '</option>';
@@ -913,7 +915,8 @@ function wpu_process_mapaction() {
 		empty($userID) || 
 		empty($package) || 
 		(($action == 'delboth') && empty($intUserID)) ||
-		(($action == 'break') && empty($intUserID))
+		(($action == 'break') && empty($intUserID ||
+		(($action == 'sync') && empty($intUserID))
 	) {
 		wpu_map_action_error('Cannot perform action, required details are missing');
 	}
@@ -976,6 +979,12 @@ function wpu_process_mapaction() {
 		case 'break':
 			$id = ($package == 'wp') ? $userID : $intUserID;
 			wpu_map_break($id);
+			echo '<status>OK</status>';
+		break;
+		
+		case 'sync':
+			$id = ($package == 'wp') ? $userID : $intUserID;
+			wpu_sync_profiles($wpUsrData, $wpuNewDetails, 'sync', true);
 			echo '<status>OK</status>';
 		break;
 		

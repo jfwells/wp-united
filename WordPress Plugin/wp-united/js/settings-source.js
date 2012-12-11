@@ -714,6 +714,12 @@ function wpuProcessMapActionButton(btnID) {
 				intUsrName = $wpu('#wpu' + altPkg + 'login' + intUsrID).text();
 				return wpuMapBreak(usrID, intUsrID, usrName, intUsrName);
 				break;
+				
+			case 'sync':
+				intUsrID = actionDetails[4];
+				intUsrName = $wpu('#wpu' + altPkg + 'login' + intUsrID).text();
+				return wpuMapSync(usrID, intUsrID, usrName, intUsrName);
+				break;
 		}
 		
 		return false;	
@@ -728,6 +734,10 @@ function wpuProcessMapActionButton(btnID) {
  */
 
 function setupMapButtons() {
+	$wpu('#wpumaptable a.wpumapactionsync').button({ 
+		icons: {primary:'ui-icon-refresh'},
+		text: false
+	});
 	$wpu('#wpumaptable a.wpumapactionbrk').button({ 
 		icons: {primary:'ui-icon-scissors'},
 		text: false
@@ -789,9 +799,15 @@ function wpuMapBulkActions() {
 					wpuProcessMapActionButton($wpu(this).attr('id'));
 				}
 			});		
-		break;		
+		break;
 		
-		
+		case 'sync':
+			$wpu('#wpumaptable .wpuintegok a.wpumapactionsync').each(function() {
+				if(!$wpu(this).button('widget').hasClass('ui-button-disabled')) {
+					wpuProcessMapActionButton($wpu(this).attr('id'));
+				}
+			});	
+		break;
 	}
 	
 	
@@ -947,6 +963,39 @@ function wpuMapIntegrate(el, userID, toUserID, userName, toUserName, userEmail, 
 	 return false;
 }
 
+
+/**
+ * Generates a "Sync user profiles" action
+ */
+function wpuMapSync(userID, intUserID, userName, intUserName) {
+
+	showPanel();
+	var actionType = actionSync;
+	var actionDets = actionSyncDets.replace('%1$s', '<em>' + userName + '</em>')
+			.replace('%2$s', '<em>' + intUserName + '</em>');
+	var actionsIndex= wpuMapActions.length;
+	var markup = '<li id="wpumapaction' + actionsIndex + '"><strong>' + actionType + '</strong> ' + actionDets + '</li>';
+
+	var pckg = $wpu('#wpumapside').val();
+	if( ((pckg == 'wp') && ((userID == currWpUser) || (intUserID == currPhpbbUser))) ||
+		 ((pckg == 'phpbb') && ((userID == currPhpbbUser) || (intUserID == currWpUser))) ) {
+			 selContainsCurrUser = true;
+	}	
+
+	wpuMapActions.push({
+		'type': 'sync',
+		'userid': userID,
+		'intuserid': intUserID,
+		'desc': actionType + ' ' + actionDets,
+		'package': pckg
+	});	
+	$wpu('#wpupanelactionlist').append(markup);
+
+	$wpu('#wpuuser' + userID).find('a.ui-button:not(.wpumapactionedit)').button('disable');
+			
+	return false;
+	
+	
 /**
  * Generates a "break integration" action
  */
@@ -1103,7 +1152,8 @@ function wpuMapClearAll() {
 		'a.wpumapactionbrk, ' + 
 		'a.wpumapactiondel, ' +
 		'a.wpumapactionlnk, ' +
-		'a.wpumapactioncreate'
+		'a.wpumapactioncreate, ' +
+		'a.wpumapactionsync'
 	).button('enable');
 	$wpu('#wpumapscreen a.wpumapactionlnktyped').button('disable');
 	$wpu('#wpumapscreen a.wpuusrtyped').val('');

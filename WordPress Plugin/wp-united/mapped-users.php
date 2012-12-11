@@ -116,7 +116,7 @@ abstract class WPU_Mapped_User {
 	 */
 	public function delboth_action() {
 		
-$action = sprintf(
+		$action = sprintf(
 			'<a href="#" class="wpumapactiondel" id="wpuaction-delboth-%s-%d-%d">' . __('Delete user from both phpBB and WordPress', 'wp-united') . '</a>',
 			$this->type,
 			$this->userID,
@@ -124,7 +124,10 @@ $action = sprintf(
 		);		
 		return $action;
 	}
-	
+
+	/**
+	 * Returns the html markup for a "delete user" action
+	 */	
 	public function del_action() {
 		$package = ($this->type == 'phpbb') ? __('phpBB', 'wp-united') : __('WordPress', 'wp-united');
 		$action = sprintf(
@@ -133,6 +136,19 @@ $action = sprintf(
 			$this->userID
 			
 		);		
+		return $action;
+	}
+	
+	/**
+	 * Returns the html markup for a "sync users" action
+	*/
+	public function sync_profiles_action() {
+		$action = sprintf(
+			'<a href="#" class="wpumapactionsync" id="wpuaction-sync-%s-%d-%d">' . __('Synchronize profiles between phpBB and WordPress', 'wp-united'). '</a>',
+			$this->type,
+			$this->userID,
+			$this->integratedUser->userID
+		);
 		return $action;
 	}
 	
