@@ -1,10 +1,20 @@
 current target: v0.9.0.3
 
 Outstanding reported bugs:
--- none --
+wpPageName and wppageName
 
+<<<<<<< .mine
+Changes in v0.9.0.3:
+* Load version when WP-United is disabled so things like "Get Help" still work.
+* be more forgiving with server response when activating.
+=======
 >> Changes for v0.9.0.3
+>>>>>>> .r960
 
+<<<<<<< .mine
+
+
+=======
 * NEW: Synchronize profiles user mapper button and bulk action
 * UPDATED: User mapper allows processing up to 250 users at once
 * UPDATED: Don't repaginate user mapper after processing actions
@@ -12,6 +22,7 @@ Outstanding reported bugs:
 * BUGFIX: User mapper not displaying user names in alphabetical order when phpBB was on left
 * UPDATED: More permissive in returned messages from server when connecting and enabling (fixes errors on servers where files have leading or trailing garbage).
 
+>>>>>>> .r960
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
 	-- Posts awaiting approval in phpBB don't show up in WP yet
