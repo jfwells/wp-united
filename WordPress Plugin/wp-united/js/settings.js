@@ -440,6 +440,16 @@ function setupUserMapperPage() {
 	
 	// bind top form changes
 	wpuBindMapForm();
+	$wpu('#wpumapsearchbox').bind('keyup', function() {
+		if(generatingMapper) {
+			return;
+		}
+		var newState = $wpu(this).val();
+		if(newState != mapTxtInputState) {
+			mapTxtInputState = newState;
+			wpuShowMapper(true);
+		}
+	});
 	
 	wpuShowMapper(true);
 }
@@ -453,16 +463,6 @@ function wpuUnbindMapForm() {
 function wpuBindMapForm() {
 	$wpu("#wpumapdisp select").bind('change', function() {
 		wpuShowMapper(true);
-	});
-	$wpu('#wpumapsearchbox').bind('keyup', function() {
-		if(generatingMapper) {
-			return;
-		}
-		var newState = $wpu(this).val();
-		if(newState != mapTxtInputState) {
-			mapTxtInputState = newState;
-			wpuShowMapper(true);
-		}
 	});
 }
 
