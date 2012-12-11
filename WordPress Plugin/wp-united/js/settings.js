@@ -439,7 +439,7 @@ function setupUserMapperPage() {
 	};	
 	
 	// bind top form changes
-	$wpu("#wpumapdisp select").bind('change', function() {
+	$wpu('#wpumapdisp select').bind('change', function() {
 		if(!generatingMapper) {
 			wpuShowMapper(true);
 		}
@@ -575,6 +575,10 @@ var generatingMapper = false;
 var mapTxtInputState = '';
 
 function wpuShowMapper(repaginate) {
+	
+	if(generatingMapper) {
+		return;
+	}
 	
 	generatingMapper = true;
 	mapTxtInputState = $wpu('#wpumapsearchbox').val();
