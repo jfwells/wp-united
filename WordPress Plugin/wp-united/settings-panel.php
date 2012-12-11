@@ -715,6 +715,8 @@ function wpu_user_mapper() {
 		var mapProfileTitle 		= '<?php _e('Viewing user profile. When you are finished, close this screen.', 'wp-united'); ?>';
 		var actionBreak 			=	'<?php _e('Break integration', 'wp-united'); ?>';
 		var actionBreakDets 		=	'<?php _e('between %1$s and %2$s', 'wp-united'); ?>';
+		var actionSync 			=	'<?php _e('Synchronize profiles', 'wp-united'); ?>';
+		var actionSyncDets 		=	'<?php _e('between %1$s and %2$s', 'wp-united'); ?>';
 		var actionDelBoth 			=	'<?php _e('Delete ', 'wp-united'); ?>';
 		var actionDelBothDets 	=	'<?php _e('%1$s from %2$s and %3$s from %4$s', 'wp-united'); ?>';
 		var actionDel 				=	'<?php _e('Delete ', 'wp-united'); ?>';
