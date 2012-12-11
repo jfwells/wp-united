@@ -458,7 +458,7 @@ function wpuBindMapForm() {
 	$wpu('#wpumapsearchbox').bind('keyup', function() {
 		var newState = $wpu(this).val();
 		if(newState != mapTxtInputState) {
-			$(this).unbind();
+			$wpu(this).unbind();
 			mapTxtInputState = newState;
 			wpuShowMapper(true);
 		}
