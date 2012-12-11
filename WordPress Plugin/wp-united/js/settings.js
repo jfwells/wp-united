@@ -446,7 +446,7 @@ function setupUserMapperPage() {
 
 var mapTxtInputState = '';
 function wpuUnbindMapForm() {
-	$wpu("#wpumapdisp input").unbind('change');
+	$wpu('#wpumapdisp input').unbind('change');
 	mapTxtInputState = $wpu('#wpumapsearchbox').val();
 	wpuShowMapper(true);
 }
@@ -454,7 +454,7 @@ function wpuUnbindMapForm() {
 function wpuBindMapForm() {
 	$wpu("#wpumapdisp input").bind('change', function() {
 		wpuShowMapper(true);
-	}
+	});
 }
 
 function wpuRebindMapForm() {
