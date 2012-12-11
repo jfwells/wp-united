@@ -189,9 +189,10 @@ class WPU_User_Mapper {
 						$where
 				);
 			} else {
+				$where = $mainWhere;
 				$this->numUsers = $wpdb->get_var('SELECT COUNT(*) AS count
-							FROM ' . $wpdb->users . 
-							$mainWhere
+						FROM ' . $wpdb->users . 
+						$where
 				);
 			}
 		}
