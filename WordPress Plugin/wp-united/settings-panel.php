@@ -1610,7 +1610,7 @@ function wpu_process_settings() {
 				'cssMagic' 				=> 0,
 				'templateVoodoo' 	=> 0,
 				'wpSimpleHdr' 		=> 1,
-				'wppageName' 		=> 'page.php',
+				'wpPageName' 		=> 'page.php',
 				'phpbbPadding' 		=>  '6-12-6-12',
 				'dtdSwitch' 				=> 0
 			));
@@ -1621,8 +1621,7 @@ function wpu_process_settings() {
 		 */
 		$data = array_merge($data, array(
 			'phpbbCensor' 	=> (isset($_POST['wpucensor'])) ? 1 : 0,
-			'phpbbSmilies' 	=> (isset($_POST['wpusmilies'])) ? 1 : 0,
-			//'mustLogin' 		=> (isset($_POST['wpuprivate'])) ? 1 : 0
+			'phpbbSmilies' 	=> (isset($_POST['wpusmilies'])) ? 1 : 0
 		));
 		
 	}
