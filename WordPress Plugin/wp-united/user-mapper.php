@@ -342,9 +342,9 @@ class WPU_User_Mapper {
 		
 		$where = '';
 		if(!empty($arrUsers)) {
-			$where = ' AND ' . $db->sql_in_set('u.user_wpuint_id', (array)$arrUsers);
+			$where = ' AND (' . $db->sql_in_set('u.user_wpuint_id', (array)$arrUsers) . ') ';
 		} else if(!empty($showLike)) {
-			$where = " AND UCASE(u.username) LIKE '%" . $db->sql_escape(strtoupper($showLike)) . "%'";
+			$where = " AND (UCASE(u.username) LIKE '%" . $db->sql_escape(strtoupper($showLike)) . "%') ";
 		} 
 		
 		// apply filters

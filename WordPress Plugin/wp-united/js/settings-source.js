@@ -439,31 +439,25 @@ function setupUserMapperPage() {
 	};	
 	
 	// bind top form changes
-	wpuBindMapForm();
+	$wpu('#wpumapdisp select').bind('change', function() {
+		if(!generatingMapper) {
+			wpuShowMapper(true);
+		}
+	});
+	$wpu('#wpumapsearchbox').bind('keyup', function() {
+		if(!generatingMapper) {
+			var newState = $wpu(this).val();
+			if(newState != mapTxtInputState) {
+				mapTxtInputState = newState;
+				wpuShowMapper(true);
+			}
+		}
+	});
 	
 	wpuShowMapper(true);
 }
 
-var mapTxtInputState = '';
-function wpuUnbindMapForm() {
-	$wpu("#wpumapdisp input").unbind('change');
-	mapTxtInputState = $wpu('#wpumapsearchbox').val();
-	wpuShowMapper(true);
-}
 
-function wpuBindMapForm() {
-	$wpu("#wpumapdisp input").bind('change', function() {
-		wpuShowMapper(true);
-	}
-}
-
-function wpuRebindMapForm() {
-	if($wpu('#wpumapsearchbox').val() == mapTxtInputState) {
-		wpuBindMapForm();
-	} else {
-		wpuShowMapper(true);
-	}
-}
 
 var wpuEndPoint;
 var wpuNeverEndPoint;
@@ -577,10 +571,17 @@ function wpuClearPerms() {
  * sets up all contained buttons/fields/etc.
  */
 var selContainsCurrUser = false;
+var generatingMapper = false;
+var mapTxtInputState = '';
+
 function wpuShowMapper(repaginate) {
 	
-	wpuUnbindMapForm();
-
+	if(generatingMapper) {
+		return;
+	}
+	
+	generatingMapper = true;
+	mapTxtInputState = $wpu('#wpumapsearchbox').val();
 	if(repaginate == true) {
 		$wpu('#wpufirstitem').val(0);
 	}
@@ -615,8 +616,8 @@ function wpuShowMapper(repaginate) {
 		$wpu('#wpuoffscreen').html(content);
 
 		
-		setTimeout('setupMapButtons()', 200);
-		setTimeout('makeMapVisible()', 1000);
+		var sMB = setTimeout('setupMapButtons()', 200);
+		var sMV = setTimeout('makeMapVisible()', 1000);
 
 		wpuMapClearAll();
 		wpuSuggCache = {};
@@ -689,10 +690,17 @@ function wpuShowMapper(repaginate) {
 		});
 		
 		currAction = 0;
-
+		
+		generatingMapper = false;
+		if($wpu('#wpumapsearchbox').val() != mapTxtInputState) {
+			clearTimeout(sMB);
+			clearTimeout(sMV);
+			wpuShowMapper(true);
+		}
+		
 	});
 	
-	wpuRebindMapForm();
+
 }
 
 function makeMapVisible() {
