@@ -385,7 +385,7 @@ class WPU_User_Mapper {
 		
 		
 		$sql = $db->sql_build_query('SELECT', $sqlArray);
-		if($showLike)(die($sql));
+		
 		$phpbbForum->background($fStateChanged);
 		
 		return $sql;
