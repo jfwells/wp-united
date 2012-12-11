@@ -201,18 +201,19 @@ class WPU_User_Mapper {
 			return;
 		}
 		
-	// Now fetch the users
-	$sql = "SELECT u.ID
-			FROM {$wpdb->users} AS u {$postClause} 
-			{$where} 
-			ORDER BY user_login 
-			LIMIT {$this->numStart}, {$this->numToShow}";
-			
-	$results = $wpdb->get_results($sql);
-	
-	foreach ((array) $results as $item => $result) {
-		$user =  new WPU_Mapped_WP_User($result->ID);
-		$this->users[$result->ID] = $user;
+		// Now fetch the users
+		$sql = "SELECT u.ID
+				FROM {$wpdb->users} AS u {$postClause} 
+				{$where} 
+				ORDER BY user_login 
+				LIMIT {$this->numStart}, {$this->numToShow}";
+				
+		$results = $wpdb->get_results($sql);
+		
+		foreach ((array) $results as $item => $result) {
+			$user =  new WPU_Mapped_WP_User($result->ID);
+			$this->users[$result->ID] = $user;
+		}
 	}
 	
 	/**
