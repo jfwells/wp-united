@@ -456,8 +456,11 @@ function wpuBindMapForm() {
 		wpuShowMapper(true);
 	});
 	$wpu('#wpumapsearchbox').bind('keyup', function() {
-		mapTxtInputState = $wpu(this).val();
-		$(this).change();
+		var newState = $wpu(this).val();
+		if(newState != mapTxtInputState) {
+			mapTxtInputState = newState;
+			wpuShowMapper(true);
+		}
 	});
 }
 
