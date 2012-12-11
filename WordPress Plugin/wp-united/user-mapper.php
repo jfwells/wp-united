@@ -105,7 +105,7 @@ class WPU_User_Mapper {
 			/**
 			 * We don't have a need for "show specific users" yet
 			 */
-			$where = '';
+			$mainWhere = '';
 			trigger_error('UNIMPLEMENTED');
 			die();
 			
@@ -122,99 +122,97 @@ class WPU_User_Mapper {
 		 * @TODO: This pulls post count and/or integrated phpBB usr info. These are pulled later on again as
 		 * part of the user load. This is inefficient -- should consider grabbing all data here (at the expense of readability)
 		 */
-		} else {
 			
-			// if the total number of users depends on an integrated/unintegrated filter, need to start in phpBB
-			if(!empty($this->showOnlyInt) || !empty($this->showOnlyUnInt))  {
+		// if the total number of users depends on an integrated/unintegrated filter, need to start in phpBB
+		if(!empty($this->showOnlyInt) || !empty($this->showOnlyUnInt))  {
+			
+			/**
+			 * First we pull the users to use as a filter
+			 * The filter could be a block or a pass filter, so we don't use LIMIT here.
+			 */
+			
+			$fStateChanged = $phpbbForum->foreground();
+			
+			$sql = 'SELECT user_wpuint_id 
+						FROM ' . USERS_TABLE . ' 
+						WHERE (user_type = ' . USER_NORMAL . ' OR user_type = ' . USER_FOUNDER . ') 
+							AND user_wpuint_id > 0';
 				
-				/**
-				 * First we pull the users to use as a filter
-				 * The filter could be a block or a pass filter, so we don't use LIMIT here.
-				 */
-				
-				$fStateChanged = $phpbbForum->foreground();
-				
-				$sql = 'SELECT user_wpuint_id 
-							FROM ' . USERS_TABLE . ' 
-							WHERE (user_type = ' . USER_NORMAL . ' OR user_type = ' . USER_FOUNDER . ') 
-								AND user_wpuint_id > 0';
-					
-				if(!$fResults = $db->sql_query($sql)) {
-					$phpbbForum->background($fStateChanged);
-					return;
-				}
-				$usersToFetch = array();
-				while($fResult = $db->sql_fetchrow($fResults)) {
-					$usersToFetch[] = $fResult['user_wpuint_id'];
-				}
-				
-				$this->numUsers = sizeof($usersToFetch);
-				
-				$db->sql_freeresult();
+			if(!$fResults = $db->sql_query($sql)) {
 				$phpbbForum->background($fStateChanged);
-				
-				if( (!empty($this->showOnlyInt)) && (!sizeof($usersToFetch)) ) {
-					return;
-				}
-
-				 // Now create the filter for the WP query
-				if(sizeof($usersToFetch)) {
-					$set = implode(',', $usersToFetch);
-					if(!empty($this->showOnlyInt)) {
-						$where = ' WHERE ID IN (' . $set . ')' . $mainWhereAnd;
-					} else {
-						$where = ' WHERE ID NOT IN (' . $set . ')' . $mainWhereAnd;
-					}
-				}
-				
-				// If this is "show only unintegrated", we need to run a separate count query
-				$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
-					FROM ' . $wpdb->users .
-					$where
-				);
-				
-			// For other filter types (or no filter), we can just count in WordPress.
-			} else {
-				if($this->showOnlyPosts) {
-					$postClause = ', ' . $wpdb->posts . ' ';
-					$where = ' WHERE (u.ID = post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')' . $mainWhereAnd;
-					$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
-							FROM ' . $wpdb->users . ' AS u' . $postClause .
-							$where
-					);
-				} else if($this->showOnlyNoPosts) {
-					$postClause = ', ' . $wpdb->posts . ' ';
-					$where = ' WHERE (u.ID <> post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')' . $mainWhereAnd;
-					$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
-							FROM ' . $wpdb->users . ' AS u' . $postClause .
-							$where
-					);
-				} else {
-					$this->numUsers = $wpdb->get_var('SELECT COUNT(*) AS count
-								FROM ' . $wpdb->users . 
-								$mainWhere
-					);
-				}
-			}
-			
-			// return for all other than autocomplete if there aren't any users
-			if(!$this->numUsers) {
 				return;
 			}
+			$usersToFetch = array();
+			while($fResult = $db->sql_fetchrow($fResults)) {
+				$usersToFetch[] = $fResult['user_wpuint_id'];
+			}
 			
-		// Now fetch the users
-		$sql = "SELECT u.ID
-				FROM {$wpdb->users} AS u {$postClause} 
-				{$where} 
-				ORDER BY user_login 
-				LIMIT {$this->numStart}, {$this->numToShow}";
-				
-		$results = $wpdb->get_results($sql);
-		
-		foreach ((array) $results as $item => $result) {
-			$user =  new WPU_Mapped_WP_User($result->ID);
-			$this->users[$result->ID] = $user;
+			$this->numUsers = sizeof($usersToFetch);
+			
+			$db->sql_freeresult();
+			$phpbbForum->background($fStateChanged);
+			
+			if( (!empty($this->showOnlyInt)) && (!sizeof($usersToFetch)) ) {
+				return;
+			}
+
+			 // Now create the filter for the WP query
+			if(sizeof($usersToFetch)) {
+				$set = implode(',', $usersToFetch);
+				if(!empty($this->showOnlyInt)) {
+					$where = ' WHERE ID IN (' . $set . ')' . $mainWhereAnd;
+				} else {
+					$where = ' WHERE ID NOT IN (' . $set . ')' . $mainWhereAnd;
+				}
+			}
+			
+			// If this is "show only unintegrated", we need to run a separate count query
+			$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
+				FROM ' . $wpdb->users .
+				$where
+			);
+			
+		// For other filter types (or no filter), we can just count in WordPress.
+		} else {
+			if($this->showOnlyPosts) {
+				$postClause = ', ' . $wpdb->posts . ' ';
+				$where = ' WHERE (u.ID = post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')' . $mainWhereAnd;
+				$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
+						FROM ' . $wpdb->users . ' AS u' . $postClause .
+						$where
+				);
+			} else if($this->showOnlyNoPosts) {
+				$postClause = ', ' . $wpdb->posts . ' ';
+				$where = ' WHERE (u.ID <> post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')' . $mainWhereAnd;
+				$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
+						FROM ' . $wpdb->users . ' AS u' . $postClause .
+						$where
+				);
+			} else {
+				$this->numUsers = $wpdb->get_var('SELECT COUNT(*) AS count
+							FROM ' . $wpdb->users . 
+							$mainWhere
+				);
+			}
 		}
+		
+		// return for all other than autocomplete if there aren't any users
+		if(!$this->numUsers) {
+			return;
+		}
+		
+	// Now fetch the users
+	$sql = "SELECT u.ID
+			FROM {$wpdb->users} AS u {$postClause} 
+			{$where} 
+			ORDER BY user_login 
+			LIMIT {$this->numStart}, {$this->numToShow}";
+			
+	$results = $wpdb->get_results($sql);
+	
+	foreach ((array) $results as $item => $result) {
+		$user =  new WPU_Mapped_WP_User($result->ID);
+		$this->users[$result->ID] = $user;
 	}
 	
 	/**
