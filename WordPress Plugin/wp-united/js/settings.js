@@ -439,40 +439,25 @@ function setupUserMapperPage() {
 	};	
 	
 	// bind top form changes
-	wpuBindMapForm();
-	$wpu('#wpumapsearchbox').bind('keyup', function() {
-		if(generatingMapper) {
-			return;
-		}
-		var newState = $wpu(this).val();
-		if(newState != mapTxtInputState) {
-			mapTxtInputState = newState;
+	$wpu("#wpumapdisp select").bind('change', function() {
+		if(!generatingMapper) {
 			wpuShowMapper(true);
+		}
+	});
+	$wpu('#wpumapsearchbox').bind('keyup', function() {
+		if(!generatingMapper) {
+			var newState = $wpu(this).val();
+			if(newState != mapTxtInputState) {
+				mapTxtInputState = newState;
+				wpuShowMapper(true);
+			}
 		}
 	});
 	
 	wpuShowMapper(true);
 }
 
-var mapTxtInputState = '';
-function wpuUnbindMapForm() {
-	$wpu('#wpumapdisp select').unbind('change');
-	$wpu('#wpumapsearchbox').unbind('keyup');
-}
 
-function wpuBindMapForm() {
-	$wpu("#wpumapdisp select").bind('change', function() {
-		wpuShowMapper(true);
-	});
-}
-
-function wpuRebindMapForm() {
-	if($wpu('#wpumapsearchbox').val() == mapTxtInputState) {
-		wpuBindMapForm();
-	} else {
-		wpuShowMapper(true);
-	}
-}
 
 var wpuEndPoint;
 var wpuNeverEndPoint;
@@ -587,11 +572,12 @@ function wpuClearPerms() {
  */
 var selContainsCurrUser = false;
 var generatingMapper = false;
+var mapTxtInputState = '';
+
 function wpuShowMapper(repaginate) {
 	
-	wpuUnbindMapForm();
 	generatingMapper = true;
-	
+	mapTxtInputState = $wpu('#wpumapsearchbox').val();
 	if(repaginate == true) {
 		$wpu('#wpufirstitem').val(0);
 	}
@@ -700,11 +686,15 @@ function wpuShowMapper(repaginate) {
 		});
 		
 		currAction = 0;
+		
 		generatingMapper = false;
-
+		if($wpu('#wpumapsearchbox').val() != mapTxtInputState) {
+			wpuShowMapper(true);
+		}
+		
 	});
 	
-	wpuRebindMapForm();
+
 }
 
 function makeMapVisible() {
