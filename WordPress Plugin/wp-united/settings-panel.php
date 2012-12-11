@@ -661,6 +661,8 @@ function wpu_user_mapper() {
 								<option value="posts"><?php _e('All With Posts', 'wp-united'); ?></option>
 								<option value="noposts"><?php _e('All Without Posts', 'wp-united'); ?></option>
 							</select>
+							<label for="wpumapsearchbox"<?php _e('or search for user: ', 'wp-united') ?></label>
+							<input type="text" id="wpumapsearchbox" name="wpumapsearchbox"></input>
 							<input type="hidden" name="wpufirstitem" id="wpufirstitem" value="0" />			
 						</fieldset>
 					</form>
@@ -796,11 +798,13 @@ function wpu_map_show_data() {
 	$showOnlyPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'posts')) ? 1 : 0;
 	$showOnlyNoPosts = ((isset($_POST['wputypeshow'])) && ($_POST['wputypeshow'] == 'noposts')) ? 1 : 0;
 	
+	$showLike = (isset($_POST['wpumapsearchbox'])) ? str_replace(array('"', '&'), array('|QUOT|', '|AMP|'), stripslashes(strip_tags((string) $_POST['wpumapsearchbox']))) : '';
+	
 	require($wpUnited->get_plugin_path() . 'user-mapper.php');
 	require($wpUnited->get_plugin_path() . 'mapped-users.php');
 	
 	$userMapper = new WPU_User_Mapper("leftSide={$type}&numToShow={$num}&numStart={$first}&showOnlyInt={$showOnlyInt}
-		&showOnlyUnInt={$showOnlyUnInt}&showOnlyPosts={$showOnlyPosts}&showOnlyNoPosts={$showOnlyNoPosts}");
+		&showOnlyUnInt={$showOnlyUnInt}&showOnlyPosts={$showOnlyPosts}&showOnlyNoPosts={$showOnlyNoPosts}&showLike={$showLike}");
 
 	$alt = '';
 	

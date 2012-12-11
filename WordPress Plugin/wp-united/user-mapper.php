@@ -41,9 +41,10 @@ class WPU_User_Mapper {
 			'numToShow' 				=> 	50,
 			'numStart'					=> 	0,
 			'showOnlyInt' 				=> 	0,
-			'showOnlyUnInt' 		=> 	0,
-			'showOnlyPosts' 		=> 	0,
-			'showOnlyNoPosts' 	=> 	0
+			'showOnlyUnInt' 			=> 	0,
+			'showOnlyPosts' 			=> 	0,
+			'showOnlyNoPosts' 			=> 	0,
+			'showLike'					=>	'',
 		);
 		$procArgs = array();
 		parse_str($args, $procArgs);
@@ -59,7 +60,7 @@ class WPU_User_Mapper {
 		$this->showOnlyPosts= (int)$showOnlyPosts;
 		$this->showOnlyNoPosts= (int)$showOnlyNoPosts;
 		$this->showSpecificUsers = false;
-		$this->showUsersLike = (empty($showLike)) ? false : (string)$showLike;
+		$this->showUsersLike = (empty($showLike)) ? false : (string)str_replace(array('|QUOT|', '|AMP|'), array('"', '&'), $showLike);
 
 		if(is_array($showSpecificUserIDs)) { 
 			$this->showSpecificUsers = true;

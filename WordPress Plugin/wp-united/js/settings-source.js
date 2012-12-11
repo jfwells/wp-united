@@ -360,6 +360,7 @@ var wpuSuggCache;
 var panelOpen = false;
 var panelHidden = false;
 
+
 /**
  * Initialises the user mapper page
  */
@@ -437,11 +438,31 @@ function setupUserMapperPage() {
 		
 	};	
 	
-
-	$wpu("#wpumapdisp select").bind('change', function() {
-		wpuShowMapper(true);
-	});
+	// bind top form changes
+	wpuBindMapForm();
+	
 	wpuShowMapper(true);
+}
+
+var mapTxtInputState = '';
+function wpuUnbindMapForm() {
+	$wpu("#wpumapdisp input").unbind('change');
+	mapTxtInputState = $wpu('#wpumapsearchbox').val();
+	wpuShowMapper(true);
+}
+
+function wpuBindMapForm() {
+	$wpu("#wpumapdisp input").bind('change', function() {
+		wpuShowMapper(true);
+	}
+}
+
+function wpuRebindMapForm() {
+	if($wpu('#wpumapsearchbox').val() == mapTxtInputState) {
+		wpuBindMapForm();
+	} else {
+		wpuShowMapper(true);
+	}
 }
 
 var wpuEndPoint;
@@ -558,6 +579,8 @@ function wpuClearPerms() {
 var selContainsCurrUser = false;
 function wpuShowMapper(repaginate) {
 	
+	wpuUnbindMapForm();
+
 	if(repaginate == true) {
 		$wpu('#wpufirstitem').val(0);
 	}
@@ -668,6 +691,8 @@ function wpuShowMapper(repaginate) {
 		currAction = 0;
 
 	});
+	
+	wpuRebindMapForm();
 }
 
 function makeMapVisible() {
