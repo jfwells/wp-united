@@ -446,12 +446,12 @@ function setupUserMapperPage() {
 
 var mapTxtInputState = '';
 function wpuUnbindMapForm() {
-	$wpu('#wpumapdisp input').unbind('change');
+	$wpu('#wpumapdisp select').unbind('change');
 	$wpu('#wpumapsearchbox').unbind('keyup');
 }
 
 function wpuBindMapForm() {
-	$wpu("#wpumapdisp input").bind('change', function() {
+	$wpu("#wpumapdisp select").bind('change', function() {
 		wpuShowMapper(true);
 	});
 	$wpu('#wpumapsearchbox').bind('keyup', function() {

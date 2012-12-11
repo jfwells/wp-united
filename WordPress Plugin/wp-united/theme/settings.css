@@ -960,12 +960,13 @@ div.subsettings div.subsettings {
 }
 
 #wpumapsearchbox {
-	width: auto;
+	width: 30px;
 }
 
 #wpumapsrcharea {
-	width: 65px; 
+	width: auto;
 	white-space: nowrap;
+	clear: none;
 }
 
 .wpuavatartyped {
