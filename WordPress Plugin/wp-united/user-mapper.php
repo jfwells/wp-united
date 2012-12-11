@@ -98,6 +98,8 @@ class WPU_User_Mapper {
 		global $wpdb, $phpbbForum, $user, $db;
 		
 		$where = '';
+		$mainWhere = '';
+		$mainWhereAnd = '';
 		$postClause = '';
 		if(!empty($this->showSpecificUsers)) {
 			/**
@@ -107,10 +109,14 @@ class WPU_User_Mapper {
 			trigger_error('UNIMPLEMENTED');
 			die();
 			
-		} else if(!empty($this->showUsersLike)) {
+		} 
+		if(!empty($this->showUsersLike)) {
 			// find similar users for autocomplete
-			$where =  $wpdb->prepare('WHERE UCASE(user_login) LIKE %s', '%' . strtoupper($this->showUsersLike) . '%');
-	
+			$mainWhere =  $wpdb->prepare("UCASE(user_login) LIKE '%s'", '%' . strtoupper($this->showUsersLike) . '%');
+			$mainWhereAnd = " AND $mainWhere";
+			$mainWhere = " WHERE $mainWhere";
+		}
+		
 		/** 
 		 * For all normal queries we need to calculate a total user count so the results can be paginated
 		 * @TODO: This pulls post count and/or integrated phpBB usr info. These are pulled later on again as
@@ -155,9 +161,9 @@ class WPU_User_Mapper {
 				if(sizeof($usersToFetch)) {
 					$set = implode(',', $usersToFetch);
 					if(!empty($this->showOnlyInt)) {
-						$where = ' WHERE ID IN (' . $set . ')';
+						$where = ' WHERE ID IN (' . $set . ')' . $mainWhereAnd;
 					} else {
-						$where = ' WHERE ID NOT IN (' . $set . ')';
+						$where = ' WHERE ID NOT IN (' . $set . ')' . $mainWhereAnd;
 					}
 				}
 				
@@ -171,21 +177,22 @@ class WPU_User_Mapper {
 			} else {
 				if($this->showOnlyPosts) {
 					$postClause = ', ' . $wpdb->posts . ' ';
-					$where = ' WHERE (u.ID = post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')';
+					$where = ' WHERE (u.ID = post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')' . $mainWhereAnd;
 					$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
 							FROM ' . $wpdb->users . ' AS u' . $postClause .
 							$where
 					);
 				} else if($this->showOnlyNoPosts) {
 					$postClause = ', ' . $wpdb->posts . ' ';
-					$where = ' WHERE (u.ID <> post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')';
+					$where = ' WHERE (u.ID <> post_author AND post_type = \'post\' AND ' . get_private_posts_cap_sql('post') . ')' . $mainWhereAnd;
 					$this->numUsers = $wpdb->get_var( 'SELECT COUNT(*) AS numusers
 							FROM ' . $wpdb->users . ' AS u' . $postClause .
 							$where
 					);
 				} else {
 					$this->numUsers = $wpdb->get_var('SELECT COUNT(*) AS count
-								FROM ' . $wpdb->users
+								FROM ' . $wpdb->users . 
+								$mainWhere
 					);
 				}
 			}
@@ -195,8 +202,7 @@ class WPU_User_Mapper {
 				return;
 			}
 			
-		}
-		
+		// Now fetch the users
 		$sql = "SELECT u.ID
 				FROM {$wpdb->users} AS u {$postClause} 
 				{$where} 
