@@ -573,7 +573,7 @@ function wpuShowMapper(repaginate) {
 		$wpu('#wpumapscreen').html(errMsg = settings.url + ' returned: ' + exception);
 	});
 	
-	
+	$wpu.ajaxSetup({ scriptCharset: "utf-8" , contentType: "application/xml; charset=utf-8"});
 	$wpu.post('admin.php?page=wpu-user-mapper', formData, function(response, status, xhr) {
 
 		// Set up the page when a user mapper response has been received
