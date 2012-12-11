@@ -915,7 +915,7 @@ function wpu_process_mapaction() {
 		empty($userID) || 
 		empty($package) || 
 		(($action == 'delboth') && empty($intUserID)) ||
-		(($action == 'break') && empty($intUserID ||
+		(($action == 'break') && empty($intUserID)) ||
 		(($action == 'sync') && empty($intUserID))
 	) {
 		wpu_map_action_error('Cannot perform action, required details are missing');
