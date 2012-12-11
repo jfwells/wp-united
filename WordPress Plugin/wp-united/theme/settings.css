@@ -957,7 +957,15 @@ div.subsettings div.subsettings {
 .wpuusrtyped {
 	width: auto;
 	float: left;
+}
 
+#wpumapsearchbox {
+	width: auto;
+}
+
+#wpumapsrcharea {
+	width: 100px; 
+	white-space: nowrap;
 }
 
 .wpuavatartyped {

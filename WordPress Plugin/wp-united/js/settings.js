@@ -447,12 +447,17 @@ function setupUserMapperPage() {
 var mapTxtInputState = '';
 function wpuUnbindMapForm() {
 	$wpu('#wpumapdisp input').unbind('change');
+	$wpu('#wpumapsearchbox').unbind('keyup');
 	mapTxtInputState = $wpu('#wpumapsearchbox').val();
 }
 
 function wpuBindMapForm() {
 	$wpu("#wpumapdisp input").bind('change', function() {
 		wpuShowMapper(true);
+	});
+	$wpu('#wpumapsearchbox').bind('keyup', function() {
+		mapTxtInputState = $wpu(this).val();
+		$(this).change();
 	});
 }
 

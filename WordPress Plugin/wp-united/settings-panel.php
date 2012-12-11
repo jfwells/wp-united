@@ -634,7 +634,7 @@ function wpu_user_mapper() {
 				<p><?php _e('All your WordPress or phpBB users are shown on the left below, together with their integration status. On the right, you can see their corresponding integrated user, or &ndash; if they are not integrated &ndash; some suggestions for users they could integrate to.', 'wp-united'); ?></p>
 				<p><?php _e('Choose the actions you wish to take, and then click &quot;Process Actions&quot; in the pop-up panel to apply them..', 'wp-united'); ?></p>
 				<div class="ui-widget-header ui-corner-all wpumaptoolbar">
-					<form name="wpumapdisp" id="wpumapdisp">
+					<form name="wpumapdisp" id="wpumapdisp" onsubmit="return false;">
 						<fieldset>
 							<label for="wpumapside"><?php _e('Show on left: ', 'wp-united'); ?></label>
 							<select id="wpumapside" name="wpumapside">
@@ -661,7 +661,7 @@ function wpu_user_mapper() {
 								<option value="posts"><?php _e('All With Posts', 'wp-united'); ?></option>
 								<option value="noposts"><?php _e('All Without Posts', 'wp-united'); ?></option>
 							</select>
-							<label for="wpumapsearchbox"><?php _e('or search for user: ', 'wp-united'); ?></label>
+							<div id="wpumapsrcharea"><label for="wpumapsearchbox"><?php _e('or search for user: ', 'wp-united'); ?></label></div>
 							<input type="text" id="wpumapsearchbox" name="wpumapsearchbox"></input>
 							<input type="hidden" name="wpufirstitem" id="wpufirstitem" value="0" />			
 						</fieldset>
