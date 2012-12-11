@@ -616,8 +616,8 @@ function wpuShowMapper(repaginate) {
 		$wpu('#wpuoffscreen').html(content);
 
 		
-		setTimeout('setupMapButtons()', 200);
-		setTimeout('makeMapVisible()', 1000);
+		var sMB = setTimeout('setupMapButtons()', 200);
+		var sMV = setTimeout('makeMapVisible()', 1000);
 
 		wpuMapClearAll();
 		wpuSuggCache = {};
@@ -693,6 +693,8 @@ function wpuShowMapper(repaginate) {
 		
 		generatingMapper = false;
 		if($wpu('#wpumapsearchbox').val() != mapTxtInputState) {
+			clearTimeout(sMB);
+			clearTimeout(sMV);
 			wpuShowMapper(true);
 		}
 		
