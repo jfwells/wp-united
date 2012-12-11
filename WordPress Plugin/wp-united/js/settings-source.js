@@ -1014,8 +1014,7 @@ function wpuMapBreak(userID, intUserID, userName, intUserName) {
 			 selContainsCurrUser = true;
 	}
 
-
-
+	
 	wpuMapActions.push({
 		'type': 'break',
 		'userid': userID,
@@ -1051,6 +1050,8 @@ function wpuMapDelBoth(userID, intUserID, userName, intUserName) {
 		 ((pckg == 'phpbb') && ((userID == currPhpbbUser) || (intUserID == currWpUser))) ) {
 			 selContainsCurrUser = true;
 	}
+	
+	
 	
 	wpuMapActions.push({
 		'type': 'delboth',
@@ -1292,7 +1293,7 @@ function wpuProcessFinished() {
 	if(selContainsCurrUser) {
 		window.location.reload();
 	} else {
-		wpuShowMapper(true);
+		wpuShowMapper(false);
 	}
 }
 
