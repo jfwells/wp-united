@@ -782,11 +782,11 @@ function _wpu_add_class($el, $class) {
  */
 function _wpu_get_user_rank_info($userID = '') {
 
-	global $phpbbForum;
+	global $phpbbForum, $phpbb_root_path;
 	$fStateChanged = $phpbbForum->foreground();
 	$rank = $phpbbForum->get_user_rank_info($userID);
 	$phpbbForum->restore_state($fStateChanged);
-	$rank['image'] = (empty($rank['image'])) ? '' : $phpbbForum->get_board_url() . $rank['image'];
+	$rank['image'] = (empty($rank['image'])) ? '' : str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $rank['image']);
 	return $rank;
 }
 	
