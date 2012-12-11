@@ -648,9 +648,9 @@ function wpu_user_mapper() {
 								<option value="10" selected="selected">10</option>
 								<option value="20">20</option>
 								<option value="50">50</option>
-								<!--<option value="100">100</option>
+								<option value="100">100</option>
 								<option value="250">250</option>
-								<option value="500">500</option>
+								<!--<option value="500">500</option>
 								<option value="1000">1000</option>-->
 							</select> 	
 							<label for="wputypeshow"><?php _e('Show: ', 'wp-united'); ?></label>
@@ -960,7 +960,7 @@ function wpu_process_mapaction() {
 			if ( (!empty($wUserID)) && (!empty($pUserID))  ) {
 				
 				$fStateChanged = $phpbbForum->foreground();
-				
+				// TODO: USE user-integrator.php function here
 				$sql = 'UPDATE ' . USERS_TABLE .
 					" SET user_wpuint_id = $wUserID 
 					WHERE user_id = $pUserID";
@@ -985,8 +985,11 @@ function wpu_process_mapaction() {
 		break;
 		
 		case 'sync':
-			$id = ($package == 'wp') ? $userID : $intUserID;
-			wpu_sync_profiles($wpUsrData, $wpuNewDetails, 'sync', true);
+			$wpUserID = ($package == 'wp') ? $userID : $intUserID;
+			$pUserID = ($package == 'wp') ? $intUserID : $userID;
+			$wpUsrData = get_userdata($wpUserID);
+			$pUsrData = $phpbbForum->get_userdata('', $pUserID);
+			wpu_sync_profiles($wpUsrData, $pUsrData, 'sync', true);
 			echo '<status>OK</status>';
 		break;
 		

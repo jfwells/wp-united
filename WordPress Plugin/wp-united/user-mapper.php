@@ -374,6 +374,7 @@ class WPU_User_Mapper {
 				)		
 			);
 			$sqlArray['WHERE'] .= ' AND g.group_id = u.group_id';
+			$sqlArray['ORDER_BY'] = 'u.username ASC';
 		}
 		
 		
