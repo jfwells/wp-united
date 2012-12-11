@@ -345,21 +345,21 @@ class WPU_User_Mapper {
 			$where = ' AND ' . $db->sql_in_set('u.user_wpuint_id', (array)$arrUsers);
 		} else if(!empty($showLike)) {
 			$where = " AND UCASE(u.username) LIKE '%" . $db->sql_escape(strtoupper($showLike)) . "%'";
-		} else {
-			// apply filters
-				if(!empty($this->showOnlyInt)) {
-					$where = ' AND u.user_wpuint_id > 0 ';
-				} else if(!empty($this->showOnlyUnInt)){
-					$where = ' AND ((u.user_wpuint_id = 0) OR (u.user_wpuint_id = \'\') OR (u.user_wpuint_id IS NULL)) ';
-				} else if(!empty($this->showOnlyPosts)) {
-					$where = ' AND u.user_posts > 0 ';
-				} else if(!empty($this->showOnlyNoPosts)) {
-					$where = ' AND u.user_posts = 0 ';
-				}				
-
-		}
+		} 
 		
-		 
+		// apply filters
+		if(!empty($this->showOnlyInt)) {
+			$where = ' AND u.user_wpuint_id > 0 ' . $where;
+		} else if(!empty($this->showOnlyUnInt)){
+			$where = ' AND ((u.user_wpuint_id = 0) OR (u.user_wpuint_id = \'\') OR (u.user_wpuint_id IS NULL)) ';
+		} else if(!empty($this->showOnlyPosts)) {
+			$where = ' AND u.user_posts > 0 ' . $where;
+		} else if(!empty($this->showOnlyNoPosts)) {
+			$where = ' AND u.user_posts = 0 ' . $where;
+		}				
+
+
+
 		 $sqlArray = array();
 		 
 		 $sqlArray['FROM']  = array();
