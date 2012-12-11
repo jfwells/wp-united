@@ -661,7 +661,7 @@ function wpu_user_mapper() {
 								<option value="posts"><?php _e('All With Posts', 'wp-united'); ?></option>
 								<option value="noposts"><?php _e('All Without Posts', 'wp-united'); ?></option>
 							</select>
-							<label for="wpumapsearchbox"<?php _e('or search for user: ', 'wp-united') ?></label>
+							<label for="wpumapsearchbox"><?php _e('or search for user: ', 'wp-united'); ?></label>
 							<input type="text" id="wpumapsearchbox" name="wpumapsearchbox"></input>
 							<input type="hidden" name="wpufirstitem" id="wpufirstitem" value="0" />			
 						</fieldset>
