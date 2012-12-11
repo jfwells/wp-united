@@ -1659,7 +1659,7 @@ function wpu_show_advanced_options() {
 
 }
 
-function wpu_process_advanced_options() {	
+function wpu_process_advanced_options() {
 	echo "SAVED";
 	wpu_show_advanced_options();
 }

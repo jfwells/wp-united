@@ -19,7 +19,7 @@ class WPU_User_Mapper {
 		$showOnlyPosts = 0,
 		$showOnlyNoPosts = 0,
 		$numUsers = 0;
-	
+
 	public $users;
 	
 	/**

@@ -383,14 +383,14 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 	 */
 	private function load_from_userdata($data) {
 		global $phpbbForum;
-		
+
 		// The phpBB DB is the canonical source for user integration -- don't trust the WP marker
 		$fStateChanged = $phpbbForum->foreground();
 		
 		$this->loginName = $data['loginName'];
 				
 		$this->load_avatar($data['user_avatar'], $data['user_avatar_type'], $data['user_avatar_width'], $data['user_avatar_height']);
-				
+
 		$this->userDetails = array(
 			'email'			=> $data['email'],
 			'group'			=> $data['group'],
