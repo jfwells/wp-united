@@ -1,7 +1,7 @@
 === WP-United ===
 Contributors: Jhong
 Donate link: http://www.wp-united.com/
-Tags: phpbb, phpBB3, forum, social, integration, widgets, template, sign-on, user integration, database
+Tags: phpbb, phpBB3, forum, social, integrate, bridge, integration, widgets, template, sign-on, user integration, database
 Requires at least: 3.4.0
 Tested up to: 3.5.0
 Stable tag: trunk
@@ -12,6 +12,8 @@ WP-United integrates phpBB and WordPress to make a social site. Enable any of th
 
 == Description ==
 
+Bridge phpBB and WordPress!
+
 WP-United glues together WordPress sites and phpBB forums. Get the full power of WordPress publishing and plugins, with the familiar and established community format of phpBB.
 
 WP-United is fully modular and individual features can be turned on and off. These features include:
@@ -21,6 +23,8 @@ WP-United is fully modular and individual features can be turned on and off. The
 * **Behaviour integration**: Use phpBB smilies and word censor features in WordPress 
 * **Cross-posting**: Post something in WordPress and have it cross-posted to your forum -- Automatically or manually, you choose! Once an item is cross-posted, comments in phpBB and WordPress can be set to sync up under the blog item too!
 * **Widgets**: A set of WordPress widgets that show information about your phpBB forum: Latest posts, latest topics, users online, forum stats and an integrated login/meta/avatar/profile widget.
+
+Visit [wp-united.com](http://www.wp-united.com) for more information and to view example integrations in the gallery.
 
 == Installation ==
 
@@ -65,6 +69,18 @@ There are several ways to debug problems. We suggest you try the following, in o
 7. Some WP-United widgets
 
 == Changelog ==
+
+= v0.9.0.3 RELEASE CANDIDATE 3 =
+
+* NEW: Quick user search box added to user mapper
+* NEW: Synchronize profiles user mapper button and bulk action
+* UPDATED: User mapper allows processing up to 250 users at once
+* UPDATED: Don't repaginate user mapper after processing actions
+* UPDATED: More permissive in returned messages from server when connecting and enabling (fixes errors on servers where files have leading or trailing garbage).
+* BUGFIX: User mapper dying on entities in usernames
+* BUGFIX: User mapper not displaying user names in alphabetical order when phpBB was on left
+* BUGFIX: Load version when WP-United is disabled so things like "Get Help" still work.
+* BUGFIX: Rank images had incorrect URLs
 
 = v0.9.0.2 RELEASE CANDIDATE 3 =
 
@@ -136,9 +152,12 @@ There are several ways to debug problems. We suggest you try the following, in o
 * Fixed integration error message after updating password or username under some circumstances
 * ... and several other minor bug fixes
 
-For previous changes, please view the included `CHANGELOG` file.
+For previous changes, please view the full package at wp-united.com.
 
 == Upgrade Notice ==
 
 = 0.9.0.2 =
 This version fixes a few minor bugs reported just after release of v0.9. You can update automatically or by simply copying over the WordPress plugin; You do not need to update the phpBB side.
+
+= 0.9.0.3 =
+This version improves the user mapper and addresses a few minor reported bugs. You can update automatically or by simply copying over the WordPress plugin; You do not need to update the phpBB side.

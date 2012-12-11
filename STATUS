@@ -1,21 +1,10 @@
-current target: v0.9.0.3
+current target: v0.9.0.4
 
 Outstanding reported bugs:
-wpPageName and wppageName
-
->> Changes for v0.9.0.3
-
-* NEW: Quick user search box added to user mapper
-* NEW: Synchronize profiles user mapper button and bulk action
-* UPDATED: User mapper allows processing up to 250 users at once
-* UPDATED: Don't repaginate user mapper after processing actions
-* UPDATED: More permissive in returned messages from server when connecting and enabling (fixes errors on servers where files have leading or trailing garbage).
-* BUGFIX: User mapper dying on entities in usernames
-* BUGFIX: User mapper not displaying user names in alphabetical order when phpBB was on left
-* BUGFIX: Load version when WP-United is disabled so things like "Get Help" still work.
-* BUGFIX: Rank images had incorrect URLs
 
 
+Odd themes that could do with better auto integration:
+- Arras
 
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:

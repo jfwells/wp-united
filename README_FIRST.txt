@@ -1,6 +1,6 @@
-WP-UNITED: phpBB - WordPress Integration v0.9.0 RC3
+WP-UNITED: phpBB - WordPress Integration v0.9.0.3 RC3
 -----------------------------------------------
-Last updated: 28/11/2012, by John Wells
+Last updated: 11/12/2012, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -103,6 +103,17 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
+v0.9.0.3 RELEASE CANDIDATE 3
+
+* NEW: Quick user search box added to user mapper
+* NEW: Synchronize profiles user mapper button and bulk action
+* UPDATED: User mapper allows processing up to 250 users at once
+* UPDATED: Don't repaginate user mapper after processing actions
+* UPDATED: More permissive in returned messages from server when connecting and enabling (fixes errors on servers where files have leading or trailing garbage).
+* BUGFIX: User mapper dying on entities in usernames
+* BUGFIX: User mapper not displaying user names in alphabetical order when phpBB was on left
+* BUGFIX: Load version when WP-United is disabled so things like "Get Help" still work.
+* BUGFIX: Rank images had incorrect URLs
 
 v0.9.0.2 RELEASE CANDIDATE 3
 
