@@ -362,7 +362,7 @@ class WPU_User_Mapper {
 		if(!empty($this->showOnlyInt)) {
 			$where = ' AND (u.user_wpuint_id > 0) ' . $where;
 		} else if(!empty($this->showOnlyUnInt)){
-			$where = ' AND ((u.user_wpuint_id = 0) OR (u.user_wpuint_id = \'\') OR (u.user_wpuint_id IS NULL)) ';
+			$where = ' AND ((u.user_wpuint_id = 0) OR (u.user_wpuint_id = \'\') OR (u.user_wpuint_id IS NULL))  ' . $where;
 		} else if(!empty($this->showOnlyPosts)) {
 			$where = ' AND (u.user_posts > 0) ' . $where;
 		} else if(!empty($this->showOnlyNoPosts)) {
