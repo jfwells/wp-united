@@ -169,7 +169,7 @@ class WPU_Actions {
 		}
 		
 		if($navBlock) {
-			$cssMagic->makeSpecificByClass('wpunavblock', false);
+			$cssMagic->makeSpecificByClass('wpunavbar', false);
 		}
 		
 		$css = $cssMagic->getCSS();

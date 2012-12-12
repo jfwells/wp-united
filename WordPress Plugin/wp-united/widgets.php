@@ -480,13 +480,14 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
 		
 		
-		if (is_active_widget(false, false, $this->id_base)) {
-            add_action('wp_head', array(&$this, 'add_navblock_style'));
+		if (is_active_widget(false, false, $this->id_base) && defined('WPU_BLOG_PAGE')) {
+			$this->add_navblock_style();
 		}
 		
 	}
 	
 	public function widget($args, $instance) {
+		global $wpUnited;
 		
 		extract($args, EXTR_SKIP);
 		
@@ -535,12 +536,24 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 	}
 	
 	public function add_navblock_style() {
-		global $phpbbForum, $phpEx, $wpUnited;
+		global $phpbbForum;
 		
-		$ssLink = $phpbbForum->get_board_url() . 'style.' . $phpEx . '?id=' . $phpbbForum->get_userdata('user_id') . '&lang=en&usecssm=1&wpunav=1';
-		wp_register_style('wpuPhpbbNavStyle', $ssLink);
+		
+		$themePath =  $phpbbForum->get_stylesheet_path();
 
-		wp_enqueue_style('wpuPhpbbNavStyle');
+		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_stylephp_link());
+		wp_enqueue_style('wpu-nav-blk-2', $themePath . 'normal.css', true);
+		wp_enqueue_style('wpu-nav-blk-3', $themePath . 'medium.css', true);
+		wp_enqueue_style('wpu-nav-blk-4', $themePath . 'large.css', true);
+		
+		global $wp_styles;
+		$wp_styles->add_data( 'wpu-nav-blk-2', 'title', 'A' );
+		$wp_styles->add_data( 'wpu-nav-blk-3', 'title', 'A+' );
+		$wp_styles->add_data( 'wpu-nav-blk-3', 'alt', true );
+		$wp_styles->add_data( 'wpu-nav-blk-4', 'title', 'A++' );
+		$wp_styles->add_data( 'wpu-nav-blk-4', 'alt', true);
+		
+		wp_enqueue_script('wpu-nav-blk-j', $phpbbForum->get_super_template_path() . 'styleswitcher.js');
 	
 	}
 

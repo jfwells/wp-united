@@ -692,14 +692,14 @@ function wpu_phpbb_nav_block($args) {
 	?>
 	
 	<div class="wpunavbar">
-		<div class="navbar">
-			<div class="navinner"><span class="wpucorners-top"><span></span></span>
+		<div class="navbar ">
+			<div class="navinner"><span class="corners-top"><span></span></span>
 			<ul class="linklist navlinks">
 				<li class="icon-home"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url()); ?>" accesskey="h"><?php echo $phpbbForum->lang['INDEX']; ?></a> <strong>&#8249;</strong> <a href="#">TBD</a></li>
 				<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
 			</ul>
-
-			<?php if($phpbbForum->user_logged_in() && !$phpbbForum->get_userdata['is_bot']) { ?>
+			
+			<?php if($phpbbForum->user_logged_in() && !$phpbbForum->get_userdata('is_bot')) { ?>
 			<ul class="linklist leftside">
 				<li class="icon-ucp">
 					<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['PROFILE']; ?>" accesskey="e"><?php echo $phpbbForum->lang['PROFILE']; ?></a>
@@ -717,7 +717,7 @@ function wpu_phpbb_nav_block($args) {
 
 			<ul class="linklist rightside">
 				<li class="icon-faq"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'faq.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['FAQ_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['FAQ']; ?></a></li>
-				<?php if(!$phpbbForum->get_userdata['is_bot']) { ?>
+				<?php if(!$phpbbForum->get_userdata('is_bot')) { ?>
 					<?php if($showMemberList) { ?>
 						<li class="icon-members"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'memberlist.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['MEMBERLIST_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['MEMBERLIST']; ?></a></li>
 					<?php }

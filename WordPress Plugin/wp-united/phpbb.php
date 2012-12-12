@@ -194,6 +194,39 @@ class WPU_Phpbb {
 		$this->make_wp_env();
 	}
 	
+	public function get_stylephp_link() {
+		global $user, $phpEx;
+		
+		$fStateChanged = $this->foreground();
+		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;wpunav=1');
+		$this->restore_state($fStateChanged);
+		
+		return $result;
+		
+	}
+	
+	public function get_stylesheet_path() {
+		global $user;
+		
+		$fStateChanged = $this->foreground();
+		$result = $this->get_board_url() . '/styles/' . rawurlencode($user->theme['template_path']) . '/theme/';
+		$this->restore_state($fStateChanged);
+		
+		return $result;
+	}
+	
+	public function get_super_template_path() {
+		global $user;
+		
+		$fStateChanged = $this->foreground();
+		$result = $this->get_board_url() . '/styles/' . rawurlencode((isset($user->theme['template_inherit_path']) && $user->theme['template_inherit_path']) ? $user->theme['template_inherit_path'] : $user->theme['template_path']) . '/template/';
+		$this->restore_state($fStateChanged);
+		
+		return $result;
+	}
+	
+	
+	
 	public function append_sid($url) {
 		global $user;
 		
