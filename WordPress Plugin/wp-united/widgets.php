@@ -474,6 +474,65 @@ class WPU_Useful_Forum_Links_Widget extends WP_Widget {
 }
 
 
+class WPU_Forum_Nav_Block_Widget extends WP_Widget {
+	public function __construct() {
+		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB forum navigation / breadcrumb bar.', 'wp-united') );
+		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
+	}
+	
+	public function widget($args, $instance) {
+		
+		extract($args, EXTR_SKIP);
+		
+		$showSiteHome = $instance['showSiteHome'];
+		$showMemberList = $instance['showMemberList'];
+		$showRegisterLink = $instance['showRegisterLink'];
+		
+		echo $before_widget;
+		wpu_phpbb_nav_block("showSiteHome={$showSiteHome}&showMemberList={$showMemberList}&showRegisterLink={$showRegisterLink}");	
+		
+		echo $after_widget;
+
+	}
+	
+	public function update($new_instance, $old_instance) {
+		//save the widget
+		$instance = $old_instance;
+
+		$instance['showSiteHome'] 		= (strip_tags(stripslashes($new_instance['showBreakdown'])) == 	'ok')? 1 : 0;
+		$instance['showMemberList'] 	= (strip_tags(stripslashes($new_instance['showRecord'])) 	== 	'ok')? 1 : 0;
+		$instance['showRegisterLink'] 	= (strip_tags(stripslashes($new_instance['showLegend'])) 	== 	'ok')? 1 : 0;
+		
+		return $instance;
+	}
+	
+	public function form($instance) {
+		//widget form
+		
+		$instance = wp_parse_args( (array) $instance, array( 
+			'showSiteHome'		=> 1, 
+			'showMemberList'		=> 1, 
+			'showRegisterLink' 		=> 1
+		));
+		
+		$title = strip_tags($instance['title']);
+		 
+		$showBreakdown	= (!empty($instance['showSiteHome'])) 	? 'checked="checked"' : '';
+		$showRecord 	= (!empty($instance['showMemberList'])) 	? 'checked="checked"' : '';
+		$showLegend 	= (!empty($instance['showRegisterLink'])) 	? 'checked="checked"' : '';
+
+		?>
+		
+		<p><input id="<?php echo $this->get_field_id('showSiteHome'); ?>" name="<?php echo $this->get_field_name('showSiteHome'); ?>" type="checkbox" value="ok"  <?php echo $showSiteHome ?> /> <label for="<?php echo $this->get_field_id('showSiteHome'); ?>"><?php _e('Show Site homepage rather than board index?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showMemberList'); ?>" name="<?php echo $this->get_field_name('showMemberList'); ?>" type="checkbox" value="ok" <?php echo $showMemberList ?> /> <label for="<?php echo $this->get_field_id('showMemberList'); ?>"><?php _e('Show member list?' 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showRegisterLink'); ?>" name="<?php echo $this->get_field_name('showRegisterLink'); ?>" type="checkbox" value="ok" <?php echo $showRegisterLink ?> /> <label for="<?php echo $this->get_field_id('showRegisterLink'); ?>"><?php _e('Show register link?', 'wp-united'); ?></label></p>
+		
+		<?php
+	}
+
+}
+
+
 /**
  * Wrapper function for initialising widgets
  */
@@ -484,6 +543,7 @@ function wpu_widgets_init() {
 	register_widget('WPU_Forum_Stats_Widget');
 	register_widget('WPU_Forum_Users_Online_Widget');
 	register_widget('WPU_Useful_Forum_Links_Widget');
+	register_widget('WPU_Forum_Nav_Block_Widget');
 
 }
 
