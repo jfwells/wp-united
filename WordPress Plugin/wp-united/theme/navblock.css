@@ -64,7 +64,7 @@ span.wpucorners-top span {
 
 .wpucorners-bottom {
 	background-image: url("../../../../../phpbb/styles/prosilver/theme/images/corners_left.png");
-	background-position: 0 100%;
+	background-position: 100% 100%;
 	clear: both;
 }
 
@@ -73,10 +73,6 @@ span.wpucorners-bottom span {
 	background-position: 100% 100%;
 }
 
-span.wpucorners-bottom span {
-    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/corners_right.png");	
-    background-position: 100% 0;
-}
 
 .wpunavlinks {
 	font-weight: bold;
@@ -142,6 +138,13 @@ ul.wpulinklist li.wpurightside {
     float: right;
     margin-left: 5px;
     margin-right: 0;
+    text-align: right;
+}
+
+ul.rightside {
+	float: right;
+    margin-left: 5px;
+    margin-right: -5px;
     text-align: right;
 }
 
