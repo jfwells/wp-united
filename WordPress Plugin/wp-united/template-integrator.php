@@ -66,6 +66,7 @@ function wpu_integrate_templates() {
 				$bodyClass = trim(str_replace(array('class', '=', '"'), '', $bodyClass[0]));
 			}
 		}
+		
 		// process_remove_head removes the <head> during the process, leaving us with an insertable body (hehe).
 		$wpUnited->set_inner_headinfo(process_remove_head($wpUnited->get_inner_content()));
 		$wpUnited->set_inner_content(process_body($wpUnited->get_inner_content()));
@@ -73,8 +74,29 @@ function wpu_integrate_templates() {
 
 	if ($wpUnited->should_do_action('template-p-in-w')) { 
 		
-		// replace outer title with phpBB title
-		$wpUnited->set_outer_content(preg_replace('/<title>[^<]*<\/title>/', '<title><!--[**PAGE_TITLE**]--></title>', $wpUnited->get_outer_content()));
+		
+		//  Now we modify parts of the outer head -- changing the <html> tag and the title
+		
+		$outerContent = $wpUnited->get_outer_content();
+		
+		// First look for lang and direction attributes
+		preg_match('/<html[^>]+>/i', $outerContent, $outerHtmlTag);
+		if($outerHtmlTag[0]) {
+				$repl = '';
+				global $user;
+				if(stristr($outerHtmlTag[0], 'lang=') === false) {
+					$repl = 'lang="' . $user->lang['USER_LANG'] . '" ';
+				}
+				if(stristr($outerHtmlTag[0], 'dir=') === false) {
+					$repl = 'dir="' . $user->lang['DIRECTION'] . '" ';
+				}
+				// This only works on PHP 5:
+				$outerContent = str_ireplace('<html', '<html ' . $repl, $outerContent);
+				
+		} 
+				
+		// Now we replace the outer title with phpBB title
+		$wpUnited->set_outer_content(preg_replace('/<title>[^<]*<\/title>/i', '<title><!--[**PAGE_TITLE**]--></title>', $outerContent));
 	}
 
 
