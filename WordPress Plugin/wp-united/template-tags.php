@@ -692,47 +692,49 @@ function wpu_phpbb_nav_block($args) {
 	?>
 	
 	<div class="wpunavbar">
-		<div class="wpunavinner"><span class="wpucorners-top"><span></span></span>
-		<ul class="wpulinklist wpunavlinks">
-			<li class="wpuicon-home"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url()); ?>" accesskey="h"><?php echo $phpbbForum->lang['INDEX']; ?></a> <strong>&#8249;</strong> <a href="#">TBD</a></li>
-			<li class="wpurightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="wpufontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
-		</ul>
+		<div class="navbar">
+			<div class="navinner"><span class="wpucorners-top"><span></span></span>
+			<ul class="linklist navlinks">
+				<li class="icon-home"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url()); ?>" accesskey="h"><?php echo $phpbbForum->lang['INDEX']; ?></a> <strong>&#8249;</strong> <a href="#">TBD</a></li>
+				<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
+			</ul>
 
-		<?php if($phpbbForum->user_logged_in() && !$phpbbForum->get_userdata['is_bot']) { ?>
-		<ul class="wpulinklist wpuleftside">
-			<li class="wpuicon-ucp">
-				<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['PROFILE']; ?>" accesskey="e"><?php echo $phpbbForum->lang['PROFILE']; ?></a>
-				<?php if($phpbbForum->get_userdata('user_new_privmsg')) { 
-					$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
-					$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
-					?>(<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox'); ?>"><?php echo $l_privmsgs_text; ?></a>)
-				<?php } ?>
-				<?php if($phpbbForum->user_logged_in()) { ?> &bull;
-					<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.' . $phpEx . '?search_id=egosearch'); ?>"><?php echo $phpbbForum->lang['SEARCH_SELF']; ?></a>
-				<?php } ?>
-			</li>
-		</ul>
-		<?php } ?>
-
-		<ul class="wpulinklist wpurightside">
-			<li class="wpuicon-faq"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'faq.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['FAQ_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['FAQ']; ?></a></li>
-			<?php if(!$phpbbForum->get_userdata['is_bot']) { ?>
-				<?php if($showMemberList) { ?>
-					<li class="wpuicon-members"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'memberlist.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['MEMBERLIST_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['MEMBERLIST']; ?></a></li>
-				<?php }
-				if(!$phpbbForum->user_logged_in() && $showRegLink) { ?>
-					<li class="wpuicon-register"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . '.ucp.' . $phpEx . '?mode=' . 'register'); ?>"><?php echo $phpbbForum->lang['REGISTER']; ?></a></li>
-				<?php } 
-				
-				$loginLang = ($phpbbForum->user_logged_in()) ? sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username()) : $phpbbForum->lang['LOGIN'];
-				$loginAction = ($phpbbForum->user_logged_in()) ? '?mode=login' : '?mode=logout';
-				
-				?>	
-				<li class="wpuicon-logout"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction); ?>" title="<?php echo $loginLang; ?>" accesskey="x"><?php echo $loginLang; ?></a></li>
+			<?php if($phpbbForum->user_logged_in() && !$phpbbForum->get_userdata['is_bot']) { ?>
+			<ul class="linklist leftside">
+				<li class="icon-ucp">
+					<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['PROFILE']; ?>" accesskey="e"><?php echo $phpbbForum->lang['PROFILE']; ?></a>
+					<?php if($phpbbForum->get_userdata('user_new_privmsg')) { 
+						$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
+						$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
+						?>(<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox'); ?>"><?php echo $l_privmsgs_text; ?></a>)
+					<?php } ?>
+					<?php if($phpbbForum->user_logged_in()) { ?> &bull;
+						<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.' . $phpEx . '?search_id=egosearch'); ?>"><?php echo $phpbbForum->lang['SEARCH_SELF']; ?></a>
+					<?php } ?>
+				</li>
+			</ul>
 			<?php } ?>
-		</ul>
 
-		<span class="wpucorners-bottom"><span></span></span></div>
+			<ul class="linklist rightside">
+				<li class="icon-faq"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'faq.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['FAQ_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['FAQ']; ?></a></li>
+				<?php if(!$phpbbForum->get_userdata['is_bot']) { ?>
+					<?php if($showMemberList) { ?>
+						<li class="icon-members"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'memberlist.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['MEMBERLIST_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['MEMBERLIST']; ?></a></li>
+					<?php }
+					if(!$phpbbForum->user_logged_in() && $showRegLink) { ?>
+						<li class="icon-register"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . '.ucp.' . $phpEx . '?mode=' . 'register'); ?>"><?php echo $phpbbForum->lang['REGISTER']; ?></a></li>
+					<?php } 
+					
+					$loginLang = ($phpbbForum->user_logged_in()) ? sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username()) : $phpbbForum->lang['LOGIN'];
+					$loginAction = ($phpbbForum->user_logged_in()) ? '?mode=login' : '?mode=logout';
+					
+					?>	
+					<li class="icon-logout"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction); ?>" title="<?php echo $loginLang; ?>" accesskey="x"><?php echo $loginLang; ?></a></li>
+				<?php } ?>
+			</ul>
+
+			<span class="corners-bottom"><span></span></span></div>
+		</div>
 	</div>
 	
 	<?php
