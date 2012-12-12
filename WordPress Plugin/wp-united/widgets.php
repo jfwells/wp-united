@@ -538,10 +538,8 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		global $phpbbForum, $phpEx, $wpUnited;
 		
 		$ssLink = $phpbbForum->get_board_url() . 'style.' . $phpEx . '?id=' . $phpbbForum->get_userdata('user_id') . '&lang=en&usecssm=1&wpunav=1';
-		wp_register_style('wpuPhpbbNavReset', $wpUnited->get_plugin_url() . 'theme/reset.css');
 		wp_register_style('wpuPhpbbNavStyle', $ssLink);
 
-		wp_enqueue_style('wpuPhpbbNavReset');
 		wp_enqueue_style('wpuPhpbbNavStyle');
 	
 	}
