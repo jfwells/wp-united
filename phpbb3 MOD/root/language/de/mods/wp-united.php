@@ -42,10 +42,10 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, array(
 
-	'BLOG'         =>    'WordPress Blog',
-	'VISIT_BLOG'      =>   'Benutzer\'s Blog besuchen',
-	'Function_Duplicate'    =>   'Der Name einer PHP-Funktion scheint doppelt vorhanden zu sein. Dies könnte unter anderem daran liegen, dass ein stark moddifiziertes Forum benutzt wird. Bitte melde diesen Fehler auf www.wp-united.com.',
-	'WPU_Credit'          =>   '%sWP-United%s Integration',
+	'BLOG'         			=>    'WordPress Blog',
+	'VISIT_BLOG'      		=>   'Benutzer\'s Blog besuchen',
+	'Function_Duplicate'    =>   'ERROR: Der Name einer PHP-Funktion scheint doppelt vorhanden zu sein. Bitte melde diesen Fehler auf www.wp-united.com.',
+	'WPU_Credit'			=>   '%sWP-United%s Integration',
 
 ));
 

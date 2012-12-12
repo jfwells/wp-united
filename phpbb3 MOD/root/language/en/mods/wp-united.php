@@ -45,7 +45,7 @@ $lang = array_merge($lang, array(
 
 	'BLOG' 							=>	'WordPress Blog',
 	'VISIT_BLOG'					=>	'Visit User\'s Blog',
-	'Function_Duplicate' 		=>	'A duplicate function name has been detected. This is probably due to a heavily modded board. Please visit www.wp-united.com to report the error.',
+	'Function_Duplicate' 			=>	'ERROR: duplicated function name detected. Please visit www.wp-united.com to report the error.',
 	'WPU_Credit' 					=>	'Integration by %sWP-United%s',
 
 ));
