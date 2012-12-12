@@ -114,7 +114,7 @@ class WPU_Actions {
 			return $cssIn;
 		}
 		$pos = (request_var('pos', 'outer') == 'inner') ? 'inner' : 'outer';
-		$navBlock = (request_var('wpunav', 1) == 1);
+		$navBlock = (request_var('wpunav', 0) == 1);
 		
 		$cacheLocation = '';
 		
