@@ -141,7 +141,7 @@ ul.wpulinklist li.wpurightside {
     text-align: right;
 }
 
-ul.rightside {
+ul.wpurightside {
 	float: right;
     margin-left: 5px;
     margin-right: -5px;
