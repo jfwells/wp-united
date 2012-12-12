@@ -6,6 +6,10 @@ Outstanding reported bugs:
 Odd themes that could do with better auto integration:
 - Arras
 
+
+>> Fixed for vNext:
+* BUGFIX: RTL layout not preserved when using template integration
+
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
 	-- Posts awaiting approval in phpBB don't show up in WP yet
