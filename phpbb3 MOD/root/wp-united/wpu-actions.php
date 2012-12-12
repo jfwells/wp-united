@@ -5,8 +5,8 @@
 * WP-United Mod Edits
 *
 * @package WP-United
-* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2012 wp-united.com
+* @version $Id: v0.8.5RC2 2010/02/06 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
@@ -29,23 +29,27 @@ class WPU_Actions {
 	/**
 	 * logs out of WordPress when the phpBB logout is called
 	 */
-	public function do_logout() {
+	function do_logout() {
 		return;
 	}
 	/**
 	 * Updates the WordPress user profile when the phpBB profile is updated
 	 */
-	public function profile_update($mode, $phpbb_id, $integration_id, $data) {
+	function profile_update($mode, $phpbb_id, $integration_id, $data) {
 		return;
 
 	}
 	
 
 	
+	
+	
+	
+	
 	/**
 	 * adds blog links to users' profiles.
 	 */
-	public function generate_profile_link($bloglink_id, &$template) {
+	function generate_profile_link($bloglink_id, &$template) {
 		global $wpUnited, $phpbb_root_path, $phpEx;
 		
 		if ($wpUnited->get_setting('buttonsProfile')) {
@@ -65,7 +69,7 @@ class WPU_Actions {
 	 * creates blog links for users' posts
 	 * @todo set blog images for subSilver template
 	 */
-	public function generate_viewtopic_link($bloglink_id, &$cache) { 
+	function generate_viewtopic_link($bloglink_id, &$cache) { 
 		global $wpUnited, $phpbb_root_path, $phpEx;
 		if  ( isset($wpUnited) && $wpUnited->is_enabled() ) { 
 			if ($wpUnited->get_setting('buttonsPost')) {
@@ -84,7 +88,7 @@ class WPU_Actions {
 	 /**
 	 * adds blog links to users' posts.
 	 */
-	public function show_viewtopic_link($cache, &$postrow) {
+	function show_viewtopic_link($cache, &$postrow) {
 		if (isset($cache['blog_link'])) {
 			$postrow['BLOG_IMG'] = $cache['blog_img'];
 			$postrow['U_BLOG_LINK'] = $cache['blog_link'];
@@ -94,7 +98,7 @@ class WPU_Actions {
 	 /**
 	 * CSS Magic actions in style.php.
 	 */	
-	public function css_magic($cssIn) {
+	function css_magic($cssIn) {
 		
 		global $phpbb_root_path, $phpEx, $wpuCache, $wpUnited;
 		define('WPU_STYLE_FIXER', true);
@@ -179,13 +183,11 @@ class WPU_Actions {
 	/**
 	 * Simple call to cache purge. We include it here so that phpBB core edits are static
 	 */
-	public function purge_cache() {
+	function purge_cache() {
 		global $wpUnited, $phpEx;
-		if(is_object($wpUnited) && $wpUnited->is_enabled()) {
-			require_once($wpUnited->get_plugin_path() . 'cache.php');
-			$wpuCache = WPU_Cache::getInstance();
-			$wpuCache->purge();
-		}
+		require_once($wpUnited->get_plugin_path() . 'cache.php');
+		$wpuCache = WPU_Cache::getInstance();
+		$wpuCache->purge();
 	}
 			
 	
