@@ -484,4 +484,7 @@ function wpu_widgets_init() {
 	register_widget('WPU_Forum_Stats_Widget');
 	register_widget('WPU_Forum_Users_Online_Widget');
 	register_widget('WPU_Useful_Forum_Links_Widget');
+
 }
+
+
