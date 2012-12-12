@@ -716,7 +716,7 @@ function wpu_phpbb_nav_block($args) {
 
 		<ul class="wpulinklist wpurightside">
 			<li class="wpuicon-faq"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'faq.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['FAQ_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['FAQ']; ?></a></li>
-			<?php if(!!$phpbbForum->get_userdata['is_bot']) { ?>
+			<?php if(!$phpbbForum->get_userdata['is_bot']) { ?>
 				<?php if($showMemberList) { ?>
 					<li class="wpuicon-members"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'memberlist.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['MEMBERLIST_EXPLAIN']; ?>"><?php echo $phpbbForum->lang['MEMBERLIST']; ?></a></li>
 				<?php }

@@ -68,7 +68,7 @@ span.wpucorners-top span {
 	clear: both;
 }
 
-.wpucornersbottom span {
+span.wpucorners-bottom span {
     background-image: url("../../../.././phpbb/styles/prosilver/theme/images/corners_right.png");
 	background-position: 100% 100%;
 }
