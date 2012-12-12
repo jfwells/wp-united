@@ -691,9 +691,6 @@ function wpu_phpbb_nav_block($args) {
 	$ret = '';
 	?>
 	
-	<link rel="stylesheet" type="text/css" src="<?php echo $ssLink; ?>" />
-
-
 	<div class="wpunavbar">
 		<div class="inner"><span class="corners-top"><span></span></span>
 		<ul class="linklist navlinks">
