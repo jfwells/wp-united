@@ -499,9 +499,9 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		//save the widget
 		$instance = $old_instance;
 
-		$instance['showSiteHome'] 		= (strip_tags(stripslashes($new_instance['showBreakdown'])) == 	'ok')? 1 : 0;
-		$instance['showMemberList'] 	= (strip_tags(stripslashes($new_instance['showRecord'])) 	== 	'ok')? 1 : 0;
-		$instance['showRegisterLink'] 	= (strip_tags(stripslashes($new_instance['showLegend'])) 	== 	'ok')? 1 : 0;
+		$instance['showSiteHome'] 		= (strip_tags(stripslashes($new_instance['showSiteHome'])) == 	'ok')? 1 : 0;
+		$instance['showMemberList'] 	= (strip_tags(stripslashes($new_instance['showMemberList'])) 	== 	'ok')? 1 : 0;
+		$instance['showRegisterLink'] 	= (strip_tags(stripslashes($new_instance['showRegisterLink'])) 	== 	'ok')? 1 : 0;
 		
 		return $instance;
 	}
@@ -510,13 +510,11 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		//widget form
 		
 		$instance = wp_parse_args( (array) $instance, array( 
-			'showSiteHome'		=> 1, 
+			'showSiteHome'			=> 1, 
 			'showMemberList'		=> 1, 
 			'showRegisterLink' 		=> 1
 		));
 		
-		$title = strip_tags($instance['title']);
-		 
 		$showBreakdown	= (!empty($instance['showSiteHome'])) 	? 'checked="checked"' : '';
 		$showRecord 	= (!empty($instance['showMemberList'])) 	? 'checked="checked"' : '';
 		$showLegend 	= (!empty($instance['showRegisterLink'])) 	? 'checked="checked"' : '';
