@@ -70,7 +70,7 @@ span.wpucorners-top span {
 
 span.wpucorners-bottom span {
     background-image: url("../../../.././phpbb/styles/prosilver/theme/images/corners_right.png");
-	background-position: 100% 100%;
+	background-position: 100% 0;
 }
 
 
