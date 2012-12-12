@@ -1,3 +1,5 @@
+/* temp stylesheet links until we can sort out proper way...*/ 
+
 .wpunavbar, .wpunavbar * {
     box-shadow: none;
     clear: none;
@@ -21,6 +23,7 @@
 	margin: 0;
 	border: 0 none;
     display: block;
+	width: 100%;
 }
 
 .wpunavbar a{
@@ -50,28 +53,28 @@
 }
 
 .wpucorners-top {
-	background-image: url("./styles/prosilver/theme/images/corners_left.png");
+	background-image: url("../../../../../phpbb/styles/prosilver/theme/images/corners_left.png");
 	background-position: 0 0;
 }
 
 span.wpucorners-top span {
-    background-image: url("./styles/prosilver/theme/images/corners_right.png");	
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/corners_right.png");	
     background-position: 100% 0;
 }
 
 .wpucorners-bottom {
-	background-image: url("./styles/prosilver/theme/images/corners_left.png");
+	background-image: url("../../../../../phpbb/styles/prosilver/theme/images/corners_left.png");
 	background-position: 0 100%;
 	clear: both;
 }
 
 .wpucornersbottom span {
-    background-image: url("./styles/prosilver/theme/images/corners_right.png");
+    background-image: url("../../../.././phpbb/styles/prosilver/theme/images/corners_right.png");
 	background-position: 100% 100%;
 }
 
 span.wpucorners-bottom span {
-    background-image: url("./styles/prosilver/theme/images/corners_right.png");	
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/corners_right.png");	
     background-position: 100% 0;
 }
 
@@ -98,26 +101,26 @@ span.wpucorners-bottom span {
 }
 
 .wpuicon-home {
-    background-image: url("./styles/prosilver/theme/images/icon_home.gif");
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/icon_home.gif");
 }
 .wpuicon-ucp {
-    background-image: url("./styles/prosilver/theme/images/icon_ucp.gif");
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/icon_ucp.gif");
 }
 .wpuicon-faq {
-    background-image: url("./styles/prosilver/theme/images/icon_faq.gif");
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/icon_faq.gif");
 }
 .wpuicon-members {
-    background-image: url("./styles/prosilver/theme/images/icon_members.gif");
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/icon_members.gif");
 }
 .wpuicon-register {
-    background-image: url("./styles/prosilver/theme/images/icon_register.gif");
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/icon_register.gif");
 }
 .wpuicon-logout {
-    background-image: url("./styles/prosilver/theme/images/icon_logout.gif");
+    background-image: url("../../../../../phpbb/styles/prosilver/theme/images/icon_logout.gif");
 }
 
 .wpufontsize {
-	background-image: url("./styles/prosilver/theme/images/icon_fontsize.gif");
+	background-image: url("../../../../../phpbb/styles/prosilver/theme/images/icon_fontsize.gif");
 	background-position: 0 -1px;
     width: 29px;
 	background-repeat: no-repeat;
