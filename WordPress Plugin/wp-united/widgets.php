@@ -478,6 +478,12 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB forum navigation / breadcrumb bar.', 'wp-united') );
 		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
+		
+		
+		if (is_active_widget(false, false, $this->id_base)) {
+            add_action('wp_head', array(&$this, 'add_navblock_style'));
+		}
+		
 	}
 	
 	public function widget($args, $instance) {
@@ -526,6 +532,15 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		<p><input id="<?php echo $this->get_field_id('showRegisterLink'); ?>" name="<?php echo $this->get_field_name('showRegisterLink'); ?>" type="checkbox" value="ok" <?php echo $showRegisterLink ?> /> <label for="<?php echo $this->get_field_id('showRegisterLink'); ?>"><?php _e('Show register link?', 'wp-united'); ?></label></p>
 		
 		<?php
+	}
+	
+	public function add_navblock_style() {
+		global $phpbbForum;
+		
+		$ssLink = $phpbbForum->get_board_url() . 'style.' . $phpEx . '?id=' . $phpbbForum->get_userdata('user_id');
+		wp_register_style('wpuPhpbbNavStyle', $phpbbForum->append_sid($ssLink));
+		wp_enqueue_style('wpuPhpbbNavStyle');
+	
 	}
 
 }

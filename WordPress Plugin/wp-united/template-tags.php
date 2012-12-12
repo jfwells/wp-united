@@ -685,7 +685,7 @@ function wpu_phpbb_nav_block($args) {
 
 	global $phpbbForum, $phpEx;
 	
-	$defaults = array('showMemberList' => 1, 'showRegisterLink' => 1);
+	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegisterLink' => 1);
 	extract(_wpu_process_args($args, $defaults));
 
 	$ret = '';
@@ -698,13 +698,13 @@ function wpu_phpbb_nav_block($args) {
 		<div class="inner"><span class="corners-top"><span></span></span>
 		<ul class="linklist navlinks">
 			<li class="icon-home"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url()); ?>" accesskey="h"><?php echo $phpbbForum->lang['INDEX']; ?></a> <strong>&#8249;</strong> <a href="#">TBD</a></li>
-			<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="{L_CHANGE_FONT_SIZE}"><?php echo $phpbbForum->lang['INDEX']; ?></a></li>
+			<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
 		</ul>
 
 		<?php if($phpbbForum->user_logged_in() && !$phpbbForum->get_userdata['is_bot']) { ?>
 		<ul class="linklist leftside">
 			<li class="icon-ucp">
-				<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['PROFILE']; ?>" accesskey="e">="<?php echo $phpbbForum->lang['PROFILE']; ?>"</a>
+				<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['PROFILE']; ?>" accesskey="e"><?php echo $phpbbForum->lang['PROFILE']; ?></a>
 				<?php if($phpbbForum->get_userdata('user_new_privmsg')) { 
 					$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
 					$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
