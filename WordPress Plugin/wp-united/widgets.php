@@ -535,7 +535,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 	}
 	
 	public function add_navblock_style() {
-		global $phpbbForum;
+		global $phpbbForum, $phpEx;
 		
 		$ssLink = $phpbbForum->get_board_url() . 'style.' . $phpEx . '?id=' . $phpbbForum->get_userdata('user_id');
 		wp_register_style('wpuPhpbbNavStyle', $phpbbForum->append_sid($ssLink));
