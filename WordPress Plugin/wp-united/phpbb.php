@@ -599,6 +599,48 @@ class WPU_Phpbb {
 	}
 	
 	/**
+	 *
+	 *	Fetch a list of active polls
+	 */
+	
+	public function get_poll_list($forum_list = '', $limit = 50) {
+		global $db, $auth, $wpUnited;
+		
+		$fStateChanged = $this->foreground();
+
+		$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true))); //forums authorised to read posts in
+
+		if (!sizeof($forums_check)) {
+			return false;
+		}
+		$sql = 'SELECT t.topic_id, t.topic_title, t.poll_title, t.poll_start, 
+				t.forum_id, t.topic_poster, f.forum_name
+			FROM ' . TOPICS_TABLE . ' AS t, ' . USERS_TABLE . ' AS u, ' . FORUMS_TABLE . ' AS f 
+			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
+				AND t.topic_poster = u.user_id 
+					AND t.forum_id = f.forum_id 
+						AND t.topic_status <> 2 
+							AND t.poll_start > 0
+								AND 
+			ORDER BY t.topic_time DESC';
+			
+		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
+			wp_die(__('Could not access the database.', 'wp-united'));
+		}		
+
+		$polls = array();
+		$i = 0;
+		
+		$polls = $db->fetchrowset($result);
+		
+		$db->sql_freeresult($result);
+		$this->restore_state($fStateChanged);
+		return $polls;
+	}
+	
+	
+	
+	/**
 	 * returns a coloured username link for a phpBB user
 	 */
 	 public function get_username_link($type, $id, $username, $colour) {

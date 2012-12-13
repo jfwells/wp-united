@@ -583,6 +583,8 @@ class WPU_Forum_Birthdays_Widget extends WP_Widget {
 			return;
 		}
 		
+		$birthdays = ($birthdays == '') ? __('No users have birthdays today', 'wp-united') : $birthdays;
+		
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 		echo '<div class="wpuuserbirthdays textwidget">';
@@ -623,6 +625,101 @@ class WPU_Forum_Birthdays_Widget extends WP_Widget {
 }
 
 
+class WPU_Forum_Polls_Widget extends WP_Widget {
+
+
+	public function __construct() {
+	
+		$widget_ops = array('classname' => 'wp-united-forum-polls', 'description' => __('Displays a selected poll from your forum. Users must have the relevant permissions to view and/or vote on the poll.', 'wp-united') );
+		$this->WP_Widget('wp-united-forum-polls', __('WP-United Forum Quick Poll', 'wp-united'), $widget_ops);
+	
+	}
+	
+	public function widget($args, $instance) {
+		global $phpbbForum;
+		
+		extract($args, EXTR_SKIP);
+		
+		$title = empty($instance['title']) ? '&nbsp;' : apply_filters('widget_title', $instance['title']);
+		$pollId = $instance['pollId'];
+		$hideIfNoPerms = $instance['hideIfNoPerms'];
+		$showTopicLink = $instance['showTopicLink'];
+		
+		
+		$poll = 'NOT IMPLEMENTED YET - UNDER CONSTRUCTION!'
+		
+		// get $poll html here
+		
+		if(($poll == '') && $hideIfNoPerms) {
+			return;
+		}
+				
+		$poll = ($poll == '') ? __('You do not have permission view this poll', 'wp-united') : $poll;
+
+		echo $before_widget;
+		echo $before_title . $title . $after_title;
+		echo '<div class="wpuquickpoll textwidget">';
+		echo $poll;
+		echo'</div>';
+		echo $after_widget;
+
+	}
+	
+	public function update($new_instance, $old_instance) {
+		//save the widget
+		$instance = $old_instance;
+		
+		$instance['title'] = strip_tags(stripslashes($new_instance['title']));
+		$instance['pollId'] 	= (int)($new_instance['pollId']);
+		$instance['hideIfNoPerms'] 	= (strip_tags(stripslashes($new_instance['hideIfNoPerms'])) == 	'ok')? 1 : 0;
+		$instance['showTopicLink'] 	= (strip_tags(stripslashes($new_instance['showTopicLink'])) == 	'ok')? 1 : 0;
+		
+		return $instance;
+	}
+	
+	public function form($instance) {
+		global $phpbbForum;
+		//widget form
+		
+		$instance = wp_parse_args( (array) $instance, array( 
+			'title' 			=> __('Quick Poll', 'wp-united'),
+			'pollId'			=> 0,
+			'hideIfNoPerms'		=> 1,
+			'showTopicLink'		=> 1
+		));
+		
+		$title = strip_tags($instance['title']);
+		$hideIfNoPerms	= (!empty($instance['hideIfNoPerms'])) 	? 'checked="checked"' : '';
+		$showTopicLink	= (!empty($instance['showTopicLink'])) 	? 'checked="checked"' : '';
+		
+		$polls = $phpbbForum->get_poll_list();
+		
+		?>
+		
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php  _e('Title: ', 'wp-united'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		
+		<p>
+			<label for="<?php echo $this->get_field_id('pollId'); ?>">
+			<select name="<?php echo $this->get_field_name('pollId'); ?>" id="<?php echo $this->get_field_name('pollId'); ?>">
+				<option value="0">--- <?php _e('No poll selected', 'wp-united'); ?> ---</option>
+					<?php
+						foreach($polls as $pollIndex => $pollData) {
+							$isSelected = ($pollData['topic_id'] == $pollId) ? ' selected="selected" ';
+							echo '<option value="' . $pollData['topic_id'] . '"' . $isSelected . '>' . sprintf(__("'%1\$s', in topic: '%2\$s'", 'wp-united'), $pollData['poll_title'], $pollData['topic_title']) . '</option>';
+						}
+					?>
+			</select>
+		</p>
+		<p><input id="<?php echo $this->get_field_id('hideIfNoPerms'); ?>" name="<?php echo $this->get_field_name('hideIfNoPerms'); ?>" type="checkbox" value="ok"  <?php echo $hideIfNoPerms ?> /> <label for="<?php echo $this->get_field_id('hideIfNoPerms'); ?>"><?php _e('Hide widget if the user has no permissions?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showTopicLink'); ?>" name="<?php echo $this->get_field_name('showTopicLink'); ?>" type="checkbox" value="ok"  <?php echo $showTopicLink ?> /> <label for="<?php echo $this->get_field_id('showTopicLink'); ?>"><?php _e('Show a link to the poll topic?', 'wp-united'); ?></label></p>
+		 id="
+		<?php
+	}
+}
+
+
+
+
 /**
  * Wrapper function for initialising widgets
  */
@@ -635,6 +732,7 @@ function wpu_widgets_init() {
 	register_widget('WPU_Useful_Forum_Links_Widget');
 	register_widget('WPU_Forum_Nav_Block_Widget');
 	register_widget('WPU_Forum_Birthdays_Widget');
+	register_widget('WPU_Forum_Polls_Widget');
 
 }
 

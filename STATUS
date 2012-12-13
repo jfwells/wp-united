@@ -6,6 +6,8 @@ Outstanding reported bugs:
 Committed for vNext:
 * BUGFIX: RTL layout not preserved when using template integration
 * NEW: Forum top bar widget!
+* NEW: Forum birthdays widget!
+
 
 
 ------ cross-posting and comments ---------
@@ -46,7 +48,6 @@ Committed for vNext:
 - Gives you a drop-down list of polls that have been posted on your forum to choose from
 - Gives you a choice of styles to display them (e.g. blue, black, prosilver, style myself)
 - show results when logged out?
--- Birthdays Widget
 -- Most active forum members widget
 -- Most active posts / topics widget
 -- phpBB word cloud
