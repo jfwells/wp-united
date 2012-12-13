@@ -630,7 +630,7 @@ class WPU_Phpbb {
 		$polls = array();
 		$i = 0;
 		
-		$polls = $db->fetchrowset($result);
+		$polls = $db->sql_fetchrowset($result);
 		
 		$db->sql_freeresult($result);
 		$this->restore_state($fStateChanged);
