@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-United v0.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-12 11:11+0800\n"
-"PO-Revision-Date: 2012-12-12 11:11+0800\n"
+"POT-Creation-Date: 2012-12-13 17:16+0800\n"
+"PO-Revision-Date: 2012-12-13 17:16+0800\n"
 "Last-Translator: John Wells <solutions@wp-united.com>\n"
 "Language-Team: John Wells <admin@wp-united.com>\n"
 "MIME-Version: 1.0\n"
@@ -247,51 +247,51 @@ msgid ""
 "hook_wp-united.php exists, and try manually purging your phpBB cache."
 msgstr ""
 
-#: phpbb.php:396 phpbb.php:441 phpbb.php:494
+#: phpbb.php:429 phpbb.php:523 phpbb.php:576 phpbb.php:627
 msgid "Could not access the database."
 msgstr ""
 
-#: phpbb.php:778 plugin-main.php:574
+#: phpbb.php:901 plugin-main.php:574
 msgid "More smilies"
 msgstr ""
 
-#: phpbb.php:920
+#: phpbb.php:1043
 msgid "Receiving settings from WP-United..."
 msgstr ""
 
-#: phpbb.php:929
+#: phpbb.php:1052
 msgid "Modified USERS Table (Integration ID)"
 msgstr ""
 
-#: phpbb.php:938
+#: phpbb.php:1061
 msgid "Modified USERS Table (Blog ID)"
 msgstr ""
 
-#: phpbb.php:953
+#: phpbb.php:1076
 msgid "Modified POSTS Table (Cross-Posting Link)"
 msgstr ""
 
-#: phpbb.php:959
+#: phpbb.php:1082
 msgid "Adding WP-United Permissions"
 msgstr ""
 
-#: phpbb.php:971
+#: phpbb.php:1094
 msgid "Storing the new WP-United settings"
 msgstr ""
 
-#: phpbb.php:999
+#: phpbb.php:1122
 msgid "Updating avatar settings"
 msgstr ""
 
-#: phpbb.php:1012
+#: phpbb.php:1135
 msgid "Purging the WP-United cache"
 msgstr ""
 
-#: phpbb.php:1017
+#: phpbb.php:1140
 msgid "Completed successfully"
 msgstr ""
 
-#: phpbb.php:1048
+#: phpbb.php:1171
 msgid "Changed WP-United Settings (click for details)"
 msgstr ""
 
@@ -1494,7 +1494,7 @@ msgid "Recent Forum Topics"
 msgstr ""
 
 #: widgets.php:160 widgets.php:217 widgets.php:265 widgets.php:330
-#: widgets.php:460
+#: widgets.php:460 widgets.php:634 widgets.php:717
 msgid "Title: "
 msgstr ""
 
@@ -1594,6 +1594,94 @@ msgstr ""
 
 #: widgets.php:468
 msgid "Show PMs?"
+msgstr ""
+
+#: widgets.php:479
+msgid ""
+"Shows the top phpBB forum navigation / breadcrumb bar. If you have template "
+"integration turned on, this will only appear on non-forum pages."
+msgstr ""
+
+#: widgets.php:480
+msgid "WP-United Forum Navigation Bar"
+msgstr ""
+
+#: widgets.php:540
+msgid "Show Site homepage rather than board index?"
+msgstr ""
+
+#: widgets.php:541
+msgid "Show member list?"
+msgstr ""
+
+#: widgets.php:542
+msgid "Show register link?"
+msgstr ""
+
+#: widgets.php:543 widgets.php:735
+msgid "Don't add CSS, I will style this myself"
+msgstr ""
+
+#: widgets.php:581
+msgid ""
+"Shows a list of users whose birthday it is today. Note that users must be "
+"logged in to phpBB and birthday entry must be activated on your forum for "
+"this to work."
+msgstr ""
+
+#: widgets.php:582
+msgid "WP-United User Birthdays"
+msgstr ""
+
+#: widgets.php:600
+msgid "No users have birthdays today"
+msgstr ""
+
+#: widgets.php:625
+msgid "Happy Birthday To: "
+msgstr ""
+
+#: widgets.php:635
+msgid "Hide widget if there is nothing to show?"
+msgstr ""
+
+#: widgets.php:647
+msgid ""
+"Displays a selected poll from your forum. Users must have the relevant "
+"permissions to view and/or vote on the poll."
+msgstr ""
+
+#: widgets.php:648
+msgid "WP-United Forum Quick Poll"
+msgstr ""
+
+#: widgets.php:672
+msgid "You do not have permission to view this poll"
+msgstr ""
+
+#: widgets.php:701
+msgid "Quick Poll"
+msgstr ""
+
+#: widgets.php:720
+msgid "Select a poll: "
+msgstr ""
+
+#: widgets.php:722
+msgid "No poll selected"
+msgstr ""
+
+#: widgets.php:726
+#, php-format
+msgid "'%1$s', in topic: '%2$s'"
+msgstr ""
+
+#: widgets.php:733
+msgid "Hide widget if the user has no permissions to view this poll?"
+msgstr ""
+
+#: widgets.php:734
+msgid "Show a link to the poll topic?"
 msgstr ""
 
 #: languages/phpbb_language_stubs.php:18

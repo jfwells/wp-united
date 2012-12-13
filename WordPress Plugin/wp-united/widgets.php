@@ -476,10 +476,8 @@ class WPU_Useful_Forum_Links_Widget extends WP_Widget {
 
 class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 	public function __construct() {
-		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB forum navigation / breadcrumb bar.', 'wp-united') );
+		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB forum navigation / breadcrumb bar. If you have template integration turned on, this will only appear on non-forum pages.', 'wp-united') );
 		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
-		
-
 	}
 	
 	public function widget($args, $instance) {
@@ -492,7 +490,12 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$showRegisterLink = $instance['showRegisterLink'];
 		$nativeCSS = $instance['nativeCSS'];
 		
-		if (is_active_widget(false, false, $this->id_base) && defined('WPU_BLOG_PAGE') && !is_admin() && !$nativeCSS) {
+		if(!defined('WPU_BLOG_PAGE') || is_admin()) {
+			return;
+		}
+		
+		
+		if (is_active_widget(false, false, $this->id_base) && !$wpUnited->should_do_action('template-w-in-p') && !$nativeCSS) {
 			$this->add_navblock_style();
 		}
 		
@@ -666,7 +669,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 			return;
 		}
 				
-		$poll = ($poll == '') ? __('You do not have permission view this poll', 'wp-united') : $poll;
+		$poll = ($poll == '') ? __('You do not have permission to view this poll', 'wp-united') : $poll;
 
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
