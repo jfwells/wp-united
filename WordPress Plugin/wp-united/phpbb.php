@@ -620,8 +620,7 @@ class WPU_Phpbb {
 				AND t.topic_poster = u.user_id 
 					AND t.forum_id = f.forum_id 
 						AND t.topic_status <> 2 
-							AND t.poll_start > 0
-								AND 
+							AND t.poll_start > 0 
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
