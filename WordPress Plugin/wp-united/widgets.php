@@ -512,7 +512,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$instance['showSiteHome'] 		= (strip_tags(stripslashes($new_instance['showSiteHome'])) 		== 	'ok')? 1 : 0;
 		$instance['showMemberList'] 	= (strip_tags(stripslashes($new_instance['showMemberList'])) 	== 	'ok')? 1 : 0;
 		$instance['showRegisterLink'] 	= (strip_tags(stripslashes($new_instance['showRegisterLink'])) 	== 	'ok')? 1 : 0;
-		$instance['nativeCSS'] 			= (strip_tags(stripslashes($new_instance['nativeCSS'])) 		== 	'ok')? 0 : 1;
+		$instance['nativeCSS'] 			= (strip_tags(stripslashes($new_instance['nativeCSS'])) 		== 	'ok')? 1 : 0;
 		
 		return $instance;
 	}
@@ -524,7 +524,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 			'showSiteHome'			=> 1, 
 			'showMemberList'		=> 1, 
 			'showRegisterLink' 		=> 1,
-			'showRegisterLink' 		=> 0
+			'nativeCSS' 			=> 0
 		));
 		
 		$showSiteHome		= (!empty($instance['showSiteHome'])) 		? 'checked="checked"' : '';
@@ -685,7 +685,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$instance['pollId'] 	= (int)($new_instance['pollId']);
 		$instance['hideIfNoPerms'] 	= (strip_tags(stripslashes($new_instance['hideIfNoPerms'])) == 	'ok')? 1 : 0;
 		$instance['showTopicLink'] 	= (strip_tags(stripslashes($new_instance['showTopicLink'])) == 	'ok')? 1 : 0;
-		$instance['nativeCSS'] 		= (strip_tags(stripslashes($new_instance['nativeCSS'])) == 	'ok')? 	0 : 1;
+		$instance['nativeCSS'] 		= (strip_tags(stripslashes($new_instance['nativeCSS'])) == 	'ok')? 	1 : 0;
 		
 		return $instance;
 	}
@@ -699,7 +699,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 			'pollId'			=> 0,
 			'hideIfNoPerms'		=> 1,
 			'showTopicLink'		=> 1,
-			'nativeCSS'			=> 1
+			'nativeCSS'			=> 0
 		));
 		
 		$title = strip_tags($instance['title']);
