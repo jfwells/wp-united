@@ -511,12 +511,14 @@ class WPU_Phpbb {
 			return FALSE;
 		}
 			
-		$sql = 'SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, p.post_subject, f.forum_name, p.poster_id, u.username, f.forum_id, u.user_type, u.user_colour 
+		$sql = '
+		
+			SELECT p.post_id, p.topic_id, p.forum_id, p.post_time, t.topic_title, p.post_subject, f.forum_name, p.poster_id, u.username, f.forum_id, u.user_type, u.user_colour 
             FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f, ' . USERS_TABLE . ' AS u
 			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
-			AND  p.topic_id = t.topic_id
-			AND u.user_id = p.poster_id
-			AND f.forum_id = p.forum_id
+				AND  p.topic_id = t.topic_id
+				AND u.user_id = p.poster_id
+				AND f.forum_id = p.forum_id
 			ORDER BY post_time DESC'; 	
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
@@ -563,13 +565,15 @@ class WPU_Phpbb {
 		if (!sizeof($forums_check)) {
 			return FALSE;
 		}
-		$sql = 'SELECT t.topic_id, t.topic_time, t.topic_title, u.username, u.user_id,
+		$sql = '
+		
+			SELECT t.topic_id, t.topic_time, t.topic_title, u.username, u.user_id,
 				t.topic_replies, t.forum_id, t.topic_poster, t.topic_status, f.forum_name, u.user_type, u.user_colour 
 			FROM ' . TOPICS_TABLE . ' AS t, ' . USERS_TABLE . ' AS u, ' . FORUMS_TABLE . ' AS f 
 			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
 				AND t.topic_poster = u.user_id 
-					AND t.forum_id = f.forum_id 
-						AND t.topic_status <> 2 
+				AND t.forum_id = f.forum_id 
+				AND t.topic_status <> 2 
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
@@ -606,6 +610,8 @@ class WPU_Phpbb {
 	public function get_poll_list($forum_list = '', $limit = 50) {
 		global $db, $auth, $wpUnited;
 		
+		$pollMarkup = '';
+		
 		$fStateChanged = $this->foreground();
 
 		$forums_check = array_unique(array_keys($auth->acl_getf('f_read', true))); //forums authorised to read posts in
@@ -613,28 +619,303 @@ class WPU_Phpbb {
 		if (!sizeof($forums_check)) {
 			return false;
 		}
-		$sql = 'SELECT t.topic_id, t.topic_title, t.poll_title, t.poll_start, 
-				t.forum_id, t.topic_poster, f.forum_name
-			FROM ' . TOPICS_TABLE . ' AS t, ' . USERS_TABLE . ' AS u, ' . FORUMS_TABLE . ' AS f 
+		$sql = '
+			SELECT t.topic_id, t.topic_title, t.poll_title, t.poll_start, 
+				t.forum_id, f.forum_name
+			FROM ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f 
 			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
-				AND t.topic_poster = u.user_id 
 					AND t.forum_id = f.forum_id 
-						AND t.topic_status <> 2 
-							AND t.poll_start > 0 
+					AND t.topic_status <> 2 
+					AND t.poll_start > 0 
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
 			wp_die(__('Could not access the database.', 'wp-united'));
 		}		
 
-		$polls = array();
-		$i = 0;
-		
+	
 		$polls = $db->sql_fetchrowset($result);
 		
 		$db->sql_freeresult($result);
 		$this->restore_state($fStateChanged);
 		return $polls;
+	}
+	
+	
+	/**
+	 * 
+	 * Displays a poll
+	 * 
+	 */
+	 public function get_poll($topicID, $inboundVote = 0) {
+		 global $db, $user, $auth, $config;
+		 
+		 $fStateChanged = $this->foreground();
+		 
+		 $pollMarkup = '';
+		 		 
+		 $sql = '
+
+			SELECT t.topic_id, t.topic_title, t.topic_status, t.poll_title, t.poll_start, t.poll_length, 
+						t.poll_max_options, t.poll_last_vote, t.poll_vote_change, 
+						p.bbcode_bitfield, p.bbcode_uid, 
+						t.forum_id, u.user_id, f.forum_name, f.forum_status, u.username, u.user_colour, u.user_type
+			FROM ' . TOPICS_TABLE . ' AS t, ' . USERS_TABLE . ' AS u, ' . FORUMS_TABLE . ' AS f, ' .
+				POSTS_TABLE .  ' AS p
+			WHERE t.topic_poster = u.user_id 
+				AND t.forum_id = f.forum_id
+				AND t.topic_id = ' . $topicID . ' 
+				AND p.post_id = t.topic_first_post_id';
+				
+		if(!($result = $db->sql_query($sql))) {
+			wp_die(__('Could not access the database.', 'wp-united'));
+		}		
+
+		 
+		$topicData = $db->sql_fetchrow($result);
+		
+		$db->sql_freeresult($result);
+		
+		if(!$topicData['poll_start'] || (!$auth->acl_get('f_read', $topicData['forum_id']))) {
+			return $pollMarkup;
+		}
+				
+		 $sql = '
+			SELECT * 
+			FROM ' . POLL_OPTIONS_TABLE . ' 
+			WHERE topic_id = ' . $topicID;
+			
+		$result = $db->sql_query($sql);
+			
+		$pollOptions = $db->sql_fetchrowset($result);
+		
+		$db->sql_freeresult($result);
+		
+		
+		if ($user->data['is_registered']) {
+		
+			$sql = '
+				SELECT poll_option_id
+				FROM ' . POLL_VOTES_TABLE . '
+				WHERE topic_id = ' . $topicID . '
+				AND vote_user_id = ' . $user->data['user_id'];
+		
+			$result = $db->sql_query($sql);
+
+			$currVotedID = $db->sql_fetchrowset($result);
+			
+			$db->sql_freeresult($result);
+		} else {
+			// Cookie based guest tracking ... 
+			if (isset($_COOKIE[$config['cookie_name'] . '_poll_' . $topicID])) {
+				$currVotedID = explode(',', $_COOKIE[$config['cookie_name'] . '_poll_' . $topicID]);
+				$currVotedID = array_map('intval', $currVotedID);
+			}
+		}
+		
+		// Can not vote at all if no vote permission
+		$userCanVote = (
+			$auth->acl_get('f_vote', $topicData['forum_id']) &&
+			(
+				($topicData['poll_length'] != 0 && $topicData['poll_start'] + $topicData['poll_length'] > time()) || 
+				($topicData['poll_length'] == 0)
+			) &&
+		$topicData['topic_status'] != ITEM_LOCKED &&
+		$topicData['forum_status'] != ITEM_LOCKED &&
+		(!sizeof($currVotedID) ||
+		($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']))
+	) ? true : false;
+	
+	$displayResults = (
+		!$userCanVote || 
+		($userCanVote && sizeof($currVotedID)) || 
+		($view == 'viewpoll')
+	) ? true : false;
+		
+		
+	if($inboundVote && $userCanVote) {
+		//  ********   register vote here ********
+	}
+	
+	$pollTotal = 0;
+	foreach ($pollOptions as $pollOption) {
+		$pollTotal += $pollOption['poll_option_total'];
+	}
+	
+	$pollBBCode = ($topicData['bbcode_bitfield']) ? new bbcode() : false;
+
+
+	for ($i = 0, $size = sizeof($pollOptions); $i < $size; $i++) {
+		$pollOptions[$i]['poll_option_text'] = censor_text($pollOptions[$i]['poll_option_text']);
+
+		if ($pollBBCode !== false) {
+			$pollBBCode->bbcode_second_pass($pollOptions[$i]['poll_option_text'], $topicData['bbcode_uid'], $topicData['bbcode_bitfield']);
+		}
+
+		$pollOptions[$i]['poll_option_text'] = bbcode_nl2br($pollOptions[$i]['poll_option_text']);
+		$pollOptions[$i]['poll_option_text'] = smiley_text($pollOptions[$i]['poll_option_text']);
+	}
+
+	$topicData['poll_title'] = $this->censor($topicData['poll_title']);
+
+	if ($pollBBCode !== false) {
+		$pollBBCode->bbcode_second_pass($topicData['poll_title'], $topicData['bbcode_uid'], $topicData['bbcode_bitfield']);
+	}
+
+	$topicData['poll_title'] = bbcode_nl2br($topicData['poll_title']);
+	$topicData['poll_title'] = $this->add_smilies($topicData['poll_title']);
+
+	unset($pollBBCode);
+	
+	
+		$pollMarkup .= 'UNDER CONSTRUCTION!<br />';
+	
+		foreach ($pollOptions as $pollOption) {
+			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
+			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
+			
+			$pollMarkup .= $pollOption['poll_option_text'] . ': ' . $optionPctTxt . '<br />';
+
+	/*	$template->assign_block_vars('poll_option', array(
+			'POLL_OPTION_ID' 		=> $poll_option['poll_option_id'],
+			'POLL_OPTION_CAPTION' 	=> $poll_option['poll_option_text'],
+			'POLL_OPTION_RESULT' 	=> $poll_option['poll_option_total'],
+			'POLL_OPTION_PERCENT' 	=> $option_pct_txt,
+			'POLL_OPTION_PCT'		=> round($option_pct * 100),
+			'POLL_OPTION_IMG' 		=> $user->img('poll_center', $option_pct_txt, round($option_pct * 250)),
+			'POLL_OPTION_VOTED'		=> (in_array($poll_option['poll_option_id'], $cur_voted_id)) ? true : false)
+		);*/
+	}
+
+	$pollEnd = $topicData['poll_length'] + $topicData['poll_start'];
+/*
+	$template->assign_vars(array(
+		'POLL_QUESTION'		=> $topic_data['poll_title'],
+		'TOTAL_VOTES' 		=> $poll_total,
+		'POLL_LEFT_CAP_IMG'	=> $user->img('poll_left'),
+		'POLL_RIGHT_CAP_IMG'=> $user->img('poll_right'),
+
+		'L_MAX_VOTES'		=> ($topic_data['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topic_data['poll_max_options']),
+		'L_POLL_LENGTH'		=> ($topic_data['poll_length']) ? sprintf($user->lang[($poll_end > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($poll_end)) : '',
+
+		'S_HAS_POLL'		=> true,
+		'S_CAN_VOTE'		=> $s_can_vote,
+		'S_DISPLAY_RESULTS'	=> $s_display_results,
+		'S_IS_MULTI_CHOICE'	=> ($topic_data['poll_max_options'] > 1) ? true : false,
+		'S_POLL_ACTION'		=> $viewtopic_url,
+
+		'U_VIEW_RESULTS'	=> $viewtopic_url . '&amp;view=viewpoll')
+	); */
+
+
+				
+		$this->restore_state($fStateChanged);
+	
+		return $pollMarkup;
+				
+/*	 
+		
+  ////   ************ VOTE REGISTRATION: ****************
+	if ($update && $s_can_vote)
+	{
+
+		if (!sizeof($voted_id) || sizeof($voted_id) > $topic_data['poll_max_options'] || in_array(VOTE_CONVERTED, $cur_voted_id) || !check_form_key('posting'))
+		{
+			$redirect_url = append_sid("{$phpbb_root_path}viewtopic.$phpEx", "f=$forum_id&amp;t=$topic_id" . (($start == 0) ? '' : "&amp;start=$start"));
+
+			meta_refresh(5, $redirect_url);
+			if (!sizeof($voted_id))
+			{
+				$message = 'NO_VOTE_OPTION';
+			}
+			else if (sizeof($voted_id) > $topic_data['poll_max_options'])
+			{
+				$message = 'TOO_MANY_VOTE_OPTIONS';
+			}
+			else if (in_array(VOTE_CONVERTED, $cur_voted_id))
+			{
+				$message = 'VOTE_CONVERTED';
+			}
+			else
+			{
+				$message = 'FORM_INVALID';
+			}
+
+			$message = $user->lang[$message] . '<br /><br />' . sprintf($user->lang['RETURN_TOPIC'], '<a href="' . $redirect_url . '">', '</a>');
+			trigger_error($message);
+		}
+
+		foreach ($voted_id as $option)
+		{
+			if (in_array($option, $cur_voted_id))
+			{
+				continue;
+			}
+
+			$sql = 'UPDATE ' . POLL_OPTIONS_TABLE . '
+				SET poll_option_total = poll_option_total + 1
+				WHERE poll_option_id = ' . (int) $option . '
+					AND topic_id = ' . (int) $topic_id;
+			$db->sql_query($sql);
+
+			if ($user->data['is_registered'])
+			{
+				$sql_ary = array(
+					'topic_id'			=> (int) $topic_id,
+					'poll_option_id'	=> (int) $option,
+					'vote_user_id'		=> (int) $user->data['user_id'],
+					'vote_user_ip'		=> (string) $user->ip,
+				);
+
+				$sql = 'INSERT INTO ' . POLL_VOTES_TABLE . ' ' . $db->sql_build_array('INSERT', $sql_ary);
+				$db->sql_query($sql);
+			}
+		}
+
+		foreach ($cur_voted_id as $option)
+		{
+			if (!in_array($option, $voted_id))
+			{
+				$sql = 'UPDATE ' . POLL_OPTIONS_TABLE . '
+					SET poll_option_total = poll_option_total - 1
+					WHERE poll_option_id = ' . (int) $option . '
+						AND topic_id = ' . (int) $topic_id;
+				$db->sql_query($sql);
+
+				if ($user->data['is_registered'])
+				{
+					$sql = 'DELETE FROM ' . POLL_VOTES_TABLE . '
+						WHERE topic_id = ' . (int) $topic_id . '
+							AND poll_option_id = ' . (int) $option . '
+							AND vote_user_id = ' . (int) $user->data['user_id'];
+					$db->sql_query($sql);
+				}
+			}
+		}
+
+		if ($user->data['user_id'] == ANONYMOUS && !$user->data['is_bot'])
+		{
+			$user->set_cookie('poll_' . $topic_id, implode(',', $voted_id), time() + 31536000);
+		}
+
+		$sql = 'UPDATE ' . TOPICS_TABLE . '
+			SET poll_last_vote = ' . time() . "
+			WHERE topic_id = $topic_id";
+		//, topic_last_post_time = ' . time() . " -- for bumping topics with new votes, ignore for now
+		$db->sql_query($sql);
+
+		$redirect_url = append_sid("{$phpbb_root_path}viewtopic.$phpEx", "f=$forum_id&amp;t=$topic_id" . (($start == 0) ? '' : "&amp;start=$start"));
+
+		meta_refresh(5, $redirect_url);
+		trigger_error($user->lang['VOTE_SUBMITTED'] . '<br /><br />' . sprintf($user->lang['RETURN_TOPIC'], '<a href="' . $redirect_url . '">', '</a>'));
+	}
+
+	
+	
+	
+
+
+*/	 
 	}
 	
 	
@@ -1330,7 +1611,8 @@ class WPU_Phpbb {
 		return true;
 	}
 	
-	public function add_smilies($postContent, $maxSmilies) {
+	//TODO: get maxSmilies from config
+	public function add_smilies($postContent, $maxSmilies = 1000) {
 		static $match;
 		static $replace;
 		global $db;
@@ -1356,12 +1638,11 @@ class WPU_Phpbb {
 			
 		}
 		if (sizeof($match)) {
-			if ($maxSmilies) {
-				$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
-				unset($matches);
-			}
+			$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
+			unset($matches);
 			
 			// Make sure the delimiter # is added in front and at the end of every element within $match
+			//TODO: limit this to maxSmilies
 			$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
 		}
 		

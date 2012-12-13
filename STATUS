@@ -1,14 +1,13 @@
 current target: v0.9.0.4
 
-Outstanding reported bugs:
--- none --
+Outstanding reported bugs pending verification:
+- On registration easy captcha reloads page to centred '1'
+- Autogenned WP passwords with '&' don't transfer to phpBB
 
 Committed for vNext:
 * BUGFIX: RTL layout not preserved when using template integration
 * NEW: Forum top bar widget!
 * NEW: Forum birthdays widget!
-
-
 
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
@@ -44,6 +43,8 @@ Committed for vNext:
 
 ---- widgets  --------
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
+<<<<<<< .mine
+=======
 -- Poll widget
 - Gives you a drop-down list of polls that have been posted on your forum to choose from
 - Gives you a choice of styles to display them (e.g. blue, black, prosilver, style myself)
@@ -51,6 +52,7 @@ Committed for vNext:
 -- Most active forum members widget
 -- Most active posts / topics widget
 -- phpBB word cloud
+>>>>>>> .r1014
 
 
 -------- user blogs --> wp-ms  (v0.9 not contingent on this) ----------

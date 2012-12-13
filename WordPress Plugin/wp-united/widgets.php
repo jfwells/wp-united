@@ -668,7 +668,9 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		if(($poll == '') && $hideIfNoPerms) {
 			return;
 		}
-				
+		
+		$poll = $phpbbForum->get_poll($pollId);
+		
 		$poll = ($poll == '') ? __('You do not have permission to view this poll', 'wp-united') : $poll;
 
 		echo $before_widget;
@@ -698,17 +700,18 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		//widget form
 		
 		$instance = wp_parse_args( (array) $instance, array( 
-			'title' 			=> __('Quick Poll', 'wp-united'),
-			'pollId'			=> 0,
+			'title' 						=> __('Quick Poll', 'wp-united'),
+			'pollId'						=> 0,
 			'hideIfNoPerms'		=> 1,
 			'showTopicLink'		=> 1,
-			'nativeCSS'			=> 0
+			'nativeCSS'				=> 0
 		));
 		
 		$title = strip_tags($instance['title']);
 		$hideIfNoPerms	= (!empty($instance['hideIfNoPerms'])) 	? 'checked="checked"' : '';
 		$showTopicLink	= (!empty($instance['showTopicLink'])) 	? 'checked="checked"' : '';
 		$nativeCSS		= (!empty($instance['nativeCSS'])) 		? 'checked="checked"' : '';
+		$pollId = $instance['pollId'];
 		
 		$polls = $phpbbForum->get_poll_list();
 		
