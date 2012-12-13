@@ -699,7 +699,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php  _e('Title: ', 'wp-united'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id('pollId'); ?>">
+			<label for="<?php echo $this->get_field_id('pollId'); ?>"><?php _e('Select a poll: ', 'wp-united'); ?></label><br />
 			<select name="<?php echo $this->get_field_name('pollId'); ?>" id="<?php echo $this->get_field_name('pollId'); ?>">
 				<option value="0">--- <?php _e('No poll selected', 'wp-united'); ?> ---</option>
 					<?php
@@ -712,7 +712,6 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		</p>
 		<p><input id="<?php echo $this->get_field_id('hideIfNoPerms'); ?>" name="<?php echo $this->get_field_name('hideIfNoPerms'); ?>" type="checkbox" value="ok"  <?php echo $hideIfNoPerms ?> /> <label for="<?php echo $this->get_field_id('hideIfNoPerms'); ?>"><?php _e('Hide widget if the user has no permissions?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('showTopicLink'); ?>" name="<?php echo $this->get_field_name('showTopicLink'); ?>" type="checkbox" value="ok"  <?php echo $showTopicLink ?> /> <label for="<?php echo $this->get_field_id('showTopicLink'); ?>"><?php _e('Show a link to the poll topic?', 'wp-united'); ?></label></p>
-		 id="
 		<?php
 	}
 }
