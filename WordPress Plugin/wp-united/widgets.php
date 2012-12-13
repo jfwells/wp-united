@@ -704,7 +704,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 				<option value="0">--- <?php _e('No poll selected', 'wp-united'); ?> ---</option>
 					<?php
 						foreach($polls as $pollIndex => $pollData) {
-							$isSelected = ($pollData['topic_id'] == $pollId) ? ' selected="selected" ';
+							$isSelected = ($pollData['topic_id'] == $pollId) ? ' selected="selected" ' : '';
 							echo '<option value="' . $pollData['topic_id'] . '"' . $isSelected . '>' . sprintf(__("'%1\$s', in topic: '%2\$s'", 'wp-united'), $pollData['poll_title'], $pollData['topic_title']) . '</option>';
 						}
 					?>
