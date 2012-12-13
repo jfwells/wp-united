@@ -1,14 +1,12 @@
 current target: v0.9.0.4
 
 Outstanding reported bugs:
+-- none --
 
-
-Odd themes that could do with better auto integration:
-- Arras
-
-
->> Fixed for vNext:
+Committed for vNext:
 * BUGFIX: RTL layout not preserved when using template integration
+* NEW: Forum top bar widget!
+
 
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
@@ -39,10 +37,20 @@ Odd themes that could do with better auto integration:
 
 ----- template integration ------------
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
+-- Odd themes that could do with better auto integration:
+----- Arras
 
 ---- widgets  --------
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
--- Forum top bar widget
+-- Poll widget
+- Gives you a drop-down list of polls that have been posted on your forum to choose from
+- Gives you a choice of styles to display them (e.g. blue, black, prosilver, style myself)
+- show results when logged out?
+-- Birthdays Widget
+-- Most active forum members widget
+-- Most active posts / topics widget
+-- phpBB word cloud
+
 
 -------- user blogs --> wp-ms  (v0.9 not contingent on this) ----------
 -- check permissions mapping and user creation -- add check for whether they should be given a blog or not when being created

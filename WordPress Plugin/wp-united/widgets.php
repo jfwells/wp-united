@@ -559,6 +559,69 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 
 }
 
+class WPU_Forum_Birthdays_Widget extends WP_Widget {
+
+
+	public function __construct() {
+	
+		$widget_ops = array('classname' => 'wp-united-forum-birthdays', 'description' => __('Shows a list of users whose birthday it is today. Note that users must be logged in to phpBB and birthday entry must be activated on your forum for this to work.', 'wp-united') );
+		$this->WP_Widget('wp-united-forum-birthdays', __('WP-United User Birthdays', 'wp-united'), $widget_ops);
+	
+	}
+	
+	public function widget($args, $instance) {
+		global $phpbbForum;
+		
+		extract($args, EXTR_SKIP);
+		
+		$title = empty($instance['title']) ? '&nbsp;' : apply_filters('widget_title', $instance['title']);
+		$hideIfNothing = $instance['hideIfNothing'];
+		
+		$birthdays = $phpbbForum->get_birthday_list();
+		
+		if(($birthdays == '') && $hideIfNothing) {
+			return;
+		}
+		
+		echo $before_widget;
+		echo $before_title . $title . $after_title;
+		echo '<div class="wpuuserbirthdays textwidget">'
+		echo $birthdays;
+		echo'</div>';
+		echo $after_widget;
+
+	}
+	
+	public function update($new_instance, $old_instance) {
+		//save the widget
+		$instance = $old_instance;
+		
+		$instance['title'] = strip_tags(stripslashes($new_instance['title']));
+		$instance['hideIfNothing'] 	= (strip_tags(stripslashes($new_instance['hideIfNothing'])) == 	'ok')? 1 : 0;
+		
+		return $instance;
+	}
+	
+	public function form($instance) {
+		//widget form
+		
+		$instance = wp_parse_args( (array) $instance, array( 
+			'title' 			=> __('Happy Birthday To: ', 'wp-united'),
+			'hideIfNothing'		=> 1
+		));
+		
+		$title = strip_tags($instance['title']);
+		$showBreakdown	= (!empty($instance['hideIfNothing'])) 	? 'checked="checked"' : 
+
+		?>
+		
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php  _e('Title: ', 'wp-united'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
+		<p><input id="<?php echo $this->get_field_id('hideIfNothing'); ?>" name="<?php echo $this->get_field_name('hideIfNothing'); ?>" type="checkbox" value="ok"  <?php echo $hideIfNothing ?> /> <label for="<?php echo $this->get_field_id('hideIfNothing'); ?>"><?php _e('Hide widget if there is nothing to show?', 'wp-united'); ?></label></p>
+		
+		<?php
+	}
+}
+
 
 /**
  * Wrapper function for initialising widgets
@@ -571,6 +634,7 @@ function wpu_widgets_init() {
 	register_widget('WPU_Forum_Users_Online_Widget');
 	register_widget('WPU_Useful_Forum_Links_Widget');
 	register_widget('WPU_Forum_Nav_Block_Widget');
+	register_widget('WPU_Forum_Birthdays_Widget');
 
 }
 
