@@ -542,8 +542,13 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 	}
 	
 	public function add_navblock_style() {
-		global $phpbbForum;
+		global $phpbbForum, $wpuAddedWidgetCSS;
 		
+		if($wpuAddedWidgetCSS) {
+			return;
+		}
+
+		$wpuAddedWidgetCSS = true;
 		
 		$themePath =  $phpbbForum->get_stylesheet_path();
 
