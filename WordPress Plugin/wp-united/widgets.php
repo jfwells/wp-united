@@ -646,7 +646,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$showTopicLink = $instance['showTopicLink'];
 		
 		
-		$poll = 'NOT IMPLEMENTED YET - UNDER CONSTRUCTION!'
+		$poll = 'NOT IMPLEMENTED YET - UNDER CONSTRUCTION!';
 		
 		// get $poll html here
 		
