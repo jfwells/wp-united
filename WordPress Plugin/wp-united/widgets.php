@@ -705,12 +705,12 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 					<?php
 						foreach($polls as $pollIndex => $pollData) {
 							$isSelected = ($pollData['topic_id'] == $pollId) ? ' selected="selected" ' : '';
-							echo '<option value="' . $pollData['topic_id'] . '"' . $isSelected . '>' . sprintf(__("'%1\$s', in topic: '%2\$s'", 'wp-united'), $pollData['poll_title'], $pollData['topic_title']) . '</option>';
+							echo '<option value="' . $pollData['topic_id'] . '"' . $isSelected . '>' . substr(sprintf(__("'%1\$s', in topic: '%2\$s'", 'wp-united'), $pollData['poll_title'], $pollData['topic_title']), 0, 38) . '</option>';
 						}
 					?>
 			</select>
 		</p>
-		<p><input id="<?php echo $this->get_field_id('hideIfNoPerms'); ?>" name="<?php echo $this->get_field_name('hideIfNoPerms'); ?>" type="checkbox" value="ok"  <?php echo $hideIfNoPerms ?> /> <label for="<?php echo $this->get_field_id('hideIfNoPerms'); ?>"><?php _e('Hide widget if the user has no permissions?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('hideIfNoPerms'); ?>" name="<?php echo $this->get_field_name('hideIfNoPerms'); ?>" type="checkbox" value="ok"  <?php echo $hideIfNoPerms ?> /> <label for="<?php echo $this->get_field_id('hideIfNoPerms'); ?>"><?php _e('Hide widget if the user has no permissions to view this poll?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('showTopicLink'); ?>" name="<?php echo $this->get_field_name('showTopicLink'); ?>" type="checkbox" value="ok"  <?php echo $showTopicLink ?> /> <label for="<?php echo $this->get_field_id('showTopicLink'); ?>"><?php _e('Show a link to the poll topic?', 'wp-united'); ?></label></p>
 		<?php
 	}
