@@ -705,7 +705,9 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 					<?php
 						foreach($polls as $pollIndex => $pollData) {
 							$isSelected = ($pollData['topic_id'] == $pollId) ? ' selected="selected" ' : '';
-							echo '<option value="' . $pollData['topic_id'] . '"' . $isSelected . '>' . substr(sprintf(__("'%1\$s', in topic: '%2\$s'", 'wp-united'), $pollData['poll_title'], $pollData['topic_title']), 0, 38) . '</option>';
+							$pollText = sprintf(__("'%1\$s', in topic: '%2\$s'", 'wp-united'), $pollData['poll_title'], $pollData['topic_title']);
+							$pollText = (sizeof($pollText > 38)) ? substr($pollText, 0, 38) . '&hellip;';
+							echo '<option value="' . $pollData['topic_id'] . '"' . $isSelected . '>' . $polLText . '</option>';
 						}
 					?>
 			</select>
