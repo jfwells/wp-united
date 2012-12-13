@@ -479,11 +479,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB forum navigation / breadcrumb bar.', 'wp-united') );
 		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
 		
-		
-		if (is_active_widget(false, false, $this->id_base) && defined('WPU_BLOG_PAGE')) {
-			$this->add_navblock_style();
-		}
-		
+
 	}
 	
 	public function widget($args, $instance) {
@@ -494,6 +490,13 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$showSiteHome = $instance['showSiteHome'];
 		$showMemberList = $instance['showMemberList'];
 		$showRegisterLink = $instance['showRegisterLink'];
+		$nativeCSS = $instance['nativeCSS'];
+		
+		if (is_active_widget(false, false, $this->id_base) && defined('WPU_BLOG_PAGE') && !is_admin() && !$nativeCSS) {
+			$this->add_navblock_style();
+		}
+		
+		
 		
 		echo $before_widget;
 		wpu_phpbb_nav_block("showSiteHome={$showSiteHome}&showMemberList={$showMemberList}&showRegisterLink={$showRegisterLink}");	
@@ -509,6 +512,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$instance['showSiteHome'] 		= (strip_tags(stripslashes($new_instance['showSiteHome'])) 		== 	'ok')? 1 : 0;
 		$instance['showMemberList'] 	= (strip_tags(stripslashes($new_instance['showMemberList'])) 	== 	'ok')? 1 : 0;
 		$instance['showRegisterLink'] 	= (strip_tags(stripslashes($new_instance['showRegisterLink'])) 	== 	'ok')? 1 : 0;
+		$instance['nativeCSS'] 			= (strip_tags(stripslashes($new_instance['nativeCSS'])) 		== 	'ok')? 0 : 1;
 		
 		return $instance;
 	}
@@ -519,19 +523,21 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, array( 
 			'showSiteHome'			=> 1, 
 			'showMemberList'		=> 1, 
-			'showRegisterLink' 		=> 1
+			'showRegisterLink' 		=> 1,
+			'showRegisterLink' 		=> 0
 		));
 		
 		$showSiteHome		= (!empty($instance['showSiteHome'])) 		? 'checked="checked"' : '';
 		$showMemberList 	= (!empty($instance['showMemberList'])) 	? 'checked="checked"' : '';
 		$showRegisterLink 	= (!empty($instance['showRegisterLink'])) 	? 'checked="checked"' : '';
+		$nativeCSS 			= (!empty($instance['nativeCSS'])) 			? 'checked="checked"' : '';
 
 		?>
 		
 		<p><input id="<?php echo $this->get_field_id('showSiteHome'); ?>" name="<?php echo $this->get_field_name('showSiteHome'); ?>" type="checkbox" value="ok"  <?php echo $showSiteHome ?> /> <label for="<?php echo $this->get_field_id('showSiteHome'); ?>"><?php _e('Show Site homepage rather than board index?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('showMemberList'); ?>" name="<?php echo $this->get_field_name('showMemberList'); ?>" type="checkbox" value="ok" <?php echo $showMemberList ?> /> <label for="<?php echo $this->get_field_id('showMemberList'); ?>"><?php _e('Show member list?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('showRegisterLink'); ?>" name="<?php echo $this->get_field_name('showRegisterLink'); ?>" type="checkbox" value="ok" <?php echo $showRegisterLink ?> /> <label for="<?php echo $this->get_field_id('showRegisterLink'); ?>"><?php _e('Show register link?', 'wp-united'); ?></label></p>
-		
+		<p><input id="<?php echo $this->get_field_id('nativeCSS'); ?>" name="<?php echo $this->get_field_name('nativeCSS'); ?>" type="checkbox" value="ok"  <?php echo $nativeCSS ?> /> <label for="<?php echo $this->get_field_id('nativeCSS'); ?>"><?php _e("Don't add CSS, I will style this myself", 'wp-united'); ?></label></p>
 		<?php
 	}
 	
@@ -644,6 +650,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$pollId = $instance['pollId'];
 		$hideIfNoPerms = $instance['hideIfNoPerms'];
 		$showTopicLink = $instance['showTopicLink'];
+		$nativeCSS = $instance['nativeCSS'];
 		
 		
 		$poll = 'NOT IMPLEMENTED YET - UNDER CONSTRUCTION!';
@@ -673,6 +680,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$instance['pollId'] 	= (int)($new_instance['pollId']);
 		$instance['hideIfNoPerms'] 	= (strip_tags(stripslashes($new_instance['hideIfNoPerms'])) == 	'ok')? 1 : 0;
 		$instance['showTopicLink'] 	= (strip_tags(stripslashes($new_instance['showTopicLink'])) == 	'ok')? 1 : 0;
+		$instance['nativeCSS'] 		= (strip_tags(stripslashes($new_instance['nativeCSS'])) == 	'ok')? 	0 : 1;
 		
 		return $instance;
 	}
@@ -685,12 +693,14 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 			'title' 			=> __('Quick Poll', 'wp-united'),
 			'pollId'			=> 0,
 			'hideIfNoPerms'		=> 1,
-			'showTopicLink'		=> 1
+			'showTopicLink'		=> 1,
+			'nativeCSS'			=> 1
 		));
 		
 		$title = strip_tags($instance['title']);
 		$hideIfNoPerms	= (!empty($instance['hideIfNoPerms'])) 	? 'checked="checked"' : '';
 		$showTopicLink	= (!empty($instance['showTopicLink'])) 	? 'checked="checked"' : '';
+		$nativeCSS		= (!empty($instance['nativeCSS'])) 		? 'checked="checked"' : '';
 		
 		$polls = $phpbbForum->get_poll_list();
 		
@@ -714,6 +724,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		</p>
 		<p><input id="<?php echo $this->get_field_id('hideIfNoPerms'); ?>" name="<?php echo $this->get_field_name('hideIfNoPerms'); ?>" type="checkbox" value="ok"  <?php echo $hideIfNoPerms ?> /> <label for="<?php echo $this->get_field_id('hideIfNoPerms'); ?>"><?php _e('Hide widget if the user has no permissions to view this poll?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('showTopicLink'); ?>" name="<?php echo $this->get_field_name('showTopicLink'); ?>" type="checkbox" value="ok"  <?php echo $showTopicLink ?> /> <label for="<?php echo $this->get_field_id('showTopicLink'); ?>"><?php _e('Show a link to the poll topic?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('nativeCSS'); ?>" name="<?php echo $this->get_field_name('nativeCSS'); ?>" type="checkbox" value="ok"  <?php echo $nativeCSS ?> /> <label for="<?php echo $this->get_field_id('nativeCSS'); ?>"><?php _e("Don't add CSS, I will style this myself", 'wp-united'); ?></label></p>
 		<?php
 	}
 }
