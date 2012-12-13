@@ -585,7 +585,7 @@ class WPU_Forum_Birthdays_Widget extends WP_Widget {
 		
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
-		echo '<div class="wpuuserbirthdays textwidget">'
+		echo '<div class="wpuuserbirthdays textwidget">';
 		echo $birthdays;
 		echo'</div>';
 		echo $after_widget;
