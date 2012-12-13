@@ -611,7 +611,7 @@ class WPU_Forum_Birthdays_Widget extends WP_Widget {
 		));
 		
 		$title = strip_tags($instance['title']);
-		$showBreakdown	= (!empty($instance['hideIfNothing'])) 	? 'checked="checked"' : '';
+		$hideIfNothing	= (!empty($instance['hideIfNothing'])) 	? 'checked="checked"' : '';
 		
 		?>
 		
