@@ -195,10 +195,14 @@ class WPU_Phpbb {
 	}
 	
 	public function get_stylephp_link() {
-		global $user, $phpEx;
+		global $user, $phpEx, $wpuCache, $wpUnited;
 		
 		$fStateChanged = $this->foreground();
-		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;island=1');
+		
+		$cacheName = $wpuCache->issue_style_key('island');
+		$wpUnited->commit_style_keys();
+		
+		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;island=1&amp;cloc=' . $cacheName);
 		$this->restore_state($fStateChanged);
 		
 		return $result;

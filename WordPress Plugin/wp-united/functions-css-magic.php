@@ -315,7 +315,7 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 				if(  (stristr($cssLnk, 'http:') === false) && (stristr($cssLnk, 'https:') === false) && @file_exists($cssLnk) ) { 
 					$links[] = $el;
 					$cssLnk = realpath($cssLnk);
-					$key = $wpuCache->get_style_key($cssLnk, $position);
+					$key = $wpuCache->issue_style_key($cssLnk, $position);
 					$keys[] = $key;
 					$repl[] = "{$phpbbForum->get_board_url()}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$and}{$pkg}{$tv}";
 				}
@@ -324,7 +324,7 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 				 * phpBB style.php css
 				 */ 
 				$links[] = $el; 
-				$key = $wpuCache->get_style_key($el, $position);
+				$key = $wpuCache->issue_style_key($el, $position);
 				$keys[] = $key;
 				$repl[] = "{$el}{$and}usecssm=1{$and}{$pos}{$and}cloc={$key}{$and}{$pkg}{$tv}";
 			} 

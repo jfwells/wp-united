@@ -118,7 +118,7 @@ class WPU_Actions {
 		
 		$cacheLocation = '';
 		
-		$cssIdentifier = ($islandBlock) ? 'wpuisland' : request_var('cloc', 0);
+		$cssIdentifier = request_var('cloc', 0);
 		$cssIdentifier = $wpUnited->get_style_key($cssIdentifier);
 		
 		$useTV = -1;

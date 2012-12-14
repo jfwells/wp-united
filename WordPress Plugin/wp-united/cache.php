@@ -306,9 +306,15 @@ class WPU_Cache {
 	/**
 	 * Returns a key number for a CSS file or a CSS magic cache
 	 */
-	public function get_style_key($fileName, $pos) {
+	public function issue_style_key($fileName, $pos) {
 		global $wpUnited;
-		if(stripos($fileName, 'style.php?') !== false) {
+		if($fileName == 'island') {
+			/*
+			 * Style.php explicitly requested by a widget island
+			 */
+			$fileName = $this->get_css_magic_cache_name($fileName, $pos);
+			return $wpUnited->add_style_key($fileName);
+		} else if(stripos($fileName, 'style.php?') !== false) {
 			/**
 			 * For style.php, we just need to create a style key for the cache
 			 */
