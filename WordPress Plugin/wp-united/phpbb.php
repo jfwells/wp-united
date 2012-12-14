@@ -647,7 +647,7 @@ class WPU_Phpbb {
 	 * Displays a poll
 	 * 
 	 */
-	 public function get_poll($topicID, $inboundVote = 0) {
+	public function get_poll($topicID, $inboundVote = 0) {
 		 global $db, $user, $auth, $config;
 		 
 		 $fStateChanged = $this->foreground();
@@ -668,6 +668,7 @@ class WPU_Phpbb {
 				AND p.post_id = t.topic_first_post_id';
 				
 		if(!($result = $db->sql_query($sql))) {
+			$this->restore_state($fStateChanged);
 			wp_die(__('Could not access the database.', 'wp-united'));
 		}		
 
@@ -677,6 +678,7 @@ class WPU_Phpbb {
 		$db->sql_freeresult($result);
 		
 		if(!$topicData['poll_start'] || (!$auth->acl_get('f_read', $topicData['forum_id']))) {
+			$this->restore_state($fStateChanged);
 			return $pollMarkup;
 		}
 				
@@ -720,205 +722,210 @@ class WPU_Phpbb {
 				($topicData['poll_length'] != 0 && $topicData['poll_start'] + $topicData['poll_length'] > time()) || 
 				($topicData['poll_length'] == 0)
 			) &&
-		$topicData['topic_status'] != ITEM_LOCKED &&
-		$topicData['forum_status'] != ITEM_LOCKED &&
-		(!sizeof($currVotedID) ||
-		($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']))
-	) ? true : false;
+			$topicData['topic_status'] != ITEM_LOCKED &&
+			$topicData['forum_status'] != ITEM_LOCKED &&
+			(!sizeof($currVotedID) ||
+			($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']))
+		? true : false;
 	
-	$displayResults = (
-		!$userCanVote || 
-		($userCanVote && sizeof($currVotedID)) || 
-		($view == 'viewpoll')
-	) ? true : false;
+		$displayResults = (
+			!$userCanVote || 
+			($userCanVote && sizeof($currVotedID)) || 
+			($view == 'viewpoll')
+		) ? true : false;
+			
+			
+		if($inboundVote && $userCanVote) {
+			//  ********   register vote here ********
+			
+			if (!sizeof($inboundVote) || sizeof($inboundVote) > $topicData['poll_max_options'] || in_array(VOTE_CONVERTED, $currVotedID)){
+				
+				
+				if (!sizeof($inboundVote)) {
+					$message = 'NO_VOTE_OPTION';
+				} else if (sizeof($inboundVote) > $topicData['poll_max_options']) {
+					$message = 'TOO_MANY_VOTE_OPTIONS';
+				} else if (in_array(VOTE_CONVERTED, $currVotedID)) {
+					$message = 'VOTE_CONVERTED';
+				} 
+
+				$pollMarkup .= '<p>' . $user->lang[$message] . '</p>';
+				
+			} else {
+
+				foreach ($inboundVote as $option) {
+					if (in_array($option, $currVotedID)) {
+						continue;
+					}
+
+					$sql = '
+						UPDATE ' . POLL_OPTIONS_TABLE . '
+						SET poll_option_total = poll_option_total + 1
+						WHERE poll_option_id = ' . (int) $option . '
+							AND topic_id = ' . (int) $topicID;
+							
+					$db->sql_query($sql);
+
+					if ($user->data['is_registered']) {
+						$sql_ary = array(
+							'topic_id'			=> (int) $topicID,
+							'poll_option_id'	=> (int) $option,
+							'vote_user_id'		=> (int) $user->data['user_id'],
+							'vote_user_ip'		=> (string) $user->ip,
+						);
+						$sql = 'INSERT INTO ' . POLL_VOTES_TABLE . ' ' . $db->sql_build_array('INSERT', $sql_ary);
+						$db->sql_query($sql);
+					}
+				}
+
+				foreach ($currVotedID as $option) {
+					if (!in_array($option, $inboundVote)) {
+						$sql = '
+							UPDATE ' . POLL_OPTIONS_TABLE . '
+							SET poll_option_total = poll_option_total - 1
+							WHERE poll_option_id = ' . (int) $option . '
+								AND topic_id = ' . (int) $topicID;
+						$db->sql_query($sql);
+
+						if ($user->data['is_registered']) {
+							$sql = '
+								DELETE FROM ' . POLL_VOTES_TABLE . '
+								WHERE topic_id = ' . (int) $topicID . '
+									AND poll_option_id = ' . (int) $option . '
+									AND vote_user_id = ' . (int) $user->data['user_id'];
+							$db->sql_query($sql);
+						}
+					}
+				}
+
+				if (($user->data['user_id'] == ANONYMOUS) && !$user->data['is_bot']) {
+					$user->set_cookie('poll_' . $topic_id, implode(',', $inboundVote), time() + 31536000);
+				}
+
+				$sql = '
+					UPDATE ' . TOPICS_TABLE . '
+					SET poll_last_vote = ' . time() . "
+					WHERE topic_id = $topic_id";
+				$db->sql_query($sql);
+
+				$pollMarkup = '<p>' . $user->lang['VOTE_SUBMITTED'] . '</p>';
+			
+				$userCanVote = ($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']);
+			}
+			
+			// ***** end of vote registration ******
+		}
 		
+		$pollTotal = 0;
+		foreach ($pollOptions as $pollOption) {
+			$pollTotal += $pollOption['poll_option_total'];
+		}
 		
-	if($inboundVote && $userCanVote) {
-		//  ********   register vote here ********
-	}
-	
-	$pollTotal = 0;
-	foreach ($pollOptions as $pollOption) {
-		$pollTotal += $pollOption['poll_option_total'];
-	}
-	
-	$pollBBCode = ($topicData['bbcode_bitfield']) ? new bbcode() : false;
+		$pollBBCode = ($topicData['bbcode_bitfield']) ? new bbcode() : false;
 
 
-	for ($i = 0, $size = sizeof($pollOptions); $i < $size; $i++) {
-		$pollOptions[$i]['poll_option_text'] = censor_text($pollOptions[$i]['poll_option_text']);
+		for ($i = 0, $size = sizeof($pollOptions); $i < $size; $i++) {
+			$pollOptions[$i]['poll_option_text'] = censor_text($pollOptions[$i]['poll_option_text']);
 
-		if ($pollBBCode !== false) {
-			$pollBBCode->bbcode_second_pass($pollOptions[$i]['poll_option_text'], $topicData['bbcode_uid'], $topicData['bbcode_bitfield']);
+			if ($pollBBCode !== false) {
+				$pollBBCode->bbcode_second_pass($pollOptions[$i]['poll_option_text'], $topicData['bbcode_uid'], $topicData['bbcode_bitfield']);
+			}
+
+			$pollOptions[$i]['poll_option_text'] = bbcode_nl2br($pollOptions[$i]['poll_option_text']);
+			$pollOptions[$i]['poll_option_text'] = smiley_text($pollOptions[$i]['poll_option_text']);
 		}
 
-		$pollOptions[$i]['poll_option_text'] = bbcode_nl2br($pollOptions[$i]['poll_option_text']);
-		$pollOptions[$i]['poll_option_text'] = smiley_text($pollOptions[$i]['poll_option_text']);
-	}
+		$topicData['poll_title'] = $this->censor($topicData['poll_title']);
 
-	$topicData['poll_title'] = $this->censor($topicData['poll_title']);
+		if ($pollBBCode !== false) {
+			$pollBBCode->bbcode_second_pass($topicData['poll_title'], $topicData['bbcode_uid'], $topicData['bbcode_bitfield']);
+		}
 
-	if ($pollBBCode !== false) {
-		$pollBBCode->bbcode_second_pass($topicData['poll_title'], $topicData['bbcode_uid'], $topicData['bbcode_bitfield']);
-	}
+		$topicData['poll_title'] = bbcode_nl2br($topicData['poll_title']);
+		$topicData['poll_title'] = $this->add_smilies($topicData['poll_title']);
 
-	$topicData['poll_title'] = bbcode_nl2br($topicData['poll_title']);
-	$topicData['poll_title'] = $this->add_smilies($topicData['poll_title']);
+		unset($pollBBCode);
+		
+		$pollEnd = $topicData['poll_length'] + $topicData['poll_start'];
+		$pollLength = ($topicData['poll_length']) ? sprintf($user->lang[($pollEnd > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($pollEnd)) : '';
+		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
+		$multiChoice = ($topic_data['poll_max_options'] > 1);
+		
+		$pollMarkup .= '<form onsubmit="wpu_poll_submit(this);">';
+		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
+		$pollMarkup .= '<h2>' . $pollData['poll_title'] . '</h2>';
+		$pollMarkup .= '<p class="author">' . $pollLength;
+		if($userCanVote) {
+			if(!empty($pollLength)) {
+				$pollMarkup .= '<br />';
+			}
+			$pollMarkup .= $maxVotes;
+		}
+		$pollMarkup .= '</p>';
+		$pollMarkup .= '<fieldset class="polls">';
 
-	unset($pollBBCode);
-	
-	
-		$pollMarkup .= 'UNDER CONSTRUCTION!<br />';
-	
 		foreach ($pollOptions as $pollOption) {
 			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
 			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
+			$pollVotesText = ($pollOption['poll_option_total'] == 0) ? $user->LANG['NO_VOTES'] : $optionPctTxt;
+			$pollOptionImg = $user->img('poll_center', $optionPctTxt, round($optionPct * 250));
+			$pollOptionVoted = (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false
+			$pollClass = ($pollOptionVoted) ? ' class="voted" ' : '';
+			$pollTitleAttr = ($pollOptionVoted) ? ' title="' . $user->lang['POLL_VOTED_OPTION'] . '"' : '';
+			$pollChecked = ($pollOptionVoted) ? ' checked="checked"' : '';
+			$pollBarClass = 'pollbar' .((int)($pollOptionPct / 20)) + 1;
 			
-			$pollMarkup .= $pollOption['poll_option_text'] . ': ' . $optionPctTxt . '<br />';
-
-	/*	$template->assign_block_vars('poll_option', array(
-			'POLL_OPTION_ID' 		=> $poll_option['poll_option_id'],
-			'POLL_OPTION_CAPTION' 	=> $poll_option['poll_option_text'],
-			'POLL_OPTION_RESULT' 	=> $poll_option['poll_option_total'],
-			'POLL_OPTION_PERCENT' 	=> $option_pct_txt,
-			'POLL_OPTION_PCT'		=> round($option_pct * 100),
-			'POLL_OPTION_IMG' 		=> $user->img('poll_center', $option_pct_txt, round($option_pct * 250)),
-			'POLL_OPTION_VOTED'		=> (in_array($poll_option['poll_option_id'], $cur_voted_id)) ? true : false)
-		);*/
-	}
-
-	$pollEnd = $topicData['poll_length'] + $topicData['poll_start'];
-/*
-	$template->assign_vars(array(
-		'POLL_QUESTION'		=> $topic_data['poll_title'],
-		'TOTAL_VOTES' 		=> $poll_total,
-		'POLL_LEFT_CAP_IMG'	=> $user->img('poll_left'),
-		'POLL_RIGHT_CAP_IMG'=> $user->img('poll_right'),
-
-		'L_MAX_VOTES'		=> ($topic_data['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topic_data['poll_max_options']),
-		'L_POLL_LENGTH'		=> ($topic_data['poll_length']) ? sprintf($user->lang[($poll_end > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($poll_end)) : '',
-
-		'S_HAS_POLL'		=> true,
-		'S_CAN_VOTE'		=> $s_can_vote,
-		'S_DISPLAY_RESULTS'	=> $s_display_results,
-		'S_IS_MULTI_CHOICE'	=> ($topic_data['poll_max_options'] > 1) ? true : false,
-		'S_POLL_ACTION'		=> $viewtopic_url,
-
-		'U_VIEW_RESULTS'	=> $viewtopic_url . '&amp;view=viewpoll')
-	); */
-
-
-				
-		$this->restore_state($fStateChanged);
-	
-		return $pollMarkup;
-				
-/*	 
-		
-  ////   ************ VOTE REGISTRATION: ****************
-	if ($update && $s_can_vote)
-	{
-
-		if (!sizeof($voted_id) || sizeof($voted_id) > $topic_data['poll_max_options'] || in_array(VOTE_CONVERTED, $cur_voted_id) || !check_form_key('posting'))
-		{
-			$redirect_url = append_sid("{$phpbb_root_path}viewtopic.$phpEx", "f=$forum_id&amp;t=$topic_id" . (($start == 0) ? '' : "&amp;start=$start"));
-
-			meta_refresh(5, $redirect_url);
-			if (!sizeof($voted_id))
-			{
-				$message = 'NO_VOTE_OPTION';
+			
+			$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
+			$pollMarkup .= '<dt>';
+			if ($canVote) {
+				$pollMarkup .= '<label for="vote_' . $pollOption['poll_option_id'] . '">' . $pollOption['poll_option_text'] . '</label>';
+			} else {
+				$pollMarkup .= $pollOption['poll_option_text'];
 			}
-			else if (sizeof($voted_id) > $topic_data['poll_max_options'])
-			{
-				$message = 'TOO_MANY_VOTE_OPTIONS';
-			}
-			else if (in_array(VOTE_CONVERTED, $cur_voted_id))
-			{
-				$message = 'VOTE_CONVERTED';
-			}
-			else
-			{
-				$message = 'FORM_INVALID';
-			}
-
-			$message = $user->lang[$message] . '<br /><br />' . sprintf($user->lang['RETURN_TOPIC'], '<a href="' . $redirect_url . '">', '</a>');
-			trigger_error($message);
-		}
-
-		foreach ($voted_id as $option)
-		{
-			if (in_array($option, $cur_voted_id))
-			{
-				continue;
-			}
-
-			$sql = 'UPDATE ' . POLL_OPTIONS_TABLE . '
-				SET poll_option_total = poll_option_total + 1
-				WHERE poll_option_id = ' . (int) $option . '
-					AND topic_id = ' . (int) $topic_id;
-			$db->sql_query($sql);
-
-			if ($user->data['is_registered'])
-			{
-				$sql_ary = array(
-					'topic_id'			=> (int) $topic_id,
-					'poll_option_id'	=> (int) $option,
-					'vote_user_id'		=> (int) $user->data['user_id'],
-					'vote_user_ip'		=> (string) $user->ip,
-				);
-
-				$sql = 'INSERT INTO ' . POLL_VOTES_TABLE . ' ' . $db->sql_build_array('INSERT', $sql_ary);
-				$db->sql_query($sql);
-			}
-		}
-
-		foreach ($cur_voted_id as $option)
-		{
-			if (!in_array($option, $voted_id))
-			{
-				$sql = 'UPDATE ' . POLL_OPTIONS_TABLE . '
-					SET poll_option_total = poll_option_total - 1
-					WHERE poll_option_id = ' . (int) $option . '
-						AND topic_id = ' . (int) $topic_id;
-				$db->sql_query($sql);
-
-				if ($user->data['is_registered'])
-				{
-					$sql = 'DELETE FROM ' . POLL_VOTES_TABLE . '
-						WHERE topic_id = ' . (int) $topic_id . '
-							AND poll_option_id = ' . (int) $option . '
-							AND vote_user_id = ' . (int) $user->data['user_id'];
-					$db->sql_query($sql);
+			$pollMarkup .= '</dt>';
+			if($canVote) {
+				$pollMarkup .= '<dd style="width: auto;">';
+				if($multiChoice) {
+					$pollMarkup .= '<input type="checkbox" name="vote_id[]" id="vote_' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . ' />';
+				} else {
+					$pollMarkup .= '<input type="radio" name="vote_id[]" id="' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . '/>';
 				}
+				$pollMarkup .= '</dd>';
 			}
+			
+			if($displayResults) {
+				$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . 'style="width:' . $pollOptionPct . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
+				$pollMarkup .= '<dd>' . $pollVotesTxt . '</dd>';
+			}
+			
+			$pollMarkup .= '</dl>';
 		}
 
-		if ($user->data['user_id'] == ANONYMOUS && !$user->data['is_bot'])
-		{
-			$user->set_cookie('poll_' . $topic_id, implode(',', $voted_id), time() + 31536000);
+		if($displayResults) {
+			$pollMarkup .= '<dl><dt>&nbsp;</dt><dd class="resultbar">' . $user->lang['TOTAL_VOTES'] . ' : ' .  $pollTotal . '</dd></dl>';
 		}
+		
+		if($canVote) {
+			$pollMarkup .= '<dl style="border-top: none;"><dt>&nbsp;</dt>';
+			$pollMarkup .= '<dd class="resultbar"><input type="submit" name="update" value="' . $user->lang['SUBMIT_VOTE'] . '" class="button1" /></dd></dl>';
+		}
+		
+		if(!$displayResults) {
+			$pollMarkup = '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="wpu_poll_results(this)">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
+		}
+							
+		$pollMarkup .= '</fieldset>';
+		$pollMarkup .= '</div><span class="corners-bottom"><span></span></span></div></div>';
+		$pollMarkup .= '</form>';
 
-		$sql = 'UPDATE ' . TOPICS_TABLE . '
-			SET poll_last_vote = ' . time() . "
-			WHERE topic_id = $topic_id";
-		//, topic_last_post_time = ' . time() . " -- for bumping topics with new votes, ignore for now
-		$db->sql_query($sql);
+					
+		$this->restore_state($fStateChanged);
 
-		$redirect_url = append_sid("{$phpbb_root_path}viewtopic.$phpEx", "f=$forum_id&amp;t=$topic_id" . (($start == 0) ? '' : "&amp;start=$start"));
-
-		meta_refresh(5, $redirect_url);
-		trigger_error($user->lang['VOTE_SUBMITTED'] . '<br /><br />' . sprintf($user->lang['RETURN_TOPIC'], '<a href="' . $redirect_url . '">', '</a>'));
+		return $pollMarkup;
 	}
+				
 
-	
-	
-	
-
-
-*/	 
-	}
-	
-	
 	
 	/**
 	 * returns a coloured username link for a phpBB user
