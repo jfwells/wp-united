@@ -717,9 +717,7 @@ class WPU_Phpbb {
 			
 		$result = $db->sql_query($sql);
 			
-		while ($row = $db->sql_fetchrow($result)) {
-			$currVotedID[] = $row['poll_option_id'];
-		}
+		$pollOptions = $db->sql_fetchrowset($result);
 		
 		$db->sql_freeresult($result);
 		
@@ -734,7 +732,10 @@ class WPU_Phpbb {
 		
 			$result = $db->sql_query($sql);
 
-			$currVotedID = $db->sql_fetchrowset($result);
+			while ($row = $db->sql_fetchrow($result)) {
+				//$currVotedID = $db->sql_fetchrowset($result);
+				$currVotedID[] = $row['poll_option_id'];
+			}
 			
 			$db->sql_freeresult($result);
 		} else {
