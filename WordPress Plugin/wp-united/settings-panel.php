@@ -127,7 +127,7 @@ function wpu_settings_menu() {
 					'jquery-effects-slide',
 					'jquery-effects-highlight'
 				), 
-				false, 
+				$wpUnited->get_version(), 
 				false
 			);	
 				

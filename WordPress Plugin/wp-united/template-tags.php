@@ -742,6 +742,44 @@ function wpu_phpbb_nav_block($args) {
 }
 
 
+/** 
+ * Adds prosilver styles to (the bottom of) the page
+ *
+ */
+ function wpu_add_board_styles($includeStyleSwitcher = false) {
+	global $phpbbForum;
+	static $addedStyles = false;
+	static $addedStyleSwitcher = false;
+	static $themePath = '';
+	
+
+	if(!$addedStyles) {
+		$addedStyles = true;
+		
+		$themePath =  $phpbbForum->get_stylesheet_path();
+		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_stylephp_link());
+	}
+	
+	if($includeStyleSwitcher && !$addedStyleSwitcher) {
+		wp_enqueue_style('wpu-nav-blk-2', $themePath . 'normal.css', true);
+		wp_enqueue_style('wpu-nav-blk-3', $themePath . 'medium.css', true);
+		wp_enqueue_style('wpu-nav-blk-4', $themePath . 'large.css', true);
+		
+		global $wp_styles;
+		$wp_styles->add_data( 'wpu-nav-blk-2', 'title', 'A' );
+		$wp_styles->add_data( 'wpu-nav-blk-3', 'title', 'A+' );
+		$wp_styles->add_data( 'wpu-nav-blk-3', 'alt', true );
+		$wp_styles->add_data( 'wpu-nav-blk-4', 'title', 'A++' );
+		$wp_styles->add_data( 'wpu-nav-blk-4', 'alt', true);
+		
+		wp_enqueue_script('wpu-nav-blk-j', $phpbbForum->get_super_template_path() . 'styleswitcher.js');
+	}
+ 
+
+ }
+ 
+
+
 
 /**
  * Displays the comment link, with the number of phpBB comments

@@ -496,7 +496,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		
 		
 		if (is_active_widget(false, false, $this->id_base) && !$wpUnited->should_do_action('template-w-in-p') && !$nativeCSS) {
-			$this->add_navblock_style();
+			wpu_add_board_styles(true);
 		}
 		
 		
@@ -544,32 +544,6 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		<?php
 	}
 	
-	public function add_navblock_style() {
-		global $phpbbForum, $wpuAddedWidgetCSS;
-		
-		if($wpuAddedWidgetCSS) {
-			return;
-		}
-
-		$wpuAddedWidgetCSS = true;
-		
-		$themePath =  $phpbbForum->get_stylesheet_path();
-
-		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_stylephp_link());
-		wp_enqueue_style('wpu-nav-blk-2', $themePath . 'normal.css', true);
-		wp_enqueue_style('wpu-nav-blk-3', $themePath . 'medium.css', true);
-		wp_enqueue_style('wpu-nav-blk-4', $themePath . 'large.css', true);
-		
-		global $wp_styles;
-		$wp_styles->add_data( 'wpu-nav-blk-2', 'title', 'A' );
-		$wp_styles->add_data( 'wpu-nav-blk-3', 'title', 'A+' );
-		$wp_styles->add_data( 'wpu-nav-blk-3', 'alt', true );
-		$wp_styles->add_data( 'wpu-nav-blk-4', 'title', 'A++' );
-		$wp_styles->add_data( 'wpu-nav-blk-4', 'alt', true);
-		
-		wp_enqueue_script('wpu-nav-blk-j', $phpbbForum->get_super_template_path() . 'styleswitcher.js');
-	
-	}
 
 }
 
@@ -661,25 +635,26 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$nativeCSS = $instance['nativeCSS'];
 		
 		
-		$poll = 'NOT IMPLEMENTED YET - UNDER CONSTRUCTION!';
+		$poll = $phpbbForum->get_poll($pollId);
 		
-		// get $poll html here
-		
-		if(($poll == '') && $hideIfNoPerms) {
+		if((($poll == '') && $hideIfNoPerms) || is_admin()) {
 			return;
 		}
 		
-		$poll = $phpbbForum->get_poll($pollId);
+		if (!empty($poll) && is_active_widget(false, false, $this->id_base) && !$wpUnited->should_do_action('template-w-in-p') && !$nativeCSS) {
+			wpu_add_board_styles(false);
+		}
 		
 		$poll = ($poll == '') ? __('You do not have permission to view this poll', 'wp-united') : $poll;
 
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
-		echo '<div class="wpuquickpoll textwidget">';
+		echo '<div class="wpuquickpoll textwidget wpupoll-' . $pollId . '">';
 		echo $poll;
 		echo'</div>';
+		$this->add_poll_script();
 		echo $after_widget;
-
+		
 	}
 	
 	public function update($new_instance, $old_instance) {
@@ -738,6 +713,48 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		<p><input id="<?php echo $this->get_field_id('nativeCSS'); ?>" name="<?php echo $this->get_field_name('nativeCSS'); ?>" type="checkbox" value="ok"  <?php echo $nativeCSS ?> /> <label for="<?php echo $this->get_field_id('nativeCSS'); ?>"><?php _e("Don't add CSS, I will style this myself", 'wp-united'); ?></label></p>
 		<?php
 	}
+	
+	
+	public function add_poll_script() {
+		global $wpuAddedPollScript;
+		
+		if($wpuAddedPollScript) {
+			return;
+		}
+		
+		$wpuAddedPollScript = true;
+		
+		$pollNonce = wp_create_nonce('wpu-poll-submit');
+		
+		wp_enqueue_script('jquery');
+		
+		?>
+				
+			<script type="text/javascript">//<![CDATA[
+				
+				var $wpuPoll = jQuery.noConflict();
+			
+				var wpuPollNonce = '<?php echo $pollNonce; ?>';
+			
+				function wpu_poll_submit(pollID) {
+					//$wpuPoll.post ....xxxxx
+					alert('submitting');
+				}
+				
+				function wpu_poll_results(pollID) {
+					alert('getting results');
+				}
+			
+			
+			// ]]>
+			</script>
+			
+		<?php
+	
+	
+	}
+	
+	
 }
 
 

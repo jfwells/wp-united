@@ -647,7 +647,7 @@ class WPU_Phpbb {
 	 * Displays a poll
 	 * 
 	 */
-	public function get_poll($topicID, $inboundVote = 0) {
+	public function get_poll($topicID, $display = false, $ajax = false, $inboundVote = 0) {
 		 global $db, $user, $auth, $config;
 		 
 		 $fStateChanged = $this->foreground();
@@ -733,7 +733,7 @@ class WPU_Phpbb {
 		$displayResults = (
 			!$userCanVote || 
 			($userCanVote && sizeof($currVotedID)) || 
-			($view == 'viewpoll')
+			$display
 		) ? true : false;
 			
 			
@@ -853,7 +853,7 @@ class WPU_Phpbb {
 		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']);
 		$multiChoice = ($topic_data['poll_max_options'] > 1);
 		
-		$pollMarkup .= '<form onsubmit="wpu_poll_submit(this);">';
+		$pollMarkup .= '<form onsubmit="wpu_poll_submit(' . $topicID . ');">';
 		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
 		$pollMarkup .= '<h2>' . $pollData['poll_title'] . '</h2>';
 		$pollMarkup .= '<p class="author">' . $pollLength;
@@ -908,13 +908,13 @@ class WPU_Phpbb {
 			$pollMarkup .= '<dl><dt>&nbsp;</dt><dd class="resultbar">' . $user->lang['TOTAL_VOTES'] . ' : ' .  $pollTotal . '</dd></dl>';
 		}
 		
-		if($canVote) {
+		if($userCanVote) {
 			$pollMarkup .= '<dl style="border-top: none;"><dt>&nbsp;</dt>';
 			$pollMarkup .= '<dd class="resultbar"><input type="submit" name="update" value="' . $user->lang['SUBMIT_VOTE'] . '" class="button1" /></dd></dl>';
 		}
 		
 		if(!$displayResults) {
-			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="wpu_poll_results(this)">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
+			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
 		}
 							
 		$pollMarkup .= '</fieldset>';
