@@ -724,9 +724,11 @@ class WPU_Phpbb {
 			) &&
 			$topicData['topic_status'] != ITEM_LOCKED &&
 			$topicData['forum_status'] != ITEM_LOCKED &&
-			(!sizeof($currVotedID) ||
-			($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']))
-		? true : false;
+			(
+				!sizeof($currVotedID) ||
+				($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change'])
+			)
+		)? true : false;
 	
 		$displayResults = (
 			!$userCanVote || 
