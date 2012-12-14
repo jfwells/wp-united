@@ -13,6 +13,8 @@
 * 
 */
 
+if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) exit;
+
 /**
  * Add menu options for WP-United Settings panel
  */
