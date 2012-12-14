@@ -649,7 +649,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
-		echo '<div class="wpuquickpoll textwidget wpupoll-' . $pollId . '">';
+		echo '<div class="wpuquickpoll wpuisland textwidget wpupoll-' . $pollId . '">';
 		echo $poll;
 		echo'</div>';
 		$this->add_poll_script();
