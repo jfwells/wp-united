@@ -733,12 +733,8 @@ class WPU_Phpbb {
 			$result = $db->sql_query($sql);
 
 			while ($row = $db->sql_fetchrow($result)) {
-				//$currVotedID = $db->sql_fetchrowset($result);
 				$currVotedID[] = $row['poll_option_id'];
 			}
-
-print_r($currVotedID);
-			
 			$db->sql_freeresult($result);
 		} else {
 			// Cookie based guest tracking ... 
@@ -808,7 +804,6 @@ print_r($currVotedID);
 						$db->sql_query($sql);
 					}
 				}
-
 				foreach ($currVotedID as $option) {
 					if (!in_array($option, $inboundVote)) {
 						$sql = '
