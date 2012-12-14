@@ -35,9 +35,11 @@ if ( !defined('IN_PHPBB') ) {
  */
 
 function wpu_css_magic() {
-	global $wpUnited, $wpuCache;
+	global $wpUnited;
 
 
+	$wpuCache = WPU_Cache::getInstance();
+	
 	/** 
 	 * Get all links to stylesheets, and prepare appropriate replacement links to insert into the page content
 	 * The generated CSS links to insert into the HTML will need to carry information for the browser on the 
@@ -247,7 +249,9 @@ function wpu_css_magic() {
  * @return array an array of stylesheet links and modifications
  */
 function wpu_get_stylesheet_links($headerInfo, $position='outer') {
-	global $phpbb_root_path, $wpuCache, $wpUnited, $phpbbForum;
+	global $phpbb_root_path, $wpUnited, $phpbbForum;
+	
+	$wpuCache = WPU_Cache::getInstance();
 
 	$package = ($position == 'outer') ? $wpUnited->get_outer_package() : $wpUnited->get_inner_package();
 	$pkg = 'pkg=' . $package;
@@ -421,7 +425,9 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 }
 
 function apply_template_voodoo(&$cssMagic, $tplVoodooKey) {
-	global $wpuCache;
+	
+	
+	$wpuCache = WPU_Cache::getInstance();
 	
 	$templateVoodoo = $wpuCache->get_template_voodoo($tplVoodooKey);
 	

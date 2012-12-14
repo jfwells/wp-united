@@ -96,7 +96,7 @@ class WPU_Actions {
 	 */	
 	public function css_magic($cssIn) {
 		
-		global $phpbb_root_path, $phpEx, $wpuCache, $wpUnited;
+		global $phpbb_root_path, $phpEx, $wpUnited;
 		define('WPU_STYLE_FIXER', true);
 		require($phpbb_root_path . 'includes/hooks/hook_wp-united.' . $phpEx);
 
@@ -107,7 +107,6 @@ class WPU_Actions {
 		
 		require_once($wpUnited->get_plugin_path() . 'functions-css-magic.php');
 
-		require_once($wpUnited->get_plugin_path() . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 
 		if(!isset($_GET['usecssm'])) {
@@ -188,7 +187,6 @@ class WPU_Actions {
 	public function purge_cache() {
 		global $wpUnited, $phpEx;
 		if(is_object($wpUnited) && $wpUnited->is_enabled()) {
-			require_once($wpUnited->get_plugin_path() . 'cache.php');
 			$wpuCache = WPU_Cache::getInstance();
 			$wpuCache->purge();
 		}

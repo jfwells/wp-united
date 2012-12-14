@@ -74,7 +74,8 @@ class WPU_Debug {
 	}
 	
 	public function get_stats() {
-		global $wpuCache;
+		
+		$wpuCache = WPU_Cache::getInstance();
 		
 		$endTime = explode(' ', microtime());
 		$endTime = $endTime[1] + $endTime[0];

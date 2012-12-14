@@ -143,6 +143,7 @@ class WP_United_Plugin_Base {
 		require_once($currPath . '/options.php');
 		require_once($currPath . '/debugger.php');
 		require_once($currPath . '/phpbb.php');
+		require_once($currPath . '/cache.php');
 		
 		global $wpuDebug;
 		$wpuDebug = new WPU_Debug();

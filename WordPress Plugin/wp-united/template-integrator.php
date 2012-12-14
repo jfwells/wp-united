@@ -14,8 +14,9 @@
 */
 
 function wpu_integrate_templates() {
-	global $wpuNoHead, $wpUnited, $wpuCache, $wpUnited;
+	global $wpuNoHead, $wpUnited, $wpUnited;
 
+	$wpuCache = WPU_Cache::getInstance();
 
 	if ( $wpuCache->use_template_cache() || $wpUnited->ran_patched_wordpress() ) {
 		wpu_get_wordpress();

@@ -90,7 +90,6 @@ if(!isset($wpUnited) || !$wpUnited->get_plugin_path() || !file_exists($wpUnited-
 require($wpUnited->get_plugin_path() . 'functions-css-magic.php');
 
 
-require($wpUnited->get_plugin_path() . 'cache.php');
 $wpuCache = WPU_Cache::getInstance();
 
 $cssFileToFix = $wpUnited->get_style_key($cssFileToFix);

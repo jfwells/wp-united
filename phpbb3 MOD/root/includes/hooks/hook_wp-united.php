@@ -68,7 +68,7 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
  * Initialise WP-United variables and template strings
  */
 function wpu_init(&$hook) { 
-	global $wpUnited, $template, $user, $config, $phpbbForum, $wpuCache;
+	global $wpUnited, $template, $user, $config, $phpbbForum;
 	
 	
 	if($wpUnited->should_do_action('logout')) { 
@@ -102,12 +102,6 @@ function wpu_init(&$hook) {
 		ob_start();
 	}
 	if ($wpUnited->should_do_action('template-w-in-p')) {
-
-		//Initialise the cache -- although we won't be using it, we may need some functionality
-		require_once($wpUnited->get_plugin_path() . 'cache.php');
-		$wpuCache = WPU_Cache::getInstance();
-		
-
 		ob_start();
 		register_shutdown_function('wpu_wp_shutdown');
 	}

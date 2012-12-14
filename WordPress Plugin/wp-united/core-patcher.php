@@ -191,7 +191,8 @@ Class WPU_Core_Patcher {
 	 * Tests if the core cache is ready
 	 */
 	public function core_cache_ready() {
-		global $wpuCache;
+		
+		$wpuCache = WPU_Cache::getInstance();
 	
 		if ( !$wpuCache->core_cache_enabled() ){
 			return false;
@@ -229,9 +230,11 @@ Class WPU_Core_Patcher {
 	 */
 	public function enter_wp_integration() {
 
-		global $wpuCache, $wpUnited;
+		global $wpUnited;
 		//Tell phpBB that we're in WordPress. This controls the branching of the duplicate functions get_userdata and make_clickable
 		$GLOBALS['IN_WORDPRESS'] = 1;
+		
+		$wpuCache = WPU_Cache::getInstance();
 		
 		/**
 		 * @since v0.8.0
@@ -431,7 +434,7 @@ Class WPU_Core_Patcher {
 
 		//reinstate all the phpBB variables that we've put "on ice", let them overwrite any variables that were claimed by WP.
 		foreach ($this->sleepingVars as $varName => $varVal) {
-				if ( ($varName != 'wpuNoHead') && ($varName != 'wpuCache') ) {
+				if ( ($varName != 'wpuNoHead') && ($varName != 'wpUnited') && ($varName != 'phpbbForum') ) {
 					global $$varName;
 					$$varName = $varVal;
 				}

@@ -88,7 +88,9 @@ function wpu_initialise_wp() {
 // WordPress ran inside phpBB, or we pulled a header/footer from the cache
 // this was either to integrate templates, or to perform actions.
 function wpu_get_wordpress() {
-	global $wpUnited, $wpuCache, $phpbbForum, $wpUtdInt, $wp_version;
+	global $wpUnited, $phpbbForum, $wpUtdInt, $wp_version;
+	
+	$wpuCache = WPU_Cache::getInstance();
 
 	// Initialise the loaded WP
 	if($wpUnited->ran_patched_wordpress()) { // Wordpress ran inside phpBB
@@ -221,7 +223,9 @@ function wpu_get_wordpress() {
  * WordPress still appears inside the phpBB header/footer in these circumstances.
  */
 function wpu_complete() {
-	global $wpUnited, $wpUtdInt, $wpuCache;
+	global $wpUnited, $wpUtdInt;
+	
+	$wpuCache = WPU_Cache::getInstance();
 	
 	$wpUnited->set_wp_content(ob_get_contents());
 	ob_end_clean();

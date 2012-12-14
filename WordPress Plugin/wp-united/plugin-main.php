@@ -780,7 +780,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * no way of knowing what the theme should be a WordPress is not invoked
 	 */
 	public function clear_header_cache() {
-		require_once($this->get_plugin_path() . 'cache.php');
 		$wpuCache = WPU_Cache::getInstance();
 		$wpuCache->template_purge();
 	}

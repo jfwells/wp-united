@@ -61,7 +61,9 @@ class WPU_WP_Plugins {
 	 * @param string $plugin The full path to the plugin
 	 */
 	function fix($plugin, $mainEntry = false, $workingDir = false) {
-		global $wpuCache;
+		
+		
+		$wpuCache = WPU_Cache::getInstance();
 		
 		if($workingDir === false) {
 			$workingDir = $this->pluginDir;
@@ -94,7 +96,9 @@ class WPU_WP_Plugins {
 	 * @access private
 	 */
 	function process_file($pluginLoc) {
-		global $phpEx, $wpuCache;
+		global $phpEx;
+		
+		$wpuCache = WPU_Cache::getInstance();
 		
 		$prefixContent = '';
 		

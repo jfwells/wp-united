@@ -1428,7 +1428,7 @@ class WPU_Phpbb {
 		
 		// clear out the WP-United cache on settings change
 		$adminLog[] = __('Purging the WP-United cache', 'wp-united');
-		require_once($wpUnited->get_plugin_path() . 'cache.php');
+		
 		$wpuCache = WPU_Cache::getInstance();
 		$wpuCache->purge();
 		
