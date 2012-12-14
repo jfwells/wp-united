@@ -687,7 +687,6 @@ function wpu_phpbb_nav_block($args) {
 	
 	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegisterLink' => 1);
 	extract(_wpu_process_args($args, $defaults));
-
 	$ret = '';
 	?>
 	

@@ -666,7 +666,7 @@ class WPU_Phpbb {
 		
 		$display = false;
 		$ajax = false;
-		$inboundVote = false;
+		$inboundVote = array();
 		
 		if($topicID == 0) {
 			$topicID = (int)request_var('pollid', 0);
@@ -762,11 +762,10 @@ class WPU_Phpbb {
 			$display
 		) ? true : false;
 			
-			
-		if($inboundVote && $userCanVote) {
+		if(sizeof($inboundVote) && $userCanVote) {
 			//  ********   register vote here ********
 			
-			if (!sizeof($inboundVote) || sizeof($inboundVote) > $topicData['poll_max_options'] || in_array(VOTE_CONVERTED, $currVotedID)){
+			if (sizeof($inboundVote) > $topicData['poll_max_options'] || in_array(VOTE_CONVERTED, $currVotedID)){
 				
 				
 				if (!sizeof($inboundVote)) {
