@@ -680,6 +680,7 @@ class WPU_Phpbb {
 		}
 		 
 		 $pollMarkup = '';
+		 $actionMsg = '';
 		 		 
 		 $sql = '
 			SELECT t.topic_id, t.topic_title, t.topic_status, t.poll_title, t.poll_start, t.poll_length, 
@@ -832,10 +833,10 @@ class WPU_Phpbb {
 				$sql = '
 					UPDATE ' . TOPICS_TABLE . '
 					SET poll_last_vote = ' . time() . "
-					WHERE topic_id = $topic_id";
+					WHERE topic_id = $topicID";
 				$db->sql_query($sql);
 
-				$pollMarkup = '<p>' . $user->lang['VOTE_SUBMITTED'] . '</p>';
+				$actionMsg = $user->lang['VOTE_SUBMITTED'] . '<br />';
 			
 				$userCanVote = ($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']);
 			}
@@ -881,7 +882,7 @@ class WPU_Phpbb {
 		$pollMarkup .= '<form onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
 		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
 		$pollMarkup .= '<h2>' . $topicData['poll_title'] . '</h2>';
-		$pollMarkup .= '<p class="author">' . $pollLength;
+		$pollMarkup .= '<p class="author">' . $actionMsg . $pollLength;
 		if($userCanVote) {
 			if(!empty($pollLength)) {
 				$pollMarkup .= '<br />';
