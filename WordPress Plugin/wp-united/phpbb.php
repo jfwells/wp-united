@@ -736,6 +736,8 @@ class WPU_Phpbb {
 				//$currVotedID = $db->sql_fetchrowset($result);
 				$currVotedID[] = $row['poll_option_id'];
 			}
+
+print_r($currVotedID);
 			
 			$db->sql_freeresult($result);
 		} else {
