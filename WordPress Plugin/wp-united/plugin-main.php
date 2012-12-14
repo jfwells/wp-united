@@ -109,7 +109,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 		$this->doneInit = true;
 		
-		
+		$shouldRun = true;
 		
 		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
 		$this->process_adminpanel_actions();
@@ -122,16 +122,16 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 		if(!$this->get_setting('phpbb_path') || !$phpbbForum->can_connect_to_phpbb()) {
 			$this->set_last_run('disconnected');
-			return;
+			$shouldRun = false;
 		}
 		
 		if($this->get_last_run() == 'connected') {
-			return;
+			$shouldRun = false;
 		}
 		
 		$this->set_last_run('connected');
 
-		if($this->is_enabled()) { 
+		if($this->is_enabled() && $shouldRun) { 
 		
 			$this->load_phpbb();
 			
