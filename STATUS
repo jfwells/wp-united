@@ -9,6 +9,13 @@ Committed for vNext:
 * NEW: Forum top bar widget!
 * NEW: Forum birthdays widget!
 
+In progress:
+* poll widget
+
+TODO:
+Make [BLOG] an option
+
+
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
 	-- Posts awaiting approval in phpBB don't show up in WP yet
@@ -43,16 +50,10 @@ Committed for vNext:
 
 ---- widgets  --------
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
-<<<<<<< .mine
-=======
--- Poll widget
-- Gives you a drop-down list of polls that have been posted on your forum to choose from
-- Gives you a choice of styles to display them (e.g. blue, black, prosilver, style myself)
-- show results when logged out?
 -- Most active forum members widget
 -- Most active posts / topics widget
 -- phpBB word cloud
->>>>>>> .r1014
+
 
 
 -------- user blogs --> wp-ms  (v0.9 not contingent on this) ----------
