@@ -850,7 +850,7 @@ class WPU_Phpbb {
 		
 		$pollEnd = $topicData['poll_length'] + $topicData['poll_start'];
 		$pollLength = ($topicData['poll_length']) ? sprintf($user->lang[($pollEnd > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($pollEnd)) : '';
-		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
+		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']);
 		$multiChoice = ($topic_data['poll_max_options'] > 1);
 		
 		$pollMarkup .= '<form onsubmit="wpu_poll_submit(this);">';
