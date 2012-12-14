@@ -11,7 +11,7 @@
 *
 */
 
-if ( !defined('IN_PHPBB') ) exit;
+if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) exit;
 /**
 *  The WP-Unted cache stores data for:
 * (a) the WordPress core execution cache; 
