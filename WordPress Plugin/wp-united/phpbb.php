@@ -655,12 +655,18 @@ class WPU_Phpbb {
 	public function get_poll($topicID, $display = false, $ajax = false, $inboundVote = 0) {
 		 global $db, $user, $auth, $config;
 		 
+		 static $pollHasGenerated = false;
+ 
 		 $fStateChanged = $this->foreground();
+		 
+		if(!$pollHasGenerated) {
+			$user->add_lang('viewtopic');
+			$pollHasGenerated = true;
+		}
 		 
 		 $pollMarkup = '';
 		 		 
 		 $sql = '
-
 			SELECT t.topic_id, t.topic_title, t.topic_status, t.poll_title, t.poll_start, t.poll_length, 
 						t.poll_max_options, t.poll_last_vote, t.poll_vote_change, 
 						p.bbcode_bitfield, p.bbcode_uid, 
@@ -860,7 +866,7 @@ class WPU_Phpbb {
 		
 		$pollMarkup .= '<form onsubmit="wpu_poll_submit(' . $topicID . ');">';
 		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
-		$pollMarkup .= '<h2>' . $pollData['poll_title'] . '</h2>';
+		$pollMarkup .= '<h2>' . $topicData['poll_title'] . '</h2>';
 		$pollMarkup .= '<p class="author">' . $pollLength;
 		if($userCanVote) {
 			if(!empty($pollLength)) {
