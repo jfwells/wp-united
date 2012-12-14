@@ -901,7 +901,7 @@ class WPU_Phpbb {
 			$pollClass = ($pollOptionVoted) ? ' class="voted" ' : '';
 			$pollTitleAttr = ($pollOptionVoted) ? ' title="' . $user->lang['POLL_VOTED_OPTION'] . '"' : '';
 			$pollChecked = ($pollOptionVoted) ? ' checked="checked"' : '';
-			$pollBarClass = 'pollbar' .((int)($pollOptionPct / 20)) + 1;
+			$pollBarClass = ($optionPct > 0) ? 'pollbar' .(((int)($pollOptionPct / 20)) + 1) : 'pollbar0';
 			
 			
 			$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
@@ -923,7 +923,7 @@ class WPU_Phpbb {
 			}
 			
 			if($displayResults) {
-				$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . 'style="width:' . $pollOptionPct . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
+				$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . '" style="width:' . $optionPct . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
 				$pollMarkup .= '<dd>' . $pollVotesTxt . '</dd>';
 			}
 			
