@@ -949,6 +949,15 @@ class WPU_Phpbb {
 
 					
 		$this->restore_state($fStateChanged);
+		
+		if($ajax) {
+			wpu_ajax_header();
+			echo '<wpupoll>'
+			echo '<newnonce>' . wp_create_nonce('wpu-poll-submit') . '</newnonce>';
+			echo '<markup><![CDADA[' . base64_encode($pollMarkup, ENT_QUOTES) . ']]></markup>';
+			echo '</wpupoll>';
+			exit;
+		}
 
 		return $pollMarkup;
 	}

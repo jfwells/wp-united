@@ -1671,16 +1671,6 @@ function wpu_process_advanced_options() {
 	wpu_show_advanced_options();
 }
 
-function wpu_ajax_header() {
-	header('Content-Type: application/xml; charset=UTF-8'); 
-	header('Cache-Control: private, no-cache="set-cookie"');
-	header('Expires: 0');
-	header('Pragma: no-cache');
-	
-	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-}
-
-
 function wpu_filetree() {
 	if(stristr($_POST['filetree'], '..')) {
 		die();

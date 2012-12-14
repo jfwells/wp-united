@@ -294,7 +294,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		if(!is_admin() && $this->is_enabled()) {
 			if( isset($_POST['wpupoll']) && check_ajax_referer( 'wpu-poll-submit') ) {
-				die($phpbbForum->get_poll());
+				$phpbbForum->get_poll();
+				exit;
 			}
 		}
 	
