@@ -742,7 +742,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 					var $el = $wpuPoll(el).parents('.wpupoll-' + pollID + ' :first').find('form :first');
 					var formData = $wpuPoll('.wpupoll' + formID).serialize() +'&wpu-poll-submit=1&ajax=1&display=0&_ajax_nonce=' + wpuPollNonce;
 					
-					$wpuPoll.post('<?php echo $wpUnited->get_home_url(); ?>', formData, function(response) {
+					$wpuPoll.post('<?php echo $wpUnited->get_wp_home_url(); ?>', formData, function(response) {
 					
 						alert(response);
 					
