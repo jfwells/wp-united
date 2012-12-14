@@ -871,7 +871,7 @@ class WPU_Phpbb {
 			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
 			$pollVotesText = ($pollOption['poll_option_total'] == 0) ? $user->LANG['NO_VOTES'] : $optionPctTxt;
 			$pollOptionImg = $user->img('poll_center', $optionPctTxt, round($optionPct * 250));
-			$pollOptionVoted = (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false
+			$pollOptionVoted = (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false;
 			$pollClass = ($pollOptionVoted) ? ' class="voted" ' : '';
 			$pollTitleAttr = ($pollOptionVoted) ? ' title="' . $user->lang['POLL_VOTED_OPTION'] . '"' : '';
 			$pollChecked = ($pollOptionVoted) ? ' checked="checked"' : '';
