@@ -880,13 +880,13 @@ class WPU_Phpbb {
 			
 			$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
 			$pollMarkup .= '<dt>';
-			if ($canVote) {
+			if ($userCanVote) {
 				$pollMarkup .= '<label for="vote_' . $pollOption['poll_option_id'] . '">' . $pollOption['poll_option_text'] . '</label>';
 			} else {
 				$pollMarkup .= $pollOption['poll_option_text'];
 			}
 			$pollMarkup .= '</dt>';
-			if($canVote) {
+			if($userCanVote) {
 				$pollMarkup .= '<dd style="width: auto;">';
 				if($multiChoice) {
 					$pollMarkup .= '<input type="checkbox" name="vote_id[]" id="vote_' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . ' />';
@@ -914,7 +914,7 @@ class WPU_Phpbb {
 		}
 		
 		if(!$displayResults) {
-			$pollMarkup = '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="wpu_poll_results(this)">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
+			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="wpu_poll_results(this)">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
 		}
 							
 		$pollMarkup .= '</fieldset>';
