@@ -901,7 +901,7 @@ class WPU_Phpbb {
 			$pollClass = ($pollOptionVoted) ? ' class="voted" ' : '';
 			$pollTitleAttr = ($pollOptionVoted) ? ' title="' . $user->lang['POLL_VOTED_OPTION'] . '"' : '';
 			$pollChecked = ($pollOptionVoted) ? ' checked="checked"' : '';
-			$pollBarClass = ($optionPct > 0) ? 'pollbar' .(((int)($pollOptionPct / 20)) + 1) : 'pollbar0';
+			$pollBarClass = ($optionPct > 0) ? 'pollbar' .(((int)($pollOptionPct * 5)) + 1) : 'pollbar1';
 			
 			
 			$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
