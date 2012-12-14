@@ -716,7 +716,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 	
 	
 	public function add_poll_script() {
-		global $wpuAddedPollScript;
+		global $wpuAddedPollScript, $wpUnited;
 		
 		if($wpuAddedPollScript) {
 			return;
@@ -736,13 +736,25 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 			
 				var wpuPollNonce = '<?php echo $pollNonce; ?>';
 			
-				function wpu_poll_submit(pollID) {
-					//$wpuPoll.post ....xxxxx
+				function wpu_poll_submit(pollID, el) {
 					alert('submitting');
+					
+					var $el = $wpuPoll(el).parents('.wpupoll-' + pollID + ' :first').find('form :first');
+					var formData = $wpuPoll('.wpupoll' + formID).serialize() +'&wpu-poll-submit=1&ajax=1&display=0&_ajax_nonce=' + wpuPollNonce;
+					
+					$wpuPoll.post('<?php echo $wpUnited->get_home_url(); ?>', formData, function(response) {
+					
+						alert(response);
+					
+					});
+					
+					return false;
 				}
 				
 				function wpu_poll_results(pollID) {
 					alert('getting results');
+					
+					return false;
 				}
 			
 			

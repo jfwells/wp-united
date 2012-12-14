@@ -113,7 +113,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		// this has to go prior to phpBB load so that connection can be disabled in the event of an error on activation.
 		$this->process_adminpanel_actions();
-
+		
 		
 		// disable login integration if we couldn't override pluggables
 		if(defined('WPU_CANNOT_OVERRIDE')) {
@@ -141,6 +141,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			add_action('widgets_init', 'wpu_widgets_init');
 		
 		}
+		
+		$this->process_frontend_actions();
 
 		return true; 
 			
@@ -282,6 +284,20 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			}	
 			
 		}
+	}
+	
+	/**
+	 * Process any requests bound for AJAX backend, etc..
+	 */
+	private function process_frontend_actions() {
+		global $phpbbForum;
+		
+		if(!is_admin() && $this->is_enabled()) {
+			if( isset($_POST['wpupoll']) && check_ajax_referer( 'wpu-poll-submit') ) {
+				die($phpbbForum->get_poll());
+			}
+		}
+	
 	}
 	
 	/**

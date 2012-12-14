@@ -652,7 +652,7 @@ class WPU_Phpbb {
 	 * Displays a poll
 	 * 
 	 */
-	public function get_poll($topicID, $display = false, $ajax = false, $inboundVote = 0) {
+	public function get_poll($topicID = 0) {
 		 global $db, $user, $auth, $config;
 		 
 		 static $pollHasGenerated = false;
@@ -662,6 +662,21 @@ class WPU_Phpbb {
 		if(!$pollHasGenerated) {
 			$user->add_lang('viewtopic');
 			$pollHasGenerated = true;
+		}
+		
+		$display = false;
+		$ajax = false;
+		$inboundVote = false;
+		
+		if($topicID == 0) {
+			$topicID = (int)request_var('pollid', 0);
+			$display = ((int)request_var('display', 0) == 1);
+			$ajax = ((int)request_var('ajax', 0) == 1);
+			$inboundVote = request_var('vote_id', array('' => 0));
+		}
+
+		if(!$topicID) {
+			return '';
 		}
 		 
 		 $pollMarkup = '';
@@ -864,7 +879,7 @@ class WPU_Phpbb {
 		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']);
 		$multiChoice = ($topic_data['poll_max_options'] > 1);
 		
-		$pollMarkup .= '<form onsubmit="wpu_poll_submit(' . $topicID . ');">';
+		$pollMarkup .= '<form onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
 		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
 		$pollMarkup .= '<h2>' . $topicData['poll_title'] . '</h2>';
 		$pollMarkup .= '<p class="author">' . $pollLength;
@@ -925,7 +940,7 @@ class WPU_Phpbb {
 		}
 		
 		if(!$displayResults) {
-			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
+			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
 		}
 							
 		$pollMarkup .= '</fieldset>';
