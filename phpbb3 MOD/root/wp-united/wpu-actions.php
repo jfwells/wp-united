@@ -114,11 +114,11 @@ class WPU_Actions {
 			return $cssIn;
 		}
 		$pos = (request_var('pos', 'outer') == 'inner') ? 'inner' : 'outer';
-		$navBlock = (request_var('wpunav', 0) == 1);
+		$islandBlock = (request_var('island', 0) == 1);
 		
 		$cacheLocation = '';
 		
-		$cssIdentifier = ($navBlock) ? 'wpunav' : request_var('cloc', 0);
+		$cssIdentifier = ($islandBlock) ? 'wpuisland' : request_var('cloc', 0);
 		$cssIdentifier = $wpUnited->get_style_key($cssIdentifier);
 		
 		$useTV = -1;
@@ -168,8 +168,8 @@ class WPU_Actions {
 			$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 		}
 		
-		if($navBlock) {
-			$cssMagic->makeSpecificByClass('wpunavbar', false);
+		if($islandBlock) {
+			$cssMagic->makeSpecificByClass('wpuisland', false);
 		}
 		
 		$css = $cssMagic->getCSS();

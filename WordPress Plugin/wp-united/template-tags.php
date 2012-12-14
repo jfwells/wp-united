@@ -691,7 +691,7 @@ function wpu_phpbb_nav_block($args) {
 	$ret = '';
 	?>
 	
-	<div class="wpunavbar">
+	<div class="wpuisland">
 		<div class="navbar ">
 			<div class="navinner"><span class="corners-top"><span></span></span>
 			<ul class="linklist navlinks">

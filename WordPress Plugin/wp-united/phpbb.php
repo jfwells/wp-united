@@ -198,7 +198,7 @@ class WPU_Phpbb {
 		global $user, $phpEx;
 		
 		$fStateChanged = $this->foreground();
-		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;wpunav=1');
+		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;island=1');
 		$this->restore_state($fStateChanged);
 		
 		return $result;
