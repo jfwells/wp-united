@@ -581,7 +581,7 @@ class WPU_Phpbb {
 				AND t.topic_status <> 2 
 			ORDER BY t.topic_time DESC';
 			
-		if(!($result = $db->sql_query_limit($sql, $limit, 0))) 
+		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
 			$this->restore_state($fStateChanged);
 			wp_die(__('Could not access the database.', 'wp-united'));
 		}		
@@ -716,9 +716,12 @@ class WPU_Phpbb {
 			WHERE topic_id = ' . $topicID;
 			
 		$result = $db->sql_query($sql);
-			
-		$pollOptions = $db->sql_fetchrowset($result);
 		
+		while ($row = $db->sql_fetchrow($result)) {
+			$pollOptions[] = $row;
+		}
+		
+
 		$db->sql_freeresult($result);
 		
 		
@@ -804,6 +807,7 @@ class WPU_Phpbb {
 						$db->sql_query($sql);
 					}
 				}
+
 				foreach ($currVotedID as $option) {
 					if (!in_array($option, $inboundVote)) {
 						$sql = '
