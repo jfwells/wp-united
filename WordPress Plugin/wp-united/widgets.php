@@ -624,7 +624,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 	}
 	
 	public function widget($args, $instance) {
-		global $phpbbForum;
+		global $phpbbForum, $wpUnited;
 		
 		extract($args, EXTR_SKIP);
 		
