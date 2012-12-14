@@ -746,7 +746,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 						$response = $wpuPoll(response);
 						wpuPollNonce = $response.find('newnonce').text();
 						var newContent = Base64.decode($response.find('markup').text());
-						$el(parents('.wpuquickpoll').html(newContent);
+						$el.parents('.wpuquickpoll').html(newContent);
 					});
 					
 					return false;
