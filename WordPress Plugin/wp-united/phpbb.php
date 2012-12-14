@@ -195,10 +195,11 @@ class WPU_Phpbb {
 	}
 	
 	public function get_stylephp_link() {
-		global $user, $phpEx, $wpuCache, $wpUnited;
+		global $user, $phpEx, $wpUnited;
 		
 		$fStateChanged = $this->foreground();
 		
+		$wpuCache = WPU_Cache::getInstance();
 		$cacheName = $wpuCache->issue_style_key('island');
 		$wpUnited->commit_style_keys();
 		
