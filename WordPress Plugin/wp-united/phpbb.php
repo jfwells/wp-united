@@ -581,7 +581,8 @@ class WPU_Phpbb {
 				AND t.topic_status <> 2 
 			ORDER BY t.topic_time DESC';
 			
-		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
+		if(!($result = $db->sql_query_limit($sql, $limit, 0))) 
+			$this->restore_state($fStateChanged);
 			wp_die(__('Could not access the database.', 'wp-united'));
 		}		
 
@@ -716,7 +717,9 @@ class WPU_Phpbb {
 			
 		$result = $db->sql_query($sql);
 			
-		$pollOptions = $db->sql_fetchrowset($result);
+		while ($row = $db->sql_fetchrow($result)) {
+			$currVotedID[] = $row['poll_option_id'];
+		}
 		
 		$db->sql_freeresult($result);
 		
@@ -768,16 +771,13 @@ class WPU_Phpbb {
 			
 			if (sizeof($inboundVote) > $topicData['poll_max_options'] || in_array(VOTE_CONVERTED, $currVotedID)){
 				
-				
 				if (!sizeof($inboundVote)) {
-					$message = 'NO_VOTE_OPTION';
+					$actionMsg = $user->lang['NO_VOTE_OPTION'];
 				} else if (sizeof($inboundVote) > $topicData['poll_max_options']) {
-					$message = 'TOO_MANY_VOTE_OPTIONS';
+					$actionMsg = $user->lang['TOO_MANY_VOTE_OPTIONS'];
 				} else if (in_array(VOTE_CONVERTED, $currVotedID)) {
-					$message = 'VOTE_CONVERTED';
+					$actionMsg = $user->lang['VOTE_CONVERTED'];
 				} 
-
-				$pollMarkup .= '<p>' . $user->lang[$message] . '</p>';
 				
 			} else {
 
@@ -827,7 +827,7 @@ class WPU_Phpbb {
 				}
 
 				if (($user->data['user_id'] == ANONYMOUS) && !$user->data['is_bot']) {
-					$user->set_cookie('poll_' . $topic_id, implode(',', $inboundVote), time() + 31536000);
+					$user->set_cookie('poll_' . $topicID, implode(',', $inboundVote), time() + 31536000);
 				}
 
 				$sql = '
