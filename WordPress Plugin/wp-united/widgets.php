@@ -735,7 +735,6 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 				var $wpuPoll = jQuery.noConflict();
 			
 				var wpuPollNonce = '<?php echo $pollNonce; ?>';
-			
 				function wpu_poll_submit(pollID, el) {
 					
 					var $el = $wpuPoll(el).parents('.wpupoll-' + pollID).find('form :first');
@@ -746,6 +745,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 						wpuPollNonce = $response.find('newnonce').text();
 						var newContent = Base64.decode($response.find('markup').text());
 						var updateID = $response.find('pollid').text();
+						alert(updateID + '|' + wpuPollNonce + '|' + newContent);
 						$wpuPoll('.wpupoll-' + updateID).html(newContent);
 					});
 					
