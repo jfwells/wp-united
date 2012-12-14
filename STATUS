@@ -1,4 +1,4 @@
-current target: v0.9.0.4
+current target: v0.9.1.0
 
 Outstanding reported bugs pending verification:
 - On registration easy captcha reloads page to centred '1'
@@ -12,8 +12,14 @@ Committed for vNext:
 In progress:
 * poll widget
 
+Regressions:
+* comment-template.php on line 776 non-object
+* cache not priming for templates
+
 TODO:
 Make [BLOG] an option
+Add proper phpBB portion version check
+Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-side updates
 
 
 ------ cross-posting and comments ---------
