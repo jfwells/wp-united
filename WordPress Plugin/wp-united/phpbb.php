@@ -954,6 +954,7 @@ class WPU_Phpbb {
 			wpu_ajax_header();
 			echo '<wpupoll>';
 			echo '<newnonce>' . wp_create_nonce('wpu-poll-submit') . '</newnonce>';
+			echo '<pollid>' . $topicID . '</pollid>';
 			echo '<markup><![CDADA[' . base64_encode($pollMarkup) . ']]></markup>';
 			echo '</wpupoll>';
 			exit;

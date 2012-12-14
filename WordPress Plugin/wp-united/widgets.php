@@ -737,16 +737,16 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 				var wpuPollNonce = '<?php echo $pollNonce; ?>';
 			
 				function wpu_poll_submit(pollID, el) {
-					alert('submitting');
 					
 					var $el = $wpuPoll(el).parents('.wpupoll-' + pollID).find('form :first');
 					var formData = $el.serialize() +'&wpupoll=1&pollid=' + pollID + '&ajax=1&display=0&_ajax_nonce=' + wpuPollNonce;
 					
 					$wpuPoll.post('<?php echo $wpUnited->get_wp_home_url(); ?>', formData, function(response) {
-						$response = $wpuPoll(response);
+						var $response = $wpuPoll(response);
 						wpuPollNonce = $response.find('newnonce').text();
 						var newContent = Base64.decode($response.find('markup').text());
-						$el.parents('.wpuquickpoll').html(newContent);
+						var updateID = $response.find('pollid').text();
+						$wpuPoll('.wpupoll-' + updateID).html(newContent);
 					});
 					
 					return false;
