@@ -685,12 +685,12 @@ function wpu_phpbb_nav_block($args) {
 
 	global $phpbbForum, $phpEx;
 	
-	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegisterLink' => 1);
+	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegisterLink' => 1, 'useNativeCSS' => 0);
 	extract(_wpu_process_args($args, $defaults));
 	$ret = '';
 	?>
 	
-	<div class="wpuisland">
+	<?php if(!$useNativeCSS) { ?><div class="wpuisle"><div class="wpuisle2"><?php } ?>
 		<div class="navbar ">
 			<div class="navinner"><span class="corners-top"><span></span></span>
 			<ul class="linklist navlinks">
@@ -734,7 +734,7 @@ function wpu_phpbb_nav_block($args) {
 
 			<span class="corners-bottom"><span></span></span></div>
 		</div>
-	</div>
+	<?php if(!$useNativeCSS) { ?></div></div><?php } ?>
 	
 	<?php
 
@@ -746,7 +746,7 @@ function wpu_phpbb_nav_block($args) {
  *
  */
  function wpu_add_board_styles($includeStyleSwitcher = false) {
-	global $phpbbForum;
+	global $phpbbForum, $wpUnited;
 	static $addedStyles = false;
 	static $addedStyleSwitcher = false;
 	static $themePath = '';
@@ -755,11 +755,13 @@ function wpu_phpbb_nav_block($args) {
 	if(!$addedStyles) {
 		$addedStyles = true;
 		
-		$themePath =  $phpbbForum->get_stylesheet_path();
+		
+		wp_enqueue_style('wpu-island-reset', $wpUnited->get_plugin_url() . '/theme/island-reset.css');
 		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_stylephp_link());
 	}
 	
 	if($includeStyleSwitcher && !$addedStyleSwitcher) {
+		$themePath =  $phpbbForum->get_stylesheet_path();
 		wp_enqueue_style('wpu-nav-blk-2', $themePath . 'normal.css', true);
 		wp_enqueue_style('wpu-nav-blk-3', $themePath . 'medium.css', true);
 		wp_enqueue_style('wpu-nav-blk-4', $themePath . 'large.css', true);

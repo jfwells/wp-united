@@ -307,7 +307,7 @@ function wpu_setup_menu() {
 		<h2> <?php _e('WP-United Setup / Status', 'wp-united'); ?> </h2>
 		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.', 'wp-united') ?></p>
 
-		<div id="wputransmit"><p><strong>Communicating with phpBB...</strong><br />Please Wait</p><img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" /></div>
+		<div id="wputransmit"><p><strong><?php _e('Communicating with phpBB...', 'wp-united'); ?></strong><br /><?php _e('Please Wait...'); ?></p><img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" /></div>
 
 	<?php
 	
@@ -1109,7 +1109,7 @@ function wpu_settings_page() {
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Settings', 'wp-united'); ?> </h2>
 	
-			<div id="wputransmit"><p><strong><?php _e('Sending settings to phpBB...', 'wp-united'); ?></strong><br />Please Wait</p><img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" /></div>
+			<div id="wputransmit"><p><strong><?php _e('Sending settings to phpBB...', 'wp-united'); ?></strong><br /><?php _e('Please wait...', 'wp-united'); ?></p><img src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/wpuldg.gif" /></div>
 			
 			<?php
 				if(isset($_GET['msg'])) {

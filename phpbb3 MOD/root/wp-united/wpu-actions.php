@@ -168,7 +168,8 @@ class WPU_Actions {
 		}
 		
 		if($islandBlock) {
-			$cssMagic->makeSpecificByClass('wpuisland', false);
+			$cssMagic->makeSpecificByClass('wpuisle2', false);
+			$cssMagic->makeSpecificByClass('wpuisle', false);
 		}
 		
 		$css = $cssMagic->getCSS();

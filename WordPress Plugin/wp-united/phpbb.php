@@ -657,7 +657,7 @@ class WPU_Phpbb {
 		 global $db, $user, $auth, $config;
 		 
 		 static $pollHasGenerated = false;
- 
+
 		 $fStateChanged = $this->foreground();
 		 
 		if(!$pollHasGenerated) {
@@ -675,6 +675,7 @@ class WPU_Phpbb {
 			$ajax = ((int)request_var('ajax', 0) == 1);
 			$inboundVote = request_var('vote_id', array('' => 0));
 		}
+		
 
 		if(!$topicID) {
 			return '';
@@ -709,8 +710,9 @@ class WPU_Phpbb {
 			$this->restore_state($fStateChanged);
 			return $pollMarkup;
 		}
-				
-		 $sql = '
+		
+		$pollOptions = array();
+		$sql = '
 			SELECT * 
 			FROM ' . POLL_OPTIONS_TABLE . ' 
 			WHERE topic_id = ' . $topicID;
@@ -724,7 +726,7 @@ class WPU_Phpbb {
 
 		$db->sql_freeresult($result);
 		
-		
+		$currVotedID = array();
 		if ($user->data['is_registered']) {
 		
 			$sql = '
@@ -767,10 +769,10 @@ class WPU_Phpbb {
 			($userCanVote && sizeof($currVotedID)) || 
 			$display
 		) ? true : false;
-			
+
 		if(sizeof($inboundVote) && $userCanVote) {
 			//  ********   register vote here ********
-			
+
 			if (sizeof($inboundVote) > $topicData['poll_max_options'] || in_array(VOTE_CONVERTED, $currVotedID)){
 				
 				if (!sizeof($inboundVote)) {
@@ -779,8 +781,7 @@ class WPU_Phpbb {
 					$actionMsg = $user->lang['TOO_MANY_VOTE_OPTIONS'];
 				} else if (in_array(VOTE_CONVERTED, $currVotedID)) {
 					$actionMsg = $user->lang['VOTE_CONVERTED'];
-				} 
-				
+				} 	
 			} else {
 
 				foreach ($inboundVote as $option) {
@@ -839,7 +840,21 @@ class WPU_Phpbb {
 				$db->sql_query($sql);
 
 				$actionMsg = $user->lang['VOTE_SUBMITTED'] . '<br />';
-			
+				
+				
+				// Reload vote state:
+				$pollOptions = array();
+				 $sql = '
+					SELECT * 
+					FROM ' . POLL_OPTIONS_TABLE . ' 
+					WHERE topic_id = ' . $topicID;
+					
+				$result = $db->sql_query($sql);
+				while ($row = $db->sql_fetchrow($result)) {
+					$pollOptions[] = $row;
+				}
+				$db->sql_freeresult($result);
+				$currVotedID = $inboundVote;
 				$userCanVote = ($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']);
 			}
 			
@@ -879,7 +894,7 @@ class WPU_Phpbb {
 		$pollEnd = $topicData['poll_length'] + $topicData['poll_start'];
 		$pollLength = ($topicData['poll_length']) ? sprintf($user->lang[($pollEnd > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($pollEnd)) : '';
 		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']);
-		$multiChoice = ($topic_data['poll_max_options'] > 1);
+		$multiChoice = ($topicData['poll_max_options'] > 1);
 		
 		$pollMarkup .= '<form onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
 		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
@@ -897,13 +912,14 @@ class WPU_Phpbb {
 		foreach ($pollOptions as $pollOption) {
 			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
 			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
-			$pollVotesText = ($pollOption['poll_option_total'] == 0) ? $user->LANG['NO_VOTES'] : $optionPctTxt;
+			$pollVotesText = ($pollOption['poll_option_total'] == 0) ? $user->lang['NO_VOTES'] : $optionPctTxt;
 			$pollOptionImg = $user->img('poll_center', $optionPctTxt, round($optionPct * 250));
 			$pollOptionVoted = (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false;
 			$pollClass = ($pollOptionVoted) ? ' class="voted" ' : '';
 			$pollTitleAttr = ($pollOptionVoted) ? ' title="' . $user->lang['POLL_VOTED_OPTION'] . '"' : '';
 			$pollChecked = ($pollOptionVoted) ? ' checked="checked"' : '';
-			$pollBarClass = ($optionPct > 0) ? 'pollbar' .(((int)($pollOptionPct * 5)) + 1) : 'pollbar1';
+			$pollBarClass = ($optionPct > 0) ? 'pollbar' .(((int)($optionPct * 5)) + 1) : 'pollbar1';
+			$pollBarClass = ($pollBarClass == 'pollbar6') ? 'pollbar5' : $pollBarClass;
 			
 			
 			$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
@@ -926,7 +942,7 @@ class WPU_Phpbb {
 			
 			if($displayResults) {
 				$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . '" style="width:' . $optionPct . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
-				$pollMarkup .= '<dd>' . $pollVotesTxt . '</dd>';
+				$pollMarkup .= '<dd>' . $pollVotesText . '</dd>';
 			}
 			
 			$pollMarkup .= '</dl>';
@@ -951,7 +967,7 @@ class WPU_Phpbb {
 
 					
 		$this->restore_state($fStateChanged);
-		
+
 		if($ajax) {
 			wpu_ajax_header();
 			echo '<wpupoll>';

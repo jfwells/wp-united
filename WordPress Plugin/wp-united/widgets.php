@@ -502,7 +502,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		
 		
 		echo $before_widget;
-		wpu_phpbb_nav_block("showSiteHome={$showSiteHome}&showMemberList={$showMemberList}&showRegisterLink={$showRegisterLink}");	
+		wpu_phpbb_nav_block("showSiteHome={$showSiteHome}&showMemberList={$showMemberList}&showRegisterLink={$showRegisterLink}&useNativeCSS={$nativeCSS}");	
 		
 		echo $after_widget;
 
@@ -646,12 +646,18 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		}
 		
 		$poll = ($poll == '') ? __('You do not have permission to view this poll', 'wp-united') : $poll;
-
+		$isleClass = ($nativeCSS) ? 'wpunative' : 'wpuisle';
+		
 		echo $before_widget;
-		echo $before_title . $title . $after_title;
-		echo '<div class="wpuquickpoll wpuisland textwidget wpupoll-' . $pollId . '">';
-		echo $poll;
-		echo'</div>';
+		echo $before_title . $title . $after_title; ?>
+		<div class="wpuldg" style="display: none;position: relative; padding-top: 12px;">
+			<?php _e('Loading.', 'wp-united'); ?> <?php _e('Please wait...', 'wp-united'); ?>
+			<img src="<?php _e($wpUnited->get_plugin_url()); ?>images/settings/wpuldg.gif" />
+		</div>
+		<div class="wpuquickpoll <?php echo $isleClass; ?> textwidget wpupoll-<?php echo $pollId; ?>"><div class="<?php echo $isleClass; ?>2">
+			<?php echo $poll; ?>
+		</div></div> <?php
+		
 		$this->add_poll_script();
 		echo $after_widget;
 		
@@ -726,165 +732,24 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		
 		$pollNonce = wp_create_nonce('wpu-poll-submit');
 		
-		wp_enqueue_script('jquery');
+		wp_enqueue_script(
+			'wpu-poll', 
+			$wpUnited->get_plugin_url() . 'js/poll.js', 
+			array( 
+					'jquery-effects-core',
+					'jquery'
+				), 
+				$wpUnited->get_version(), 
+				false
+			);	
 		
 		?>
-				
 			<script type="text/javascript">//<![CDATA[
-				
-				var $wpuPoll = jQuery.noConflict();
-			
 				var wpuPollNonce = '<?php echo $pollNonce; ?>';
-				function wpu_poll_submit(pollID, el) {
-					
-					var $el = $wpuPoll(el).parents('.wpupoll-' + pollID).find('form :first');
-					$el.find('input').attr('disabled', 'disabled');
-					var formData = $el.serialize() +'&wpupoll=1&pollid=' + pollID + '&ajax=1&display=0&_ajax_nonce=' + wpuPollNonce;
-					
-					$wpuPoll.post('<?php echo $wpUnited->get_wp_home_url(); ?>', formData, function(response) {
-						var $response = $wpuPoll(response);
-						wpuPollNonce = $response.find('newnonce').text();
-						var newContent = Base64.decode($response.find('markup').text());
-						var updateID = $response.find('pollid').text();
-						
-						$wpuPoll('.wpupoll-' + updateID).html(newContent);
-					});
-					
-					return false;
-				}
-				
-				function wpu_poll_results(pollID) {
-					alert('getting results');
-					
-					return false;
-				}
-				
-				/**
-				 * Base64 encode/decode for passing messages
-				 */
-				var Base64 = {
-					_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-					encode : function (input) {
-						var output = "";
-						var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-						var i = 0;
-
-						input = Base64._utf8_encode(input);
-						while (i < input.length) {
-							chr1 = input.charCodeAt(i++);
-							chr2 = input.charCodeAt(i++);
-							chr3 = input.charCodeAt(i++);
-
-							enc1 = chr1 >> 2;
-							enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-							enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-							enc4 = chr3 & 63;
-
-							if (isNaN(chr2)) {
-								enc3 = enc4 = 64;
-							} else if (isNaN(chr3)) {
-								enc4 = 64;
-							}
-
-							output = output +
-							this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
-							this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
-
-						}
-
-						return output;
-					},
-					decode : function (input) {
-						var output = "";
-						var chr1, chr2, chr3;
-						var enc1, enc2, enc3, enc4;
-						var i = 0;
-
-						input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-
-						while (i < input.length) {
-
-							enc1 = this._keyStr.indexOf(input.charAt(i++));
-							enc2 = this._keyStr.indexOf(input.charAt(i++));
-							enc3 = this._keyStr.indexOf(input.charAt(i++));
-							enc4 = this._keyStr.indexOf(input.charAt(i++));
-
-							chr1 = (enc1 << 2) | (enc2 >> 4);
-							chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-							chr3 = ((enc3 & 3) << 6) | enc4;
-
-							output = output + String.fromCharCode(chr1);
-
-							if (enc3 != 64) {
-								output = output + String.fromCharCode(chr2);
-							}
-							if (enc4 != 64) {
-								output = output + String.fromCharCode(chr3);
-							}
-
-						}
-
-						output = Base64._utf8_decode(output);
-
-						return output;
-
-					},
-					_utf8_encode : function (string) {
-						string = string.replace(/\r\n/g,"\n");
-						var utftext = "";
-
-						for (var n = 0; n < string.length; n++) {
-
-							var c = string.charCodeAt(n);
-
-							if (c < 128) {
-								utftext += String.fromCharCode(c);
-							}
-							else if((c > 127) && (c < 2048)) {
-								utftext += String.fromCharCode((c >> 6) | 192);
-								utftext += String.fromCharCode((c & 63) | 128);
-							}
-							else {
-								utftext += String.fromCharCode((c >> 12) | 224);
-								utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-								utftext += String.fromCharCode((c & 63) | 128);
-							}
-						}
-						return utftext;
-					},
-
-					// private method for UTF-8 decoding
-					_utf8_decode : function (utftext) {
-						var string = "";
-						var i = 0;
-						var c = c1 = c2 = 0;
-						while ( i < utftext.length ) {
-							c = utftext.charCodeAt(i);
-							if (c < 128) {
-								string += String.fromCharCode(c);
-								i++;
-							}
-							else if((c > 191) && (c < 224)) {
-								c2 = utftext.charCodeAt(i+1);
-								string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-								i += 2;
-							}
-							else {
-								c2 = utftext.charCodeAt(i+1);
-								c3 = utftext.charCodeAt(i+2);
-								string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-								i += 3;
-							}
-						}
-						return string;
-					}
-				}
-
-			
-			
+				var wpuHomeURL = '<?php echo $wpUnited->get_wp_home_url(); ?>'
 			// ]]>
 			</script>
-			
+
 		<?php
 	
 	
