@@ -194,6 +194,7 @@ class WP_United_Plugin_Base {
 		return $this->settings->pluginUrl;
 	}
 	
+	
 	public function is_enabled() { 
 		
 		if (defined('WPU_DISABLE') && WPU_DISABLE) { 
@@ -222,7 +223,7 @@ class WP_United_Plugin_Base {
 
 
 	// overridden on WP side
-	public function is_phpbb_loaded() {
+	public function is_working() {
 		// if ABSPATH is not defined, we must be loaded from phpBB
 		if(!defined('ABSPATH')) {
 			return true;
@@ -232,7 +233,7 @@ class WP_United_Plugin_Base {
 	}
 	
 	public function phpbb_logout() {
-		if($this->is_phpbb_loaded()) {
+		if($this->is_working()) {
 			global $phpbbForum;
 			$phpbbForum->logout();
 		}
@@ -272,7 +273,7 @@ class WP_United_Plugin_Base {
 			return;
 		}
 		 
-		if($this->is_phpbb_loaded()) {
+		if($this->is_working()) {
 			$this->styleKeysLoaded = true;
 			
 			$this->styleKeys = $phpbbForum->load_style_keys();

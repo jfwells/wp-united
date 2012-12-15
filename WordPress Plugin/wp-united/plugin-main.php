@@ -227,7 +227,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function phpbb_logout() {
-		if($this->is_phpbb_loaded()) {
+		if($this->is_working()) {
 			global $phpbbForum;
 			$phpbbForum->logout();
 		}
@@ -238,7 +238,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function integrate_users() {
-		if($this->is_phpbb_loaded() && $this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT')) {
+		if($this->is_working() && $this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT')) {
 			wpu_integrate_login();
 		}
 	}
@@ -292,7 +292,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	private function process_frontend_actions() {
 		global $phpbbForum;
 		
-		if(!is_admin() && $this->is_enabled()) {
+		if(!is_admin() && $this->is_working()) {
 			if( isset($_POST['wpupoll']) && check_ajax_referer( 'wpu-poll-submit') ) {
 				$phpbbForum->get_poll();
 				exit;
@@ -425,7 +425,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function censor_content($postContent) { 
 		global $phpbbForum; 
 		
-		if(!$this->is_phpbb_loaded()) {
+		if(!$this->is_working()) {
 			return $postContent;
 		}
 
@@ -497,7 +497,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function get_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
 		global $phpbbForum;
 
-		if (!$this->is_enabled() || !$this->get_setting('integrateLogin') || !$this->get_setting('avatarsync')) { 
+		if (!$this->is_working() || !$this->get_setting('integrateLogin') || !$this->get_setting('avatarsync')) { 
 			return $avatar;
 		}
 
@@ -751,7 +751,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			return $user;
 		}
 		
-		if(!$this->is_enabled() || !$this->is_phpbb_loaded()) {
+		if(!$this->is_working()) {
 			return $user;
 		}
 

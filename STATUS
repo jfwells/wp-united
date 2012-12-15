@@ -3,6 +3,8 @@ current target: v0.9.1.0
 Outstanding reported bugs pending verification:
 - On registration easy captcha reloads page to centred '1' (DhrRob)
 - Autogenned WP passwords with '&' are not hash-for-hash compatible with phpBB (AYBG)
+- logout on viewforum page with rev integration
+- get_board_url() somewhere happening without is_enabled() check
 
 Committed for vNext:
 * BUGFIX: RTL layout not preserved when using template integration
@@ -13,8 +15,8 @@ In progress:
 * poll widget
 
 Regressions:
-* comment-template.php on line 776 non-object
-* cache not priming for templates
+* comment-template.php on line 776 non-object (get_post not resturing a WP_Post)
+* theme cache being regenerated each page load
 
 TODO:
 Make [BLOG] an option

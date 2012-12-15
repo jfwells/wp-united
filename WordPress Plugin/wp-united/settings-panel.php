@@ -145,7 +145,7 @@ function wpu_settings_menu() {
 		
 		
 	// only show other menu items if WP-United is set up
-	if($wpUnited->get_last_run() == 'working' && $wpUnited->is_enabled()) {
+	if($wpUnited->is_working()) {
 		add_submenu_page('wp-united-setup', __('WP-United Settings', 'wp-united'), __('Settings', 'wp-united'), 'manage_options','wp-united-settings', 'wpu_settings_page');
 
 			if($wpUnited->get_setting('integrateLogin')) {

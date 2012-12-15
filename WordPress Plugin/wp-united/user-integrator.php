@@ -31,7 +31,7 @@ function wpu_integrate_login() {
 	if(!$doingLogin) {
 	
 		// sometimes this gets called early, e.g. for admin ajax calls.
-		if(!$phpbbForum->is_phpbb_loaded()) {
+		if(!$wpUnited->is_working()) {
 			return;
 		}
 		

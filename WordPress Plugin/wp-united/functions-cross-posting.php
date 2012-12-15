@@ -446,7 +446,7 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 	global $wpUnited, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
 
 	if ( 
-		(!$wpUnited->is_enabled()) || 
+		(!$wpUnited->is_working()) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) ||
 		(empty($postID))
@@ -504,7 +504,7 @@ function wpu_comments_count($count, $postID = false) {
 	} 
 	// else, get the details
 	if ( 
-		(!$wpUnited->is_enabled()) || 
+		(!$wpUnited->is_working()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) 
@@ -531,7 +531,7 @@ function wpu_comments_count($count, $postID = false) {
 function wpu_comment_redirector($postID) {
 	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user;
 	if ( 
-		(!$wpUnited->is_enabled()) || 
+		(!$wpUnited->is_working()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) 
@@ -704,7 +704,7 @@ function wpu_comments_open($open, $postID) {
 	}
 	
 	if ( 
-		(!$wpUnited->is_enabled()) || 
+		(!$wpUnited->is_working()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
 		(!$wpUnited->get_setting('xposting')) || 
 		(!$wpUnited->get_setting('xpostautolink')) 
