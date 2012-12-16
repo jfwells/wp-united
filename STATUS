@@ -23,6 +23,7 @@ Regressions:
 * phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 TODO:
+Link for quick poll
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
