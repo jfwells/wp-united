@@ -179,5 +179,11 @@ function wpu_ajax_header() {
 	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 }
 
+function wpu_get_curr_page_link() {
+	
+	$protocol = strpos(strtolower($_SERVER['SERVER_PROTOCOL']),'https') === false ? 'http://' : 'https://';
+	$currURL = $protocol . $_SERVER['HTTP_HOST']  . htmlspecialchars($_SERVER['REQUEST_URI']);
+	return $currURL;
+}
 
 ?>

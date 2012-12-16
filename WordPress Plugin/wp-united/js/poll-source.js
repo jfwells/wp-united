@@ -12,12 +12,12 @@ function wpu_poll_submit(pollID, el) {
 }
 
 function wpu_poll_results(pollID) {
-	return wpu_process_poll('display=1', pollID);
+	return wpu_process_poll('display=1&pollid=' + pollID, pollID);
 }
 
 function wpu_process_poll(data, pollID) {
 	
-	data = data + '&wpupoll=1' + '&pollid=' + pollID + '&ajax=1&_ajax_nonce=' + wpuPollNonce;
+	data = data + '&wpupoll=1&ajax=1&_ajax_nonce=' + wpuPollNonce;
 	
 	$wpuPoll('.wpupoll-' + pollID)
 		.parent()
@@ -35,11 +35,12 @@ function wpu_process_poll(data, pollID) {
 		wpuPollNonce = $response.find('newnonce').text();
 	
 		$wpuPoll('.wpuldg').hide();
-		$wpuPoll('.wpupoll-' + $response.find('pollid').text())
-			.children('div :first')
+		$wpuPoll('.wpupoll-' + $response.find('pollid').text()).each(function(i,v) {
+			$wpuPoll(this).children('div :first')
 				.html(Base64.decode($response.find('markup').text()))
 				.end()
 			.fadeTo('medium', 100);
+		});
 		
 	});
 	

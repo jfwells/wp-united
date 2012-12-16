@@ -334,7 +334,7 @@ function wpu_setup_menu() {
 	
 		switch($wpUnited->get_last_run()) {
 			case 'working':
-				$statusText = __('OK', 'wp-united') . '&nbsp;' . $phpbbForum->add_smilies(':-)', 1);
+				$statusText = __('OK', 'wp-united') . '&nbsp;' . $phpbbForum->add_smilies(':-)');
 				$statusColour = "updated allok";
 				$statusDesc =  __('WP-United is connected and working.', 'wp-united') . '<br />' . '<br />'. __('If you ever need to uninstall WP-United, disable it here first before disabling the plugin, so that it can be removed from phpBB.', 'wp-united');
 				$buttonDisplay = 'display: none;';

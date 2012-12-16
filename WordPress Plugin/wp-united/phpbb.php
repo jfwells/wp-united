@@ -654,7 +654,7 @@ class WPU_Phpbb {
 	 * 
 	 */
 	public function get_poll($topicID = 0) {
-		 global $db, $user, $auth, $config;
+		 global $db, $user, $auth, $config, $phpEx, $wpUnited;
 		 
 		 static $pollHasGenerated = false;
 
@@ -669,18 +669,41 @@ class WPU_Phpbb {
 		$ajax = false;
 		$inboundVote = array();
 		
+		// Is this an AJAX request?
 		if($topicID == 0) {
 			$topicID = (int)request_var('pollid', 0);
+			$inboundVote = request_var('vote_id', array('' => 0));
 			$display = ((int)request_var('display', 0) == 1);
 			$ajax = ((int)request_var('ajax', 0) == 1);
-			$inboundVote = request_var('vote_id', array('' => 0));
 		}
-		
-
 		if(!$topicID) {
 			return '';
 		}
-		 
+		
+		// Or was this form submitted without JS? If so, which poll was it for? (Unlike in phpBB, there could be more than one)
+		if(!$ajax) {
+			// submitted:
+			if(isset($_POST['update']) && isset($_POST['vote_id'])) {
+				$pollID = (int)request_var('pollid', 0);
+				if($pollID == $topicID) {
+					$inboundVote = request_var('vote_id', array('' => 0));
+					// the same poll block could be on the page multiple times. We only want to register the vote once.
+					unset($_POST['update']); unset($_POST['vote_id']);
+				}
+			}
+			// view results link:
+			if(isset($_GET['wpupolldisp'])) {
+				$pollID = (int)request_var('pollid', 0);
+				if($pollID == $topicID) {
+					$display=1;
+				}
+			}
+		}
+		
+
+		
+		$currURL = wpu_get_curr_page_link();
+		
 		 $pollMarkup = '';
 		 $actionMsg = '';
 		 		 
@@ -703,7 +726,7 @@ class WPU_Phpbb {
 
 		 
 		$topicData = $db->sql_fetchrow($result);
-		
+
 		$db->sql_freeresult($result);
 		
 		if(!$topicData['poll_start'] || (!$auth->acl_get('f_read', $topicData['forum_id']))) {
@@ -856,6 +879,7 @@ class WPU_Phpbb {
 				$db->sql_freeresult($result);
 				$currVotedID = $inboundVote;
 				$userCanVote = ($auth->acl_get('f_votechg', $topicData['forum_id']) && $topicData['poll_vote_change']);
+				$displayResults = true;
 			}
 			
 			// ***** end of vote registration ******
@@ -866,8 +890,12 @@ class WPU_Phpbb {
 			$pollTotal += $pollOption['poll_option_total'];
 		}
 		
-		$pollBBCode = ($topicData['bbcode_bitfield']) ? new bbcode() : false;
-
+		$pollBBCode = false;
+		if($topicData['bbcode_bitfield']) {
+			require_once($wpUnited->get_setting('phpbb_path') . 'includes/functions_posting.' . $phpEx);
+			require_once($wpUnited->get_setting('phpbb_path') . 'includes/bbcode.' . $phpEx);
+			$pollBBCode = new bbcode();
+		}
 
 		for ($i = 0, $size = sizeof($pollOptions); $i < $size; $i++) {
 			$pollOptions[$i]['poll_option_text'] = censor_text($pollOptions[$i]['poll_option_text']);
@@ -877,7 +905,7 @@ class WPU_Phpbb {
 			}
 
 			$pollOptions[$i]['poll_option_text'] = bbcode_nl2br($pollOptions[$i]['poll_option_text']);
-			$pollOptions[$i]['poll_option_text'] = smiley_text($pollOptions[$i]['poll_option_text']);
+			$pollOptions[$i]['poll_option_text'] = $this->parse_phpbb_text_for_smilies($pollOptions[$i]['poll_option_text']);
 		}
 
 		$topicData['poll_title'] = $this->censor($topicData['poll_title']);
@@ -887,7 +915,7 @@ class WPU_Phpbb {
 		}
 
 		$topicData['poll_title'] = bbcode_nl2br($topicData['poll_title']);
-		$topicData['poll_title'] = $this->add_smilies($topicData['poll_title']);
+		$topicData['poll_title'] = $this->parse_phpbb_text_for_smilies($topicData['poll_title']);
 
 		unset($pollBBCode);
 		
@@ -896,7 +924,7 @@ class WPU_Phpbb {
 		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']);
 		$multiChoice = ($topicData['poll_max_options'] > 1);
 		
-		$pollMarkup .= '<form onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
+		$pollMarkup .= '<form action="' . $currURL . '" method="post" onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
 		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
 		$pollMarkup .= '<h2>' . $topicData['poll_title'] . '</h2>';
 		$pollMarkup .= '<p class="author">' . $actionMsg . $pollLength;
@@ -908,7 +936,7 @@ class WPU_Phpbb {
 		}
 		$pollMarkup .= '</p>';
 		$pollMarkup .= '<fieldset class="polls">';
-
+		$pollMarkup .= '<input type="hidden" name="pollid" value="' . $topicID . '"></input>';
 		foreach ($pollOptions as $pollOption) {
 			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
 			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
@@ -958,7 +986,9 @@ class WPU_Phpbb {
 		}
 		
 		if(!$displayResults) {
-			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="#" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
+			
+			$currURL = (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1';
+			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar"><a href="' . $currURL .  '" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
 		}
 							
 		$pollMarkup .= '</fieldset>';
@@ -1674,17 +1704,19 @@ class WPU_Phpbb {
 		return true;
 	}
 	
-	//TODO: get maxSmilies from config
-	public function add_smilies($postContent, $maxSmilies = 1000) {
+
+	public function add_smilies($postContent) {
 		static $match;
 		static $replace;
-		global $db;
-	
+		static $max = 1000;
+		global $db, $config;
 
 		// See if the static arrays have already been filled on an earlier invocation
 		if (!is_array($match)) {
 		
 			$fStateChanged = $this->foreground();
+			
+			$max = ($config['max_post_smilies'] > 0) ? $config['max_post_smilies'] : $max;
 			
 			$result = $db->sql_query('SELECT code, emotion, smiley_url FROM '.SMILIES_TABLE.' ORDER BY smiley_order', 3600);
 
@@ -1700,17 +1732,31 @@ class WPU_Phpbb {
 			$this->restore_state($fStateChanged);
 			
 		}
-		if (sizeof($match)) {
+		if (sizeof($match)) { 
 			$num_matches = preg_match_all('#' . implode('|', $match) . '#', $postContent, $matches);
 			unset($matches);
 			
 			// Make sure the delimiter # is added in front and at the end of every element within $match
-			//TODO: limit this to maxSmilies
-			$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent));
+			$postContent = trim(preg_replace(explode(chr(0), '#' . implode('#' . chr(0) . '#', $match) . '#'), $replace, $postContent, $max));
 		}
 		
 		return $postContent;
 	}	
+	
+	public function parse_phpbb_text_for_smilies($text) {
+		global $phpbb_root_path;
+		
+		$fStateChanged = $this->foreground();
+		
+		$parsed = smiley_text($text);
+		
+		$result = str_replace($phpbb_root_path, $this->get_board_url(), $parsed);
+		
+		$this->restore_state($fStateChanged);
+		
+		return $result;
+		
+	}
 	
 	
 	/**

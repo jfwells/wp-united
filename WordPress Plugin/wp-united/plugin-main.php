@@ -557,12 +557,12 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding smilies into comment text
 	 * @since WP-United 0.7.0
 	 */
-	public function smilies($postContent, $maxSmilies = 0) {
+	public function smilies($postContent) {
 		global $phpbbForum;
 		
 		if ($this->get_setting('phpbbSmilies')  ) {
 			
-			return $phpbbForum->add_smilies($postContent, $maxSmilies);
+			return $phpbbForum->add_smilies($postContent);
 			
 		}
 		return $postContent;
