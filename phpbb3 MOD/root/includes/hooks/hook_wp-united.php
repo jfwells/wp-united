@@ -50,7 +50,9 @@ $phpbb_hook->register('exit_handler', 'wpu_continue');
 */
 
 if($wpUnited->should_run_wordpress()) {
+	$phpbbForum->background();
 	require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
+	$phpbbForum->foreground();
 }
 
 

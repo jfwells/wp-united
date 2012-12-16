@@ -67,8 +67,9 @@ function wpu_initialise_wp() {
 	// items usually set by wordpress template loads:
 	define("WP_USE_THEMES", true);
 	global $wp_did_header; $wp_did_header = true;
-
+	$oldGet = $_GET; $_GET = array();
 	wp();
+	$_GET = $oldGET;
 	if (!$wpUnited->should_do_action('template-p-in-w')) {
 		$wpUtdInt->load_template();
 	}
@@ -183,6 +184,7 @@ function wpu_get_wordpress() {
 				$forum_page_ID = get_option('wpu_set_forum');
 				if(!empty($forum_page_ID)) {
 					query_posts("showposts=1&page_id={$forum_page_ID}"); 
+
 				}
 			}
 	
@@ -210,6 +212,9 @@ function wpu_get_wordpress() {
 		}
 
 	}
+	
+	
+	
 }
 
 /**

@@ -45,6 +45,7 @@ Class WPU_Core_Patcher {
 		'name', 'category_name', 'feed', 'author_name', 'static', 'pagename', 'page_id', 'error',
 		'comments_popup', 'attachment', 'attachment_id', 'subpost', 'subpost_id', 'preview', 'robots', 'entry');
 		
+	private $oldEnv;
 	
 	/** 
 	 * A list of vars that we *know* WordPress will want in the global scope. 
@@ -245,7 +246,6 @@ Class WPU_Core_Patcher {
 			}
 		}
 		
-		
 		// This is not strictly necessary, but it cleans up the vars we know are important to WP, or unsets variables we want to explicity get rid of.
 		$toUnset=array_merge( $this->varsToUnsetAndRestore, $this->varsToUnset);
 		foreach ( $toUnset as $varNames) {
@@ -439,9 +439,7 @@ Class WPU_Core_Patcher {
 					$$varName = $varVal;
 				}
 		}
-		
-		// WordPress removes $_COOKIE from $_REQUEST, which is the source of much wailing and gnashing of teeth
-		$_REQUEST = array_merge($_COOKIE, $_REQUEST);
+		 
 		
 		$GLOBALS['IN_WORDPRESS'] = 0; //just in case
 		$this->wpRun = '';

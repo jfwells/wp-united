@@ -388,6 +388,7 @@ class WPU_Cache {
 	 */
 	public function get_css_magic_cache_name($fileName, $pos, $incTplVoodoo = -1) {
 		$tpl = ($incTplVoodoo > -1) ? 'tplvd-' : '';
+		$tpl = ($fileName == 'island') ? 'island-' : $tpl;
 		return "cssmagic-{$tpl}" . md5("{$this->salt}{$fileName }-{$pos}-{$incTplVoodoo}-{$this->wpuVer}") . '.css';
 	}
 

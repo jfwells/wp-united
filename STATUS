@@ -15,13 +15,17 @@ Committed for vNext:
 * NEW: Smilies now obey phpBB's max smilies per post setting
 * BUGFIX: A number of minor bugs and error notices in widgets
 * BUGFIX: RTL layout not preserved when using template integration
+* BUGFIX: Warnings on reply posting pages due to phpBB request variables interfering with WP_Query when template is integrated.
 
 
 Regressions:
-* comment-template.php on line 776 non-object (get_post not returning a WP_Post)
+* slashes being added to quote="" on posting on full page rev int
 * theme cache being regenerated each page load
+* phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 TODO:
+Admin bar not even appearing on full page rev int
+check what styles we call for non-prosilver for islands
 breadcrumbs
 Add plugins, theme and mem limit / env vars to debugger get help
 Make [BLOG] an option

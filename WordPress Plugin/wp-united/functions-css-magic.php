@@ -266,6 +266,14 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 	if(is_array($matches)) {
 		
 		foreach($matches as $match) {
+			
+			// ignore wp-united widget islands
+			if(strstr($match, 'island=1') !== false) {
+				if(strstr($match, 'usecssm=1') !== false) {
+					continue;
+				}
+			}
+			
 			// extract css location
 			$and = '&';
 			if(stristr($match, "@import url") !== false) { // import URL

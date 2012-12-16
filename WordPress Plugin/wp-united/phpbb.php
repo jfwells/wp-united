@@ -35,6 +35,8 @@ class WPU_Phpbb {
 		$phpbbDbName,
 		$phpbbTemplate,
 		$wpTemplate,
+		$wpEnv,
+		$phpbbEnv,
 		$state,
 		$was_out,
 		$_savedID,
@@ -60,7 +62,7 @@ class WPU_Phpbb {
 			$this->phpbbTemplate = $GLOBALS['template'];
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
 			$this->phpbbUser = $GLOBALS['user'];
-			$this->phpbbCache = $GLOBALS['cache'];
+			$this->phpbbCache = $GLOBALS['cache'];		
 			$this->_loaded = true;
 		}
 		$this->tokens = array();
@@ -72,6 +74,9 @@ class WPU_Phpbb {
 		$this->_savedID = -1;
 		$this->_savedIP = '';
 		$this->_savedAuth = NULL;
+		
+		$this->wpEnv = array();
+		$this->phpbbEnv = array();
 
 	}	
 	
@@ -1578,15 +1583,16 @@ class WPU_Phpbb {
 	}
 	
 	public function erase_style_keys()	{
-		global $db, $config, $cache;
+		global $db, $cache;
 
 		$fStateChanged = $this->foreground();
 		
-		if(isset($config['wpu_style_keys_1'])) {
-			$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
-				WHERE config_name LIKE \'wpu_style_keys_%\'';
+		// we used to check if style keys were in $config, but keys 
+		// could be committed multiple times per session now
+		$sql = 'DELETE FROM ' . CONFIG_TABLE . ' 
+			WHERE config_name LIKE \'wpu_style_keys_%\'';
 			$db->sql_query($sql);
-		}	
+		
 		$cache->destroy('config');
 		
 		$this->restore_state($fStateChanged);
@@ -1605,9 +1611,10 @@ class WPU_Phpbb {
 	public function commit_style_keys($styleKeys) {
 		global $cache, $db;
 		
-		$this->erase_style_keys();
+		
 		$fStateChanged = $this->foreground();
 		
+		$this->erase_style_keys();
 		$fullLocs = (base64_encode(serialize($styleKeys))); 
 		$currPtr=1;
 		$chunkStart = 0;
@@ -1766,10 +1773,8 @@ class WPU_Phpbb {
 	private function make_phpbb_env() {
 		global $IN_WORDPRESS;
 		
-		// WordPress removes $_COOKIE from $_REQUEST, which is the source of much wailing and gnashing of teeth
 		$IN_WORDPRESS = 1; 
 		$this->state = 'phpbb';
-		$_REQUEST = array_merge($_COOKIE, $_REQUEST);
 	}
 
 	/**
@@ -1777,7 +1782,6 @@ class WPU_Phpbb {
 	 */	
 	private function make_wp_env() {
 		$this->state = 'wp';
-		$_REQUEST = array_merge($_GET, $_POST);
 		restore_error_handler();
 	}
 
@@ -1791,6 +1795,13 @@ class WPU_Phpbb {
 		$this->wpTablePrefix = $table_prefix;
 		$this->wpUser = (isset($user)) ? $user: '';
 		$this->wpCache = (isset($cache)) ? $cache : '';
+		$this->wpEnv = array(
+			'GET' 			=> $_GET,
+			'POST' 		=> $_POST,
+			'COOKIE' 	=> $_COOKIE,
+			'REQUEST' 	=> $_REQUEST,
+			'SERVER' 	=> $_SERVER
+		);
 	}
 
 	/**
@@ -1804,6 +1815,13 @@ class WPU_Phpbb {
 		$this->phpbbUser = (isset($user)) ? $user: '';
 		$this->phpbbCache = (isset($cache)) ? $cache : '';
 		$this->phpbbDbName = $dbname;
+		$this->phpbbEnv = array(
+			'GET' 			=> $_GET,
+			'POST' 		=> $_POST,
+			'COOKIE' 	=> $_COOKIE,
+			'REQUEST' 	=> $_REQUEST,
+			'SERVER' 	=> $_SERVER
+		);
 	}
 
 	/**
@@ -1816,6 +1834,13 @@ class WPU_Phpbb {
 		$user = $this->wpUser;
 		$cache = $this->wpCache;
 		$table_prefix = $this->wpTablePrefix;
+		if(sizeof($this->wpEnv)) {
+			 $_GET 			= $this->wpEnv['GET'];
+			 $_POST 			= $this->wpEnv['POST'];
+			 $_COOKIE 		= $this->wpEnv['COOKIE'];
+			 $_REQUEST 	= $this->wpEnv['REQUEST'];
+			 $_SERVER 		= $this->wpEnv['SERVER'];
+		}
 	}
 
 	/**
@@ -1831,7 +1856,13 @@ class WPU_Phpbb {
 		
 		// restore phpBB error handler
 		set_error_handler(defined('PHPBB_MSG_HANDLER') ? PHPBB_MSG_HANDLER : 'msg_handler');
-
+		if(sizeof($this->phpbbEnv)) {
+			 $_GET 			= $this->phpbbEnv['GET'];
+			 $_POST 			= $this->phpbbEnv['POST'];
+			 $_COOKIE 		= $this->phpbbEnv['COOKIE'];
+			 $_REQUEST 	= $this->phpbbEnv['REQUEST'];
+			 $_SERVER 		= $this->phpbbEnv['SERVER'];
+		}
 
 	}
 
