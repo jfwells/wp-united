@@ -26,7 +26,7 @@ function wpu_integrate_templates() {
 	/**
 	 *  Just output WordPress if $wpuNoHead or if an ajax call, etc.
 	 */
-	 $wpUnited->get_wp_content();
+	 $content = $wpUnited->get_wp_content();
 	 if(!stristr($content, '<body')) {
 		$wpuNoHead = true;
 	}
