@@ -48,7 +48,7 @@ class WPU_Actions {
 	public function generate_profile_link($bloglink_id, &$template) {
 		global $wpUnited, $phpbb_root_path, $phpEx;
 		
-		if ($wpUnited->get_setting('buttonsProfile')) {
+		if (isset($wpUnited) && $wpUnited->get_setting('buttonsProfile')) {
 			if ( !empty($bloglink_id) ) {
 				$blog_uri = append_sid($wpUnited->get_wp_home_url() . "?author=" . $bloglink_id);
 				$blog_img = '';   //TODO: SET FOR SUBSILVER!!
@@ -187,7 +187,7 @@ class WPU_Actions {
 	 */
 	public function purge_cache() {
 		global $wpUnited, $phpEx;
-		if(is_object($wpUnited) && $wpUnited->is_enabled()) {
+		if(isset($wpUnited) && is_object($wpUnited) && $wpUnited->is_enabled()) {
 			$wpuCache = WPU_Cache::getInstance();
 			$wpuCache->purge();
 		}
