@@ -1011,7 +1011,7 @@ class WPU_Phpbb {
 			echo '<pollid>' . $topicID . '</pollid>';
 			echo '<markup><![CDATA[' . base64_encode($pollMarkup) . ']]></markup>';
 			echo '</wpupoll>';
-			die();
+			exit;
 		}
 
 		return $pollMarkup;

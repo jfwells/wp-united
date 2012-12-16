@@ -24,11 +24,15 @@ function wpu_integrate_templates() {
 
 
 	/**
-	 *  Just output WordPress if $wpuNoHead
+	 *  Just output WordPress if $wpuNoHead or if an ajax call, etc.
 	 */
+	 
+	 if(!stristr($wpUnited->get_wp_content(), '<body')) {
+		$wpuNoHead = true;
+	}
 
 	if($wpuNoHead) {
-		wpu_output_page($wpUnited->get_wp_content());
+		wpu_output_page();
 	}
 
 	if ( !$wpUnited->should_do_action('template-p-in-w') && ($wpUnited->get_setting('showHdrFtr') != 'FWD') ) {

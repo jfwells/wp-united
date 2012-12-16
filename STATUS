@@ -20,9 +20,11 @@ Committed for vNext:
 * BUGFIX: Templae cache still works when WordPress version has a dash in it
 
 Regressions:
+* phpbb header/footer added to WP ajax :( -- if no html & body then assume ajax
 * phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 TODO:
+
 Link for quick poll
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
