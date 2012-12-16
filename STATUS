@@ -7,16 +7,18 @@ Outstanding reported bugs pending verification:
 - get_board_url() somewhere happening without is_enabled() [is_working()] check 
 
 Committed for vNext:
-* BUGFIX: RTL layout not preserved when using template integration
+
 * NEW: Forum top bar widget!
 * NEW: Forum birthdays widget!
 * NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work
 * NEW: is_working check
 * NEW: Smilies now obey phpBB's max smilies per post setting
+* BUGFIX: A number of minor bugs and error notices in widgets
+* BUGFIX: RTL layout not preserved when using template integration
 
 
 Regressions:
-* comment-template.php on line 776 non-object (get_post not resturing a WP_Post)
+* comment-template.php on line 776 non-object (get_post not returning a WP_Post)
 * theme cache being regenerated each page load
 
 TODO:

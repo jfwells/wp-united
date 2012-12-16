@@ -535,6 +535,7 @@ class WPU_Phpbb {
 		while ($row = $db->sql_fetchrow($result)) {
 			$posts[$i] = array(
 				'post_id' 				=> $row['post_id'],
+				'topic_id' 				=> $row['topic_id'],
 				'topic_title' 			=> $wpUnited->censor_content($row['topic_title']),
 				'post_title' 			=> $wpUnited->censor_content($row['post_subject']),
 				'post_time'			=>  $user->format_date($row['post_time']),

@@ -101,7 +101,7 @@ function get_avatar_reader() {
  * @access private
  */
 function wpu_avatar_create_image($userID) {
-	global $wpUnited, $phpbbForum, $user_ID;
+	global $wpUnited, $phpbbForum, $user_ID, $phpbb_root_path;
 
 	$avatar = '';
 	$phpbbUserID = 0;
@@ -521,10 +521,12 @@ function get_wpu_useronlinelist($args = '') {
 	} else {
 		// On other pages, get the list
 		
+		$fStateChanged = $phpbbForum->foreground();
+		
 		$online_users = obtain_users_online();
 		$list = obtain_users_online_string($online_users);
 		
-		$fStateChanged = $phpbbForum->foreground();
+		
 		// Grab group details for legend display
 		if ($auth->acl_gets('a_group', 'a_groupadd', 'a_groupdel'))	{
 			$sql = 'SELECT group_id, group_name, group_colour, group_type
@@ -571,7 +573,7 @@ function get_wpu_useronlinelist($args = '') {
 			
 	} 
 	
-	$ret .= "{$before}{$theList}{$after}";
+	$ret = "{$before}{$theList}{$after}";
 	if ($showBreakdown) {
 		$ret .= "{$before}{$l_online_users} ({$l_online_time}){$after}";
 	}
