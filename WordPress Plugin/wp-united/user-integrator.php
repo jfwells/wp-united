@@ -113,7 +113,7 @@ function wpu_int_phpbb_logged_in() {
 		wp_set_auth_cookie($wpUser->ID);
 		return $wpUser->ID;
 		
-	} else {  
+	} else { 
 	
 		//Is this user already logged into WP? If so then just link the two logged in accounts
 		get_currentuserinfo();  $wpUser = $current_user;
@@ -745,10 +745,6 @@ function wpu_get_user_level() {
 	$wpuDebug->add('User level set to: ' . $userLevel);
 	
 	$phpbbForum->restore_state($fStateChanged);
-	
-	if($couldBeOrphaned && ($userLevel != 'administrator')) {
-		$userLevel = 'administrator';
-	}
 	
 	return $userLevel;
 

@@ -1,10 +1,10 @@
 current target: v0.9.1.0
 
 Outstanding reported bugs pending verification:
-- On registration easy captcha reloads page to centred '1' (DhrRob)
-- Autogenned WP passwords with '&' are not hash-for-hash compatible with phpBB (AYBG)
-- logout on viewforum page with rev integration
-- get_board_url() somewhere happening without is_enabled() [is_working()] check 
+- On registration easy captcha reloads page to centred '1' (DhrRob) [should be fixed with new context sw]
+- logout on viewforum page with rev integration [should be fixed with new context sw]
+- get_board_url() somewhere happening without is_enabled() [is_working()] check [should be fixed with new is_working]
+- URI too long on connection with error sent back
 
 Committed for vNext:
 
@@ -13,11 +13,16 @@ Committed for vNext:
 * NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work
 * NEW: is_working check
 * NEW: Smilies now obey phpBB's max smilies per post setting
-* BUGFIX: A number of minor bugs and error notices in widgets
+* BUGFIX / NEW: Allow password portability for passwords with htmlentities or leading/trailing spaces
 * BUGFIX: RTL layout not preserved when using template integration
 * BUGFIX: Warnings on reply posting pages due to phpBB request variables interfering with WP_Query when template is integrated.
 * BUGFIX: WordPress adding slashes to phpBB post and get variables
-* BUGFIX: Templae cache still works when WordPress version has a dash in it
+* BUGFIX: A number of minor bugs and error notices in widgets
+* BUGFIX: Templae cache not working when WordPress version has a dash in it (e.g. RC releases)
+* BUGFIX: phpBB header/footer added to WP ajax on WordPress-in-phpBB pages
+* BUGFIX: WP logout link in user profile/loginblock widget not showing phpBB status if user is not integrated
+* BUGFIX: login/out link in "useful links" widget reversug login and logout actions
+
 
 Regressions:
 * phpbb header/footer added to WP ajax :( -- if no html & body then assume ajax

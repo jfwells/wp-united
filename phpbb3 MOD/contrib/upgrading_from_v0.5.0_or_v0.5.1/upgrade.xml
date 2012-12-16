@@ -19,7 +19,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.9.0RC3</mod-version>
+    <mod-version>0.9.1RC3</mod-version>
     <installation>
       <level>intermediate</level>
       <time>900</time>
@@ -40,6 +40,40 @@ Visit http://www.wp-united.com for more help or information.
 
     
     <open src="includes/functions.php">
+		
+		      <open src="includes/functions.php">
+
+		<find><![CDATA[function phpbb_check_hash($password, $hash) 
+{]]></find>
+		<action type="after-add"><![CDATA[	/**
+	 *  Modified by WP-United to allow portability between phpBB and other packages, as phpBB
+	 * applies htmlentities to inbound passwords via it's request_var function.
+	 */
+	
+	$result = wpu_original_phpbb_check_hash($password, $hash);
+	
+	if($result)
+	{
+		return $result;
+	}
+	
+	$portable_password = isset($_REQUEST['password']) ? (string) $_REQUEST['password'] : '';
+	$portable_password = (!STRIP) ? addslashes($portable_password) : $portable_password;
+	
+	if(empty($portable_password) || ($portable_password == $password))
+	{
+		return $result;
+	}
+	
+	return wpu_original_phpbb_check_hash($portable_password, $hash);
+}
+
+function wpu_original_phpbb_check_hash($password, $hash)
+{]]></action></edit>
+
+		
+		
+		
       <edit>
         <remove><![CDATA[	require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
 	$GLOBALS['wpu_actions']->do_tail();

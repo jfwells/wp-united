@@ -758,9 +758,13 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if(!$this->get_setting('integrateLogin')) {
 			return;
 		}
+		
+		// phpBB does some processing of inbound strings so password could be modified
+		set_var($phpbbPass, stripslashes($password), 'string', true);
 
 
-		if(!$phpbbForum->login($username, $password)) {
+
+		if(!$phpbbForum->login($username, $phpbbPass)) {
 			return $user; // return an error
 		}
 

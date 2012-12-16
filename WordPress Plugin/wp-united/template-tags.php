@@ -612,6 +612,10 @@ function get_wpu_login_user_info($args) {
 	get_currentuserinfo();
 	$loggedIn = $phpbbForum->user_logged_in();
 	
+	$loginLang = ($loggedIn) ? sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username()) : $phpbbForum->lang['LOGIN'];
+	$loginAction = ($loggedIn) ? '?mode=logout' : '?mode=login';
+					
+	
 	if($loggedIn) {
 		$wpu_usr = get_wpu_phpbb_username(); 
 		$colour = $phpbbForum->get_userdata('user_colour');
@@ -651,11 +655,11 @@ function get_wpu_login_user_info($args) {
 			}
 			$fStateChanged = $phpbbForum->foreground();
 			if($auth->acl_get('a_')) {
-				$ret .= $before . '<a href="'.$phpbbForum->get_board_url() . append_sid('adm/index.' . $phpEx, false, false, $GLOBALS['user']->session_id) . '" title="' .  $phpbbForum->lang['ACP'] . '">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
+				$ret .= $before . '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url() . 'adm/index.' . $phpEx) . '" title="' .  $phpbbForum->lang['ACP'] . '">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
 			$phpbbForum->restore_state($fStateChanged);
 		}
-		$ret .= $before . get_wp_loginout() . $after;
+		$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction) . '" title="' . $loginLang . '">' .  $loginLang . '</a>' . $after;
 	} else {
 		if ( $showLoginForm ) {
 			$redir = wpu_get_redirect_link();
@@ -671,7 +675,7 @@ function get_wpu_login_user_info($args) {
 			$ret .= $before . '<a href="'.append_sid($phpbbForum->get_board_url()).'ucp.php?mode=sendpassword">' . __('Forgot Password?') . '</a>' . $after;
 			$ret .= '</form>';
 		} else {
-			$ret .= $before . get_wp_loginout() . $after;
+			$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction) . '" title="' . $loginLang . '">' .  $loginLang . '</a>';
 		}
 	}
 	
@@ -725,10 +729,8 @@ function wpu_phpbb_nav_block($args) {
 					if(!$phpbbForum->user_logged_in() && $showRegLink) { ?>
 						<li class="icon-register"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . '.ucp.' . $phpEx . '?mode=' . 'register'); ?>"><?php echo $phpbbForum->lang['REGISTER']; ?></a></li>
 					<?php } 
-					
-					$loginLang = ($phpbbForum->user_logged_in()) ? sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username()) : $phpbbForum->lang['LOGIN'];
-					$loginAction = ($phpbbForum->user_logged_in()) ? '?mode=login' : '?mode=logout';
-					
+						$loginLang = ($phpbbForum->user_logged_in()) ? sprintf($phpbbForum->lang['LOGOUT_USER'], $phpbbForum->get_username()) : $phpbbForum->lang['LOGIN'];
+						$loginAction = ($phpbbForum->user_logged_in()) ? '?mode=logout' : '?mode=login';
 					?>	
 					<li class="icon-logout"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction); ?>" title="<?php echo $loginLang; ?>" accesskey="x"><?php echo $loginLang; ?></a></li>
 				<?php } ?>

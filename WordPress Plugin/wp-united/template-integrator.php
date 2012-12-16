@@ -86,7 +86,7 @@ function wpu_integrate_templates() {
 		
 		// First look for lang and direction attributes
 		preg_match('/<html[^>]+>/i', $outerContent, $outerHtmlTag);
-		if($outerHtmlTag[0]) {
+		if(isset($outerHrmlTag[0]) && $outerHtmlTag[0]) {
 				$repl = '';
 				global $user;
 				if(stristr($outerHtmlTag[0], 'lang=') === false) {
