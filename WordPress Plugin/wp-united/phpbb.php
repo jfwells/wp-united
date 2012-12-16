@@ -1871,7 +1871,7 @@ class WPU_Phpbb {
 	 */	
 	private function switch_to_wp_db() {
 		global $wpdb;
-		if (($this->phpbbDbName != DB_NAME) && (!empty($wpdb->dbh))) {
+		if (defined('DB_NAME') && ($this->phpbbDbName != DB_NAME) && (!empty($wpdb->dbh))) {
 			@mysql_select_db(DB_NAME, $wpdb->dbh);
 		}      
 	}
@@ -1881,7 +1881,7 @@ class WPU_Phpbb {
 	 */	
 	private function switch_to_phpbb_db() {
 		global $db, $dbms;
-		if (($this->phpbbDbName != DB_NAME) && (!empty($db->db_connect_id))) {
+		if (defined('DB_NAME') && ($this->phpbbDbName != DB_NAME) && (!empty($db->db_connect_id))) {
 			if($dbms=='mysqli') {
 				@mysqli_select_db($this->phpbbDbName, $db->db_connect_id);
 			} else if($dbms=='mysql') {

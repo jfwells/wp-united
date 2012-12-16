@@ -16,15 +16,15 @@ Committed for vNext:
 * BUGFIX: A number of minor bugs and error notices in widgets
 * BUGFIX: RTL layout not preserved when using template integration
 * BUGFIX: Warnings on reply posting pages due to phpBB request variables interfering with WP_Query when template is integrated.
-
+* BUGFIX: WordPress adding slashes to phpBB post and get variables
+* BUGFIX: Templae cache still works when WordPress version has a dash in it
 
 Regressions:
-* slashes being added to quote="" on posting on full page rev int
-* theme cache being regenerated each page load
 * phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 TODO:
 Admin bar not even appearing on full page rev int
+script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
 breadcrumbs
 Add plugins, theme and mem limit / env vars to debugger get help

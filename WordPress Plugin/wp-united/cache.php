@@ -131,13 +131,12 @@ class WPU_Cache {
 				return false;
 				break;
 			default:
-				
 				@$dir = opendir($this->baseCacheLoc);
 				$cacheFound = false;
 				while( $entry = @readdir($dir) ) {
-					if ( strpos($entry, 'theme-') === 0 ) {
+					if ( strpos($entry, 'theme-') === 0 ) { 
 						$parts = str_replace('theme-', '', $entry);
-						$parts = explode('-', $parts);
+						$parts = explode('-', $parts); 
 						if ($parts[2] == md5("{$this->salt}-{$this->wpuVer}")) {
 							$cacheFound = true;
 							$theme = str_replace('__sep__', '-', $parts[0]);
@@ -158,7 +157,7 @@ class WPU_Cache {
 						// They shouldn't be relied upon, but they're useful for various things
 						define('TEMPLATEPATH', $fileAddress);
 						global $wp_version;
-						$wp_version = $parts[1];
+						$wp_version = str_replace('__sep__', '-', $parts[1]);
 						return true;
 					}
 				} 
@@ -213,6 +212,7 @@ class WPU_Cache {
 	public function save_to_template_cache($wpVer, $content) {
 		if ( $this->template_cache_enabled() ) {
 			$theme = str_replace('-', '__sep__', array_pop(explode('/', TEMPLATEPATH))); 
+			$wpVer = str_replace('-', '__sep__', $wpVer);
 			$fnDest = $this->baseCacheLoc . "theme-{$theme}-{$wpVer}-". md5("{$this->salt}-{$this->wpuVer}");
 			$this->save($content, $fnDest);
 			$this->log("Generated template cache: $fnDest");		
