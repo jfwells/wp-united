@@ -83,6 +83,6 @@
 .textwidget.wpuisle .wpuisle2 p.author {margin: 0;}
 .textwidget.wpuisle .wpuisle2 fieldset.polls dd {width: auto;}
 .textwidget.wpuisle .wpuisle2 li.icon-home {font-weight: bold !important;}
-.textwidget .wpuisle .wpuisle2  .navbar li a {display: inline; text-decoration: none !important;}
-.textwidget .wpuisle .wpuisle2  .navbar a, .wpuisle .wpuisle2 .navbar a:link  {margin: 0; padding: 0;text-decoration: none;}
-.wpuisle .wpuisle2 a.print, .wpuisle .wpuisle2 a.sendemail, .wpuisle .wpuisle2 a.fontsize {display: block !important; text-indent: -5000px !important; overflow: hidden !important;}
+.textwidget.wpuisle .wpuisle2  .navbar li a {display: inline; text-decoration: none !important;}
+.textwidget.wpuisle .wpuisle2  .navbar a, .wpuisle .wpuisle2 .navbar a:link  {margin: 0; padding: 0;text-decoration: none;}
+.textwidget.wpuisle .wpuisle2 a.print, .textwidget.wpuisle .wpuisle2 a.sendemail, .textwidget.wpuisle .wpuisle2 a.fontsize {display: block !important; text-indent: -5000px !important; overflow: hidden !important;}
