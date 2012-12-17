@@ -104,6 +104,7 @@ class WPU_Debug {
 		$s = $sanitise;
 		
 		$settings = $wpUnited->get_setting();
+		$memLimit = ini_get('memory_limit');
 		$mainEntries = array(
 			'WP-United Version' 			=> 	$wpUnited->get_version(),
 			'WordPress Version' 			=> 	$wp_version,
@@ -115,7 +116,11 @@ class WPU_Debug {
 			'phpBB URL'					=>	($wpUnited->is_enabled() && $phpbbForum->is_phpbb_loaded())? (($s) ? $this->sanitise($phpbbForum->get_board_url()) : $phpbbForum->get_board_url()): 'Unknown',			
 			'Plugin Path'				=>	($s) ? $this->sanitise($wpUnited->get_plugin_path()) : $wpUnited->get_plugin_path(),
 			'WordPress Path'			=>	($s) ? $this->sanitise($wpUnited->get_wp_path()) : $wpUnited->get_wp_path(),
-			'phpBB Path'				=>	($s) ? $this->sanitise($wpUnited->get_setting('phpbb_path')) : $wpUnited->get_setting('phpbb_path')
+			'phpBB Path'				=>	($s) ? $this->sanitise($wpUnited->get_setting('phpbb_path')) : $wpUnited->get_setting('phpbb_path'),
+			'Active plugins'			=>  implode(', ', get_option('active_plugins')),
+			'Current theme'				=>	get_current_theme(),
+			'Allocated memory'			=>	memory_get_usage(),
+			'Memory limit'				=>	($memLimit == '-1') ? 'Unlimited' : $memLimit
 		); 
 	
 		$settings = array_merge($mainEntries, $settings);
