@@ -372,7 +372,7 @@ function wpu_setup_menu() {
 		
 	echo "<div id=\"wpustatus\" class=\"$statusColour\"><p><strong>" . sprintf(__('Current Status: %s', 'wp-united'), $statusText) . '</strong>';
 	if($wpUnited->get_last_run() == 'working' && $wpUnited->is_enabled()) {
-		echo '<button style="float: right;margin-bottom: 6px;" class="button-secondary" onclick="return wpu_manual_disable(\'wp-united-setup\');">Disable</button>';
+		echo '<button style="float: right;margin-bottom: 6px;" class="button-secondary" onclick="return wpu_manual_disable(\'wp-united-setup\');">' . __('Disable', 'wp-united') . '</button>';
 	}
 	echo "<br /><br />$statusDesc";
 	if(!empty($msg)) {
@@ -1176,7 +1176,7 @@ function wpu_settings_page() {
 						<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
 						<h3><?php _e('Forum Page', 'wp-united'); ?></h3>
 						<p><?php _e("Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum.", 'wp-united'); ?></p>
-						<input type="checkbox" id="wpuforumpage" name="wpuforumpage" <?php if($wpUnited->get_setting('useForumPage')) { ?>checked="checked"<?php } ?> /><label for="wpuforumpage">Enable Forum Page</label>		
+						<input type="checkbox" id="wpuforumpage" name="wpuforumpage" <?php if($wpUnited->get_setting('useForumPage')) { ?>checked="checked"<?php } ?> /><label for="wpuforumpage"><?php _e('Enable Forum Page', 'wp-united'); ?></label>		
 					</div>
 					<?php if(!defined('WPU_CANNOT_OVERRIDE')) { ?>
 						<div id="wputab-user">
@@ -1206,7 +1206,7 @@ function wpu_settings_page() {
 								
 								<h4><?php _e('Enable cross-posting?', 'wp-united'); ?></h4>
 								<p><?php _e('If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need.', 'wp-united'); ?></p>
-								<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if($wpUnited->get_setting('xposting')) { ?>checked="checked"<?php } ?> /><label for="wpuxpost">Enable Cross-Posting?</label>		
+								<input type="checkbox" id="wpuxpost" name="wpuxpost" <?php if($wpUnited->get_setting('xposting')) { ?>checked="checked"<?php } ?> /><label for="wpuxpost"><?php _e('Enable Cross-Posting?', 'wp-united'); ?></label>		
 								
 								
 								<div id="wpusettingsxpostxtra" class="subsettings">
@@ -1265,13 +1265,13 @@ function wpu_settings_page() {
 					<div id="wputab-theme">
 						<h3><?php _e('Integrate themes?', 'wp-united'); ?></h3>
 						<p><?php _e('WP-United can integrate your phpBB &amp; WordPress templates.', 'wp-united'); ?></p>
-						<input type="checkbox" id="wputplint" name="wputplint" <?php if($wpUnited->get_setting('showHdrFtr') != 'NONE') { ?>checked="checked" <?php } ?> /><label for="wputplint">Enable Theme Integration</label>
+						<input type="checkbox" id="wputplint" name="wputplint" <?php if($wpUnited->get_setting('showHdrFtr') != 'NONE') { ?>checked="checked" <?php } ?> /><label for="wputplint"><?php _e('Enable Theme Integration', 'wp-united'); ?></label>
 						<div id="wpusettingstpl" class="subsettings">
 							<h4><?php _e('Integration Mode', 'wp-united'); ?></h4>
 							<p><?php _e('Do you want WordPress to appear inside your phpBB template, or phpBB to appear inside your WordPress template?', 'wp-united'); ?></p>
 							
-							<input type="radio" name="rad_tpl" value="rev" id="wputplrev"  <?php if($wpUnited->get_setting('showHdrFtr') != 'FWD') { ?>checked="checked" <?php } ?> /><label for="wputplrev">phpBB inside WordPress</label>
-							<input type="radio" name="rad_tpl" value="fwd" id="wputplfwd" <?php if($wpUnited->get_setting('showHdrFtr') == 'FWD') { ?>checked="checked" <?php } ?>  /><label for="wputplfwd">WordPress inside phpBB</label>
+							<input type="radio" name="rad_tpl" value="rev" id="wputplrev"  <?php if($wpUnited->get_setting('showHdrFtr') != 'FWD') { ?>checked="checked" <?php } ?> /><label for="wputplrev"><?php _e('phpBB inside WordPress', 'wp-united'); ?></label>
+							<input type="radio" name="rad_tpl" value="fwd" id="wputplfwd" <?php if($wpUnited->get_setting('showHdrFtr') == 'FWD') { ?>checked="checked" <?php } ?>  /><label for="wputplfwd"><?php _e('WordPress inside phpBB', 'wp-united'); ?></label>
 							
 						
 							<h4><?php _e('Automatic CSS Integration', 'wp-united'); ?></h4>
@@ -1291,7 +1291,7 @@ function wpu_settings_page() {
 								<div id="wputemplate-p-in-w-opts">
 							
 							
-									<p><strong>Use full page?</strong>
+									<p><strong><?php _e('Use full page?', 'wp-united'); ?></strong>
 										<a class="wpuwhatis" href="#" title="<?php _e("Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try 'full page'. This option could be a little slower.", 'wp-united'); ?>"><?php _e('What is this?', 'wp-united'); ?></a>
 									</p>
 									<select id="wpuhdrftrspl" name="wpuhdrftrspl">
@@ -1369,11 +1369,11 @@ function wpu_settings_page() {
 
 						<h3><?php _e('Use phpBB Word Censor?', 'wp-united'); ?></h3>
 						<p><?php _e('Turn this option on if you want WordPress posts to be passed through the phpBB word censor.', 'wp-united'); ?></p>
-						<input type="checkbox" id="wpucensor" name="wpucensor" <?php if($wpUnited->get_setting('phpbbCensor')) { echo ' checked="checked" '; } ?>/><label for="wpucensor">Enable word censoring in WordPress</label>
+						<input type="checkbox" id="wpucensor" name="wpucensor" <?php if($wpUnited->get_setting('phpbbCensor')) { echo ' checked="checked" '; } ?>/><label for="wpucensor"><?php _e('Enable word censoring in WordPress', 'wp-united'); ?></label>
 						
 						<h3><?php _e('Use phpBB smilies?', 'wp-united'); ?></h3>
 						<p><?php _e('Turn this option on if you want to use phpBB smilies in WordPress comments and posts.', 'wp-united'); ?></p>
-						<input type="checkbox" id="wpusmilies" name="wpusmilies" <?php if($wpUnited->get_setting('phpbbSmilies')) { echo ' checked="checked" '; } ?>/><label for="wpusmilies">Use phpBB smilies in WordPress</label>	
+						<input type="checkbox" id="wpusmilies" name="wpusmilies" <?php if($wpUnited->get_setting('phpbbSmilies')) { echo ' checked="checked" '; } ?>/><label for="wpusmilies"><?php _e('Use phpBB smilies in WordPress', 'wp-united'); ?></label>	
 						
 					</div>
 					
