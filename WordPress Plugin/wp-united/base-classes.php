@@ -261,8 +261,11 @@ class WP_United_Plugin_Base {
 		global $wpuAutoPackage, $wpuReleasePackage;
 		$wpuWpPackage = (isset($wpuReleasePackage)) ? 'wp-united-nightly-phpbb' : 'wp-united-latest-phpbb';
 		
-		$phpbbInstallMsg = sprintf(__('%1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>');
-		$phpbbUpgradeMsg = sprintf(__('%1$sClick here%2$s to download the modification package. Find the %3$s file nside the %4$s folder and open it in your browser. Then follow the instructions to upgrade. Don\'t forget to copy over the new files to your phpBB forum.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', 'upgrade.xml', 'contrib');
+		$phpbbUpgradeBase = sprintf(__('%1$sClick here%2$s to download the modification package. '),"<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>');
+		$phpbbInstallMsg = $phpbbUpgradeBase . sprintf(__('You can apply it using %1$sAutoMod%2$s (recommended), or manually by reading the install.xml file and following %3$sthese instructions%4$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>');
+		$phpbbUpgradeMsg = $phpbbUpgradeBase . sprintf(__('Find the %1$s file inside the %2$s folder and open it in your browser. Then follow the instructions to upgrade. Don\'t forget to copy over the new files to your phpBB forum.', 'wp-united'), 'upgrade.xml', 'contrib');
+		$phpbbUpgradeSimpleMsg = $phpbbUpgradeBase . sprintf(__('You can just copy over the files from the /root folder to your phpBB forum.', 'wp-united'), 'upgrade.xml', 'contrib');
+		
 		$verMismatchMsg = __('You are running WP-United version %1$s, but the WP-United phpBB MOD version you have installed is version %2$s.');
 		
 	
