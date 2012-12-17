@@ -647,7 +647,8 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		
 		$poll = ($poll == '') ? __('You do not have permission to view this poll', 'wp-united') : $poll;
 		$isleClass = ($nativeCSS) ? 'wpunative' : 'wpuisle';
-		
+		$linkClass = ($showTopicLink) ? ' wpushowlink' : '';
+		$isleClass = $isleClass . $linkClass;
 		echo $before_widget;
 		echo $before_title . $title . $after_title; ?>
 		<div class="wpuldg" style="display: none;position: relative; padding-top: 12px;">
@@ -657,11 +658,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		<div class="wpuquickpoll <?php echo $isleClass; ?> textwidget wpupoll-<?php echo $pollId; ?>"><div class="<?php echo $isleClass; ?>2">
 			<?php echo $poll; ?>
 		</div></div>
-		<?php $this->add_poll_script(); ?>
-		<script type="text/javascript"> <![CDATA[
-			wpuShowPollLink[<?php echo $pollId; ?>] = <?php echo $showTopicLink; ?>;
-		]]>
-		</script><?php
+		<?php $this->add_poll_script(); 
 		echo $after_widget;
 		
 	}
@@ -750,7 +747,6 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 			<script type="text/javascript">//<![CDATA[
 				var wpuPollNonce = '<?php echo $pollNonce; ?>';
 				var wpuHomeURL = '<?php echo $wpUnited->get_wp_home_url(); ?>';
-				var wpuShowPollLink = new Array();
 			// ]]>
 			</script>
 
