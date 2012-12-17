@@ -983,7 +983,7 @@ class WPU_Phpbb {
 		}
 
 		if($displayResults) {
-			$pollMarkup .= '<dl><dt>&nbsp;</dt><dd class="resultbar">' . $user->lang['TOTAL_VOTES'] . ' : ' .  $pollTotal . '</dd></dl>';
+			$pollMarkup .= '<dl><dt>&nbsp;</dt><dd class="resultbar totalvotes">' . $user->lang['TOTAL_VOTES'] . ' : ' .  $pollTotal . '</dd></dl>';
 		}
 		
 		if($userCanVote) {
@@ -994,7 +994,7 @@ class WPU_Phpbb {
 		if(!$displayResults) {
 			
 			$currURL = (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1';
-			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes"><a href="' . $currURL .  '" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
+			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes resultlink"><a href="' . $currURL .  '" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
 		}
 							
 		$pollMarkup .= '</fieldset>';
