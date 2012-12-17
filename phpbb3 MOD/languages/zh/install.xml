@@ -5,13 +5,13 @@
 <mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.5.xsd">
   <header>
     <license>WP-United is licensed under the http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2. However, the text of this translation is licensed under the BSD license.</license>
-    <title lang="en-gb">WP-UNITED [German User-Facing Translation]</title>
+    <title lang="en-gb">WP-UNITED [Simplified Chinese User-Facing Translation]</title>
     <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
-    <author-notes lang="en-gb">THIS TRANSLATION HAS BEEN KINDLY PROVIDED BY way2vet, www.way2vet.eu
+    <author-notes lang="en-gb">THIS TRANSLATION HAS BEEN KINDLY PROVIDED BY GINA JIANG
     
     Make sure you follow the instructions in the main install.xml file!
 	
-	The WordPress portion of WP-United will display in German automatically.
+	The WordPress portion of WP-United will display in Chinese automatically.
 </author-notes>
     <author-group>
       <author>
@@ -36,7 +36,7 @@
   
   <action-group>
     <copy>
-      <file from="/root/language/de/mods/wp-united.php" to="/language/de/mods/wp-united.php" />
+      <file from="/root/language/zh/mods/wp-united.php" to="/language/zh/mods/wp-united.php" />
     </copy>
   </action-group>
 </mod>

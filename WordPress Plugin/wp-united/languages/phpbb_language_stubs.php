@@ -15,10 +15,18 @@
 	 */
 	die();
 	
+	// Base translations
 	_e('WordPress Blog', 'wp-united');
 	_e("Visit User's Blog", 'wp-united');
 	_e('ERROR: Duplicated function name detected. Please visit www.wp-united.com to report the error.', 'wp-united');
 	_e('Integration by %sWP-United%s', 'wp-united');
 	
-	
-?>	
+	// Permissions
+	_e('Can integrate as a WordPress subscriber (can view profile, write comments', 'wp-united');
+	_e('Can integrate as a WordPress contributor (can write but not publish posts)', 'wp-united');
+	_e('Can integrate as a WordPress author (can write blog posts)', 'wp-united');
+	_e('Can integrate as a WordPress editor (can edit others\' posts)', 'wp-united');
+	_e('Can integrate as a WordPress administrator', 'wp-united');
+	_e('Can post blog posts to this forum', 'wp-united');
+
+?>

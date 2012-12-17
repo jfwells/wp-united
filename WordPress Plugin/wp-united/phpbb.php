@@ -998,14 +998,13 @@ class WPU_Phpbb {
 			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes resultlink"><a href="' . $currURL .  '" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
 		}
 		if($showLink) {
-			$topicLink = ($phpbbForum->seo) ? "topic{$topicID}.html" : "viewtopic.$phpEx?t={$topicID}";
+			$topicLink = ($this->seo) ? "topic{$topicID}.html" : "viewtopic.$phpEx?t={$topicID}";
 			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes topiclink"><a href="' . $topicLink .  '">' . __('View poll in forum', 'wp-united') . '</a></dd></dl>';
 		}					
 		$pollMarkup .= '</fieldset>';
 		$pollMarkup .= '</div><span class="corners-bottom"><span></span></span></div></div>';
 		$pollMarkup .= '</form>';
 
-					
 		$this->restore_state($fStateChanged);
 
 		if($ajax) {

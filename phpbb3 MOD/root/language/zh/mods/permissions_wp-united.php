@@ -37,11 +37,11 @@ $lang['permission_cat']['wputd'] = 'WP-United';
 
 // Adding the permissions
 $lang = array_merge($lang, array(
-	'acl_u_wpu_subscriber'    => array('lang' => 'Can integrate as a WordPress subscriber (can view profile, write comments)', 'cat' => 'wputd'),
-	'acl_u_wpu_contributor'    => array('lang' => 'Can integrate as a WordPress contributor (can write but not publish posts)', 'cat' => 'wputd'),
-	'acl_u_wpu_author'    => array('lang' => 'Can integrate as a WordPress author (can write blog posts)', 'cat' => 'wputd'),
-	'acl_m_wpu_editor'    => array('lang' => 'Can integrate as a WordPress editor (can edit others\' posts)', 'cat' => 'wputd'),
-	'acl_a_wpu_administrator'    => array('lang' => 'Can integrate as a WordPress administrator', 'cat' => 'wputd'),
+    'acl_u_wpu_subscriber'    => array('lang' => 'Can integrate as a WordPress subscriber (can view profile, write comments)', 'cat' => 'wputd'),
+    'acl_u_wpu_contributor'    => array('lang' => 'Can integrate as a WordPress contributor (can write but not publish posts)', 'cat' => 'wputd'),
+    'acl_u_wpu_author'    => array('lang' => 'Can integrate as a WordPress author (can write blog posts)', 'cat' => 'wputd'),
+    'acl_m_wpu_editor'    => array('lang' => 'Can integrate as a WordPress editor (can edit others\' posts)', 'cat' => 'wputd'),
+    'acl_a_wpu_administrator'    => array('lang' => 'Can integrate as a WordPress administrator', 'cat' => 'wputd'),
 	'acl_f_wpu_xpost'	=>	array('lang' => 'Can post blog posts to this forum', 'cat' => 'wputd'),
 ));
 ?>

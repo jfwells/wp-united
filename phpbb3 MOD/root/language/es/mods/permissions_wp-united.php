@@ -42,7 +42,6 @@ $lang = array_merge($lang, array(
     'acl_u_wpu_author'    => array('lang' => 'Puede integrarse como WordPress author (puede escribir blog posts)', 'cat' => 'wputd'),
     'acl_m_wpu_editor'    => array('lang' => 'Puede integrarse como WordPress editor (puede editar posts de otros)', 'cat' => 'wputd'),
     'acl_a_wpu_administrator'    => array('lang' => 'Puede integrarse como WordPress administrator', 'cat' => 'wputd'),
-    'acl_a_wpu_manage'    => array('lang' => 'Puede manejar las opciones de WP-United en el  ACP', 'cat' => 'wputd'),
 	// Please translate me :-)
 	'acl_f_wpu_xpost'	=>	array('lang' => '[pls translate]Can post blog posts to this forum', 'cat' => 'wputd'),	
 ));

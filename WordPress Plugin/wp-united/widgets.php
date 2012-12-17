@@ -647,8 +647,8 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		
 		$poll = ($poll == '') ? __('You do not have permission to view this poll', 'wp-united') : $poll;
 		$isleClass = ($nativeCSS) ? 'wpunative' : 'wpuisle';
-		$linkClass = ($showTopicLink) ? ' wpushowlink' : '';
-		$isleClass = $isleClass . $linkClass;
+		$linkClass = ($showTopicLink) ? 'wpushowlink ' : '';
+		$isleClass = $linkClass . $isleClass;
 		echo $before_widget;
 		echo $before_title . $title . $after_title; ?>
 		<div class="wpuldg" style="display: none;position: relative; padding-top: 12px;">
