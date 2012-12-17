@@ -694,13 +694,44 @@ function wpu_phpbb_nav_block($args) {
 	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegisterLink' => 1, 'useNativeCSS' => 0);
 	extract(_wpu_process_args($args, $defaults));
 	$ret = '';
+	
+	$crumbs = array();
+	$accessKey = 'accesskey="h"';
+	
+	if($showSiteHome) {
+		$crumbs[] = '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url()) . '" ' . $accessKey . '>' . $phpbbForum->lang['INDEX'] . '</a>';
+		$accessKey = '';
+	}
+	
+	$crumbs[] = '<a href="#" ' . $accessKey . '>' . __('Home', 'wp-united') . '</a>';
+	
+	if(!is_home()){
+		if (is_category() || is_single()) {
+			$crumbs[] = '<a href="#">' . get_the_category() . '</a>';
+		} else if(is_single() || is_page()) {
+			$crumbs[] = '<a href="#">' . get_the_title() . '</a>';
+		} 
+	}
+	
+
+	
+	
 	?>
 	
 	<?php if(!$useNativeCSS) { ?><div class="wpuisle"><div class="wpuisle2"><?php } ?>
 		<div class="navbar ">
 			<div class="navinner"><span class="corners-top"><span></span></span>
 			<ul class="linklist navlinks">
-				<li class="icon-home"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url()); ?>" accesskey="h"><?php echo $phpbbForum->lang['INDEX']; ?></a> <strong>&#8249;</strong> <a href="#">TBD</a></li>
+				<li class="icon-home">
+					<?php foreach($crumbs as $crumbID => $crumb) { 
+						if($crumbID > 0) {
+							echo ' <strong>&#8249;</strong> ';
+						}
+						echo $crumb;
+					} ?> 
+				
+				
+				<a href="#">TBD</a></li>
 				<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
 			</ul>
 			
