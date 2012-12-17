@@ -133,7 +133,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		$versionCheck = $this->check_mod_version();
 		if($versionCheck['result'] != 'OK') {
-			$this->set_last_run('disconnected');
 			$this->disable();
 			$shouldRun = false;
 		}

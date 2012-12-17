@@ -1860,7 +1860,9 @@ class WPU_Phpbb {
 		$cache = $this->phpbbCache;
 		
 		// restore phpBB error handler
-		set_error_handler(defined('PHPBB_MSG_HANDLER') ? PHPBB_MSG_HANDLER : 'msg_handler');
+		if(function_exists('msg_handler') || defined('PHPBB_MSG_HANDLER')) {
+			set_error_handler(defined('PHPBB_MSG_HANDLER') ? PHPBB_MSG_HANDLER : 'msg_handler');
+		}
 		if(sizeof($this->phpbbEnv)) {
 			 $_GET 			= $this->phpbbEnv['GET'];
 			 $_POST 			= $this->phpbbEnv['POST'];
