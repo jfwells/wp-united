@@ -7,7 +7,7 @@ Description: WP-United connects to your phpBB forum and integrates user sign-on,
 Author: John Wells
 Author URI: http://www.wp-united.com
 Version: 0.9.1.0
-Last Updated: 17 December 2012
+Last Updated: 18 December 2012
 * 
 */
 

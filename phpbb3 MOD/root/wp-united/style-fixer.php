@@ -4,7 +4,7 @@
 * WP-United CSS Magic style call backend
 *
 * @package WP-United
-* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
+* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -19,17 +19,15 @@ define('WPU_STYLE_FIXER', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : '../';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 
-/**
- * Process the inbound args
- */
 
+// Process the inbound args -- request_var is not available yet
 if(!isset($_GET['usecssm'])) exit;
 if(!isset($_GET['style'])) exit;
 
 /**
  * We load in a simplified skeleton phpBB, based on the code in style.php
  * We just need enough to get $config filled so we can get our cache salt and unencrypt the passed strings.
- * @todo move to phpBB abstraction layer $phpbb->load_simple();
+ * @TODO: move to phpBB abstraction layer $phpbbForum->load_simple(); ?
  */
 
 // Report all errors, except notices
@@ -68,8 +66,8 @@ $user = false;
 /**
  * Initialise variables
  */
-$pos = (request_var('pos', 'outer') == 'inner') ? 'inner' : 'outer';
-$pkg = (request_var('pkg', 'wp') == 'phpbb') ? 'phpbb' : 'wp';
+$pos = (request_var('pos', 'outer') 	== 'inner') 		? 'inner' 		: 'outer';
+$pkg = (request_var('pkg', 'wp') 		== 'phpbb') 	? 'phpbb' 	: 'wp';
 
 $cssFileToFix = request_var('style', 0);
 
@@ -158,22 +156,18 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 			
 		//cache fixed CSS
 		$wpuCache->save_css_magic($css, $cssFileToFix, $pos, $useTV);
-		
-
-
 	}
 } else if($ignoreMe) {
 	$css = file_get_contents($cssFileToFix);
 }
 
 if(!empty($css)) {
-		
 	$expire_time = 7*86400;
 	header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $expire_time));
 	header('Content-type: text/css; charset=UTF-8');
 
 	echo $css;
-	
+
 }
 
 if (!empty($cache)) {

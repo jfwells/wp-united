@@ -1,6 +1,6 @@
-WP-UNITED: phpBB - WordPress Integration v0.9.0.3 RC3
+WP-UNITED: phpBB - WordPress Integration v0.9.1.0 RC3
 -----------------------------------------------
-Last updated: 11/12/2012, by John Wells
+Last updated: 18/12/2012, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -59,7 +59,7 @@ Instructions on converting from previous versions of WP-United are included in t
 
 When copying files over, delete any old files that WP-United copied for the previous version first. (v0.9 has a lot fewer files!)
 
-Remember, whenever upgrading WordPress or WP-United, to clear out the wp-united/cache folder, and then run the WP-United setup Wizard again.
+Remember, whenever upgrading WordPress or WP-United, to check the WP-United Setup / Status page.
 
 If you were using WP-United template tags in your template in versions prior to v0.9, note that a number of them have changed. Any template tags pertaining to per-user blogs are now gone. In addition, the template tags for avatars no longer accept a "default" parameter.
 
@@ -67,7 +67,7 @@ If you were using WP-United template tags in your template in versions prior to 
 CONTINGENCIES
 -------------
 
-If you encounter errors that make your forums inaccessible, WP-United can be manually disabled temporarily, so that you can get into your phpBB ACP and change settings.
+If you encounter errors that make your forums inaccessible, WP-United can be manually disabled temporarily, so that you can get into your phpBB ACP or WordPress Dashboard.
 
 The easy way is simply to delete or rename the WP-United plugin folder in WordPress, and delete the phpbb/includes/hook/hook_wp-united.php file.
 
@@ -87,6 +87,7 @@ Want to help improve the software? Or just want to put a smile on the developer'
 - More Exposure -- Link back to www.wp-united.com, or post about WP-United on your blog. Want an interview? I'm available!
 - Cash -- of the cold and hard variety. Every little bit helps. I don't have much...
 - Translation -- translate this file and the language strings used in the mod. I'll put your name in lights (well, pixels) if you do.
+- Rate this plugin on wordpress.org
 - Cash --  Oh wait... 
 
 

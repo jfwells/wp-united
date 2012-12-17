@@ -3,11 +3,11 @@
 /** 
 *
 * @package WP-United
-* @version $Id: v0.9.0.3 2010/02/06 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2010 wp-united.com
+* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
-*
+* 
 * Cross-post helper functions for wpu-plugin
 */
 

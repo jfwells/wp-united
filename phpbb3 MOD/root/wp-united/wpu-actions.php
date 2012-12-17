@@ -5,7 +5,7 @@
 * WP-United Mod Edits
 *
 * @package WP-United
-* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
+* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -37,7 +37,6 @@ class WPU_Actions {
 	 */
 	public function profile_update($mode, $phpbb_id, $integration_id, $data) {
 		return;
-
 	}
 	
 
@@ -124,8 +123,7 @@ class WPU_Actions {
 		if(isset($_GET['tv']) && $pos == 'inner') { 
 			$useTV = request_var('tv', -1);
 		}
-		
-	
+
 		/**
 		 * First check cache
 		 */
@@ -140,7 +138,7 @@ class WPU_Actions {
 			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, -1)) {
 				$css = @file_get_contents($cacheLocation);
 			}
-		}		
+		}
 		
 		if(!empty($css)) {
 			return $css;
@@ -192,8 +190,6 @@ class WPU_Actions {
 			$wpuCache->purge();
 		}
 	}
-			
-	
 }
 
 global $wpu_actions;

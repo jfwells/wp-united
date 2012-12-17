@@ -1,5 +1,14 @@
 <?php
 
+/** 
+* @package WP-United
+* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
+*
+* Settings and base WP-United class. 
+*/
 
 /**
  *	A simple factory object that can store itself in phpBB.
@@ -17,12 +26,20 @@ class WP_United_Settings {
 		$pluginUrl = '',
 		$enabled = false,
 		$settings = array();
-		
-
+	
+	/**
+	 * Not used. Use ::create() to receive an instantiated object from this factory
+	 */
 	public function __construct() {
 		
 	}
 
+	/**
+	 * Get an instantiated object from the factory
+	 * Tries to load the settings object from WordPress. If WordPress is not available, falls back to the stored 
+	 * phpBB settings object
+	 * @return WP_United_Settings settings object
+	 */
 	public static function Create() {
 		$s = new WP_United_Settings();
 		if(!$s->load_from_wp()) {
@@ -31,7 +48,10 @@ class WP_United_Settings {
 		return $s;
 	}
 	
-
+	/**
+	 * Tries to initialise from WordPress options.
+	 * @return bool true on success
+	 */
 	private function load_from_wp() {
 		
 		if(function_exists('get_option')) { 
@@ -49,6 +69,11 @@ class WP_United_Settings {
 		return false;
 	}
 	
+	/**
+	 * Tries to initialise by restoring a serialised object from phpBB config.
+	 * Returns default settings if nothing can be loaded.
+	 * @return WP_United_Settings settings object
+	 */
 	private function load_from_phpbb() {
 		global $config;
 		
@@ -73,17 +98,25 @@ class WP_United_Settings {
 		return $this;
 
 	}
-	
+
+	/**
+	 * Updates the settings in WordPress if WordPress is available
+	 * @param array Array of settings to store
+	 * @return void
+	 */
 	public function update_settings($data) {
-		
+
 		if(function_exists('update_option')) { 
 			$data = array_merge($this->settings, (array)$data); 
 			update_option('wpu-settings', $data);
 			$this->settings = $data;
 		}
 	}
-	
-	
+
+	/**
+	 * Get the default settings
+	 * @return array the default settings
+	 */
 	private function get_defaults() {
 		return array(
 			'phpbb_path' 				=> '',
@@ -108,9 +141,8 @@ class WP_United_Settings {
 			'useForumPage' 				=> 1
 		);
 	}
-	
-
 }
+
 
 class WP_United_Plugin_Base {
 
@@ -273,7 +305,7 @@ class WP_United_Plugin_Base {
 		
 		if(empty($pLoc)) {
 			$checked =  array(
-				'result'	=>	'OK',
+				'result'			=>	'OK',
 				'message'	=> 	__('The location to phpBB is not set.')
 			);
 			return $checked;
@@ -282,7 +314,7 @@ class WP_United_Plugin_Base {
 		// Not installed!
 		if(!@file_exists($pLoc . 'wp-united/')) {
 			$checked = array(
-				'result'	=> 'ERROR',
+				'result'			=> 'ERROR',
 				'message'	=> __('You need to install the WP-United phpBB MOD.', 'wp-united') . '<br /><br />' . $phpbbInstallMsg
 			);
 			return $checked;
@@ -293,7 +325,7 @@ class WP_United_Plugin_Base {
 		// Installed, but version < 0.9.1.0
 		if(!@file_exists($pLoc . 'wp-united/version.php')) {
 			$checked = array(
-				'result'	=> 'ERROR',
+				'result'			=> 'ERROR',
 				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . '<br /><br />' . $phpbbUpgradeMsg
 			);
 			return $checked;
@@ -307,15 +339,14 @@ class WP_United_Plugin_Base {
 		}
 		
 		$checked = array(
-			'result' => 'OK',
-			'mesage' => ''
+			'result' 		=> 'OK',
+			'mesage' 	=> ''
 		);
 		return $checked;
 
 	}
 	
-	
-	
+
 	public function get_setting($key = '') { 
 		
 		if(!$key) {
@@ -752,7 +783,5 @@ class WP_United_Plugin_Base {
 	}	
 	
 }
-
-
 
 ?>

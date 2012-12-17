@@ -1,8 +1,13 @@
-/**
- * 
- * JavaScript for the QuickPoll web part
- * 
- */
+/** 
+*
+* @package WP-United
+* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
+* 
+* JavaScript for the WP-United QuickPoll widget
+*/
 
 var $wpuPoll = jQuery.noConflict();
 

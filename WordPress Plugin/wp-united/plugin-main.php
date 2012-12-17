@@ -5,7 +5,7 @@
 * Plugin-main: The main WordPress plugin class
 *
 * @package WP-United
-* @version $Id: v0.9.0.3 2012/12/06 John Wells (Jhong) Exp $
+* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -21,53 +21,51 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		// Actions and filters. These are loaded as needed depending on which WP-United portions are active.
 		// Format: array( event	|	function in this class -- in an array if optional arguments are needed | loading circumstances)
 		$actions = array(
-			array('plugins_loaded', 					'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
-			array('shutdown', 							array('buffer_end_flush_all', 1),			'all'),
-			array('wp_head', 							'add_scripts',								'all'),
-			array('comment_form', 						'generate_smilies',							'phpbb-smilies'),
+			array('plugins_loaded', 				'init_plugin',										'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
+			array('shutdown', 							array('buffer_end_flush_all', 1),		'all'),
+			array('wp_head', 							'add_scripts',										'all'),
+			array('comment_form', 				'generate_smilies',								'phpbb-smilies'),
 			array('wp_head', 							'add_head_marker',							'template-int'),
-			array('switch_theme', 						'clear_header_cache',						'template-int'),
-			array('set_current_user', 					'integrate_users',							'user-int'),
-			array('wp_logout', 							'phpbb_logout',								'user-int'),			
-			array('register_post', 						array('validate_new_user', 10, 3),			'user-int'),
-			array('user_register', 						array('process_new_wp_reg', 10, 1),			'user-int'),
-			array('profile_update', 					array('profile_update', 10, 2),				'user-int'),
-			array('admin_menu', 						'add_xposting_box',							'x-posting'),			
-			array('edit_post', 							'just_editing_post',						'x-posting'),
-			array('wp_insert_post', 					array('capture_future_post', 10, 2),		'x-posting'),
-			array('publish_post', 						array('handle_new_post', 10, 2),			'x-posting'),
-			array('future_to_publish', 					array('future_to_published', 10),			'x-posting'),			
-			array('comment_form', 						'comment_redir_field',						'x-posting'),
-			array('pre_comment_on_post', 				'comment_redirector',						'x-posting'),
-			array('comments_open', 						array('comments_open', 10, 2),				'x-posting')	
+			array('switch_theme', 					'clear_header_cache',							'template-int'),
+			array('set_current_user', 				'integrate_users',								'user-int'),
+			array('wp_logout', 						'phpbb_logout',									'user-int'),
+			array('register_post', 					array('validate_new_user', 10, 3),	'user-int'),
+			array('user_register', 					array('process_new_wp_reg', 10, 1),'user-int'),
+			array('profile_update', 					array('profile_update', 10, 2),			'user-int'),
+			array('admin_menu', 					'add_xposting_box',							'x-posting'),
+			array('edit_post', 							'just_editing_post',								'x-posting'),
+			array('wp_insert_post', 				array('capture_future_post', 10, 2),	'x-posting'),
+			array('publish_post', 					array('handle_new_post', 10, 2),		'x-posting'),
+			array('future_to_publish', 			array('future_to_published', 10),		'x-posting'),
+			array('comment_form', 				'comment_redir_field',						'x-posting'),
+			array('pre_comment_on_post', 	'comment_redirector',						'x-posting'),
+			array('comments_open', 				array('comments_open', 10, 2),		'x-posting')	
 		),
 
 		$filters = array(
-			array('plugin_row_meta', 					array('add_plugin_menu_link', 10, 2), 		'all'),
-			array('page_link', 							array('fix_forum_link', 10, 2), 			'all'),
-			array('admin_footer_text', 					'admin_footer_text', 						'all'),
-			array('the_content', 						'check_content_for_forum', 					'all'),
-			array('comment_text', 						'censor_content', 							'phpbb-censor'),
-			array('the_title', 							'censor_content', 							'phpbb-censor'),
-			array('the_excerpt', 						'censor_content', 							'phpbb-censor'),
-			array('comment_text', 						'smilies', 									'phpbb-smilies'),
-			array('get_avatar', 						array('get_avatar', 10, 5), 				'user-int'),			
-			array('pre_user_login', 					'fix_blank_username', 						'user-int'),
-			array('validate_username', 					array('validate_username_conflict', 10, 2),	'user-int'),
-			array('authenticate', 						array('authenticate', 21, 3), 				'user-int'),
-			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
-			array('comments_array', 					array('load_phpbb_comments', 10, 2),			'x-posting'),
-			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
-			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
-			array('edit_comment_link', 					array('edit_comment_link', 10, 2),			'x-posting'),
-			array('get_comment_link', 					array('comment_link', 10, 3),				'x-posting')		
+			array('plugin_row_meta', 							array('add_plugin_menu_link', 10, 2), 			'all'),
+			array('page_link', 											array('fix_forum_link', 10, 2), 						'all'),
+			array('admin_footer_text', 							'admin_footer_text', 										'all'),
+			array('the_content', 										'check_content_for_forum', 							'all'),
+			array('comment_text', 									'censor_content', 											'phpbb-censor'),
+			array('the_title', 											'censor_content', 											'phpbb-censor'),
+			array('the_excerpt', 										'censor_content', 											'phpbb-censor'),
+			array('comment_text', 									'smilies', 														'phpbb-smilies'),
+			array('get_avatar', 										array('get_avatar', 10, 5), 							'user-int'),
+			array('pre_user_login', 									'fix_blank_username', 									'user-int'),
+			array('validate_username', 							array('validate_username_conflict', 10, 2),	'user-int'),
+			array('authenticate', 									array('authenticate', 21, 3), 							'user-int'),
+			array('get_comment_author_link',				'get_comment_author_link',							'x-posting'),
+			array('comments_array', 								array('load_phpbb_comments', 10, 2),		'x-posting'),
+			array('get_comments_number', 					array('comments_count', 10, 2),					'x-posting'),
+			array('pre_option_comment_registration', 	'no_guest_comment_posting',						'x-posting'),
+			array('edit_comment_link', 							array('edit_comment_link', 10, 2),				'x-posting'),
+			array('get_comment_link', 							array('comment_link', 10, 3),						'x-posting')
 		);
 		
 		private
 			$doneInit = false;
 
-
-	
 	public function wp_init() {
 		
 		// (re)load our settings

@@ -1,7 +1,13 @@
-/**
- * WP-United JavaScript for the Settings Panel
- */
- 
+/** 
+*
+* @package WP-United
+* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License  
+* @author John Wells
+* 
+* JavaScript for the WP-United settings panels
+*/
 var $wpu = jQuery.noConflict();
 (function($wpu) {
     $wpu.QueryString = (function(a) {
