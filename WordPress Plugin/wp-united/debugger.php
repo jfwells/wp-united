@@ -118,7 +118,7 @@ class WPU_Debug {
 			'WordPress Path'			=>	($s) ? $this->sanitise($wpUnited->get_wp_path()) : $wpUnited->get_wp_path(),
 			'phpBB Path'				=>	($s) ? $this->sanitise($wpUnited->get_setting('phpbb_path')) : $wpUnited->get_setting('phpbb_path'),
 			'Active plugins'			=>  implode(', ', get_option('active_plugins')),
-			'Current theme'				=>	get_current_theme(),
+			'Current theme'				=>	wp_get_theme(),
 			'Allocated memory'			=>	(memory_get_usage()/(1024^2)) . 'M',
 			'Memory limit'				=>	($memLimit == '-1') ? 'Unlimited' : $memLimit
 		); 
