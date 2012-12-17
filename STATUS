@@ -5,6 +5,7 @@ Outstanding reported bugs pending verification:
 - logout on viewforum page with rev integration [should be fixed with new context sw]
 - get_board_url() somewhere happening without is_enabled() [is_working()] check [should be fixed with new is_working]
 - URI too long on connection with error sent back
+- W3 total cache is overwriting $config
 
 Committed for vNext:
 
@@ -31,7 +32,6 @@ Regressions:
 * phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 TODO:
-W3 total cache is overwriting $config
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
@@ -74,6 +74,7 @@ user profile block http://www.wp-united.com/viewtopic.php?f=9&t=3279&p=12773
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.
 -- Odd themes that could do with better auto integration:
 ----- Arras
+----- Templatic Video
 
 ---- widgets  --------
 -- Add forum selection/deselection option to widget control panel for latest posts and topics widgets
