@@ -716,7 +716,7 @@ function wpu_phpbb_nav_block($args) {
 	$nativeClass = (!$useNativeCSS) ? 'wpuisle' : 'wpunative';
 	?>
 	
-	<div class="textwidget<?php echo $nativeClass; ?>"><div class="<?php echo $nativeClass; ?>2">
+	<div class="textwidget <?php echo $nativeClass; ?>"><div class="<?php echo $nativeClass; ?>2">
 		<div class="navbar ">
 			<div class="navinner"><span class="corners-top"><span></span></span>
 			<ul class="linklist navlinks">
