@@ -28,18 +28,17 @@ Committed for vNext:
 * BUGFIX: login/out link in "useful links" widget reversug login and logout actions
 
 
-Regressions:
-* phpbb header/footer added to WP ajax :( -- if no html & body then assume ajax
-* phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
-
 TODO:
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
-Add plugins, theme and mem limit / env vars to debugger get help
 Add proper phpBB portion version check
 Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-side updates
+Check template loader, ajax?
+Update assets
 
+Regressions:
+* phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
@@ -82,6 +81,8 @@ user profile block http://www.wp-united.com/viewtopic.php?f=9&t=3279&p=12773
 -- Most active posts / topics widget
 -- phpBB word cloud
 
+------ extras ---------
+akismet for phpBB
 
 
 -------- user blogs --> wp-ms  (v0.9 not contingent on this) ----------

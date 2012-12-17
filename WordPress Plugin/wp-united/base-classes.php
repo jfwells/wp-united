@@ -249,6 +249,68 @@ class WP_United_Plugin_Base {
 		return $this->version;
 	}
 	
+	public function check_mod_version() {
+		global $phpEx;
+		
+		static $checked = false;
+		
+		if(is_array($checked)) {
+			return $checked;
+		}
+
+		$phpbbInstallMsg = sprintf(__('%1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>');
+		$verMismatchMsg = __('You are running WP-United version %1$s, but the WP-United phpBB MOD version you have installed is version %2$s.');
+		
+		$pLoc = $this->get_setting('phpbb_path');
+		
+		if(empty($pLoc)) {
+			$checked =  array(
+				'result'	=>	'ERROR',
+				'message'	=> 	__('The location to phpBB is not set')
+			);
+			return $checked;
+		}
+		
+		// Not installed!
+		if(!@file_exists($pLoc . 'wp-united/')) {
+			$checked = array(
+				'result'	=> 'ERROR',
+				'message'	=> __('You need to install the WP-United phpBB MOD.', 'wp-united') . '<br /><br />' . $phpbbInstallMsg
+			);
+			return $checked;
+		}
+		
+		$version = $this->get_version();
+		
+		// Installed, but version < 0.9.1.0
+		if(!@file_exists($pLoc . 'wp-united/version.php')) {
+			$checked = array(
+				'result'	=> 'ERROR',
+				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . '<br /><br />' . $phpbbInstallMsg
+			);
+			return $checked;
+		}
+		
+		@include_once($pLoc . 'wp-united/version.php');
+		
+		//for future use here...
+		if($wpuVersion_phpbb != $version) {
+		
+		}
+		
+		$checked = array(
+			'result' => 'OK',
+			'mesage' => ''
+		);
+		return $checked;
+		
+		
+		
+		
+		
+	
+	}
+	
 	
 	
 	public function get_setting($key = '') { 

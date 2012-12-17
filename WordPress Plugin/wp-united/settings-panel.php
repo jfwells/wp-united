@@ -325,7 +325,14 @@ function wpu_setup_menu() {
 		
 	$buttonDisplay = 'display: block;';
 	
-	if(!$wpUnited->is_enabled() && ($wpUnited->get_last_run() == 'working')) {
+	$versionCheck = $wpUnited->check_mod_version();
+	if($versionCheck['result'] != 'OK') {
+		$statusText = __('Disabled', 'wp-united');
+		$statusColour = "error";
+		$statusDesc = $versionCheck['message'];
+		$buttonDisplay = 'display: block;';	
+		$wpUnited->disable();
+	} elseif(!$wpUnited->is_enabled() && ($wpUnited->get_last_run() == 'working')) {
 			$statusText = __('Disabled', 'wp-united');
 			$statusColour = "error";
 			$statusDesc = __('WP-United is disabled. Select your forum location below and then click &quot;Connect&quot;', 'wp-united') . '<br /><br />' . __('You can\'t change any other settings until WP-United is connected.', 'wp-united');
@@ -344,7 +351,7 @@ function wpu_setup_menu() {
 				$statusColour = "updated highlight allok";
 				global $wpuAutoPackage, $wpuReleasePackage;
 				$wpuWpPackage = (isset($wpuReleasePackage)) ? 'wp-united-nightly-phpbb' : 'wp-united-latest-phpbb';
-				$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly. You need to modify your board. %1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.', 'wp-united');
+				$statusDesc = sprintf(__('WP-United is connected but your phpBB forum is either producing errors, or is not set up properly.', 'wp-united') .  __('You need to install the WP-United phpBB MOD.', 'wp-united') . '<br /><br />' .  sprintf(__('%1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>') .  '<br /><br />' . __('You can\'t change any other settings until the problem is fixed.', 'wp-united');
 				break;
 			default:
 				$statusText = __('Not Connected', 'wp-united');

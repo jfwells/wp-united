@@ -130,7 +130,14 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 		
 		$this->set_last_run('connected');
-
+		
+		$versionCheck = $this->check_mod_version();
+		if($versionCheck['result'] != 'OK') {
+			$this->set_last_run('disconnected');
+			$wpUnited->disable();
+			$shouldRun = false;
+		}
+		
 		if($this->is_enabled() && $shouldRun) { 
 		
 			$this->load_phpbb();

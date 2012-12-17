@@ -52,7 +52,7 @@ class WPU_Cache {
 		$this->_useCoreCache = 'UNKNOWN';
 		$this->baseCacheLoc = $wpUnited->get_plugin_path() . 'cache/';
 		$this->themePath = $wpUnited->get_wp_path() . 'wp-content/themes/';  // TODO: FOLLOW WP RECS
-		$this->wpVersionLoc = $wpUnited->get_plugin_path() . 'version.php';
+		$this->wpVersionLoc = $wpUnited->get_plugin_path() . 'version.php'; // used for benchmarking cache age
 		$this->fullPage =  !(bool)$wpUnited->get_setting('wpSimpleHdr');
 		
 		$this->initialise_salt();
