@@ -698,18 +698,18 @@ function wpu_phpbb_nav_block($args) {
 	$crumbs = array();
 	$accessKey = 'accesskey="h"';
 	
-	if(!$showSiteHome) {
+	if($showSiteHome) {
 		$crumbs[] = '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url()) . '" ' . $accessKey . '>' . $phpbbForum->lang['INDEX'] . '</a>';
 		$accessKey = '';
 	}
 	
-	$crumbs[] = '<a href="#" ' . $accessKey . '>' . __('Home', 'wp-united') . '</a>';
+	$crumbs[] = '<a href="' . get_the_permalink() . '" ' . $accessKey . '>' . __('Home', 'wp-united') . '</a>';
 	
 	if(!is_home()){
 		if (is_category() || is_single()) {
-			$crumbs[] = '<a href="#">' . get_the_category() . '</a>';
+			$crumbs[] = '<a href="' . get_the_permalink() . '">' . get_the_category() . '</a>';
 		} else if(is_single() || is_page()) {
-			$crumbs[] = '<a href="#">' . get_the_title() . '</a>';
+			$crumbs[] = '<a href="' . get_the_permalink() . '">' . get_the_title() . '</a>';
 		} 
 	}
 	

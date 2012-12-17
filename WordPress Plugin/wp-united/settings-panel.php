@@ -155,7 +155,7 @@ function wpu_settings_menu() {
 		add_submenu_page('wp-united-setup', __('Visit phpBB ACP', 'wp-united'), __('Visit phpBB ACP', 'wp-united'), 'manage_options', 'wpu_acp', 'wpu_acp');
 	}
 	
-	add_submenu_page('wp-united-setup', __('Get help', 'wp-united'), __('Get help', 'wp-united'), 'manage_options','wp-united-help', 'wpu_get_help');
+	add_submenu_page('wp-united-setup', __('Get Help', 'wp-united'), __('Get help', 'wp-united'), 'manage_options','wp-united-help', 'wpu_get_help');
 	add_submenu_page('wp-united-setup', __('Please Help Support WP-United!', 'wp-united'), __('Support WP-United', 'wp-united'), 'manage_options','wp-united-support', 'wpu_support');
 	
 }
