@@ -155,7 +155,8 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 	}
 	
 	$mode = 'post';
-	$subject = __('[BLOG] ', 'wp-united') . $post->post_title;
+	$prefix = $wpUnited->get_setting('xpostprefix');
+	$subject = $prefix . $post->post_title;
 	$data = array();
 	$data['post_time'] = 0;
 	$topicUsername = $phpbbForum->get_username();

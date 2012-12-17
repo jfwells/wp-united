@@ -101,7 +101,8 @@ class WP_United_Settings {
 			'integcreatephpbb'			=> 1,
 			'xpostautolink' 			=> 0,
 			'xpostforce' 				=> -1,
-			'xposttype' 				=> 'EXCERPT',	
+			'xposttype' 				=> 'excerpt',
+			'xpostprefix'				=> '[BLOG] ',
 			'cssMagic' 					=> 1,
 			'templateVoodoo' 			=> 1,
 			'useForumPage' 				=> 1

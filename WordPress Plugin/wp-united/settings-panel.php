@@ -1231,6 +1231,18 @@ function wpu_settings_page() {
 									?>								
 										
 									</select>
+									
+								<h4><?php _e('Cross-post prefix', 'wp-united'); ?></h4>
+									<p><?php _e('This will be prepended to the post title when cross-posted. Leave it blank to disable.', 'wp-united'); ?></p>
+									<?php
+										// The default value hasn't had translation applied as we can't do that on the phpBB side. So we translate it now.
+										$xPostPrefix = $wpUnited->get_setting('xpostprefix')
+										if($xPostPrefix == '[BLOG] ') {
+											$xPostPrefix = __('[BLOG] ', 'wp-united');
+										}
+									?>
+									<label for="wpuxpostprefix"><?php _e('Cross-post prefix: ', 'wp-united'); ?></label><input type="text" name="wpuxpostprefix" id="wpuxpostprefix" value="<?php echo htmlentities($xPostPrefix); ?>"></input>		
+	
 								</div>				
 							</div>
 						</div>	
@@ -1528,13 +1540,15 @@ function wpu_process_settings() {
 				}
 				
 				$data['xpostautolink'] =(isset($_POST['wpuxpostcomments'])) ? 1 : 0;
-				$data['xpostforce'] =( isset($_POST['wpuxpostforce'])) ? (int) $_POST['wpuxpostforce'] : -1;
+				$data['xpostforce'] =(isset($_POST['wpuxpostforce'])) ? (int) $_POST['wpuxpostforce'] : -1;
+				$data['xpostprefix'] = (isset($_POST['wpuxpostprefix'])) ? (string) $_POST['wpuxpostprefix'] : __('[BLOG] ', 'wp-united');
 			} else {
 				//cross-posting disabled, set to default
 				$data = array_merge($data, array(
 					'xposttype' 		=> 'excerpt',
 					'wpuxpostcomments'	=> 0,
 					'xpostforce' 		=> -1
+					// can leave xpostprefix
 				));
 			}
 		} else {
@@ -1546,7 +1560,8 @@ function wpu_process_settings() {
 				'xposting' 				=> 0,
 				'xposttype' 			=> 'excerpt',
 				'wpuxpostcomments'		=> 0,
-				'xpostforce' 			=> -1
+				'xpostforce' 			=> -1,
+				'xpostprefix'			=> __('[BLOG] ', 'wp-united')
 			));
 		}
 			
