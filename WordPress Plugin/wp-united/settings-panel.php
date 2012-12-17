@@ -1236,7 +1236,7 @@ function wpu_settings_page() {
 									<p><?php _e('This will be prepended to the post title when cross-posted. Leave it blank to disable.', 'wp-united'); ?></p>
 									<?php
 										// The default value hasn't had translation applied as we can't do that on the phpBB side. So we translate it now.
-										$xPostPrefix = $wpUnited->get_setting('xpostprefix')
+										$xPostPrefix = $wpUnited->get_setting('xpostprefix');
 										if($xPostPrefix == '[BLOG] ') {
 											$xPostPrefix = __('[BLOG] ', 'wp-united');
 										}

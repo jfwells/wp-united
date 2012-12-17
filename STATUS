@@ -37,7 +37,6 @@ script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
 breadcrumbs
 Add plugins, theme and mem limit / env vars to debugger get help
-Make [BLOG] an option
 Add proper phpBB portion version check
 Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-side updates
 
