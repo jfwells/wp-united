@@ -13,6 +13,7 @@ Committed for vNext:
 * NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work
 * NEW: is_working check
 * NEW: Smilies now obey phpBB's max smilies per post setting
+* NEW: Get Help screen now shows active plugins, theme and memory settings
 * BUGFIX / NEW: Allow password portability for passwords with htmlentities or leading/trailing spaces
 * BUGFIX: RTL layout not preserved when using template integration
 * BUGFIX: Warnings on reply posting pages due to phpBB request variables interfering with WP_Query when template is integrated.

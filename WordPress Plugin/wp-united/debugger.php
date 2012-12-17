@@ -119,7 +119,7 @@ class WPU_Debug {
 			'phpBB Path'				=>	($s) ? $this->sanitise($wpUnited->get_setting('phpbb_path')) : $wpUnited->get_setting('phpbb_path'),
 			'Active plugins'			=>  implode(', ', get_option('active_plugins')),
 			'Current theme'				=>	get_current_theme(),
-			'Allocated memory'			=>	memory_get_usage(),
+			'Allocated memory'			=>	(memory_get_usage()/(1024^2)) . 'M',
 			'Memory limit'				=>	($memLimit == '-1') ? 'Unlimited' : $memLimit
 		); 
 	
