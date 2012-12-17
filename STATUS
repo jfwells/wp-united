@@ -13,6 +13,7 @@ Committed for vNext:
 * NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work
 * NEW: Forum top bar widget, complete with phpBB-style breadcrumbs in WordPress!
 * NEW: Forum birthdays widget!
+* NEW: phpBB MOD installation is now more closely checked, and we also ensure the phpBB MOD and WordPress plugin versions match.
 * NEW: The cross-post prefix, [BLOG], can now be changed in the settings panel.
 * NEW: is_working check
 * NEW: Smilies now obey phpBB's max smilies per post setting
@@ -26,13 +27,13 @@ Committed for vNext:
 * BUGFIX: phpBB header/footer added to WP ajax on WordPress-in-phpBB pages
 * BUGFIX: WP logout link in user profile/loginblock widget not showing phpBB status if user is not integrated
 * BUGFIX: login/out link in "useful links" widget reversug login and logout actions
+* BUGFIX: Better error handling if the plugin gets disabled due to errors
 
 
 TODO:
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
-Add proper phpBB portion version check
 Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-side updates
 Check template loader, ajax?
 Update assets
