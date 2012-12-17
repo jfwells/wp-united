@@ -273,8 +273,8 @@ class WP_United_Plugin_Base {
 		
 		if(empty($pLoc)) {
 			$checked =  array(
-				'result'	=>	'ERROR',
-				'message'	=> 	__('The location to phpBB is not set')
+				'result'	=>	'OK',
+				'message'	=> 	__('The location to phpBB is not set.')
 			);
 			return $checked;
 		}

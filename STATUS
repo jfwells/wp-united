@@ -31,6 +31,7 @@ Committed for vNext:
 
 
 TODO:
+Send error message back by POST not URI
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
@@ -62,7 +63,6 @@ user profile block http://www.wp-united.com/viewtopic.php?f=9&t=3279&p=12773
 
 
 ---- general cleanup ----
--- Move to modular architecture with extensible plugins 'extras' folder to add new tabs
 -- decide what to do with $phpEx global
 -- do check on plugin activation for php and wordpress version
 -- Profile db queries on page load and integration, and cache more commonly-pulled items 
