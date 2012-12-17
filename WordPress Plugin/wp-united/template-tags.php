@@ -698,7 +698,7 @@ function wpu_phpbb_nav_block($args) {
 	$crumbs = array();
 	$accessKey = 'accesskey="h"';
 	
-	if($showSiteHome) {
+	if(!$showSiteHome) {
 		$crumbs[] = '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url()) . '" ' . $accessKey . '>' . $phpbbForum->lang['INDEX'] . '</a>';
 		$accessKey = '';
 	}
