@@ -689,7 +689,7 @@ function get_wpu_login_user_info($args) {
 
 function wpu_phpbb_nav_block($args) {
 
-	global $phpbbForum, $phpEx;
+	global $phpbbForum, $phpEx, $wpUnited;
 	
 	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegisterLink' => 1, 'useNativeCSS' => 0);
 	extract(_wpu_process_args($args, $defaults));
@@ -703,13 +703,13 @@ function wpu_phpbb_nav_block($args) {
 		$accessKey = '';
 	}
 	
-	$crumbs[] = '<a href="' . get_the_permalink() . '" ' . $accessKey . '>' . __('Home', 'wp-united') . '</a>';
+	$crumbs[] = '<a href="' . $wpUnited->get_wp_home_url() . '" ' . $accessKey . '>' . __('Home', 'wp-united') . '</a>';
 	
 	if(!is_home()){
 		if (is_category() || is_single()) {
-			$crumbs[] = '<a href="' . get_the_permalink() . '">' . get_the_category() . '</a>';
+			$crumbs[] = '<a href="' . esc_url($_SERVER['REQUEST_URI']) . '">' . get_the_category() . '</a>';
 		} else if(is_single() || is_page()) {
-			$crumbs[] = '<a href="' . get_the_permalink() . '">' . get_the_title() . '</a>';
+			$crumbs[] = '<a href="' . esc_url($_SERVER['REQUEST_URI']) . '">' . get_the_title() . '</a>';
 		} 
 	}
 	
