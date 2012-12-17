@@ -262,6 +262,7 @@ class WP_United_Plugin_Base {
 		$wpuWpPackage = (isset($wpuReleasePackage)) ? 'wp-united-nightly-phpbb' : 'wp-united-latest-phpbb';
 		
 		$phpbbInstallMsg = sprintf(__('%1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>');
+		$phpbbUpgradeMsg = sprintf(__('%1$sClick here%2$s to download the modification package. Find the %3$s file nside the %4$s folder and open it in your browser. Then follow the instructions to upgrade. Don\'t forget to copy over the new files to your phpBB forum.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', 'upgrade.xml', 'contrib');
 		$verMismatchMsg = __('You are running WP-United version %1$s, but the WP-United phpBB MOD version you have installed is version %2$s.');
 		
 	
@@ -290,7 +291,7 @@ class WP_United_Plugin_Base {
 		if(!@file_exists($pLoc . 'wp-united/version.php')) {
 			$checked = array(
 				'result'	=> 'ERROR',
-				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . '<br /><br />' . $phpbbInstallMsg
+				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . '<br /><br />' . $phpbbUpgradeMsg;
 			);
 			return $checked;
 		}
@@ -307,12 +308,7 @@ class WP_United_Plugin_Base {
 			'mesage' => ''
 		);
 		return $checked;
-		
-		
-		
-		
-		
-	
+
 	}
 	
 	
