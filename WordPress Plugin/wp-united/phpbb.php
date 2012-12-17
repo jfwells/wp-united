@@ -975,7 +975,7 @@ class WPU_Phpbb {
 			}
 			
 			if($displayResults) {
-				$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . '" style="width:' . $optionPct . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
+				$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . '" style="width:' . $optionPctTxt . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
 				$pollMarkup .= '<dd>' . $pollVotesText . '</dd>';
 			}
 			
