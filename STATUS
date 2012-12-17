@@ -9,9 +9,10 @@ Outstanding reported bugs pending verification:
 
 Committed for vNext:
 
-* NEW: Forum top bar widget!
-* NEW: Forum birthdays widget!
+
 * NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work
+* NEW: Forum top bar widget, complete with phpBB-style breadcrumbs in WordPress!
+* NEW: Forum birthdays widget!
 * NEW: The cross-post prefix, [BLOG], can now be changed in the settings panel.
 * NEW: is_working check
 * NEW: Smilies now obey phpBB's max smilies per post setting
@@ -35,7 +36,6 @@ TODO:
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
-breadcrumbs
 Add plugins, theme and mem limit / env vars to debugger get help
 Add proper phpBB portion version check
 Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-side updates

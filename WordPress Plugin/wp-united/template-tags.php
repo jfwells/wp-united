@@ -703,7 +703,7 @@ function wpu_phpbb_nav_block($args) {
 		$accessKey = '';
 	}
 	
-	$crumbs[] = '<a href="' . $wpUnited->get_wp_home_url() . '" ' . $accessKey . '>' . __('Home', 'wp-united') . '</a>';
+	$crumbs[] = '<a href="' . $wpUnited->get_wp_home_url() . '" ' . $accessKey . '>' . get_option('blogname') . '</a>';
 	
 	if(!is_home()){
 		if (is_category() || is_single()) {
