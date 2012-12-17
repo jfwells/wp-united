@@ -729,9 +729,7 @@ function wpu_phpbb_nav_block($args) {
 						}
 						echo $crumb;
 					} ?> 
-				
-				
-				<a href="#">TBD</a></li>
+
 				<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
 			</ul>
 			
