@@ -318,7 +318,7 @@ function wpu_setup_menu() {
 	$msg = '';
 	if(isset($_GET['msg'])) {
 		if($_GET['msg'] == 'fail') {
-			$msg = (string)stripslashes($_GET['msgerr']);
+			$msg = (string)stripslashes($_POST['msgerr']);
 			$msg = base64_decode(str_replace(array('%2B', '%3D', '%2F'), array('+', '=', '/'), $msg));
 		} else {
 			// $msg is succcess, do preview reloads to init Template Voodoo:

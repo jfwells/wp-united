@@ -303,17 +303,22 @@ function wpu_process_error(transmitMessage) {
 		// prevent recursive ajax error:
 		$wpu(document).ajaxError(function() {
 			// TODO: if server 500 error or disable, try direct delete method
-			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
+			send_back_msg('admin.php?page=wp-united-setup&msg=fail', transmitMessage);
 		}); 
 		$wpu.post('index.php', disable, function(response) {
 			// the connection has been disabled, redirect
-			window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
+			send_back_msg('admin.php?page=wp-united-setup&msg=fail', transmitMessage);
 		});
 	} else {
 		// we caught the error, redirect to setup page
 		transmitMessage = transmitMessage.replace(/\[ERROR\]/g, '');
-		window.location = 'admin.php?page=wp-united-setup&msg=fail&msgerr=' + makeMsgSafe(transmitMessage);
+		send_back_msg('admin.php?page=wp-united-setup&msg=fail', transmitMessage);
 	}
+}
+
+// We have to send messages back by POST as URI vars are too long
+function send_back_msg(uri, msg) {
+	$wpu('<form action="' + uri + '" method="post"><input type="text" name="msgerr" value="' + makeMsgSafe(msg) + '"></input></form>').appendTo('body').submit();
 }
 
 /**
