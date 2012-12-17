@@ -659,7 +659,7 @@ class WPU_Phpbb {
 	 * Displays a poll
 	 * 
 	 */
-	public function get_poll($topicID = 0) {
+	public function get_poll($topicID = 0, $showLink = false) {
 		 global $db, $user, $auth, $config, $phpEx, $wpUnited;
 		 
 		 static $pollHasGenerated = false;
@@ -681,6 +681,8 @@ class WPU_Phpbb {
 			$inboundVote = request_var('vote_id', array('' => 0));
 			$display = ((int)request_var('display', 0) == 1);
 			$ajax = ((int)request_var('ajax', 0) == 1);
+			$showLink = ((int)request_var('showlink', 0) == 1);
+			
 		}
 		if(!$topicID) {
 			return '';
@@ -996,7 +998,10 @@ class WPU_Phpbb {
 			$currURL = (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1';
 			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes resultlink"><a href="' . $currURL .  '" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
 		}
-							
+		if($showLink) {
+			$topicLink = ($phpbbForum->seo) ? "topic{$topicID}.html" : "viewtopic.$phpEx?f={$topicID}&amp;t={$topicID}";
+			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes topiclink"><a href="' . $topicLink .  '">' . __('View poll in forum', 'wp-united') . '</a></dd></dl>';
+		}					
 		$pollMarkup .= '</fieldset>';
 		$pollMarkup .= '</div><span class="corners-bottom"><span></span></span></div></div>';
 		$pollMarkup .= '</form>';

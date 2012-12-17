@@ -29,8 +29,7 @@ Regressions:
 * phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 TODO:
-
-Link for quick poll
+W3 total cache is overwriting $config
 Admin bar not even appearing on full page rev int
 script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
@@ -57,6 +56,8 @@ Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-sid
 -- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
 
 
+---- template tags -------
+user profile block http://www.wp-united.com/viewtopic.php?f=9&t=3279&p=12773
 
 
 ---- general cleanup ----
@@ -66,7 +67,7 @@ Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-sid
 -- Profile db queries on page load and integration, and cache more commonly-pulled items 
 -- modify version.php to contain compatibility information
 -- remove $compat from core-patcher
--- check for caching plugin, esp. total cache & super cache, and check that they are handling phpBB cookie and not causing errors
+-- check for caching plugin, esp. w3 total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 
 ----- template integration ------------
 -- When grepping <title>, check if more than one exists. If so, ignore any commented ones.

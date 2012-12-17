@@ -635,7 +635,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$nativeCSS = $instance['nativeCSS'];
 		
 		
-		$poll = $phpbbForum->get_poll($pollId);
+		$poll = $phpbbForum->get_poll($pollId, $showTopicLink);
 		
 		if((($poll == '') && $hideIfNoPerms) || is_admin()) {
 			return;
@@ -656,9 +656,12 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		</div>
 		<div class="wpuquickpoll <?php echo $isleClass; ?> textwidget wpupoll-<?php echo $pollId; ?>"><div class="<?php echo $isleClass; ?>2">
 			<?php echo $poll; ?>
-		</div></div> <?php
-		
-		$this->add_poll_script();
+		</div></div>
+		<?php $this->add_poll_script(); ?>
+		<script type="text/javascript"> <![CDATA[
+			wpuShowPollLink[<?php echo $pollId; ?>] = <?php echo $showTopicLink; ?>;
+		]]>
+		</script><?php
 		echo $after_widget;
 		
 	}
@@ -746,7 +749,8 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		?>
 			<script type="text/javascript">//<![CDATA[
 				var wpuPollNonce = '<?php echo $pollNonce; ?>';
-				var wpuHomeURL = '<?php echo $wpUnited->get_wp_home_url(); ?>'
+				var wpuHomeURL = '<?php echo $wpUnited->get_wp_home_url(); ?>';
+				var wpuShowPollLink = new Array();
 			// ]]>
 			</script>
 

@@ -17,7 +17,7 @@ function wpu_poll_results(pollID) {
 
 function wpu_process_poll(data, pollID) {
 	
-	data = data + '&wpupoll=1&ajax=1&_ajax_nonce=' + wpuPollNonce;
+	data = data + '&wpupoll=1&ajax=1&_ajax_nonce=' + wpuPollNonce + '&showlink=' + wpuShowPollLink[pollID];
 	
 	$wpuPoll('.wpupoll-' + pollID)
 		.parent()
