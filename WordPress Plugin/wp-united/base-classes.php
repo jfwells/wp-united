@@ -294,7 +294,7 @@ class WP_United_Plugin_Base {
 		if(!@file_exists($pLoc . 'wp-united/version.php')) {
 			$checked = array(
 				'result'	=> 'ERROR',
-				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . '<br /><br />' . $phpbbUpgradeMsg;
+				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . '<br /><br />' . $phpbbUpgradeMsg
 			);
 			return $checked;
 		}
