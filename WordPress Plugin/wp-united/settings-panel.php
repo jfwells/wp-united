@@ -235,12 +235,13 @@ function wpu_support() {
 			
 			
 		<h3><?php _e('Other ways to support the WP-United project', 'wp-united'); ?></h3>
-		<p><?php _e('If you cannot donate, please consider helping support the WP-United project in another way. For example, you culd help:', 'wp-united');  ?></p>
+		<p><?php _e('If you cannot donate, please consider helping support the WP-United project in another way. For example, you could help:', 'wp-united');  ?></p>
 		<ul>
 			<li><?php _e('Contributing to the WP-United documentation', 'wp-united');  ?></li>
-			<li><?php _e('Providing a translation', 'wp-united');  ?></li>
+			<li><a href="http://www.wp-united.com/2012/12/12/how-to-help-translate-wp-united/" target="_blank"><?php  _e('Providing a translation', 'wp-united');  ?></a></li>
 			<li><?php _e('Recommending WP-United or our paid installation services', 'wp-united');  ?></li>
-			<li><?php _e('Link back to www.wp-united.com, or post about WP-United on your blog.', 'wp-united');  ?></li>
+			<li><a href="http://wordpress.org/support/view/plugin-reviews/" target="_blank"><?php _e('Writing a review', 'wp-united');  ?></a></li>
+			<li><?php _e('Linking back to www.wp-united.com, or posting about WP-United on your blog.', 'wp-united');  ?></li>
 		</ul>
 		
 		<p><?php printf(__('For more information, please visit the %1$sWP-United forums%2$s.', 'wp-united'), '<a href="http://www.wp-united.com/index.php">', '</a>'); ?></p>

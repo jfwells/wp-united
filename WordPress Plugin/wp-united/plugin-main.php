@@ -314,7 +314,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function fix_forum_link($permalink, $post) { // wpu_modify_pagelink($permalink, $post) {
 		global $phpbbForum, $phpEx;
 		
-		if ( $this->get_setting('useForumPage') ) { 
+		if ( $this->is_working() && $this->get_setting('useForumPage') ) { 
 			$forumPage = get_option('wpu_set_forum');
 			if(!empty($forumPage) && ($forumPage == $post)) {
 				// If the forum and blog are both in root, add index.php to the end
@@ -415,6 +415,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Turns our page place holder into the forum-in-a-full-page
 	 */
 	public function check_content_for_forum($postContent) {
+		
+		if(!$this->is_working()) {
+			return;
+		}
 		
 		if (! defined('PHPBB_CONTENT_ONLY') ) {
 			$postContent = $this->censor_content($postContent);
@@ -578,6 +582,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Adds any required scripts and inline JS (for lang strings)
 	 */
 	public function add_scripts() {
+		
+		if(!$this->is_enabled()) {
+			return;
+		}
 		
 		// enqueue any JS we need
 		if ( $this->get_setting('phpbbSmilies') && !is_admin() ) {

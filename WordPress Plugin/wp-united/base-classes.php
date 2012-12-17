@@ -670,6 +670,10 @@ class WP_United_Plugin_Base {
 	// Should we load this filter or action? 
 	private function should_load_filteraction($whenToLoad) {
 	
+		if(!$this->is_working() && ($whenToLoad != 'all')) {
+			return false;
+		}
+		
 		switch($whenToLoad) {
 			case 'user-int':
 				if(!$this->get_setting('integrateLogin')) {
