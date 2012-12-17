@@ -258,9 +258,13 @@ class WP_United_Plugin_Base {
 			return $checked;
 		}
 
+		global $wpuAutoPackage, $wpuReleasePackage;
+		$wpuWpPackage = (isset($wpuReleasePackage)) ? 'wp-united-nightly-phpbb' : 'wp-united-latest-phpbb';
+		
 		$phpbbInstallMsg = sprintf(__('%1$sClick here%2$s to download the modification package. You can apply it using %3$sAutoMod%4$s (recommended), or manually by reading the install.xml file and following %5$sthese instructions%6$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), "<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>', '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>');
 		$verMismatchMsg = __('You are running WP-United version %1$s, but the WP-United phpBB MOD version you have installed is version %2$s.');
 		
+	
 		$pLoc = $this->get_setting('phpbb_path');
 		
 		if(empty($pLoc)) {
