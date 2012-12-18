@@ -22,7 +22,7 @@
 	_e('Integration by %sWP-United%s', 'wp-united');
 	
 	// Permissions
-	_e('Can integrate as a WordPress subscriber (can view profile, write comments', 'wp-united');
+	_e('Can integrate as a WordPress subscriber (can view profile, write comments)', 'wp-united');
 	_e('Can integrate as a WordPress contributor (can write but not publish posts)', 'wp-united');
 	_e('Can integrate as a WordPress author (can write blog posts)', 'wp-united');
 	_e('Can integrate as a WordPress editor (can edit others\' posts)', 'wp-united');
