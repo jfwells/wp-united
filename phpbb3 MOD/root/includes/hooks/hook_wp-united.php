@@ -75,6 +75,7 @@ function wpu_init(&$hook) {
 	
 	if($wpUnited->should_do_action('logout')) { 
 		$phpbbForum->background();
+		wpu_initialise_wp();
 		wp_logout();
 		$phpbbForum->foreground();
 	}
@@ -147,8 +148,7 @@ function wpu_execute(&$hook, $handle) {
 			
 			$phpbbForum->background(); 
 			
-			// We have to run this again as phpBB didn't have $user set up when WP was run
-			do_action('set_current_user');
+			wpu_initialise_wp();
 			
 			$wpUserData = get_userdata($newUserData['user_wpuint_id']);
 			wpu_sync_profiles($wpUserData, $newUserData, 'phpbb-update', $ignorePassword);

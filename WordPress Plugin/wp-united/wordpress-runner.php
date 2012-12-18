@@ -54,15 +54,22 @@ if ( !$wpuCache->use_template_cache()) {
 	
 }
 
-
-
+//Run deferred load from patched core;
 function wpu_initialise_wp() {
+	if(function_exists('wpu_deferred_wp_load')) {
+		wpu_deferred_wp_load();
+	}
+}
+
+function wpu_wp_template_load() {
 	global $phpbbForum, $wpUtdInt, $wpUnited;
 	
 	$phpbbForum->background();
 
 	// get the page
 	ob_start();
+	
+	wpu_initialise_wp();
 	
 	// items usually set by wordpress template loads:
 	define("WP_USE_THEMES", true);
@@ -95,7 +102,7 @@ function wpu_get_wordpress() {
 
 	// Initialise the loaded WP
 	if($wpUnited->ran_patched_wordpress()) { // Wordpress ran inside phpBB
-		$wpUnited->set_wp_content(wpu_initialise_wp());
+		$wpUnited->set_wp_content(wpu_wp_template_load());
 	}	
 	
 
@@ -174,11 +181,7 @@ function wpu_get_wordpress() {
 
 			ob_start();
 			
-			// We have to run this again as phpBB didn't have $user set up when WP was run
-			if($wpUnited->get_setting('integrateLogin')) {
-				do_action('set_current_user');
-			}
-			
+		
 			if($wpUnited->get_setting('useForumPage')) {
 				// set the page query so that the forum page is selected if in header
 				$forum_page_ID = get_option('wpu_set_forum');

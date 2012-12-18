@@ -352,8 +352,14 @@ Class WPU_Core_Patcher {
 					$cSet = str_replace('=& $'. $gloRef . ';', '=& $GLOBALS[\'' . $gloRef . '\'];',$cSet);
 				}
 			}
-
 			
+			
+			/**
+			 * We want to defer initialisation of WP to later, so we wrap the last portion into a callable function
+			 */
+			$cSet = str_replace('$wp->init()', 'function wpu_deferred_wp_load() { $GLOBALS[\'wp\']->init()', $cSet);
+			$cSet = str_replace("do_action('wp_loaded');", "do_action('wp_loaded'); }", $cSet);
+		
 			$cSet = '?'.'>'.trim($cSet).'[EOF]';
 			$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
 
