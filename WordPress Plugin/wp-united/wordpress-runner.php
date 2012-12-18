@@ -45,9 +45,10 @@ if ( !$wpuCache->use_template_cache()) {
 		// This generates the code for all the preparatory steps -- cleans up the scope, and 
 		// analyses and modifies WordPress core files as appropriate
 		$wpUtdInt->enter_wp_integration();
-
+		
+		$phpbbForum->background();
 		eval($wpUtdInt->exec()); 
-
+		$phpbbForum->foreground();
 
 		$wpUnited->set_ran_patched_wordpress();
 	}

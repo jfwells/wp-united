@@ -314,7 +314,7 @@ function wpu_newposts_link() {
 function get_wpu_newposts_link() {
 	global $phpbbForum, $phpEx;
 	if( $phpbbForum->user_logged_in() ) {
-		return '<a href="'. append_sid($phpbbForum->get_board_url() . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". __('posts since last visit') . "</a>";
+		return '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". __('posts since last visit') . "</a>";
 	}
 }
 
@@ -511,6 +511,8 @@ function get_wpu_useronlinelist($args = '') {
 	$defaults = array('before' => '<li>', 'after' => '</li>', 'showCurrent' => 1, 'showRecord' => 1, 'showLegend' => 1);
 	extract(_wpu_process_args($args, $defaults));
 	
+	$fStateChanged = $phpbbForum->foreground();
+	
 	if( (!empty($template)) && (!empty($legend))  && ($theList = $template->_rootref['LOGGED_IN_USER_LIST'])) {
 		// On the phpBB index page -- everything's already in template
 		$legend = $template->_rootref['LEGEND'];
@@ -521,7 +523,7 @@ function get_wpu_useronlinelist($args = '') {
 	} else {
 		// On other pages, get the list
 		
-		$fStateChanged = $phpbbForum->foreground();
+		
 		
 		$online_users = obtain_users_online();
 		$list = obtain_users_online_string($online_users);
@@ -556,7 +558,7 @@ function get_wpu_useronlinelist($args = '') {
 			if ($row['group_name'] == 'BOTS' || ($phpbbForum->get_userdata('user_id') != ANONYMOUS && !$auth->acl_get('u_viewprofile'))) {
 				$legend[] = '<span' . $colour_text . '>' . $group_name . '</span>';
 			} else {
-				$legend[] = '<a' . $colour_text . ' href="' . append_sid("{$phpbbForum->get_board_url()}memberlist.{$phpEx}", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
+				$legend[] = '<a' . $colour_text . ' href="' . $phpbbForum->append_sid("{$phpbbForum->get_board_url()}memberlist.{$phpEx}", 'mode=group&amp;g=' . $row['group_id']) . '">' . $group_name . '</a>';
 			}
 		}
 		$db->sql_freeresult($result);
@@ -568,10 +570,10 @@ function get_wpu_useronlinelist($args = '') {
 		$l_online_record = sprintf($phpbbForum->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date']));
 		$l_online_users = $list['l_online_users'];
 		$theList = str_replace($phpbb_root_path, $phpbbForum->get_board_url(), $list['online_userlist']);
-		
-		$phpbbForum->restore_state($fStateChanged);
 			
 	} 
+	
+	$phpbbForum->restore_state($fStateChanged);
 	
 	$ret = "{$before}{$theList}{$after}";
 	if ($showBreakdown) {
@@ -631,16 +633,18 @@ function get_wpu_login_user_info($args) {
 			$ret .= $before .  get_wpu_newposts_link() . $after;
 		}
 		
+		$fStateChanged = $phpbbForum->foreground();
+		$admin = $auth->acl_get('a_');
+		$autoLogin = $config['allow_autologin'];
+		$PMs = $phpbbForum->get_user_pm_details();
+		$phpbbForum->restore_state($fStateChanged);
+		
 		// Handle new PMs
 		if($showPMs) {
-			if ($phpbbForum->get_userdata('user_new_privmsg')) {
-				$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
-				$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
-				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+			if ($PMs['new']) {
+				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $PMs['text']. '</a>' . $after;
 			} else {
-				$l_privmsgs_text = $phpbbForum->lang['NO_NEW_PM'];
-				$s_privmsg_new = false;
-				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $l_privmsgs_text . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $phpbbForum->lang['NO_NEW_PM'] . '</a>' . $after;
 			}	
 		}
 
@@ -653,26 +657,25 @@ function get_wpu_login_user_info($args) {
 			if (current_user_can('read')) {
 				$ret .= $before . '<a href="'.$wpUnited->get_wp_base_url() .'wp-admin/" title="' . __('Dashboard') . '">' . __('Dashboard') . '</a>' . $after;
 			}
-			$fStateChanged = $phpbbForum->foreground();
-			if($auth->acl_get('a_')) {
+			
+			if($admin) {
 				$ret .= $before . '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url() . 'adm/index.' . $phpEx) . '" title="' .  $phpbbForum->lang['ACP'] . '">' . $phpbbForum->lang['ACP'] . '</a>' . $after;
 			}
-			$phpbbForum->restore_state($fStateChanged);
 		}
 		$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction) . '" title="' . $loginLang . '">' .  $loginLang . '</a>' . $after;
 	} else {
 		if ( $showLoginForm ) {
 			$redir = wpu_get_redirect_link();
-			$login_link = append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=' . $redir;
+			$login_link = $phpbbForum->append_sid('ucp.'.$phpEx.'?mode=login') . '&amp;redirect=' . $redir;
 			$ret .= '<form class="wpuloginform" method="post" action="' . $phpbbForum->get_board_url() . $login_link . '">';
 			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
 			$ret .= $before . '<label for="phpbb_password">' . $phpbbForum->lang['PASSWORD'] . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
-			if ( $config['allow_autologin'] ) {
+			if ( $autoLogin ) {
 				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . __('Remember me') . '</label>' . $after;
 			}
 			$ret .= $before . '<input type="submit" name="login" class="wpuloginsubmit" value="' . __('Login') . '" />' . $after;
-			$ret .= $before . '<a href="' . append_sid($phpbbForum->get_board_url()."ucp.php?mode=register") . '">' . __('Register') . '</a>' . $after;
-			$ret .= $before . '<a href="'.append_sid($phpbbForum->get_board_url()).'ucp.php?mode=sendpassword">' . __('Forgot Password?') . '</a>' . $after;
+			$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url()."ucp.php?mode=register") . '">' . __('Register') . '</a>' . $after;
+			$ret .= $before . '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url()).'ucp.php?mode=sendpassword">' . __('Forgot Password?') . '</a>' . $after;
 			$ret .= '</form>';
 		} else {
 			$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction) . '" title="' . $loginLang . '">' .  $loginLang . '</a>';

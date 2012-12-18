@@ -69,13 +69,18 @@ class WPU_Cache {
 	 * script kiddies from guessing filenames in the cache folder
 	 */
 	private function initialise_salt() {
-		if(!isset( $GLOBALS['config']['wpu_cache_hash'])) {
+		global $phpbbForum, $config;
+		$fStateChanged = $phpbbForum->foreground();
+		
+		if(!isset( $config['wpu_cache_hash'])) {
 			// Generate a 10-digit random number
 			$this->salt = rand(10000, 99999);
 			set_config('wpu_cache_hash', $this->salt);
 		} else {
-			$this->salt = $GLOBALS['config']['wpu_cache_hash'];
+			$this->salt = $config['wpu_cache_hash'];
 		}
+		
+		$phpbbForum->restore_state($fStateChanged);
 	}
 	
 	/**
