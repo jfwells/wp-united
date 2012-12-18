@@ -34,6 +34,8 @@ class WPU_Phpbb {
 		$phpbbDbName,
 		$phpbbTemplate,
 		$wpTemplate,
+		$wpConfig,
+		$phpbbConfig,
 		$wpEnv,
 		$phpbbEnv,
 		$state,
@@ -62,6 +64,7 @@ class WPU_Phpbb {
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
 			$this->phpbbUser = $GLOBALS['user'];
 			$this->phpbbCache = $GLOBALS['cache'];		
+			$this->phpbbConfig = $GLOBALS['config'];		
 			$this->_loaded = true;
 		}
 		$this->tokens = array();
@@ -1792,14 +1795,16 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	private function backup_wp_conflicts() {
-		global $table_prefix, $user, $cache, $template;
+		global $table_prefix, $user, $cache, $template, $config;
 		
 		$this->wpTemplate = $template;
 		$this->wpTablePrefix = $table_prefix;
 		$this->wpUser = (isset($user)) ? $user: '';
 		$this->wpCache = (isset($cache)) ? $cache : '';
+		// $config isn't generally used by WP, but W3 total cache apparently uses it.
+		$this->wpConfig = (isset($config)) ? $config : '';
 		$this->wpEnv = array(
-			'GET' 			=> $_GET,
+			'GET' 		=> $_GET,
 			'POST' 		=> $_POST,
 			'COOKIE' 	=> $_COOKIE,
 			'REQUEST' 	=> $_REQUEST,
@@ -1811,13 +1816,14 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	private function backup_phpbb_state() {
-		global $table_prefix, $user, $cache, $dbname, $template;
+		global $table_prefix, $user, $cache, $dbname, $template, $config;
 
 		$this->phpbbTemplate = $template;
 		$this->phpbbTablePrefix = $table_prefix;
 		$this->phpbbUser = (isset($user)) ? $user: '';
 		$this->phpbbCache = (isset($cache)) ? $cache : '';
 		$this->phpbbDbName = $dbname;
+		$this->phpbbConfig = $config;
 		$this->phpbbEnv = array(
 			'GET' 			=> $_GET,
 			'POST' 		=> $_POST,
@@ -1831,11 +1837,12 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	private function restore_wp_conflicts() {
-		global $table_prefix, $user, $cache, $template;
+		global $table_prefix, $user, $cache, $template, $config;
 		
 		$template = $this->wpTemplate;
 		$user = $this->wpUser;
 		$cache = $this->wpCache;
+		$config = $this->wpConfig;
 		$table_prefix = $this->wpTablePrefix;
 		if(sizeof($this->wpEnv)) {
 			 $_GET 			= $this->wpEnv['GET'];
@@ -1850,12 +1857,13 @@ class WPU_Phpbb {
 	 * @access private
 	 */	
 	private function restore_phpbb_state() {
-		global $table_prefix, $user, $cache, $template;
+		global $table_prefix, $user, $cache, $template, $config;
 		
 		$template = $this->phpbbTemplate;
 		$table_prefix = $this->phpbbTablePrefix;
 		$user = $this->phpbbUser;
 		$cache = $this->phpbbCache;
+		$config = $this->phpbbConfig;
 		
 		// restore phpBB error handler
 		if(function_exists('msg_handler') || defined('PHPBB_MSG_HANDLER')) {
