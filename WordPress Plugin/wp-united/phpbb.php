@@ -109,50 +109,46 @@ class WPU_Phpbb {
 		 return $canConnect;
 		
 	}
-	
+
 	/**
 	 * Loads the phpBB environment if it is not already
 	 */
 	public function load() {
 		global $phpbb_hook, $phpbb_root_path, $phpEx, $IN_WORDPRESS, $db, $table_prefix, $wp_table_prefix, $wpUnited;
 		global $dbms, $auth, $user, $cache, $cache_old, $user_old, $config, $template, $dbname, $SID, $_SID;
-		
+
 		if($this->is_phpbb_loaded()) {
 			return;
 		}
 		$this->_loaded = true;
-			
+
 		$this->backup_wp_conflicts();
-		
 
 		if ( !defined('IN_PHPBB') ) {
 			$phpEx = substr(strrchr(__FILE__, '.'), 1);
 			define('IN_PHPBB', true);
 		}
-		
+
 		$phpbb_root_path = $wpUnited->get_setting('phpbb_path');
 		$phpEx = substr(strrchr(__FILE__, '.'), 1);
-		
+
 		$this->make_phpbb_env();
-		
+
 		if(!$this->can_connect_to_phpbb()) {
 			$wpUnited->disable_connection('error'); 
 			die();
 		}
 		require_once($phpbb_root_path . 'common.' . $phpEx);
-		
+
 		// various tests for success:
 		if(!isset($user)) {
 			$wpUnited->disable_connection('error');
 		}
-		
+
 		if(!is_object($user)) {
 			$wpUnited->disable_connection('error');
 		}
-		
-		
-		
-		
+
 		// phpBB's deregister_globals is unsetting $template if it is also set as a WP post var
 		// so we just set it global here
 		$GLOBALS['template'] = &$template;
@@ -449,30 +445,28 @@ class WPU_Phpbb {
 				$msgUnread = ($user->data['user_unread_privmsg'] == 1) ? $user->lang['UNREAD_PM'] : $user->lang['UNREAD_PMS'];
 				$result['unread_text'] = sprintf($msgUnread, $user->data['user_unread_privmsg']);
 			}
-		
+
 			$result['popup'] = $user->optionget('popuppm');
 		}
-		
 
 		$this->restore_state($fStateChanges);
-		
+
 		return $result;
-		
+
 	}
-	
+
 	public function get_style_cookie_settings() {
 		global $config;
-		
+
 		$fStateChanged = $this->foreground();
-		
-		$settings = addslashes('; path=' . $config['cookie_path'] . ((!$config['cookie_domain'] || $config['cookie_domain'] == 'localhost' || $config['cookie_domain'] == '127.0.0.1') ? '' : '; domain=' . $config['cookie_domain']) . ((!$config['cookie_secure']) ? '' : '; secure'))
-		
+
+		$settings = addslashes('; path=' . $config['cookie_path'] . ((!$config['cookie_domain'] || $config['cookie_domain'] == 'localhost' || $config['cookie_domain'] == '127.0.0.1') ? '' : '; domain=' . $config['cookie_domain']) . ((!$config['cookie_secure']) ? '' : '; secure'));
+
 		$this->restore_state($fStateChanged);
-		
+
 		return $settings;
-		
 	}
-	
+
 	/**
 	 * Returns the user's IP address
 	 */
@@ -480,28 +474,27 @@ class WPU_Phpbb {
 		$fStateChanged = $this->foreground();
 		$result = $GLOBALS['user']->ip;
 		$this->restore_state($fStateChanged);
-		return $result;			
+		return $result;
 	}
-	
+
 	/**
 	 * Returns a statistic
 	 */
 	public function stats($stat) {
 		 return $GLOBALS['config'][$stat];
 	}
-	
-	
+
 	/**
 	 * Returns rank info for currently logged in, or specified, user.
 	 */
 	public function get_user_rank_info($userID = '') {
 		global $db;
 		$fStateChanged = $this->foreground();
-		
+
 		if (!$userID ) {
 			if( $this->user_logged_in() ) {
 				$usrData = $this->get_userdata();
-			} 
+			}
 		} else {
 			$sql = 'SELECT user_rank, user_posts 
 						FROM ' . USERS_TABLE .
@@ -525,20 +518,18 @@ class WPU_Phpbb {
 		$this->restore_state($fStateChanged);
 	}
 	
-	
 	/**
 	 * Gets the birthday list
 	 */
 	public function get_birthday_list() {
 		global $config, $auth, $db, $user;
-	 
+ 
 		$birthday_list = '';
-		
-		
+
 		$fStateChanged = $this->foreground();
-	 
+ 
 		if ($config['load_birthdays'] && $config['allow_birthdays'] && $auth->acl_gets('u_viewprofile', 'a_user', 'a_useradd', 'a_userdel')) {
-	
+
 			$now = phpbb_gmgetdate(time() + $user->timezone + $user->dst);
 
 			// Display birthdays of 29th february on 28th february in non-leap-years
@@ -554,7 +545,7 @@ class WPU_Phpbb {
 					OR b.ban_exclude = 1)
 					AND (u.user_birthday LIKE '" . $db->sql_escape(sprintf('%2d-%2d-', $now['mday'], $now['mon'])) . "%' $leap_year_birthdays)
 					AND u.user_type IN (" . USER_NORMAL . ', ' . USER_FOUNDER . ')';
-			
+
 			$result = $db->sql_query($sql);
 
 			while ($row = $db->sql_fetchrow($result)) {

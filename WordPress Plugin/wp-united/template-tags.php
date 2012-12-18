@@ -828,11 +828,6 @@ function wpu_phpbb_nav_block($args) {
 		$addedBaseScript = true;
 	}
 		
-		
-		
-		
-	}
- 
 
  }
  

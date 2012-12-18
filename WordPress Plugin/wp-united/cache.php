@@ -46,7 +46,7 @@ class WPU_Cache {
     	
 	public function __construct() {
 		
-		global $phpbb_root_path, $wpUnited;
+		global $phpbb_root_path, $wpUnited, $phpbbForum;
 		
 		$this->useTemplateCache = 'UNKNOWN';
 		$this->_useCoreCache = 'UNKNOWN';
@@ -56,7 +56,7 @@ class WPU_Cache {
 		$this->fullPage =  !(bool)$wpUnited->get_setting('wpSimpleHdr');
 		
 		$this->initialise_salt();
-		
+
 		$this->log = array();
 		
 		$this->wpuVer = $wpUnited->get_version();
