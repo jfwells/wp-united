@@ -476,7 +476,7 @@ class WPU_Useful_Forum_Links_Widget extends WP_Widget {
 
 class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 	public function __construct() {
-		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB forum navigation / breadcrumb bar. If you have template integration turned on, this will only appear on non-forum pages.', 'wp-united') );
+		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB prosilver forum navigation / breadcrumb bar. If you have template integration turned on, this will only appear on non-forum pages. Your forum must be using a prosilver-based theme for this to work.', 'wp-united') );
 		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
 	}
 	

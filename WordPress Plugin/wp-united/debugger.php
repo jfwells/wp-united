@@ -147,7 +147,7 @@ class WPU_Debug {
 		);
 		
 		$ignores = array(
-			'http:', 'https:', 'localhost', 'localdomain', 'com'. 'net', 'org', 'www', '127', '0', '1', 'php'
+			'http:', 'https:', 'localhost', 'localdomain', 'com', 'net', 'org', 'www', '127', '0', '1', 'php'
 		);
 		
 		$toSanA = explode('\\', $pathOrUrl);

@@ -642,9 +642,9 @@ function get_wpu_login_user_info($args) {
 		// Handle new PMs
 		if($showPMs) {
 			if ($PMs['new']) {
-				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $PMs['text']. '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $PMs['text'] . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $PMs['text']. '</a>' . $after;
 			} else {
-				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $l_privmsgs_text . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $phpbbForum->lang['NO_NEW_PM'] . '</a>' . $after;
+				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $phpbbForum->lang['NO_NEW_PM'] . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $phpbbForum->lang['NO_NEW_PM'] . '</a>' . $after;
 			}	
 		}
 

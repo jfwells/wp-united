@@ -197,16 +197,18 @@ class WPU_Phpbb {
 		$this->make_wp_env();
 	}
 	
-	public function get_stylephp_link() {
-		global $user, $phpEx, $wpUnited;
+	public function get_stylephp_link($useDefault = true) {
+		global $user, $phpEx, $wpUnited, $config;
 		
 		$fStateChanged = $this->foreground();
+		
+		$styleID = ($useDefault) ? $config['default_style'] : $user->theme['style_id'];
 		
 		$wpuCache = WPU_Cache::getInstance();
 		$cacheName = $wpuCache->issue_style_key('island');
 		$wpUnited->commit_style_keys();
 		
-		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;island=1&amp;cloc=' . $cacheName);
+		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $styleID . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;island=1&amp;cloc=' . $cacheName);
 		$this->restore_state($fStateChanged);
 		
 		return $result;
@@ -217,7 +219,7 @@ class WPU_Phpbb {
 		global $user;
 		
 		$fStateChanged = $this->foreground();
-		$result = $this->get_board_url() . '/styles/' . rawurlencode($user->theme['template_path']) . '/theme/';
+		$result = $this->get_board_url() . 'styles/' . rawurlencode($user->theme['template_path']) . '/theme/';
 		$this->restore_state($fStateChanged);
 		
 		return $result;
@@ -451,7 +453,7 @@ class WPU_Phpbb {
 			$result['popup'] = $user->optionget('popuppm');
 		}
 
-		$this->restore_state($fStateChanges);
+		$this->restore_state($fStateChanged);
 
 		return $result;
 
@@ -561,7 +563,7 @@ class WPU_Phpbb {
 			$db->sql_freeresult($result);
 		}
 		
-		$this->restore_state($fStateChange);
+		$this->restore_state($fStateChanged);
 		
 		return $birthday_list;
 	 
@@ -996,19 +998,35 @@ class WPU_Phpbb {
 		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']);
 		$multiChoice = ($topicData['poll_max_options'] > 1);
 		
-		$pollMarkup .= '<form action="' . $currURL . '" method="post" onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
-		$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
-		$pollMarkup .= '<h2>' . $topicData['poll_title'] . '</h2>';
-		$pollMarkup .= '<p class="author">' . $actionMsg . $pollLength;
-		if($userCanVote) {
-			if(!empty($pollLength)) {
-				$pollMarkup .= '<br />';
+
+
+
+
+	$pollTemplate = 'prosilver';
+		
+		if($pollTemplate == 'prosilver') {
+			$pollMarkup .= '<form action="' . $currURL . '" method="post" onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
+			$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
+			$pollMarkup .= '<h2>' . $topicData['poll_title'] . '</h2>';
+			$pollMarkup .= '<p class="author">' . $actionMsg . $pollLength;
+			if($userCanVote) {
+				if(!empty($pollLength)) {
+					$pollMarkup .= '<br />';
+				}
+				$pollMarkup .= $maxVotes;
 			}
-			$pollMarkup .= $maxVotes;
+			$pollMarkup .= '</p>';
+			$pollMarkup .= '<fieldset class="polls">';
+			$pollMarkup .= '<input type="hidden" name="pollid" value="' . $topicID . '"></input>';
+		} else {
+			$pollMarkup .= '<table class="tablebg" width="100%" cellspacing="1"><tr>';
+			$pollMarkup .= '<td class="row2" colspan="2" align="center"><br clear="all" />';
+			$pollMarkup .= '<form action="' . $currURL . '" method="post" onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
+			$pollMarkup .= '<table cellspacing="0" cellpadding="4" border="0" align="center">';
+			$pollMarkup .= '<tr><td align="center"><span class="gen"><b>' . $topicData['poll_title'] . '</b></span><br /><span class="gensmall">' . $actionMsg . $pollLength . '</span></td></tr>';
+			$pollMarkup .= '<tr><td align="' . $s_contentFlowBegin . '"><table cellspacing="0" cellpadding="2" border="0">';
 		}
-		$pollMarkup .= '</p>';
-		$pollMarkup .= '<fieldset class="polls">';
-		$pollMarkup .= '<input type="hidden" name="pollid" value="' . $topicID . '"></input>';
+		
 		foreach ($pollOptions as $pollOption) {
 			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
 			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
@@ -1021,32 +1039,64 @@ class WPU_Phpbb {
 			$pollBarClass = ($optionPct > 0) ? 'pollbar' .(((int)($optionPct * 5)) + 1) : 'pollbar1';
 			$pollBarClass = ($pollBarClass == 'pollbar6') ? 'pollbar5' : $pollBarClass;
 			
-			
-			$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
-			$pollMarkup .= '<dt>';
-			if ($userCanVote) {
-				$pollMarkup .= '<label for="vote_' . $pollOption['poll_option_id'] . '">' . $pollOption['poll_option_text'] . '</label>';
-			} else {
-				$pollMarkup .= $pollOption['poll_option_text'];
-			}
-			$pollMarkup .= '</dt>';
-			if($userCanVote) {
-				$pollMarkup .= '<dd style="width: auto;">';
-				if($multiChoice) {
-					$pollMarkup .= '<input type="checkbox" name="vote_id[]" id="vote_' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . ' />';
+			if($pollTemplate == 'prosilver') {
+				$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
+				$pollMarkup .= '<dt>';
+				if ($userCanVote) {
+					$pollMarkup .= '<label for="vote_' . $pollOption['poll_option_id'] . '">' . $pollOption['poll_option_text'] . '</label>';
 				} else {
-					$pollMarkup .= '<input type="radio" name="vote_id[]" id="' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . '/>';
+					$pollMarkup .= $pollOption['poll_option_text'];
 				}
-				$pollMarkup .= '</dd>';
+				$pollMarkup .= '</dt>';
+				if($userCanVote) {
+					$pollMarkup .= '<dd style="width: auto;">';
+					if($multiChoice) {
+						$pollMarkup .= '<input type="checkbox" name="vote_id[]" id="vote_' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . ' />';
+					} else {
+						$pollMarkup .= '<input type="radio" name="vote_id[]" id="' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . '/>';
+					}
+					$pollMarkup .= '</dd>';
+				}
+				
+				if($displayResults) {
+					$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . '" style="width:' . $optionPctTxt . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
+					$pollMarkup .= '<dd>' . $pollVotesText . '</dd>';
+				}
+				
+				$pollMarkup .= '</dl>';
+			} else {
+				/*
+				 * 
+				 * 
+				 * 
+				 * <tr>
+					<!-- IF S_CAN_VOTE -->
+						<td>
+							<!-- IF S_IS_MULTI_CHOICE -->
+								<input type="checkbox" class="radio" name="vote_id[]" value="{poll_option.POLL_OPTION_ID}"<!-- IF poll_option.POLL_OPTION_VOTED --> checked="checked"<!-- ENDIF --> />
+							<!-- ELSE -->
+								<input type="radio" class="radio" name="vote_id[]" value="{poll_option.POLL_OPTION_ID}"<!-- IF poll_option.POLL_OPTION_VOTED --> checked="checked"<!-- ENDIF --> />
+							<!-- ENDIF -->
+						</td>
+					<!-- ENDIF -->
+						<td><span class="gen">{poll_option.POLL_OPTION_CAPTION}</span></td>
+						<!-- IF S_DISPLAY_RESULTS -->
+							<td dir="ltr">{POLL_LEFT_CAP_IMG}{poll_option.POLL_OPTION_IMG}{POLL_RIGHT_CAP_IMG}</td>
+							<td class="gen" align="{S_CONTENT_FLOW_END}"><b>&nbsp;{poll_option.POLL_OPTION_PERCENT}&nbsp;</b></td>
+							<td class="gen" align="center">[ {poll_option.POLL_OPTION_RESULT} ]</td>
+							<!-- IF poll_option.POLL_OPTION_VOTED -->
+								<td class="gensmall" valign="top"><b title="{L_POLL_VOTED_OPTION}">x</b></td>
+							<!-- ENDIF -->
+						<!-- ENDIF -->
+					</tr>
+				
+				
+				
+				*/
 			}
-			
-			if($displayResults) {
-				$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . '" style="width:' . $optionPctTxt . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
-				$pollMarkup .= '<dd>' . $pollVotesText . '</dd>';
-			}
-			
-			$pollMarkup .= '</dl>';
 		}
+		
+			
 
 		if($displayResults) {
 			$pollMarkup .= '<dl><dt>&nbsp;</dt><dd class="resultbar totalvotes">' . $user->lang['TOTAL_VOTES'] . ' : ' .  $pollTotal . '</dd></dl>';
@@ -1069,6 +1119,43 @@ class WPU_Phpbb {
 		$pollMarkup .= '</fieldset>';
 		$pollMarkup .= '</div><span class="corners-bottom"><span></span></span></div></div>';
 		$pollMarkup .= '</form>';
+		
+		
+		
+					/*
+				
+					</table>
+				</td>
+			</tr>
+		<!-- IF S_CAN_VOTE -->
+			<tr>
+				<td align="center"><span class="gensmall">{L_MAX_VOTES}</span><br /><br /><input type="submit" name="update" value="{L_SUBMIT_VOTE}" class="btnlite" /></td>
+			</tr>
+		<!-- ENDIF -->
+		<!-- IF S_DISPLAY_RESULTS -->
+			<tr>
+				<td class="gensmall" colspan="4" align="center"><b>{L_TOTAL_VOTES} : {TOTAL_VOTES}</b></td>
+			</tr>
+		<!-- ELSE -->
+			<tr>
+				<td align="center"><span class="gensmall"><b><a href="{U_VIEW_RESULTS}">{L_VIEW_RESULTS}</a></b></span></td>
+			</tr>
+		<!-- ENDIF -->
+			</table>
+			{S_HIDDEN_FIELDS}
+			{S_FORM_TOKEN}
+			</form>
+
+		</td>
+	</tr>
+	</table>
+
+*/
+		
+		
+		
+		
+		
 
 		$this->restore_state($fStateChanged);
 
