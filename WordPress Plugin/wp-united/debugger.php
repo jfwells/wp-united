@@ -99,7 +99,7 @@ class WPU_Debug {
 	}
 	
 	public function get_debug_info($sanitise) {
-		global $wpUnited, $wp_version, $phpbbForum;
+		global $wpUnited, $wp_version, $phpbbForum, $locale;
 		
 		$s = $sanitise;
 		
@@ -120,7 +120,8 @@ class WPU_Debug {
 			'Active plugins'			=>  implode(', ', get_option('active_plugins')),
 			'Current theme'				=>	wp_get_theme(),
 			'Allocated memory'			=>	(memory_get_usage()/(1024^2)) . 'M',
-			'Memory limit'				=>	($memLimit == '-1') ? 'Unlimited' : $memLimit
+			'Memory limit'				=>	($memLimit == '-1') ? 'Unlimited' : $memLimit,
+			'Locale'					=>  $locale
 		); 
 	
 		$settings = array_merge($mainEntries, $settings);
