@@ -714,6 +714,9 @@ function wpu_phpbb_nav_block($args) {
 	}
 	
 	$nativeClass = (!$useNativeCSS) ? 'wpuisle' : 'wpunative';
+	
+	$PMs = $phpbbForum->get_user_pm_details();
+	
 	?>
 	
 	<div class="textwidget <?php echo $nativeClass; ?>"><div class="<?php echo $nativeClass; ?>2">
@@ -735,10 +738,8 @@ function wpu_phpbb_nav_block($args) {
 			<ul class="linklist leftside">
 				<li class="icon-ucp">
 					<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['PROFILE']; ?>" accesskey="e"><?php echo $phpbbForum->lang['PROFILE']; ?></a>
-					<?php if($phpbbForum->get_userdata('user_new_privmsg')) { 
-						$l_message_new = ($phpbbForum->get_userdata('user_new_privmsg') == 1) ? $phpbbForum->lang['NEW_PM'] : $phpbbForum->lang['NEW_PMS'];
-						$l_privmsgs_text = sprintf($l_message_new, $phpbbForum->get_userdata('user_new_privmsg'));
-						?>(<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox'); ?>"><?php echo $l_privmsgs_text; ?></a>)
+					<?php if( $PMs['new']) { 
+						?>(<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox'); ?>"><?php echo $PMs['text']; ?></a>)
 					<?php } ?>
 					<?php if($phpbbForum->user_logged_in()) { ?> &bull;
 						<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.' . $phpEx . '?search_id=egosearch'); ?>"><?php echo $phpbbForum->lang['SEARCH_SELF']; ?></a>
@@ -781,11 +782,10 @@ function wpu_phpbb_nav_block($args) {
 	static $addedStyles = false;
 	static $addedStyleSwitcher = false;
 	static $themePath = '';
-	
+	static $addedBaseScript = false;
 
 	if(!$addedStyles) {
 		$addedStyles = true;
-		
 		
 		wp_enqueue_style('wpu-island-reset', $wpUnited->get_plugin_url() . 'theme/island-reset.css');
 		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_stylephp_link());
@@ -805,6 +805,32 @@ function wpu_phpbb_nav_block($args) {
 		$wp_styles->add_data( 'wpu-nav-blk-4', 'alt', true);
 		
 		wp_enqueue_script('wpu-nav-blk-j', $phpbbForum->get_super_template_path() . 'styleswitcher.js');
+	}
+	
+	if(!$addedBaseScript) { 
+		$PMs = $phpbbForum->get_user_pm_details();
+		?>
+		<script type="text/javascript">// <![CDATA[
+			var base_url = '<?php echo $phpbbForum->get_board_url(); ?>';
+			var style_cookie = 'phpBBstyle';
+			var style_cookie_settings = '<?php $phpbbForum->get_style_cookie_settings(); ?>';
+			var onload_functions = new Array();
+			var onunload_functions = new Array();
+			<?php if($PMs['new'] && $PMs['popup']) { ?>
+				var url = '<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . 'i=pm&amp;mode=popup'); ?>';
+				window.open(url.replace(/&amp;/g, '&'), '_phpbbprivmsg', 'height=225,resizable=yes,scrollbars=yes, width=400');
+			<?php } ?>
+			window.onload = function(){for (var i = 0; i < onload_functions.length; i++)eval(onload_functions[i]);};
+			window.onunload = function(){for(var i = 0; i < onunload_functions.length; i++)eval(onunload_functions[i]);};
+		// ]]>
+		</script>
+		<?php 
+		$addedBaseScript = true;
+	}
+		
+		
+		
+		
 	}
  
 

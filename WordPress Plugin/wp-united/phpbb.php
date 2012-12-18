@@ -405,6 +405,75 @@ class WPU_Phpbb {
 	}
 	
 	/**
+	 * Returns whether the current user has unread PMs since last visit
+	 * Resets the number to 0 if they do...
+	 * @return array of text to display, and whether to spawn a popup
+	 */
+	
+	public function get_user_pm_details() {
+		global $user, $db;
+		
+		static $result = false;
+		
+		if(is_array($result)) {
+			return $result;
+		}
+		
+		$fStateChanged = $this->foreground();
+		
+		$result = array(
+			'new'			=> false,
+			'text' 			=> '',
+			'unread_text' 	=> '',
+			'popup'			=> false
+		);
+		
+		if (empty($user->data['is_registered'])) {
+			if ($user->data['user_new_privmsg']) {
+				$msgNew = ($user->data['user_new_privmsg'] == 1) ? $user->lang['NEW_PM'] : $user->lang['NEW_PMS'];
+				$result['text'] = sprintf($msgNew, $user->data['user_new_privmsg']);
+
+				if (!$user->data['user_last_privmsg'] || $user->data['user_last_privmsg'] > $user->data['session_last_visit']) {
+					$sql = 'UPDATE ' . USERS_TABLE . '
+						SET user_last_privmsg = ' . $user->data['session_last_visit'] . '
+						WHERE user_id = ' . $user->data['user_id'];
+					$db->sql_query($sql);
+					$result['new'] = true;
+				} 
+			} else {
+				$result['text'] = $user->lang['NO_NEW_PM'];
+				$result['new'] = false;
+			}
+
+			if ($user->data['user_unread_privmsg'] && $user->data['user_unread_privmsg'] != $user->data['user_new_privmsg']) {
+				$msgUnread = ($user->data['user_unread_privmsg'] == 1) ? $user->lang['UNREAD_PM'] : $user->lang['UNREAD_PMS'];
+				$result['unread_text'] = sprintf($msgUnread, $user->data['user_unread_privmsg']);
+			}
+		
+			$result['popup'] = $user->optionget('popuppm');
+		}
+		
+
+		$this->restore_state($fStateChanges);
+		
+		return $result;
+		
+	}
+	
+	public function get_style_cookie_settings() {
+		global $config;
+		
+		$fStateChanged = $this->foreground();
+		
+		$settings = addslashes('; path=' . $config['cookie_path'] . ((!$config['cookie_domain'] || $config['cookie_domain'] == 'localhost' || $config['cookie_domain'] == '127.0.0.1') ? '' : '; domain=' . $config['cookie_domain']) . ((!$config['cookie_secure']) ? '' : '; secure'))
+		
+		$this->restore_state($fStateChanged);
+		
+		return $settings;
+		
+	}
+	
+	/**
 	 * Returns the user's IP address
 	 */
 	public function get_userip() {
