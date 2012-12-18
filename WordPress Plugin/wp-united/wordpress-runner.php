@@ -12,7 +12,6 @@
 */
 
 
-
 //Initialise the cache
 require_once($wpUnited->get_plugin_path() . 'cache.php'); //@TODO: INIT THIS IN WP-UNITED CLASS
 $wpuCache = WPU_Cache::getInstance();
