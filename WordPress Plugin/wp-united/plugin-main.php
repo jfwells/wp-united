@@ -63,7 +63,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		);
 		
 		private
-			$doneInit = false;
+			$doneInit = false,
+			$extras = false;
 
 	public function wp_init() {
 
@@ -139,15 +140,29 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			
 			$this->set_last_run('working');
 		
+			// Load default widgets:
 			require_once($this->get_plugin_path() . 'widgets.php');
 			add_action('widgets_init', 'wpu_widgets_init');
-		
+			
+			// Load and initialise any WP-United Extras (sub-plugins):
+			require_once($this->get_plugin_path() . 'extras.php');
+			$this->extras = new WP_United_Extras_Loader();
+			$this->extras->init();
+			
 		}
 		
 		$this->process_frontend_actions();
 
 		return true; 
 			
+	}
+	
+	// returns a WP-United sub-plugin object, if it exists
+	public function get_extra($extraName) {
+		if($this->is_working() && is_object($this->extras)) {
+			return $this->extras->get_extra($extraName);
+		}
+		return false;
 	}
 	
 	public function load_phpbb() {
@@ -283,7 +298,11 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			// file tree
 			if( isset($_POST['filetree']) && check_ajax_referer( 'wp-united-filetree') ) {
 				wpu_filetree();
-			}	
+			}
+			
+			if($this->is_working() && is_object($this->extras)) {
+				$this->extras->admin_load_actions();
+			}
 			
 		}
 	}
@@ -292,14 +311,15 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Process any requests bound for AJAX backend, etc..
 	 */
 	private function process_frontend_actions() {
-		global $phpbbForum;
 		
-		if(!is_admin() && $this->is_working()) {
-			if( isset($_POST['wpupoll']) && check_ajax_referer( 'wpu-poll-submit') ) {
-				$phpbbForum->get_poll();
-				exit;
-			}
+		if(is_admin()) {
+			return;
 		}
+
+		if($this->is_working() && is_object($this->extras)) {
+			$this->extras->page_load_actions();
+		}
+
 	
 	}
 	

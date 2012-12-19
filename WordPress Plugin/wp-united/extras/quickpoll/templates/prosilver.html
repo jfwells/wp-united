@@ -33,14 +33,14 @@
 			<!-- IF not S_DISPLAY_RESULTS -->
 				<dl style="border-top: none;">
 					<dt>&nbsp;</dt>
-					<dd class="resultbar totalvotes resultlink"><a href="{U_VIEW_RESULTS}">{L_VIEW_RESULTS}</a></dd>
+					<dd class="resultbar totalvotes resultlink"><a href="{U_VIEW_RESULTS}"  onclick="return wpu_poll_results('{POLL_ID}');">{L_VIEW_RESULTS}</a></dd>
 				</dl>
 			<!-- ENDIF -->
 
 			<!-- IF not S_SHOW_LINK -->
 				<dl style="border-top: none;">
 					<dt>&nbsp;</dt>
-					<dd class="resultbar totalvotes topiclink"><a href="{U_VIEW_RESULTS}">{L_SHOW_LINK}</a></dd>
+					<dd class="resultbar totalvotes topiclink"><a href="{U_TOPIC_LINK}">{L_TOPIC_LINK}</a></dd>
 				</dl>
 			<!-- ENDIF -->
 			
