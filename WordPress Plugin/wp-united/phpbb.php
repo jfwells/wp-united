@@ -1017,7 +1017,7 @@ class WPU_Phpbb {
 			'S_IS_MULTI_CHOICE'	=> ($topicData['poll_max_options'] > 1) ? true : false,
 			'S_POLL_ACTION'		=> $currURL,
 
-			'U_VIEW_RESULTS'	=> (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1';
+			'U_VIEW_RESULTS'	=> (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1'
 		);
 		
 		foreach ($pollOptions as $pollOption) {
