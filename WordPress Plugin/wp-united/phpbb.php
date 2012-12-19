@@ -1031,7 +1031,7 @@ class WPU_Phpbb {
 				'POLL_OPTION_PERCENT' 	=> $optionPctTxt,
 				'POLL_OPTION_PCT'		=> round($optionPct * 100),
 				'POLL_OPTION_IMG' 		=> $user->img('poll_center', $optionPctTxt, round($optionPct * 250)),
-				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $curVotedId)) ? true : false)
+				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $currVotedId)) ? true : false)
 			);
 		}
 		
