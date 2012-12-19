@@ -399,7 +399,8 @@ class WP_United_Plugin_Base {
 			return $this->styleKeys;
 		} else {
 			if(array_key_exists($key, $this->styleKeys)) {
-				return $this->styleKeys[$key];
+				$item = explode('?', $this->styleKeys[$key]);
+				return $item[0];
 			} else {
 				return false;
 			}
@@ -408,10 +409,10 @@ class WP_United_Plugin_Base {
 	
 	
 	// adds a new style key, or returns the existing one if it already exists
-	public function add_style_key($fileName) {
-		$key = array_search($fileName, (array)$this->styleKeys);
+	public function add_style_key($fileName, $extraIdentifier) {
+		$key = array_search($fileName . '?' . $extraIdentifier, (array)$this->styleKeys);
 		if($key === false) {
-			$this->styleKeys[] = $fileName;
+			$this->styleKeys[] = $fileName . '?' . $extraIdentifier;
 			$key = sizeof($this->styleKeys) - 1;
 			$this->updatedStyleKeys = true;
 		} 

@@ -791,11 +791,11 @@ function wpu_phpbb_nav_block($args) {
 		$addedStyles = true;
 		
 		wp_enqueue_style('wpu-island-reset', $wpUnited->get_plugin_url() . 'theme/island-reset.css');
-		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_stylephp_link());
+		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_island_stylesheet());
 	}
 	
 	if($includeStyleSwitcher && !$addedStyleSwitcher) {
-		$themePath =  $phpbbForum->get_stylesheet_path();
+		$themePath =  $phpbbForum->get_theme_path();
 		wp_enqueue_style('wpu-nav-blk-2', $themePath . 'normal.css', true);
 		wp_enqueue_style('wpu-nav-blk-3', $themePath . 'medium.css', true);
 		wp_enqueue_style('wpu-nav-blk-4', $themePath . 'large.css', true);

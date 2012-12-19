@@ -197,25 +197,60 @@ class WPU_Phpbb {
 		$this->make_wp_env();
 	}
 	
-	public function get_stylephp_link($useDefault = true) {
-		global $user, $phpEx, $wpUnited, $config;
+	// try to guess what kind of phpBB template this user's style is based on
+	
+	public function get_style_type() {
+		global $user;
+		
+		static $useTemplate = false;
+		
+		if(!empty($useTemplate)) {
+			return $useTemplate;
+		}
 		
 		$fStateChanged = $this->foreground();
 		
-		$styleID = ($useDefault) ? $config['default_style'] : $user->theme['style_id'];
+		if(stristr($user->theme['theme_path'], 'pro') !== false) {
+			$useTemplate = 'prosilver';
+		} else if(stristr($user->theme['theme_path'], 'sub') !== false) {
+			$useTemplate = 'subsilver2';
+		} elseif(!@file_exists($wpUnited->get_setting['phpbb_path'] . 'styles/' . $user->theme['theme_path'] . '/theme/styleswitcher.js')) {
+			$useTemplate = 'subsilver2';
+		}
 		
+		return $useTemplate;
+	
+	
+	}
+	
+	/**
+	 * Return a URI that will use the style-fixer to return an island stylesheet
+	 */
+	public function get_island_stylesheet($type = false;) {
+		global $user, $phpEx, $wpUnited;
+
+
+		if(!$user->theme['theme_storedb']) {
+			$styleSheet = "{$wpUnited->get_setting['phpbb_path']}styles/" . rawurlencode($user->theme['theme_path']) . '/theme/stylesheet.css?island=1';
+			$modStyleSheet = $phpbbForum->get_board_url() . 'wp-united/style-fixer.php?usecssm=1&amp;island&amp;cloc=';
+		} else {
+			$styleSheet = "{$phpbbForum->get_board_url()}style.$phpEx") .  'id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;island=1';
+			$modStyleSheet = $styleSheet . '&amp;usecssm=1&amp;cloc=';
+		}
+
 		$wpuCache = WPU_Cache::getInstance();
-		$cacheName = $wpuCache->issue_style_key('island');
+		$cacheName = $wpuCache->issue_style_key($styleSheet);
 		$wpUnited->commit_style_keys();
 		
-		$result = $this->append_sid($this->get_board_url() . 'style.' . $phpEx . '?id=' . $styleID . '&amp;lang=' . $user->lang_name . '&amp;usecssm=1&amp;island=1&amp;cloc=' . $cacheName);
+		$modStylesheet = $modStyleSheet . $cacheName;
+		
 		$this->restore_state($fStateChanged);
 		
 		return $result;
 		
 	}
 	
-	public function get_stylesheet_path() {
+	public function get_theme_path() {
 		global $user;
 		
 		$fStateChanged = $this->foreground();
@@ -225,6 +260,7 @@ class WPU_Phpbb {
 		return $result;
 	}
 	
+	//TODO: UNNEEDED?
 	public function get_super_template_path() {
 		global $user;
 		

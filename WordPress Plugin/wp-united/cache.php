@@ -313,13 +313,7 @@ class WPU_Cache {
 	 */
 	public function issue_style_key($fileName, $pos) {
 		global $wpUnited;
-		if($fileName == 'island') {
-			/*
-			 * Style.php explicitly requested by a widget island
-			 */
-			$fileName = $this->get_css_magic_cache_name($fileName, $pos);
-			return $wpUnited->add_style_key($fileName);
-		} else if(stripos($fileName, 'style.php?') !== false) {
+		if(stripos($fileName, 'style.php?') !== false) {
 			/**
 			 * For style.php, we just need to create a style key for the cache
 			 */
@@ -331,7 +325,9 @@ class WPU_Cache {
 			 * For css files, we need to create a style key for the filename
 			 */
 			$fileName = explode('?', $fileName);
-			return $wpUnited->add_style_key($fileName[0]);
+			$extraIdentifier = (stristr($fileName[0], 'island') !== false) ? 'island' : '';
+				
+			return $wpUnited->add_style_key($fileName[0], $extraIdentifier);
 		}
 	}
 
@@ -393,7 +389,6 @@ class WPU_Cache {
 	 */
 	public function get_css_magic_cache_name($fileName, $pos, $incTplVoodoo = -1) {
 		$tpl = ($incTplVoodoo > -1) ? 'tplvd-' : '';
-		$tpl = ($fileName == 'island') ? 'island-' : $tpl;
 		return "cssmagic-{$tpl}" . md5("{$this->salt}{$fileName }-{$pos}-{$incTplVoodoo}-{$this->wpuVer}") . '.css';
 	}
 

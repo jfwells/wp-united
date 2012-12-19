@@ -44,6 +44,10 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$nativeCSS = $instance['nativeCSS'];
 		$template = $instance['useTemplate'];
 		
+		if($template == 'guess') {
+			$template = $phpbbForum->guess_style_type();
+		}
+		
 		$poll = $this->parentExtra->get_poll($pollId, $showTopicLink, $template);
 
 		
@@ -91,11 +95,12 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		//widget form
 		
 		$instance = wp_parse_args( (array) $instance, array( 
-			'title' 						=> __('Quick Poll', 'wp-united'),
-			'pollId'						=> 0,
+			'title' 			=> __('Quick Poll', 'wp-united'),
+			'pollId'			=> 0,
 			'hideIfNoPerms'		=> 1,
 			'showTopicLink'		=> 1,
-			'nativeCSS'				=> 0
+			'nativeCSS'			=> 0,
+			'useTemplate'		=> 'guess'
 		));
 		
 		$title = strip_tags($instance['title']);
@@ -129,8 +134,9 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		<p><input id="<?php echo $this->get_field_id('showTopicLink'); ?>" name="<?php echo $this->get_field_name('showTopicLink'); ?>" type="checkbox" value="ok"  <?php echo $showTopicLink ?> /> <label for="<?php echo $this->get_field_id('showTopicLink'); ?>"><?php _e('Show a link to the poll topic?', 'wp-united'); ?></label></p>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id('useTemplate'); ?>"><?php _e('My default forum style template is based on: ', 'wp-united'); ?></label><br />
+			<label for="<?php echo $this->get_field_id('useTemplate'); ?>"><?php _e('Use template: ', 'wp-united'); ?></label><br />
 			<select name="<?php echo $this->get_field_name('useTemplate'); ?>" id="<?php echo $this->get_field_name('useTemplate'); ?>">
+				<option value="guess" <?php if($template == 'guess'); ?>selected="selected"<?php } ?>><?php _e('Make best guess'); ?></option>
 				<option value="prosilver" <?php if($template == 'prosilver'); ?>selected="selected"<?php } ?>>prosilver</option>
 				<option value="subsilver2" <?php if($template == 'subsilver2'); ?>selected="selected"<?php } ?>>subsilver2</option>
 			</select>
