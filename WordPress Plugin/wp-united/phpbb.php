@@ -1007,16 +1007,14 @@ class WPU_Phpbb {
 			'TOTAL_VOTES' 		=> $pollTotal,
 			'POLL_LEFT_CAP_IMG'	=> $user->img('poll_left'),
 			'POLL_RIGHT_CAP_IMG'=> $user->img('poll_right'),
-
+			'POLL_ID'			=> $topicID,
 			'L_MAX_VOTES'		=> ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
 			'L_POLL_LENGTH'		=> ($topicData['poll_length']) ? sprintf($user->lang[($pollEnd > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($pollEnd)) : '',
-
-			'S_HAS_POLL'		=> true,
+			
 			'S_CAN_VOTE'		=> $userCanVote,
 			'S_DISPLAY_RESULTS'	=> $displayResults,
 			'S_IS_MULTI_CHOICE'	=> ($topicData['poll_max_options'] > 1) ? true : false,
 			'S_POLL_ACTION'		=> $currURL,
-
 			'U_VIEW_RESULTS'	=> (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1'
 		));
 		
@@ -1031,15 +1029,17 @@ class WPU_Phpbb {
 				'POLL_OPTION_PERCENT' 	=> $optionPctTxt,
 				'POLL_OPTION_PCT'		=> round($optionPct * 100),
 				'POLL_OPTION_IMG' 		=> $user->img('poll_center', $optionPctTxt, round($optionPct * 250)),
-				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $currVotedId)) ? true : false)
+				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false)
 			);
 		}
 		
 		
 		
-		
+		ob_start();
 		$pTemplate->display('poll');
-		
+		$pollMarkup = $ob_get_contents();
+		unset($pTemplate);
+		ob_end_clean();
 		
 		
 
@@ -1108,39 +1108,10 @@ class WPU_Phpbb {
 				
 				$pollMarkup .= '</dl>';
 			} else {
-				/*
-				 * 
-				 * 
-				 * 
-				 * <tr>
-					<!-- IF S_CAN_VOTE -->
-						<td>
-							<!-- IF S_IS_MULTI_CHOICE -->
-								<input type="checkbox" class="radio" name="vote_id[]" value="{poll_option.POLL_OPTION_ID}"<!-- IF poll_option.POLL_OPTION_VOTED --> checked="checked"<!-- ENDIF --> />
-							<!-- ELSE -->
-								<input type="radio" class="radio" name="vote_id[]" value="{poll_option.POLL_OPTION_ID}"<!-- IF poll_option.POLL_OPTION_VOTED --> checked="checked"<!-- ENDIF --> />
-							<!-- ENDIF -->
-						</td>
-					<!-- ENDIF -->
-						<td><span class="gen">{poll_option.POLL_OPTION_CAPTION}</span></td>
-						<!-- IF S_DISPLAY_RESULTS -->
-							<td dir="ltr">{POLL_LEFT_CAP_IMG}{poll_option.POLL_OPTION_IMG}{POLL_RIGHT_CAP_IMG}</td>
-							<td class="gen" align="{S_CONTENT_FLOW_END}"><b>&nbsp;{poll_option.POLL_OPTION_PERCENT}&nbsp;</b></td>
-							<td class="gen" align="center">[ {poll_option.POLL_OPTION_RESULT} ]</td>
-							<!-- IF poll_option.POLL_OPTION_VOTED -->
-								<td class="gensmall" valign="top"><b title="{L_POLL_VOTED_OPTION}">x</b></td>
-							<!-- ENDIF -->
-						<!-- ENDIF -->
-					</tr>
 				
-				
-				
-				*/
 			}
 		}
 		
-			
-
 		if($displayResults) {
 			$pollMarkup .= '<dl><dt>&nbsp;</dt><dd class="resultbar totalvotes">' . $user->lang['TOTAL_VOTES'] . ' : ' .  $pollTotal . '</dd></dl>';
 		}
@@ -1162,41 +1133,6 @@ class WPU_Phpbb {
 		$pollMarkup .= '</fieldset>';
 		$pollMarkup .= '</div><span class="corners-bottom"><span></span></span></div></div>';
 		$pollMarkup .= '</form>';
-		
-		
-		
-					/*
-				
-					</table>
-				</td>
-			</tr>
-		<!-- IF S_CAN_VOTE -->
-			<tr>
-				<td align="center"><span class="gensmall">{L_MAX_VOTES}</span><br /><br /><input type="submit" name="update" value="{L_SUBMIT_VOTE}" class="btnlite" /></td>
-			</tr>
-		<!-- ENDIF -->
-		<!-- IF S_DISPLAY_RESULTS -->
-			<tr>
-				<td class="gensmall" colspan="4" align="center"><b>{L_TOTAL_VOTES} : {TOTAL_VOTES}</b></td>
-			</tr>
-		<!-- ELSE -->
-			<tr>
-				<td align="center"><span class="gensmall"><b><a href="{U_VIEW_RESULTS}">{L_VIEW_RESULTS}</a></b></span></td>
-			</tr>
-		<!-- ENDIF -->
-			</table>
-			{S_HIDDEN_FIELDS}
-			{S_FORM_TOKEN}
-			</form>
-
-		</td>
-	</tr>
-	</table>
-
-*/
-		
-		
-		
 		
 		
 
