@@ -734,7 +734,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		
 		wp_enqueue_script(
 			'wpu-poll', 
-			$wpUnited->get_plugin_url() . 'js/poll.js', 
+			$wpUnited->get_plugin_url() . 'extras/quickpoll/js/poll.js', 
 			array( 
 					'jquery-effects-core',
 					'jquery'

@@ -999,8 +999,8 @@ class WPU_Phpbb {
 		$multiChoice = ($topicData['poll_max_options'] > 1);
 		
 		$pTemplate = new template();
-		$pTemplate->set_template();
-		$pTemplate->set_filenames(array('poll' => 'viewtopic_body.html'));
+		$pTemplate->set_custom_template($wpUnited->get_plugin_path . 'extras/quickpoll/templates/', 'wpupoll');
+		$pTemplate->set_filenames(array('poll' => 'prosilver.html'));
 		
 		$pTemplate->assign_vars(array(
 			'POLL_QUESTION'		=> $topicData['poll_title'],
