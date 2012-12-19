@@ -1037,7 +1037,7 @@ class WPU_Phpbb {
 		
 		ob_start();
 		$pTemplate->display('poll');
-		$pollMarkup = $ob_get_contents();
+		$pollMarkup = ob_get_contents();
 		unset($pTemplate);
 		ob_end_clean();
 		
