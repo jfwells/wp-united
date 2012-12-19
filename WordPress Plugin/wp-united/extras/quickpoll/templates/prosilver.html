@@ -8,6 +8,7 @@
 
 			<fieldset class="polls">
 			<input type="hidden" name="pollid" value="{POLL_ID}"></input>
+			<input type="hidden" name="polltemplate" value="{POLL_TEMPLATE}"></input>
 			<!-- BEGIN poll_option -->
 				<dl class="<!-- IF poll_option.POLL_OPTION_VOTED -->voted<!-- ENDIF -->"<!-- IF poll_option.POLL_OPTION_VOTED --> title="{L_POLL_VOTED_OPTION}"<!-- ENDIF -->>
 					<dt><!-- IF S_CAN_VOTE --><label for="vote_{poll_option.POLL_OPTION_ID}">{poll_option.POLL_OPTION_CAPTION}</label><!-- ELSE -->{poll_option.POLL_OPTION_CAPTION}<!-- ENDIF --></dt>

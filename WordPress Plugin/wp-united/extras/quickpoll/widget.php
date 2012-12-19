@@ -42,8 +42,9 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$hideIfNoPerms = $instance['hideIfNoPerms'];
 		$showTopicLink = $instance['showTopicLink'];
 		$nativeCSS = $instance['nativeCSS'];
+		$template = $instance['useTemplate'];
 		
-		$poll = $this->parentExtra->get_poll($pollId, $showTopicLink);
+		$poll = $this->parentExtra->get_poll($pollId, $showTopicLink, $template);
 
 		
 		if((($poll == '') && $hideIfNoPerms) || is_admin()) {
@@ -81,6 +82,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$instance['hideIfNoPerms'] 	= (strip_tags(stripslashes($new_instance['hideIfNoPerms'])) == 	'ok')? 1 : 0;
 		$instance['showTopicLink'] 	= (strip_tags(stripslashes($new_instance['showTopicLink'])) == 	'ok')? 1 : 0;
 		$instance['nativeCSS'] 		= (strip_tags(stripslashes($new_instance['nativeCSS'])) == 	'ok')? 	1 : 0;
+		$instance['useTemplate'] 	= (string)strip_tags(stripslashes($new_instance['useTemplate']));
 		
 		return $instance;
 	}
@@ -100,6 +102,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$hideIfNoPerms	= (!empty($instance['hideIfNoPerms'])) 	? 'checked="checked"' : '';
 		$showTopicLink	= (!empty($instance['showTopicLink'])) 	? 'checked="checked"' : '';
 		$nativeCSS		= (!empty($instance['nativeCSS'])) 		? 'checked="checked"' : '';
+		$template 		= ((string)$instance['useTemplate']);
 		$pollId = $instance['pollId'];
 		
 		$polls = $this->parentExtra->get_poll_list();
@@ -124,6 +127,15 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		</p>
 		<p><input id="<?php echo $this->get_field_id('hideIfNoPerms'); ?>" name="<?php echo $this->get_field_name('hideIfNoPerms'); ?>" type="checkbox" value="ok"  <?php echo $hideIfNoPerms ?> /> <label for="<?php echo $this->get_field_id('hideIfNoPerms'); ?>"><?php _e('Hide widget if the user has no permissions to view this poll?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('showTopicLink'); ?>" name="<?php echo $this->get_field_name('showTopicLink'); ?>" type="checkbox" value="ok"  <?php echo $showTopicLink ?> /> <label for="<?php echo $this->get_field_id('showTopicLink'); ?>"><?php _e('Show a link to the poll topic?', 'wp-united'); ?></label></p>
+		
+		<p>
+			<label for="<?php echo $this->get_field_id('useTemplate'); ?>"><?php _e('My default forum style template is based on: ', 'wp-united'); ?></label><br />
+			<select name="<?php echo $this->get_field_name('useTemplate'); ?>" id="<?php echo $this->get_field_name('useTemplate'); ?>">
+				<option value="prosilver" <?php if($template == 'prosilver'); ?>selected="selected"<?php } ?>>prosilver</option>
+				<option value="subsilver2" <?php if($template == 'subsilver2'); ?>selected="selected"<?php } ?>>subsilver2</option>
+			</select>
+		</p>
+		
 		<p><input id="<?php echo $this->get_field_id('nativeCSS'); ?>" name="<?php echo $this->get_field_name('nativeCSS'); ?>" type="checkbox" value="ok"  <?php echo $nativeCSS ?> /> <label for="<?php echo $this->get_field_id('nativeCSS'); ?>"><?php _e("Don't add CSS, I will style this myself", 'wp-united'); ?></label></p>
 		<?php
 	}

@@ -78,7 +78,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 	 * Displays a poll
 	 * 
 	 */
-	public function get_poll($topicID = 0, $showLink = false) {
+	public function get_poll($topicID = 0, $showLink = false, $template='prosilver') {
 		 global $db, $user, $auth, $config, $phpEx, $wpUnited, $phpbbForum;
  
 		 static $pollHasGenerated = false;
@@ -97,6 +97,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 		// Is this an AJAX request?
 		if($topicID == 0) {
 			$topicID = (int)request_var('pollid', 0);
+			$template = (string)request_var('polltemplate', 'prosilver');
 			$inboundVote = request_var('vote_id', array('' => 0));
 			$display = ((int)request_var('display', 0) == 1);
 			$ajax = ((int)request_var('ajax', 0) == 1);
@@ -125,6 +126,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 					$display=1;
 				}
 			}
+			
 		}
 		
 		$currURL = wpu_get_curr_page_link();
@@ -350,7 +352,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 		
 		$pTemplate = new template();
 		$pTemplate->set_custom_template($wpUnited->get_plugin_path() . 'extras/quickpoll/templates/', 'wpupoll');
-		$pTemplate->set_filenames(array('poll' => 'prosilver.html'));
+		$pTemplate->set_filenames(array('poll' => "{$template}.html"));
 		
 		$pTemplate->assign_vars(array(
 			'POLL_QUESTION'		=> $topicData['poll_title'],
@@ -360,6 +362,8 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 			'POLL_ID'			=> $topicID,
 			'L_MAX_VOTES'		=> ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
 			'L_POLL_LENGTH'		=> $actionMsg . $pollLength;
+			
+			'POLL_TEMPLATE'		=> $template;
 			
 			'S_CAN_VOTE'		=> $userCanVote,
 			'S_DISPLAY_RESULTS'	=> $displayResults,

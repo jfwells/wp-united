@@ -1,16 +1,8 @@
 current target: v0.9.1.0
 
-Outstanding reported bugs pending verification:
-- On registration easy captcha reloads page to centred '1' (DhrRob) [should be fixed with new context sw]
-- logout on viewforum page with rev integration [should be fixed with new context sw]
-- get_board_url() somewhere happening without is_enabled() [is_working()] check [should be fixed with new is_working]
-- URI too long on connection with error sent back
-- W3 total cache is overwriting $config
-
 Committed for vNext:
 
-
-* NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work
+* NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work. Can use prosilver or subsilver2 forum styles.
 * NEW: Forum top bar widget, complete with phpBB-style breadcrumbs in WordPress!
 * NEW: Forum birthdays widget!
 * NEW: phpBB MOD installation is now more closely checked, and we also ensure the phpBB MOD and WordPress plugin versions match.
@@ -18,7 +10,9 @@ Committed for vNext:
 * NEW: is_working check
 * NEW: Smilies now obey phpBB's max smilies per post setting
 * NEW: Get Help screen now shows active plugins, theme and memory settings
+* NEW: WP-United Extras: Drop-in plugins for easy additions to WP-United. The first 'extra' is the Quick poll widget! In future versions there will be a UI added to download additional extras.
 * BUGFIX / NEW: Allow password portability for passwords with htmlentities or leading/trailing spaces
+* BUGFIX / NEW: WordPress initial init is deferred when in phpBB until after phpBB auth has completed, solves a number of login oddities with plugins and with admin bar not showing on phpBB-in-WordPress pages.
 * BUGFIX: RTL layout not preserved when using template integration
 * BUGFIX: Warnings on reply posting pages due to phpBB request variables interfering with WP_Query when template is integrated.
 * BUGFIX: WordPress adding slashes to phpBB post and get variables
@@ -31,8 +25,6 @@ Committed for vNext:
 
 
 TODO:
-Admin bar not even appearing on full page rev int
-script error on page load on island with style switcher, need forum_fn too?
 check what styles we call for non-prosilver for islands
 Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-side updates
 Check template loader, ajax?
