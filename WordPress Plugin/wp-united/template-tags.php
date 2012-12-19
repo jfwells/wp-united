@@ -791,7 +791,7 @@ function wpu_phpbb_nav_block($args) {
 		$addedStyles = true;
 		
 		wp_enqueue_style('wpu-island-reset', $wpUnited->get_plugin_url() . 'theme/island-reset.css');
-		wp_enqueue_style('wpu-nav-blk-1', $phpbbForum->get_island_stylesheet());
+		wp_enqueue_style('wpu-island', $phpbbForum->get_island_stylesheet());
 	}
 	
 	if($includeStyleSwitcher && !$addedStyleSwitcher) {

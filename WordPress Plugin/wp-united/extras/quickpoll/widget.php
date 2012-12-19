@@ -112,6 +112,11 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$showTopicLink	= (!empty($instance['showTopicLink'])) 	? 'checked="checked"' : '';
 		$nativeCSS		= (!empty($instance['nativeCSS'])) 		? 'checked="checked"' : '';
 		$template 		= ((string)$instance['useTemplate']);
+		
+		if(empty($template)) {
+			$template = 'guess';
+		}
+		
 		$pollId = $instance['pollId'];
 		
 		$polls = $this->parentExtra->get_poll_list();
@@ -140,9 +145,9 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id('useTemplate'); ?>"><?php _e('Use template: ', 'wp-united'); ?></label><br />
 			<select name="<?php echo $this->get_field_name('useTemplate'); ?>" id="<?php echo $this->get_field_name('useTemplate'); ?>">
-				<option value="guess" <?php if($template == 'guess'){ ?>selected="selected"<?php } ?>><?php _e('Make best guess'); ?></option>
-				<option value="prosilver" <?php if($template == 'prosilver') { ?>selected="selected"<?php } ?>>prosilver</option>
-				<option value="subsilver2" <?php if($template == 'subsilver2') { ?>selected="selected"<?php } ?>>subsilver2</option>
+				<option value="guess" <?php if($template == 'guess'){ ?>selected="selected"<?php } ?>><?php _e('Make best guess for user', 'wp-united'); ?></option>
+				<option value="prosilver" <?php if($template == 'prosilver') { ?>selected="selected"<?php } ?>><?php _e('Force prosilver', 'wp-united'); ?></option>
+				<option value="subsilver2" <?php if($template == 'subsilver2') { ?>selected="selected"<?php } ?>><?php _e('Force subsilver2', 'wp-united'); ?></option>
 			</select>
 		</p>
 		

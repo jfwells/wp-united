@@ -389,7 +389,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 				'POLL_OPTION_RESULT' 	=> $pollOption['poll_option_total'],
 				'POLL_OPTION_PERCENT' 	=> $optionPctTxt,
 				'POLL_OPTION_PCT'		=> round($optionPct * 100),
-				'POLL_OPTION_IMG' 		=> $user->img('poll_center', $optionPctTxt, round($optionPct * 250)),
+				'POLL_OPTION_IMG' 		=> str_replace($wpUnited->get_setting('phpbb_path'), $phpbbForum->get_board_url(), $user->img('poll_center', $optionPctTxt, round($optionPct * 250))),
 				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false)
 			);
 		}
