@@ -84,7 +84,15 @@ Class WP_United_Extras_Loader {
 				$wpUnitedExtra->on_admin_load();
 			}
 		}	
-	}	
+	}
+	
+	public function widgets_init() {
+		if($wpUnited->is_working()) {
+			foreach($this->extras as $wpUnitedExtra) {
+				$wpUnitedExtra->on_widget_init();
+			}
+		}
+	}
 	
 	public function get_extra($extraName) {
 		if(in_array($extraName, $this->extras)) {
@@ -131,6 +139,12 @@ Abstract Class WP_United_Extra {
 	public function on_admin_load() {
 		return false;
 	}
+
+	// Child classes can implement this
+	public function on_widget_init() {
+		return false;
+	}
+	
 }
 
 

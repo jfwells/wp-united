@@ -140,14 +140,14 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			
 			$this->set_last_run('working');
 		
-			// Load default widgets:
-			require_once($this->get_plugin_path() . 'widgets.php');
-			add_action('widgets_init', 'wpu_widgets_init');
-			
 			// Load and initialise any WP-United Extras (sub-plugins):
 			require_once($this->get_plugin_path() . 'extras.php');
 			$this->extras = new WP_United_Extras_Loader();
 			$this->extras->init();
+			
+			// Load default widgets:
+			require_once($this->get_plugin_path() . 'widgets.php');
+			add_action('widgets_init', array($this, 'widgets_init'));
 			
 		}
 		
@@ -304,6 +304,17 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				$this->extras->admin_load_actions();
 			}
 			
+		}
+	}
+	
+	public function widgets_init() {
+			
+		// init default widgets
+		wpu_widgets_init();
+		
+		// register any sub-plugin widget
+		if($this->is_working() && is_object($this->extras)) {
+			$this->extras->widgets_init();
 		}
 	}
 	

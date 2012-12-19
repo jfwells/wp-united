@@ -617,6 +617,7 @@ class WPU_Forum_Birthdays_Widget extends WP_Widget {
  * Wrapper function for initialising widgets
  */
 function wpu_widgets_init() {
+	
 	register_widget('WPU_Login_User_info_Widget');
 	register_widget('WPU_Latest_Phpbb_Topics_Widget');
 	register_widget('WPU_Latest_Phpbb_Posts_Widget');
@@ -625,6 +626,7 @@ function wpu_widgets_init() {
 	register_widget('WPU_Useful_Forum_Links_Widget');
 	register_widget('WPU_Forum_Nav_Block_Widget');
 	register_widget('WPU_Forum_Birthdays_Widget');
+
 }
 
 
