@@ -87,6 +87,7 @@ Class WP_United_Extras_Loader {
 	}
 	
 	public function widgets_init() {
+		global $wpUnited;
 		if($wpUnited->is_working()) {
 			foreach($this->extras as $wpUnitedExtra) {
 				$wpUnitedExtra->on_widget_init();
@@ -95,7 +96,7 @@ Class WP_United_Extras_Loader {
 	}
 	
 	public function get_extra($extraName) {
-		if(in_array($extraName, $this->extras)) {
+		if(isset($this->extras[$extraName])) {
 			return $this->extras[$extraName];
 		}
 		return false;

@@ -19,8 +19,10 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$addedPollScript = false;
 
 	public function __construct() {
-		
+		global $wpUnited;
+
 		$this->parentExtra = $wpUnited->get_extra('quickpoll');
+
 		if(!is_object($this->parentExtra)) {
 			return;
 		}
