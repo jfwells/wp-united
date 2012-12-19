@@ -33,7 +33,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 	}
 	
 	public function widget($args, $instance) {
-		global $wpUnited;
+		global $wpUnited, $phpbbForum;
 		
 		extract($args, EXTR_SKIP);
 		
@@ -87,7 +87,11 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		$instance['showTopicLink'] 	= (strip_tags(stripslashes($new_instance['showTopicLink'])) == 	'ok')? 1 : 0;
 		$instance['nativeCSS'] 		= (strip_tags(stripslashes($new_instance['nativeCSS'])) == 	'ok')? 	1 : 0;
 		$instance['useTemplate'] 	= (string)strip_tags(stripslashes($new_instance['useTemplate']));
-		
+
+		if(trim($instance['useTemplate']) == '') {
+			$instance['useTemplate'] == 'prosilver';
+		}
+
 		return $instance;
 	}
 	
@@ -136,9 +140,9 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id('useTemplate'); ?>"><?php _e('Use template: ', 'wp-united'); ?></label><br />
 			<select name="<?php echo $this->get_field_name('useTemplate'); ?>" id="<?php echo $this->get_field_name('useTemplate'); ?>">
-				<option value="guess" <?php if($template == 'guess'); ?>selected="selected"<?php } ?>><?php _e('Make best guess'); ?></option>
-				<option value="prosilver" <?php if($template == 'prosilver'); ?>selected="selected"<?php } ?>>prosilver</option>
-				<option value="subsilver2" <?php if($template == 'subsilver2'); ?>selected="selected"<?php } ?>>subsilver2</option>
+				<option value="guess" <?php if($template == 'guess'){ ?>selected="selected"<?php } ?>><?php _e('Make best guess'); ?></option>
+				<option value="prosilver" <?php if($template == 'prosilver') { ?>selected="selected"<?php } ?>>prosilver</option>
+				<option value="subsilver2" <?php if($template == 'subsilver2') { ?>selected="selected"<?php } ?>>subsilver2</option>
 			</select>
 		</p>
 		

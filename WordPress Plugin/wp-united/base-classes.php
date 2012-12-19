@@ -409,7 +409,7 @@ class WP_United_Plugin_Base {
 	
 	
 	// adds a new style key, or returns the existing one if it already exists
-	public function add_style_key($fileName, $extraIdentifier) {
+	public function add_style_key($fileName, $extraIdentifier = '') {
 		$key = array_search($fileName . '?' . $extraIdentifier, (array)$this->styleKeys);
 		if($key === false) {
 			$this->styleKeys[] = $fileName . '?' . $extraIdentifier;

@@ -128,7 +128,9 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 			}
 			
 		}
-		
+		if(trim($template) == '') {
+			$template = 'prosilver';
+		}
 		$currURL = wpu_get_curr_page_link();
 		
 		 $pollMarkup = '';
@@ -361,9 +363,9 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 			'POLL_RIGHT_CAP_IMG'=> $user->img('poll_right'),
 			'POLL_ID'			=> $topicID,
 			'L_MAX_VOTES'		=> ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
-			'L_POLL_LENGTH'		=> $actionMsg . $pollLength;
+			'L_POLL_LENGTH'		=> $actionMsg . $pollLength,
 			
-			'POLL_TEMPLATE'		=> $template;
+			'POLL_TEMPLATE'		=> $template,
 			
 			'S_CAN_VOTE'		=> $userCanVote,
 			'S_DISPLAY_RESULTS'	=> $displayResults,

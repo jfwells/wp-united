@@ -199,7 +199,7 @@ class WPU_Phpbb {
 	
 	// try to guess what kind of phpBB template this user's style is based on
 	
-	public function get_style_type() {
+	public function guess_style_type() {
 		global $user;
 		
 		static $useTemplate = false;
@@ -226,15 +226,15 @@ class WPU_Phpbb {
 	/**
 	 * Return a URI that will use the style-fixer to return an island stylesheet
 	 */
-	public function get_island_stylesheet($type = false;) {
-		global $user, $phpEx, $wpUnited;
+	public function get_island_stylesheet() {
+		global $user, $phpEx, $wpUnited, $phpbbForum;
 
 
 		if(!$user->theme['theme_storedb']) {
 			$styleSheet = "{$wpUnited->get_setting['phpbb_path']}styles/" . rawurlencode($user->theme['theme_path']) . '/theme/stylesheet.css?island=1';
 			$modStyleSheet = $phpbbForum->get_board_url() . 'wp-united/style-fixer.php?usecssm=1&amp;island&amp;cloc=';
 		} else {
-			$styleSheet = "{$phpbbForum->get_board_url()}style.$phpEx") .  'id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;island=1';
+			$styleSheet = "{$phpbbForum->get_board_url()}style.$phpEx" .  '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;island=1';
 			$modStyleSheet = $styleSheet . '&amp;usecssm=1&amp;cloc=';
 		}
 
@@ -242,11 +242,11 @@ class WPU_Phpbb {
 		$cacheName = $wpuCache->issue_style_key($styleSheet);
 		$wpUnited->commit_style_keys();
 		
-		$modStylesheet = $modStyleSheet . $cacheName;
-		
+		$modStyleSheet = $modStyleSheet . $cacheName;
+
 		$this->restore_state($fStateChanged);
 		
-		return $result;
+		return $modStyleSheet;
 		
 	}
 	
