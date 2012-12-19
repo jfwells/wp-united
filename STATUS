@@ -25,7 +25,7 @@ Committed for vNext:
 
 
 TODO:
-check what styles we call for non-prosilver for islands
+template-tags for avatars using logged-in status on commenter and author avatars!
 Extract all logic from wpu-actions and style-fixer to reduce needs for phpBB-side updates
 Check template loader, ajax?
 Update assets

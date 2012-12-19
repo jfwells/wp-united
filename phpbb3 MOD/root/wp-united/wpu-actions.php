@@ -130,12 +130,12 @@ class WPU_Actions {
 		$css = '';
 		if($useTV > -1) {
 			// template voodoo-modified CSS already cached?
-			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, $useTV)) {
+			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, $useTV, $islandBlock)) {
 				$css = @file_get_contents($cacheLocation);
 			}
 		} else {
 			// Try loading CSS-magic-only CSS from cache
-			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, -1)) {
+			if($cacheLocation = $wpuCache->get_css_magic($cssIdentifier, $pos, -1, $islandBlock)) {
 				$css = @file_get_contents($cacheLocation);
 			}
 		}
@@ -174,7 +174,7 @@ class WPU_Actions {
 		$cssMagic->clear();
 		
 		//cache fixed CSS
-		$wpuCache->save_css_magic($css, $cssIdentifier, $pos, $useTV);
+		$wpuCache->save_css_magic($css, $cssIdentifier, $pos, $useTV, $islandBlock);
 		
 		return $css;
 	}

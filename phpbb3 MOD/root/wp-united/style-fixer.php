@@ -68,6 +68,7 @@ $user = false;
  */
 $pos = (request_var('pos', 'outer') 	== 'inner') 		? 'inner' 		: 'outer';
 $pkg = (request_var('pkg', 'wp') 		== 'phpbb') 	? 'phpbb' 	: 'wp';
+$islandBlock = (request_var('island', 0) == 1);
 
 $cssFileToFix = request_var('style', 0);
 
@@ -121,12 +122,12 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 	 */
 	if($useTV > -1) {
 		// template voodoo-modified CSS already cached?
-		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, $useTV)) {
+		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, $useTV, $islandBlock)) {
 			$css = @file_get_contents($cacheLocation);
 		}
 	} else {
 		// Try loading CSS-magic-only CSS from cache
-		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, -1)) {
+		if($cacheLocation = $wpuCache->get_css_magic($cssFileToFix, $pos, -1, $islandBlock)) {
 			$css = @file_get_contents($cacheLocation);
 		}
 	}
@@ -147,6 +148,13 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 				// Apply CSS Magic
 				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
 			}
+			
+			if($islandBlock) {
+				$cssMagic->makeSpecificByClass('wpuisle2', false);
+				$cssMagic->makeSpecificByClass('wpuisle', false);
+			}
+			
+			
 			$css = $cssMagic->getCSS();
 			$cssMagic->clear();
 	

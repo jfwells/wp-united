@@ -325,9 +325,7 @@ class WPU_Cache {
 			 * For css files, we need to create a style key for the filename
 			 */
 			$fileName = explode('?', $fileName);
-			$extraIdentifier = (stristr($fileName[0], 'island') !== false) ? 'island' : '';
-				
-			return $wpUnited->add_style_key($fileName[0], $extraIdentifier);
+			return $wpUnited->add_style_key($fileName[0]);
 		}
 	}
 
@@ -374,7 +372,7 @@ class WPU_Cache {
 	/**
 	 * Gets the CSS magic cache if it exists
 	 */
-	public function get_css_magic($fileName, $pos, $incTplVoodoo = -1) {
+	public function get_css_magic($fileName, $pos, $incTplVoodoo = -1, $islandBlock = false) {
 		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
 		if(@file_exists($cacheFileName)) {
 			if(@filemtime($cacheFileName) > @filemtime($fileName)) {
@@ -387,16 +385,17 @@ class WPU_Cache {
 	/**
 	 * Generates a name for the CSS Magic Cache
 	 */
-	public function get_css_magic_cache_name($fileName, $pos, $incTplVoodoo = -1) {
-		$tpl = ($incTplVoodoo > -1) ? 'tplvd-' : '';
-		return "cssmagic-{$tpl}" . md5("{$this->salt}{$fileName }-{$pos}-{$incTplVoodoo}-{$this->wpuVer}") . '.css';
+	public function get_css_magic_cache_name($fileName, $pos, $incTplVoodoo = -1, $islandBlock = false) {
+		$tpl = ($incTplVoodoo > -1) ? 'tplvd' : '';
+		$island = ($islandBlock) ? 'island-' : '';
+		return "cssmagic-{$tpl}-{$island}" . md5("{$this->salt}{$fileName }-{$pos}-{$incTplVoodoo}-{$this->wpuVer}") . '.css';
 	}
 
 	/**
 	 * Saves the CSS Magic 
 	 */
-	public function save_css_magic($content, $fileName, $pos, $incTplVoodoo = -1) {
-		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo);
+	public function save_css_magic($content, $fileName, $pos, $incTplVoodoo = -1, $islandBlock = false) {
+		$cacheFileName =$this->baseCacheLoc . $this->get_css_magic_cache_name($fileName, $pos, $incTplVoodoo, $island);
 		$this->save($content, $cacheFileName);
 		$this->log("Generated CSS Magic cache: $cacheFileName");
 	}
