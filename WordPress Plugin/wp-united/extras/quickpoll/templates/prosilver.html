@@ -1,4 +1,4 @@
-<form method="post" action="{S_POLL_ACTION}" onsubmit="return wpu_poll_submit('{POLL_ID}', this);">
+<form method="post" action="{S_POLL_ACTION}" onsubmit="return wpu_poll_submit({POLL_ID}, this);">
 	<div class="panel">
 		<div class="inner"><span class="corners-top"><span></span></span>
 
@@ -7,6 +7,7 @@
 			<p class="author">{L_POLL_LENGTH}<!-- IF S_CAN_VOTE and L_POLL_LENGTH --><br /><!-- ENDIF --><!-- IF S_CAN_VOTE -->{L_MAX_VOTES}<!-- ENDIF --></p>
 
 			<fieldset class="polls">
+			<input type="hidden" name="pollid" value="{POLL_ID}"></input>
 			<!-- BEGIN poll_option -->
 				<dl class="<!-- IF poll_option.POLL_OPTION_VOTED -->voted<!-- ENDIF -->"<!-- IF poll_option.POLL_OPTION_VOTED --> title="{L_POLL_VOTED_OPTION}"<!-- ENDIF -->>
 					<dt><!-- IF S_CAN_VOTE --><label for="vote_{poll_option.POLL_OPTION_ID}">{poll_option.POLL_OPTION_CAPTION}</label><!-- ELSE -->{poll_option.POLL_OPTION_CAPTION}<!-- ENDIF --></dt>
@@ -33,7 +34,7 @@
 			<!-- IF not S_DISPLAY_RESULTS -->
 				<dl style="border-top: none;">
 					<dt>&nbsp;</dt>
-					<dd class="resultbar totalvotes resultlink"><a href="{U_VIEW_RESULTS}"  onclick="return wpu_poll_results('{POLL_ID}');">{L_VIEW_RESULTS}</a></dd>
+					<dd class="resultbar totalvotes resultlink"><a href="{U_VIEW_RESULTS}"  onclick="return wpu_poll_results({POLL_ID});">{L_VIEW_RESULTS}</a></dd>
 				</dl>
 			<!-- ENDIF -->
 
