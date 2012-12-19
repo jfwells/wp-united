@@ -4,7 +4,7 @@
 * WP-United WordPress template tags
 *
 * @package WP-United
-* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
+* @version $Id: v0.9.1.0  2012/12/19 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -57,7 +57,7 @@ function get_avatar_commenter($id = '') {
   * @author John Wells
  */
 function avatar_poster() {
-	echo get_avatar_poster($default);
+	echo get_avatar_poster();
 }
 
 /** 
@@ -79,7 +79,7 @@ function get_avatar_poster() {
  * @author John Wells
  */
 function avatar_reader() {
-	echo get_avatar_reader($default);
+	echo get_avatar_reader();
 }
 
 /**
@@ -115,22 +115,17 @@ function wpu_avatar_create_image($userID) {
 	}
 	
 	
-	// get from WP if this user is integrated or if we have no ID
-	if (empty($userID) || ($wpUnited->get_setting('avatarsync') && $wpUnited->get_setting('integrateLogin') && wpu_get_integrated_phpbbuser($userID))) {
-		
-		// get from WP
-		$avatar = get_avatar($userID);
-	
-	// get from phpBB if the current user is logged in and they want the current user avatar
-	} else if ($phpbbUserID) {
-	
-		// get from phpBB
-		$avatar = $phpbbForum->get_avatar($phpbbUserID);
-		
-	} else {
-		// default is get from WP
-		$avatar = get_avatar($userID);
+	if (!$phpbbUserID && !empty($userID) && $wpUnited->get_setting('integrateLogin')) {
+		$phpbbUserID = wpu_get_integrated_phpbbuser($userID) ;
 	}
+	
+	if(!$phpbbUserID) {
+		$avatar = get_avatar($userID);
+	} else {
+		$avatar = $phpbbForum->get_avatar($phpbbUserID);
+	}
+	
+
 	
 	if(!empty($avatar)) {
 		if(!preg_match('/src\s*=\s*[\'"]([^\'"]+)[\'"]/', $avatar, $matches)) {
@@ -594,7 +589,7 @@ function get_wpu_useronlinelist($args = '') {
 /**
  * Displays info about the current user, or a login form if they are logged out
  */
-function wpu_login_user_info($args) {
+	function wpu_login_user_info($args) {
 	echo get_wpu_login_user_info($args);
 }
 
