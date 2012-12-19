@@ -36,6 +36,8 @@ WP-United also includes eight widgets for you to drop into your WordPress page. 
 
 Visit [wp-united.com](http://www.wp-united.com) for more information and to view example integrations in the gallery.
 
+The download includes English, with German and Simplified Chinese translations.
+
 == Installation ==
 
 1. Back up the current state of your site, just to be on the safe side.
