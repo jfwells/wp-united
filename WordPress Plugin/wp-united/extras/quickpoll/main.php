@@ -12,11 +12,11 @@
 * 
 */
 
-Class WP_United_Extra_quickpoll extends WP_United_Extras {
+Class WP_United_Extra_quickpoll extends WP_United_Extra {
 
 	public function on_init() {
 		global $wpUnited;
-		
+
 		include_once($wpUnited->get_plugin_path() . 'extras/quickpoll/widget.php');
 		register_widget('WPU_Forum_Polls_Widget');
 

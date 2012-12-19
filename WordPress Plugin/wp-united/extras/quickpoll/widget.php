@@ -15,7 +15,7 @@
 class WPU_Forum_Polls_Widget extends WP_Widget {
 
 	private 
-		$parentExtra = false
+		$parentExtra = false,
 		$addedPollScript = false;
 
 	public function __construct() {

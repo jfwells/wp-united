@@ -33,20 +33,22 @@ Class WP_United_Extras_Loader {
 		$this->extras = array();
 		
 		$this->baseDir = $wpUnited->get_plugin_path() . 'extras/';
-		
+
 		$dirs = @glob($this->baseDir . "*", GLOB_ONLYDIR);
-		
+
 		foreach($dirs as $dir) {
-			$extraFile = @realpath($this->baseDir . $dir ). '/main.php'
+			$extraFile = $dir . '/main.php';
+
 			if(@file_exists($extraFile)) {
-				@include($extraFile);
+				include($extraFile);
 			}
-			$className = 'WP_United_Extras_' . $dir;
+			$extrasName = basename($dir);
+			$className = 'WP_United_Extra_' . $extrasName;
 			if(class_exists($className)) {
 				$extra = false;
-				$extra = @(new $className);
-				if(is_object($extra) {
-					$this->extras[$dir] = $extra;
+				$extra = (new $className);
+				if(is_object($extra)) {
+					$this->extras[$extrasName] = $extra;
 				}
 			}
 		}
@@ -55,9 +57,9 @@ Class WP_United_Extras_Loader {
 	
 	public function init() {
 		global $wpUnited;
-		
+	
 		if($wpUnited->is_working()) {
-		
+
 			foreach($this->extras as $wpUnitedExtra) {
 				$wpUnitedExtra->init();
 			}
@@ -65,6 +67,8 @@ Class WP_United_Extras_Loader {
 	}
 	
 	public function page_load_actions() {
+		global $wpUnited;
+
 		if($wpUnited->is_working()) {
 			foreach($this->extras as $wpUnitedExtra) {
 				$wpUnitedExtra->on_page_load();
@@ -73,6 +77,8 @@ Class WP_United_Extras_Loader {
 	}
 	
 	public function admin_load_actions() {
+		global $wpUnited;
+
 		if($wpUnited->is_working()) {
 			foreach($this->extras as $wpUnitedExtra) {
 				$wpUnitedExtra->on_admin_load();
@@ -88,7 +94,7 @@ Class WP_United_Extras_Loader {
 	}
 }
 
-Abstract Class WP_United_Extra() {
+Abstract Class WP_United_Extra {
 
 	private 
 		$loaded,

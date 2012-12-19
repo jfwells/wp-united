@@ -190,7 +190,7 @@ class WPU_Phpbb {
 		}
 
 		$this->lang = $GLOBALS['user']->lang;
-		
+
 		$this->backup_phpbb_state();
 		$this->switch_to_wp_db();
 		$this->restore_wp_conflicts();
