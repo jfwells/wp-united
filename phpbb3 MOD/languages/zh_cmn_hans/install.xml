@@ -36,7 +36,8 @@
   
   <action-group>
     <copy>
-      <file from="/root/language/zh/mods/wp-united.php" to="/language/zh/mods/wp-united.php" />
+      <file from="/root/language/zh_cmn_hans/mods/wp-united.php" to="/language/zh_cmn_hans/mods/wp-united.php" />
+      <file from="/root/language/zh_cmn_hans/mods/permissions_wp-united.php" to="/language/zh_cmn_hans/mods/permissions_wp-united.php" />
     </copy>
   </action-group>
 </mod>

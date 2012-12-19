@@ -37,11 +37,11 @@ $lang['permission_cat']['wputd'] = 'WP-United';
 
 // Adding the permissions
 $lang = array_merge($lang, array(
-    'acl_u_wpu_subscriber'    => array('lang' => 'Can integrate as a WordPress subscriber (can view profile, write comments)', 'cat' => 'wputd'),
-    'acl_u_wpu_contributor'    => array('lang' => 'Can integrate as a WordPress contributor (can write but not publish posts)', 'cat' => 'wputd'),
-    'acl_u_wpu_author'    => array('lang' => 'Can integrate as a WordPress author (can write blog posts)', 'cat' => 'wputd'),
-    'acl_m_wpu_editor'    => array('lang' => 'Can integrate as a WordPress editor (can edit others\' posts)', 'cat' => 'wputd'),
-    'acl_a_wpu_administrator'    => array('lang' => 'Can integrate as a WordPress administrator', 'cat' => 'wputd'),
-	'acl_f_wpu_xpost'	=>	array('lang' => 'Can post blog posts to this forum', 'cat' => 'wputd'),
+    'acl_u_wpu_subscriber'    => array('lang' => '可以集成为WordPress的用户（可以查看资料，编辑评论）', 'cat' => 'wputd'),
+    'acl_u_wpu_contributor'    => array('lang' => '可以集成为WordPress的编写者（可以编写但不可以发帖）', 'cat' => 'wputd'),
+    'acl_u_wpu_author'    => array('lang' => '可以集成为WordPress的作者（可以发帖）', 'cat' => 'wputd'),
+    'acl_m_wpu_editor'    => array('lang' => '可以集成为WordPress的编辑(可以编辑他人的发帖)', 'cat' => 'wputd'),
+    'acl_a_wpu_administrator'    => array('lang' => '可以编辑为WordPress管理员', 'cat' => 'wputd'),
+	'acl_f_wpu_xpost'	=>	array('lang' => '可以在此论坛发帖', 'cat' => 'wputd'),
 ));
 ?>

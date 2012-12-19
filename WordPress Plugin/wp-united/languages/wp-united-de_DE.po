@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wp-united\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-12-18 10:40+0800\n"
-"PO-Revision-Date: 2012-12-18 08:32+0000\n"
-"Last-Translator: way2vet <wanasek.dominik@gmail.com>\n"
+"POT-Creation-Date: 2012-12-19 18:44+0800\n"
+"PO-Revision-Date: 2012-12-19 13:51+0000\n"
+"Last-Translator: John Wells <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-18 14:20+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2012-12-19 14:08+0000\n"
+"X-Generator: Launchpad (build 16378)\n"
 
 #: base-classes.php:296 settings-panel.php:359
 #, php-format
@@ -308,7 +308,7 @@ msgstr "Rang:"
 msgid "Last visited:"
 msgstr "Zuletzt besucht:"
 
-#: phpbb.php:179
+#: phpbb.php:178
 msgid ""
 "The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it "
 "is missing, or you need to clear the phpBB cache. <br /><br />Attempted to "
@@ -326,84 +326,81 @@ msgstr ""
 "Wenn dieser Fehler weiterhin besteht, überprüfe ob includes/hooks/hook_wp-"
 "united.php existiert und versuche manuell den phpBB-Cache zu leeren."
 
-#: phpbb.php:438 phpbb.php:534 phpbb.php:591 phpbb.php:644 phpbb.php:731
+#: phpbb.php:543 phpbb.php:637 phpbb.php:694 extras/quickpoll/main.php:63
+#: extras/quickpoll/main.php:153
 msgid "Could not access the database."
 msgstr "Konnte nicht auf die Datenbank zugreifen."
 
-#: phpbb.php:1002
-msgid "View poll in forum"
-msgstr "Zeige Umfrage im Forum"
-
-#: phpbb.php:1284 plugin-main.php:601
+#: phpbb.php:980 plugin-main.php:632
 msgid "More smilies"
 msgstr "Mehr Smilies."
 
-#: phpbb.php:1426
+#: phpbb.php:1122
 msgid "Receiving settings from WP-United..."
 msgstr "Erhalte Einstellungen von WP-United..."
 
-#: phpbb.php:1435
+#: phpbb.php:1131
 msgid "Modified USERS Table (Integration ID)"
 msgstr "USERS Tabelle (Verbindungs-ID) bearbeitet"
 
-#: phpbb.php:1444
+#: phpbb.php:1140
 msgid "Modified USERS Table (Blog ID)"
 msgstr "USERS Tabelle (Blog ID) bearbeitet"
 
-#: phpbb.php:1459
+#: phpbb.php:1155
 msgid "Modified POSTS Table (Cross-Posting Link)"
 msgstr ""
 "POSTS Tabelle (Systemübergeifender Veröffentlichungs-Link) bearbeitet"
 
-#: phpbb.php:1465
+#: phpbb.php:1161
 msgid "Adding WP-United Permissions"
 msgstr "Füge WP-United Berechtigungen hinzu"
 
-#: phpbb.php:1477
+#: phpbb.php:1173
 msgid "Storing the new WP-United settings"
 msgstr "Speichere die WP-United Einstellungen"
 
-#: phpbb.php:1505
+#: phpbb.php:1201
 msgid "Updating avatar settings"
 msgstr "Avatar-Einstellungen werden aktualisiert"
 
-#: phpbb.php:1518
+#: phpbb.php:1214
 msgid "Purging the WP-United cache"
 msgstr "Der WP-United Cache wird geleert"
 
-#: phpbb.php:1523
+#: phpbb.php:1219
 msgid "Completed successfully"
 msgstr "Erfolgreich abgeschlossen"
 
-#: phpbb.php:1554
+#: phpbb.php:1250
 msgid "Changed WP-United Settings (click for details)"
 msgstr "WP-United Einstellungen geändert (klicke für Details)"
 
-#: plugin-main.php:254 settings-panel.php:142
+#: plugin-main.php:269 settings-panel.php:142
 msgid "Setup / Status"
 msgstr "Setup / Status"
 
-#: plugin-main.php:326
+#: plugin-main.php:357
 msgid ""
 "phpBB integration by <a href=\"http://www.wp-united.com/\">WP-United</a>."
 msgstr ""
 "phpBB Einbindung durch <a href=\"http://www.wp-united.com/\">WP-United</a>."
 
-#: plugin-main.php:387
+#: plugin-main.php:418
 msgid "Error accessing the phpBB database when updating Blog ID"
 msgstr ""
 "Fehler beim Zugriff auf die phpBB Datenbank während der Aktualisierung der "
 "Blog ID"
 
-#: plugin-main.php:510
+#: plugin-main.php:541
 msgid "Avatar image"
 msgstr "Avatarbild"
 
-#: plugin-main.php:602
+#: plugin-main.php:633
 msgid "Less smilies"
 msgstr "Weniger Smilies"
 
-#: plugin-main.php:603
+#: plugin-main.php:634
 #, php-format
 msgid ""
 "Your smiley could not be inserted. You can add it manually by typing this "
@@ -412,11 +409,11 @@ msgstr ""
 "Dein Smiley konnte nicht automatisch eingefügt werden. Du kannst ihn manuell "
 "durch folgenden Code einfügen: %s"
 
-#: plugin-main.php:715
+#: plugin-main.php:746
 msgid "Error:"
 msgstr "Fehler:"
 
-#: plugin-main.php:717
+#: plugin-main.php:748
 msgid ""
 "Please go back and try again, or contact an administrator if you keep seeing "
 "this error."
@@ -1031,7 +1028,8 @@ msgstr "%1$s Benutzer %2$s zu %3$s Benutzer %4$s"
 msgid "Processing permission mappings..."
 msgstr "Verarbeite Berechtigungsabbild..."
 
-#: settings-panel.php:750 settings-panel.php:1126 widgets.php:655
+#: settings-panel.php:750 settings-panel.php:1126
+#: extras/quickpoll/widget.php:69
 msgid "Please wait..."
 msgstr "Bitte warten..."
 
@@ -1716,27 +1714,27 @@ msgstr "Nichts gefunden."
 msgid "%1$s, posted by %2$s in %3$s"
 msgstr "%1$s, veröffentlicht von %2$s in %3$s"
 
-#: template-tags.php:649
+#: template-tags.php:653
 msgid "Write a Post"
 msgstr "Einen Beitrag schreiben"
 
-#: template-tags.php:654
+#: template-tags.php:658
 msgid "Dashboard"
 msgstr "Übersicht"
 
-#: template-tags.php:671
+#: template-tags.php:674
 msgid "Remember me"
 msgstr "Angemeldet bleiben"
 
-#: template-tags.php:673
+#: template-tags.php:676
 msgid "Login"
 msgstr "Anmelden"
 
-#: template-tags.php:674
+#: template-tags.php:677
 msgid "Register"
 msgstr "Registrieren"
 
-#: template-tags.php:675
+#: template-tags.php:678
 msgid "Forgot Password?"
 msgstr "Passwort vergessen?"
 
@@ -1850,7 +1848,7 @@ msgid "Recent Forum Topics"
 msgstr "Neue Forumsthemen"
 
 #: widgets.php:160 widgets.php:217 widgets.php:265 widgets.php:330
-#: widgets.php:460 widgets.php:608 widgets.php:701
+#: widgets.php:460 widgets.php:608 extras/quickpoll/widget.php:126
 msgid "Title: "
 msgstr "Titel: "
 
@@ -1957,11 +1955,13 @@ msgstr "Zeige PMs?"
 
 #: widgets.php:479
 msgid ""
-"Shows the top phpBB forum navigation / breadcrumb bar. If you have template "
-"integration turned on, this will only appear on non-forum pages."
+"Shows the top phpBB prosilver forum navigation / breadcrumb bar. If you have "
+"template integration turned on, this will only appear on non-forum pages. "
+"Your forum must be using a prosilver-based theme for this to work."
 msgstr ""
 "Zeigt die Kopfnavigationgs- bzw. Bradcrumbleiste. Wenn Template Verbinden "
-"aktiviert ist, wird dies nur auf nicht-Forumsseite angezeigt werden."
+"aktiviert ist, wird dies nur auf nicht-Forumsseite angezeigt werden. Dein "
+"Forum muss ein auf prosilver basierendes Theme benutzen um zu funktionieren."
 
 #: widgets.php:480
 msgid "WP-United Forum Navigation Bar"
@@ -1979,7 +1979,7 @@ msgstr "Mitgliederliste zeigen?"
 msgid "Show register link?"
 msgstr "Registrierungslink zeigen?"
 
-#: widgets.php:543 widgets.php:719
+#: widgets.php:543 extras/quickpoll/widget.php:154
 msgid "Don't add CSS, I will style this myself"
 msgstr "Füge kein CSS hinzu, ich werde den Stil selbst hinzufügen"
 
@@ -2009,7 +2009,11 @@ msgstr "Alles Gute an: "
 msgid "Hide widget if there is nothing to show?"
 msgstr "Widget verstecken wenn keine Einträge vorhanden sind?"
 
-#: widgets.php:621
+#: extras/quickpoll/main.php:375
+msgid "View poll in forum"
+msgstr "Zeige Umfrage im Forum"
+
+#: extras/quickpoll/widget.php:30
 msgid ""
 "Displays a selected poll from your forum. Users must have the relevant "
 "permissions to view and/or vote on the poll."
@@ -2017,44 +2021,60 @@ msgstr ""
 "Zeigt eine ausgewählte Umfrage aus deinem Forum. Benutzer müssen die "
 "richtigen Berechtigungen haben, um die Umfrage zu sehen/abstimmen zu können."
 
-#: widgets.php:622
+#: extras/quickpoll/widget.php:31
 msgid "WP-United Forum Quick Poll"
 msgstr "WP-United-Umfrage"
 
-#: widgets.php:648
+#: extras/quickpoll/widget.php:62
 msgid "You do not have permission to view this poll"
 msgstr "Du hast keine Zugangsberechtigung zu dieser Umfrage"
 
-#: widgets.php:655
+#: extras/quickpoll/widget.php:69
 msgid "Loading."
 msgstr "Ladevorgang。"
 
-#: widgets.php:684
+#: extras/quickpoll/widget.php:102
 msgid "Quick Poll"
 msgstr "Umfrage"
 
-#: widgets.php:704
+#: extras/quickpoll/widget.php:129
 msgid "Select a poll: "
 msgstr "Wähle eine Umfrage: "
 
-#: widgets.php:706
+#: extras/quickpoll/widget.php:131
 msgid "No poll selected"
 msgstr "Keine Umfrage ausgewählt"
 
-#: widgets.php:710
+#: extras/quickpoll/widget.php:135
 #, php-format
 msgid "'%1$s', in topic: '%2$s'"
 msgstr "'%1$s', im Thema: '%2$s'"
 
-#: widgets.php:717
+#: extras/quickpoll/widget.php:142
 msgid "Hide widget if the user has no permissions to view this poll?"
 msgstr ""
 "Widget verstecken wenn der Benutzer keine Berechtigungen hat um die Umfrage "
 "zu betrachten?"
 
-#: widgets.php:718
+#: extras/quickpoll/widget.php:143
 msgid "Show a link to the poll topic?"
 msgstr "Einen Link zum Umfragethema zeigen?"
+
+#: extras/quickpoll/widget.php:146
+msgid "Use template: "
+msgstr "Template verwenden: "
+
+#: extras/quickpoll/widget.php:148
+msgid "Make best guess for user"
+msgstr "Schätze automatisch"
+
+#: extras/quickpoll/widget.php:149
+msgid "Force prosilver"
+msgstr "prosilver erzwingen"
+
+#: extras/quickpoll/widget.php:150
+msgid "Force subsilver2"
+msgstr "subsilver2 erzwingen"
 
 #: languages/phpbb_language_stubs.php:19
 msgid "WordPress Blog"
@@ -2109,3 +2129,10 @@ msgstr "Kann als WordPress Administrator verbunden werden"
 #: languages/phpbb_language_stubs.php:30
 msgid "Can post blog posts to this forum"
 msgstr "Kann Blogbeiträge in diesem Forum veröffentlichen"
+
+#~ msgid ""
+#~ "Shows the top phpBB forum navigation / breadcrumb bar. If you have template "
+#~ "integration turned on, this will only appear on non-forum pages."
+#~ msgstr ""
+#~ "Zeigt die Kopfnavigationgs- bzw. Bradcrumbleiste. Wenn Template Verbinden "
+#~ "aktiviert ist, wird dies nur auf nicht-Forumsseite angezeigt werden."

@@ -4,8 +4,8 @@
 * WP-United Permissions [German]
 *
 * @package WP-United
-* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
-* @copyright (c) 2006-2010 wp-united.com
+* @version $Id: v0.9.1 2012/12/19 John Wells (Jhong) Exp $
+* @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
@@ -37,11 +37,11 @@ $lang['permission_cat']['wputd'] = 'WP-United';
 
 // Adding the permissions
 $lang = array_merge($lang, array(
-	'acl_u_wpu_subscriber'    => array('lang' => 'Can integrate as a WordPress subscriber (can view profile, write comments)', 'cat' => 'wputd'),
-	'acl_u_wpu_contributor'    => array('lang' => 'Can integrate as a WordPress contributor (can write but not publish posts)', 'cat' => 'wputd'),
-	'acl_u_wpu_author'    => array('lang' => 'Can integrate as a WordPress author (can write blog posts)', 'cat' => 'wputd'),
-	'acl_m_wpu_editor'    => array('lang' => 'Can integrate as a WordPress editor (can edit others\' posts)', 'cat' => 'wputd'),
-	'acl_a_wpu_administrator'    => array('lang' => 'Can integrate as a WordPress administrator', 'cat' => 'wputd'),
-	'acl_f_wpu_xpost'	=>	array('lang' => 'Can post blog posts to this forum', 'cat' => 'wputd'),
+	'acl_u_wpu_subscriber'    => array('lang' => 'Kann als WordPress Abonnent (kann Profile sehen, Kommentare schreiben) verbunden werden', 'cat' => 'wputd'),
+	'acl_u_wpu_contributor'    => array('lang' => 'Kann als WordPress Mitarbeiter (kann schreiben aber keine Beiträge veröffentlichen) verbunden werden', 'cat' => 'wputd'),
+	'acl_u_wpu_author'    => array('lang' => 'Kann als WordPress Author (kann Blogbeiträge schreiben) verbunden werden', 'cat' => 'wputd'),
+	'acl_m_wpu_editor'    => array('lang' => 'Kann als WordPress Redakteur (kann Beiträge anderer bearbeiten) verbunden werden', 'cat' => 'wputd'),
+	'acl_a_wpu_administrator'    => array('lang' => 'Kann als WordPress Administrator verbunden werden', 'cat' => 'wputd'),
+	'acl_f_wpu_xpost'	=>	array('lang' => 'Kann Blogbeiträge in diesem Forum veröffentlichen', 'cat' => 'wputd'),
 ));
 ?>
