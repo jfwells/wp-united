@@ -1002,7 +1002,7 @@ class WPU_Phpbb {
 		$pTemplate->set_template();
 		$pTemplate->set_filenames(array('poll' => 'viewtopic_body.html'));
 		
-		$template->assign_vars(array(
+		$pTemplate->assign_vars(array(
 			'POLL_QUESTION'		=> $topicData['poll_title'],
 			'TOTAL_VOTES' 		=> $pollTotal,
 			'POLL_LEFT_CAP_IMG'	=> $user->img('poll_left'),
@@ -1024,7 +1024,7 @@ class WPU_Phpbb {
 			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
 			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
 
-			$template->assign_block_vars('poll_option', array(
+			$pTemplate->assign_block_vars('poll_option', array(
 				'POLL_OPTION_ID' 		=> $pollOption['poll_option_id'],
 				'POLL_OPTION_CAPTION' 	=> $pollOption['poll_option_text'],
 				'POLL_OPTION_RESULT' 	=> $pollOption['poll_option_total'],
