@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-United v0.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-18 10:40+0800\n"
-"PO-Revision-Date: 2012-12-18 10:40+0800\n"
+"POT-Creation-Date: 2012-12-19 18:44+0800\n"
+"PO-Revision-Date: 2012-12-19 18:44+0800\n"
 "Last-Translator: John Wells <solutions@wp-united.com>\n"
 "Language-Team: John Wells <admin@wp-united.com>\n"
 "MIME-Version: 1.0\n"
@@ -274,7 +274,7 @@ msgstr ""
 msgid "Last visited:"
 msgstr ""
 
-#: phpbb.php:179
+#: phpbb.php:178
 msgid ""
 "The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it "
 "is missing, or you need to clear the phpBB cache. <br /><br />Attempted to "
@@ -284,91 +284,88 @@ msgid ""
 "hook_wp-united.php exists, and try manually purging your phpBB cache."
 msgstr ""
 
-#: phpbb.php:438 phpbb.php:534 phpbb.php:591 phpbb.php:644 phpbb.php:731
+#: phpbb.php:543 phpbb.php:637 phpbb.php:694 extras/quickpoll/main.php:63
+#: extras/quickpoll/main.php:153
 msgid "Could not access the database."
 msgstr ""
 
-#: phpbb.php:1002
-msgid "View poll in forum"
-msgstr ""
-
-#: phpbb.php:1284 plugin-main.php:601
+#: phpbb.php:980 plugin-main.php:632
 msgid "More smilies"
 msgstr ""
 
-#: phpbb.php:1426
+#: phpbb.php:1122
 msgid "Receiving settings from WP-United..."
 msgstr ""
 
-#: phpbb.php:1435
+#: phpbb.php:1131
 msgid "Modified USERS Table (Integration ID)"
 msgstr ""
 
-#: phpbb.php:1444
+#: phpbb.php:1140
 msgid "Modified USERS Table (Blog ID)"
 msgstr ""
 
-#: phpbb.php:1459
+#: phpbb.php:1155
 msgid "Modified POSTS Table (Cross-Posting Link)"
 msgstr ""
 
-#: phpbb.php:1465
+#: phpbb.php:1161
 msgid "Adding WP-United Permissions"
 msgstr ""
 
-#: phpbb.php:1477
+#: phpbb.php:1173
 msgid "Storing the new WP-United settings"
 msgstr ""
 
-#: phpbb.php:1505
+#: phpbb.php:1201
 msgid "Updating avatar settings"
 msgstr ""
 
-#: phpbb.php:1518
+#: phpbb.php:1214
 msgid "Purging the WP-United cache"
 msgstr ""
 
-#: phpbb.php:1523
+#: phpbb.php:1219
 msgid "Completed successfully"
 msgstr ""
 
-#: phpbb.php:1554
+#: phpbb.php:1250
 msgid "Changed WP-United Settings (click for details)"
 msgstr ""
 
-#: plugin-main.php:254 settings-panel.php:142
+#: plugin-main.php:269 settings-panel.php:142
 msgid "Setup / Status"
 msgstr ""
 
-#: plugin-main.php:326
+#: plugin-main.php:357
 msgid ""
 "phpBB integration by <a href=\"http://www.wp-united.com/\">WP-United</a>."
 msgstr ""
 
-#: plugin-main.php:387
+#: plugin-main.php:418
 msgid "Error accessing the phpBB database when updating Blog ID"
 msgstr ""
 
-#: plugin-main.php:510
+#: plugin-main.php:541
 msgid "Avatar image"
 msgstr ""
 
-#: plugin-main.php:602
+#: plugin-main.php:633
 msgid "Less smilies"
 msgstr ""
 
-#: plugin-main.php:603
+#: plugin-main.php:634
 #, php-format
 msgid ""
 "Your smiley could not be inserted. You can add it manually by typing this "
 "code: %s"
 msgstr ""
 
-#: plugin-main.php:715
+#: plugin-main.php:746
 msgid "Error:"
 msgstr ""
 
-#: plugin-main.php:717
+#: plugin-main.php:748
 msgid ""
 "Please go back and try again, or contact an administrator if you keep seeing "
 "this error."
@@ -901,7 +898,8 @@ msgstr ""
 msgid "Processing permission mappings..."
 msgstr ""
 
-#: settings-panel.php:750 settings-panel.php:1126 widgets.php:655
+#: settings-panel.php:750 settings-panel.php:1126
+#: extras/quickpoll/widget.php:69
 msgid "Please wait..."
 msgstr ""
 
@@ -1480,27 +1478,27 @@ msgstr ""
 msgid "%1$s, posted by %2$s in %3$s"
 msgstr ""
 
-#: template-tags.php:649
+#: template-tags.php:653
 msgid "Write a Post"
 msgstr ""
 
-#: template-tags.php:654
+#: template-tags.php:658
 msgid "Dashboard"
 msgstr ""
 
-#: template-tags.php:671
+#: template-tags.php:674
 msgid "Remember me"
 msgstr ""
 
-#: template-tags.php:673
+#: template-tags.php:676
 msgid "Login"
 msgstr ""
 
-#: template-tags.php:674
+#: template-tags.php:677
 msgid "Register"
 msgstr ""
 
-#: template-tags.php:675
+#: template-tags.php:678
 msgid "Forgot Password?"
 msgstr ""
 
@@ -1601,7 +1599,7 @@ msgid "Recent Forum Topics"
 msgstr ""
 
 #: widgets.php:160 widgets.php:217 widgets.php:265 widgets.php:330
-#: widgets.php:460 widgets.php:608 widgets.php:701
+#: widgets.php:460 widgets.php:608 extras/quickpoll/widget.php:126
 msgid "Title: "
 msgstr ""
 
@@ -1705,8 +1703,9 @@ msgstr ""
 
 #: widgets.php:479
 msgid ""
-"Shows the top phpBB forum navigation / breadcrumb bar. If you have template "
-"integration turned on, this will only appear on non-forum pages."
+"Shows the top phpBB prosilver forum navigation / breadcrumb bar. If you have "
+"template integration turned on, this will only appear on non-forum pages. "
+"Your forum must be using a prosilver-based theme for this to work."
 msgstr ""
 
 #: widgets.php:480
@@ -1725,7 +1724,7 @@ msgstr ""
 msgid "Show register link?"
 msgstr ""
 
-#: widgets.php:543 widgets.php:719
+#: widgets.php:543 extras/quickpoll/widget.php:154
 msgid "Don't add CSS, I will style this myself"
 msgstr ""
 
@@ -1752,47 +1751,67 @@ msgstr ""
 msgid "Hide widget if there is nothing to show?"
 msgstr ""
 
-#: widgets.php:621
+#: extras/quickpoll/main.php:375
+msgid "View poll in forum"
+msgstr ""
+
+#: extras/quickpoll/widget.php:30
 msgid ""
 "Displays a selected poll from your forum. Users must have the relevant "
 "permissions to view and/or vote on the poll."
 msgstr ""
 
-#: widgets.php:622
+#: extras/quickpoll/widget.php:31
 msgid "WP-United Forum Quick Poll"
 msgstr ""
 
-#: widgets.php:648
+#: extras/quickpoll/widget.php:62
 msgid "You do not have permission to view this poll"
 msgstr ""
 
-#: widgets.php:655
+#: extras/quickpoll/widget.php:69
 msgid "Loading."
 msgstr ""
 
-#: widgets.php:684
+#: extras/quickpoll/widget.php:102
 msgid "Quick Poll"
 msgstr ""
 
-#: widgets.php:704
+#: extras/quickpoll/widget.php:129
 msgid "Select a poll: "
 msgstr ""
 
-#: widgets.php:706
+#: extras/quickpoll/widget.php:131
 msgid "No poll selected"
 msgstr ""
 
-#: widgets.php:710
+#: extras/quickpoll/widget.php:135
 #, php-format
 msgid "'%1$s', in topic: '%2$s'"
 msgstr ""
 
-#: widgets.php:717
+#: extras/quickpoll/widget.php:142
 msgid "Hide widget if the user has no permissions to view this poll?"
 msgstr ""
 
-#: widgets.php:718
+#: extras/quickpoll/widget.php:143
 msgid "Show a link to the poll topic?"
+msgstr ""
+
+#: extras/quickpoll/widget.php:146
+msgid "Use template: "
+msgstr ""
+
+#: extras/quickpoll/widget.php:148
+msgid "Make best guess for user"
+msgstr ""
+
+#: extras/quickpoll/widget.php:149
+msgid "Force prosilver"
+msgstr ""
+
+#: extras/quickpoll/widget.php:150
+msgid "Force subsilver2"
 msgstr ""
 
 #: languages/phpbb_language_stubs.php:19
