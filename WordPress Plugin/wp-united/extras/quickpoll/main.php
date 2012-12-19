@@ -365,7 +365,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 			'S_DISPLAY_RESULTS'	=> $displayResults,
 			
 			'S_SHOW_LINK'		=> $showLink,
-			'U_TOPIC_LINK'		=> $topicLink,
+			'U_TOPIC_LINK'		=> $phpbbForum->get_board_url() . $topicLink,
 			'L_TOPIC_LINK'		=> __('View poll in forum', 'wp-united'),
 			
 			'S_IS_MULTI_CHOICE'	=> ($topicData['poll_max_options'] > 1) ? true : false,
@@ -396,100 +396,6 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 		ob_end_clean();
 		
 		
-	/*
-
-
-	$pollTemplate = 'prosilver';
-		
-		if($pollTemplate == 'prosilver') {
-			$pollMarkup .= '<form action="' . $currURL . '" method="post" onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
-			$pollMarkup .= '<div class="panel"><div class="inner"><span class="corners-top"><span></span></span><div class="content">';
-			$pollMarkup .= '<h2>' . $topicData['poll_title'] . '</h2>';
-			$pollMarkup .= '<p class="author">' . $actionMsg . $pollLength;
-			if($userCanVote) {
-				if(!empty($pollLength)) {
-					$pollMarkup .= '<br />';
-				}
-				$pollMarkup .= $maxVotes;
-			}
-			$pollMarkup .= '</p>';
-			$pollMarkup .= '<fieldset class="polls">';
-			$pollMarkup .= '<input type="hidden" name="pollid" value="' . $topicID . '"></input>';
-		} else {
-			$pollMarkup .= '<table class="tablebg" width="100%" cellspacing="1"><tr>';
-			$pollMarkup .= '<td class="row2" colspan="2" align="center"><br clear="all" />';
-			$pollMarkup .= '<form action="' . $currURL . '" method="post" onsubmit="return wpu_poll_submit(' . $topicID . ', this);">';
-			$pollMarkup .= '<table cellspacing="0" cellpadding="4" border="0" align="center">';
-			$pollMarkup .= '<tr><td align="center"><span class="gen"><b>' . $topicData['poll_title'] . '</b></span><br /><span class="gensmall">' . $actionMsg . $pollLength . '</span></td></tr>';
-			$pollMarkup .= '<tr><td align="' . $s_contentFlowBegin . '"><table cellspacing="0" cellpadding="2" border="0">';
-		}
-		
-		foreach ($pollOptions as $pollOption) {
-			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
-			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
-			$pollVotesText = ($pollOption['poll_option_total'] == 0) ? $user->lang['NO_VOTES'] : $optionPctTxt;
-			$pollOptionImg = $user->img('poll_center', $optionPctTxt, round($optionPct * 250));
-			$pollOptionVoted = (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false;
-			$pollClass = ($pollOptionVoted) ? ' class="voted" ' : '';
-			$pollTitleAttr = ($pollOptionVoted) ? ' title="' . $user->lang['POLL_VOTED_OPTION'] . '"' : '';
-			$pollChecked = ($pollOptionVoted) ? ' checked="checked"' : '';
-			$pollBarClass = ($optionPct > 0) ? 'pollbar' .(((int)($optionPct * 5)) + 1) : 'pollbar1';
-			$pollBarClass = ($pollBarClass == 'pollbar6') ? 'pollbar5' : $pollBarClass;
-			
-			if($pollTemplate == 'prosilver') {
-				$pollMarkup .= "<dl {$pollClass} {$pollTitleAttr}>";
-				$pollMarkup .= '<dt>';
-				if ($userCanVote) {
-					$pollMarkup .= '<label for="vote_' . $pollOption['poll_option_id'] . '">' . $pollOption['poll_option_text'] . '</label>';
-				} else {
-					$pollMarkup .= $pollOption['poll_option_text'];
-				}
-				$pollMarkup .= '</dt>';
-				if($userCanVote) {
-					$pollMarkup .= '<dd style="width: auto;">';
-					if($multiChoice) {
-						$pollMarkup .= '<input type="checkbox" name="vote_id[]" id="vote_' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . ' />';
-					} else {
-						$pollMarkup .= '<input type="radio" name="vote_id[]" id="' . $pollOption['poll_option_id'] . '" value="' . $pollOption['poll_option_id'] . '"' . $pollChecked . '/>';
-					}
-					$pollMarkup .= '</dd>';
-				}
-				
-				if($displayResults) {
-					$pollMarkup .= '<dd class="resultbar"><div class="' . $pollBarClass . '" style="width:' . $optionPctTxt . ';">' . $pollOption['poll_option_total'] . '</div></dd>';
-					$pollMarkup .= '<dd>' . $pollVotesText . '</dd>';
-				}
-				
-				$pollMarkup .= '</dl>';
-			} else {
-				
-			}
-		}
-		
-		if($displayResults) {
-			$pollMarkup .= '<dl><dt>&nbsp;</dt><dd class="resultbar totalvotes">' . $user->lang['TOTAL_VOTES'] . ' : ' .  $pollTotal . '</dd></dl>';
-		}
-		
-		if($userCanVote) {
-			$pollMarkup .= '<dl style="border-top: none;"><dt>&nbsp;</dt>';
-			$pollMarkup .= '<dd class="resultbar"><input type="submit" name="update" value="' . $user->lang['SUBMIT_VOTE'] . '" class="button1" /></dd></dl>';
-		}
-		
-		if(!$displayResults) {
-			
-			$currURL = (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1';
-			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes resultlink"><a href="' . $currURL .  '" onclick="return wpu_poll_results(' . $topicID . ')">' . $user->lang['VIEW_RESULTS'] . '</a></dd></dl>';
-		}
-		if($showLink) {
-			$topicLink = ($phpbbForum->seo) ? "topic{$topicID}.html" : "viewtopic.$phpEx?t={$topicID}";
-			$pollMarkup .= '<dl style="border-top: none"><dt>&nbsp;</dt><dd class="resultbar totalvotes topiclink"><a href="' . $topicLink .  '">' . __('View poll in forum', 'wp-united') . '</a></dd></dl>';
-		}					
-		$pollMarkup .= '</fieldset>';
-		$pollMarkup .= '</div><span class="corners-bottom"><span></span></span></div></div>';
-		$pollMarkup .= '</form>';
-		*/
-		
-
 		$phpbbForum->restore_state($fStateChanged);
 
 		if($ajax) {
