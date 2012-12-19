@@ -229,6 +229,7 @@ class WPU_Phpbb {
 	public function get_island_stylesheet() {
 		global $user, $phpEx, $wpUnited, $phpbbForum;
 
+		$fStateChanged = $this->foreground();
 
 		if(!$user->theme['theme_storedb']) {
 			$styleSheet = "{$wpUnited->get_setting('phpbb_path')}styles/" . rawurlencode($user->theme['theme_path']) . '/theme/stylesheet.css';
