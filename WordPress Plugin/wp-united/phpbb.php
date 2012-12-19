@@ -999,6 +999,7 @@ class WPU_Phpbb {
 		$multiChoice = ($topicData['poll_max_options'] > 1);
 		
 		$pTemplate = new template();
+		$pTemplate->set_template();
 		$pTemplate->display('viewtopic_body');
 		
 
