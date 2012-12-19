@@ -1000,7 +1000,8 @@ class WPU_Phpbb {
 		
 		$pTemplate = new template();
 		$pTemplate->set_template();
-		$pTemplate->display('viewtopic_body');
+		$pTemplate->set_filenames(array('poll' => 'viewtopic_body.html'));
+		$pTemplate->display('poll');
 		
 
 
