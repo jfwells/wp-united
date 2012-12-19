@@ -701,7 +701,7 @@ class WP_United_Plugin_Base {
 	// Should we load this filter or action? 
 	private function should_load_filteraction($whenToLoad) {
 	
-		if(!$this->is_working() && ($whenToLoad != 'all')) {
+		if(!$this->is_enabled() && ($whenToLoad != 'all')) {
 			return false;
 		}
 		

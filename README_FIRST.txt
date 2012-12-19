@@ -1,6 +1,6 @@
-WP-UNITED: phpBB - WordPress Integration v0.9.1.0 RC3
+WP-UNITED: phpBB - WordPress Integration v0.9.1 RC3
 -----------------------------------------------
-Last updated: 18/12/2012, by John Wells
+Last updated: 19/12/2012, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -103,6 +103,28 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+v0.9.1.0 RELEASE CANDIDATE 3
+
+* NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work. Can use prosilver or subsilver2 forum styles.
+* NEW: Forum top bar widget, complete with phpBB-style breadcrumbs in WordPress!
+* NEW: Forum birthdays widget!
+* NEW: phpBB MOD installation is now more closely checked, and we also ensure the phpBB MOD and WordPress plugin versions match.
+* NEW: The cross-post prefix, [BLOG], can now be changed in the settings panel.
+* NEW: Smilies now obey phpBB's max smilies per post setting
+* NEW: Get Help screen now shows active plugins, theme and memory settings to help in error reporting
+* NEW: WP-United Extras: Drop-in plugins for easy additions to WP-United. The first 'extra' is the Quick poll widget! In future versions there will be a UI added to download additional extras.
+* BUGFIX / NEW: Allow password portability for passwords with htmlentities or leading/trailing spaces
+* BUGFIX / NEW: WordPress initial init is deferred when in phpBB until after phpBB auth has completed, this solves a number of login oddities with plugins and with admin bar not showing on phpBB-in-WordPress pages.
+* BUGFIX: RTL layout not preserved when using template integration
+* BUGFIX: Warnings on reply posting pages due to phpBB request variables interfering with WP_Query when template is integrated.
+* BUGFIX: WordPress adding slashes to phpBB post and get variables
+* BUGFIX: A number of minor bugs and error notices in widgets
+* BUGFIX: Template cache not working when WordPress version has a dash in it (e.g. RC releases)
+* BUGFIX: phpBB header/footer added to WP ajax on WordPress-in-phpBB pages
+* BUGFIX: WP logout link in user profile/loginblock widget not showing phpBB status if user is not integrated
+* BUGFIX: login/out link in "useful links" widget reversing login and logout actions
+* BUGFIX: Better error handling if the plugin gets disabled due to errors
 
 v0.9.0.3 RELEASE CANDIDATE 3
 

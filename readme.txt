@@ -22,7 +22,17 @@ WP-United is fully modular and individual features can be turned on and off. The
 * **Template integration**: Have your phpBB forum appear inside your WordPress site. Or vice-versa; integrate your WordPress blog appear inside your phpBB header and footer. Includes a "one-click" mode that analyses your theme's CSS and modifies it on the fly to avoid CSS and HTML conflicts. This is no iFrame solution, it is a complete and automatic template integration.
 * **Behaviour integration**: Use phpBB smilies and word censor features in WordPress 
 * **Cross-posting**: Post something in WordPress and have it cross-posted to your forum -- Automatically or manually, you choose! Once an item is cross-posted, comments in phpBB and WordPress can be set to sync up under the blog item too!
-* **Widgets**: A set of WordPress widgets that show information about your phpBB forum: Latest posts, latest topics, users online, forum stats and an integrated login/meta/avatar/profile widget.
+
+WP-United also includes eight widgets for you to drop into your WordPress page. Each widget is configurable and displays a wealth of forum information to increase enagagement on your site:
+
+* Latest forum posts
+* Latest forum topics
+* users online list
+* Forum statistics
+* An integrated login/meta/avatar/profile block
+* Birthday list
+* Quick poll (select from active phpBB polls in an ajax widget)
+* Forum top bar (with breadcrumbs that work in WordPress)
 
 Visit [wp-united.com](http://www.wp-united.com) for more information and to view example integrations in the gallery.
 
@@ -67,8 +77,31 @@ There are several ways to debug problems. We suggest you try the following, in o
 5. A phpBB forum in a WordPress page
 6. A WordPress page in a phpBB forum
 7. Some WP-United widgets
+8. The WP-United QuickPoll widget
 
 == Changelog ==
+
+= v0.9.1.0 RELEASE CANDIDATE 3 =
+
+* NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work. Can use prosilver or subsilver2 forum styles.
+* NEW: Forum top bar widget, complete with phpBB-style breadcrumbs in WordPress!
+* NEW: Forum birthdays widget!
+* NEW: phpBB MOD installation is now more closely checked, and we also ensure the phpBB MOD and WordPress plugin versions match.
+* NEW: The cross-post prefix, [BLOG], can now be changed in the settings panel.
+* NEW: Smilies now obey phpBB's max smilies per post setting
+* NEW: Get Help screen now shows active plugins, theme and memory settings to help in error reporting
+* NEW: WP-United Extras: Drop-in plugins for easy additions to WP-United. The first 'extra' is the Quick poll widget! In future versions there will be a UI added to download additional extras.
+* BUGFIX / NEW: Allow password portability for passwords with htmlentities or leading/trailing spaces
+* BUGFIX / NEW: WordPress initial init is deferred when in phpBB until after phpBB auth has completed, this solves a number of login oddities with plugins and with admin bar not showing on phpBB-in-WordPress pages.
+* BUGFIX: RTL layout not preserved when using template integration
+* BUGFIX: Warnings on reply posting pages due to phpBB request variables interfering with WP_Query when template is integrated.
+* BUGFIX: WordPress adding slashes to phpBB post and get variables
+* BUGFIX: A number of minor bugs and error notices in widgets
+* BUGFIX: Template cache not working when WordPress version has a dash in it (e.g. RC releases)
+* BUGFIX: phpBB header/footer added to WP ajax on WordPress-in-phpBB pages
+* BUGFIX: WP logout link in user profile/loginblock widget not showing phpBB status if user is not integrated
+* BUGFIX: login/out link in "useful links" widget reversing login and logout actions
+* BUGFIX: Better error handling if the plugin gets disabled due to errors
 
 = v0.9.0.3 RELEASE CANDIDATE 3 =
 
@@ -161,3 +194,6 @@ This version fixes a few minor bugs reported just after release of v0.9. You can
 
 = 0.9.0.3 =
 This version improves the user mapper and addresses a few minor reported bugs. You can update automatically or by simply copying over the WordPress plugin; You do not need to update the phpBB side.
+
+= 0.9.1.0 =
+This version fixes a number of bugs with template integration and user integration. You should update as soon as possible. You will need to upgrade the phpBB portion in addition to the WordPress plugin by following the instructions in the contrib/.../upgrade.xml file.
