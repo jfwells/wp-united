@@ -359,7 +359,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 			'POLL_RIGHT_CAP_IMG'=> $user->img('poll_right'),
 			'POLL_ID'			=> $topicID,
 			'L_MAX_VOTES'		=> ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
-			'L_POLL_LENGTH'		=> ($topicData['poll_length']) ? sprintf($user->lang[($pollEnd > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($pollEnd)) : '',
+			'L_POLL_LENGTH'		=> $actionMsg . $pollLength;
 			
 			'S_CAN_VOTE'		=> $userCanVote,
 			'S_DISPLAY_RESULTS'	=> $displayResults,
@@ -387,8 +387,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false)
 			);
 		}
-				
-		
+			
 		ob_start();
 		$pTemplate->display('poll');
 		$pollMarkup = ob_get_contents();
