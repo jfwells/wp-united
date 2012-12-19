@@ -231,11 +231,11 @@ class WPU_Phpbb {
 
 
 		if(!$user->theme['theme_storedb']) {
-			$styleSheet = "{$wpUnited->get_setting['phpbb_path']}styles/" . rawurlencode($user->theme['theme_path']) . '/theme/stylesheet.css?island=1';
-			$modStyleSheet = $phpbbForum->get_board_url() . 'wp-united/style-fixer.php?island&amp;style=';
+			$styleSheet = "{$wpUnited->get_setting['phpbb_path']}styles/" . rawurlencode($user->theme['theme_path']) . '/theme/stylesheet.css';
+			$modStyleSheet = $phpbbForum->get_board_url() . 'wp-united/style-fixer.php?island&1amp;style=';
 		} else {
-			$styleSheet = "{$phpbbForum->get_board_url()}style.$phpEx" .  '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name . '&amp;island=1';
-			$modStyleSheet = $styleSheet . '&amp;usecssm=1&amp;cloc=';
+			$styleSheet = "{$phpbbForum->get_board_url()}style.$phpEx" .  '?id=' . $user->theme['style_id'] . '&amp;lang=' . $user->lang_name;
+			$modStyleSheet = $styleSheet . '&amp;island=1&amp;usecssm=1&amp;cloc=';
 		}
 
 		$wpuCache = WPU_Cache::getInstance();
