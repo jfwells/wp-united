@@ -359,8 +359,8 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 		$pTemplate->assign_vars(array(
 			'POLL_QUESTION'		=> $topicData['poll_title'],
 			'TOTAL_VOTES' 		=> $pollTotal,
-			'POLL_LEFT_CAP_IMG'	=> $user->img('poll_left'),
-			'POLL_RIGHT_CAP_IMG'=> $user->img('poll_right'),
+			'POLL_LEFT_CAP_IMG'	=> str_replace($wpUnited->get_setting('phpbb_path'), $phpbbForum->get_board_url(), $user->img('poll_left')),
+			'POLL_RIGHT_CAP_IMG'=> str_replace($wpUnited->get_setting('phpbb_path'), $phpbbForum->get_board_url(), $user->img('poll_right')),
 			'POLL_ID'			=> $topicID,
 			'L_MAX_VOTES'		=> ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
 			'L_POLL_LENGTH'		=> $actionMsg . $pollLength,
