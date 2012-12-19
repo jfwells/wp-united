@@ -80,11 +80,11 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 	 */
 	public function get_poll($topicID = 0, $showLink = false) {
 		 global $db, $user, $auth, $config, $phpEx, $wpUnited, $phpbbForum;
-		 
+ 
 		 static $pollHasGenerated = false;
 
 		 $fStateChanged = $phpbbForum->foreground();
-		 
+ 
 		if(!$pollHasGenerated) {
 			$user->add_lang('viewtopic');
 			$pollHasGenerated = true;
@@ -93,7 +93,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 		$display = false;
 		$ajax = false;
 		$inboundVote = array();
-		
+
 		// Is this an AJAX request?
 		if($topicID == 0) {
 			$topicID = (int)request_var('pollid', 0);
@@ -126,8 +126,6 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 				}
 			}
 		}
-		
-
 		
 		$currURL = wpu_get_curr_page_link();
 		
@@ -389,8 +387,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $currVotedID)) ? true : false)
 			);
 		}
-		
-		
+				
 		
 		ob_start();
 		$pTemplate->display('poll');
