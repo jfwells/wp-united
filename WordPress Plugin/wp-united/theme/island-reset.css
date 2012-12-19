@@ -86,4 +86,4 @@
 .textwidget.wpuisle .wpuisle2  .navbar li a {display: inline; text-decoration: none !important;}
 .textwidget.wpuisle .wpuisle2  .navbar a, .wpuisle .wpuisle2 .navbar a:link  {margin: 0; padding: 0;text-decoration: none;}
 .textwidget.wpuisle .wpuisle2 a.print, .textwidget.wpuisle .wpuisle2 a.sendemail, .textwidget.wpuisle .wpuisle2 a.fontsize {display: block !important; text-indent: -5000px !important; overflow: hidden !important;}
-.textwidget.wpuisle .wpuisle2 tr td img {height: 12px !important; margin: 0 !important;}
+.textwidget.wpuisle .wpuisle2 tr td img {height: 12px !important; margin: 0 !important; border-left: 0 !important; border-right: 0 !important; padding: 0 !important;}
