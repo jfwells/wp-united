@@ -998,7 +998,9 @@ class WPU_Phpbb {
 		$maxVotes = ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']);
 		$multiChoice = ($topicData['poll_max_options'] > 1);
 		
-
+		$pTemplate = new template();
+		$pTemplate->display('viewtopic_body');
+		
 
 
 

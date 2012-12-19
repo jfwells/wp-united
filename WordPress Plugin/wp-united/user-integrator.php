@@ -889,7 +889,7 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync', $ignorePassword = 
 	 */
 				
 	// sync avatar WP -> phpBB
-	if((action != 'phpbb-update') &&  ($wpUnited->get_setting('avatarsync'))){
+	if(($action != 'phpbb-update') &&  ($wpUnited->get_setting('avatarsync'))){
 		// is the phpBB avatar empty already, or was it already put by WP-United?
 		if(empty($pData['user_avatar']) || (stripos($pData['user_avatar'], 'wpuput=1') !== false)) { 
 			
