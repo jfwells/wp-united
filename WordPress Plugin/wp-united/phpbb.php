@@ -1001,7 +1001,46 @@ class WPU_Phpbb {
 		$pTemplate = new template();
 		$pTemplate->set_template();
 		$pTemplate->set_filenames(array('poll' => 'viewtopic_body.html'));
+		
+		$template->assign_vars(array(
+			'POLL_QUESTION'		=> $topicData['poll_title'],
+			'TOTAL_VOTES' 		=> $pollTotal,
+			'POLL_LEFT_CAP_IMG'	=> $user->img('poll_left'),
+			'POLL_RIGHT_CAP_IMG'=> $user->img('poll_right'),
+
+			'L_MAX_VOTES'		=> ($topicData['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $topicData['poll_max_options']),
+			'L_POLL_LENGTH'		=> ($topicData['poll_length']) ? sprintf($user->lang[($pollEnd > time()) ? 'POLL_RUN_TILL' : 'POLL_ENDED_AT'], $user->format_date($pollEnd)) : '',
+
+			'S_HAS_POLL'		=> true,
+			'S_CAN_VOTE'		=> $userCanVote,
+			'S_DISPLAY_RESULTS'	=> $displayResults,
+			'S_IS_MULTI_CHOICE'	=> ($topicData['poll_max_options'] > 1) ? true : false,
+			'S_POLL_ACTION'		=> $currURL,
+
+			'U_VIEW_RESULTS'	=> (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1';
+		);
+		
+		foreach ($pollOptions as $pollOption) {
+			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
+			$optionPctTxt = sprintf("%.1d%%", round($optionPct * 100));
+
+			$template->assign_block_vars('poll_option', array(
+				'POLL_OPTION_ID' 		=> $pollOption['poll_option_id'],
+				'POLL_OPTION_CAPTION' 	=> $pollOption['poll_option_text'],
+				'POLL_OPTION_RESULT' 	=> $pollOption['poll_option_total'],
+				'POLL_OPTION_PERCENT' 	=> $optionPctTxt,
+				'POLL_OPTION_PCT'		=> round($optionPct * 100),
+				'POLL_OPTION_IMG' 		=> $user->img('poll_center', $optionPctTxt, round($optionPct * 250)),
+				'POLL_OPTION_VOTED'		=> (in_array($pollOption['poll_option_id'], $curVotedId)) ? true : false)
+			);
+		}
+		
+		
+		
+		
 		$pTemplate->display('poll');
+		
+		
 		
 
 
