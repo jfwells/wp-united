@@ -1018,7 +1018,7 @@ class WPU_Phpbb {
 			'S_POLL_ACTION'		=> $currURL,
 
 			'U_VIEW_RESULTS'	=> (!strstr($currURL, '?')) ? $currURL . '?wpupolldisp=1' : $currURL . '&amp;wpupolldisp=1'
-		);
+		));
 		
 		foreach ($pollOptions as $pollOption) {
 			$optionPct = ($pollTotal > 0) ? $pollOption['poll_option_total'] / $pollTotal : 0;
