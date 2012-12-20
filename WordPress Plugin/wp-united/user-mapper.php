@@ -105,7 +105,7 @@ class WPU_User_Mapper {
 	 * @access private
 	 */
 	private function load_wp_users() {
-		global $wpdb, $phpbbForum, $user, $db;
+		global $wpdb, $phpbbForum, $db;
 		
 		$where = '';
 		$mainWhere = '';
@@ -222,8 +222,8 @@ class WPU_User_Mapper {
 		$results = $wpdb->get_results($sql);
 		
 		foreach ((array) $results as $item => $result) {
-			$user =  new WPU_Mapped_WP_User($result->ID);
-			$this->users[$result->ID] = $user;
+			$mUser =  new WPU_Mapped_WP_User($result->ID);
+			$this->users[$result->ID] = $mUser;
 		}
 	}
 	
