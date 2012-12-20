@@ -21,5 +21,5 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 
 
 global $wpuVersion_phpbb;
-$wpuVersion_phpbb = '0.9.1.0';
+$wpuVersion_phpbb = '0.9.1.2';
 
