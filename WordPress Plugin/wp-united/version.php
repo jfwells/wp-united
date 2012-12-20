@@ -20,6 +20,6 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 
 
 global $wpuVersion;
-$wpuVersion = '0.9.1.2';
+$wpuVersion = '0.9.1.3';
 
 

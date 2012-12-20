@@ -83,6 +83,9 @@ There are several ways to debug problems. We suggest you try the following, in o
 
 == Changelog ==
 
+= v0.9.1.3 RELEASE CANDIDATE 3 =
+* This quick release fixes a missing file, a bug in the user mapper due to the large changes in v0.9.1.0, and the install.xml file. Please update.
+
 = v0.9.1.0 RELEASE CANDIDATE 3 =
 
 * NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work. Can use prosilver or subsilver2 forum styles.
@@ -199,3 +202,9 @@ This version improves the user mapper and addresses a few minor reported bugs. Y
 
 = 0.9.1.0 =
 This version fixes a number of bugs with template integration and user integration. You should update as soon as possible. You will need to upgrade the phpBB portion in addition to the WordPress plugin by following the instructions in the contrib/.../upgrade.xml file.
+
+= 0.9.1.2 =
+This version adds a missing file from v0.9.1.0, please update to avoid errors
+
+= 0.9.1.3 =
+This version fixes a bug in the user mapper, please update.
