@@ -540,6 +540,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 		$safe_alt = (false === $alt) ? esc_attr(__('Avatar image', 'wp-united')) : esc_attr($alt);
 
+		$user = false;
 
 		if ( !is_numeric($size) )
 			$size = '96';
