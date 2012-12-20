@@ -23,6 +23,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('plugins_loaded', 					'init_plugin',							'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
 			array('shutdown', 							array('buffer_end_flush_all', 1),		'all'),
 			array('wp_head', 							'add_scripts',							'all'),
+			array('admin_bar_menu',						array('add_to_menu_bar', 100),			'all'),
 			array('comment_form', 						'generate_smilies',						'phpbb-smilies'),
 			array('wp_head', 							'add_head_marker',						'template-int'),
 			array('switch_theme', 						'clear_header_cache',					'template-int'),
@@ -836,6 +837,91 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 	}
 	
+	public function add_to_menu_bar($adminBar) {
+		global $wpUnited, $phpbbForum, $phpEx;
+ 
+		if (current_user_can('manage_options'))  {
+			$adminBar->add_menu(array(
+				'id'    => 'wpu-extl',
+				'title' => 'WP-United',
+				'href'  => 'http://www.wp-united.com',
+				'parent' => 'wp-logo-external',
+				'meta'  => array(
+					'title' => __('Visit wp-united.com', 'wp-united')
+				),
+			));
+			$adminBar->add_menu(array(
+				'id'    => 'wpu-main',
+				'title' => __('WP-United', 'wp-united'),
+				'href'  => get_admin_url() . 'admin.php?page=wp-united-setup',
+				'parent' => 'site-name',
+				'meta'  => array(
+					'title' => __('WP-United', 'wp-united')
+				),
+			));	
+		
+		}
+		
+		
+		
+		
+		
+		
+		if(!$wpUnited->is_working()) {
+			return;
+		}
+		
+		
+		if(current_user_can('manage_options'))  {
+			$acpLink = $phpbbForum->get_acp_url();
+			if($acpLink) {
+				$adminBar->add_menu(array(
+					'id'    => 'wpu-acp',
+					'title' => __('Visit phpBB ACP', 'wp-united'),
+					'href'  => $acpLink,
+					'parent' => 'site-name',
+					'meta'  => array(
+						'title' => __('Visit phpBB ACP', 'wp-united')
+					),
+				));	
+				
+			}
+		}
+		
+		/*
+		 * Search redirector
+		 * Since we use JavaScript to direct search, 
+		 * we start with it hidden and show it through JS too
+		 * 
+		 * Bit of ugly inline JS for now, but it works. TODO: improve.
+		 */
+		$adminBar->add_menu(array(
+			'id'    => 'wpu-search-site',
+			'title' => '<div id="wpu-srch-s" style="display: none;">&nbsp;&nbsp;<input type="radio" checked onchange="wpu_redir_srch()" id="wpu-search-site" name="wpu-search" value="site" /><label for="wpu-search-site">&nbsp;'. __('Search Site') . '</label></div>',
+			'parent' => 'search'
+		));	
+		$adminBar->add_menu(array(
+			'id'    => 'wpu-search-forum',
+			'title' => '<div id="wpu-srch-f" style="display: none;">&nbsp;&nbsp;<input type="radio" id="wpu-search-forum" onchange="wpu_redir_srch()" name="wpu-search" value="forum" /><label for="wpu-search-forum">&nbsp;' . __('Search Forum') . '</label></div>
+			<script type="text/javascript">//<![CDATA
+				var c,d=document,b="block";
+				d.getElementById("wpu-srch-f").style.display=b;
+				d.getElementById("wpu-srch-s").style.display=b;				
+				function wpu_redir_srch() {
+					d.getElementById("adminbar-search").name=(c=d.getElementById("wpu-search-site").checked)?"s":"keywords";
+					d.getElementById("adminbarsearch").action=c?"' . $wpUnited->get_wp_home_url() . '":"' . $phpbbForum->get_board_url() . "search.$phpEx" . '";
+				}
+			// ]]>
+			</script>
+			
+			',
+			'parent' => 'search'
+		));		
+		
+
+
+}
+	
 	/**
 	 * Clears phpbb's cache of WP header/footer.
 	 * We need to do this whenever the main WP theme is changed,
@@ -865,6 +951,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 }
+
+
+
+
 
 
 ?>

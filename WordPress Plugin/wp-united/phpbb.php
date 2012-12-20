@@ -363,6 +363,33 @@ class WPU_Phpbb {
 	}
 	
 	/**
+	 * Returns the ACP link if the user should be able to see it
+	 */
+	public function get_acp_url() {
+		global $wpUnited, $auth, $user, $phpEx;
+		static $acpLink = false;
+		
+		if(!$wpUnited->is_working()) {
+			return '';
+		}
+		
+		if($acpLink !== false) {
+			return $acpLink;
+		}
+		
+		$acpLink = '';
+		
+		$fStateChanged = $this->foreground();
+		if($auth->acl_get('a_') && !empty($user->data['is_registered'])) {
+			$acpLink = $this->append_sid($this->get_board_url() . "adm/index.$phpEx");
+		}
+		$this->restore_state($fStateChanged);
+		
+		return $acpLink;
+		
+	}
+	
+	/**
 	 * Returns the currently logged-in user's username
 	 */
 	public function get_username() {
