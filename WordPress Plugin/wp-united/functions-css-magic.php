@@ -15,9 +15,7 @@
 
 /**
  */
-if ( !defined('IN_PHPBB') ) {
-	exit;
-}
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 
 /**

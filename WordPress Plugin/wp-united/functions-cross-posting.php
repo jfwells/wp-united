@@ -13,9 +13,7 @@
 
 /**
  */
-if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
-	exit;
-}
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 
 /**
@@ -804,5 +802,4 @@ function wpu_capture_future_post($postID, $post) {
 	}
 }
 
-
-?>
+// Done. Try not to duplicate too much content.

@@ -293,5 +293,4 @@ function wpu_clear_integration_settings() {
 	$cache->destroy('config');
 }
 
-
-?>
+// That's all. For documentation for hackers and developers, please look in the plugin -> wp-united.php

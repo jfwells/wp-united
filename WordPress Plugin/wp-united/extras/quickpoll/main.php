@@ -54,9 +54,9 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 				t.forum_id, f.forum_name
 			FROM ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f 
 			WHERE ' . $db->sql_in_set('f.forum_id', $forums_check)  . ' 
-					AND t.forum_id = f.forum_id 
-					AND t.topic_status <> 2 
-					AND t.poll_start > 0 
+				AND t.forum_id = f.forum_id 
+				AND t.topic_status <> 2 
+				AND t.poll_start > 0 
 			ORDER BY t.topic_time DESC';
 			
 		if(!($result = $db->sql_query_limit($sql, $limit, 0))) {
@@ -418,5 +418,4 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 
 }
 
-
-?>
+// end of quickpoll extra

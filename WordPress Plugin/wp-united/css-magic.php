@@ -4,19 +4,17 @@
 * WP-United "CSS Magic" template integrator
 *
 * @package WP-United
-* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
+* @version $Id: v0.9.1.1.4  2012/12/21 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
 */
 
-
-if ( !defined('IN_PHPBB') )
-{
-	die("Hacking attempt");
-	exit;
-}
+/**
+ *	You will want to remove this line in your own projects.
+*/
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 /**
  * This library attempts to magically fuse templates on the page
@@ -49,7 +47,7 @@ if ( !defined('IN_PHPBB') )
  * $fixedCSS = $cssMagic->getCSS();
  * 
  * Alternatively, send the output straight to the browser as a CSS file:
- * $cssMagic->sendCSS();
+ * echo $cssMagic; 
  * 
  * When you're finished,
  * $cssMagic->clear();
@@ -57,8 +55,8 @@ if ( !defined('IN_PHPBB') )
  * Note: CSS Magic doesn't try to validate the CSS coming in. If the inbound CSS in invalid or garbage, 
  * you'll get garbage coming out -- perhaps even worse than before.
  * 
- * (c) John Wells, 2009
-*/
+ * (c) John Wells, 2009-2013
+ */
 class CSS_Magic {
 	private 	$css,
 				$filename,
@@ -87,6 +85,7 @@ class CSS_Magic {
 	}
 	/**
 	 * initialise or clear out internal representation
+	 * @return void
 	 */
 	public function clear() {
 		$this->css = array();
@@ -96,7 +95,7 @@ class CSS_Magic {
 	/**
 	 * Parses inbound CSS, storing it as an internal representation of keys and code
 	 * @param string $str A valid CSS string
-	 * @return The number of CSS keys stored
+	 * @return int the number of CSS keys stored
 	 */
 	public function parseString($str) {
 		$keys = '';
@@ -151,6 +150,7 @@ class CSS_Magic {
 	 * Opens and parses a CSS file
 	 * @param string $filename The path and name of the file 
 	 * @param bool $clear Set to true to clear out the internal representation and start again. Leave false to add to what we already have.
+	 * @return void
 	 */
 	public function parseFile($filename, $clear = false) {
 		if ($clear) $this->clear();
@@ -163,6 +163,7 @@ class CSS_Magic {
 	}
 	/**
 	 * Add selector (private) -- adds a selector to the internal representation
+	 * @return void
 	 */
 	private function addSelector($keys, $cssCode) {
 		$keys = trim($keys);
@@ -179,6 +180,7 @@ class CSS_Magic {
 	 * Makes the CSS more specific by applying an outer ID
 	 * @param string $id The DOM ID to use
 	 * @param bool $removeBody Whether the body tag should be ignored
+	 * @return void
 	 */
 	public function makeSpecificById($id, $removeBody = false) {
 		$this->_makeSpecific("#{$id}", $removeBody);
@@ -187,6 +189,7 @@ class CSS_Magic {
 	 * Makes the CSS more specific by applying an outer class name
 	 * @param string $class The document class to use
 	 * @param bool $removeBody Whether the body tag should be ignored
+	 * @return void
 	 */
 	public function makeSpecificByClass($class, $removeBody = false) {
 		$this->_makeSpecific(".{$class}", $removeBody);
@@ -195,6 +198,7 @@ class CSS_Magic {
 	 * Makes the CSS more specific by applying an outer ID and class
 	 * @param string $classAndIdThe string to prepend
 	 * @param bool $removeBody Whether the body tag should be ignored
+	 * @return void
 	 */
 	public function makeSpecificByIdThenClass($classAndId, $removeBody = false) {
 		$this->_makeSpecific("#{$classAndId} .{$classAndId}", $removeBody);
@@ -203,6 +207,7 @@ class CSS_Magic {
 	 * Applies a prefix (e.g. "wpu") to specific IDs
 	 * @param string prefix the prefix to apply
 	 * @param bool $IDs an array of IDs to modify
+	 * @return void
 	 */
 	public function renameIds($prefix, $IDs) {
 		$fixed = array();
@@ -226,6 +231,7 @@ class CSS_Magic {
 	 * Applies a prefix (e.g. "wpu") to specific classes
 	 * @param string prefix the prefix to apply
 	 * @param bool $classess an array ofclasses to modify
+	 * @return void
 	 */	
 	public function renameClasses($prefix, $classes) {
 		$fixed = array();
@@ -250,6 +256,8 @@ class CSS_Magic {
 	 * Makes all stored CSS specific to a particular parent ID or class
 	 * @param string prefix the prefix to apply
 	 * @param bool  $removeBody: set to true to ignore body keys
+	 * @access private but marked as public as we can have recursive (nested) CSS Magics.
+	 * @return void
 	 */
 	public function _makeSpecific($prefix, $removeBody = false) {
 		$fixed = array();
@@ -331,6 +339,8 @@ class CSS_Magic {
 	/**
 	 * Removes common elements from CSS selectors
 	 * For example, this can be used to undo CSS magic additions
+	 * @param string $txt the stuff to wipe out
+	 * @return void
 	 */
 	public function removeCommonKeyEl($txt) {
 		$newCSS = array();
@@ -350,7 +360,7 @@ class CSS_Magic {
 	
 	/**
 	 * Returns all key classes and IDs
-	 * @return an array with all classes and IDs
+	 * @return array an array with all classes and IDs
 	 */
 	public function getKeyClassesAndIDs() {
 		$classes = array();
@@ -393,6 +403,7 @@ class CSS_Magic {
 	 * Searchs through all keys and and makes modifications
 	 * @param array $finds key elements to find
 	 * @param array $replacements Matching replacements for key elements
+	 * @return void
 	 */
 	public function modifyKeys($finds, $replacements) {
 		$theFinds = array();
@@ -415,7 +426,8 @@ class CSS_Magic {
 	
 
 	/*
-	 * Outputs all our stored, fixed (hopefully!) CSS
+	 * returns all our stored, fixed (hopefully!) CSS
+	 * @return string fixed CSS
 	 */
 	public function getCSS() {
 		$response = '';
@@ -433,12 +445,21 @@ class CSS_Magic {
 	}
 	/**
 	 * Sends CSS directly to browser as text/css
+	 * @return void
 	 */
 	public function sendCSS() {
 		header("Content-type: text/css");
 		echo $this->getCSS();
 	
 	}
+
+	/**
+	 * You can do echo $cssMagic and voila: A stylesheet is in the intertubes.
+	 * @return void
+	 */
+	public function __toString() {
+		$this->sendCSS();
+	}
 }
 
-?>
+// The end.

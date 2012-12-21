@@ -14,9 +14,7 @@
 
 /**
  */
-if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
-	exit;
-}
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 class WPU_Debug {
 	
@@ -192,5 +190,4 @@ class WPU_Debug {
 	}
 }
 
-
-?>
+// There really should be more here. But there isn't. Yet.

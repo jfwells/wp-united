@@ -11,7 +11,7 @@
 * 
 */
 
-if ( !defined('IN_PHPBB') ) exit;
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 class WPU_Comments {
 	
@@ -19,7 +19,7 @@ class WPU_Comments {
 	
 
 	/**
-	 * Class initialisartion
+	 * Class initialisation
 	 */
 	public function __construct() {
 		$this->comments = array();

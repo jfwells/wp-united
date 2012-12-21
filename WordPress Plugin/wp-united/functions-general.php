@@ -10,13 +10,15 @@
 * Generic WP-United functions that don't have anywhere better to go (yet).
 */
 
-if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
-	exit;
-}
+/**
+ */
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 
 /**
  * Adds a traling slash to a string if one is not already present.
+ * @param string $path
+ * @return string modified path
  */
 function add_trailing_slash($path) {
 	return ( $path[strlen($path)-1] == "/" ) ? $path : $path . "/";
@@ -24,6 +26,7 @@ function add_trailing_slash($path) {
 
 /**
  * Adds http:// to the URL if it is not already present
+ * TODO: Kill off or check protocol
  */
 function add_http($path) {
 	if ( (strpos($path, "http://") === FALSE) && (strpos($path, "https://") === FALSE) ) {

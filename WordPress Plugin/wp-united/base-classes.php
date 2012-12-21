@@ -11,6 +11,10 @@
 */
 
 /**
+ */
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
+
+/**
  *	A simple factory object that can store itself in phpBB.
  *  The constructor either returns ourself, initialised by WordPress, or a stored serialized 
  *  object that was passed to phpBB.
@@ -781,7 +785,6 @@ class WP_United_Plugin_Base {
 		return;
 
 	}	
-	
 }
 
-?>
+// Done

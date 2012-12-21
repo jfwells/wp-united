@@ -4,7 +4,7 @@
 * WP-United Extra Options
 *
 * @package WP-United
-* @version $Id: v0.9.0RC3 2012/12/06 John Wells (Jhong) Exp $
+* @version $Id: v0.9.1.4 2012/12/20 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -17,22 +17,21 @@
  * This seciton is for security. Do not modify this part:
  * @ignore
  */
-if ( !defined('IN_PHPBB') && !(defined('ABSPATH')) ) {
-	exit;
-}
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 //The options you can set begin below:
 
 /**
  * (TEMPORARILY) DISABLE WP-UNITED?
  * This is useful if you have locked yourself out of your forum -- for example, if you have deleted 
- * your WordPress wpu-plugin, but have template integration on, you might not be able to see
+ * your WordPress plugin, but have template integration on, you might not be able to see
  * your forum.
  * 
  * Temporarily change this to TRUE to completely disable the integration so that you can log in and
  * get to the ACP. 
  * 
- * To permanently remove WP-United do not use this: use the uninstall option below
+ * To permanently remove WP-United do not use this: disconnect it in the settings panel, 
+ * and then use the WordPress plugins panel to uninstall.
  */
 define('WPU_DISABLE', FALSE);
 
@@ -121,8 +120,6 @@ define('WPU_SHOW_TAGCATS', TRUE);
  */
 define('WPU_INTEG_DEFAULT_STYLE', FALSE);
 
-
-
 /**
  * WordPress debug options
  * Set to FALSE for live sites!
@@ -130,4 +127,4 @@ define('WPU_INTEG_DEFAULT_STYLE', FALSE);
 //define('WP_DEBUG', TRUE);
 //define('WP_DEBUG_DISPLAY', TRUE);
 
-?>
+// end of file

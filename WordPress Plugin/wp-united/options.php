@@ -17,22 +17,21 @@
  * This seciton is for security. Do not modify this part:
  * @ignore
  */
-if ( !defined('IN_PHPBB') && !(defined('ABSPATH')) ) {
-	exit;
-}
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 //The options you can set begin below:
 
 /**
  * (TEMPORARILY) DISABLE WP-UNITED?
  * This is useful if you have locked yourself out of your forum -- for example, if you have deleted 
- * your WordPress wpu-plugin, but have template integration on, you might not be able to see
+ * your WordPress plugin, but have template integration on, you might not be able to see
  * your forum.
  * 
  * Temporarily change this to TRUE to completely disable the integration so that you can log in and
  * get to the ACP. 
  * 
- * To permanently remove WP-United do not use this: use the uninstall option below
+ * To permanently remove WP-United do not use this: disconnect it in the settings panel, 
+ * and then use the WordPress plugins panel to uninstall.
  */
 define('WPU_DISABLE', FALSE);
 
@@ -130,4 +129,4 @@ define('WPU_INTEG_DEFAULT_STYLE', FALSE);
 //define('WP_DEBUG', TRUE);
 //define('WP_DEBUG_DISPLAY', TRUE);
 
-?>
+// end of file

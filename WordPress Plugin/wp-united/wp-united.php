@@ -126,5 +126,4 @@ register_uninstall_hook('wp-united/wp-united.php', 'wpu_uninstall');
  *    and you return after having pulled the current state out from the caller's feet. 		
  */
 
-
-?>
+// That's all. Happy blogging!

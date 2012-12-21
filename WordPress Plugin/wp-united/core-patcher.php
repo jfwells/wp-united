@@ -15,7 +15,9 @@
 */
 
 
-if ( !defined('IN_PHPBB') ) exit;
+/**
+ */
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 /**
  * This class provides access to WordPress

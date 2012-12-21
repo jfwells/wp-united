@@ -19,7 +19,9 @@
 * The class cannot have its own constructor, but MUST implement one event: on_init(). This is called if WP-United is up and working.
 */
 
-if(!defined('ABSPATH')) exit;
+/**
+ */
+if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 Class WP_United_Extras_Loader {
 	
@@ -149,7 +151,4 @@ Abstract Class WP_United_Extra {
 }
 
 
-
-
-
-?>
+// That's all. Simple but (I hope...) useful.
