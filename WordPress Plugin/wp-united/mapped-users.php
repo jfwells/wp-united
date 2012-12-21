@@ -238,21 +238,19 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		
 		$wpUser = new WP_User($this->userID);	
 			
-		$wpRegDate = date_i18n(get_option('date_format'), strtotime($wpUser->user_registered));
+		$wpRegDate = $wpUser->user_registered . date_i18n(get_option('date_format'), strtotime($wpUser->user_registered));
 		
 		$this->loginName = $wpUser->user_login;
 		$this->avatar = get_avatar($wpUser->ID, 50);
 		
 		$this->userDetails = array(
-			'displayname'		=>	$wpUser->display_name,
+			'displayname'			=>	$wpUser->display_name,
 			'email'					=>	$wpUser->user_email,
-			'website'				=>	 !empty($wpUser->user_url) ? $wpUser->user_url : __('n/a', 'wp-united'),
-			'rolelist'				=>	 implode(', ', (array)$wpUser->roles),
-			'roletext'				=>	 (sizeof($wpUser->roles) > 1) ? __('Roles:', 'wp-united') : __('Role:', 'wp-united'),
-			/* @TODO in wp3: this is count_user_posts() */ 
+			'website'				=>	!empty($wpUser->user_url) ? $wpUser->user_url : __('n/a', 'wp-united'),
+			'rolelist'				=>	implode(', ', (array)$wpUser->roles),
+			'roletext'				=>	(sizeof($wpUser->roles) > 1) ? __('Roles:', 'wp-united') : __('Role:', 'wp-united'),
 			'posts'					=>	count_user_posts($this->userID),
-			
-			'comments'			=>	$wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $this->userID)),
+			'comments'				=>	$wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $this->userID)),
 			'regdate'				=>	$wpRegDate
 		);
 	
