@@ -238,7 +238,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		
 		$wpUser = new WP_User($this->userID);	
 			
-		$wpRegDate = date_i18n(get_option('date_format'), $wpUser->user_registered);
+		$wpRegDate = date_i18n(get_option('date_format'), strtotime($wpUser->user_registered));
 		
 		$this->loginName = $wpUser->user_login;
 		$this->avatar = get_avatar($wpUser->ID, 50);
