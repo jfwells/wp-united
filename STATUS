@@ -7,6 +7,8 @@ COMMITTED FOR v0.9.1.4:
 * Code cleanup and improved code documentation. Developers/hackers look at wp-united.php to get started.
 
 TODO:
+* phpBB rank missing in mapper
+* On user mapper, role bold for WP user is reversed.
 * Register date for WP users in mapper is buggered
 * padding entry & reset to defaults farked
 * full page list doesn't show items in child themes
@@ -20,6 +22,12 @@ TODO:
 
 TODO (LARGER):
 * Entirely remove $compat from core-patcher, and re-obsolete plugin-fixer.php
+
+
+Priority reported bugs:
+- error for admins and logout for others when updating avatars (DhrRob)
+- error when uploading attachments on p-in-w full page (uldis.janpavlis)
+- Occasional auto admin mapping issues (Facebook)
 
 
 Regressions:

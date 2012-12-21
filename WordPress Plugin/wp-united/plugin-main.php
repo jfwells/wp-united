@@ -511,7 +511,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function check_content_for_forum($postContent) {
 		
 		if(!$this->is_working()) {
-			return;
+			return $postContent;
 		}
 		
 		if (! defined('PHPBB_CONTENT_ONLY') ) {
