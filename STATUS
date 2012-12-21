@@ -3,13 +3,13 @@ current target: v0.9.1.4
 COMMITTED FOR v0.9.1.4:
 
 * BUGFIX: minor avatar notice
+* BUGFIX: WordPress register date now showing correctly in user mapper and minor mapper display fixes
 * NEW: integrated links in WP menu bar (admin-bar)
 * Code cleanup and improved code documentation. Developers/hackers look at wp-united.php to get started.
 
 TODO:
 * phpBB rank missing in mapper
-* On user mapper, role bold for WP user is reversed.
-* Register date for WP users in mapper is buggered
+* Add visit forum & ACP links to admin bar when is_admin
 * padding entry & reset to defaults farked
 * full page list doesn't show items in child themes
 * warnings about wp_query in responsive...
