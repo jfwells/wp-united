@@ -455,10 +455,11 @@ class CSS_Magic {
 
 	/**
 	 * You can do echo $cssMagic and voila: A stylesheet is in the intertubes.
-	 * @return void
+	 * @return CSS string
 	 */
 	public function __toString() {
-		$this->sendCSS();
+		header("Content-type: text/css");
+		$this->getCSS();
 	}
 }
 

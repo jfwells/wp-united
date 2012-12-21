@@ -213,7 +213,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			'email' 				=> 	'<p><strong>' . __('E-mail:', 'wp-united') . '</strong> %s</p>',
 			'website' 			=> 	'<p><strong>' . __('Website:', 'wp-united') . '</strong> %s</p>',
 			'roletext'				=>	'<p><strong>%s </strong>',			
-			'rolelist' 				=> 	'%s ',
+			'rolelist' 				=> 	'%s</p>',
 			'posts' 				=> 	'<p><strong>' . __('Posts:', 'wp-united') . '</strong> %s / <strong>',
 			'comments'			=>	__('Comments:', 'wp-united') . '</strong> %s</p>',
 			'regdate' 			=> 	'<p>' . __('Registered:', 'wp-united') . '</strong> %s</p>',
