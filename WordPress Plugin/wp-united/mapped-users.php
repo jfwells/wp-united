@@ -212,11 +212,11 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			'displayname' 	=> 	'<p><strong>' . __('Display name:', 'wp-united') . '</strong> %s</p>',
 			'email' 				=> 	'<p><strong>' . __('E-mail:', 'wp-united') . '</strong> %s</p>',
 			'website' 			=> 	'<p><strong>' . __('Website:', 'wp-united') . '</strong> %s</p>',
-			'roletext'				=>	'<p><strong>%s</strong>',			
+			'roletext'				=>	'<p><strong>%s </strong>',			
 			'rolelist' 				=> 	'%s</p>',
 			'posts' 				=> 	'<p><strong>' . __('Posts:', 'wp-united') . '</strong> %s / <strong>',
 			'comments'			=>	__('Comments:', 'wp-united') . '</strong> %s</p>',
-			'regdate' 			=> 	'<p>' . __('Registered:', 'wp-united') . '</strong> %s</p>',
+			'regdate' 			=> 	'<p><strong>' . __('Registered:', 'wp-united') . '</strong> %s</p>',
 		);
 		
 		$this->className = 'wpuwpuser';
@@ -238,12 +238,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		
 		$wpUser = new WP_User($this->userID);	
 			
-		/**
-		* @TODO: This is inefficient, change to wordpress format date func
-		*/
-		$phpbbForum->foreground();
-		$wpRegDate = $user->format_date($wpUser->user_registered);
-		$phpbbForum->background();
+		$wpRegDate = date_i18n(get_option('date_format'), $wpUser->user_registered);
 		
 		$this->loginName = $wpUser->user_login;
 		$this->avatar = get_avatar($wpUser->ID, 50);
