@@ -548,6 +548,4 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 	
 }
 	
-
-
-?>
+// Done. End of file.

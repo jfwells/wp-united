@@ -1745,4 +1745,4 @@ class WPU_Phpbb {
 	
 }
 
-?>
+// Done. End of file. At last.

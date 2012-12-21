@@ -456,4 +456,5 @@ Class WPU_Core_Patcher {
 
 
 }
-?>
+
+// Done. End of file.

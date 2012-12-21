@@ -206,4 +206,4 @@ class WPU_WP_Plugins {
 	
 }
 
-?>
+// end of file

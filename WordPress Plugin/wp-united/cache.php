@@ -483,4 +483,5 @@ class WPU_Cache {
 	}
 	
 }
-?>
+
+// That's all. Done.

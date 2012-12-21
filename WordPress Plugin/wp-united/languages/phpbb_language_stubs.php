@@ -29,4 +29,4 @@
 	_e('Can integrate as a WordPress administrator', 'wp-united');
 	_e('Can post blog posts to this forum', 'wp-united');
 
-?>
+// end of file

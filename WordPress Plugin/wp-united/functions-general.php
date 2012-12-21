@@ -189,4 +189,4 @@ function wpu_get_curr_page_link() {
 	return $currURL;
 }
 
-?>
+// Done. End of file.

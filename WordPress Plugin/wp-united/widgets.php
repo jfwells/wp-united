@@ -630,3 +630,4 @@ function wpu_widgets_init() {
 }
 
 
+// Done. Nothing else to see here.

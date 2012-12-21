@@ -1047,3 +1047,5 @@ function wpu_widgets_init_old() {
 	}
 		
 }
+
+// done.

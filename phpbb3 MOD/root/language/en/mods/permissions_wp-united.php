@@ -44,4 +44,5 @@ $lang = array_merge($lang, array(
 	'acl_a_wpu_administrator'    => array('lang' => 'Can integrate as a WordPress administrator', 'cat' => 'wputd'),
 	'acl_f_wpu_xpost'	=>	array('lang' => 'Can post blog posts to this forum', 'cat' => 'wputd'),
 ));
-?>
+
+// Done. End of file.

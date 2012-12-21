@@ -962,4 +962,4 @@ function _wpu_process_args($args, $defaults='') {
 }
 
 
-?>
+// That's all. Nothing else to see here.

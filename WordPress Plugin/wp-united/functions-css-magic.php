@@ -464,4 +464,4 @@ function apply_template_voodoo(&$cssMagic, $tplVoodooKey) {
 	
 }
 
-?>
+// Done. End of file.

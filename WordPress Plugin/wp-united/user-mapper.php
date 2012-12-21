@@ -442,4 +442,4 @@ class WPU_User_Mapper {
 	}
 }
 
-?>
+// That's all. Done.

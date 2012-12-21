@@ -50,4 +50,4 @@ $lang = array_merge($lang, array(
 
 ));
 
-?>
+// end of file

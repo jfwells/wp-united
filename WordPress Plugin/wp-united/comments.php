@@ -11,8 +11,14 @@
 * 
 */
 
+/**
+*
+*/
 if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
+/**
+ * A comment object to store cross-posted comment results, and retrieve various other info
+ */
 class WPU_Comments {
 	
 	public $comments;
@@ -161,7 +167,9 @@ class WPU_Comments {
 	}
 }
 
-
+/**
+ * An individual comment placeholder
+ */
 class WPU_Comment {
 
 	public
@@ -197,4 +205,4 @@ class WPU_Comment {
 	
 }
 
-?>
+// End the comments file with a comment: Done.

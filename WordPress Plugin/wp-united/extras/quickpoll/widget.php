@@ -191,4 +191,4 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 	}
 }
 
-?>
+// Done. End of file.

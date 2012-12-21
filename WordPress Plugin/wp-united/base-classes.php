@@ -787,4 +787,4 @@ class WP_United_Plugin_Base {
 	}	
 }
 
-// Done
+// That's all. Done.

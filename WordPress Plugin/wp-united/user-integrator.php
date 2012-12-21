@@ -1041,7 +1041,4 @@ function wpu_set_phpbb_group_permissions($groupName, $perm, $type = ACL_YES) {
 }
 
 
-
-
-
-?>
+// That's all. Done.
