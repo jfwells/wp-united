@@ -1,15 +1,18 @@
 <?php
 
 /** 
-*
-* Plugin-main: The main WordPress plugin class
-*
 * @package WP-United
-* @version $Id: v0.9.1.0  2012/12/17 John Wells (Jhong) Exp $
+* @version $Id: v0.9.1.4  2012/12/17 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
+* This is the main WP-United WordPress Plugin file.
+* 
+* At the top all the filters and hooks can be found, and they are dynamically loaded according to what is needed.
+* All of the resultant hooks and filter destinations are within this class.
+* This class extends the WP_United_Plugin_Base class, which contains the methods that make sense in both phpBB and WordPress.
+* 
 */
 
 if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) exit;
@@ -18,55 +21,60 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 	protected
 		// Actions and filters. These are loaded as needed depending on which WP-United portions are active.
-		// Format: array( event | function in this class -- in an array if optional arguments are needed | loading circumstances)
+		// Format: array( event | function in this class(in an array if optional arguments are needed) | loading circumstances)
 		$actions = array(
-			array('plugins_loaded', 					'init_plugin',							'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
-			array('shutdown', 							array('buffer_end_flush_all', 1),		'all'),
-			array('wp_head', 							'add_scripts',							'all'),
-			array('admin_bar_menu',						array('add_to_menu_bar', 100),			'all'),
-			array('comment_form', 						'generate_smilies',						'phpbb-smilies'),
-			array('wp_head', 							'add_head_marker',						'template-int'),
-			array('switch_theme', 						'clear_header_cache',					'template-int'),
-			array('set_current_user', 					'integrate_users',						'user-int'),
-			array('wp_logout', 							'phpbb_logout',							'user-int'),
-			array('register_post', 						array('validate_new_user', 10, 3),		'user-int'),
-			array('user_register', 						array('process_new_wp_reg', 10, 1),		'user-int'),
-			array('profile_update', 					array('profile_update', 10, 2),			'user-int'),
-			array('admin_menu', 						'add_xposting_box',						'x-posting'),
-			array('edit_post', 							'just_editing_post',					'x-posting'),
-			array('wp_insert_post', 					array('capture_future_post', 10, 2),	'x-posting'),
-			array('publish_post', 						array('handle_new_post', 10, 2),		'x-posting'),
-			array('future_to_publish', 					array('future_to_published', 10),		'x-posting'),
-			array('comment_form', 						'comment_redir_field',					'x-posting'),
-			array('pre_comment_on_post', 				'comment_redirector',					'x-posting'),
-			array('comments_open', 						array('comments_open', 10, 2),			'x-posting')
+			array('plugins_loaded', 					'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
+			array('shutdown', 							array('buffer_end_flush_all', 1),			'all'),
+			array('wp_head', 							'add_scripts',								'all'),
+			array('admin_bar_menu',						array('add_to_menu_bar', 100),				'all'),
+			array('comment_form', 						'generate_smilies',							'phpbb-smilies'),
+			array('wp_head', 							'add_head_marker',							'template-int'),
+			array('switch_theme', 						'clear_header_cache',						'template-int'),
+			array('set_current_user', 					'integrate_users',							'user-int'),
+			array('wp_logout', 							'phpbb_logout',								'user-int'),
+			array('register_post', 						array('validate_new_user', 10, 3),			'user-int'),
+			array('user_register', 						array('process_new_wp_reg', 10, 1),			'user-int'),
+			array('profile_update', 					array('profile_update', 10, 2),				'user-int'),
+			array('admin_menu', 						'add_xposting_box',							'x-posting'),
+			array('edit_post', 							'just_editing_post',						'x-posting'),
+			array('wp_insert_post', 					array('capture_future_post', 10, 2),		'x-posting'),
+			array('publish_post', 						array('handle_new_post', 10, 2),			'x-posting'),
+			array('future_to_publish', 					array('future_to_published', 10),			'x-posting'),
+			array('comment_form', 						'comment_redir_field',						'x-posting'),
+			array('pre_comment_on_post', 				'comment_redirector',						'x-posting'),
+			array('comments_open', 						array('comments_open', 10, 2),				'x-posting')
 		),
 
 		$filters = array(
-			array('plugin_row_meta', 					array('add_plugin_menu_link', 10, 2), 			'all'),
-			array('page_link', 							array('fix_forum_link', 10, 2), 				'all'),
-			array('admin_footer_text', 					'admin_footer_text', 							'all'),
-			array('the_content', 						'check_content_for_forum', 						'all'),
-			array('comment_text', 						'censor_content', 								'phpbb-censor'),
-			array('the_title', 							'censor_content', 								'phpbb-censor'),
-			array('the_excerpt', 						'censor_content', 								'phpbb-censor'),
-			array('comment_text', 						'smilies', 										'phpbb-smilies'),
-			array('get_avatar', 						array('get_avatar', 10, 5), 					'user-int'),
-			array('pre_user_login', 					'fix_blank_username', 							'user-int'),
-			array('validate_username', 					array('validate_username_conflict', 10, 2),		'user-int'),
-			array('authenticate', 						array('authenticate', 21, 3), 					'user-int'),
-			array('get_comment_author_link',			'get_comment_author_link',						'x-posting'),
-			array('comments_array', 					array('load_phpbb_comments', 10, 2),			'x-posting'),
-			array('get_comments_number', 				array('comments_count', 10, 2),					'x-posting'),
-			array('pre_option_comment_registration', 	'no_guest_comment_posting',						'x-posting'),
-			array('edit_comment_link', 					array('edit_comment_link', 10, 2),				'x-posting'),
-			array('get_comment_link', 					array('comment_link', 10, 3),					'x-posting')
+			array('plugin_row_meta', 					array('add_plugin_menu_link', 10, 2), 		'all'),
+			array('page_link', 							array('fix_forum_link', 10, 2), 			'all'),
+			array('admin_footer_text', 					'admin_footer_text', 						'all'),
+			array('the_content', 						'check_content_for_forum', 					'all'),
+			array('comment_text', 						'censor_content', 							'phpbb-censor'),
+			array('the_title', 							'censor_content', 							'phpbb-censor'),
+			array('the_excerpt', 						'censor_content', 							'phpbb-censor'),
+			array('comment_text', 						'smilies', 									'phpbb-smilies'),
+			array('get_avatar', 						array('get_avatar', 10, 5), 				'user-int'),
+			array('pre_user_login', 					'fix_blank_username', 						'user-int'),
+			array('validate_username', 					array('validate_username_conflict', 10, 2),	'user-int'),
+			array('authenticate', 						array('authenticate', 21, 3), 				'user-int'),
+			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
+			array('comments_array', 					array('load_phpbb_comments', 10, 2),		'x-posting'),
+			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
+			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
+			array('edit_comment_link', 					array('edit_comment_link', 10, 2),			'x-posting'),
+			array('get_comment_link', 					array('comment_link', 10, 3),				'x-posting')
 		);
 		
 		private
-			$doneInit = false,
-			$extras = false;
-
+			$doneInit 	= false,
+			$extras 	= false;
+	
+	/**
+	 * Initialises the plugin from WordPress.
+	 * This is not in the constructor, as this class can be instantiated from either phpBB or WordPress.
+	 * @return void
+	 */
 	public function wp_init() {
 
 		// (re)load our settings
@@ -92,16 +100,14 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		unset($this->actions, $this->filters);
 
 	}
-
-
-
 	
 	/**
 	 * The main invocation logic -- if enabled, load phpBB too!
+	 * Called on plugins_loaded hook, so we can get phpBB ready in advance of user integration when set_current_user is called.
+	 * @return void
 	 */
 	public function init_plugin() { 
 		global $phpbbForum;
-
 
 		if($this->has_inited()) {
 			return false;
@@ -149,7 +155,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			// Load default widgets:
 			require_once($this->get_plugin_path() . 'widgets.php');
 			add_action('widgets_init', array($this, 'widgets_init'));
-			
 		}
 		
 		$this->process_frontend_actions();
@@ -186,6 +191,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	/**
 	 * Transmit settings to phpBB
+	 * This could either be an update settings or enable rquest, or a disable request.
+	 * @param bool $enable true to enable WP-United in phpBB config
+	 * @return void
 	 */
 	public function transmit_settings($enable = true) {
 		global $phpbbForum;
@@ -219,11 +227,19 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}	
 	}
 
-
+	/**
+	 * Returns true if WP-United has already initialised
+	 * @return bool true if already inited
+	 */
 	public function has_inited() {
 		return $this->doneInit;
 	}
 	
+	/**
+	 * A way of storing how the last run of phpBB went -- only used during connecting and enabling phpBB
+	 * States transition through disconnected -> connected -> working
+	 * @param string $status disconnected|connected|working
+	 */
 	private function set_last_run($status) {
 		if($this->get_last_run() != $status) { 
 			// transitions cannot go from 'working' to 'connected'.
@@ -235,6 +251,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 	}
 	
+	/**
+	 * Returns how the last fun of phpBB went
+	 * @return string disconnected|connected|working
+	 */
 	public function get_last_run() {
 	
 		if(empty($this->lastRun)) {
@@ -244,6 +264,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		 return $this->lastRun;
 	}
 	
+	/**
+	 * Logs the current user out of phpBB
+	 * @return void
+	 */
 	public function phpbb_logout() {
 		if($this->is_working()) {
 			global $phpbbForum;
@@ -251,10 +275,21 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 	}
 	
+	/**
+	 * Updates the stored WP-United settings
+	 * The Wp-United class decorates itself with the stored phpBB or WordPress settings class, invoked as appropriate. 
+	 * WP settings take priority
+	 * @param array an array of all settings keys
+	 * @return void
+	 */
 	public function update_settings($data) {
 		$this->settings->update_settings($data);
 	}
 	
+	/**
+	 * Wrapper for wpu_integrate_login. Integrates users if appropriate options are enabled
+	 * @return void
+	 */
 	public function integrate_users() {
 		if($this->is_working() && $this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT')) {
 			wpu_integrate_login();
@@ -262,7 +297,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	 * Adds main menu
+	 * Adds a link to the setup/status page on the WordPress plugins menu
+	 * @param array $links provided by WordPress action hook
+	 * @param string $file provided by WordPress action hook
+	 * @return array inbound links returned to WordPress with new link added
 	 */
 	public function add_plugin_menu_link($links, $file) {
 
@@ -275,6 +313,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 	/**
 	 * Process inbound actions and set up the settings panels
+	 * Runs only in admin
+	 * @return void
 	 */
 	private function process_adminpanel_actions() {
 
@@ -308,6 +348,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 	}
 	
+	/**
+	 * Register the WP-United default widgets and any widgets hiding in wp-united extras
+	 * @return void
+	 */
 	public function widgets_init() {
 			
 		// init default widgets
@@ -320,7 +364,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	 * Process any requests bound for AJAX backend, etc..
+	 * Process any inbound AJAX requests or perform any actions that should only happen outside admin
+	 * @return void
 	 */
 	private function process_frontend_actions() {
 		
@@ -338,8 +383,11 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	/**
 	 * Check the permalink to see if this is a link to the forum. 
 	 * If it is, replace it with the real forum link
+	 * @param string $permalink provided by WordPress filter hook
+	 * @param WP_Post $post provided by WordPress filter hook
+	 * @return string the original permalink, modified if this is a forum page
 	 */
-	public function fix_forum_link($permalink, $post) { // wpu_modify_pagelink($permalink, $post) {
+	public function fix_forum_link($permalink, $post) {
 		global $phpbbForum, $phpEx;
 		
 		if ( $this->is_working() && $this->get_setting('useForumPage') ) { 
@@ -354,14 +402,18 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return $permalink;
 	}
 	
+	/**
+	 * Puts a link to WP-United in the WordPress admin footer.
+	 */
 	public function admin_footer_text($inbound) {
 		$inbound .= ' <span id="footer-wpunited">' . __('phpBB integration by <a href="http://www.wp-united.com/">WP-United</a>.', 'wp-united') . '</span>';
 		return $inbound;
 	}
 	
 	/**
-	 * add the head marker for 
-	 * template integration when WordPress CSS is first.
+	 * Adds a marker in the <head> when template integration is set to phpBB-in-WordPress and 
+	 * phpBB CSS is set to come first. Echoes directly to page buffer.
+	 * @return void
 	*/
 	public function add_head_marker() {
 		global $wpUnited;
@@ -373,7 +425,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	/**
 	 * Called whenever a post is edited
-	 * Allows us to differentiate between edits and new posts for cross-posting
+	 * Allows us to differentiate between edits and new posts for updating the user's personal blog column.
+	 * @return void
 	 */
 	public function just_editing_post() {
 		define('suppress_newpost_action', TRUE);
@@ -382,7 +435,11 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	/**
 	 * Catches posts scheduled for future publishing
 	 * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
-	 * See functions-cross-posting.php
+	 * then we can process them as if they were just posted when the time arises.
+	 * Wrapper for wpu_capture_future_post - see functions-cross-posting.php.
+	 * @param int $postID provided by WordPress action hook
+	 * @param WP_Post $post provided by WordPress action hook
+	 * @return void
 	 */
 	public function capture_future_post($postID, $post) {
 		 wpu_capture_future_post($postID, $post);
@@ -393,8 +450,13 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Called whenever a new post is published.
 	 * Updates the phpBB user table with the latest author ID, to facilitate direct linkage via blog buttons
 	 * Also handles cross-posting
+	 * Used for user-blogging
+	 * @param int $postID The post ID
+	 * @param WP_Post $post the WordPress post object
+	 * @param boolean $future true if this is a future post
+	 * @return void
 	 */
-	public function handle_new_post($post_ID, $post, $future=false) {
+	public function handle_new_post($postID, $post, $future=false) {
 		global $phpbbForum;
 		
 		if( (!$future) && (defined("WPU_JUST_POSTED_{$postID}")) ) {
@@ -405,7 +467,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 		if (($post->post_status == 'publish' ) || $future) { 
 			if (!defined('suppress_newpost_action')) { //This should only happen ONCE, when the post is initially created.
-				update_user_meta($post->post_author, 'wpu_last_post', $post_ID); 
+				update_user_meta($post->post_author, 'wpu_last_post', $postID); 
 			} 
 
 			if ( $this->get_setting('integrateLogin') )  {
@@ -420,7 +482,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				}
 				
 				if ( (($phpbbForum->user_logged_in()) || $future) && ($this->get_setting('xposting')) ) {
-					$did_xPost = wpu_do_crosspost($post_ID, $post, $future);
+					$did_xPost = wpu_do_crosspost($postID, $post, $future);
 				} 
 
 				define('suppress_newpost_action', TRUE);
@@ -432,6 +494,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	/**
 	 * Called when a post is transitioned from future to published
 	 * Since wp-cron could be invoked by any user, we treat logged in status etc differently
+	 * @param WP_Post $post the WordPress post object
+	 * @return void
 	 */
 	public function future_to_published($post) {
 		
@@ -440,7 +504,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	 * Turns our page place holder into the forum-in-a-full-page
+	 * Either turns the page content into the forum content by adding a tag; or censors the post content
+	 * @param string $postContent the post content
+	 * @return string the modified post content
 	 */
 	public function check_content_for_forum($postContent) {
 		
@@ -459,6 +525,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	/**
 	 * Handles parsing of posts through the phpBB word censor.
 	 * We also use this hook to suppress everything if this is a forum page.
+	 * Really just a wrapper around WPU_Phpbb->censor
+	 * @param string $postContent the content to be displayed
+	 * @return string the potentially modified content;
 	*/
 	public function censor_content($postContent) { 
 		global $phpbbForum; 
@@ -476,7 +545,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	 *  Decide whether to display the cross-posting box.
+	 *  Adds a cross-posting box to the posting page if required.
+	 * @return void
 	 */
 	public function add_xposting_box() {
 		// this func is called early so we need to do some due diligence (TODO: CHECK THIS IS STILL NECESSARY!)
@@ -492,7 +562,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	* Stubs for cross-posting hooks and filters in functions-cross-posting.php
+	* The following nine functions are stubs for cross-posting. The actual functions are in cross-posting.php.
+	* They are wrapped here to take advantage of the dynamic WP-United hook/filter loader.
+	* @param various
+	* @return various
 	*/
 	public function comment_redir_field() {
 		return wpu_comment_redir_field();
@@ -526,12 +599,16 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	/**
 	* Retrieve the phpBB avatar of a user
+	* @param string $avatar the inbound avatar
+	* @param string $id_or_email either a WordPress user ID or an e-mail
+	* @param string $size a string representation of an integer denoting avatar size
+	* @param string $default the default avatar
+	* @param string $alt the image alt text
 	* @return phpBB avatar html tag, or the WordPress avatar if the phpBB one is empty or user integration is disabled
 	* @since WP-United 0.7.0
 	* 
 	* TODO: let wp override phpBB avatar if it is newer!
 	*/
-
 	public function get_avatar($avatar, $id_or_email, $size = '96', $default = '', $alt = false ) { 
 		global $phpbbForum;
 
@@ -582,7 +659,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 
 	/**
-	 * Originally function 'wpu_print_smilies' prints phpBB smilies into comment form
+	 * Originally function 'wpu_print_smilies'; prints phpBB smilies into comment form.
+	 * Echoes directly to the page buffer.
+	 * @return void
 	 * @since WP-United 0.7.0
 	 */
 	public function generate_smilies() { 
@@ -594,6 +673,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	/**
 	 * Function 'wpu_smilies' replaces the phpBB smilies' code with the corresponding smilies into comment text
+	 * @param string $postContent the content to modify
+	 * @return string the content, with smilies rendered
 	 * @since WP-United 0.7.0
 	 */
 	public function smilies($postContent) {
@@ -609,6 +690,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	/**
 	 * Adds any required scripts and inline JS (for lang strings)
+	 * @TODO: standardize
+	 * Echoes directly to the page buffer
+	 * @return void
 	 */
 	public function add_scripts() {
 		
@@ -647,7 +731,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	/**
-	*  Generate a username in WP when the sanitized username is blank,
+	* Generates a username in WP when the sanitized username is blank; as WP is less forgiving of usernames than phpBB
+	* Wrapper for wpu_fix_blank_username
+	* @param string $userLogin the username that would be blank
+	* @return string a generated username, in the form 'wpuXXXXXX';
 	*/
 	public function fix_blank_username($userLogin) {
 
@@ -668,7 +755,12 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	* Furthermore, if phpbb_validate_username is defined, then we know we most likely need to use the phpBB version.
 	* 
 	* We unfortunately cannot control their usage -- phpbb expects 2 arguments, whereas WordPress only expects one.
-	* Therefore here we just try to avoid namespace errors. If they are actually invoked while renamed, the result is undefined
+	* Therefore here we just try to avoid namespace errors. 
+	* If they are actually invoked while renamed, the result is undefined and things could spontaneously ignite.
+	*
+	* @param string $wpValidUser the validated WP username
+	* @param string $username the original WP username
+	* @return string hopefully something nice
 	*/
 
 	public function validate_username_conflict($wpValdUser, $username) {
@@ -688,6 +780,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * @param string $username username
 	 * @param string $email e-mail
 	 * @param WP_Error $errors WordPress error object
+	 * @return mixed true or WP_Error
 	 */
 	public function validate_new_user($username, $email, $errors) {
 
@@ -708,6 +801,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * leave no other way to intercept them.
 	 * If it is found to be an erroneous user creation, then we remove the newly-added user.
 	 * This action is removed by WP-United when adding a user, so we avoid unsetting our own additions
+	 * @param int $userID the user ID
+	 * @ return mixed void or hellfire
 	 */
 	public function process_new_wp_reg ($userID) { 
 		global $phpbbForum;
@@ -763,7 +858,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	/**
 	 * Sync details to phpBB on a profile update
-	 * 
+	 * @param int $userId WordPress user ID
+	 * @param array $oldUserData unused -- the data before update
+	 * @return void
 	 */
 	public function profile_update($userId, $oldUserData) {
 		global $phpbbForum;
@@ -785,8 +882,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * @param mixed $user WP_User|WP_Error|null a user object if the user has already successfully authenticated
 	 * @param string $username attempted username
 	 * @param string $password attempted password
+	 * @return an authenticated WP_User object, or WP_Error or void on error
 	 */
-	 
 	public function authenticate($user, $username, $password) {
 		global $phpbbForum;
 
@@ -837,6 +934,11 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 	}
 	
+	/**
+	 * Adds sexy things to the WordPress admin bar (they like to call it the menu bar in docs but not in code)
+	 * @param object $adminBar the admin bar before being sexy
+	 * @return void (giant void)
+	 */
 	public function add_to_menu_bar($adminBar) {
 		global $wpUnited, $phpbbForum, $phpEx;
  
@@ -861,10 +963,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			));	
 		
 		}
-		
-		
-		
-		
 		
 		
 		if(!$wpUnited->is_working()) {
@@ -893,7 +991,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		 * Since we use JavaScript to direct search, 
 		 * we start with it hidden and show it through JS too
 		 * 
-		 * Bit of ugly inline JS for now, but it works. TODO: improve.
+		 * Bit of ugly inline JS for now, but it works. TODO: decrapify
 		 */
 		$adminBar->add_menu(array(
 			'id'    => 'wpu-search-site',
@@ -917,16 +1015,14 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			',
 			'parent' => 'search'
 		));		
-		
-
-
-}
+	}
 	
 	/**
 	 * Clears phpbb's cache of WP header/footer.
 	 * We need to do this whenever the main WP theme is changed,
 	 * because when WordPress header/footer cache are called from phpBB, we have
 	 * no way of knowing what the theme should be a WordPress is not invoked
+	 * @return void
 	 */
 	public function clear_header_cache() {
 		$wpuCache = WPU_Cache::getInstance();
@@ -939,6 +1035,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * So we turn it off and replace it with the diff suggested at
 	 * http://rustyroy.blogspot.jp/2010/12/various-stuff_20.html
 	 * See also http://core.trac.wordpress.org/attachment/ticket/18525/18525.6.diff 
+	 * @TODO: Revisit GZIP and try to match settings across WP & phpBB, including when themes turn it on/off ( :-( )
+	 * @return void
 	 */
 	public function buffer_end_flush_all() {
 		$levels = ob_get_level();
@@ -952,9 +1050,4 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 }
 
-
-
-
-
-
-?>
+// That's all. Easy, right?

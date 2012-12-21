@@ -1,5 +1,25 @@
-current target: v0.9.1.1
+current target: v0.9.1.4
 
+COMMITTED FOR v0.9.1.4:
+
+* BUGFIX: minor avatar notice
+* NEW: integrated links in WP menu bar (admin-bar)
+* Code cleanup and improved code documentation. Developers/hackers look at wp-united.php to get started.
+
+TODO:
+* Register date for WP users in mapper is buggered
+* padding entry & reset to defaults farked
+* full page list doesn't show items in child themes
+* warnings about wp_query in responsive...
+* Add Forum, ACP & WPU items to the admin bar
+* mapper HTML entities
+* Check activation status
+* Check custom groups
+
+
+
+TODO (LARGER):
+* Entirely remove $compat from core-patcher, and re-obsolete plugin-fixer.php
 
 
 Regressions:
