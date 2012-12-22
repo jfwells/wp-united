@@ -735,10 +735,12 @@ function wpu_get_user_level($userID = false) {
 	
 	
 	if(!in_array($phpbbForum->get_userdata('user_type'), array(USER_NORMAL, USER_FOUNDER))) {
+		if($userID !== false) {
+			$phpbbForum->transition_user();
+		}
 		$phpbbForum->restore_state($fStateChanged);
 		return false;
 	}
-	
 	
 	$wpuPermissions = wpu_permissions_list();
 	

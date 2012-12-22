@@ -1029,7 +1029,7 @@ function wpu_process_mapaction() {
 				} else if($phpbbID == -1) {
 					die('<status>FAIL</status><details>' . __('A suitable username could not be found in phpBB', 'wp-united') . '</details></wpumapaction>');
 				}
-				wpu_sync_profiles(get_userdata($userID), $phpbbForum->get_userdata('', $phpbbID), 'sync');
+				wpu_sync_profiles(get_userdata($userID), $phpbbForum->get_userdata('', $phpbbID), 'wp-update');
 				
 			} else {
 
@@ -1049,7 +1049,7 @@ function wpu_process_mapaction() {
 					if($wpUser = get_userdata($newUserID)) { 
 						wpu_update_int_id($userID, $wpUser->ID);
 						
-						wpu_sync_profiles($wpUser, $wpuNewDetails, 'sync');
+						wpu_sync_profiles($wpUser, $wpuNewDetails, 'phpbb-update');
 
 						wpu_set_role($wpUser->ID, $userLevel);
 						
