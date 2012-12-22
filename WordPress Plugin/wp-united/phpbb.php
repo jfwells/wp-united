@@ -1381,7 +1381,7 @@ class WPU_Phpbb {
 	public function get_newuser_group() {
 		global $config;
 		
-		$fStateChanged = $this->background();
+		$fStateChanged = $this->foreground();
 		
 		// if 0, they aren't added to the group -- else they are in group until they have this number of posts
 		$newMemberGroup = ($config['new_member_post_limit'] != 0);

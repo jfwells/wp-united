@@ -27,7 +27,6 @@ if(!file_exists($phpbb_root_path . 'wp-united/')) {
 	return;
 }
 
-
 if(!wpu_bootstrap()) {
 	return;
 }

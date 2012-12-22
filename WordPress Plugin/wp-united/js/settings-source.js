@@ -318,7 +318,7 @@ function wpu_process_error(transmitMessage) {
 
 // We have to send messages back by POST as URI vars are too long
 function send_back_msg(uri, msg) {
-	$wpu('<form action="' + uri + '" method="post"><input type="text" name="msgerr" value="' + makeMsgSafe(msg) + '"></input></form>').appendTo('body').submit();
+	$wpu('<form action="' + uri + '" method="post"><input type="hidden" name="msgerr" value="' + makeMsgSafe(msg) + '"></input></form>').appendTo('body').submit();
 }
 
 /**
