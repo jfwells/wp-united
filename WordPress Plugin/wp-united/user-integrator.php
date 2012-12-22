@@ -715,20 +715,30 @@ function wpu_get_integrated_phpbbuser($userID = 0) {
  * Gets the logged-in user's effective WP-United permissions
  * @return mixed string|bool WordPress user level, or false if no permissions
  */
-function wpu_get_user_level() {
+function wpu_get_user_level($userID = false) {
 	global $wpUnited, $phpbbForum, $wpuDebug, $auth;
 
 	$fStateChanged = $phpbbForum->foreground();
 		
 
 	$userLevel = false;
-
-	
 	
 	// if checking for the current user, do a sanity check
-	if ( (!$phpbbForum->user_logged_in()) || !in_array($phpbbForum->get_userdata('user_type'), array(USER_NORMAL, USER_FOUNDER)) ) {
+	if(($userID === false) && !$phpbbForum->user_logged_in()) 
+		$phpbbForum->restore_state($fStateChanged);
+		return false;
+	} else {
+		$userDetails = $phpbbForum->get_userdata('', $userID);
+		$phpbbForum->transition_user($userID, $userDetails->user_ip);
+	}
+	
+	
+	
+	if(!in_array($phpbbForum->get_userdata('user_type'), array(USER_NORMAL, USER_FOUNDER))) {
+		$phpbbForum->restore_state($fStateChanged);
 		return false;
 	}
+	
 	
 	$wpuPermissions = wpu_permissions_list();
 	
@@ -744,6 +754,10 @@ function wpu_get_user_level() {
 	
 	$wpuDebug->add($debug);
 	$wpuDebug->add('User level set to: ' . $userLevel);
+	
+	if($userID !== false) {
+		$phpbbForum->transition_user();
+	}
 	
 	$phpbbForum->restore_state($fStateChanged);
 	
