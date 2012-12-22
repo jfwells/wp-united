@@ -1038,10 +1038,12 @@ function wpu_process_mapaction() {
 				
 				require_once( ABSPATH . WPINC . '/registration.php');
 				
+				$phpbbForum->transition_user($userID, $wpuNewDetails->user_ip);
+				
 				if( !$userLevel = wpu_get_user_level() ) {
 					die('<status>FAIL</status><details>' . __('Cannot create integrated user, as they would have no integration permissions.', 'wp-united') . '</details></wpumapaction>');
 				}
-				$phpbbForum->transition_user();
+				
 				
 				$newUserID = wpu_create_wp_user($wpuNewDetails['username'], $password, $wpuNewDetails);
 						
@@ -1052,11 +1054,13 @@ function wpu_process_mapaction() {
 						wpu_sync_profiles($wpUser, $wpuNewDetails, 'sync');
 
 						wpu_set_role($wpUser->ID, $userLevel);
-						$phpbbForum->transition_user($userID, $wpuNewDetails->user_ip);
+						
 					}
 				} else {
 					die('<status>FAIL</status><details>' . __('Could not add user to WordPress', 'wp-united') . '</details></wpumapaction>');
-				}				
+				}
+				
+				$phpbbForum->transition_user();		
 				
 			}
 			

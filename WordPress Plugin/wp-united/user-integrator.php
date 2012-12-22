@@ -348,6 +348,7 @@ function wpu_create_phpbb_user($userID) {
 
 	// validates and finds a unique username
 	if(! $signUpName = wpu_find_next_avail_name($wpUsr->user_login, 'phpbb') ) {
+		$phpbbForum->restore_state($fStateChanged);
 		return -1;
 	}
 
