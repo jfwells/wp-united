@@ -104,7 +104,18 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
-v0.9.1.0 RELEASE CANDIDATE 3
+v0.9.1.4 RELEASE CANDIDATE 3
+
+* BUGFIX: WordPress users created in user mapper set to administrators. if you have created WordPress users using the user mapper previously, please check to ensure they are not administrators.
+* BUGFIX: WordPress register date now showing correctly in user mapper and minor mapper display fixes
+* BUGFIX: improper context switching in user mapper causing error with W3 Total Cache
+* BUGFIX: phpBB normal ranks not showing for users in user mapper
+* BUGFIX: minor avatar notice
+* BUGFIX: Incorrect "forgot password" link in user login block widget
+* NEW: integrated links in WP menu bar (admin-bar)
+* Code cleanup and improved code documentation. Developers/hackers look at wp-united.php to get started.
+
+v0.9.1.0/2/3 RELEASE CANDIDATE 3
 
 * NEW: Quick poll widget! Can have multiple polls per page, can submit via AJAX, BBCode & smilies etc. work. Can use prosilver or subsilver2 forum styles.
 * NEW: Forum top bar widget, complete with phpBB-style breadcrumbs in WordPress!

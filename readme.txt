@@ -83,6 +83,17 @@ There are several ways to debug problems. We suggest you try the following, in o
 
 == Changelog ==
 
+= v09.1.4 RELEASE CANDIDATE 3 =
+
+* BUGFIX: WordPress users created in user mapper set to administrators. if you have created WordPress users using the user mapper previously, please check to ensure they are not administrators.
+* BUGFIX: WordPress register date now showing correctly in user mapper and minor mapper display fixes
+* BUGFIX: improper context switching in user mapper causing error with W3 Total Cache
+* BUGFIX: phpBB normal ranks not showing for users in user mapper
+* BUGFIX: minor avatar notice
+* BUGFIX: Incorrect "forgot password" link in user login block widget
+* NEW: integrated links in WP menu bar (admin-bar)
+* Code cleanup and improved code documentation. Developers/hackers look at wp-united.php to get started.
+
 = v0.9.1.3 RELEASE CANDIDATE 3 =
 * This quick release fixes a missing file, a bug in the user mapper due to the large changes in v0.9.1.0, and the install.xml file. Please update.
 
@@ -208,3 +219,6 @@ This version adds a missing file from v0.9.1.0, please update to avoid errors
 
 = 0.9.1.3 =
 This version fixes a bug in the user mapper, please update.
+
+= 0.9.1.4 =
+This version fixes a few important bugs in the user mapper, please update ASAP.

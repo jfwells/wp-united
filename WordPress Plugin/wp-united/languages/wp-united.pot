@@ -2,10 +2,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP-United v0.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-19 18:44+0800\n"
-"PO-Revision-Date: 2012-12-19 18:44+0800\n"
+"POT-Creation-Date: 2012-12-23 16:49+0800\n"
+"PO-Revision-Date: 2012-12-23 16:50+0800\n"
 "Last-Translator: John Wells <solutions@wp-united.com>\n"
 "Language-Team: John Wells <admin@wp-united.com>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -15,360 +16,63 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: base-classes.php:296 settings-panel.php:359
+#: base-classes.php:300
+#: settings-panel.php:374
 #, php-format
 msgid "%1$sClick here%2$s to download the modification package. "
 msgstr ""
 
-#: base-classes.php:297 settings-panel.php:359
-#, php-format
-msgid ""
-"You can apply it using %1$sAutoMod%2$s (recommended), or manually by reading "
-"the install.xml file and following %3$sthese instructions%4$s. When done, "
-"click &quot;Connect&quot; to try again."
-msgstr ""
-
-#: base-classes.php:298
-#, php-format
-msgid ""
-"Find the %1$s file inside the %2$s folder and open it in your browser. Then "
-"follow the instructions to upgrade. Don't forget to copy over the new files "
-"to your phpBB forum."
-msgstr ""
-
-#: base-classes.php:299
-msgid ""
-"You can just copy over the files from the /root folder to your phpBB forum."
-msgstr ""
-
 #: base-classes.php:301
+#: settings-panel.php:374
 #, php-format
-msgid ""
-"You are running WP-United version %1$s, but the WP-United phpBB MOD version "
-"you have installed is version %2$s."
+msgid "You can apply it using %1$sAutoMod%2$s (recommended), or manually by reading the install.xml file and following %3$sthese instructions%4$s. When done, click &quot;Connect&quot; to try again."
 msgstr ""
 
-#: base-classes.php:309
+#: base-classes.php:302
+#, php-format
+msgid "Find the %1$s file inside the %2$s folder and open it in your browser. Then follow the instructions to upgrade. Don't forget to copy over the new files to your phpBB forum."
+msgstr ""
+
+#: base-classes.php:303
+msgid "You can just copy over the files from the /root folder to your phpBB forum."
+msgstr ""
+
+#: base-classes.php:305
+#, php-format
+msgid "You are running WP-United version %1$s, but the WP-United phpBB MOD version you have installed is version %2$s."
+msgstr ""
+
+#: base-classes.php:313
 msgid "The location to phpBB is not set."
 msgstr ""
 
-#: base-classes.php:318 settings-panel.php:359
+#: base-classes.php:322
+#: settings-panel.php:374
 msgid "You need to install the WP-United phpBB MOD."
 msgstr ""
 
-#: base-classes.php:753
+#: base-classes.php:757
 msgid "WP-United is already disabled"
 msgstr ""
 
-#: base-classes.php:762
-msgid ""
-"WP-United could not find phpBB at the selected path. WP-United is not "
-"connected."
+#: base-classes.php:766
+msgid "WP-United could not find phpBB at the selected path. WP-United is not connected."
 msgstr ""
 
-#: base-classes.php:765
-msgid ""
-"WP-United could not successfully run phpBB at the selected path. WP-United "
-"is halted."
+#: base-classes.php:769
+msgid "WP-United could not successfully run phpBB at the selected path. WP-United is halted."
 msgstr ""
 
-#: base-classes.php:768
-msgid ""
-"WP-United could not successfully run phpBB without errors. WP-United has "
-"been disconnected."
+#: base-classes.php:772
+msgid "WP-United could not successfully run phpBB without errors. WP-United has been disconnected."
 msgstr ""
 
-#: base-classes.php:775
+#: base-classes.php:779
 msgid "WP-United Disabled Successfully"
 msgstr ""
 
-#: base-classes.php:778
+#: base-classes.php:782
 msgid "WP-United Disabled"
-msgstr ""
-
-#: functions-cross-posting.php:32
-msgid "Forum Posting"
-msgstr ""
-
-#: functions-cross-posting.php:41 functions-cross-posting.php:59
-msgid "Cross-post to Forums?"
-msgstr ""
-
-#: functions-cross-posting.php:56
-#, php-format
-msgid "Already cross-posted (Topic ID = %s)"
-msgstr ""
-
-#: functions-cross-posting.php:85 functions-cross-posting.php:114
-msgid "Post Excerpt"
-msgstr ""
-
-#: functions-cross-posting.php:86 functions-cross-posting.php:115
-msgid "Post Full Post"
-msgstr ""
-
-#: functions-cross-posting.php:99
-#, php-format
-msgid "This post is already cross-posted. It will be edited in forum '%s'"
-msgstr ""
-
-#: functions-cross-posting.php:99
-#, php-format
-msgid "This post will be cross-posted to the forum: '%s'"
-msgstr ""
-
-#: functions-cross-posting.php:192
-msgid "You do not have permission required to edit global announcements"
-msgstr ""
-
-#: functions-cross-posting.php:196
-msgid "You do not have the permission required to edit this announcement"
-msgstr ""
-
-#: functions-cross-posting.php:199
-msgid "You do not have the permission required to edit stickies"
-msgstr ""
-
-#: functions-cross-posting.php:203
-msgid "You do not have the permission required to edit posts in this forum"
-msgstr ""
-
-#: functions-cross-posting.php:255
-msgid "No tags defined."
-msgstr ""
-
-#: functions-cross-posting.php:258
-msgid "Tags: "
-msgstr ""
-
-#: functions-cross-posting.php:259
-msgid "Posted under: "
-msgstr ""
-
-#: functions-cross-posting.php:262
-#, php-format
-msgid ""
-"This is a %1$sblog post%2$s. To read the original post, please %3$sclick "
-"here &raquo;%4$s"
-msgstr ""
-
-#: functions-cross-posting.php:314
-msgid ""
-"Could not access the WP-United database fields. Please ensure WP-United is "
-"installed correctly. "
-msgstr ""
-
-#: functions-cross-posting.php:570
-msgid "You do not have permission to respond to this announcement"
-msgstr ""
-
-#: functions-cross-posting.php:574
-msgid "You do not have permission to comment in this forum"
-msgstr ""
-
-#: functions-cross-posting.php:580
-msgid "Error: Please type a comment!"
-msgstr ""
-
-#: functions-cross-posting.php:663
-msgid "(View in Forum)"
-msgstr ""
-
-#: mapped-users.php:100
-msgid "Break Integration"
-msgstr ""
-
-#: mapped-users.php:112 mapped-users.php:140 settings-panel.php:733
-#: settings-panel.php:840
-msgid "phpBB"
-msgstr ""
-
-#: mapped-users.php:112 mapped-users.php:140 settings-panel.php:732
-#: settings-panel.php:840
-msgid "WordPress"
-msgstr ""
-
-#: mapped-users.php:115
-#, php-format
-msgid "Create user in %s"
-msgstr ""
-
-#: mapped-users.php:128
-msgid "Delete user from both phpBB and WordPress"
-msgstr ""
-
-#: mapped-users.php:142
-#, php-format
-msgid "Delete user from %s"
-msgstr ""
-
-#: mapped-users.php:155
-msgid "Synchronize profiles between phpBB and WordPress"
-msgstr ""
-
-#: mapped-users.php:212
-msgid "Display name:"
-msgstr ""
-
-#: mapped-users.php:213 mapped-users.php:363
-msgid "E-mail:"
-msgstr ""
-
-#: mapped-users.php:214
-msgid "Website:"
-msgstr ""
-
-#: mapped-users.php:217 mapped-users.php:365
-msgid "Posts:"
-msgstr ""
-
-#: mapped-users.php:218
-msgid "Comments:"
-msgstr ""
-
-#: mapped-users.php:219 mapped-users.php:366
-msgid "Registered:"
-msgstr ""
-
-#: mapped-users.php:254 user-mapper.php:338
-msgid "n/a"
-msgstr ""
-
-#: mapped-users.php:256
-msgid "Roles:"
-msgstr ""
-
-#: mapped-users.php:256
-msgid "Role:"
-msgstr ""
-
-#: mapped-users.php:267 mapped-users.php:436
-msgid "Edit user"
-msgstr ""
-
-#: mapped-users.php:283 mapped-users.php:479
-msgid "No suggested matches found."
-msgstr ""
-
-#: mapped-users.php:313 mapped-users.php:527 user-mapper.php:417
-msgid "Available"
-msgstr ""
-
-#: mapped-users.php:313 mapped-users.php:527
-msgid "Cannot integrate (already integrated)"
-msgstr ""
-
-#: mapped-users.php:315 mapped-users.php:529 settings-panel.php:877
-msgid "Integrate"
-msgstr ""
-
-#: mapped-users.php:362
-msgid "Default group:"
-msgstr ""
-
-#: mapped-users.php:364
-msgid "Rank:"
-msgstr ""
-
-#: mapped-users.php:367
-msgid "Last visited:"
-msgstr ""
-
-#: phpbb.php:178
-msgid ""
-"The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it "
-"is missing, or you need to clear the phpBB cache. <br /><br />Attempted to "
-"automatically clear the phpBB cache. Try <a href=\"#\" onclick=\"document."
-"location.reload(); return false;\">refreshing the page</a> to see if it "
-"worked. <br /><br />If this error persists, check that includes/hooks/"
-"hook_wp-united.php exists, and try manually purging your phpBB cache."
-msgstr ""
-
-#: phpbb.php:543 phpbb.php:637 phpbb.php:694 extras/quickpoll/main.php:63
-#: extras/quickpoll/main.php:153
-msgid "Could not access the database."
-msgstr ""
-
-#: phpbb.php:980 plugin-main.php:632
-msgid "More smilies"
-msgstr ""
-
-#: phpbb.php:1122
-msgid "Receiving settings from WP-United..."
-msgstr ""
-
-#: phpbb.php:1131
-msgid "Modified USERS Table (Integration ID)"
-msgstr ""
-
-#: phpbb.php:1140
-msgid "Modified USERS Table (Blog ID)"
-msgstr ""
-
-#: phpbb.php:1155
-msgid "Modified POSTS Table (Cross-Posting Link)"
-msgstr ""
-
-#: phpbb.php:1161
-msgid "Adding WP-United Permissions"
-msgstr ""
-
-#: phpbb.php:1173
-msgid "Storing the new WP-United settings"
-msgstr ""
-
-#: phpbb.php:1201
-msgid "Updating avatar settings"
-msgstr ""
-
-#: phpbb.php:1214
-msgid "Purging the WP-United cache"
-msgstr ""
-
-#: phpbb.php:1219
-msgid "Completed successfully"
-msgstr ""
-
-#: phpbb.php:1250
-msgid "Changed WP-United Settings (click for details)"
-msgstr ""
-
-#: plugin-main.php:269 settings-panel.php:142
-msgid "Setup / Status"
-msgstr ""
-
-#: plugin-main.php:357
-msgid ""
-"phpBB integration by <a href=\"http://www.wp-united.com/\">WP-United</a>."
-msgstr ""
-
-#: plugin-main.php:418
-msgid "Error accessing the phpBB database when updating Blog ID"
-msgstr ""
-
-#: plugin-main.php:541
-msgid "Avatar image"
-msgstr ""
-
-#: plugin-main.php:633
-msgid "Less smilies"
-msgstr ""
-
-#: plugin-main.php:634
-#, php-format
-msgid ""
-"Your smiley could not be inserted. You can add it manually by typing this "
-"code: %s"
-msgstr ""
-
-#: plugin-main.php:746
-msgid "Error:"
-msgstr ""
-
-#: plugin-main.php:748
-msgid ""
-"Please go back and try again, or contact an administrator if you keep seeing "
-"this error."
 msgstr ""
 
 #: settings-panel.php:141
@@ -379,7 +83,12 @@ msgstr ""
 msgid "WP-United Setup"
 msgstr ""
 
-#: settings-panel.php:147 settings-panel.php:1124
+#: settings-panel.php:142
+msgid "Setup / Status"
+msgstr ""
+
+#: settings-panel.php:147
+#: settings-panel.php:1130
 msgid "WP-United Settings"
 msgstr ""
 
@@ -391,11 +100,13 @@ msgstr ""
 msgid "WP-United User Mapping"
 msgstr ""
 
-#: settings-panel.php:150 settings-panel.php:467
+#: settings-panel.php:150
+#: settings-panel.php:482
 msgid "User Mapping"
 msgstr ""
 
-#: settings-panel.php:152 settings-panel.php:179
+#: settings-panel.php:152
+#: settings-panel.php:194
 msgid "WP-United Advanced Options"
 msgstr ""
 
@@ -423,1146 +134,1181 @@ msgstr ""
 msgid "Support WP-United"
 msgstr ""
 
-#: settings-panel.php:180
+#: settings-panel.php:195
 #, php-format
-msgid ""
-"Some additional options can be set in the included file, %s. These do not "
-"normally need to be changed. However, to review and change these options, "
-"please open the file in a text editor."
+msgid "Some additional options can be set in the included file, %s. These do not normally need to be changed. However, to review and change these options, please open the file in a text editor."
 msgstr ""
 
-#: settings-panel.php:200
+#: settings-panel.php:215
 msgid "Get help or support"
 msgstr ""
 
-#: settings-panel.php:201
+#: settings-panel.php:216
 msgid "Community support &amp; bug reporting"
 msgstr ""
 
-#: settings-panel.php:202
-msgid ""
-"Free community support is available from the WP-United forum. Please search "
-"there for any other users who may be experiencing the same problem, and "
-"discuss any issues with fellow users."
+#: settings-panel.php:217
+msgid "Free community support is available from the WP-United forum. Please search there for any other users who may be experiencing the same problem, and discuss any issues with fellow users."
 msgstr ""
 
-#: settings-panel.php:203
-msgid ""
-"Please copy and paste the following information into a new topic post when "
-"you are seeking support. This will help us understand your setup at a "
-"glance. It is sanitized to protect your private server information and "
-"contains BBCode formatting."
+#: settings-panel.php:218
+msgid "Please copy and paste the following information into a new topic post when you are seeking support. This will help us understand your setup at a glance. It is sanitized to protect your private server information and contains BBCode formatting."
 msgstr ""
 
-#: settings-panel.php:207
+#: settings-panel.php:222
 msgid "Hide sensitive information"
 msgstr ""
 
-#: settings-panel.php:207
+#: settings-panel.php:222
 msgid "Show sensitive information"
 msgstr ""
 
-#: settings-panel.php:223
+#: settings-panel.php:238
 msgid "Please Help Support WP-United"
 msgstr ""
 
-#: settings-panel.php:224
-msgid ""
-"WP-United is free software, and we hope you find it useful. If you do, "
-"please support us by making a donation here! Any amount, however small, is "
-"much appreciated. Thank you!"
-msgstr ""
-
-#: settings-panel.php:225
-msgid ""
-"The PayPal link will take you to a donation page for our PayPal business "
-"account, 'Pet Pirates'"
-msgstr ""
-
-#: settings-panel.php:235
-msgid "Other ways to support the WP-United project"
-msgstr ""
-
-#: settings-panel.php:236
-msgid ""
-"If you cannot donate, please consider helping support the WP-United project "
-"in another way. For example, you could help:"
-msgstr ""
-
-#: settings-panel.php:238
-msgid "Contributing to the WP-United documentation"
-msgstr ""
-
 #: settings-panel.php:239
-msgid "Providing a translation"
+msgid "WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!"
 msgstr ""
 
 #: settings-panel.php:240
+msgid "The PayPal link will take you to a donation page for our PayPal business account, 'Pet Pirates'"
+msgstr ""
+
+#: settings-panel.php:250
+msgid "Other ways to support the WP-United project"
+msgstr ""
+
+#: settings-panel.php:251
+msgid "If you cannot donate, please consider helping support the WP-United project in another way. For example, you could help:"
+msgstr ""
+
+#: settings-panel.php:253
+msgid "Contributing to the WP-United documentation"
+msgstr ""
+
+#: settings-panel.php:254
+msgid "Providing a translation"
+msgstr ""
+
+#: settings-panel.php:255
 msgid "Recommending WP-United or our paid installation services"
 msgstr ""
 
-#: settings-panel.php:241
+#: settings-panel.php:256
 msgid "Writing a review"
 msgstr ""
 
-#: settings-panel.php:242
-msgid ""
-"Linking back to www.wp-united.com, or posting about WP-United on your blog."
+#: settings-panel.php:257
+msgid "Linking back to www.wp-united.com, or posting about WP-United on your blog."
 msgstr ""
 
-#: settings-panel.php:245
+#: settings-panel.php:260
 #, php-format
 msgid "For more information, please visit the %1$sWP-United forums%2$s."
 msgstr ""
 
-#: settings-panel.php:274
+#: settings-panel.php:289
 msgid "Performing final processing... Please wait..."
 msgstr ""
 
-#: settings-panel.php:285
-msgid ""
-"Please stay on this page for a few more moments until processing is "
-"complete. Stay on this page?"
+#: settings-panel.php:300
+msgid "Please stay on this page for a few more moments until processing is complete. Stay on this page?"
 msgstr ""
 
-#: settings-panel.php:310
+#: settings-panel.php:325
 msgid "WP-United Setup / Status"
 msgstr ""
 
-#: settings-panel.php:311
-msgid ""
-"WP-United needs to connect to phpBB in order to work. On this screen you can "
-"set up or disable the connection."
+#: settings-panel.php:326
+msgid "WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection."
 msgstr ""
 
-#: settings-panel.php:313
+#: settings-panel.php:328
 msgid "Communicating with phpBB..."
 msgstr ""
 
-#: settings-panel.php:313
+#: settings-panel.php:328
 msgid "Please Wait..."
 msgstr ""
 
-#: settings-panel.php:333 settings-panel.php:340 settings-panel.php:1226
+#: settings-panel.php:348
+#: settings-panel.php:355
+#: settings-panel.php:1232
 msgid "Disabled"
 msgstr ""
 
-#: settings-panel.php:342
-msgid ""
-"WP-United is disabled. Select your forum location below and then click &quot;"
-"Connect&quot;"
+#: settings-panel.php:357
+msgid "WP-United is disabled. Select your forum location below and then click &quot;Connect&quot;"
 msgstr ""
 
-#: settings-panel.php:342 settings-panel.php:365
+#: settings-panel.php:357
+#: settings-panel.php:380
 msgid "You can't change any other settings until WP-United is connected."
 msgstr ""
 
-#: settings-panel.php:349
+#: settings-panel.php:364
 msgid "OK"
 msgstr ""
 
-#: settings-panel.php:351
+#: settings-panel.php:366
 msgid "WP-United is connected and working."
 msgstr ""
 
-#: settings-panel.php:351
-msgid ""
-"If you ever need to uninstall WP-United, disable it here first before "
-"disabling the plugin, so that it can be removed from phpBB."
+#: settings-panel.php:366
+msgid "If you ever need to uninstall WP-United, disable it here first before disabling the plugin, so that it can be removed from phpBB."
 msgstr ""
 
-#: settings-panel.php:355
+#: settings-panel.php:370
 msgid "Connected, but not ready or disabled due to errors"
 msgstr ""
 
-#: settings-panel.php:359
-msgid ""
-"WP-United is connected but your phpBB forum is either producing errors, or "
-"is not set up properly."
+#: settings-panel.php:374
+msgid "WP-United is connected but your phpBB forum is either producing errors, or is not set up properly."
 msgstr ""
 
-#: settings-panel.php:359
+#: settings-panel.php:374
 msgid "You can't change any other settings until the problem is fixed."
 msgstr ""
 
-#: settings-panel.php:363
+#: settings-panel.php:378
 msgid "Not Connected"
 msgstr ""
 
-#: settings-panel.php:365
-msgid ""
-"WP-United is not connected yet. Select your forum location below and then "
-"click &quot;Connect&quot;"
+#: settings-panel.php:380
+msgid "WP-United is not connected yet. Select your forum location below and then click &quot;Connect&quot;"
 msgstr ""
 
-#: settings-panel.php:373
+#: settings-panel.php:388
 #, php-format
 msgid "Current Status: %s"
 msgstr ""
 
-#: settings-panel.php:375
+#: settings-panel.php:390
 msgid "Disable"
 msgstr ""
 
-#: settings-panel.php:379
+#: settings-panel.php:394
 msgid "The server returned the following information:"
 msgstr ""
 
-#: settings-panel.php:388
+#: settings-panel.php:403
 msgid "phpBB Location"
 msgstr ""
 
-#: settings-panel.php:392
+#: settings-panel.php:407
 msgid "WP-United needs to know where phpBB is installed on your server."
 msgstr ""
 
-#: settings-panel.php:392
+#: settings-panel.php:407
 msgid "Find and select your phpBB's config.php below."
 msgstr ""
 
-#: settings-panel.php:392
+#: settings-panel.php:407
 msgid "Click &quot;Change Location&quot; to change the stored location."
 msgstr ""
 
-#: settings-panel.php:394 settings-panel.php:1175
+#: settings-panel.php:409
+#: settings-panel.php:1181
 msgid "Not selected"
 msgstr ""
 
-#: settings-panel.php:394 settings-panel.php:1175
+#: settings-panel.php:409
+#: settings-panel.php:1181
 msgid "Change Location &raquo;"
 msgstr ""
 
-#: settings-panel.php:394
+#: settings-panel.php:409
 msgid "Cancel Change"
 msgstr ""
 
-#: settings-panel.php:398
+#: settings-panel.php:413
 msgid "Connect"
 msgstr ""
 
-#: settings-panel.php:411 settings-panel.php:1401
+#: settings-panel.php:426
+#: settings-panel.php:1407
 msgid "Blank page received: check your error log."
 msgstr ""
 
-#: settings-panel.php:414 settings-panel.php:694
+#: settings-panel.php:429
+#: settings-panel.php:709
 msgid "Loading..."
 msgstr ""
 
-#: settings-panel.php:415 settings-panel.php:751
+#: settings-panel.php:430
+#: settings-panel.php:766
 msgid "Connecting..."
 msgstr ""
 
-#: settings-panel.php:438
-msgid ""
-"WARNING: Another plugin is overriding WordPress login. WP-United user "
-"integration is unavailable."
-msgstr ""
-
-#: settings-panel.php:441
-msgid ""
-"WARNING: phpBB Debug is set. To prevent notices from showing due to "
-"switching between phpBB and WordPress, delete or comment out the two DEBUG "
-"lines from your phpBB's config.php. If this is a live site, debug MUST be "
-"disabled."
-msgstr ""
-
-#: settings-panel.php:445
-msgid ""
-"WARNING: phpBB and WordPress cookie domains do not match! For user "
-"integration to work properly, please edit the cookie domain in phpBB or set "
-"the WordPress COOKIE_DOMAIN so that both phpBB &amp; WordPress can set "
-"cookies for each other."
+#: settings-panel.php:453
+msgid "WARNING: Another plugin is overriding WordPress login. WP-United user integration is unavailable."
 msgstr ""
 
 #: settings-panel.php:456
-msgid "WP-United User Integration Mapping"
-msgstr ""
-
-#: settings-panel.php:457
-msgid ""
-"Integrated users have an account both in WordPress and phpBB. The user "
-"mapper tool allows you to manually control which accounts are mapped "
-"together."
+msgid "WARNING: phpBB Debug is set. To prevent notices from showing due to switching between phpBB and WordPress, delete or comment out the two DEBUG lines from your phpBB's config.php. If this is a live site, debug MUST be disabled."
 msgstr ""
 
 #: settings-panel.php:460
-msgid ""
-"In addition, you need to tell WP-United how to allocate WordPress roles to "
-"users when WordPress accounts are automatically given to them."
+msgid "WARNING: phpBB and WordPress cookie domains do not match! For user integration to work properly, please edit the cookie domain in phpBB or set the WordPress COOKIE_DOMAIN so that both phpBB &amp; WordPress can set cookies for each other."
 msgstr ""
 
-#: settings-panel.php:461
-msgid "Select a tab below to get started."
+#: settings-panel.php:471
+msgid "WP-United User Integration Mapping"
 msgstr ""
 
-#: settings-panel.php:468
-msgid "New User Permissions"
-msgstr ""
-
-#: settings-panel.php:474
-msgid ""
-"Unintegrated phpBB users are automatically given accounts if they have WP-"
-"United permissions. These can be set in the phpBB Administration Control "
-"Panel, but this tool makes them easier to set and visualise."
+#: settings-panel.php:472
+msgid "Integrated users have an account both in WordPress and phpBB. The user mapper tool allows you to manually control which accounts are mapped together."
 msgstr ""
 
 #: settings-panel.php:475
-msgid ""
-"phpBB groups are linked to WordPress roles by dragging connections. Blue "
-"connections grant permissions. However, since phpBB users can belong to more "
-"than one group, you may want to apply &quot;Never&quot; connections. These "
-"red connections take priority over blue connections and mean that this "
-"mapping can NEVER occur."
+msgid "In addition, you need to tell WP-United how to allocate WordPress roles to users when WordPress accounts are automatically given to them."
 msgstr ""
 
 #: settings-panel.php:476
-msgid ""
-"This gives you complete control over who does what in WordPress. For some "
-"example permissions recipes, visit wp-united.com "
+msgid "Select a tab below to get started."
 msgstr ""
 
-#: settings-panel.php:477
-msgid ""
-"Remember that these mappings only affect users who don't have WordPress "
-"accounts yet. You should map existing accounts together using the User "
-"Mapping tool."
+#: settings-panel.php:483
+msgid "New User Permissions"
 msgstr ""
 
-#: settings-panel.php:480
-msgid ""
-" Connect a phpBB group on the left to an appropriate WordPress role by "
-"dragging the blue dots. Connect the red squares if you want to ensure a "
-"mapping <em>never</em> happens.When happy, click &quot;Apply&quot;"
+#: settings-panel.php:489
+msgid "Unintegrated phpBB users are automatically given accounts if they have WP-United permissions. These can be set in the phpBB Administration Control Panel, but this tool makes them easier to set and visualise."
 msgstr ""
 
-#: settings-panel.php:485 settings-panel.php:514 settings-panel.php:551
+#: settings-panel.php:490
+msgid "phpBB groups are linked to WordPress roles by dragging connections. Blue connections grant permissions. However, since phpBB users can belong to more than one group, you may want to apply &quot;Never&quot; connections. These red connections take priority over blue connections and mean that this mapping can NEVER occur."
+msgstr ""
+
+#: settings-panel.php:491
+msgid "This gives you complete control over who does what in WordPress. For some example permissions recipes, visit wp-united.com "
+msgstr ""
+
+#: settings-panel.php:492
+msgid "Remember that these mappings only affect users who don't have WordPress accounts yet. You should map existing accounts together using the User Mapping tool."
+msgstr ""
+
+#: settings-panel.php:495
+msgid " Connect a phpBB group on the left to an appropriate WordPress role by dragging the blue dots. Connect the red squares if you want to ensure a mapping <em>never</em> happens.When happy, click &quot;Apply&quot;"
+msgstr ""
+
+#: settings-panel.php:500
+#: settings-panel.php:529
+#: settings-panel.php:566
 msgid "Built-In"
 msgstr ""
 
-#: settings-panel.php:485 settings-panel.php:514 settings-panel.php:521
+#: settings-panel.php:500
+#: settings-panel.php:529
+#: settings-panel.php:536
 msgid "User-Defined"
 msgstr ""
 
-#: settings-panel.php:533
+#: settings-panel.php:548
 msgid "phpBB Group"
 msgstr ""
 
-#: settings-panel.php:534
+#: settings-panel.php:549
 msgid "WordPress Role"
 msgstr ""
 
-#: settings-panel.php:562
+#: settings-panel.php:577
 msgid "No. of members: "
 msgstr ""
 
-#: settings-panel.php:563
+#: settings-panel.php:578
 msgid "Group type: "
 msgstr ""
 
-#: settings-panel.php:599
+#: settings-panel.php:614
 msgid "Default new user group for new phpBB users"
 msgstr ""
 
-#: settings-panel.php:601
+#: settings-panel.php:616
 msgid "Apply"
 msgstr ""
 
-#: settings-panel.php:602
+#: settings-panel.php:617
 msgid "Reset"
 msgstr ""
 
-#: settings-panel.php:650
-msgid ""
-"All your WordPress or phpBB users are shown on the left below, together with "
-"their integration status. On the right, you can see their corresponding "
-"integrated user, or &ndash; if they are not integrated &ndash; some "
-"suggestions for users they could integrate to."
+#: settings-panel.php:665
+msgid "All your WordPress or phpBB users are shown on the left below, together with their integration status. On the right, you can see their corresponding integrated user, or &ndash; if they are not integrated &ndash; some suggestions for users they could integrate to."
 msgstr ""
 
-#: settings-panel.php:651
-msgid ""
-"Choose the actions you wish to take, and then click &quot;Process "
-"Actions&quot; in the pop-up panel to apply them.."
+#: settings-panel.php:666
+msgid "Choose the actions you wish to take, and then click &quot;Process Actions&quot; in the pop-up panel to apply them.."
 msgstr ""
 
-#: settings-panel.php:655
+#: settings-panel.php:670
 msgid "Show on left: "
 msgstr ""
 
-#: settings-panel.php:657
+#: settings-panel.php:672
 msgid "WordPress users"
 msgstr ""
 
-#: settings-panel.php:658
+#: settings-panel.php:673
 msgid "phpBB users"
 msgstr ""
 
-#: settings-panel.php:660
+#: settings-panel.php:675
 msgid "Number to show: "
 msgstr ""
 
-#: settings-panel.php:672
+#: settings-panel.php:687
 msgid "Show: "
 msgstr ""
 
-#: settings-panel.php:674
+#: settings-panel.php:689
 msgid "All"
 msgstr ""
 
-#: settings-panel.php:675
+#: settings-panel.php:690
 msgid "All Integrated"
 msgstr ""
 
-#: settings-panel.php:676
+#: settings-panel.php:691
 msgid "All Unintegrated"
 msgstr ""
 
-#: settings-panel.php:677
+#: settings-panel.php:692
 msgid "All With Posts"
 msgstr ""
 
-#: settings-panel.php:678
+#: settings-panel.php:693
 msgid "All Without Posts"
 msgstr ""
 
-#: settings-panel.php:681
+#: settings-panel.php:696
 msgid "or search for user: "
 msgstr ""
 
-#: settings-panel.php:699
+#: settings-panel.php:714
 msgid "Actions to process"
 msgstr ""
 
-#: settings-panel.php:704
+#: settings-panel.php:719
 msgid "Process actions"
 msgstr ""
 
-#: settings-panel.php:705
+#: settings-panel.php:720
 msgid "Clear all"
 msgstr ""
 
-#: settings-panel.php:734
+#: settings-panel.php:747
+#: settings-panel.php:855
+msgid "WordPress"
+msgstr ""
+
+#: settings-panel.php:748
+#: settings-panel.php:855
+msgid "phpBB"
+msgstr ""
+
+#: settings-panel.php:749
 msgid "Editing user. When you are finished, close this screen."
 msgstr ""
 
-#: settings-panel.php:735
+#: settings-panel.php:750
 msgid "Viewing user profile. When you are finished, close this screen."
 msgstr ""
 
-#: settings-panel.php:736
+#: settings-panel.php:751
 msgid "Break integration"
 msgstr ""
 
-#: settings-panel.php:737 settings-panel.php:739
+#: settings-panel.php:752
+#: settings-panel.php:754
 #, php-format
 msgid "between %1$s and %2$s"
 msgstr ""
 
-#: settings-panel.php:738
+#: settings-panel.php:753
 msgid "Synchronize profiles"
 msgstr ""
 
-#: settings-panel.php:740 settings-panel.php:742
+#: settings-panel.php:755
+#: settings-panel.php:757
 msgid "Delete "
 msgstr ""
 
-#: settings-panel.php:741
+#: settings-panel.php:756
 #, php-format
 msgid "%1$s from %2$s and %3$s from %4$s"
 msgstr ""
 
-#: settings-panel.php:743
+#: settings-panel.php:758
 #, php-format
 msgid "%1$s from %2$s"
 msgstr ""
 
-#: settings-panel.php:744
+#: settings-panel.php:759
 msgid "Create "
 msgstr ""
 
-#: settings-panel.php:745
+#: settings-panel.php:760
 #, php-format
 msgid "integrated counterpart for %1$s in %2$s"
 msgstr ""
 
-#: settings-panel.php:746
+#: settings-panel.php:761
 msgid "Integrate "
 msgstr ""
 
-#: settings-panel.php:747
+#: settings-panel.php:762
 #, php-format
 msgid "%1$s user %2$s to %3$s user %4$s"
 msgstr ""
 
-#: settings-panel.php:749
+#: settings-panel.php:764
 msgid "Processing permission mappings..."
 msgstr ""
 
-#: settings-panel.php:750 settings-panel.php:1126
-#: extras/quickpoll/widget.php:69
+#: settings-panel.php:765
+#: settings-panel.php:1132
 msgid "Please wait..."
 msgstr ""
 
-#: settings-panel.php:752
+#: settings-panel.php:767
 msgid "Clearing changes"
 msgstr ""
 
-#: settings-panel.php:754
-msgid ""
-"phpBB Administration Panel. After saving your settings, close this window to "
-"return to WP-United."
+#: settings-panel.php:769
+msgid "phpBB Administration Panel. After saving your settings, close this window to return to WP-United."
 msgstr ""
 
-#: settings-panel.php:841
+#: settings-panel.php:856
 #, php-format
 msgid "%s users"
 msgstr ""
 
-#: settings-panel.php:841
+#: settings-panel.php:856
 #, php-format
 msgid "%s user"
 msgstr ""
 
-#: settings-panel.php:843
+#: settings-panel.php:858
 #, php-format
 msgid "Showing %1$d to %2$d of %3$d %4$s."
 msgstr ""
 
-#: settings-panel.php:851
+#: settings-panel.php:866
 msgid "There are no users to show that match your criteria"
 msgstr ""
 
-#: settings-panel.php:864 settings-panel.php:882
+#: settings-panel.php:879
+#: settings-panel.php:897
 msgid "Status: "
 msgstr ""
 
-#: settings-panel.php:864
+#: settings-panel.php:879
 msgid "Not Integrated"
 msgstr ""
 
-#: settings-panel.php:872
+#: settings-panel.php:887
 msgid "Integrate to a suggested match"
 msgstr ""
 
-#: settings-panel.php:876
+#: settings-panel.php:891
 msgid "Or, type a name"
 msgstr ""
 
-#: settings-panel.php:882
+#: settings-panel.php:892
+msgid "Integrate"
+msgstr ""
+
+#: settings-panel.php:897
 msgid "Integrated"
 msgstr ""
 
-#: settings-panel.php:906
+#: settings-panel.php:921
 msgid "Bulk actions"
 msgstr ""
 
-#: settings-panel.php:908
+#: settings-panel.php:923
 msgid "Delete all unintegrated"
 msgstr ""
 
-#: settings-panel.php:911
+#: settings-panel.php:926
 msgid "Break all integrated"
 msgstr ""
 
-#: settings-panel.php:912
+#: settings-panel.php:927
 msgid "Sync all integrated profiles"
 msgstr ""
 
-#: settings-panel.php:915
+#: settings-panel.php:930
 msgid "Create users for all unintegrated"
 msgstr ""
 
-#: settings-panel.php:917
+#: settings-panel.php:932
 msgid "Add"
 msgstr ""
 
-#: settings-panel.php:994
-msgid "Database error: Could not integrate"
-msgstr ""
-
-#: settings-panel.php:1028
+#: settings-panel.php:1035
 msgid "Could not add user to phpBB"
 msgstr ""
 
-#: settings-panel.php:1030
+#: settings-panel.php:1037
 msgid "A suitable username could not be found in phpBB"
 msgstr ""
 
-#: settings-panel.php:1042
-msgid ""
-"Cannot create integrated user, as they would have no integration permissions."
+#: settings-panel.php:1049
+msgid "Cannot create integrated user, as they would have no integration permissions."
 msgstr ""
 
-#: settings-panel.php:1058
+#: settings-panel.php:1065
 msgid "Could not add user to WordPress"
 msgstr ""
 
-#: settings-panel.php:1126
+#: settings-panel.php:1132
 msgid "Sending settings to phpBB..."
 msgstr ""
 
-#: settings-panel.php:1133
+#: settings-panel.php:1139
 msgid "Settings applied successfully."
 msgstr ""
 
-#: settings-panel.php:1138
-msgid ""
-"An error occurred. The error details are below. Please check your settings "
-"or try disabling plugins."
+#: settings-panel.php:1144
+msgid "An error occurred. The error details are below. Please check your settings or try disabling plugins."
 msgstr ""
 
-#: settings-panel.php:1155
-msgid ""
-"WP-United is modular; You can enable or disable any of the four major "
-"features below: User Integration, Theme Integration, Behaviour Integration "
-"and User Blogs."
-msgstr ""
-
-#: settings-panel.php:1156
-msgid ""
-"Visit each of the tabs to select the settings, then hit Submit when done."
+#: settings-panel.php:1161
+msgid "WP-United is modular; You can enable or disable any of the four major features below: User Integration, Theme Integration, Behaviour Integration and User Blogs."
 msgstr ""
 
 #: settings-panel.php:1162
+msgid "Visit each of the tabs to select the settings, then hit Submit when done."
+msgstr ""
+
+#: settings-panel.php:1168
 msgid "Basic Settings"
 msgstr ""
 
-#: settings-panel.php:1164
+#: settings-panel.php:1170
 msgid "User Integration"
 msgstr ""
 
-#: settings-panel.php:1166
+#: settings-panel.php:1172
 msgid "Theme Integration"
 msgstr ""
 
-#: settings-panel.php:1167
+#: settings-panel.php:1173
 msgid "Behaviour Integration"
 msgstr ""
 
-#: settings-panel.php:1172
+#: settings-panel.php:1178
 msgid "Path to phpBB3"
 msgstr ""
 
-#: settings-panel.php:1173
-msgid ""
-"WP-United needs to know where phpBB is installed on your server. You can "
-"change the location on the &quot;Setup / Status&quot; page."
+#: settings-panel.php:1179
+msgid "WP-United needs to know where phpBB is installed on your server. You can change the location on the &quot;Setup / Status&quot; page."
 msgstr ""
 
-#: settings-panel.php:1175
+#: settings-panel.php:1181
 msgid "Path selected: "
 msgstr ""
 
-#: settings-panel.php:1177
+#: settings-panel.php:1183
 msgid "Forum Page"
 msgstr ""
 
-#: settings-panel.php:1178
-msgid ""
-"Create a WordPress forum page? If you enable this option, WP-United will "
-"create a blank page in your WordPress installation, so that 'Forum' links "
-"appear in your blog. These links will automatically direct to your forum."
-msgstr ""
-
-#: settings-panel.php:1179
-msgid "Enable Forum Page"
-msgstr ""
-
 #: settings-panel.php:1184
-msgid "Integrate logins?"
+msgid "Create a WordPress forum page? If you enable this option, WP-United will create a blank page in your WordPress installation, so that 'Forum' links appear in your blog. These links will automatically direct to your forum."
 msgstr ""
 
 #: settings-panel.php:1185
-msgid ""
-"This will enable some or all of your users to have a seamless session across "
-"both phpBB and WordPress. If they are logged in to one, they will be logged "
-"in to the other. Accounts will be created in the respective part of the site "
-"as needed. Note that you will need to set permissions in the User Mapper "
-"section that will appear once this option is enabled. Otherwise, by default, "
-"only the phpBB founder user is integrated."
+msgid "Enable Forum Page"
 msgstr ""
 
-#: settings-panel.php:1188
-msgid "Enable Login Integration?"
+#: settings-panel.php:1190
+msgid "Integrate logins?"
 msgstr ""
 
-#: settings-panel.php:1192
-msgid "Auto-create WordPress accounts when needed?"
-msgstr ""
-
-#: settings-panel.php:1193
-msgid ""
-"Create WordPress accounts for unintegrated phpBB users with appropriate "
-"permissions when they visit or register?"
+#: settings-panel.php:1191
+msgid "This will enable some or all of your users to have a seamless session across both phpBB and WordPress. If they are logged in to one, they will be logged in to the other. Accounts will be created in the respective part of the site as needed. Note that you will need to set permissions in the User Mapper section that will appear once this option is enabled. Otherwise, by default, only the phpBB founder user is integrated."
 msgstr ""
 
 #: settings-panel.php:1194
-msgid "Auto-create WordPress accounts?"
-msgstr ""
-
-#: settings-panel.php:1196
-msgid "Auto-create phpBB accounts when needed?"
-msgstr ""
-
-#: settings-panel.php:1197
-msgid ""
-"Create phpBB accounts for unintegrated WordPress users when they visit or "
-"register?"
+msgid "Enable Login Integration?"
 msgstr ""
 
 #: settings-panel.php:1198
-msgid "Auto-create phpBB accounts?"
+msgid "Auto-create WordPress accounts when needed?"
 msgstr ""
 
-#: settings-panel.php:1200 settings-panel.php:1203
-msgid "Sync avatars?"
+#: settings-panel.php:1199
+msgid "Create WordPress accounts for unintegrated phpBB users with appropriate permissions when they visit or register?"
 msgstr ""
 
-#: settings-panel.php:1201
-msgid ""
-"Avatars will be synced between phpBB &amp; WordPress. If a user has an "
-"avatar in phpBB, it will show in WordPress. If they have a Gravatar, it will "
-"show in phpBB."
+#: settings-panel.php:1200
+msgid "Auto-create WordPress accounts?"
 msgstr ""
 
 #: settings-panel.php:1202
-msgid ""
-"Enabling this option requires that the &quot;Allow avatars&quot; and &quot;"
-"Remote avatar linking&quot; options is enabled in phpBB, so WP-United will "
-"automatically enable those options for you if they are disabled."
+msgid "Auto-create phpBB accounts when needed?"
+msgstr ""
+
+#: settings-panel.php:1203
+msgid "Create phpBB accounts for unintegrated WordPress users when they visit or register?"
+msgstr ""
+
+#: settings-panel.php:1204
+msgid "Auto-create phpBB accounts?"
+msgstr ""
+
+#: settings-panel.php:1206
+#: settings-panel.php:1209
+msgid "Sync avatars?"
 msgstr ""
 
 #: settings-panel.php:1207
-msgid "Enable cross-posting?"
+msgid "Avatars will be synced between phpBB &amp; WordPress. If a user has an avatar in phpBB, it will show in WordPress. If they have a Gravatar, it will show in phpBB."
 msgstr ""
 
 #: settings-panel.php:1208
-msgid ""
-"If you enable this option, users will be able to elect to have their blog "
-"entry copied to a forum when writing a blog post. To set which forums the "
-"user can cross-post to, visit the phpBB forum permissions panel, and enable "
-"the &quot;can cross-post&quot; permission for the users/groups/forums "
-"combinations you need."
-msgstr ""
-
-#: settings-panel.php:1209
-msgid "Enable Cross-Posting?"
+msgid "Enabling this option requires that the &quot;Allow avatars&quot; and &quot;Remote avatar linking&quot; options is enabled in phpBB, so WP-United will automatically enable those options for you if they are disabled."
 msgstr ""
 
 #: settings-panel.php:1213
-msgid "Type of cross-posting?"
+msgid "Enable cross-posting?"
 msgstr ""
 
 #: settings-panel.php:1214
-msgid ""
-"Choose how the post should appear in phpBB. WP-United can post an excerpt, "
-"the full post, or give you an option to select when posting each post."
+msgid "If you enable this option, users will be able to elect to have their blog entry copied to a forum when writing a blog post. To set which forums the user can cross-post to, visit the phpBB forum permissions panel, and enable the &quot;can cross-post&quot; permission for the users/groups/forums combinations you need."
 msgstr ""
 
 #: settings-panel.php:1215
-msgid "Excerpt"
-msgstr ""
-
-#: settings-panel.php:1216
-msgid "Full Post"
-msgstr ""
-
-#: settings-panel.php:1217
-msgid "Ask Me"
+msgid "Enable Cross-Posting?"
 msgstr ""
 
 #: settings-panel.php:1219
-msgid "phpBB manages comments on crossed posts?"
+msgid "Type of cross-posting?"
 msgstr ""
 
 #: settings-panel.php:1220
-msgid ""
-"Choose this option to have WordPress comments replaced by forum replies for "
-"cross-posted blog posts. In addition, comments posted by integrated users "
-"via the WordPress comment form will be cross-posted as replies to the forum "
-"topic."
+msgid "Choose how the post should appear in phpBB. WP-United can post an excerpt, the full post, or give you an option to select when posting each post."
 msgstr ""
 
 #: settings-panel.php:1221
-msgid "phpBB manages comments"
+msgid "Excerpt"
+msgstr ""
+
+#: settings-panel.php:1222
+msgid "Full Post"
 msgstr ""
 
 #: settings-panel.php:1223
+msgid "Ask Me"
+msgstr ""
+
+#: settings-panel.php:1225
+msgid "phpBB manages comments on crossed posts?"
+msgstr ""
+
+#: settings-panel.php:1226
+msgid "Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic."
+msgstr ""
+
+#: settings-panel.php:1227
+msgid "phpBB manages comments"
+msgstr ""
+
+#: settings-panel.php:1229
 msgid "Force all blog posts to be cross-posted?"
 msgstr ""
 
-#: settings-panel.php:1224
-msgid ""
-"Setting this option will force all blog posts to be cross-posted to a "
-"specific forum. You can select the forum here. Note that users must have the "
-"&quot;can cross-post&quot; WP-United permission under phpBB Forum "
-"Permissions, or the cross-posting will not take place."
+#: settings-panel.php:1230
+msgid "Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place."
 msgstr ""
 
-#: settings-panel.php:1249
+#: settings-panel.php:1255
 msgid "Cross-post prefix"
 msgstr ""
 
-#: settings-panel.php:1250
-msgid ""
-"This will be prepended to the post title when cross-posted. Leave it blank "
-"to disable."
+#: settings-panel.php:1256
+msgid "This will be prepended to the post title when cross-posted. Leave it blank to disable."
 msgstr ""
 
-#: settings-panel.php:1255 settings-panel.php:1558 settings-panel.php:1578
+#: settings-panel.php:1261
+#: settings-panel.php:1564
+#: settings-panel.php:1584
 msgid "[BLOG] "
 msgstr ""
 
-#: settings-panel.php:1258
+#: settings-panel.php:1264
 msgid "Cross-post prefix: "
 msgstr ""
 
-#: settings-panel.php:1266
+#: settings-panel.php:1272
 msgid "Integrate themes?"
 msgstr ""
 
-#: settings-panel.php:1267
+#: settings-panel.php:1273
 msgid "WP-United can integrate your phpBB &amp; WordPress templates."
 msgstr ""
 
-#: settings-panel.php:1268
+#: settings-panel.php:1274
 msgid "Enable Theme Integration"
 msgstr ""
 
-#: settings-panel.php:1270
+#: settings-panel.php:1276
 msgid "Integration Mode"
 msgstr ""
 
-#: settings-panel.php:1271
-msgid ""
-"Do you want WordPress to appear inside your phpBB template, or phpBB to "
-"appear inside your WordPress template?"
-msgstr ""
-
-#: settings-panel.php:1273
-msgid "phpBB inside WordPress"
-msgstr ""
-
-#: settings-panel.php:1274
-msgid "WordPress inside phpBB"
-msgstr ""
-
 #: settings-panel.php:1277
-msgid "Automatic CSS Integration"
+msgid "Do you want WordPress to appear inside your phpBB template, or phpBB to appear inside your WordPress template?"
 msgstr ""
 
 #: settings-panel.php:1279
-msgid ""
-"WP-United can automatically fix CSS conflicts between your phpBB and "
-"WordPress templates. Set the slider to \"maximum compatibility\" to fix most "
-"problems. If you prefer to fix CSS conflicts by hand, or if the automatic "
-"changes cause problems, try reducing the level."
+msgid "phpBB inside WordPress"
 msgstr ""
 
-#: settings-panel.php:1282 settings-panel.php:1405
+#: settings-panel.php:1280
+msgid "WordPress inside phpBB"
+msgstr ""
+
+#: settings-panel.php:1283
+msgid "Automatic CSS Integration"
+msgstr ""
+
+#: settings-panel.php:1285
+msgid "WP-United can automatically fix CSS conflicts between your phpBB and WordPress templates. Set the slider to \"maximum compatibility\" to fix most problems. If you prefer to fix CSS conflicts by hand, or if the automatic changes cause problems, try reducing the level."
+msgstr ""
+
+#: settings-panel.php:1288
+#: settings-panel.php:1411
 msgid "Off"
 msgstr ""
 
-#: settings-panel.php:1282
+#: settings-panel.php:1288
 msgid "Maximum Compatibility (Recommended)"
 msgstr ""
 
-#: settings-panel.php:1284
+#: settings-panel.php:1290
 msgid "Current Level: "
 msgstr ""
 
-#: settings-panel.php:1287
+#: settings-panel.php:1293
 msgid "Show Advanced Settings &raquo;"
 msgstr ""
 
-#: settings-panel.php:1287
+#: settings-panel.php:1293
 msgid "&laquo; Hide Advanced Settings"
 msgstr ""
 
-#: settings-panel.php:1290
+#: settings-panel.php:1296
 msgid "Advanced Settings"
 msgstr ""
 
-#: settings-panel.php:1294
+#: settings-panel.php:1300
 msgid "Use full page?"
 msgstr ""
 
-#: settings-panel.php:1295
-msgid ""
-"Do you want phpBB to simply appear inside your WordPress header and footer, "
-"or do you want it to show up in a fully featured WordPress page? Simple "
-"header and footer will work best for most WordPress themes – it is faster "
-"and less resource-intensive, but cannot display dynamic content on the forum "
-"page. However, if you want the WordPress sidebar to show up, or use other "
-"WordPress features on the integrated page, you could try 'full page'. This "
-"option could be a little slower."
+#: settings-panel.php:1301
+msgid "Do you want phpBB to simply appear inside your WordPress header and footer, or do you want it to show up in a fully featured WordPress page? Simple header and footer will work best for most WordPress themes – it is faster and less resource-intensive, but cannot display dynamic content on the forum page. However, if you want the WordPress sidebar to show up, or use other WordPress features on the integrated page, you could try 'full page'. This option could be a little slower."
 msgstr ""
 
-#: settings-panel.php:1295 settings-panel.php:1320 settings-panel.php:1361
+#: settings-panel.php:1301
+#: settings-panel.php:1326
+#: settings-panel.php:1367
 msgid "What is this?"
 msgstr ""
 
-#: settings-panel.php:1299
+#: settings-panel.php:1305
 msgid "Simple Header &amp; Footer (recommended)"
 msgstr ""
 
-#: settings-panel.php:1310
+#: settings-panel.php:1316
 msgid "Full Page: "
 msgstr ""
 
-#: settings-panel.php:1317
+#: settings-panel.php:1323
 msgid "Padding around phpBB"
 msgstr ""
 
-#: settings-panel.php:1320
-msgid ""
-"phpBB is inserted on the WordPress page inside a DIV. Here you can set the "
-"padding of that DIV. This is useful because otherwise the phpBB content may "
-"not line up properly on the page. The defaults here are good for most "
-"WordPress templates. If you would prefer set this yourself, just leave these "
-"boxes blank (not '0'), and style it in your stylesheet instead."
+#: settings-panel.php:1326
+msgid "phpBB is inserted on the WordPress page inside a DIV. Here you can set the padding of that DIV. This is useful because otherwise the phpBB content may not line up properly on the page. The defaults here are good for most WordPress templates. If you would prefer set this yourself, just leave these boxes blank (not '0'), and style it in your stylesheet instead."
 msgstr ""
 
-#: settings-panel.php:1325
+#: settings-panel.php:1331
 msgid "Top:"
 msgstr ""
 
-#: settings-panel.php:1333
+#: settings-panel.php:1339
 msgid "Right:"
 msgstr ""
 
-#: settings-panel.php:1341
+#: settings-panel.php:1347
 msgid "Bottom:"
 msgstr ""
 
-#: settings-panel.php:1349
+#: settings-panel.php:1355
 msgid "Left:"
 msgstr ""
 
-#: settings-panel.php:1356
+#: settings-panel.php:1362
 msgid "Reset to defaults"
 msgstr ""
 
-#: settings-panel.php:1360
+#: settings-panel.php:1366
 msgid "Use WordPress' Document Type Declaration?"
 msgstr ""
 
-#: settings-panel.php:1361
-msgid ""
-"The Document Type Declaration, or DTD, is provided at the top of all web "
-"pages to let the browser know what type of markup language is being used. "
-"phpBB3's prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress "
-"templates, however, use an XHTML 1 transitional  or HTML 5 DTD. In most "
-"cases, this doesn't matter -- however, If you want to use WordPress' DTD on "
-"pages where WordPress is inside phpBB, then you can turn this option on. "
-"This should prevent browsers from going into quirks mode, and will ensure "
-"that even more WordPress templates display as designed."
-msgstr ""
-
-#: settings-panel.php:1370
-msgid "Use phpBB Word Censor?"
-msgstr ""
-
-#: settings-panel.php:1371
-msgid ""
-"Turn this option on if you want WordPress posts to be passed through the "
-"phpBB word censor."
-msgstr ""
-
-#: settings-panel.php:1372
-msgid "Enable word censoring in WordPress"
-msgstr ""
-
-#: settings-panel.php:1374
-msgid "Use phpBB smilies?"
-msgstr ""
-
-#: settings-panel.php:1375
-msgid ""
-"Turn this option on if you want to use phpBB smilies in WordPress comments "
-"and posts."
+#: settings-panel.php:1367
+msgid "The Document Type Declaration, or DTD, is provided at the top of all web pages to let the browser know what type of markup language is being used. phpBB3's prosilver uses an XHTML 1.0 Strict DTD by default. Most WordPress templates, however, use an XHTML 1 transitional  or HTML 5 DTD. In most cases, this doesn't matter -- however, If you want to use WordPress' DTD on pages where WordPress is inside phpBB, then you can turn this option on. This should prevent browsers from going into quirks mode, and will ensure that even more WordPress templates display as designed."
 msgstr ""
 
 #: settings-panel.php:1376
+msgid "Use phpBB Word Censor?"
+msgstr ""
+
+#: settings-panel.php:1377
+msgid "Turn this option on if you want WordPress posts to be passed through the phpBB word censor."
+msgstr ""
+
+#: settings-panel.php:1378
+msgid "Enable word censoring in WordPress"
+msgstr ""
+
+#: settings-panel.php:1380
+msgid "Use phpBB smilies?"
+msgstr ""
+
+#: settings-panel.php:1381
+msgid "Turn this option on if you want to use phpBB smilies in WordPress comments and posts."
+msgstr ""
+
+#: settings-panel.php:1382
 msgid "Use phpBB smilies in WordPress"
 msgstr ""
 
-#: settings-panel.php:1386
+#: settings-panel.php:1392
 msgid "Submit"
 msgstr ""
 
-#: settings-panel.php:1406
+#: settings-panel.php:1412
 msgid "All automatic CSS integration is disabled"
 msgstr ""
 
-#: settings-panel.php:1407
+#: settings-panel.php:1413
 msgid "Medium"
 msgstr ""
 
-#: settings-panel.php:1408
+#: settings-panel.php:1414
 #, php-format
-msgid ""
-"%1$sStyles are reset to stop outer styles applying to the inner part of the "
-"page.%2$sInner CSS is made more specific so it does not affect the outer "
-"portion of the page.%2$sSome HTML IDs and class names may be duplicated.%3$s"
+msgid "%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sSome HTML IDs and class names may be duplicated.%3$s"
 msgstr ""
 
-#: settings-panel.php:1409
+#: settings-panel.php:1415
 msgid "Full"
 msgstr ""
 
-#: settings-panel.php:1410
+#: settings-panel.php:1416
 #, php-format
-msgid ""
-"%1$sStyles are reset to stop outer styles applying to the inner part of the "
-"page.%2$sInner CSS is made more specific so it does not affect the outer "
-"portion of the page.%2$sHTML IDs and class names that are duplicated in the "
-"inner and outer parts of the page are fixed.%3$s"
-msgstr ""
-
-#: settings-panel.php:1462
-msgid "ERROR: You must specify a valid path for phpBB's config.php"
+msgid "%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sHTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.%3$s"
 msgstr ""
 
 #: settings-panel.php:1468
+msgid "ERROR: You must specify a valid path for phpBB's config.php"
+msgstr ""
+
+#: settings-panel.php:1474
 msgid "ERROR:The path you selected for phpBB's config.php is not valid"
 msgstr ""
 
-#: settings-panel.php:1472
+#: settings-panel.php:1478
 msgid "ERROR: phpBB's config.php could not be found at the location you chose"
 msgstr ""
 
-#: settings-panel.php:1490
+#: settings-panel.php:1496
 msgid "Forum"
 msgstr ""
 
-#: settings-panel.php:1688
+#: settings-panel.php:1694
 msgid "Save"
 msgstr ""
 
-#: template-tags.php:291
-#, php-format
-msgid "Forum Posts: %s"
-msgstr ""
-
-#: template-tags.php:292
-#, php-format
-msgid "Forum Threads: %s"
-msgstr ""
-
-#: template-tags.php:293
-#, php-format
-msgid "Registered Users: %s"
-msgstr ""
-
-#: template-tags.php:294
-#, php-format
-msgid " Newest User: %s"
-msgstr ""
-
-#: template-tags.php:317
-msgid "posts since last visit"
-msgstr ""
-
-#: template-tags.php:372
-#, php-format
-msgid "%1$s, posted by %2$s on %3$s"
-msgstr ""
-
-#: template-tags.php:376 template-tags.php:420
-msgid "Nothing found."
-msgstr ""
-
-#: template-tags.php:416
-#, php-format
-msgid "%1$s, posted by %2$s in %3$s"
-msgstr ""
-
-#: template-tags.php:653
-msgid "Write a Post"
-msgstr ""
-
-#: template-tags.php:658
-msgid "Dashboard"
-msgstr ""
-
-#: template-tags.php:674
-msgid "Remember me"
-msgstr ""
-
-#: template-tags.php:676
-msgid "Login"
-msgstr ""
-
-#: template-tags.php:677
-msgid "Register"
-msgstr ""
-
-#: template-tags.php:678
-msgid "Forgot Password?"
-msgstr ""
-
-#: user-integrator.php:288
-msgid "The username contains invalid characters"
-msgstr ""
-
-#: user-integrator.php:292
-msgid "The username is already taken"
-msgstr ""
-
-#: user-integrator.php:297
-msgid "The username you chose is not allowed"
-msgstr ""
-
-#: user-integrator.php:306
-msgid "The email address does not appear to exist (No MX record)"
-msgstr ""
-
-#: user-integrator.php:310
-msgid "The e-mail address is banned"
-msgstr ""
-
-#: user-integrator.php:314
-msgid "The e-mail address is already taken"
-msgstr ""
-
-#: user-integrator.php:318
-msgid "The email address is invalid"
-msgstr ""
-
-#: user-integrator.php:790
-msgid ""
-"WP-United could not update your integration ID in phpBB, due to a database "
-"access error. Please contact an administrator and inform them of this error."
-msgstr ""
-
-#: user-integrator.php:798
-msgid ""
-"Could not update integration data: WP-United could not update your "
-"integration ID in phpBB, due to an unknown error. Please contact an "
-"administrator and inform them of this error."
+#: user-mapper.php:336
+#: user-mapper.php:343
+msgid "n/a"
 msgstr ""
 
 #: user-mapper.php:417
 msgid "Already integrated"
 msgstr ""
 
+#: user-mapper.php:417
+msgid "Available"
+msgstr ""
+
+#: phpbb.php:178
+msgid "The WP-United phpBB hook file, hook_wp-united.php, was not loaded. Either it is missing, or you need to clear the phpBB cache. <br /><br />Attempted to automatically clear the phpBB cache. Try <a href=\"#\" onclick=\"document.location.reload(); return false;\">refreshing the page</a> to see if it worked. <br /><br />If this error persists, check that includes/hooks/hook_wp-united.php exists, and try manually purging your phpBB cache."
+msgstr ""
+
+#: phpbb.php:571
+#: phpbb.php:665
+#: phpbb.php:722
+msgid "Could not access the database."
+msgstr ""
+
+#: phpbb.php:1008
+msgid "More smilies"
+msgstr ""
+
+#: phpbb.php:1150
+msgid "Receiving settings from WP-United..."
+msgstr ""
+
+#: phpbb.php:1159
+msgid "Modified USERS Table (Integration ID)"
+msgstr ""
+
+#: phpbb.php:1168
+msgid "Modified USERS Table (Blog ID)"
+msgstr ""
+
+#: phpbb.php:1183
+msgid "Modified POSTS Table (Cross-Posting Link)"
+msgstr ""
+
+#: phpbb.php:1189
+msgid "Adding WP-United Permissions"
+msgstr ""
+
+#: phpbb.php:1201
+msgid "Storing the new WP-United settings"
+msgstr ""
+
+#: phpbb.php:1229
+msgid "Updating avatar settings"
+msgstr ""
+
+#: phpbb.php:1242
+msgid "Purging the WP-United cache"
+msgstr ""
+
+#: phpbb.php:1247
+msgid "Completed successfully"
+msgstr ""
+
+#: phpbb.php:1278
+msgid "Changed WP-United Settings (click for details)"
+msgstr ""
+
+#: functions-cross-posting.php:30
+msgid "Forum Posting"
+msgstr ""
+
+#: functions-cross-posting.php:39
+#: functions-cross-posting.php:57
+msgid "Cross-post to Forums?"
+msgstr ""
+
+#: functions-cross-posting.php:54
+#, php-format
+msgid "Already cross-posted (Topic ID = %s)"
+msgstr ""
+
+#: functions-cross-posting.php:83
+#: functions-cross-posting.php:112
+msgid "Post Excerpt"
+msgstr ""
+
+#: functions-cross-posting.php:84
+#: functions-cross-posting.php:113
+msgid "Post Full Post"
+msgstr ""
+
+#: functions-cross-posting.php:97
+#, php-format
+msgid "This post is already cross-posted. It will be edited in forum '%s'"
+msgstr ""
+
+#: functions-cross-posting.php:97
+#, php-format
+msgid "This post will be cross-posted to the forum: '%s'"
+msgstr ""
+
+#: functions-cross-posting.php:190
+msgid "You do not have permission required to edit global announcements"
+msgstr ""
+
+#: functions-cross-posting.php:194
+msgid "You do not have the permission required to edit this announcement"
+msgstr ""
+
+#: functions-cross-posting.php:197
+msgid "You do not have the permission required to edit stickies"
+msgstr ""
+
+#: functions-cross-posting.php:201
+msgid "You do not have the permission required to edit posts in this forum"
+msgstr ""
+
+#: functions-cross-posting.php:253
+msgid "No tags defined."
+msgstr ""
+
+#: functions-cross-posting.php:256
+msgid "Tags: "
+msgstr ""
+
+#: functions-cross-posting.php:257
+msgid "Posted under: "
+msgstr ""
+
+#: functions-cross-posting.php:260
+#, php-format
+msgid "This is a %1$sblog post%2$s. To read the original post, please %3$sclick here &raquo;%4$s"
+msgstr ""
+
+#: functions-cross-posting.php:312
+msgid "Could not access the WP-United database fields. Please ensure WP-United is installed correctly. "
+msgstr ""
+
+#: functions-cross-posting.php:568
+msgid "You do not have permission to respond to this announcement"
+msgstr ""
+
+#: functions-cross-posting.php:572
+msgid "You do not have permission to comment in this forum"
+msgstr ""
+
+#: functions-cross-posting.php:578
+msgid "Error: Please type a comment!"
+msgstr ""
+
+#: functions-cross-posting.php:661
+msgid "(View in Forum)"
+msgstr ""
+
+#: template-tags.php:286
+#, php-format
+msgid "Forum Posts: %s"
+msgstr ""
+
+#: template-tags.php:287
+#, php-format
+msgid "Forum Threads: %s"
+msgstr ""
+
+#: template-tags.php:288
+#, php-format
+msgid "Registered Users: %s"
+msgstr ""
+
+#: template-tags.php:289
+#, php-format
+msgid " Newest User: %s"
+msgstr ""
+
+#: template-tags.php:312
+msgid "posts since last visit"
+msgstr ""
+
+#: template-tags.php:367
+#, php-format
+msgid "%1$s, posted by %2$s on %3$s"
+msgstr ""
+
+#: template-tags.php:371
+#: template-tags.php:415
+msgid "Nothing found."
+msgstr ""
+
+#: template-tags.php:411
+#, php-format
+msgid "%1$s, posted by %2$s in %3$s"
+msgstr ""
+
+#: template-tags.php:648
+msgid "Write a Post"
+msgstr ""
+
+#: template-tags.php:653
+msgid "Dashboard"
+msgstr ""
+
+#: template-tags.php:669
+msgid "Remember me"
+msgstr ""
+
+#: template-tags.php:671
+msgid "Login"
+msgstr ""
+
+#: template-tags.php:672
+msgid "Register"
+msgstr ""
+
+#: template-tags.php:673
+msgid "Forgot Password?"
+msgstr ""
+
+#: plugin-main.php:409
+msgid "phpBB integration by <a href=\"http://www.wp-united.com/\">WP-United</a>."
+msgstr ""
+
+#: plugin-main.php:481
+msgid "Error accessing the phpBB database when updating Blog ID"
+msgstr ""
+
+#: plugin-main.php:619
+msgid "Avatar image"
+msgstr ""
+
+#: plugin-main.php:719
+msgid "Less smilies"
+msgstr ""
+
+#: plugin-main.php:720
+#, php-format
+msgid "Your smiley could not be inserted. You can add it manually by typing this code: %s"
+msgstr ""
+
+#: plugin-main.php:843
+msgid "Error:"
+msgstr ""
+
+#: plugin-main.php:845
+msgid "Please go back and try again, or contact an administrator if you keep seeing this error."
+msgstr ""
+
+#: plugin-main.php:953
+msgid "Visit wp-united.com"
+msgstr ""
+
+#: plugin-main.php:976
+#: plugin-main.php:980
+msgid "Visit Forum"
+msgstr ""
+
+#: plugin-main.php:1010
+msgid "Search Site"
+msgstr ""
+
+#: plugin-main.php:1015
+msgid "Search Forum"
+msgstr ""
+
 #: widgets.php:28
-msgid ""
-"Displays the logged-in user's details, such as username, avatar, and number "
-"of posts since last visit, together with varius meta links. If the user is "
-"logged out, displays a phpBB login form."
+msgid "Displays the logged-in user's details, such as username, avatar, and number of posts since last visit, together with varius meta links. If the user is logged out, displays a phpBB login form."
 msgstr ""
 
 #: widgets.php:29
 msgid "WP-United Login / User Info Box"
 msgstr ""
 
-#: widgets.php:78 widgets.php:97
+#: widgets.php:78
+#: widgets.php:97
 msgid "You are logged in as:"
 msgstr ""
 
-#: widgets.php:79 widgets.php:98
+#: widgets.php:79
+#: widgets.php:98
 msgid "You are not logged in."
 msgstr ""
 
@@ -1570,7 +1316,8 @@ msgstr ""
 msgid "Show rank title &amp; image?"
 msgstr ""
 
-#: widgets.php:100 widgets.php:466
+#: widgets.php:100
+#: widgets.php:466
 msgid "Show new posts?"
 msgstr ""
 
@@ -1578,7 +1325,8 @@ msgstr ""
 msgid "Show write post link?"
 msgstr ""
 
-#: widgets.php:102 widgets.php:469
+#: widgets.php:102
+#: widgets.php:469
 msgid "Show Admin link?"
 msgstr ""
 
@@ -1598,8 +1346,13 @@ msgstr ""
 msgid "Recent Forum Topics"
 msgstr ""
 
-#: widgets.php:160 widgets.php:217 widgets.php:265 widgets.php:330
-#: widgets.php:460 widgets.php:608 extras/quickpoll/widget.php:126
+#: widgets.php:160
+#: widgets.php:217
+#: widgets.php:265
+#: widgets.php:330
+#: widgets.php:460
+#: widgets.php:608
+#: extras/quickpoll/widget.php:126
 msgid "Title: "
 msgstr ""
 
@@ -1636,9 +1389,7 @@ msgid "Forum Stats"
 msgstr ""
 
 #: widgets.php:276
-msgid ""
-"Show information about users that are currently online, in the usual phpBB "
-"format."
+msgid "Show information about users that are currently online, in the usual phpBB format."
 msgstr ""
 
 #: widgets.php:277
@@ -1702,10 +1453,7 @@ msgid "Show PMs?"
 msgstr ""
 
 #: widgets.php:479
-msgid ""
-"Shows the top phpBB prosilver forum navigation / breadcrumb bar. If you have "
-"template integration turned on, this will only appear on non-forum pages. "
-"Your forum must be using a prosilver-based theme for this to work."
+msgid "Shows the top phpBB prosilver forum navigation / breadcrumb bar. If you have template integration turned on, this will only appear on non-forum pages. Your forum must be using a prosilver-based theme for this to work."
 msgstr ""
 
 #: widgets.php:480
@@ -1724,15 +1472,13 @@ msgstr ""
 msgid "Show register link?"
 msgstr ""
 
-#: widgets.php:543 extras/quickpoll/widget.php:154
+#: widgets.php:543
+#: extras/quickpoll/widget.php:154
 msgid "Don't add CSS, I will style this myself"
 msgstr ""
 
 #: widgets.php:555
-msgid ""
-"Shows a list of users whose birthday it is today. Note that users must be "
-"logged in to phpBB and birthday entry must be activated on your forum for "
-"this to work."
+msgid "Shows a list of users whose birthday it is today. Note that users must be logged in to phpBB and birthday entry must be activated on your forum for this to work."
 msgstr ""
 
 #: widgets.php:556
@@ -1751,14 +1497,169 @@ msgstr ""
 msgid "Hide widget if there is nothing to show?"
 msgstr ""
 
-#: extras/quickpoll/main.php:375
-msgid "View poll in forum"
+#: user-integrator.php:288
+msgid "The username contains invalid characters"
+msgstr ""
+
+#: user-integrator.php:292
+msgid "The username is already taken"
+msgstr ""
+
+#: user-integrator.php:297
+msgid "The username you chose is not allowed"
+msgstr ""
+
+#: user-integrator.php:306
+msgid "The email address does not appear to exist (No MX record)"
+msgstr ""
+
+#: user-integrator.php:310
+msgid "The e-mail address is banned"
+msgstr ""
+
+#: user-integrator.php:314
+msgid "The e-mail address is already taken"
+msgstr ""
+
+#: user-integrator.php:318
+msgid "The email address is invalid"
+msgstr ""
+
+#: user-integrator.php:807
+msgid "WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error."
+msgstr ""
+
+#: user-integrator.php:815
+msgid "Could not update integration data: WP-United could not update your integration ID in phpBB, due to an unknown error. Please contact an administrator and inform them of this error."
+msgstr ""
+
+#: mapped-users.php:100
+msgid "Break Integration"
+msgstr ""
+
+#: mapped-users.php:115
+#, php-format
+msgid "Create user in %s"
+msgstr ""
+
+#: mapped-users.php:128
+msgid "Delete user from both phpBB and WordPress"
+msgstr ""
+
+#: mapped-users.php:142
+#, php-format
+msgid "Delete user from %s"
+msgstr ""
+
+#: mapped-users.php:155
+msgid "Synchronize profiles between phpBB and WordPress"
+msgstr ""
+
+#: mapped-users.php:212
+msgid "Display name:"
+msgstr ""
+
+#: mapped-users.php:213
+#: mapped-users.php:356
+msgid "E-mail:"
+msgstr ""
+
+#: mapped-users.php:214
+msgid "Website:"
+msgstr ""
+
+#: mapped-users.php:217
+#: mapped-users.php:358
+msgid "Posts:"
+msgstr ""
+
+#: mapped-users.php:218
+msgid "Comments:"
+msgstr ""
+
+#: mapped-users.php:219
+#: mapped-users.php:359
+msgid "Registered:"
+msgstr ""
+
+#: mapped-users.php:251
+msgid "Roles:"
+msgstr ""
+
+#: mapped-users.php:251
+msgid "Role:"
+msgstr ""
+
+#: mapped-users.php:260
+#: mapped-users.php:429
+msgid "Edit user"
+msgstr ""
+
+#: mapped-users.php:276
+#: mapped-users.php:472
+msgid "No suggested matches found."
+msgstr ""
+
+#: mapped-users.php:306
+#: mapped-users.php:520
+msgid "Cannot integrate (already integrated)"
+msgstr ""
+
+#: mapped-users.php:355
+msgid "Default group:"
+msgstr ""
+
+#: mapped-users.php:357
+msgid "Rank:"
+msgstr ""
+
+#: mapped-users.php:360
+msgid "Last visited:"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:19
+msgid "WordPress Blog"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:20
+msgid "Visit User's Blog"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:21
+msgid "ERROR: Duplicated function name detected. Please visit www.wp-united.com to report the error."
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:22
+#, php-format
+msgid "Integration by %sWP-United%s"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:25
+msgid "Can integrate as a WordPress subscriber (can view profile, write comments)"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:26
+msgid "Can integrate as a WordPress contributor (can write but not publish posts)"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:27
+msgid "Can integrate as a WordPress author (can write blog posts)"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:28
+msgid "Can integrate as a WordPress editor (can edit others' posts)"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:29
+msgid "Can integrate as a WordPress administrator"
+msgstr ""
+
+#: languages/phpbb_language_stubs.php:30
+msgid "Can post blog posts to this forum"
 msgstr ""
 
 #: extras/quickpoll/widget.php:30
-msgid ""
-"Displays a selected poll from your forum. Users must have the relevant "
-"permissions to view and/or vote on the poll."
+msgid "Displays a selected poll from your forum. Users must have the relevant permissions to view and/or vote on the poll."
 msgstr ""
 
 #: extras/quickpoll/widget.php:31
@@ -1814,47 +1715,7 @@ msgstr ""
 msgid "Force subsilver2"
 msgstr ""
 
-#: languages/phpbb_language_stubs.php:19
-msgid "WordPress Blog"
+#: extras/quickpoll/main.php:375
+msgid "View poll in forum"
 msgstr ""
 
-#: languages/phpbb_language_stubs.php:20
-msgid "Visit User's Blog"
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:21
-msgid ""
-"ERROR: Duplicated function name detected. Please visit www.wp-united.com to "
-"report the error."
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:22
-#, php-format
-msgid "Integration by %sWP-United%s"
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:25
-msgid ""
-"Can integrate as a WordPress subscriber (can view profile, write comments)"
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:26
-msgid ""
-"Can integrate as a WordPress contributor (can write but not publish posts)"
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:27
-msgid "Can integrate as a WordPress author (can write blog posts)"
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:28
-msgid "Can integrate as a WordPress editor (can edit others' posts)"
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:29
-msgid "Can integrate as a WordPress administrator"
-msgstr ""
-
-#: languages/phpbb_language_stubs.php:30
-msgid "Can post blog posts to this forum"
-msgstr ""

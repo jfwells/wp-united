@@ -50,6 +50,10 @@ The control panel can now be found within WordPress, under WP-United.
 	<delete>
       <file name="wp-united/*.*" />
     </delete>
+    
+    </action-group>
+    
+    <action-group>
     <copy>
       <file from="root/*.*" to="*.*" />
     </copy>

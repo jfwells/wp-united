@@ -391,7 +391,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		$this->loginName = $data['loginName'];
 				
 		$this->load_avatar($data['user_avatar'], $data['user_avatar_type'], $data['user_avatar_width'], $data['user_avatar_height']);
-
+		
 		$this->userDetails = array(
 			'email'			=> $data['email'],
 			'group'			=> $data['group'],
@@ -403,7 +403,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		
 		$this->set_admin_link();
 
-		$phpbbForum->background($fStateChanged);
+		$phpbbForum->restore_state($fStateChanged);
 		
 	}
 	

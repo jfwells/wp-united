@@ -19,7 +19,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.9.1.2</mod-version>
+    <mod-version>0.9.1.4</mod-version>
     <installation>
       <level>intermediate</level>
       <time>900</time>
@@ -41,7 +41,10 @@ Visit http://www.wp-united.com for more help or information.
   <action-group>
   
     <copy>
-      <file from="root/*.*" to="*.*" />
+      <file from="/root/includes/hooks/hook_wp-united.php" to="/includes/hooks/hook_wp-united.php" />
+      <file from="/root/language/" to="/language/" />
+      <file from="/root/styles/" to="/styles/" />
+      <file from="/root/wp-united/" to="/wp-united/" />
     </copy>  
 
 	<open src="includes/functions_content.php">

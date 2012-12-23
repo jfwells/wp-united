@@ -168,13 +168,28 @@ function wpu_acp() {
 }
 
 /**
+ * egg
+ */
+function wpu_get_settings_logo() {
+	global $wpUnited;
+	
+	$logo = 'seclogo.jpg';
+	$date = date('m/d');
+	if (($date == '12/24') || ($date == '12/25') || ($date == '12/26')) {
+		$logo = 'seclogoegg.png';
+	}
+	
+	return $wpUnited->get_plugin_url() . "images/settings/$logo";	
+}
+
+/**
  * Decide whether to show the advanced options, or save them
  */
 function wpu_advanced_options() {
 	global $wpUnited;
 	?>
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Advanced Options', 'wp-united'); ?> </h2>
 		<p><?php echo sprintf(__('Some additional options can be set in the included file, %s. These do not normally need to be changed. However, to review and change these options, please open the file in a text editor.', 'wp-united'), '<strong>' . add_trailing_slash($wpUnited->get_plugin_path()) . 'options.php</strong>' ) ; ?></p>
@@ -195,7 +210,7 @@ function wpu_get_help() {
 	global $wpUnited, $wpuDebug; 
 	?>
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('Get help or support', 'wp-united'); ?> </h2>
 		<h3><?php _e('Community support &amp; bug reporting', 'wp-united'); ?></h3>
@@ -218,7 +233,7 @@ function wpu_support() {
 	global $wpUnited;
 	?>
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('Please Help Support WP-United', 'wp-united'); ?> </h2>
 		<p><?php _e('WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!', 'wp-united');  ?></p>
@@ -305,7 +320,7 @@ function wpu_setup_menu() {
 	
 	?>
 		<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Setup / Status', 'wp-united'); ?> </h2>
 		<p><?php _e('WP-United needs to connect to phpBB in order to work. On this screen you can set up or disable the connection.', 'wp-united') ?></p>
@@ -451,7 +466,7 @@ function wpu_user_mapper() {
 	global $wpUnited, $phpbbForum; ?>
 	<div class="wrap" id="wp-united-setup">
 	
-		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United User Integration Mapping', 'wp-united'); ?> </h2>
 		<p><?php _e('Integrated users have an account both in WordPress and phpBB. The user mapper tool allows you to manually control which accounts are mapped together.', 'wp-united'); ?></p>
@@ -983,16 +998,8 @@ function wpu_process_mapaction() {
 			$pUserID = ($package == 'wp') ? $intUserID : $userID;
 		
 			if ( (!empty($wUserID)) && (!empty($pUserID))  ) {
-				
-				$fStateChanged = $phpbbForum->foreground();
-				// TODO: USE user-integrator.php function here
-				$sql = 'UPDATE ' . USERS_TABLE .
-					" SET user_wpuint_id = $wUserID 
-					WHERE user_id = $pUserID";
-				if (!$pInt = $db->sql_query($sql)) {
-					$phpbbForum->background($fStateChanged);
-					die('<status>FAIL</status><details>' . __('Database error: Could not integrate', 'wp-united') . '</details></wpumapaction>');
-				}
+
+				wpu_update_int_id($pUserID, $wUserID);
 				// Sync profiles
 				$wpuNewDetails = $phpbbForum->get_userdata('', $pUserID);
 				$phpbbForum->background($fStateChanged);
@@ -1118,7 +1125,7 @@ function wpu_settings_page() {
 	?>
 	
 	<div class="wrap" id="wp-united-setup">
-		<img id="panellogo" src="<?php echo $wpUnited->get_plugin_url() ?>images/settings/seclogo.jpg" />
+		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('WP-United Settings', 'wp-united'); ?> </h2>
 	

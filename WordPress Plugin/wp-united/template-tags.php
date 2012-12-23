@@ -283,10 +283,10 @@ function get_wpu_phpbb_stats($args='') {
 	
 	$fStateChanged = $phpbbForum->foreground();
 	
-	$output = $before .  sprintf(__('Forum Posts: %s'),  '<strong>' 	. $phpbbForum->stats('num_posts') . '</strong>') . "$after\n";
-	$output .= $before .  sprintf(__('Forum Threads: %s'), '<strong>' 	. $phpbbForum->stats('num_topics') . '</strong>') . "$after\n";
-	$output .= $before .  sprintf(__('Registered Users: %s'), '<strong>' 	. $phpbbForum->stats('num_users')  . '</strong>') . "$after\n";	
-	$output .= $before . sprintf(__(' Newest User: %s'), $phpbbForum->get_username_link('full', $phpbbForum->stats('newest_user_id'), $phpbbForum->stats('newest_username'), $phpbbForum->stats('newest_user_colour'))) . "$after\n";
+	$output = $before .  sprintf(__('Forum Posts: %s', 'wp-united'),  '<strong>' 	. $phpbbForum->stats('num_posts') . '</strong>') . "$after\n";
+	$output .= $before .  sprintf(__('Forum Threads: %s', 'wp-united'), '<strong>' 	. $phpbbForum->stats('num_topics') . '</strong>') . "$after\n";
+	$output .= $before .  sprintf(__('Registered Users: %s', 'wp-united'), '<strong>' 	. $phpbbForum->stats('num_users')  . '</strong>') . "$after\n";	
+	$output .= $before . sprintf(__(' Newest User: %s', 'wp-united'), $phpbbForum->get_username_link('full', $phpbbForum->stats('newest_user_id'), $phpbbForum->stats('newest_username'), $phpbbForum->stats('newest_user_colour'))) . "$after\n";
 	$phpbbForum->restore_state($fStateChanged);
 	return $output;
 
@@ -309,7 +309,7 @@ function wpu_newposts_link() {
 function get_wpu_newposts_link() {
 	global $phpbbForum, $phpEx;
 	if( $phpbbForum->user_logged_in() ) {
-		return '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". __('posts since last visit') . "</a>";
+		return '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url() . 'search.'.$phpEx.'?search_id=newposts') . '"><strong>' . get_wpu_newposts() ."</strong>&nbsp;". __('posts since last visit', 'wp-united') . "</a>";
 	}
 }
 
@@ -364,11 +364,11 @@ function get_wpu_latest_phpbb_posts($args='') {
 				$post_link = ($phpbbForum->seo) ? "post{$post['post_id']}.html#p{$post['post_id']}" : "viewtopic.$phpEx?f={$post['forum_id']}&amp;t={$post['topic_id']}&amp;p={$post['post_id']}#p{$post['post_id']}";
 				$post_link = '<a href="' . $phpbbForum->get_board_url() .  $phpbbForum->append_sid($post_link) . '">' . $post['post_title'] . '</a>';
 				$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-				$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) .  sprintf(__('%1$s, posted by %2$s on %3$s'),$post_link, $post['user_link'],  $post['post_time'])  ."$after\n";
+				$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) .  sprintf(__('%1$s, posted by %2$s on %3$s', 'wp-united'),$post_link, $post['user_link'],  $post['post_time'])  ."$after\n";
 				$i++;
 			}
 		} else {
-			$output = $before. __('Nothing found.'). $after;
+			$output = $before. __('Nothing found.', 'wp-united'). $after;
 		}
 		return $output;
 		
@@ -408,11 +408,11 @@ function get_wpu_latest_phpbb_topics($args = '') {
 
 
 			$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s'),$topic_link, $post['user_link'], $forum_link)  ."$after\n";
+			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s', 'wp-united'),$topic_link, $post['user_link'], $forum_link)  ."$after\n";
 			$i++;
 		}
 	} else {
-		$output = $before. __('Nothing found.'). $after;
+		$output = $before. __('Nothing found.', 'wp-united'). $after;
 	}
 	return $output;
 	
@@ -645,12 +645,12 @@ function get_wpu_login_user_info($args) {
 
 		if ($showWriteLink) {
 			if (current_user_can('edit_posts')) {
-				$ret .= $before . '<a href="'. $wpUnited->get_wp_base_url() .'wp-admin/post-new.php" title="' . __('Write a Post') . '">' . __('Write a Post') . '</a>' . $after;
+				$ret .= $before . '<a href="'. $wpUnited->get_wp_base_url() .'wp-admin/post-new.php" title="' . __('Write a Post', 'wp-united') . '">' . __('Write a Post', 'wp-united') . '</a>' . $after;
 			}
 		}
 		if ($showAdminLinks) {
 			if (current_user_can('read')) {
-				$ret .= $before . '<a href="'.$wpUnited->get_wp_base_url() .'wp-admin/" title="' . __('Dashboard') . '">' . __('Dashboard') . '</a>' . $after;
+				$ret .= $before . '<a href="'.$wpUnited->get_wp_base_url() .'wp-admin/" title="' . __('Dashboard', 'wp-united') . '">' . __('Dashboard', 'wp-united') . '</a>' . $after;
 			}
 			
 			if($admin) {
@@ -666,11 +666,11 @@ function get_wpu_login_user_info($args) {
 			$ret .= $before . '<label for="phpbb_username">' . $phpbbForum->lang['USERNAME'] . '</label> <input tabindex="1" class="inputbox autowidth" type="text" name="username" id="phpbb_username"/>' . $after;
 			$ret .= $before . '<label for="phpbb_password">' . $phpbbForum->lang['PASSWORD'] . '</label> <input tabindex="2" class="inputbox autowidth" type="password" name="password" id="phpbb_password" maxlength="32" />' . $after;
 			if ( $autoLogin ) {
-				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . __('Remember me') . '</label>' . $after;
+				$ret .= $before . '<input tabindex="3" type="checkbox" id="phpbb_autologin" name="autologin" /><label for="phpbb_autologin"> ' . __('Remember me', 'wp-united') . '</label>' . $after;
 			}
 			$ret .= $before . '<input type="submit" name="login" class="wpuloginsubmit" value="' . __('Login') . '" />' . $after;
-			$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url()."ucp.php?mode=register") . '">' . __('Register') . '</a>' . $after;
-			$ret .= $before . '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url()).'ucp.php?mode=sendpassword">' . __('Forgot Password?') . '</a>' . $after;
+			$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url()."ucp.php?mode=register") . '">' . __('Register', 'wp-united') . '</a>' . $after;
+			$ret .= $before . '<a href="'. $phpbbForum->append_sid($phpbbForum->get_board_url().'ucp.php?mode=sendpassword') . '">' . __('Forgot Password?', 'wp-united') . '</a>' . $after;
 			$ret .= '</form>';
 		} else {
 			$ret .= $before . '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . $loginAction) . '" title="' . $loginLang . '">' .  $loginLang . '</a>';

@@ -942,6 +942,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function add_to_menu_bar($adminBar) {
 		global $wpUnited, $phpbbForum, $phpEx;
  
+ 
 		if (current_user_can('manage_options'))  {
 			$adminBar->add_menu(array(
 				'id'    => 'wpu-extl',
@@ -952,22 +953,33 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 					'title' => __('Visit wp-united.com', 'wp-united')
 				),
 			));
-			$adminBar->add_menu(array(
-				'id'    => 'wpu-main',
-				'title' => __('WP-United', 'wp-united'),
-				'href'  => get_admin_url() . 'admin.php?page=wp-united-setup',
-				'parent' => 'site-name',
-				'meta'  => array(
-					'title' => __('WP-United', 'wp-united')
-				),
-			));	
-		
+			if(!is_admin()) {
+				$adminBar->add_menu(array(
+					'id'    => 'wpu-main',
+					'title' => __('WP-United', 'wp-united'),
+					'href'  => get_admin_url() . 'admin.php?page=wp-united-setup',
+					'parent' => 'site-name',
+					'meta'  => array(
+						'title' => __('WP-United', 'wp-united')
+					),
+				));	
+			}
 		}
 		
 		
 		if(!$wpUnited->is_working()) {
 			return;
 		}
+		
+		$adminBar->add_menu(array(
+			'id'    => 'wpu-forum-link',
+			'title' => __('Visit Forum', 'wp-united'),
+			'href'  => $phpbbForum->get_board_url(),
+			'parent' => 'site-name',
+			'meta'  => array(
+				'title' => __('Visit Forum', 'wp-united')
+			),
+		));	
 		
 		
 		if(current_user_can('manage_options'))  {

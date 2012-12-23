@@ -323,21 +323,26 @@ class WPU_User_Mapper {
 		
 		$fStateChanged = $phpbbForum->foreground();
 		
-		
 		$arrToLoad = array(
 			'loginName'				=> 	$dbResult['username'],
-			'user_avatar'				=> 	$dbResult['user_avatar'],
+			'user_avatar'			=> 	$dbResult['user_avatar'],
 			'user_avatar_type'		=> 	$dbResult['user_avatar_type'],
-			'user_avatar_width'	=> 	$dbResult['user_avatar_width'], 
+			'user_avatar_width'		=> 	$dbResult['user_avatar_width'], 
 			'user_avatar_height'	=> 	$dbResult['user_avatar_height'],
-			'email'							=> 	$dbResult['user_email'],
-			'group'							=> 	(isset($phpbbForum->lang['G_' . $dbResult['group_name']])) ? $phpbbForum->lang['G_' . $dbResult['group_name']] : $dbResult['group_name'],
-			'rank'							=> 	(isset($phpbbForum->lang[$dbResult['rank_title']])) ? $phpbbForum->lang[$dbResult['rank_title']] : $dbResult['rank_title'],
-			'numposts'					=> 	(int)$dbResult['user_posts'],
-			'regdate'						=> 	$user->format_date($dbResult['user_regdate']),
-			'lastvisit'						=> 	(!empty($dbResult['user_lastvisit'])) ? $user->format_date($dbResult['user_lastvisit']) : __('n/a', 'wp-united')
+			'email'					=> 	$dbResult['user_email'],
+			'group'					=> 	(isset($phpbbForum->lang['G_' . $dbResult['group_name']])) ? $phpbbForum->lang['G_' . $dbResult['group_name']] : $dbResult['group_name'],
+			'numposts'				=> 	(int)$dbResult['user_posts'],
+			'regdate'				=> 	$user->format_date($dbResult['user_regdate']),
+			'lastvisit'				=> 	(!empty($dbResult['user_lastvisit'])) ? $user->format_date($dbResult['user_lastvisit']) : __('n/a', 'wp-united')
 		);
-		$phpbbForum->background($fStateChanged);
+		
+		$arrToLoad['rank'] = $arrToLoad['rank_image'] = $arrToLoad['rank_image_src'] = '';
+		// fills the last three variables
+		get_user_rank($dbResult['user_rank'], $arrToLoad['numposts'], $arrToLoad['rank'], $arrToLoad['rank_image'], $arrToLoad['rank_image_src']);
+		$arrToLoad['rank'] = (isset($phpbbForum->lang[$arrToLoad['rank']])) ? $phpbbForum->lang[$arrToLoad['rank']] : $arrToLoad['rank'];
+		$arrToLoad['rank'] = (empty($arrToLoad['rank'])) ? __('n/a', 'wp-united') : $arrToLoad['rank'];
+		
+		$phpbbForum->restore_state($fStateChanged);
 		
 		return $arrToLoad;
 	}
@@ -382,14 +387,9 @@ class WPU_User_Mapper {
 		 if($countOnly) {
 			 $sqlArray['SELECT'] = 'COUNT(*) AS numusers';
 		} else {
-			 $sqlArray['SELECT'] = 'u.user_wpuint_id, u.username, u.user_id, u.user_email, r.rank_title, u.user_posts, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_regdate, u.user_lastvisit, g.group_name';
+			 $sqlArray['SELECT'] = 'u.user_wpuint_id, u.username, u.user_id, u.user_email, u.user_rank, u.user_posts, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_regdate, u.user_lastvisit, g.group_name';
 			 $sqlArray['FROM'][GROUPS_TABLE] = 'g';
-			 $sqlArray['LEFT_JOIN'] = array(
-				array(
-					'FROM'	=> 	array(RANKS_TABLE => 'r'),
-					'ON'			=>	'u.user_rank = r.rank_id'
-				)		
-			);
+
 			$sqlArray['WHERE'] .= ' AND g.group_id = u.group_id';
 			$sqlArray['ORDER_BY'] = 'u.username ASC';
 		}
