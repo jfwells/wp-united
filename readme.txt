@@ -41,9 +41,9 @@ The download includes English, with German and Simplified Chinese translations.
 == Installation ==
 
 1. Back up the current state of your site, just to be on the safe side.
-1. Upload the `wp-united` directory and all its contents to the `/wp-content/plugins/` directory.
+1. Upload the `wp-united` directory and all its contents to the `/wp-content/plugins/` directory. (This will be done for you if you install through the WordPress Plugins menu).
 1. Activate the plugin through the 'Plugins' menu in WordPress.
-1. Install phpBB on your server somewhere -- anywhere is OK, even on a different subdomain -- and ensure it is set up and working OK. Pay particular attention to your phPBB "server settings" -- they need to be correct for WP-United to work.
+1. Install phpBB on your server somewhere -- anywhere is OK, even on a different subdomain -- and ensure it is set up and working OK. Pay particular attention to your phpBB "server settings" -- they need to be correct for WP-United to work.
 1. Visit the WP-United section in the administration area to connect your WordPress site to your forum.
 1. As part of the connection process, WP-United will prompt you to download and install a phpBB modification package. This will need to be installed into your phpBB3. We recommend you use [Automod](https://www.phpbb.com/mods/automod/) for this.
 
@@ -83,7 +83,7 @@ There are several ways to debug problems. We suggest you try the following, in o
 
 == Changelog ==
 
-= v09.1.4 RELEASE CANDIDATE 3 =
+= v0.9.1.4 RELEASE CANDIDATE 3 =
 
 * BUGFIX: WordPress users created in user mapper set to administrators. if you have created WordPress users using the user mapper previously, please check to ensure they are not administrators.
 * BUGFIX: WordPress register date now showing correctly in user mapper and minor mapper display fixes

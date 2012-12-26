@@ -11,7 +11,7 @@ TODO:
 * Garbage passed back after error message on activation, not clear why
 * restore_state should restore to foreground too
 * padding entry & reset to defaults farked
-* full page list doesn't show items in child themes
+* full page list doesn't show items in child themes or in subfolders
 * warnings about wp_query in responsive...
 * Add Forum, ACP & WPU items to the admin bar
 * mapper HTML entities
@@ -25,9 +25,6 @@ TODO (LARGER):
 
 
 Priority reported bugs:
-- error for admins and logout for others when updating avatars (DhrRob)
-- 
-- mod_fcgid: stderr: PHP Fatal error: Cannot redeclare class WP_Admin_Bar in /var/www/vhosts/.../httpdocs/wp-includes/class-wp-admin-bar.php on line 10, referer: http://.../forums/ucp.php?i=profile&mode=avatar
 - error when uploading attachments on p-in-w full page (uldis.janpavlis)
 - Occasional auto admin mapping issues (Facebook)
 
