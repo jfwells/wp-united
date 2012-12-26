@@ -974,7 +974,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		$adminBar->add_menu(array(
 			'id'    => 'wpu-forum-link',
 			'title' => __('Visit Forum', 'wp-united'),
-			'href'  => $phpbbForum->get_board_url(),
+			'href'  => $phpbbForum->get_board_url() . 'index.' . $phpEx,
 			'parent' => 'site-name',
 			'meta'  => array(
 				'title' => __('Visit Forum', 'wp-united')

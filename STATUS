@@ -1,5 +1,12 @@
 current target: v0.9.1.5
 
+
+Committed for v0.9.1.5:
+* Autologin warning on login block widget in full page reverse integration
+* Error when updating avatars & profiles on full page reverse integration
+* Specify index.php for forum link in admin bar in case index.php is not default served page
+
+
 TODO:
 * Garbage passed back after error message on activation, not clear why
 * restore_state should restore to foreground too
@@ -19,6 +26,8 @@ TODO (LARGER):
 
 Priority reported bugs:
 - error for admins and logout for others when updating avatars (DhrRob)
+- 
+- mod_fcgid: stderr: PHP Fatal error: Cannot redeclare class WP_Admin_Bar in /var/www/vhosts/.../httpdocs/wp-includes/class-wp-admin-bar.php on line 10, referer: http://.../forums/ucp.php?i=profile&mode=avatar
 - error when uploading attachments on p-in-w full page (uldis.janpavlis)
 - Occasional auto admin mapping issues (Facebook)
 

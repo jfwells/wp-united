@@ -1,7 +1,7 @@
 === WP-United ===
 Contributors: Jhong
 Donate link: http://www.wp-united.com/
-Tags: phpbb, phpBB3, forum, social, integrate, bridge, integration, widgets, template, sign-on, user integration, database
+Tags: phpbb, phpBB3, forum, social, integrate, bridge, integration, widgets, template, sign-on, theme, user integration, database, wp-united, cross-post, post to forum
 Requires at least: 3.4.0
 Tested up to: 3.5.0
 Stable tag: trunk
