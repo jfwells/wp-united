@@ -596,12 +596,12 @@ function get_wpu_useronlinelist($args = '') {
 /**
  * Gets info about the current user, or a login form if they are logged out, without displaying it
  * @author Japgalaxy, updated by John Wells
- * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1&showPMs=1");
+ * @example wpu_login_user_info("before=<li>&after=</li>&showLoginForm=1&showRankBlock=1&showNewPosts=1&showWriteLink=1&showAdminLinks=1&showPMs=1&autoLogin=1");
  */
 function get_wpu_login_user_info($args) {
 	global $user_ID, $db, $auth, $phpbbForum, $wpUnited, $phpEx, $config;
 	
-	$defaults = array('before' => '<li>', 'after' => '</li>', 'showPMs' => 1, 'showLoginForm' => 1, 'showRankBlock' => 1, 'showNewPosts' => 1, 'showWriteLink' => 1, 'showAdminLinks' => 1);
+	$defaults = array('before' => '<li>', 'after' => '</li>', 'showPMs' => 1, 'showLoginForm' => 1, 'showRankBlock' => 1, 'showNewPosts' => 1, 'showWriteLink' => 1, 'showAdminLinks' => 1, 'autoLogin' => 1);
 	extract(_wpu_process_args($args, $defaults));
 
 	$ret = '';

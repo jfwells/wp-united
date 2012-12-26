@@ -56,7 +56,10 @@ if ( !$wpuCache->use_template_cache()) {
 
 //Run deferred load from patched core;
 function wpu_initialise_wp() {
-	if(function_exists('wpu_deferred_wp_load')) {
+	static $initialised = false;
+	
+	if(!$initialised && function_exists('wpu_deferred_wp_load')) {
+		$initialised = true;
 		wpu_deferred_wp_load();
 	}
 }
