@@ -6,22 +6,21 @@ Committed for v0.9.1.5:
 
 * BUGFIX: Error when updating avatars & profiles on full page reverse integration
 * BUGFIX: theme preview not working when WordPress-in-phpBB template integration is on
+* BUGFIX: Difficult to change padding value in theme integration advanced settings, and the "reset to default" link didn't work
 * BUGFIX: Autologin warning on login block widget in full page reverse integration
 * UPDATED: Specify index.php for forum link in admin bar in case index.php is not default served page
 
 
 TODO:
+* full page list doesn't show items in child themes or in subfolders -- & template-loader might not be working for sub-themes either!!! Check!!!
 * Garbage passed back after error message on activation, not clear why
 * $oldGET warning, undefined on wp-r line 82
 * restore_state should restore to foreground too
-* padding entry & reset to defaults farked
-* full page list doesn't show items in child themes or in subfolders -- & template-loader might not be working for sub-themes either!!! Check!!!
 * warnings about wp_query in responsive...
 * Add Forum, ACP & WPU items to the admin bar
 * mapper HTML entities
 * Check activation status
 * Check custom groups
-
 
 
 TODO (LARGER):
@@ -30,8 +29,8 @@ TODO (LARGER):
 
 Priority reported bugs:
 - dying with quickcache or wp super cache
-- error when uploading attachments on p-in-w full page (uldis.janpavlis)
-- Occasional auto admin mapping issues (Facebook)
+- error when uploading attachments on p-in-w full page (uldis.janpavlis) [not confirmed, assume fixed]
+- Occasional auto admin mapping issues (Facebook) [should be fixed]
 
 
 Regressions:

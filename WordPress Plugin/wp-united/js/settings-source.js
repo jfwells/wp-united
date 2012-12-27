@@ -235,10 +235,10 @@ function check_padding(evt) {
 }
 
 function default_padding() {
-	$('#wpupadtop').val('6');
-	$('#wpupadright').val('12');
-	$('#wpupadbottom').val('6');
-	$('#wpupadleft').val('12');
+	$wpu('#wpupadtop').val('6');
+	$wpu('#wpupadright').val('12');
+	$wpu('#wpupadbottom').val('6');
+	$wpu('#wpupadleft').val('12');
 	return false;
 }
 
