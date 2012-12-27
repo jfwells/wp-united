@@ -11,7 +11,7 @@ TODO:
 * Garbage passed back after error message on activation, not clear why
 * restore_state should restore to foreground too
 * padding entry & reset to defaults farked
-* full page list doesn't show items in child themes or in subfolders
+* full page list doesn't show items in child themes or in subfolders -- & template-loader might not be working for sub-themes either!!! Check!!!
 * warnings about wp_query in responsive...
 * Add Forum, ACP & WPU items to the admin bar
 * mapper HTML entities
@@ -25,12 +25,52 @@ TODO (LARGER):
 
 
 Priority reported bugs:
+- dying with quickcache or wp super cache
 - error when uploading attachments on p-in-w full page (uldis.janpavlis)
 - Occasional auto admin mapping issues (Facebook)
 
 
 Regressions:
 * phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
+
+
+Blank file connect box with one or more of the following plugins [pending more data]:
+
+adsense-extreme/adsensextreme.php, 
+akismet/akismet.php, 
+all-in-one-seo-pack/all_in_one_seo_pack.php, 
+auto-thickbox-plus/auto-thickbox.php, 
+avh-first-defense-against-spam/avh-fdas.php, 
+bolcom-partnerprogramma-wordpress-plugin/bolcom-partnerprogramma-wordpress-plugin.php, 
+cookie-law-info/cookie-law-info.php, 
+custom-sidebars/customsidebars.php, 
+download-manager/download-manager.php, 
+google-analytics-for-wordpress/googleanalytics.php, 
+keyword-statistics/keyword-statistics.php, 
+m-vslider/rslider.php, 
+mp3-jplayer/mp3jplayer.php, 
+proplayer/pro-player.php,
+quick-adsense/quick-adsense.php,
+relevanssi/relevanssi.php, 
+search-and-replace/search-and-replace.php, 
+si-captcha-for-wordpress/si-captcha.php, 
+si-contact-form/si-contact-form.php,
+simple-local-avatars/simple-local-avatars.php,
+tippy/tippy.php,
+top-10/top-10.php,
+uber-login-logo/uber-login-logo.php,
+ultimate-tinymce/main.php,
+wp-copyprotect/wp-copyprotect.php,
+wp-most-popular/wp-most-popular.php,
+wp-pagenavi/wp-pagenavi.php,
+wp-polls/wp-polls.php,
+wp-slimstat/wp-slimstat.php,
+wp-socializer/wp-socializer.php,
+wp-table-reloaded/wp-table-reloaded.php,
+wp-united/wp-united.php,
+yet-another-related-posts-plugin/yarpp.php
+
+
 
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:

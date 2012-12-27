@@ -74,7 +74,17 @@ function wpu_integrate_templates() {
 		
 		// process_remove_head removes the <head> during the process, leaving us with an insertable body (hehe).
 		$wpUnited->set_inner_headinfo(process_remove_head($wpUnited->get_inner_content()));
-		$wpUnited->set_inner_content(process_body($wpUnited->get_inner_content()));
+		
+		$innerContent = $wpUnited->get_inner_content();
+		
+		// get any signature added by WordPress after /html, e.g. WP_CUSTOMIZER_SIGNATURE  (... ffs)
+		if($wpUnited->should_do_action('template-w-in-p')) {
+			preg_match('/</html>(.*)/i', $innerContent, $sigs);
+			print_r($sigs);
+		}
+
+		
+		$wpUnited->set_inner_content(process_body($innerContent));
 	} 
 
 	if ($wpUnited->should_do_action('template-p-in-w')) { 
@@ -359,7 +369,7 @@ function process_body($pageContent) {
 		$fullWpURL = strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) . '://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING'];
 		$pageContent = str_replace('a href="#', "a href=\"$fullWpURL#", $pageContent);
 	}
-
+	
 	//cut out any </body> and </html> tags
 	$pageContent = str_replace('</body>', '', $pageContent);
 	$pageContent = str_replace('</html>', '', $pageContent);
