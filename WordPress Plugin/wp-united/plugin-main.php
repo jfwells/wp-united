@@ -32,7 +32,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('switch_theme', 						'clear_header_cache',						'template-int'),
 			array('set_current_user', 					'integrate_users',							'user-int'),
 			array('wp_logout', 							'phpbb_logout',								'user-int'),
-			array('register_post', 						array('validate_new_user', 10, 3),			'user-int'),
+			array('registration_errors', 						array('validate_new_user', 10, 3),			'user-int'),
 			array('user_register', 						array('process_new_wp_reg', 10, 1),			'user-int'),
 			array('profile_update', 					array('profile_update', 10, 2),				'user-int'),
 			array('admin_menu', 						'add_xposting_box',							'x-posting'),
@@ -782,17 +782,19 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * @param WP_Error $errors WordPress error object
 	 * @return mixed true or WP_Error
 	 */
-	public function validate_new_user($username, $email, $errors) {
+	public function validate_new_user($errors, $username, $email) {
 
-		if ($this->get_setting('integrateLogin')) {
-			$result = wpu_validate_new_user($username, $email, $errors);
+		if (!$this->get_setting('integrateLogin')) {
+			return;
 		}
 		
+		$result = wpu_validate_new_user($username, $email, $errors);
+				
 		if($result !== false) {
-			$errors = $result;
+			return $result; // return our errors obj
 		}
 		
-		return $result;
+		return $errors; // return their errors obj
 	}
 	
 	/**
