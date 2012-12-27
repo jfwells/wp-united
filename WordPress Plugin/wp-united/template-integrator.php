@@ -14,9 +14,11 @@
 */
 
 function wpu_integrate_templates() {
-	global $wpuNoHead, $wpUnited, $wpUnited;
+	global $wpuNoHead, $wpUnited, $wpUnited, $wpuSetWPSignature;
 
 	$wpuCache = WPU_Cache::getInstance();
+
+	$wpuSetWPSignature = '';
 
 	if ( $wpuCache->use_template_cache() || $wpUnited->ran_patched_wordpress() ) {
 		wpu_get_wordpress();
@@ -79,8 +81,11 @@ function wpu_integrate_templates() {
 		
 		// get any signature added by WordPress after /html, e.g. WP_CUSTOMIZER_SIGNATURE  (... ffs)
 		if($wpUnited->should_do_action('template-w-in-p')) {
-			preg_match('/</html>(.*)/i', $innerContent, $sigs);
-			print_r($sigs);
+			preg_match('/<\/html>(.*)/i', $innerContent, $sigs);
+			if(is_array($sigs) && isset($sigs[1])) {
+				$wpuSetWPSignature = $sigs[1];
+				$innerContent = str_replace('</html>' . $sigs[1], '</html>', $innerContent);
+			}
 		}
 
 		
@@ -385,7 +390,7 @@ function process_body($pageContent) {
  * @param string $content The fully integrated page.
  */
 function wpu_output_page($content) {
-	global $wpuNoHead, $wpu_page_title, $wpu_dtd;
+	global $wpuNoHead, $wpu_page_title, $wpu_dtd, $wpuSetWPSignature;
 	
 	//Add title back
 	$content = str_replace("<!--[**PAGE_TITLE**]-->", $wpu_page_title, $content);
@@ -410,7 +415,7 @@ function wpu_output_page($content) {
 	
 
 
-	echo $content; 
+	echo $content , $wpuSetWPSignature; 
 	// Finally -- clean up
 	define('WPU_FINISHED', true);
 	garbage_collection();
