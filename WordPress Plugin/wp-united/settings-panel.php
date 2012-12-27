@@ -1331,7 +1331,7 @@ function wpu_settings_page() {
 													<label for="wpupadtop"><?php _e('Top:', 'wp-united'); ?></label><br />
 												</td>
 												<td>
-													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="<?php echo $padding[0]; ?>" />px<br />
+													<input type="text" onkeypress="check_padding(event)" maxlength="3" style="width: 30px;" id="wpupadtop" name="wpupadtop" value="<?php echo $padding[0]; ?>" />px<br />
 												</td>
 											</tr>
 											<tr>
@@ -1339,7 +1339,7 @@ function wpu_settings_page() {
 													<label for="wpupadright"><?php _e('Right:', 'wp-united'); ?></label><br />
 												</td>
 												<td>
-													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="<?php echo $padding[1]; ?>" />px<br />
+													<input type="text" onkeypress="check_padding(event)" maxlength="3" style="width: 30px;" id="wpupadright" name="wpupadright" value="<?php echo $padding[1]; ?>" />px<br />
 												</td>
 											</tr>
 											<tr>
@@ -1347,7 +1347,7 @@ function wpu_settings_page() {
 													<label for="wpupadbtm"><?php _e('Bottom:', 'wp-united'); ?></label><br />
 												</td>
 												<td>
-													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="<?php echo $padding[2]; ?>" />px<br />
+													<input type="text" onkeypress="check_padding(event)" maxlength="3" style="width: 30px;" id="wpupadbtm" name="wpupadbtm" value="<?php echo $padding[2]; ?>" />px<br />
 												</td>
 											</tr>
 											<tr>
@@ -1355,11 +1355,11 @@ function wpu_settings_page() {
 													<label for="wpupadleft"><?php _e('Left:', 'wp-united'); ?></label><br />
 												</td>
 												<td>
-													<input type="text" onkeypress="checkPadding(event)" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="<?php echo $padding[3]; ?>" />px<br />
+													<input type="text" onkeypress="check_padding(event)" maxlength="3" style="width: 30px;" id="wpupadleft" name="wpupadleft" value="<?php echo $padding[3]; ?>" />px<br />
 												</td>
 											</tr>
 											</table>
-										<p><a href="#" onclick="return false;"><?php _e('Reset to defaults', 'wp-united'); ?></a></p>
+										<p><a href="#" onclick="return default_padding();"><?php _e('Reset to defaults', 'wp-united'); ?></a></p>
 									</div>
 									<div id="wputemplate-w-in-p-opts">
 										<p>

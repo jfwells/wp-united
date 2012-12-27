@@ -223,15 +223,23 @@ function tplAdv() {
 /**
  * Prevents the user from typing alphanumeric characters in the padding fields
  */
-function checkPadding(evt) {
+function check_padding(evt) {
 	var theEvent = evt || window.event;
 	var key = theEvent.keyCode || theEvent.which;
-	key = String.fromCharCode( key );
+	var keyS = String.fromCharCode( key );
 	var regex = /[0-9]/;
-	if( !regex.test(key) ) {
+	if( !regex.test(keyS) && (key!=8) && (key!=46) ) {
 		theEvent.returnValue = false;
 		if (theEvent.preventDefault) theEvent.preventDefault();
 	}
+}
+
+function default_padding() {
+	$('#wpupadtop').val('6');
+	$('#wpupadright').val('12');
+	$('#wpupadbottom').val('6');
+	$('#wpupadleft').val('12');
+	return false;
 }
 
 

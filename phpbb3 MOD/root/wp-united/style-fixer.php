@@ -183,4 +183,4 @@ if (!empty($cache)) {
 }
 $db->sql_close();
 
-?>
+// end of file

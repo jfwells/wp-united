@@ -2,13 +2,17 @@ current target: v0.9.1.5
 
 
 Committed for v0.9.1.5:
-* Autologin warning on login block widget in full page reverse integration
-* Error when updating avatars & profiles on full page reverse integration
-* Specify index.php for forum link in admin bar in case index.php is not default served page
+
+
+* BUGFIX: Error when updating avatars & profiles on full page reverse integration
+* BUGFIX: theme preview not working when WordPress-in-phpBB template integration is on
+* BUGFIX: Autologin warning on login block widget in full page reverse integration
+* UPDATED: Specify index.php for forum link in admin bar in case index.php is not default served page
 
 
 TODO:
 * Garbage passed back after error message on activation, not clear why
+* $oldGET warning, undefined on wp-r line 82
 * restore_state should restore to foreground too
 * padding entry & reset to defaults farked
 * full page list doesn't show items in child themes or in subfolders -- & template-loader might not be working for sub-themes either!!! Check!!!
