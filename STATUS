@@ -8,6 +8,7 @@ Committed for v0.9.1.5:
 * BUGFIX: theme preview not working when WordPress-in-phpBB template integration is on
 * BUGFIX: Difficult to change padding value in theme integration advanced settings, and the "reset to default" link didn't work
 * BUGFIX: Autologin warning on login block widget in full page reverse integration
+* CHANGE/BUGFIX: username & e-mail validation for reliable
 * UPDATED: Specify index.php for forum link in admin bar in case index.php is not default served page
 
 
