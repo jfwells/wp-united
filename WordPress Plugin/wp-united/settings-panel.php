@@ -1307,13 +1307,13 @@ function wpu_settings_page() {
 											$files = get_page_templates();
 											
 											if(sizeof($files)) {
-												foreach($files as $file) {
+												foreach($files as $fileDesc => $file) {
 													if(strpos(strtolower($file), '.php') == (strlen($file) - 4)) {
 														echo '<option value="' . $file . '"';
 														if( ($wpUnited->get_setting('wpPageName') == $file) && ($wpUnited->get_setting('wpSimpleHdr') == 0) ) {
 															echo ' selected="selected" ';
 														}
-														echo '>' .  __('Full Page: ', 'wp-united') . $file . '</option>';
+														echo '>' .  __('Full Page: ', 'wp-united') . $fileDesc . '</option>';
 													}
 												}
 											}
