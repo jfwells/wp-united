@@ -1304,16 +1304,7 @@ function wpu_settings_page() {
 										
 										<option value="0"<?php if($wpUnited->get_setting('wpSimpleHdr') == 1) { echo ' selected="selected" '; } ?>>-- <?php _e('Simple Header &amp; Footer (recommended)', 'wp-united'); ?> --</option>
 										<?php
-											$files = array();
-											$parentFiles = WP_Theme::scandir(TEMPLATEPATH, 'php', 1);
-											$childFiles = WP_Theme::scandir(STYLESHEETPATH, 'php', 1);
-											
-											if(is_array($childFiles) && is_array($parentFiles)) {
-												$files = array_merge($parentFiles, $childFiles);
-											}
-											
-											sort($files);
-	
+											$files = get_page_templates();
 											
 											if(sizeof($files)) {
 												foreach($files as $file) {
