@@ -1304,10 +1304,18 @@ function wpu_settings_page() {
 										
 										<option value="0"<?php if($wpUnited->get_setting('wpSimpleHdr') == 1) { echo ' selected="selected" '; } ?>>-- <?php _e('Simple Header &amp; Footer (recommended)', 'wp-united'); ?> --</option>
 										<?php
-											$files = scandir(TEMPLATEPATH);
+											$files = array();
+											$parentFiles = @glob(add_trailing_slash(TEMPLATEPATH) . '*.php');
+											$childFiles = @glob(add_trailing_slash(STYLESHEETPATH) . '*.php');
+											
+											if(is_array($childFiles) && is_array($parentFiles)) {
+												$files = array_merge($parentFiles, $childFiles);
+											}
+											
+	
+											
 											if(sizeof($files)) {
 												foreach($files as $file) {
-													// no stripos for ph4 compatibility
 													if(strpos(strtolower($file), '.php') == (strlen($file) - 4)) {
 														echo '<option value="' . $file . '"';
 														if( ($wpUnited->get_setting('wpPageName') == $file) && ($wpUnited->get_setting('wpSimpleHdr') == 0) ) {
