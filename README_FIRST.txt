@@ -1,6 +1,6 @@
 WP-UNITED: phpBB - WordPress Integration v0.9.1 RC3
 -----------------------------------------------
-Last updated: 19/12/2012, by John Wells
+Last updated: 28/12/2012, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 

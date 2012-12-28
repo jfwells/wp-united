@@ -2,7 +2,8 @@ current target: v0.9.1.6
 
 
 Committed for v0.9.1.6:
-n/a
+* Removed output buffering intercept, should now work with gzip-enabled themes 
+* Now works properly with W3 Total Cache
 
 
 TODO:
@@ -34,7 +35,7 @@ Blank file connect box with one or more of the following plugins [pending more d
 
 adsense-extreme/adsensextreme.php, 
 akismet/akismet.php, 
-all-in-one-seo-pack/all_in_one_seo_pack.php, 
+all-in-one-seo-pack/all_in_one_seo_pack.php, [ok]
 auto-thickbox-plus/auto-thickbox.php, 
 avh-first-defense-against-spam/avh-fdas.php, 
 bolcom-partnerprogramma-wordpress-plugin/bolcom-partnerprogramma-wordpress-plugin.php, 

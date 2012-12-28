@@ -62,13 +62,7 @@ Ensure you have installed the phpBB modification package. You can download it fr
 
 = I am getting blank pages, I have no idea what is wrong! =
 
-There are several ways to debug problems. We suggest you try the following, in order:
-
-* Ensure you have installed the phpBB modification package correctly. (Don't guess, use [Automod](https://www.phpbb.com/mods/automod/) !)
-* Turn on phpBB debugging in phpBB's `config.php` by uncommenting the two DEBUG lines.
-* Turn on WordPress debugging in WordPress' `wp-config.php` by adding `define('WP_DEBUG', TRUE);` somewhere.
-* Disable error suppression in phpBB mods by opening phpBB's `common.php`, and removing the `@` from `@include($phpbb_root_path . 'includes/hooks/' ...`
-* Look in your php error log.
+Please visit [This thread](http://www.wp-united.com/viewtopic.php?f=14&t=3314) to find out how to debug the problem.
 
 == Screenshots ==
 
