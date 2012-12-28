@@ -1,21 +1,11 @@
-current target: v0.9.1.5
+current target: v0.9.1.6
 
 
-Committed for v0.9.1.5:
-
-
-* BUGFIX: Error when updating avatars & profiles on full page reverse integration
-* BUGFIX: suppressing unnecessarily triggered errors on initial connect and settings changes
-* BUGFIX: Avatar marker added incorrectly to custom-set WordPress avatars
-* BUGFIX: theme preview not working when WordPress-in-phpBB template integration is on
-* BUGFIX: Difficult to change padding value in theme integration advanced settings, and the "reset to default" link didn't work
-* BUGFIX: Autologin warning on login block widget in full page reverse integration
-* CHANGE/BUGFIX: username & e-mail validation more reliable
-* UPDATED: Specify index.php for forum link in admin bar in case index.php is not default served page
+Committed for v0.9.1.6:
+n/a
 
 
 TODO:
-* full page list doesn't show items in child themes or in subfolders -- & template-loader might not be working for sub-themes either!!! Check!!!
 * Garbage passed back after error message on activation, not clear why
 * $oldGET warning, undefined on wp-r line 82
 * restore_state should restore to foreground too
@@ -28,7 +18,7 @@ TODO:
 
 TODO (LARGER):
 * Entirely remove $compat from core-patcher, and re-obsolete plugin-fixer.php
-
+* user blogs in WPMU
 
 Priority reported bugs:
 - dying with quickcache or wp super cache

@@ -104,6 +104,18 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
+v0.9.1.5 RELEASE CANDIDATE 3
+
+* NEW/BUGFIX: The full page option now only allows page templates to be chosen, and works with child themes and subfolders
+* BUGFIX: Error when updating avatars & profiles or logging out on full page reverse integration
+* BUGFIX: suppressing unnecessarily triggered errors on initial connect and settings changes
+* BUGFIX: Avatar marker added incorrectly to custom-set WordPress avatars
+* BUGFIX: theme preview not working when WordPress-in-phpBB template integration is on
+* BUGFIX: Difficult to change padding value in theme integration advanced settings, and the "reset to default" link didn't work
+* BUGFIX: Autologin warning on login block widget in full page reverse integration
+* CHANGE/BUGFIX: username & e-mail validation more reliable
+* UPDATED: Specify index.php for forum link in admin bar in case index.php is not default served page
+
 v0.9.1.4 RELEASE CANDIDATE 3
 
 * BUGFIX: WordPress users created in user mapper set to administrators. if you have created WordPress users using the user mapper previously, please check to ensure they are not administrators.

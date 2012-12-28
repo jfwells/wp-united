@@ -4,7 +4,7 @@
 * WP-United [Simplified Chinese]
 *
 * @package WP-United
-* @version $Id: v0.9.1.0 2012/12/19 Gina Jiang (Gina Jiang) Exp $
+* @version $Id: 0.9.1.5 2012/12/19 Gina Jiang (Gina Jiang) Exp $
 * @copyright (c) 2006-2010 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @license translation strings licensed under the BSD license
