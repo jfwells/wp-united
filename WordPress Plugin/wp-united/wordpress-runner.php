@@ -193,18 +193,18 @@ function wpu_get_wordpress() {
 
 				}
 			}
-	
-			$wpTemplateFile = TEMPLATEPATH . '/' . strip_tags($wpUnited->get_setting('wpPageName'));
-			if ( !@file_exists($wpTemplateFile) ) {
-				$wpTemplateFile = TEMPLATEPATH . "/page.php";
-				// Fall back to index.php for Classic template
-				if(!@file_exists($wpTemplateFile)) {
-					$wpTemplateFile = TEMPLATEPATH . "/index.php";
-				}
-			}
-
-			include($wpTemplateFile);
-
+			
+			// Fall back to page.php, then index.php (for the old Classic template)
+			// Locate_template prefers child themes.
+			// The second parameter includes the found file.
+			locate_template(
+				array(
+					$wpUnited->get_setting('wpPageName'),
+					'page.php',
+					'index.php'
+				), true
+			);
+			
 			$wpUnited->set_outer_content(ob_get_contents());
 			ob_end_clean();
 
