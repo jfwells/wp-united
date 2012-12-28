@@ -1302,7 +1302,7 @@ function wpu_settings_page() {
 									</p>
 									<select id="wpuhdrftrspl" name="wpuhdrftrspl">
 										
-										<option value="0"<?php if($wpUnited->get_setting('wpSimpleHdr') == 1) { echo ' selected="selected" '; } ?>>-- <?php _e('Simple Header &amp; Footer (recommended)', 'wp-united'); ?> --</option>
+										<option value="0"<?php if($wpUnited->get_setting('wpSimpleHdr') == 1) { echo ' selected="selected" '; } ?>>-- <?php _e('Statically Cached Simple Header &amp; Footer', 'wp-united'); ?> --</option>
 										<?php
 											$files = get_page_templates();
 											
