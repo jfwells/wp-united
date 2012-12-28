@@ -1104,7 +1104,9 @@ class WPU_Phpbb {
 		}
 		
 		// we leave a marker for ourselves to show this avatar was put by wpu
-		$avatarUrl = $avatarUrl . '&amp;wpuput=1';
+		$marker = (strstr($url, '?') === false) ? '?wpuput=1' : '&amp;wpuput=1';
+		
+		$avatarUrl = $avatarUrl . $marker
 
 		$fStateChanged = $this->foreground();
 		
@@ -1149,43 +1151,39 @@ class WPU_Phpbb {
 		$adminLog = array();
 		$adminLog[] = __('Receiving settings from WP-United...', 'wp-united');
 		
+		/**
+		 * MySQL will not allow duplicate column names, so we can suppress errors (we still check anyway)
+		 */
+		
 		if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
 			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 				  ADD user_wpuint_id VARCHAR(10) NULL DEFAULT NULL';
 
-			if (!$result = $db->sql_query($sql)) {
-				trigger_error('ERROR: Cannot add the integration column to the users table', E_USER_ERROR); exit();
-			}
+			@$db->sql_query($sql);
 			$adminLog[] = __('Modified USERS Table (Integration ID)', 'wp-united');
 		}
 		
 		if  ( !array_key_exists('user_wpublog_id', $user->data) ) {
 			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
 				ADD user_wpublog_id VARCHAR(10) NULL DEFAULT NULL';
-			if (!$result = $db->sql_query($sql)) {
-				trigger_error('ERROR: Cannot add blog ID column to users table', E_USER_ERROR); exit();
-			}
+			@$db->sql_query($sql);
 			$adminLog[] = __('Modified USERS Table (Blog ID)', 'wp-united');
 		}
 		
 		$sql = 'SELECT * FROM ' . POSTS_TABLE;
 		$result = $db->sql_query_limit($sql, 1);
-
 		$row = (array)$db->sql_fetchrow($result);
-
+		$db->sql_freeresult($result);
+		
 		if (!array_key_exists('post_wpu_xpost', $row) ) {
 			$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
 				ADD post_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
 
-			if (!$result = $db->sql_query($sql)) {
-				trigger_error('ERROR: Cannot add cross-posting column to posts table', E_USER_ERROR); exit();
-			}
+			@$db->sql_query($sql);
 			$adminLog[] = __('Modified POSTS Table (Cross-Posting Link)', 'wp-united');
 		}
 		
-		$db->sql_freeresult($result);
 
-		
 		$adminLog[] = __('Adding WP-United Permissions', 'wp-united');
 		
 		// Setup $auth_admin class so we can add permission options
