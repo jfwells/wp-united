@@ -864,16 +864,16 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * @param array $oldUserData unused -- the data before update
 	 * @return void
 	 */
-	public function profile_update($userId, $oldUserData) {
+	public function profile_update($userID, $oldUserData) {
 		global $phpbbForum;
 		 
 		if($this->get_setting('integrateLogin')) {
-			$wpData = get_userdata($userId);
-			$phpbbId = wpu_get_integrated_phpbbuser($userID);
-			if($phpbbId) {
+			$wpData = get_userdata($userID);
+			$phpbbID = wpu_get_integrated_phpbbuser($userID);
+			if($phpbbID) {
 				 // only sync password if it has changed, not just because it is different
 				 $ignorePassword = ($wpData->data->user_pass == $oldUserdata->user_pass);
-				 wpu_sync_profiles($wpData, $phpbbForum->get_userdata('', $phpbbId), 'wp-update', $ignorePassword); 
+				 wpu_sync_profiles($wpData, $phpbbForum->get_userdata('', $phpbbID), 'wp-update', $ignorePassword); 
 			}
 		}
 	}

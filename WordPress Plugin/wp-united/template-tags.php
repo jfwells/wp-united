@@ -633,10 +633,10 @@ function get_wpu_login_user_info($args) {
 		$autoLogin = $config['allow_autologin'];
 		$PMs = $phpbbForum->get_user_pm_details();
 		$phpbbForum->restore_state($fStateChanged);
-		
+
 		// Handle new PMs
 		if($showPMs) {
-			if ($PMs['new']) {
+			if ($PMs['text']) {
 				$ret .= _wpu_add_class($before, 'wpu-has-pms'). '<a title="' . $PMs['text'] . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $PMs['text']. '</a>' . $after;
 			} else {
 				$ret .= _wpu_add_class($before, 'wpu-no-pms') . '<a title="' . $phpbbForum->lang['NO_NEW_PM'] . '" href="' . $phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox">' . $phpbbForum->lang['NO_NEW_PM'] . '</a>' . $after;
@@ -736,7 +736,7 @@ function wpu_phpbb_nav_block($args) {
 			<ul class="linklist leftside">
 				<li class="icon-ucp">
 					<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx); ?>" title="<?php echo $phpbbForum->lang['PROFILE']; ?>" accesskey="e"><?php echo $phpbbForum->lang['PROFILE']; ?></a>
-					<?php if( $PMs['new']) { 
+					<?php if( $PMs['text']) { 
 						?>(<a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&folder=inbox'); ?>"><?php echo $PMs['text']; ?></a>)
 					<?php } ?>
 					<?php if($phpbbForum->user_logged_in()) { ?> &bull;

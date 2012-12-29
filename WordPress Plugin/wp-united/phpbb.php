@@ -478,7 +478,7 @@ class WPU_Phpbb {
 		global $user, $db;
 		
 		static $result = false;
-		
+
 		if(is_array($result)) {
 			return $result;
 		}
@@ -492,7 +492,7 @@ class WPU_Phpbb {
 			'popup'			=> false
 		);
 		
-		if (empty($user->data['is_registered'])) {
+		if (!empty($user->data['is_registered'])) {
 			if ($user->data['user_new_privmsg']) {
 				$msgNew = ($user->data['user_new_privmsg'] == 1) ? $user->lang['NEW_PM'] : $user->lang['NEW_PMS'];
 				$result['text'] = sprintf($msgNew, $user->data['user_new_privmsg']);

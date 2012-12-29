@@ -2,11 +2,14 @@ current target: v0.9.1.6
 
 
 Committed for v0.9.1.6:
-* Removed output buffering intercept, should now work with gzip-enabled themes 
-* Now works properly with W3 Total Cache
 
+* BUGFIX: Regression, profile update in WordPress was not triggering profile update in phpBB
+* BUGFIX: Unread PMs not displaying in user login/profile widget or top navigation widget
+* UPDATED: Removed output buffering intercept, should now work with gzip-enabled themes 
+* UPDATED: Now works properly with W3 Total Cache and some other plugins that buffer output
 
 TODO:
+* IMG bbcodes
 * Garbage passed back after error message on activation, not clear why
 * $oldGET warning, undefined on wp-r line 82
 * restore_state should restore to foreground too
