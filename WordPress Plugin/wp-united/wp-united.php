@@ -9,7 +9,7 @@ Author URI: http://www.wp-united.com
 Version: 0.9.1.6
 Text Domain: wp-united
 Domain Path: /languages
-Last Updated: 28 December 2012
+Last Updated: 29 December 2012
 * 
 */
 

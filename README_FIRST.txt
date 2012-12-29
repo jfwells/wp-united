@@ -1,6 +1,6 @@
 WP-UNITED: phpBB - WordPress Integration v0.9.1 RC3
 -----------------------------------------------
-Last updated: 28/12/2012, by John Wells
+Last updated: 29/12/2012, by John Wells
 
 Check http://www.wp-united.com for latest versions, and for faster support
 
@@ -103,6 +103,14 @@ CHANGE LOG
 WP-United :: Public Releases
 
 **** phpBB3 releases: ****
+
+= v0.9.1.6 RELEASE CANDIDATE 3 =
+
+* BUGFIX: Regression, profile update in WordPress was not triggering profile update in phpBB
+* BUGFIX: Unread PMs not displaying in user login/profile widget or top navigation widget
+* UPDATED: Removed output buffering intercept, should now work with gzip-enabled themes 
+* UPDATED: Now works properly with W3 Total Cache and some other plugins that buffer output
+* BUGFIX: Broken template tag for profile link (only affected legacy users with manually added wp-united template tags in their templates)
 
 v0.9.1.5 RELEASE CANDIDATE 3
 
