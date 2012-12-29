@@ -241,3 +241,7 @@ This version fixes a few important bugs in the user mapper, please update ASAP.
 
 = 0.9.1.5 =
 This version fixes a few bugs associated with template integration and makes connecting and updating settings more reliable. Please update. If updating from v0.9.1.x, you only need to update the WordPress plugin portion of WP-United.
+
+= 0.9.1.6 =
+This version fixes a few minor bugs associated with profile updates and widgets, and improves compatibility with caching plugins. If updating from v0.9.1.x, you only need to update the WordPress plugin portion of WP-United.
+
