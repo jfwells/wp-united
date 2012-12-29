@@ -356,10 +356,14 @@ class WPU_Phpbb {
 	 * Returns if the current user is logged in
 	 */
 	public function user_logged_in() {
-		$fStateChanged = $this->foreground();
-		$result = ( empty($GLOBALS['user']->data['is_registered']) ) ? false : true;
-		$this->restore_state($fStateChanged);
+		
+		if($this->state == 'wp') {
+			$result = (empty($this->phpbbUser->data['is_registered'])) ? false : true;
+		} else {
+			$result = (empty($GLOBALS['user']->data['is_registered'])) ? false : true;
+		}
 		return $result;
+		
 	}
 	
 	/**

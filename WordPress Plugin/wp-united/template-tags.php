@@ -165,10 +165,10 @@ function get_wpu_phpbb_username() {
 
 /**
  * Displays a link to the user's phpBB profile
- * @param int $wpID the WordPress ID, leave blank for currently logged-in user
+ * @param int $wpID the WordPress User ID, leave blank for currently logged-in user
  * @author John Wells
  */
-function wpu_phpbb_profile_link($wpID = '') {
+function wpu_phpbb_profile_link($wpID = false) {
 	echo get_wpu_phpbb_profile_link($wpID);
 }
 
@@ -176,16 +176,30 @@ function wpu_phpbb_profile_link($wpID = '') {
  * Returns a link to the user's phpBB profile without displaying it
  * @param int $wpID the WordPress ID, leave blank for currently logged-in user
  */
-function get_wpu_phpbb_profile_link($wpID = '') {
-	global $phpbbForum, $user_ID, $phpEx;
-	if(empty($wpID)) {
-		get_currentuserinfo();
-		$wpID = $user_ID;
+function get_wpu_phpbb_profile_link($wpID = false) {
+	global $phpbbForum, $wpUnited, $phpEx;
+	
+	if(!$wpUnited->is_working()) {
+		return false;
 	}
-	$phpbb_usr_id = get_user_meta($wpID, 'phpbb_userid', true);
-	if (!empty($phpbb_usr_id)) {
+	
+	if($wpID == false) {
+		if(!$phpbbForum->user_logged_in()) {
+			return false;
+		} else {
+			$phpbbID = $phpbbForum->get_userdata('user_id');
+		}
+	} else {
+		if(!$wpUnited->get_setting('integrateLogin')) {
+			return false;
+		} else {
+			$phpbbID = wpu_get_integrated_phpbbuser($wpID);
+		}
+	}
+	
+	if ($phpbbID) {
 		$profile_path = "memberlist.$phpEx";
-		return add_trailing_slash($phpbbForum->get_board_url()) . "$profile_path?mode=viewprofile&amp;u=" . $phpbb_usr_id;
+		return add_trailing_slash($phpbbForum->get_board_url()) . "{$profile_path}?mode=viewprofile&amp;u={$phpbbID}";
 	}
 	return false;
 }

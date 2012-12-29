@@ -12,6 +12,7 @@ TODO:
 * IMG bbcodes
 * Garbage passed back after error message on activation, not clear why
 * $oldGET warning, undefined on wp-r line 82
+* hot topics & unread posts widgets
 * restore_state should restore to foreground too
 * warnings about wp_query in responsive...
 * Add Forum, ACP & WPU items to the admin bar
