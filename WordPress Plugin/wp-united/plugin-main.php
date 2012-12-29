@@ -32,7 +32,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('switch_theme', 						'clear_header_cache',						'template-int'),
 			array('set_current_user', 					'integrate_users',							'user-int'),
 			array('wp_logout', 							'phpbb_logout',								'user-int'),
-			array('registration_errors', 						array('validate_new_user', 10, 3),			'user-int'),
+			array('registration_errors', 				array('validate_new_user', 10, 3),			'user-int'),
 			array('user_register', 						array('process_new_wp_reg', 10, 1),			'user-int'),
 			array('profile_update', 					array('profile_update', 10, 2),				'user-int'),
 			array('admin_menu', 						'add_xposting_box',							'x-posting'),
