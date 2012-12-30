@@ -59,7 +59,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('validate_username', 					array('validate_username_conflict', 10, 2),	'user-int'),
 			array('authenticate', 						array('authenticate', 21, 3), 				'user-int'),
 			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
-			array('comments_array', 					array('load_phpbb_comments', 10, 2),		'x-posting'),
+			//array('comments_array', 					array('load_phpbb_comments', 10, 2),		'x-posting'),
+			array('the_comments', 						array('integrated_comments', 10, 2),			'x-posting'),
 			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
 			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
 			array('edit_comment_link', 					array('edit_comment_link', 10, 2),			'x-posting'),
@@ -135,7 +136,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$shouldRun = false;
 		}
 		
-		$this->set_last_run('connected');
+		if($shouldRun) {
+			$this->set_last_run('connected');
+		}
 		
 		$versionCheck = $this->check_mod_version();
 		if($versionCheck['result'] != 'OK') {
@@ -582,7 +585,49 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return wpu_get_comment_author_link($link);
 	}
 	public function load_phpbb_comments($commentArray, $postID) {
+		//return $commentArray;
 		return wpu_load_phpbb_comments($commentArray, $postID);
+	}
+	public function integrated_comments($comments, $query) {
+		global $wpUnited;
+		return $comments;
+		if ( 
+			(!$wpUnited->is_working()) || 
+			(!$wpUnited->get_setting('xposting')) || 
+			(!$wpUnited->get_setting('xpostautolink')) ||
+			(empty($postID))
+		) { 
+			return $comments;
+		}
+		
+		require_once($this->get_plugin_path() . 'comments.php');
+		
+		$integComments = new WPU_Comments();
+		
+		
+		
+		$integComments->populate_phpbb_comments($query);
+		$integComments->add_wp_comments($comments);
+		
+		
+			
+			
+		
+		
+		return $integComments->comments;
+			
+			/**
+			 * Move comment array to here
+			 * 
+			 * check query,
+			 * add default wp items to array,
+			 * add wpu items,
+			 * sort,
+			 * trim array to limit
+			 * 
+			 * clear wp comment cache on wpu settings change and xposting!
+			 */
+			
 	}
 	public function comments_count($count, $postID = false) {
 		return wpu_comments_count($count, $postID);

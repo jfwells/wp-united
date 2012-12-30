@@ -1,14 +1,13 @@
-current target: v0.9.1.6
+current target: v0.9.2.0
+
+COMMITTED FOR v0.9.2.0:
+* Initial connect screen was complaining about lack of phpBB MOD before even trying to connect
+* top navbar not correctly showing post name
 
 
-Committed for v0.9.1.6:
-
-* BUGFIX: Regression, profile update in WordPress was not triggering profile update in phpBB
-* BUGFIX: Unread PMs not displaying in user login/profile widget or top navigation widget
-* UPDATED: Removed output buffering intercept, should now work with gzip-enabled themes 
-* UPDATED: Now works properly with W3 Total Cache and some other plugins that buffer output
-* BUGFIX: Broken template tag for profile link (only affected legacy users with manually added wp-united template tags in their templates)
-
+**** Automod 1.0.0.1 is spraying files into root ****
+**** blank box on open_basedir****
+**** fall back to typed path *****
 
 TODO:
 * Garbage passed back after error message on activation, not clear why
