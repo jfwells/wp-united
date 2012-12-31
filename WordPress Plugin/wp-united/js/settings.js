@@ -54,16 +54,16 @@ function createFileTree() {
 }
 
 // Triggered on filetree load, so we can intercept if nothing useful is returned.
+var wpuUsingBackupEntry=false;
 function wpu_filetree_trigger(data) {
 	
 	if(1) {
+		wpuUsingBackupEntry = true;
 		$wpu('#phpbbpath').hide();
 		$wpu('#wpubackupentry').show();
-		$wpu('#wpusetup-submit').show();
 	} else {
 		$wpu('#phpbbpath').show();
 		$wpu('#wpubackupentry').hide();	
-		$wpu('#wpusetup-submit').hide();
 	}
 }
 
@@ -183,7 +183,11 @@ function wpuChangePath() {
 	$wpu('#txtselpath').show();
 	$wpu('#wpucancelchange').show();
 	$wpu('#wpucancelchange').button();
-	$wpu('#wpusetup-submit').hide();
+	if(!wpuUsingBackupEntry) {
+		$wpu('#wpusetup-submit').hide();
+	} else {
+		$wpu('#wpusetup-submit').show();
+	}
 	return false;
 }
 
@@ -191,7 +195,7 @@ function wpuChangePath() {
  * Resets the fields and filetree when the user cancels changing the phpBB path
  */
 function wpuCancelChange() {
-	$wpu('#phpbbpath').hide('slide');
+	$wpu('#phpbbpathgroup').hide('slide');
 	$wpu('#phpbbpathchooser').show('slide');
 	$wpu('#txtchangepath').show();
 	$wpu('#txtselpath').hide();
