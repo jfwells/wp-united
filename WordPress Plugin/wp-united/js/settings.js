@@ -59,9 +59,11 @@ function wpu_filetree_trigger(data) {
 	if(1) {
 		$wpu('#phpbbpath').hide();
 		$wpu('#wpubackupentry').show();
+		$wpu('#wpusetup-submit').show();
 	} else {
 		$wpu('#phpbbpath').show();
 		$wpu('#wpubackupentry').hide();	
+		$wpu('#wpusetup-submit').hide();
 	}
 }
 

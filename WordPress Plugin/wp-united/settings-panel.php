@@ -418,7 +418,7 @@ function wpu_setup_menu() {
 		?>
 		<div id="phpbbpathgroup">
 			<div id="phpbbpath" style="display: none;">&nbsp;</div>
-			<p><strong><?php echo $docRoot; ?><input type="text" id="wpubackupentry" style="display: none;" name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></input>/config.php</strong></p>
+			<p><strong><span id="phpbbdocroot"><?php echo $docRoot; ?><input type="text" id="wpubackupentry" style="display: none;" name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></span></input>/config.php</strong></p>
 		</div>
 		<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php _e('Not selected', 'wp-united'); ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;"><?php _e('Change Location &raquo;', 'wp-united'); ?></a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();"><?php _e('Cancel Change', 'wp-united'); ?></a></p>
 		<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
