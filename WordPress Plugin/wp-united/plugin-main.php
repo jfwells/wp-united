@@ -24,7 +24,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		// Format: array( event | function in this class(in an array if optional arguments are needed) | loading circumstances)
 		$actions = array(
 			array('plugins_loaded', 					'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
-			array('shutdown', 							array('buffer_end_flush_all', 1),			'all'),
+			array('shutdown', 							array('buffer_end_flush_all', 100),			'all'),
 			array('wp_head', 							'add_scripts',								'all'),
 			array('admin_bar_menu',						array('add_to_menu_bar', 100),				'all'),
 			array('comment_form', 						'generate_smilies',							'phpbb-smilies'),
@@ -93,9 +93,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 
 		// we want to override some actions. These must match the priority of the built-ins 
-		if($this->get_setting('showHdrFtr') == 'FWD') {
+		//if($this->get_setting('showHdrFtr') == 'FWD') {
 			remove_action('shutdown', 'wp_ob_end_flush_all', 1);
-		}
+		//}
 		
 		// add new actions and filters
 		$this->add_actions();
@@ -1100,7 +1100,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * @return void
 	 */
 	public function buffer_end_flush_all() {
-		if($this->get_setting('showHdrFtr') == 'FWD') {
+		//if($this->get_setting('showHdrFtr') == 'FWD') {
 			$levels = ob_get_level();
 			for ($i=0; $i<$levels; $i++){
 				$obStatus = ob_get_status();
@@ -1108,7 +1108,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 					ob_end_flush();
 				}
 			}
-		}
+		//}
 	}
 	
 }

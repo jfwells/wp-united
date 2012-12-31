@@ -79,7 +79,6 @@ class WPU_Phpbb {
 		
 		$this->wpEnv = array();
 		$this->phpbbEnv = array();
-
 	}	
 	
 	public function is_phpbb_loaded() {

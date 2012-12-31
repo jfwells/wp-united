@@ -47,13 +47,11 @@ $phpbb_hook->register('exit_handler', 'wpu_continue');
 /**
  * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
 */
-
 if($wpUnited->should_run_wordpress()) {
 	
 	require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
 
 }
-
 
 /**
  * Since WordPress uses PHP timezone handling in PHP 5.3+, we need to do in phpBB too to suppress warnings

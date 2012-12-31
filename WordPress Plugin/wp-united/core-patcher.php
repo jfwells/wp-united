@@ -36,7 +36,7 @@ Class WPU_Core_Patcher {
 	/**
 	 * This is a list of  vars phpBB also uses. We'll unset them when the class is instantiated, and restore them later. 
 	 */
-	private $varsToUnsetAndRestore = array('table_prefix', 'userdata', 'search', 'error', 'author');
+	private $varsToUnsetAndRestore = array('userdata', 'search', 'error', 'author');
 	
 	/**
 	 * More vars that phpBB or MODS could use, that MUST be unset before WP runs
@@ -65,9 +65,9 @@ Class WPU_Core_Patcher {
 		'errors',
 		'post',
 		'posts',
-		'post_cache',
-		'table_prefix', 
+		'post_cache', 
 		'IN_WORDPRESS',
+		'table_prefix',
 		'wp_version',
 		'wp_taxonomies',
 		'wp_object_cache',
