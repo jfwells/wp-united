@@ -194,6 +194,7 @@ function wpu_get_doc_root() {
 	$docRoot = @realpath($docRoot); 
 	$docRoot = str_replace( '\\', '/', $docRoot);
 	$docRoot = ($docRoot[strlen($docRoot)-1] == '/') ? $docRoot : $docRoot . '/';
+	return $docRoot;
 }
 
 // Done. End of file.
