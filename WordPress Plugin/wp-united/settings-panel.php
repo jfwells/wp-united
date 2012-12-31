@@ -1742,7 +1742,7 @@ function wpu_filetree() {
 	if( @file_exists($fileLoc) ) {
 		$files = scandir($fileLoc);
 		natcasesort($files);
-		if( count($files) > 2 ) { /* The 2 accounts for . and .. */
+		if( count($files) > 50 ) { /* The 2 accounts for . and .. */
 			echo "<ul class=\"jqueryFileTree\" style=\"display: none;\">";
 			// All dirs
 			foreach( $files as $file ) {
