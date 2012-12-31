@@ -40,17 +40,47 @@ function createFileTree() {
 		}
 		if(file=='config.php') {
 			var pth = parts.join('/') + '/'; 
-			$wpu("#phpbbpathshow").html(pth).css('color', 'green');
-			$wpu("#wpupathfield").val(pth);
-			$wpu('#phpbbpath').hide('slide');
+			$wpu('#phpbbpathshow').html(pth).css('color', 'green');
+			$wpu('#wpupathfield').val(pth);
+			$wpu('#phpbbpathgroup').hide('fade');
 			$wpu('#txtchangepath').show();
 			$wpu('#txtselpath').hide();
 			$wpu('#wpucancelchange').hide();
-			$wpu('#phpbbpathchooser').show('slide');
+			$wpu('#phpbbpathchooser').show('fade');
 			$wpu('#wpusetup-submit').show();
 			window.scrollTo(0,0);
 		}
 	});
+	
+	$wpu('#wpubackupentry').bind('keyup', function() {
+		wpu_update_backuppath(true);
+	});
+}
+
+function wpu_update_backuppath(changeColor) {
+	var pth = $wpu('#phpbbdocroot').text() + $wpu('#wpubackupentry').val();
+	pth = pth.replace(/\\/g, '/').replace(/\/\//g,'/');
+	$wpu('#wpupathfield').val(pth);
+	var $p = $wpu('#phpbbpathshow').html(pth);
+	if(changeColor) {
+		$p.css('color', 'orange');
+	}
+}
+
+// Triggered on filetree load, so we can intercept if nothing useful is returned.
+var wpuUsingBackupEntry=false;
+function wpu_filetree_trigger(data) {
+	
+	if(data.length < 50) {
+		// FileTree isn't showing any useful data, abandon it and fall back to textbox entry
+		wpuUsingBackupEntry = true;
+		$wpu('#phpbbpath').hide();
+		$wpu('#wpubackupgroup').show();
+		wpu_update_backuppath(false);
+	} else {
+		$wpu('#phpbbpath').show();
+		$wpu('#wpubackupgroup').hide();	
+	}
 }
 
 /**
@@ -71,9 +101,6 @@ function setupSettingsPage() {
 		 $wpu('#wputabs').tabs('select', '#' + selTab); 
 	}
 
-	
-	
-	
 }
 
 /**
@@ -81,7 +108,7 @@ function setupSettingsPage() {
  */
 function setPath(type) {
 	if(type=='setup') {
-		$wpu('#phpbbpath').hide();
+		$wpu('#phpbbpathgroup').hide();
 		$wpu('#phpbbpathchooser').button();
 		$wpu('#phpbbpathchooser').show();
 		$wpu('#txtchangepath').show();
@@ -163,13 +190,17 @@ function settingsFormSetup() {
  * Re-displays the file tree when the user wants to change the phpBB path
  */
 function wpuChangePath() {
-	$wpu('#phpbbpath').show('slide');
-	$wpu('#phpbbpathchooser').hide('slide');
+	$wpu('#phpbbpathgroup').show('fade');
+	$wpu('#phpbbpathchooser').hide('fade');
 	$wpu('#txtchangepath').hide();
 	$wpu('#txtselpath').show();
 	$wpu('#wpucancelchange').show();
 	$wpu('#wpucancelchange').button();
-	$wpu('#wpusetup-submit').hide();
+	if(!wpuUsingBackupEntry) {
+		$wpu('#wpusetup-submit').hide();
+	} else {
+		$wpu('#wpusetup-submit').show();
+	}
 	return false;
 }
 
@@ -177,12 +208,12 @@ function wpuChangePath() {
  * Resets the fields and filetree when the user cancels changing the phpBB path
  */
 function wpuCancelChange() {
-	$wpu('#phpbbpath').hide('slide');
-	$wpu('#phpbbpathchooser').show('slide');
+	$wpu('#phpbbpathgroup').hide('fade');
+	$wpu('#phpbbpathchooser').show('fade');
 	$wpu('#txtchangepath').show();
 	$wpu('#txtselpath').hide();
 	$wpu('#wpucancelchange').hide();
-	$wpu('#wpusetup-submit').show();			
+	$wpu('#wpusetup-submit').hide();			
 	return false;
 }
 
@@ -214,7 +245,7 @@ function setCSSMLevel(level) {
  * Shows advanced template setings
  */	
 function tplAdv() {
-	$wpu('#wpusettingstpladv').toggle('slide');
+	$wpu('#wpusettingstpladv').toggle('fade');
 	$wpu('#wutpladvshow').toggle()
 	$wpu('#wutpladvhide').toggle();
 	return false;
@@ -264,6 +295,12 @@ function wpu_transmit(type, formID, urlToRefresh) {
 	});
 	$wpu('.ui-dialog-titlebar').hide();
 	var formData;
+	
+	// update the backup entry method if needed
+	if((type=='wp-united-setup') && wpuUsingBackupEntry) {
+		wpu_update_backuppath(true);
+	}
+	
 	
 	wpu_setup_errhandler();
 	
