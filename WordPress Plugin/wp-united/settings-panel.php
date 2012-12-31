@@ -411,7 +411,7 @@ function wpu_setup_menu() {
 			$docRoot = wpu_get_doc_root(); 
 			$phpbbPath = $wpUnited->get_setting('phpbb_path');
 			if($phpbbPath) {
-				$showBackupPath = str_replace($phpbbPath, '', $docRoot);
+				$showBackupPath = str_replace($docRoot, '', $phpbbPath);
 			}
 			
 

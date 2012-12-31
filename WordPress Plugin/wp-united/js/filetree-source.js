@@ -31,6 +31,10 @@ if(jQuery) (function($){
 						$(c).removeClass('wait').append(data);
 						if( o.root == t ) $(c).find('UL:hidden').show(); else $(c).find('UL:hidden').slideDown({ duration: o.expandSpeed, easing: o.expandEasing });
 						bindTree(c);
+						try {
+							// Trigger WP-United event
+							wpu_filetree_trigger(data);
+						} catch(e) {}						
 					});
 				}
 				
