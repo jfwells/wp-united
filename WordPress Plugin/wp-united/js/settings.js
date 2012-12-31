@@ -53,15 +53,18 @@ function createFileTree() {
 	});
 	
 	$wpu('#wpubackupentry').bind('keyup', function() {
-		wpu_update_backuppath();
+		wpu_update_backuppath(true);
 	});
 }
 
-function wpu_update_backuppath() {
+function wpu_update_backuppath(changeColor) {
 	var pth = $wpu('#phpbbdocroot').text() + $wpu('#wpubackupentry').val();
 	pth = pth.replace(/\\/g, '/').replace(/\/\//g,'/');
 	$wpu('#wpupathfield').val(pth);
-	$wpu('#phpbbpathshow').html(pth).css('color', 'orange');
+	var $p = $wpu('#phpbbpathshow').html(pth);
+	if(changeColor) {
+		$p.css('color', 'orange');
+	}
 }
 
 // Triggered on filetree load, so we can intercept if nothing useful is returned.
@@ -72,7 +75,7 @@ function wpu_filetree_trigger(data) {
 		wpuUsingBackupEntry = true;
 		$wpu('#phpbbpath').hide();
 		$wpu('#wpubackupentry').show();
-		wpu_update_backuppath();
+		wpu_update_backuppath(false);
 	} else {
 		$wpu('#phpbbpath').show();
 		$wpu('#wpubackupentry').hide();	
@@ -294,7 +297,7 @@ function wpu_transmit(type, formID, urlToRefresh) {
 	
 	// update the backup entry method if needed
 	if((type=='wp-united-setup') && wpuUsingBackupEntry) {
-		wpu_update_backuppath();
+		wpu_update_backuppath(true);
 	}
 	
 	
