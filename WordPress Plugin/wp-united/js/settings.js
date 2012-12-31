@@ -42,7 +42,7 @@ function createFileTree() {
 			var pth = parts.join('/') + '/'; 
 			$wpu("#phpbbpathshow").html(pth).css('color', 'green');
 			$wpu("#wpupathfield").val(pth);
-			$wpu('#phpbbpath').hide('slide');
+			$wpu('#phpbbpathgroup').hide('slide');
 			$wpu('#txtchangepath').show();
 			$wpu('#txtselpath').hide();
 			$wpu('#wpucancelchange').hide();
@@ -54,9 +54,15 @@ function createFileTree() {
 }
 
 // Triggered on filetree load, so we can intercept if nothing useful is returned.
-function wpu_filetree_event(data) {
-
-	alert(data);
+function wpu_filetree_trigger(data) {
+	
+	if(1) {
+		$wpu('#phpbbpath').hide();
+		$wpu('#wpubackupentry').show();
+	} else {
+		$wpu('#phpbbpath').show();
+		$wpu('#wpubackupentry').hide();	
+	}
 }
 
 /**
@@ -87,7 +93,7 @@ function setupSettingsPage() {
  */
 function setPath(type) {
 	if(type=='setup') {
-		$wpu('#phpbbpath').hide();
+		$wpu('#phpbbpathgroup').hide();
 		$wpu('#phpbbpathchooser').button();
 		$wpu('#phpbbpathchooser').show();
 		$wpu('#txtchangepath').show();
@@ -169,7 +175,7 @@ function settingsFormSetup() {
  * Re-displays the file tree when the user wants to change the phpBB path
  */
 function wpuChangePath() {
-	$wpu('#phpbbpath').show('slide');
+	$wpu('#phpbbpathgroup').show('slide');
 	$wpu('#phpbbpathchooser').hide('slide');
 	$wpu('#txtchangepath').hide();
 	$wpu('#txtselpath').show();

@@ -405,7 +405,7 @@ function wpu_setup_menu() {
 		<?php wp_nonce_field('wp-united-setup');  ?>
 		
 		<p><?php _e('WP-United needs to know where phpBB is installed on your server.', 'wp-united'); ?> <span id="txtselpath"><?php _e("Find and select your phpBB's config.php below.", 'wp-united'); ?></span><span id="txtchangepath" style="display: none;"><?php _e('Click &quot;Change Location&quot; to change the stored location.', 'wp-united'); ?></span></p>
-		<div id="phpbbpath" style="display: none;">&nbsp;</div>
+		
 		<?php 
 		
 			$docRoot = wpu_get_doc_root(); 
@@ -416,7 +416,10 @@ function wpu_setup_menu() {
 			
 
 		?>
-		<p><strong><?php echo $docRoot; ?><input type="text" id="wpubackupentry" style="name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></input>/config.php</strong></p>
+		<div id="phpbbpathgroup">
+			<div id="phpbbpath" style="display: none;">&nbsp;</div>
+			<p><strong><?php echo $docRoot; ?><input type="text" id="wpubackupentry" style="display: none;" name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></input>/config.php</strong></p>
+		</div>
 		<p>Path selected: <strong id="phpbbpathshow" style="color: red;"><?php _e('Not selected', 'wp-united'); ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;"><?php _e('Change Location &raquo;', 'wp-united'); ?></a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();"><?php _e('Cancel Change', 'wp-united'); ?></a></p>
 		<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
 	
