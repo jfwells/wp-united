@@ -71,7 +71,8 @@ function wpu_update_backuppath(changeColor) {
 var wpuUsingBackupEntry=false;
 function wpu_filetree_trigger(data) {
 	
-	if(1) {
+	if(data.length < 50) {
+		// FileTree isn't showing any useful data, abandon it and fall back to textbox entry
 		wpuUsingBackupEntry = true;
 		$wpu('#phpbbpath').hide();
 		$wpu('#wpubackupentry').show();
