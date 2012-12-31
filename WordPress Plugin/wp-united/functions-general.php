@@ -189,4 +189,11 @@ function wpu_get_curr_page_link() {
 	return $currURL;
 }
 
+function wpu_get_doc_root() {
+	$docRoot =  (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : substr($_SERVER['SCRIPT_FILENAME'], 0, 0 - strlen($_SERVER['PHP_SELF']) );
+	$docRoot = @realpath($docRoot); 
+	$docRoot = str_replace( '\\', '/', $docRoot);
+	$docRoot = ($docRoot[strlen($docRoot)-1] == '/') ? $docRoot : $docRoot . '/';
+}
+
 // Done. End of file.

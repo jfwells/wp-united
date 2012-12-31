@@ -4,7 +4,7 @@ COMMITTED FOR v0.9.2.0:
 * BUGFIX: Initial connect screen was complaining about lack of phpBB MOD before even trying to connect
 * BUGFIX: top navbar not correctly showing post name
 * BUGFIX: $table_prefix was getting unset on phpBB-in-WordPress pages, upsetting some mods
-
+* ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
 
 
 **** Automod 1.0.0.1 is spraying files into root ****
