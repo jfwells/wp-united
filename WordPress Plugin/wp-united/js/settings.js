@@ -59,7 +59,7 @@ function createFileTree() {
 
 function wpu_update_backuppath() {
 	var pth = $wpu('#phpbbdocroot').text() + $wpu('#wpubackupentry').val();
-	pth = pth.replace(/\\/g, '/').replace(/\/\/g,'/');
+	pth = pth.replace(/\\/g, '/').replace(/\/\//g,'/');
 	$wpu('#wpupathfield').val(pth);
 	$wpu('#phpbbpathshow').html(pth).css('color', 'orange');
 }
