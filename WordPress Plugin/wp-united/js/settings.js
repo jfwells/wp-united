@@ -75,11 +75,11 @@ function wpu_filetree_trigger(data) {
 		// FileTree isn't showing any useful data, abandon it and fall back to textbox entry
 		wpuUsingBackupEntry = true;
 		$wpu('#phpbbpath').hide();
-		$wpu('#wpubackupentry').show();
+		$wpu('#wpubackupgroup').show();
 		wpu_update_backuppath(false);
 	} else {
 		$wpu('#phpbbpath').show();
-		$wpu('#wpubackupentry').hide();	
+		$wpu('#wpubackupgroup').hide();	
 	}
 }
 
