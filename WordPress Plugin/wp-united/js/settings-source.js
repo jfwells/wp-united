@@ -1349,6 +1349,19 @@ function wpuProcessFinished() {
 }
 
 
+
+/**
+ *	Deferred script loading -- called twice, once on jquery document.ready, and once by timeout. 
+ *  This prevents other plugin's scripts that die on the ready event from killing ours
+ */
+var wpuHasInited = false;
+function wpu_hardened_init() {
+	if(!wpuHasInited) {
+		wpuHasInited = true;
+		wpu_hardened_init_tail();
+	}
+}
+	
 /**
  * Base64 encode/decode for passing messages
  */

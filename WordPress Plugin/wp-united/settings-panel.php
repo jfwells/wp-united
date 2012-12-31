@@ -428,18 +428,18 @@ function wpu_setup_menu() {
 		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
 		var fileTreeLdgText = '<?php _e('Loading...', 'wp-united'); ?>';
 		var connectingText = '<?php _e('Connecting...', 'wp-united'); ?>';
-		$wpu(document).ready(function() {  
+
+
+		function wpu_hardened_init_tail() {
 			createFileTree();
 			<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
 				setPath('setup');
-			<?php } ?>			
-		});
+			<?php } ?>
+		}
 	// ]]>
-	</script>
-
-		
+	</script>	
 <?php
-
+	add_action('admin_footer', 'wpu_hardened_script_init');
 }
 
 function wpu_panel_warnings() {
@@ -651,9 +651,8 @@ function wpu_user_mapper() {
 								});
 							<?php } ?>							
 						}
-						$wpu(document).ready(function() { 
-							wpuSetupPermsMapper();
-						});
+					
+
 						
 					// ]]>
 					</script>				
@@ -768,15 +767,19 @@ function wpu_user_mapper() {
 		
 		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.', 'wp-united'); ?>';
 		
-		$wpu(document).ready(function() { 
+		
+		function wpu_hardened_init_tail() {
+			<?php if($wpUnited->get_setting('integcreatewp')) { ?>
+				wpuSetupPermsMapper();
+			<?php } ?>
 			setupUserMapperPage();
-			
-		});			
-	
+		}
+
 	// ]]>
 	</script>
 		
 <?php
+	add_action('admin_footer', 'wpu_hardened_script_init');
 }
 
 
@@ -1428,20 +1431,22 @@ function wpu_settings_page() {
 			?>
 			var cssmVal = '<?php echo $cssmVal; ?>';
 
-			$wpu(document).ready(function() { 
-				
+			function wpu_hardened_init_tail() {
 				setupSettingsPage();
 				<?php if($wpUnited->get_setting('phpbb_path')) { ?> 
 					setPath('settings');
 				<?php } ?>	
-					setupHelpButtons();
-					settingsFormSetup();
-		
-			});
+				setupHelpButtons();
+				settingsFormSetup();			
+			}
+
 		// ]]>
 		</script>	
 
-<?php }
+<?php 
+	add_action('admin_footer', 'wpu_hardened_script_init');
+
+}
 
 
 
@@ -1747,4 +1752,26 @@ function wpu_filetree() {
 	die();
 	
 }
-?>
+
+/*
+	A way to initialise scripts that still works EVEN WHEN OTHER (grrrr) PLUGINS have script errors
+*/
+function wpu_hardened_script_init() {
+	static $calledInit = false;
+
+	if(!$calledInit) {
+		$calledInit = true;
+
+	?>
+	<script type="text/javascript">// <![CDATA[
+		$wpu(document).ready(function() {  
+			wpu_hardened_init();
+		});
+		setTimeout('wpu_hardened_init()', 1000);
+	// ]]>
+	</script>
+	<?php
+}
+
+
+// end of file

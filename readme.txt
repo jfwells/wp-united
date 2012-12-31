@@ -19,11 +19,11 @@ WP-United glues together WordPress sites and phpBB forums. Get the full power of
 WP-United is fully modular and individual features can be turned on and off. These features include:
 
 * **User integration**: including single sign-on, synchronised profiles and avatars, and user management. Works with external registration modules such as social login plugins. Users in phpBB get accounts in WordPress and vice versa. Completely controllable and customisable by setting permissions for who can integrate and at what level, using a unique drag-and-drop interface.
-* **Template integration**: Have your phpBB forum appear inside your WordPress site. Or vice-versa; integrate your WordPress blog appear inside your phpBB header and footer. Includes a "one-click" mode that analyses your theme's CSS and modifies it on the fly to avoid CSS and HTML conflicts. This is no iFrame solution, it is a complete and automatic template integration.
+* **Template integration**: Have your phpBB forum appear inside your WordPress site. Or vice-versa; integrate your WordPress blog inside your phpBB header and footer. Includes a "one-click" mode that analyses your theme's CSS and modifies it on the fly to avoid CSS and HTML conflicts. This is no iFrame solution, it is a complete and automatic template integration.
 * **Behaviour integration**: Use phpBB smilies and word censor features in WordPress 
 * **Cross-posting**: Post something in WordPress and have it cross-posted to your forum -- Automatically or manually, you choose! Once an item is cross-posted, comments in phpBB and WordPress can be set to sync up under the blog item too!
 
-WP-United also includes eight widgets for you to drop into your WordPress page. Each widget is configurable and displays a wealth of forum information to increase enagagement on your site:
+WP-United also includes eight widgets for you to drop into your WordPress page. Each widget is configurable and displays a wealth of forum information to increase engagement on your site:
 
 * Latest forum posts
 * Latest forum topics
