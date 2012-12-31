@@ -1761,7 +1761,8 @@ function wpu_hardened_script_init() {
 
 	if(!$calledInit) {
 		$calledInit = true;
-
+	}
+	
 	?>
 	<script type="text/javascript">// <![CDATA[
 		$wpu(document).ready(function() {  
