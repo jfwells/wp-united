@@ -703,7 +703,7 @@ function wpu_phpbb_nav_block($args) {
 
 	global $phpbbForum, $phpEx, $wpUnited;
 	
-	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegisterLink' => 1, 'useNativeCSS' => 0);
+	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegLink' => 1, 'useNativeCSS' => 0);
 	extract(_wpu_process_args($args, $defaults));
 	$ret = '';
 	

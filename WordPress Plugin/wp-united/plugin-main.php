@@ -96,7 +96,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 
 		// we want to override some actions. These must match the priority of the built-ins 
 		//if($this->get_setting('showHdrFtr') == 'FWD') {
-			remove_action('shutdown', 'wp_ob_end_flush_all', 1);
+			//remove_action('shutdown', 'wp_ob_end_flush_all', 1);
 		//}
 		
 		// add new actions and filters
@@ -1120,6 +1120,28 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				}
 			}
 		//}
+	}
+	
+		public function add_footer_output() {
+		global $wpuDebug;
+	
+		if(
+			$this->is_enabled() && 
+			!$this->should_do_action('template-p-in-w') && 
+			!$this->should_do_action('template-w-in-p')
+		) {
+	
+			// Add login debugging if requested
+			if (defined('WPU_DEBUG') && WPU_DEBUG) {
+				$wpuDebug->display('login');
+			}
+
+			// Add stats if requested
+			if(defined('WPU_SHOW_STATS') && WPU_SHOW_STATS) {
+				$wpuDebug->display_stats();
+			}
+		}
+		
 	}
 	
 }

@@ -768,7 +768,7 @@ function wpu_get_user_level($userID = false) {
 	$userLevel = false;
 	
 	// if checking for the current user, do a sanity check
-	if(($userID === false) && !$phpbbForum->user_logged_in()) { 
+	if((!$userID && !$phpbbForum->user_logged_in()) || ($userID == ANONYMOUS)) { 
 		$phpbbForum->restore_state($fStateChanged);
 		return false;
 	} else {
