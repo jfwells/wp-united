@@ -404,7 +404,7 @@ function wpu_output_page($content) {
 	global $wpuDebug;
 	
 	// Add login debugging if requested
-	if ( defined('WPU_DEBUG') && (WPU_DEBUG == TRUE) && !$wpuNoHead ) {
+	if ( defined('WPU_DEBUG') && WPU_DEBUG && !$wpuNoHead ) {
 		$content = $wpuDebug->add_debug_box($content, 'login');
 	}
 
@@ -415,7 +415,7 @@ function wpu_output_page($content) {
 	
 
 
-	echo $content , $wpuSetWPSignature; 
+	echo $content . $wpuSetWPSignature; 
 	// Finally -- clean up
 	define('WPU_FINISHED', true);
 	garbage_collection();

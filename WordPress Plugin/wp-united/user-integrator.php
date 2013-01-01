@@ -22,7 +22,7 @@ if ( !defined('ABSPATH') ) {
  * The main login integration routine
  */
 function wpu_integrate_login() { 
-	global $wpUnited, $phpbbForum;
+	global $wpUnited, $phpbbForum, $wpuDebug;
 
 	// cache and prevent recursion
 	static $result = -1;
@@ -34,12 +34,22 @@ function wpu_integrate_login() {
 		if(!$wpUnited->is_working()) {
 			return;
 		}
-		
-		$doingLogin = true;
 
-		if( !$phpbbForum->user_logged_in() ) {
+		$wpuDebug->add('User integration active.');
+		$doingLogin = true;		
+		
+		// If this is a logout request, just do that!
+		if($wpUnited->should_do_action('logout')) {
+			wp_logout();
+			set_current_user(0);
+			$wpuDebug->add('Logged out of WordPress');
+			return;
+		}
+		
+
+		if( !$phpbbForum->user_logged_in() ) { 
 			$result = wpu_int_phpbb_logged_out(); 
-		} else {
+		} else { 
 			$result = wpu_int_phpbb_logged_in();
 		}
 		
@@ -56,14 +66,15 @@ function wpu_integrate_login() {
  * However this is left open as a prelude to bi-directional user integration
  */
 function wpu_int_phpbb_logged_out() { 
-	global $wpuDebug, $phpbbForum, $wpUnited, $user, $current_user;
+	global $wpuDebug, $phpbbForum, $wpUnited, $current_user;
 
 	// Check if user is logged into WP
 	get_currentuserinfo();  $wpUser = $current_user;
 	if(!$wpUser->ID) {
+		$wpuDebug->add('phpBB &amp; WP both logged out.');
 		return false;
 	}
-
+	$wpuDebug->add('WP already logged in, phpBB logged out.');
 	$createdUser = false;
 
 	$phpbbId = wpu_get_integrated_phpbbuser($wpUser->ID);
@@ -71,66 +82,92 @@ function wpu_int_phpbb_logged_out() {
 	if(!$phpbbId) { // The user has no account in phpBB, so we create one:
 		
 		if(!$wpUnited->get_setting('integcreatephpbb')) {
+			$wpuDebug->add('No integrated phpBB account, leaving unintegrated.');
 			return $wpUser->ID;
 		}
-		
+		$wpuDebug->add('No integrated phpBB account. Creating.');
 		// We just create standard users here for now, no setting of roles
 		$phpbbId = wpu_create_phpbb_user($wpUser->ID);
-				
+		
 		if($phpbbId == 0) {
-			// TODO: debug
+			$wpuDebug->add("Couldn't create phpBB user. Giving up.");
 			//We couldn't create a user in phPBB. Before we wp_die()d. But just handle it silently.
 			return $wpUser->ID;
 		}
 		$createdUser = true;
+		$wpuDebug->add("Created phpBB user ID = {$phpbbId}.");
 	} 
-
+	$wpuDebug->add("Logging in to integrated phpBB account, user ID = {$phpbbId}.");
+	
+	
 	// the user now has an integrated phpBB account, log them into it
-	$fStateChanged = $phpbbForum->foreground();
-	$user->session_create($phpbbId);
-	$phpbbForum->restore_state($fStateChanged);
+	if(headers_sent()) {
+		$wpuDebug->add("WARNING: headers have already been sent, won't be able to set phpBB cookie!");
+	}
+	$phpbbForum->create_phpbb_session($phpbbId);
+	$wpuDebug->add("Established Session for user {$phpbbId}.");
 	
 	if($createdUser) {
 		wpu_sync_profiles($wpUsr, $phpbbForum->get_userdata(), 'sync');
-	} 
+	}
 
 	return $wpUser->ID;
 
 }
 
+
+
 function wpu_int_phpbb_logged_in() { 
 	global $wpUnited, $wpuDebug, $phpbbForum, $wpUnited, $current_user;
 	
+	$wpuDebug->add('phpBB already logged in.');
+	
 	// This user is logged in to phpBB and needs to be integrated. Do they already have an integrated WP account?
 	if($integratedID = wpu_get_integration_id() ) {
-	
+		
+		$wpuDebug->add("phpBB account is integrated to WP account ID = {$integratedID}.");
+		
 		// they already have a WP account, log them in to it and ensure they have the correct details
 		if(!$wpUser = get_userdata($integratedID)) {
+			$wpuDebug->add("Failed to fetch WordPress user details for user ID = {$integratedID}. Giving up.");
 			return false;
 		}
 		
 		wp_set_current_user($wpUser->ID);		
 		wp_set_auth_cookie($wpUser->ID);
+		
+		$wpuDebug->add('WordPress user set to integrated user.');
+		
 		return $wpUser->ID;
 		
 	} else { 
 	
+		$wpuDebug->add('User is not integrated yet.');
+	
 		//Is this user already logged into WP? If so then just link the two logged in accounts
 		get_currentuserinfo();  $wpUser = $current_user;
 		if($wpUser->ID) {
+			
+			$wpuDebug->add('User is already logged into WP, linking two logged-in accounts.');
+			
 			wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
 			// sync but don't modify passwords:
 			wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync', true);
 			return $wpUser->ID; 
 		}
+		
+		$wpuDebug->add('Not yet logged into WP.');
 	
 		// Should this phpBB user get an account? If not, we can just stay unintegrated
 		if(!$wpUnited->get_setting('integcreatewp') || !$userLevel = wpu_get_user_level()) {
+			$wpuDebug->add('No permissions or auto-create switched off. Not creating integrated account.');
 			return false;
 		}
 
 		// they don't have an account yet, create one
 		$signUpName = $phpbbForum->get_username();
+		
+		$wpuDebug->add("Creating integrated account with name {$signUpName}");
 		
 		$newUserID = wpu_create_wp_user($signUpName, $phpbbForum->get_userdata('user_password'), $phpbbForum->get_userdata('user_email'));
 		
@@ -138,6 +175,9 @@ function wpu_int_phpbb_logged_in() {
 			
 		   if(!is_a($newUserID, 'WP_Error')) {
 				$wpUser = get_userdata($newUserID);
+				
+				$wpuDebug->add("Created new WordPress user, ID = {$wpUser->ID}.");
+				
 				// must set this here to prevent recursion
 				wp_set_current_user($wpUser->ID);
 				wpu_set_role($wpUser->ID, $userLevel);		
@@ -150,11 +190,15 @@ function wpu_int_phpbb_logged_in() {
 				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
 				return $wpUser->ID; 
 			}
+			$wpuDebug->add('Error when creating integrated account. Giving up.');
 		}
+		
+		$wpuDebug->add('Failed to create integrated account. Giving up.');
 	}
 	return false;		
 	
 }
+
 
 /**
  * Simple function to add a new user while preventing firing of the WPU user register hook
@@ -825,11 +869,14 @@ function wpu_update_int_id($pID, $intID) {
  * @return bool true if something was updated
 */
 function wpu_sync_profiles($wpData, $pData, $action = 'sync', $ignorePassword = false) {
-	global $wpUnited, $phpbbForum, $wpdb;
+	global $wpUnited, $phpbbForum, $wpdb, $wpuDebug;
 
 	if(is_object($wpData)) { 
 		$wpData = (array)get_object_vars($wpData->data); 
 	} 
+	
+	$syncPassword = ($ignorePassword) ? ', ignoring password' : ', including password';
+	$wpuDebug->add("Synchronising profiles, sync type is '{$action}'{$syncPassword}.");
 
 	$wpMeta = get_user_meta($wpData['ID']);
 

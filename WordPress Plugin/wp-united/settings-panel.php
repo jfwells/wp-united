@@ -1514,14 +1514,12 @@ function wpu_process_settings() {
 			$content = '<!--wp-united-phpbb-forum-->';
 			$title = __('Forum', 'wp-united');
 			if ( !empty($forum_page_ID) ) {
+				// we no longer reset title & date
 				$wpdb->query( 
 					"UPDATE IGNORE $wpdb->posts SET
 						post_author = '0',
-						post_date = '".current_time('mysql')."',
-						post_date_gmt = '".current_time('mysql',1)."',
 						post_content = '$content',
 						post_content_filtered = '',
-						post_title = '$title',
 						post_excerpt = '',
 						post_status = 'publish',
 						post_type = 'page',

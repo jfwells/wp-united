@@ -57,7 +57,7 @@
 .textwidget.wpuisle kbd, .textwidget.wpuisle samp       { font-family: monospace }
 .textwidget.wpuisle pre             { white-space: pre }
 .textwidget.wpuisle button, .textwidget.wpuisle textarea,
-.textwidget.wpuisle input, .textwidget.wpuisle select   { display: inline-block }
+.textwidget.wpuisle input, .textwidget.wpuisle select, #wpucssmagic label    { display: inline-block; width: auto;}
 .textwidget.wpuisle big             { font-size: 1.17em }
 .textwidget.wpuisle small, .textwidget.wpuisle sub, .textwidget.wpuisle sup { font-size: .83em }
 .textwidget.wpuisle sub             { vertical-align: sub }

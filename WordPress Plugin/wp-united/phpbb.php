@@ -79,6 +79,7 @@ class WPU_Phpbb {
 		
 		$this->wpEnv = array();
 		$this->phpbbEnv = array();
+
 	}	
 	
 	public function is_phpbb_loaded() {
@@ -448,6 +449,26 @@ class WPU_Phpbb {
 		}
 
 	}
+	
+	public function reset_userdata_cache($userID = false) {
+			$this->get_userdata('', $userID, true);
+	}
+	
+	public function create_phpbb_session($userID) {
+		global $config, $user;
+		
+		$fStateChanged = $this->foreground();
+		
+		$user->session_create($userID);
+		$_COOKIE[$config['cookie_name'] . '_sid'] = $user->session_id;
+		unset($_COOKIE[$config['cookie_name'] . '_k']);
+		$_COOKIE[$config['cookie_name'] . '_u'] = $user->data['user_id'];
+		
+		// refresh the userdata cache
+		$this->reset_userdata_cache();
+		
+		$this->restore_state($fStateChanged);
+	}	
 	
 	/**
 	 * 	fetch data for a specific user

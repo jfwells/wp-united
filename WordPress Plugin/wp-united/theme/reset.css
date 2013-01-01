@@ -57,7 +57,7 @@
 #wpucssmagic kbd, #wpucssmagic samp       { font-family: monospace }
 #wpucssmagic pre             { white-space: pre }
 #wpucssmagic button, #wpucssmagic textarea,
-#wpucssmagic input, #wpucssmagic select   { display: inline-block }
+#wpucssmagic input, #wpucssmagic select, #wpucssmagic label   { display: inline-block; width: auto; }
 #wpucssmagic big             { font-size: 1.17em }
 #wpucssmagic small, #wpucssmagic sub, #wpucssmagic sup { font-size: .83em }
 #wpucssmagic sub             { vertical-align: sub }

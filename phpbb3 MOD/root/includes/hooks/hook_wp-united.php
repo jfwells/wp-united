@@ -4,7 +4,7 @@
 * WP-United Hooks
 *
 * @package WP-United
-* @version $Id: 0.9.1.5  2012/12/28 John Wells (Jhong) Exp $
+* @version $Id: 0.9.2.0  2012/12/28 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -38,20 +38,22 @@ if(defined('WPU_STYLE_FIXER')) {
 
 wpu_set_buffering_init_level();
 
+
+/**
+ * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
+*/
+
+if($wpUnited->should_run_wordpress()) {
+	$user->session_begin();
+	require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
+}
+
 $phpbb_hook->register('phpbb_user_session_handler', 'wpu_init');
 $phpbb_hook->register(array('template', 'display'), 'wpu_execute', 'last');
 $phpbb_hook->register('exit_handler', 'wpu_continue');
 
 
 
-/**
- * INVOKE THE WP ENVIRONMENT NOW. This ***must*** be run in the global scope, for compatibility.
-*/
-if($wpUnited->should_run_wordpress()) {
-	
-	require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
-
-}
 
 /**
  * Since WordPress uses PHP timezone handling in PHP 5.3+, we need to do in phpBB too to suppress warnings
@@ -69,14 +71,15 @@ if ( function_exists('date_default_timezone_set') && !defined('WPU_BLOG_PAGE') &
 function wpu_init(&$hook) { 
 	global $wpUnited, $template, $user, $config, $phpbbForum;
 	
-	
 	if($wpUnited->should_do_action('logout')) { 
 		$phpbbForum->background();
 		wpu_initialise_wp();
-		wp_logout();
+		// logout itself is handled by user-integrator.
 		$phpbbForum->foreground();
 	}
-	
+
+
+		
 	// Add lang strings if this isn't blog.php
 	if( !defined('WPU_BLOG_PAGE')  && !defined('WPU_PHPBB_IS_EMBEDDED') ) {
 		$user->add_lang('mods/wp-united');
@@ -175,8 +178,7 @@ function wpu_execute(&$hook, $handle) {
 				'S_BLOG'	=>	TRUE,
 			)); 
 		}
-
-
+		
 		if($wpUnited->should_do_action('template-p-in-w')) { 
 			$template->display($handle);
 			$wpUnited->set_inner_content(ob_get_contents()); 
@@ -204,6 +206,7 @@ function wpu_execute(&$hook, $handle) {
 			return '';
 		} 
 	}
+	
 }
 
 

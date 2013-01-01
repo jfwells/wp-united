@@ -26,6 +26,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('plugins_loaded', 					'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
 			array('shutdown', 							array('buffer_end_flush_all', 100),			'all'),
 			array('wp_head', 							'add_scripts',								'all'),
+			array('wp_footer', 							'add_footer_output',						'all'),
+			array('admin_footer', 						'add_footer_output',						'all'),
 			array('admin_bar_menu',						array('add_to_menu_bar', 100),				'all'),
 			array('comment_form', 						'generate_smilies',							'phpbb-smilies'),
 			array('wp_head', 							'add_head_marker',							'template-int'),
@@ -295,7 +297,16 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * Wrapper for wpu_integrate_login. Integrates users if appropriate options are enabled
 	 * @return void
 	 */
-	public function integrate_users() {
+	public function integrate_users() { 
+		global $wpuDebug;
+		
+		$wpuDebug->add('Integrate users hook called.');
+		
+		if(!$this->has_inited()) {
+			$wpuDebug->add('WARNING: A plugin has called set_current_user too early! Initing phpBB environment.');
+			$this->init_plugin();
+		}
+
 		if($this->is_working() && $this->get_setting('integrateLogin') && !defined('WPU_DISABLE_LOGIN_INT')) {
 			wpu_integrate_login();
 		}

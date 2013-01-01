@@ -718,8 +718,10 @@ function wpu_phpbb_nav_block($args) {
 	$crumbs[] = '<a href="' . $wpUnited->get_wp_home_url() . '" ' . $accessKey . '>' . get_option('blogname') . '</a>';
 	
 	if(!is_home()){
-		if (is_category() || is_single()) {
-			$crumbs[] = '<a href="' . esc_url($_SERVER['REQUEST_URI']) . '">' . get_the_category() . '</a>';
+		//TODO: These are loop functions, change!
+		if (is_category()) {
+			$category = get_the_category(); 
+			$crumbs[] = '<a href="' . esc_url($_SERVER['REQUEST_URI']) . '">' . $category[0]->cat_name . '</a>';
 		} else if(is_single() || is_page()) {
 			$crumbs[] = '<a href="' . esc_url($_SERVER['REQUEST_URI']) . '">' . get_the_title() . '</a>';
 		} 
