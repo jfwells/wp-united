@@ -10,6 +10,7 @@ COMMITTED FOR v0.9.2.0:
 * BUGFIX: top navbar not correctly showing post name
 * BUGFIX: userdata cache not cleared on first integrated login to phpBB
 * BUGFIX: $table_prefix was getting unset on phpBB-in-WordPress pages, upsetting some mods
+* BUGFIX: Improve handling of double-byte characters when escaping cross-posted topic titles and user names in user mapper.
 * ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
 * NEW: Lots more login integration debugging, so you can see what is causing login integration problems. Now works on WP pages and in admin too.
 

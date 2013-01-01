@@ -177,7 +177,7 @@ abstract class WPU_Mapped_User {
 	public function __toString() {
 		$side = ($this->side == 'left') ? '' : ' wpuintuser';
 		$template = '<div class="wpuuser ' . $this->className . $side . '" id="' . $this->htmlID . '">' . 
-			'<p class="' . $this->loginClassName . '" id="' . $this->loginHtmlID . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . htmlentities($this->loginName) . '</a></p>' . 
+			'<p class="' . $this->loginClassName . '" id="' . $this->loginHtmlID . '"><a class="wpuprofilelink" href="' . $this->get_profile_link() . '">' . htmlspecialchars($this->loginName, ENT_COMPAT, 'UTF-8') . '</a></p>' . 
 			'<div class="avatarblock">' .
 			 $this->avatar . 
 			 $this->del_action()  .
