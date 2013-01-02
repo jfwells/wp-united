@@ -783,7 +783,10 @@ function wpu_user_mapper() {
 		
 		
 		function wpu_hardened_init_tail() {
-			<?php if($wpUnited->get_setting('integcreatewp')) { ?>
+			<?php if($wpUnited->get_setting('integcreatewp')) { 
+				// re-call jsPlumb init, in case it failed on document.ready
+			?>
+				jsPlumb.init();
 				wpuSetupPermsMapper();
 			<?php } ?>
 			setupUserMapperPage();
