@@ -92,11 +92,8 @@ class WPU_Comments {
 
 	private function populate_phpbb_comments() {
 		
-		global $phpbbForum, $phpbbCommentLinks, $auth, $db, $phpEx, $user, $phpbb_root_path;
-		
-		// TODO: Internalise comment links
+		global $phpbbForum, $auth, $db, $phpEx, $user, $phpbb_root_path;
 
-		
 		$fStateChanged = $phpbbForum->foreground();
 		
 		if(!empty($this->postID)) {
@@ -186,7 +183,7 @@ class WPU_Comments {
 			
 			$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
 			$args = array(
-				//'comment_ID' => $comment['post_id'],
+				'comment_ID' => $comment['post_id'],
 				'comment_post_ID' => $parentPost,
 				'comment_author' => $comment['username'],
 				'comment_author_email' => $comment['user_email'],
@@ -201,16 +198,14 @@ class WPU_Comments {
 				'comment_type' => '',
 				'comment_parent' => 0,
 				'user_id' => $comment['user_wpuint_id'],
-				'phpbb_id' => $comment['poster_id']
+				'phpbb_id' => $comment['poster_id'],
+				'phpbb_view_url' => $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}"),
 			);
 
 			// Fix relative paths in comment text
 			$pathsToFix = array('src="' . $phpbb_root_path, 'href="' . $phpbb_root_path);
 			$pathsFixed = array('src="' . $phpbbForum->get_board_url(), 'href="' . $phpbbForum->get_board_url());
 			$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
-
-			$phpbbCommentLinks[$comment['post_id']] = $phpbbForum->get_board_url();
-			$phpbbCommentLinks[$comment['post_id']] .= ($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}";
 
 			$this->comments[] = new WPU_Comment($args);
 

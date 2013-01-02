@@ -461,8 +461,9 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 		return $commentArray;
 	}
 
-	$usePhpBBComments = true;
 	$comments = $phpBBComments->get_comments();
+	
+	$usePhpBBComments = $comments;
 	
 	$wp_query->comments = $comments;
 	$wp_query->comment_count = sizeof($comments);
@@ -651,13 +652,13 @@ function wpu_comment_redir_field() {
  * So we change the link to a "View in forum" one
  */
 function wpu_edit_comment_link($link, $comment_ID) {
-	global $phpbbForum,  $usePhpBBComments, $phpbbCommentLinks;
+	global $phpbbForum,  $usePhpBBComments;
 	
 	if($usePhpBBComments) {
-		if(!isset($phpbbCommentLinks[$comment_ID])) {
+		if(!isset($usePhpBBComments[$comment_ID])) {
 			return $link;
 		}
-		$href = $phpbbCommentLinks[$comment_ID];
+		$href = $usePhpBBComments[$comment_ID]->phpbb_view_url;
 		return '<a class="comment-edit-link" href="' . $href . '" title="' . __('(View in Forum)', 'wp-united') . '">' . __('(View in Forum)', 'wp-united'). '</a>';
 
 	}
@@ -669,11 +670,11 @@ function wpu_edit_comment_link($link, $comment_ID) {
  * Returns the general coment link -- points to the forum if the comment is cross-posted
  */
 function wpu_comment_link($url, $comment, $args) {
-	global $phpbbForum,  $usePhpBBComments, $phpbbCommentLinks;
+	global $phpbbForum,  $usePhpBBComments;
 
 	if($usePhpBBComments) {
-		if(isset($phpbbCommentLinks[$comment->comment_ID])) {
-			return $phpbbCommentLinks[$comment->comment_ID];
+		if(isset($usePhpBBComments[$comment->comment_ID])) {
+			return $usePhpBBComments[$comment->comment_ID]->phpbb_view_url;
 		}
 	}
 	return $url;

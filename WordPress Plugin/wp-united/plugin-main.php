@@ -616,19 +616,12 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		$integComments->populate_comments($query, $comments);
 		
-		return $integComments->get_comments();
-			
-			/**
-			 * Move comment array to here
-			 * 
-			 * check query,
-			 * add default wp items to array,
-			 * add wpu items,
-			 * sort,
-			 * trim array to limit
-			 * 
-			 * clear wp comment cache on wpu settings change and xposting!
-			 */
+		// TEMP:
+		
+		global $usePhpBBComments;
+		$usePhpBBComments = $integComments->get_comments();
+		
+		return $usePhpBBComments;
 			
 	}
 	public function comments_count($count, $postID = false) {
