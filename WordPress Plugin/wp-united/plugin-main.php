@@ -599,7 +599,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return wpu_load_phpbb_comments($commentArray, $postID);
 	}
 	public function integrated_comments($comments, $query) { 
-		global $wpUnited;
+		global $wpUnited, $phpbbComments;
 		
 		if ( 
 			(!$wpUnited->is_working()) || 
@@ -611,17 +611,12 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		require_once($this->get_plugin_path() . 'comments.php');
 		
-		$integComments = new WPU_Comments();
+		$phpbbComments = new WPU_Comments();
 		
 		
-		$integComments->populate_comments($query, $comments);
+		$phpbbComments->populate_comments($query, $comments);
 		
-		// TEMP:
-		
-		global $usePhpBBComments;
-		$usePhpBBComments = $integComments->get_comments();
-		
-		return $usePhpBBComments;
+		return $phpbbComments->get_comments();
 			
 	}
 	public function comments_count($count, $postID = false) {

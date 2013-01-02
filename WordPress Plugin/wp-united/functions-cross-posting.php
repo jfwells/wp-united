@@ -442,7 +442,7 @@ function wpu_get_forced_forum_name($forumID) {
  * @since v0.8.0
  */
 function wpu_load_phpbb_comments($commentArray, $postID) {
-	global $wpUnited, $comments, $wp_query, $overridden_cpage, $usePhpBBComments;
+	global $wpUnited, $comments, $wp_query, $overridden_cpage, $phpbbComments;
 
 	if ( 
 		(!$wpUnited->is_working()) || 
@@ -455,16 +455,13 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 	
 	require_once($wpUnited->get_plugin_path() . 'comments.php');
 
-	$phpBBComments = new WPU_Comments();
-	if (!$phpBBComments->populate_for_post($postID)) {
-		$usePhpBBComments = false; 
+	$phpbbComments = new WPU_Comments();
+	if (!$phpbbComments->populate_for_post($postID)) {
 		return $commentArray;
 	}
 
-	$comments = $phpBBComments->get_comments();
-	
-	$usePhpBBComments = $comments;
-	
+	$comments = $phpbbComments->get_comments();
+		
 	$wp_query->comments = $comments;
 	$wp_query->comment_count = sizeof($comments);
 	$wp_query->rewind_comments();
@@ -490,7 +487,7 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
  * @param int $postID the WordPress post ID
  */
 function wpu_comments_count($count, $postID = false) {
-	global $wp_query, $usePhpBBComments, $phpbbForum, $wpUnited;
+	global $wp_query, $phpbbComments, $phpbbForum, $wpUnited;
 
 	// In WP < 2.9, $postID is not provided
 	if($postID === false) {
@@ -499,7 +496,7 @@ function wpu_comments_count($count, $postID = false) {
 	}
 
 	// if we already have the xposted details, use those
-	if ( !empty($usePhpBBComments) ) {
+	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
 		return sizeof($wp_query->comments);
 	} 
 	// else, get the details
@@ -635,9 +632,9 @@ function wpu_comment_redirector($postID) {
  * This is the only way we can know how to get back here when posting.
  */
 function wpu_comment_redir_field() {
-		global $usePhpBBComments, $wp_query;
+		global $phpbbComments, $wp_query;
 	
-	if($usePhpBBComments) {
+	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
 		$commID =  sizeof($wp_query->comments) + 1;
 		$redir =  wpu_get_redirect_link(); // . '#comment-' $commID;
 		echo '<input type="hidden" name="wpu-comment-redirect" value="' . $redir . '" />';
@@ -651,14 +648,14 @@ function wpu_comment_redir_field() {
  * Checking whether the user can edit individual posts is too onerous
  * So we change the link to a "View in forum" one
  */
-function wpu_edit_comment_link($link, $comment_ID) {
-	global $phpbbForum,  $usePhpBBComments;
+function wpu_edit_comment_link($link, $commentID) {
+	global $phpbbForum,  $phpbbComments;
 	
-	if($usePhpBBComments) {
-		if(!isset($usePhpBBComments[$comment_ID])) {
+	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) { 
+		if(!isset($phpbbComments->links[$commentID])) {
 			return $link;
 		}
-		$href = $usePhpBBComments[$comment_ID]->phpbb_view_url;
+		$href = $phpbbComments->links[$commentID];
 		return '<a class="comment-edit-link" href="' . $href . '" title="' . __('(View in Forum)', 'wp-united') . '">' . __('(View in Forum)', 'wp-united'). '</a>';
 
 	}
@@ -670,11 +667,11 @@ function wpu_edit_comment_link($link, $comment_ID) {
  * Returns the general coment link -- points to the forum if the comment is cross-posted
  */
 function wpu_comment_link($url, $comment, $args) {
-	global $phpbbForum,  $usePhpBBComments;
+	global $phpbbForum,  $phpbbComments;
 
-	if($usePhpBBComments) {
-		if(isset($usePhpBBComments[$comment->comment_ID])) {
-			return $usePhpBBComments[$comment->comment_ID]->phpbb_view_url;
+	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
+		if(isset($phpbbComments->links[$comment->comment_ID])) {
+			return $phpbbComments->links[$comment->comment_ID];
 		}
 	}
 	return $url;
@@ -754,10 +751,10 @@ function wpu_comments_open($open, $postID) {
  * If we return false, get_option does its thing.
  */
 function wpu_no_guest_comment_posting() {
-	global $usePhpBBComments, $wpuPermsProblem;
+	global $phpbbComments, $wpuPermsProblem;
 	
 	// users don't need to register if permissions have already been resolved for them
-	if($usePhpBBComments) {
+	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
 		return $wpuPermsProblem;
 	}
 	

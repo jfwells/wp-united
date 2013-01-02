@@ -23,9 +23,12 @@ class WPU_Comments {
 	
 	private 
 		$comments,
+		$usingPhpBBComments,
 		$limit,
 		$offset,
 		$postID;
+		
+	public $links;
 	
 
 	/**
@@ -33,6 +36,8 @@ class WPU_Comments {
 	 */
 	public function __construct() {
 		$this->comments = array();
+		$this->links = array();
+		$this->usingPhpBBComments = false;
 		$this->postID = 0;
 		$this->limit = 25;
 		$this->offset = 0;
@@ -171,6 +176,8 @@ class WPU_Comments {
 			return false;
 		}
 		
+		$randID = rand(10000,99999);
+		
 		$phpbbCommentLinks = array();
 		while ($comment = $db->sql_fetchrow($result)) {
 			
@@ -180,10 +187,11 @@ class WPU_Comments {
 			
 			
 			$parentPost = (empty($this->postID)) ? $xPostedTopics[$comment['topic_id']] : $this->postID;
+			$commentID = $randID + $comment['post_id'];
 			
 			$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
 			$args = array(
-				'comment_ID' => $comment['post_id'],
+				'comment_ID' => $commentID,
 				'comment_post_ID' => $parentPost,
 				'comment_author' => $comment['username'],
 				'comment_author_email' => $comment['user_email'],
@@ -199,7 +207,6 @@ class WPU_Comments {
 				'comment_parent' => 0,
 				'user_id' => $comment['user_wpuint_id'],
 				'phpbb_id' => $comment['poster_id'],
-				'phpbb_view_url' => $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}"),
 			);
 
 			// Fix relative paths in comment text
@@ -208,13 +215,21 @@ class WPU_Comments {
 			$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
 
 			$this->comments[] = new WPU_Comment($args);
+			
+			$this->links[$commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}");
 
 		}
 		$db->sql_freeresult($result);
 		
 		$phpbbForum->restore_state($fStateChanged);
 
+		$this->usingPhpBBComments = true;
+		
 		return true;
+	}
+	
+	public function using_phpbb() {
+		return $this->usingPhpBBComments;
 	}
 	
 	private function sort($criterion='comment_date', $dir='DESC') {
