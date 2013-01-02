@@ -21,7 +21,11 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
  */
 class WPU_Comments {
 	
-	public $comments;
+	private 
+		$comments,
+		$limit,
+		$offset,
+		$postID;
 	
 
 	/**
@@ -29,42 +33,74 @@ class WPU_Comments {
 	 */
 	public function __construct() {
 		$this->comments = array();
+		$this->postID = 0;
+		$this->limit = 25;
+		$this->offset = 0;
+		
 	}
 	
-	public function add_wp_comments($comments) {
+
+	public function populate_comments($query, $comments) {
+				
+		//print_r($query);
+		
+		
+		//$query->query_vars['ID'];
+		//$query->query_vars['orderby'];
+		//$query->query_vars['order'];
+		
+		/** TODO: CHANGE THIS TO:
+		 1. store wp comments and phpBB comments in separate array
+		 2. on get_comments, sort & apply limits/offsets
+		 */
+		
+		
+		$this->postID = $query->query_vars['post_id'];
+		$this->limit = $query->query_vars['number'];
+		$this->offset = $query->query_vars['offset'];
+		
+		$this->populate_phpbb_comments();
+		if(sizeof($this->comments)) {
+			$result = true;
+		}
+		
+		$this->add_wp_comments($comments);
+		
+		if($result) {
+			$this->sort();
+		}
+	}
+	
+	public function populate_for_post($postID) {
+		
+		$this->postID = $postID;
+		$this->limit = 10000;
+		$this->offset = 0;
+		
+		return $this->populate_phpbb_comments();
+		
+	}
+	
+
+	public function get_comments() {
+		return array_slice($this->comments, 0, $this->limit);
+	}
+	
+	private function add_wp_comments($comments) {
 		$this->comments = array_merge($comments, $this->comments);
 	}
 
-	public function populate_phpbb_comments($query) {
+	private function populate_phpbb_comments() {
 		
 		global $phpbbForum, $phpbbCommentLinks, $auth, $db, $phpEx, $user, $phpbb_root_path;
 		
 		// TODO: Internalise comment links
-		
-		
-		print_r($query);
-		print_r($comments);
-			
-		$query->query_vars['ID'];
-		
-		
-		$query->query_vars['orderby'];
-		$query->query_vars['order'];
-		
-		
-		$wpPostID = $query->query_vars['post_id'];
-		$limit = $query->query_vars['number'];
-		$offset = $query->query_vars['offset'];
-		
-		
-		
-		
-		
+
 		
 		$fStateChanged = $phpbbForum->foreground();
 		
-		if(!empty($wpPostID)) {
-			$sql = 'SELECT topic_id, forum_id from ' . POSTS_TABLE . ' WHERE post_wpu_xpost = ' . $wpPostID;
+		if(!empty($this->postID)) {
+			$sql = 'SELECT topic_id, forum_id from ' . POSTS_TABLE . ' WHERE post_wpu_xpost = ' . $this->postID;
 		
 			if($result = $db->sql_query_limit($sql, 1)) {
 				$dets = $db->sql_fetchrow($result);
@@ -75,38 +111,40 @@ class WPU_Comments {
 			} 
 			$db->sql_freeresult($result);
 		
-			if(!isset($topicID)) {
+			if(!isset($topicID)) { 
 				$phpbbForum->restore_state($fStateChanged);
 				return false;
 			}
 		
 			// check permissions
-			if(!$this->can_read_forum($forumID));
+			if(!$this->can_read_forum($forumID)) {
 				$phpbbForum->restore_state($fStateChanged);
 				return false;
 			}
 			
-			$topicIDs = 'topic_id = ' . $topicID;
+			$topicIDs = 't.topic_id = ' . $topicID;
 		
 		} else { //pulling for multiple articles at once
-			
-			$sql = 'SELECT forum_id, topic_id from ' . POSTS_TABLE . ' WHERE post_wpu_xpost > 0';
+
+			$sql = 'SELECT forum_id, topic_id, post_wpu_xpost from ' . POSTS_TABLE . ' WHERE post_wpu_xpost > 0';
 		
 			$xPostedTopics = array();
 			if($result = $db->sql_query($sql)) {
 				while($dets = $db->sql_fetchrow($result)) {
 					if($this->can_read_forum($dets['forum_id'])) {
-						$xPostedTopics[] = $dets['topic_id'];
+						$xPostedTopics[$dets['topic_id']] = $dets['post_wpu_xpost'];
 					}
 				}
 			}
 			
-			if(!sizeof($xPostedTopics)) {
+			$xPostedTopicList = array_keys($xPostedTopics);
+			
+			if(!sizeof($xPostedTopicList)) {
 				$phpbbForum->restore_state($fStateChanged);
 				return false;
 			}
 			
-			$topicIDs = $db->sql_in_set('t.topic_id', $xPostedTopics);
+			$topicIDs = $db->sql_in_set('t.topic_id', $xPostedTopicList);
 
 		}
 		
@@ -115,7 +153,7 @@ class WPU_Comments {
 					p.enable_sig, p.post_username, p.post_subject, 
 					p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
 					p.topic_id, p.forum_id,
-					t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
+					t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 					u.username, u.user_wpuint_id, u.user_email 
 				FROM ' . 
 					TOPICS_TABLE . ' AS t , ' .
@@ -130,13 +168,12 @@ class WPU_Comments {
 					p.post_wpu_xpost IS NULL 
 					ORDER BY p.post_id ASC';
 
-		if(!($result = $db->sql_query_limit($sql, $limit, $offset))) {
+		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
 			$phpbbForum->restore_state($fStateChanged);
 			return false;
 		}
 		
-
 		$phpbbCommentLinks = array();
 		while ($comment = $db->sql_fetchrow($result)) {
 			
@@ -144,10 +181,13 @@ class WPU_Comments {
 				(($comment['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
 				(($comment['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
 			
+			
+			$parentPost = (empty($this->postID)) ? $xPostedTopics[$comment['topic_id']] : $this->postID;
+			
 			$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
 			$args = array(
-				'comment_ID' => $comment['post_id'],
-				'comment_post_ID' => $wpPostID,
+				//'comment_ID' => $comment['post_id'],
+				'comment_post_ID' => $parentPost,
 				'comment_author' => $comment['username'],
 				'comment_author_email' => $comment['user_email'],
 				'comment_author_url' => $link,
@@ -159,6 +199,7 @@ class WPU_Comments {
 				'comment_approved' => 1,
 				'comment_agent' => 'phpBB forum',
 				'comment_type' => '',
+				'comment_parent' => 0,
 				'user_id' => $comment['user_wpuint_id'],
 				'phpbb_id' => $comment['poster_id']
 			);
@@ -172,12 +213,21 @@ class WPU_Comments {
 			$phpbbCommentLinks[$comment['post_id']] .= ($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}";
 
 			$this->comments[] = new WPU_Comment($args);
+
 		}
 		$db->sql_freeresult($result);
 		
 		$phpbbForum->restore_state($fStateChanged);
 
 		return true;
+	}
+	
+	private function sort($criterion='comment_date', $dir='DESC') {
+		usort($this->comments, array($this, 'dateSort'));
+	}
+	
+	private function dateSort($a, $b){
+		return $a->comment_date == $b->comment_date ? 0 : ($a->comment_date < $b->comment_date) ? 1 : -1;
 	}
 	
 	private function can_read_forum($forumID) {
@@ -227,6 +277,7 @@ class WPU_Comment {
 		$comment_approved,
 		$comment_agent,
 		$comment_type,
+		$comment_parent,
 		$phpbb_id,
 		$user_id;
 	

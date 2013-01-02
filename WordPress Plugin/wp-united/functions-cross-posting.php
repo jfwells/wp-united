@@ -456,13 +456,13 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 	require_once($wpUnited->get_plugin_path() . 'comments.php');
 
 	$phpBBComments = new WPU_Comments();
-	if ( !$phpBBComments->populate($postID) ) {
+	if (!$phpBBComments->populate_for_post($postID)) {
 		$usePhpBBComments = false; 
 		return $commentArray;
 	}
 
 	$usePhpBBComments = true;
-	$comments = $phpBBComments->comments;
+	$comments = $phpBBComments->get_comments();
 	
 	$wp_query->comments = $comments;
 	$wp_query->comment_count = sizeof($comments);

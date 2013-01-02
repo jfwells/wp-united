@@ -1128,7 +1128,7 @@ class WPU_Phpbb {
 		}
 		
 		// we leave a marker for ourselves to show this avatar was put by wpu
-		$marker = (strstr($url, '?') === false) ? '?wpuput=1' : '&amp;wpuput=1';
+		$marker = (strstr($avatarUrl, '?') === false) ? '?wpuput=1' : '&amp;wpuput=1';
 		
 		$avatarUrl = $avatarUrl . $marker;
 
