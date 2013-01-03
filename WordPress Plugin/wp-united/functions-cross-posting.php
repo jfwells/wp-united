@@ -365,6 +365,9 @@ function wpu_forum_xpost_list() {
  * Determine if this post is already cross-posted. If it is, it returns an array of details
  */
 function wpu_get_xposted_details($postID = false) {
+	global $phpbbForum, $db;
+	
+	
 	if($postID === false) {
 		if (isset($_GET['post'])) {
 			$postID = (int)$_GET['post'];
@@ -374,7 +377,13 @@ function wpu_get_xposted_details($postID = false) {
 		return false;
 	}
 	
-	global $phpbbForum, $db, $phpbbForum;
+	static $details = array();
+	
+	if(isset($details[$postID])) {
+		return $details[$postID];
+	}
+	
+	$details[$postID] = false;
 	
 	$fStateChanged = $phpbbForum->foreground();
 	
@@ -392,13 +401,13 @@ function wpu_get_xposted_details($postID = false) {
 			if($row['topic_type'] == POST_GLOBAL) {
 				$row['forum_name'] = $phpbbForum->lang['VIEW_TOPIC_GLOBAL'];
 			}
-			$phpbbForum->restore_state($fStateChanged);
-			return $row;
+			$details[$postID] = $row;
 		}
 
 	}
 	$phpbbForum->restore_state($fStateChanged);
-	return false;
+	
+	return $details[$postID];
 }
 
 /**
@@ -442,25 +451,22 @@ function wpu_get_forced_forum_name($forumID) {
  * @since v0.8.0
  */
 function wpu_load_phpbb_comments($commentArray, $postID) {
-	global $wpUnited, $comments, $wp_query, $overridden_cpage, $phpbbComments;
+	global $wpUnited, $comments, $wp_query, $overridden_cpage;
 
 	if ( 
-		(!$wpUnited->is_working()) || 
-		(!$wpUnited->get_setting('xposting')) || 
-		(!$wpUnited->get_setting('xpostautolink')) ||
-		(empty($postID))
+		!$wpUnited->is_working()					|| 
+		!$wpUnited->get_setting('xposting') 		|| 
+		!$wpUnited->get_setting('xpostautolink')	||
+		empty($postID)
 	) {
 		return $commentArray;
 	}
 	
-	require_once($wpUnited->get_plugin_path() . 'comments.php');
-
-	$phpbbComments = new WPU_Comments();
-	if (!$phpbbComments->populate_for_post($postID)) {
+	if (!$wpUnited->integrate_comments($postID)) {
 		return $commentArray;
 	}
 
-	$comments = $phpbbComments->get_comments();
+	$comments = $wpUnited->get_integrated_comments($postID);
 		
 	$wp_query->comments = $comments;
 	$wp_query->comment_count = sizeof($comments);
@@ -481,13 +487,41 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 }
 
 /**
+ * Loads integrated, interleaved phpBB & WordPress comments for multiple topics.
+ * @since v0.9.2.0
+ * @param array $comments the wordpress comments for this query
+ * @param StdObj query the comment query object
+ * @return array $comments an updated comments array.
+ */
+function wpu_integrated_comments($comments, $query) {
+	global $wpUnited;
+	
+	if ( 
+		!$wpUnited->is_working()					|| 
+		!$wpUnited->get_setting('xposting')			|| 
+		!$wpUnited->get_setting('xpostautolink')
+	) { 
+		return $comments;
+	}
+	
+	
+	if($wpUnited->integrate_comments($query, $comments)) {
+		return $wpUnited->get_integrated_comments($query);
+	}
+	
+	return $comments;
+
+}
+ 
+
+/**
  * Returns the number of follow-up posts in phpBB in response to the cross-posted blog post
  * @since v0.8.0
  * @param int $count a WordPress comment count to be returned if the post is not cross-posted
  * @param int $postID the WordPress post ID
  */
 function wpu_comments_count($count, $postID = false) {
-	global $wp_query, $phpbbComments, $phpbbForum, $wpUnited;
+	global $wpUnited;
 
 	// In WP < 2.9, $postID is not provided
 	if($postID === false) {
@@ -495,11 +529,6 @@ function wpu_comments_count($count, $postID = false) {
 		$postID = (int) $id;
 	}
 
-	// if we already have the xposted details, use those
-	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
-		return sizeof($wp_query->comments);
-	} 
-	// else, get the details
 	if ( 
 		(!$wpUnited->is_working()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
@@ -508,14 +537,12 @@ function wpu_comments_count($count, $postID = false) {
 	) {
 		return $count;
 	}
-	$fStateChanged = $phpbbForum->foreground();
 	
 	if ( $xPostDetails = wpu_get_xposted_details($postID) ) { 
 		$count = $xPostDetails['topic_replies'];
 	}
 
-	$phpbbForum->restore_state($fStateChanged);
-	
+
 	return $count;
 
 }
@@ -553,26 +580,31 @@ function wpu_comment_redirector($postID) {
 	}
 	
 	if( empty($xPostDetails['topic_approved'])) {
+		$phpbbForum->restore_state($fStateChanged);
 		wp_die($phpbbForum->lang['ITEM_LOCKED']);
 	}
 	
 	if( $xPostDetails['topic_status'] == ITEM_LOCKED) {
+		$phpbbForum->restore_state($fStateChanged);
 		wp_die($phpbbForum->lang['TOPIC_LOCKED']);
 	}
 
 	if ($xPostDetails['forum_id'] == 0) {
 		// global announcement
 		if(!$auth->acl_getf_global('f_reply') ) {
+			$phpbbForum->restore_state($fStateChanged);
 			wp_die( __('You do not have permission to respond to this announcement', 'wp-united'));			
 		}
 	} else {
 		if (!$auth->acl_get('f_reply', $xPostDetails['forum_id'])) { 
+			$phpbbForum->restore_state($fStateChanged);
 			wp_die( __('You do not have permission to comment in this forum', 'wp-united'));
 		}
 	}
 	$content = ( isset($_POST['comment']) ) ? trim($_POST['comment']) : null;
 	
 	if(empty($content)) {
+		$phpbbForum->restore_state($fStateChanged);
 		wp_die(__('Error: Please type a comment!', 'wp-united'));
 	}
 	
@@ -632,9 +664,11 @@ function wpu_comment_redirector($postID) {
  * This is the only way we can know how to get back here when posting.
  */
 function wpu_comment_redir_field() {
-		global $phpbbComments, $wp_query;
+	global $wpUnited, $wp_query;
 	
-	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
+	$postID = $wp_query->post->ID;
+	
+	if ($wpUnited->get_integrated_comments($postID)) {
 		$commID =  sizeof($wp_query->comments) + 1;
 		$redir =  wpu_get_redirect_link(); // . '#comment-' $commID;
 		echo '<input type="hidden" name="wpu-comment-redirect" value="' . $redir . '" />';
@@ -649,32 +683,56 @@ function wpu_comment_redir_field() {
  * So we change the link to a "View in forum" one
  */
 function wpu_edit_comment_link($link, $commentID) {
-	global $phpbbForum,  $phpbbComments;
+	global $wpUnited;
 	
-	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) { 
-		if(!isset($phpbbComments->links[$commentID])) {
-			return $link;
-		}
-		$href = $phpbbComments->links[$commentID];
-		return '<a class="comment-edit-link" href="' . $href . '" title="' . __('(View in Forum)', 'wp-united') . '">' . __('(View in Forum)', 'wp-united'). '</a>';
-
+	$wpuLink = $wpUnited->get_integrated_comment_link($commentID);
+	
+	if (!empty($wpuLink)) {
+		return '<a class="comment-edit-link" href="' . $wpuLink . '" title="' . __('(View in Forum)', 'wp-united') . '">' . __('(View in Forum)', 'wp-united'). '</a>';
 	}
 	
 	return $link;
 	
 }
 /**
- * Returns the general coment link -- points to the forum if the comment is cross-posted
+ * Returns the general comment link -- points to the forum if the comment is cross-posted
  */
 function wpu_comment_link($url, $comment, $args) {
-	global $phpbbForum,  $phpbbComments;
+	global $wpUnited;
 
-	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
-		if(isset($phpbbComments->links[$comment->comment_ID])) {
-			return $phpbbComments->links[$comment->comment_ID];
-		}
+	$wpuLink = $wpUnited->get_integrated_comment_link($comment->comment_ID);
+	if (!empty($wpuLink)) {
+		return $wpuLink;
 	}
+
 	return $url;
+}
+
+/**
+ * Modifies comment action links in the dashboard
+ */
+ 
+function wpu_comment_actions($actions, $comment) {
+	global $wpUnited;
+	
+	if ( 
+		!$wpUnited->is_working() 							|| 
+		!$wpUnited->get_setting('xposting')	 				|| 
+		!$wpUnited->get_setting('xpostautolink')
+	) { 
+		return $actions;
+	}
+		
+	$link = $wpUnited->get_integrated_comment_link($comment->comment_ID);
+	
+	if(!empty($link)) {
+		$actions = array(
+			'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>',
+		);
+	}
+	
+	return $actions;	
+	
 }
 
 /**
@@ -751,14 +809,18 @@ function wpu_comments_open($open, $postID) {
  * If we return false, get_option does its thing.
  */
 function wpu_no_guest_comment_posting() {
-	global $phpbbComments, $wpuPermsProblem;
+	global $wpUnited, $wp_query, $wpuPermsProblem;
 	
-	// users don't need to register if permissions have already been resolved for them
-	if (is_object($phpbbComments) && $phpbbComments->using_phpbb()) {
+	//TODO: This should be a filtered option! Not a pre-option!
+	
+	if ( 
+		$wpUnited->is_working() 							&&
+		$wpUnited->get_setting('xposting')	 				&&
+		!$wpUnited->get_setting('xpostautolink')			&&
+		$wpUnited->integrate_comments($wp_query->post->ID)
+	) { 
 		return $wpuPermsProblem;
 	}
-	
-
 	
 	return false;
 }

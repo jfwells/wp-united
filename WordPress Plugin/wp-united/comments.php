@@ -16,6 +16,77 @@
 */
 if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
+
+class WPU_Comments_Access_Layer {
+	
+	private 
+		$queries,
+		$links;
+	
+	public function __construct() {
+		$this->queries = array();
+		$this->links = array();
+	}
+	
+	public function process($query, $comments = false) {
+		
+		if(is_object($query)) {
+			$queryArgs = $query->query_vars;
+		} else {
+			$queryArgs = $query;
+		}
+		
+		foreach($this->queries as $queryObj) {
+			if($queryObj['queryargs'] === $queryArgs) {
+				return $queryObj['result'];
+			}
+		}
+		
+		$newQuery = array(
+			'queryargs'		=>	$queryArgs,
+			'comments'		=> 	new WPU_Comments()
+		);
+		
+		if(is_object($query)) {
+			$newQuery['result'] = $newQuery['comments']->populate_comments($query, $comments);
+		} else {
+			$newQuery['result'] = $newQuery['comments']->populate_for_post($query);
+		}
+
+		//array keys are strings so not renumbered
+		$this->links = array_merge($this->links, $newQuery['comments']->links);
+		
+		$this->queries[] = $newQuery;
+		
+		return $newQuery['result'];
+	}
+	
+	public function get_comments($query) {
+		if(is_object($query)) {
+			$query = $query->query_vars;
+		} 
+		
+		foreach($this->queries as $queryObj) {
+			if($queryObj['queryargs'] === $query) {
+				return $queryObj['comments']->get_comments();
+			}
+		}
+		
+		return false;
+		
+	}
+	
+	public function get_link($commentID) {
+					
+		if(isset($this->links['comment' . $commentID])) {
+			return $this->links['comment' . $commentID];
+		}
+				
+		return false;
+	}
+}
+
+
 /**
  * A comment object to store cross-posted comment results, and retrieve various other info
  */
@@ -26,7 +97,8 @@ class WPU_Comments {
 		$usingPhpBBComments,
 		$limit,
 		$offset,
-		$postID;
+		$postID,
+		$count;
 		
 	public $links;
 	
@@ -41,30 +113,55 @@ class WPU_Comments {
 		$this->postID = 0;
 		$this->limit = 25;
 		$this->offset = 0;
+		$this->count = false;
 		
 	}
 	
 
 	public function populate_comments($query, $comments) {
 				
-		//print_r($query);
-		
-		
-		//$query->query_vars['ID'];
-		//$query->query_vars['orderby'];
-		//$query->query_vars['order'];
-		
-		/** TODO: CHANGE THIS TO:
-		 1. store wp comments and phpBB comments in separate array
-		 2. on get_comments, sort & apply limits/offsets
-		 */
-		
-		
 		$this->postID = $query->query_vars['post_id'];
 		$this->limit = $query->query_vars['number'];
 		$this->offset = $query->query_vars['offset'];
+		$this->count = $query->query_vars['count'];
+
+		/**
+		 * We can only handle VERY LIMITED types of comment queries right now.
+		 */
+		if( 
+			preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
+			!empty($query->query_vars['author_email'])					||
+			!empty($query->query_vars['karma'])							||
+			!empty($query->query_vars['offset'])						||
+			!empty($query->query_vars['parent'])						||
+			!empty($query->query_vars['post_author'])					||
+			!empty($query->query_vars['post_name'])						||
+			!empty($query->query_vars['post_parent'])					||
+			!(	
+				empty($query->query_vars['post_status']) 	||
+				($query->query_vars['post_status'] == 'publish')
+			)															||
+			!empty($query->query_vars['post_type'])						||
+			!(
+				empty($query->query_vars['status'])		||
+				($query->query_vars['status'] == 'approve')
+			)															||
+			!empty($query->query_vars['type'])							||
+			!empty($query->query_vars['user_id'])						||
+			!empty($query->query_vars['meta_key'])						||
+			!empty($query->query_vars['meta_value'])					||
+			!empty($query->query_vars['meta_query'])
+        ) {
+			return false;
+		};
 		
 		$this->populate_phpbb_comments();
+		
+		if($this->count) {
+			return $this->comments + (int)$comments;
+		}
+		
+		
 		if(sizeof($this->comments)) {
 			$result = true;
 		}
@@ -74,6 +171,8 @@ class WPU_Comments {
 		if($result) {
 			$this->sort();
 		}
+		
+		return $result;
 	}
 	
 	public function populate_for_post($postID) {
@@ -150,30 +249,58 @@ class WPU_Comments {
 
 		}
 		
-		$sql = 	'SELECT p.post_id, p.poster_id, p.poster_ip, p.post_time, 
-					p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
-					p.enable_sig, p.post_username, p.post_subject, 
-					p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
-					p.topic_id, p.forum_id,
-					t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
-					u.username, u.user_wpuint_id, u.user_email 
-				FROM ' . 
-					TOPICS_TABLE . ' AS t , ' .
-					POSTS_TABLE . ' AS p  INNER JOIN ' .
-					USERS_TABLE . ' AS u ON 
-					p.poster_id = u.user_id
-				WHERE 
-					p.topic_id = t.topic_id AND ' .
-					$topicIDs . ' AND 
-					p.post_approved = 1 AND
-					t.topic_replies_real > 0 AND 
-					p.post_wpu_xpost IS NULL 
-					ORDER BY p.post_id ASC';
+		$addlJoinFields = '';
+				
+		if($this->count) {
+			$query = array(
+				'SELECT' 	=> 'COUNT(p.*) AS count',
+				'FROM'		=> 	array(
+									TOPICS_TABLE 	=> 	't',
+									POSTS_TABLE		=>	'p'
+								)
+			);
+		} else {
+			
+			$query = array(
+				'SELECT'	=> 'p.post_id, p.poster_id, p.poster_ip, p.post_time, 
+								p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
+								p.enable_sig, p.post_username, p.post_subject, 
+								p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
+								p.topic_id, p.forum_id,
+								t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
+								u.username, u.user_wpuint_id, u.user_email',
+				'FROM'		=>	array(
+									TOPICS_TABLE 	=> 	't',
+									POSTS_TABLE		=> 	'p',
+									USERS_TABLE		=>	'u'
+								),
+				'ORDER_BY'	=> 'p.post_time DESC'
+			);
+			$addlJoinFields = ' p.poster_id = u.user_id AND ';
+		}
+		
+		$query['WHERE'] = '
+			p.topic_id = t.topic_id AND ' .
+			$addlJoinFields .
+			$topicIDs . ' AND 
+			p.post_approved = 1 AND
+			t.topic_replies_real > 0 AND 
+			p.post_wpu_xpost IS NULL ';
+					
+					
+		$sql = $db->sql_build_query('SELECT', $query);
+					
 
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
 			$phpbbForum->restore_state($fStateChanged);
 			return false;
+		}
+		
+		if($this->count) {
+			$countRow = $db->sql_fetchrow($result);
+			$this->comments = $countRow['count'];
+			return true;
 		}
 		
 		$randID = rand(10000,99999);
@@ -216,7 +343,8 @@ class WPU_Comments {
 
 			$this->comments[] = new WPU_Comment($args);
 			
-			$this->links[$commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}");
+			//don't use numerical keys to avoid renumbering on array_merge
+			$this->links['comment' . $commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}");
 
 		}
 		$db->sql_freeresult($result);

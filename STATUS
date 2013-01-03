@@ -1,7 +1,17 @@
 current target: v0.9.2.0
 
+x-posting todo: 
+
+upgrade to topic column!
+check permissions post-option not pre-option
+x-posting superclass
+
+
+
+
 COMMITTED FOR v0.9.2.0:
 
+* NEW: Re-write of cross-posted comments. Cross-posted comments now appear in the WordPress comments widget and dashboard, interleaved with non-cross-posted comments.
 * NEW: The initial connection screen now falls back to manual path entry if your server has restrictions on scannng the document root
 * BUGFIX: Users getting logged out of phpBB on full-page phpBB-in-WordPress
 * WORKAROUND: Incorrect user integration flow when Ultimate TinyMCE (or similar plugins that set current user too early) are active.
@@ -15,8 +25,7 @@ COMMITTED FOR v0.9.2.0:
 * ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
 * NEW: Lots more login integration debugging, so you can see what is causing login integration problems. Now works on WP pages and in admin too.
 
-
-*** Just need to hook comment links for admin side & dashboard too ***
+*** not redirected to correct comment after posting x-posted comment ***
 
 **** Automod 1.0.0.1 is spraying files into root ****
 ** add alert if enable both auto-creates when curr user unintegrated **

@@ -62,7 +62,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('authenticate', 						array('authenticate', 21, 3), 				'user-int'),
 			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
 			array('comments_array', 					array('load_phpbb_comments', 10, 2),		'x-posting'),
-			array('the_comments', 						array('integrated_comments', 10, 2),			'x-posting'),
+			array('the_comments', 						array('integrated_comments', 10, 2),		'x-posting'),
+			array('comment_row_actions', 				array('integrated_comment_actions', 10, 2),	'x-posting'),
 			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
 			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
 			array('edit_comment_link', 					array('edit_comment_link', 10, 2),			'x-posting'),
@@ -70,8 +71,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		);
 		
 		private
-			$doneInit 	= false,
-			$extras 	= false;
+			$doneInit 		= false,
+			$extras 		= false,
+			$integComments = false;
 	
 	/**
 	 * Initialises the plugin from WordPress.
@@ -92,6 +94,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 		if($this->get_setting('xposting')) {		
 			require_once($this->get_plugin_path() . 'functions-cross-posting.php');
+			require_once($this->get_plugin_path() . 'comments.php');
+			$this->integComments = new WPU_Comments_Access_Layer();
 		}
 
 		// we want to override some actions. These must match the priority of the built-ins 
@@ -599,26 +603,11 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return wpu_load_phpbb_comments($commentArray, $postID);
 	}
 	public function integrated_comments($comments, $query) { 
-		global $wpUnited, $phpbbComments;
-		
-		if ( 
-			(!$wpUnited->is_working()) || 
-			(!$wpUnited->get_setting('xposting')) || 
-			(!$wpUnited->get_setting('xpostautolink'))
-		) { 
-			return $comments;
-		}
-		
-		require_once($this->get_plugin_path() . 'comments.php');
-		
-		$phpbbComments = new WPU_Comments();
-		
-		
-		$phpbbComments->populate_comments($query, $comments);
-		
-		return $phpbbComments->get_comments();
-			
+		return wpu_integrated_comments($comments, $query);
 	}
+	public function integrated_comment_actions($actions, $comment) {
+		return  wpu_comment_actions($actions, $comment);
+	}	
 	public function comments_count($count, $postID = false) {
 		return wpu_comments_count($count, $postID);
 	}
@@ -632,7 +621,21 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return wpu_comment_link($url, $comment, $args);
 	}
 	
-
+	/**
+	 * TODO: Move following to own super cross-posting class
+	 */
+	public function integrate_comments($query, $comments = false) {
+		return $this->integComments->process($query, $comments);
+	}
+	
+	public function get_integrated_comments($query) {
+		return $this->integComments->get_comments($query);
+	}
+	
+	public function get_integrated_comment_link($commentID) {
+		return $this->integComments->get_link($commentID);
+	}
+	
 	
 	/**
 	* Retrieve the phpBB avatar of a user
