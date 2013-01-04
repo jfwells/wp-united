@@ -225,7 +225,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function ajax_settings_transmit() {
 		if(check_ajax_referer( 'wp-united-transmit')) {
 			wpu_process_settings();
-			$wpUnited->transmit_settings();
+			$this->transmit_settings();
 			die('OK');
 		}
 		die();
