@@ -60,8 +60,21 @@ function createFileTree() {
 	});	
 }
 
+
+
+// Resize text boxes dynamically
+function resize_text_field($field) {
+	var measure = $wpu('#wpu-measure');
+	measure.text($field.val());
+	$field.css('width', (measure.width() + 16) + "px");
+}
+
 function wpu_update_backuppath(changeColor) {
-	var pth = $wpu('#phpbbdocroot').val() + $wpu('#wpubackupentry').val();
+	var $docRoot = $wpu('#phpbbdocroot');
+	var $bckEntry = $wpu('#wpubackupentry');
+	var pth = $docRoot.val() + $bckEntry.val();
+	resize_text_field($docRoot);
+	resize_text_field($bckEntry);
 	pth = pth.replace(/\\/g, '/').replace(/\/\//g,'/');
 	$wpu('#wpupathfield').val(pth);
 	var $p = $wpu('#phpbbpathshow').html(pth);
