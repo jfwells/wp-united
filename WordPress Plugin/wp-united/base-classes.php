@@ -244,7 +244,7 @@ class WP_United_Plugin_Base {
 		return $this->settings->enabled;
 	}
 	
-	public function enable()
+	public function enable() {
 		$this->settings->enabled = true;
 		if($this->is_wordpress_loaded()) {
 			update_option('wpu-enabled', true);
