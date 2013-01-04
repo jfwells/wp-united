@@ -363,14 +363,17 @@ function wpu_transmit(type, formID, urlToRefresh) {
 /**
  * Listen for ajax errors
  */
+ var wpu_handling_error = false;
 function wpu_setup_errhandler() {
 	$wpu(document).ajaxError(function(e, xhr, settings, exception) {
-
-		if(exception == undefined) {
-			var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+		
+		if(!wpu_handling_error) {
+			wpu_handling_error = true;
+			if(exception == undefined) {
+				var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+			}
+			wpu_process_error(errMsg = settings.url + ' returned: ' + exception);
 		}
-		wpu_process_error(errMsg = settings.url + ' returned: ' + exception);
-	
 	});
 	
 }
