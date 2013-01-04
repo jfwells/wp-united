@@ -333,8 +333,7 @@ function wpu_setup_menu() {
 	$msg = '';
 	if(isset($_GET['msg'])) {
 		if($_GET['msg'] == 'fail') { 
-			$msg = (string)stripslashes($_POST['msgerr']);
-			$msg = str_replace(array('%2B', '%3D', '%2F'), array('+', '=', '/'), base64_decode($msg));
+			echo echo html_entity_decode(stripslashes_deep((string)$_POST['msgerr']));
 		} else {
 			// $msg is succcess, do preview reloads to init Template Voodoo:
 			$needPreview = true;
@@ -1169,7 +1168,9 @@ function wpu_settings_page() {
 					<div id="wpustatus" class="error">
 						<p><?php _e('An error occurred. The error details are below. Please check your settings or try disabling plugins.', 'wp-united'); ?></p>
 						<div style="margin-bottom: 8px;" id="wpuerrordets">
-							<?php echo (string)stripslashes($_GET['msgerr']); ?>
+							<?php 
+								echo html_entity_decode(stripslashes_deep((string)$_POST['msgerr']));
+							?>
 						</div>
 					</div>
 			<?php
