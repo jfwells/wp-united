@@ -421,7 +421,7 @@ function wpu_setup_menu() {
 		?>
 		<div id="phpbbpathgroup">
 			<div id="phpbbpath" style="display: none;">&nbsp;</div>
-			<p id="wpubackupgroup" style="display: none;"><strong><input id="phpbbdocroot" style="font-size: 11px;color: #aaaaaa; border-width: 0 0 1px 0; border-color:#cccccc; width: auto;" name="phpbbdocroot" value="<?php echo $docRoot; ?>"></input><input type="text" id="wpubackupentry" name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></span></input>/config.php</strong></p>
+			<p id="wpubackupgroup" style="display: none;"><strong><input id="phpbbdocroot" style="font-size: 11px;color: #aaaaaa; border: 0 dotted #cccccc; border-bottom-width: 1px; width: auto;" name="phpbbdocroot" value="<?php echo $docRoot; ?>"></input><input type="text" id="wpubackupentry" name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></span></input>/config.php</strong></p>
 			<small><a href="#" onclick="return wpuSwitchEntryType();" id="wpuentrytype"><?php _e('I want to type the path manually', 'wp-united'); ?></a></small>
 		</div>
 		<p><?php _e('Path selected: ', 'wp-united'); ?><strong id="phpbbpathshow" style="color: red;"><?php _e('Not selected', 'wp-united'); ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;"><?php _e('Change Location &raquo;', 'wp-united'); ?></a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();"><?php _e('Cancel Change', 'wp-united'); ?></a></p>
