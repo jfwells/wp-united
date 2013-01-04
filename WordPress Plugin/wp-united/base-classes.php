@@ -300,7 +300,7 @@ class WP_United_Plugin_Base {
 		$phpbbUpgradeBase = sprintf(__('%1$sClick here%2$s to download the modification package. '),"<a href=\"http://www.wp-united.com/releases/{$wpuWpPackage}\">", '</a>');
 		$phpbbInstallMsg = $phpbbUpgradeBase . sprintf(__('You can apply it using %1$sAutoMod%2$s (recommended), or manually by reading the install.xml file and following %3$sthese instructions%4$s. When done, click &quot;Connect&quot; to try again.', 'wp-united'), '<a href="http://www.phpbb.com/mods/automod/">', '</a>', '<a href="http://www.phpbb.com/mods/installing/">', '</a>');
 		$phpbbUpgradeMsg = $phpbbUpgradeBase . sprintf(__('Find the %1$s file inside the %2$s folder and open it in your browser. Then follow the instructions to upgrade. Don\'t forget to copy over the new files to your phpBB forum.', 'wp-united'), 'upgrade.xml', 'contrib');
-		$phpbbUpgradeSimpleMsg = $phpbbUpgradeBase . sprintf(__('You can just copy over the files from the /root folder to your phpBB forum.', 'wp-united'), 'upgrade.xml', 'contrib');
+		$phpbbUpgradeSimpleMsg = $phpbbUpgradeBase . __('You can just copy over the files from the /root folder to your phpBB forum.', 'wp-united');
 		
 		$verMismatchMsg = __('You are running WP-United version %1$s, but the WP-United phpBB MOD version you have installed is version %2$s.');
 		
@@ -309,7 +309,7 @@ class WP_United_Plugin_Base {
 		
 		if(empty($pLoc)) {
 			$checked =  array(
-				'result'			=>	'OK',
+				'result'	=>	'OK',
 				'message'	=> 	__('The location to phpBB is not set.')
 			);
 			return $checked;
@@ -318,7 +318,7 @@ class WP_United_Plugin_Base {
 		// Not installed!
 		if(!@file_exists($pLoc . 'wp-united/')) {
 			$checked = array(
-				'result'			=> 'ERROR',
+				'result'	=> 'ERROR',
 				'message'	=> __('You need to install the WP-United phpBB MOD.', 'wp-united') . '<br /><br />' . $phpbbInstallMsg
 			);
 			return $checked;
@@ -329,17 +329,34 @@ class WP_United_Plugin_Base {
 		// Installed, but version < 0.9.1.0
 		if(!@file_exists($pLoc . 'wp-united/version.php')) {
 			$checked = array(
-				'result'			=> 'ERROR',
-				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . '<br /><br />' . $phpbbUpgradeMsg
+				'result'	=> 'ERROR',
+				'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . 
+								'<br /><br />' . $phpbbUpgradeMsg
 			);
 			return $checked;
 		}
 		
 		@include_once($pLoc . 'wp-united/version.php');
 		
-		//for future use here...
+		/**
+		 * Version checks for 0.9.1.0 and above...
+		 */
 		if($wpuVersion_phpbb != $version) {
-		
+			
+			// upgrade to v0.9.2.0; simple file copy
+			if(version_compare($wpuVersion_phpbb, '0.9.2.0', '<')) {
+				$checked = array(
+					'result'	=> 'ERROR',
+					'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . 
+									'<br /><br />' . $phpbbUpgradeSimpleMsg
+				);
+			}
+			
+			// Add future upgrade checks here
+			
+			
+			
+			
 		}
 		
 		$checked = array(
@@ -348,6 +365,33 @@ class WP_United_Plugin_Base {
 		);
 		return $checked;
 
+	}
+	
+	public function upgrade() {
+		global $wpuDebug, $phpbbForum;
+		
+		$installedVer = get_option('wpu-version');
+		$actualVer = $this->get_version();
+		$upgradeAction = false;
+		
+		if(empty($installedVer)) {
+			$upgradeAction = 'from <0.9.2.0 to 0.9.2.x';
+		}
+		// Add additional version compare here for future versions
+
+
+
+		if(!empty($upgradeAction)) {
+			require_once($this->get_plugin_path() . 'upgrade.php');
+			wpu_do_upgrade($upgradeAction);
+		}	
+		
+		
+		if($installedVer != $actualVer) {
+			update_option('wpu-version', $this->get_version());
+		}
+		
+		
 	}
 	
 
