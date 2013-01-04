@@ -55,6 +55,9 @@ function createFileTree() {
 	$wpu('#wpubackupentry').bind('keyup', function() {
 		wpu_update_backuppath(true);
 	});
+	$wpu('#phpbbdocroot').bind('keyup', function() {
+		wpu_update_backuppath(true);
+	});	
 }
 
 function wpu_update_backuppath(changeColor) {
