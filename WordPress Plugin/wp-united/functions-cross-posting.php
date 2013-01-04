@@ -305,14 +305,15 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 			// We need to set this because this could be a past or a future post
 			$utcTime = strtotime($post->post_date_gmt . ' UTC');
 			$utcTime = 		($utcTime === false) 	? 	strtotime($post->post_date) : $utcTime;
-			$utcTimeSql = 	($utcTime !== false) 	?  ', post_time =' . $utcTime 		: '' ;
+			$utcTimeSql = 	($utcTime !== false) 	?  ', topic_time =' . $utcTime 		: '' ;
 			
-			$sql = 'UPDATE ' . POSTS_TABLE . ' SET post_wpu_xpost = ' . $postID .  "{$utcTimeSql} WHERE post_id = {$data['post_id']}";
+			$sql = 'UPDATE ' . TOPICS_TABLE . ' SET topic_wpu_xpost = ' . $postID .  "{$utcTimeSql} WHERE topic_id = {$data['topic_id']}";
 			if (!$result = $db->sql_query($sql)) {
+				$phpbbForum->restore_state($fStateChanged);
 				wp_die(__('Could not access the WP-United database fields. Please ensure WP-United is installed correctly. ', 'wp-united'));
 			}
 			if($utcTime !== false) {
-				$sql = 'UPDATE ' . TOPICS_TABLE . " SET topic_time = {$utcTime} WHERE topic_id = {$data['topic_id']}";
+				$sql = 'UPDATE ' . POSTS_TABLE . " SET post_time = {$utcTime} WHERE post_id = {$data['post_id']}";
 				$result = $db->sql_query($sql);		
 			}	
 			$db->sql_freeresult($result);
@@ -387,8 +388,8 @@ function wpu_get_xposted_details($postID = false) {
 	
 	$fStateChanged = $phpbbForum->foreground();
 	
-	$sql = 'SELECT p.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_type, t.topic_status, t.topic_first_poster_name, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
-		"p.post_wpu_xpost = $postID AND " .
+	$sql = 'SELECT t.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_type, t.topic_status, t.topic_first_poster_name, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
+		"t.topic_wpu_xpost = $postID AND " .
 		't.topic_id = p.topic_id AND (' .
 		'f.forum_id = p.forum_id OR ' .
 		'p.forum_id = 0)';
