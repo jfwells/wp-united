@@ -33,14 +33,6 @@ function wpu_settings_menu() {
 		return;
 	}	
 	
-	if(isset($_POST['wpusettings-transmit'])) { 
-		if(check_ajax_referer( 'wp-united-transmit')) {		
-
-			$wpUnited->transmit_settings();
-			die();
-		}
-	}	
-	
 	if(isset($_GET['page'])) {
 		if($_GET['page'] == 'wpu_acp') {
 			global $phpbbForum;

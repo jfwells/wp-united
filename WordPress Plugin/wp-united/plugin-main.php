@@ -211,20 +211,24 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function ajax_auto_disable() {
 		if(check_ajax_referer( 'wp-united-disable')) {
 			$this->disable_connection('server-error'); 
+			die('OK');
 		}
-		die('OK');
+		
 	}
 	public function ajax_manual_disable() {
 		if(check_ajax_referer( 'wp-united-disable')) {
 			$this->disable_connection('manual');
+			die('OK');
 		}
-		die('OK');
+		
 	}
 	public function ajax_settings_transmit() {
 		if(check_ajax_referer( 'wp-united-transmit')) {
 			wpu_process_settings();
+			$wpUnited->transmit_settings();
+			die('OK');
 		}
-		die('OK');
+		die();
 	}	
 	
 	// returns a WP-United sub-plugin object, if it exists
