@@ -387,7 +387,7 @@ function wpu_setup_errhandler() {
 function wpu_process_error(transmitMessage) { 
 	// there was an uncatchable error, send a disable request
 	if  (transmitMessage.indexOf('[ERROR]') == -1) { 
-		var disable = 'action=wpu_disable&_ajax_nonce=' + disableNonce;
+		var disable = '&wpudisable=1&action=wpu_disable&_ajax_nonce=' + disableNonce;
 		if(transmitMessage == '') {
 			transmitMessage = blankPageMsg;
 		}
@@ -444,7 +444,7 @@ function wpu_manual_disable(type) {
 		show: 'puff'
 	});
 	$wpu('.ui-dialog-titlebar').hide();
-	var disable = 'action=wpu_disableman&_ajax_nonce=' + disableNonce;
+	var disable = 'wpudisableman=1&action=wpu_disableman&_ajax_nonce=' + disableNonce;
 	$wpu.post('ajaxurl', disable, function(response) {
 		// the connection has been disabled, redirect
 		window.location = 'admin.php?page='+type;
