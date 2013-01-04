@@ -244,13 +244,13 @@ class WP_United_Plugin_Base {
 		return $this->settings->enabled;
 	}
 	
-	public function enable() { echo "ENABLING";
+	public function enable()
 		$this->settings->enabled = true;
-		if($this->is_wordpress_loaded()) { echo "SAVING";
+		if($this->is_wordpress_loaded()) {
 			update_option('wpu-enabled', true);
 		}
 	}
-	public function disable() { echo "DISABLING";
+	public function disable() {
 		$this->settings->enabled = false;
 		if($this->is_wordpress_loaded()) {
 			update_option('wpu-enabled', false);
