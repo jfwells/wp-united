@@ -374,9 +374,9 @@ function wpu_setup_errhandler() {
 			}
 			var resp = '<br />There was no page output.<br />';
 			if(typeof xhr.responseText !== 'undefined') {
-				resp = '<br />The page output was:<br />' + xhr.responseText;
+				resp = '<br />The page output was:<br /><div>' + xhr.responseText + '</div>';
 			}
-			wpu_process_error(errMsg = settings.url + ' returned: ' + exception +  );
+			wpu_process_error(errMsg = settings.url + ' returned: ' + exception + resp);
 		}
 	});
 	
