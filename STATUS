@@ -1,14 +1,25 @@
 current target: v0.9.2.0
 
+***** WE ARE NOT SHOWING "YOU NEED TO INSTALL...." ANY MORE!! *******
+
 x-posting todo: 
 
-check permissions post-option not pre-option
+-- relax order requirement when pulling comments; themes could ask DESC or ASC
+-- check post moderation status is working ok (e.g why no pending shown in dash?)
+
+guest posting issues outstanding:
+	-- we just die on a username that is already in use, when we should really display a nice msg
+	-- e-mail and website don't get saved, and username gets sent back to WP as 'Anonymous'
+	-- No checking for username or e-mail clashes in WP
+	-- No checking for e-mail clashes in phpBB (we do check for username clash though)
+
 x-posting superclass
 
 COMMITTED FOR v0.9.2.0:
 
 * NEW: Re-write of cross-posted comments. Cross-posted comments now appear in the WordPress comments widget and dashboard, interleaved with non-cross-posted comments
 * NEW: Cross-posting re-written to match on topics rather than posts; more efficient and flexible. Old cross-posts will be automatically upgraded.
+* NEW: Cross-posted comments (posted by guests) that are pending moderator approval in phpBB now show up in WordPress, with the appropriate "pending approval" message.
 * NEW: The initial connection screen now falls back to manual path entry if your server has restrictions on scannng the document root
 * NEW: You can choose to enter the phpBB path and document root manually, in case your phpBB root is under a different document root.
 * BUGFIX: Users getting logged out of phpBB on full-page phpBB-in-WordPress
@@ -55,12 +66,7 @@ Regressions:
 
 
 ------ cross-posting and comments ---------
--- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
-	-- Posts awaiting approval in phpBB don't show up in WP yet
-	-- we just die on a username that is already in use, when we should really display a nice msg
-	-- e-mail and website don't get saved, and username gets sent back to WP as 'Anonymous'
-	-- No checking for username or e-mail clashes in WP
-	-- No checking for e-mail clashes in phpBB (we do check for username clash though)
+
 -- Move x-posting to its own tab, independent of user integration
 -- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
 -- rework html-to-bbcode translation for images with captions

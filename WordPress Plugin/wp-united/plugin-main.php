@@ -25,7 +25,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		$actions = array(
 			// required actions on all pages
 			array('plugins_loaded', 					'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
-			array('shutdown', 							array('buffer_end_flush_all', 100),			'all'),
+			//array('shutdown', 							array('buffer_end_flush_all', 100),			'all'),
 			array('wp_head', 							'add_scripts',								'all'),
 			array('wp_footer', 							'add_footer_output',						'all'),
 			array('admin_footer', 						'add_footer_output',						'all'),

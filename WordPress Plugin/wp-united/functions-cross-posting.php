@@ -812,7 +812,6 @@ function wpu_comments_open($open, $postID) {
 function wpu_no_guest_comment_posting() {
 	global $wpUnited, $wp_query, $wpuPermsProblem;
 	
-	//TODO: This should be a filtered option! Not a pre-option!
 	
 	if ( 
 		$wpUnited->is_working() 							&&
@@ -822,7 +821,7 @@ function wpu_no_guest_comment_posting() {
 	) { 
 		return $wpuPermsProblem;
 	}
-	
+	// a false pre-option lets WordPress continue on to fetch the option.
 	return false;
 }
 

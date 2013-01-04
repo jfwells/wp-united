@@ -96,6 +96,7 @@ class WPU_Comments {
 		$comments,
 		$usingPhpBBComments,
 		$limit,
+		$status,
 		$offset,
 		$postID,
 		$count;
@@ -114,6 +115,7 @@ class WPU_Comments {
 		$this->limit = 25;
 		$this->offset = 0;
 		$this->count = false;
+		$this->status = 'all';
 		
 	}
 	
@@ -124,7 +126,16 @@ class WPU_Comments {
 		$this->limit = $query->query_vars['number'];
 		$this->offset = $query->query_vars['offset'];
 		$this->count = $query->query_vars['count'];
-
+		
+		if(!empty($query->query_vars['status'])) {
+			if($query->query_vars['status'] == 'hold') {
+				$this->status = 'unapproved';
+			}
+			else if($query->query_vars['status'] != 'approve') {
+				$this->status = 'approved';
+			}
+		}
+		
 		/**
 		 * We can only handle VERY LIMITED types of comment queries right now.
 		 */
@@ -142,10 +153,6 @@ class WPU_Comments {
 				($query->query_vars['post_status'] == 'publish')
 			)															||
 			!empty($query->query_vars['post_type'])						||
-			!(
-				empty($query->query_vars['status'])		||
-				($query->query_vars['status'] == 'approve')
-			)															||
 			!empty($query->query_vars['type'])							||
 			!empty($query->query_vars['user_id'])						||
 			!empty($query->query_vars['meta_key'])						||
@@ -215,10 +222,16 @@ class WPU_Comments {
 		//Add global topics
 		$allowedForums[] = 0;
 		
+		//Get permissions for unapproved comments
+		if($this->status != 'approved') {
+			$canViewUnapproved = array_unique(array_keys($auth->acl_getf('m_approve', true))); 
+		}
 		
-		$addlJoinFields = '';
-		$where = array();
+		$phpbbID = $phpbbForum->get_userdata('user_id');
+		
 				
+		$where = array();
+		
 		if($this->count) {
 			$query = array(
 				'SELECT' 	=> 'COUNT(p.*) AS count',
@@ -231,12 +244,12 @@ class WPU_Comments {
 			
 			$query = array(
 				'SELECT'	=> 'p.post_id, p.poster_id, p.poster_ip, p.post_time, 
-								p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
+								p.post_approved, p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
 								p.enable_sig, p.post_username, p.post_subject, 
 								p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
 								p.topic_id,
 								t.topic_wpu_xpost, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
-								u.username, u.user_wpuint_id, u.user_email',
+								u.user_id, u.username, u.user_wpuint_id, u.user_email',
 				'FROM'		=>	array(
 									TOPICS_TABLE 	=> 	't',
 									POSTS_TABLE		=> 	'p',
@@ -253,9 +266,24 @@ class WPU_Comments {
 			$where[] = ' t.topic_wpu_xpost > 0';
 		}
 		
+		if($this->status == 'unapproved') {
+			$where[] = ' p.post_approved = 0 AND (' .
+				$db->sql_in_set('t.forum_id', $canViewUnapproved) . ' OR 
+				u.user_id = ' . $phpbbID . ' 
+				)';
+		} else if($this->status == 'approved') {
+			$where[] = ' p.post_approved = 1';
+		} else {
+			$where[] = ' (p.post_approved = 1 OR ( 
+				p.post_approved = 0 AND (' .
+				$db->sql_in_set('t.forum_id', $canViewUnapproved) . ' OR 
+				u.user_id = ' . $phpbbID . '
+				)))';
+		}
+			
+		
 		$where[] = '
 			p.topic_id = t.topic_id AND 
-			p.post_approved = 1 AND
 			t.topic_replies_real > 0 AND ' .
 			$db->sql_in_set('t.forum_id', $allowedForums);
 			
@@ -302,7 +330,7 @@ class WPU_Comments {
 				'comment_date_gmt' =>  $user->format_date($comment['post_time'] - ($user->timezone + $user->dst), "Y-m-d H:i:s"), 
 				'comment_content' => generate_text_for_display($comment['post_text'], $comment['bbcode_uid'], $comment['bbcode_bitfield'], $comment['bbcode_options']),
 				'comment_karma' => 0,
-				'comment_approved' => 1,
+				'comment_approved' => $comment['post_approved'],
 				'comment_agent' => 'phpBB forum',
 				'comment_type' => '',
 				'comment_parent' => 0,
