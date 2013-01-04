@@ -415,7 +415,7 @@ function wpu_setup_menu() {
 				$docRootParts = explode('/', $docRoot);
 				while($showBackupPath == $phpbbPath) {
 					array_pop($docRoot);
-					$showBackupPath = str_replace(add_trailing_slash(implode('/', $docRoot), '', $phpbbPath);
+					$showBackupPath = str_replace(add_trailing_slash(implode('/', $docRoot)), '', $phpbbPath);
 				}
 		?>
 		<div id="phpbbpathgroup">
