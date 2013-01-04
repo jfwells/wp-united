@@ -200,56 +200,24 @@ class WPU_Comments {
 
 		$fStateChanged = $phpbbForum->foreground();
 		
-		if(!empty($this->postID)) {
-			$sql = 'SELECT topic_id, forum_id from ' . POSTS_TABLE . ' WHERE post_wpu_xpost = ' . $this->postID;
 		
-			if($result = $db->sql_query_limit($sql, 1)) {
-				$dets = $db->sql_fetchrow($result);
-				if(isset($dets['topic_id'])) {
-					$topicID = (int)$dets['topic_id'];
-					$forumID = (int)$dets['forum_id'];
-				}
-			} 
-			$db->sql_freeresult($result);
 		
-			if(!isset($topicID)) { 
-				$phpbbForum->restore_state($fStateChanged);
-				return false;
-			}
+		//first get forum permissions
 		
-			// check permissions
-			if(!$this->can_read_forum($forumID)) {
-				$phpbbForum->restore_state($fStateChanged);
-				return false;
-			}
-			
-			$topicIDs = 't.topic_id = ' . $topicID;
+		$allowedForums = array_unique(array_keys($auth->acl_getf('f_read', true))); 
 		
-		} else { //pulling for multiple articles at once
-
-			$sql = 'SELECT forum_id, topic_id, post_wpu_xpost from ' . POSTS_TABLE . ' WHERE post_wpu_xpost > 0';
-		
-			$xPostedTopics = array();
-			if($result = $db->sql_query($sql)) {
-				while($dets = $db->sql_fetchrow($result)) {
-					if($this->can_read_forum($dets['forum_id'])) {
-						$xPostedTopics[$dets['topic_id']] = $dets['post_wpu_xpost'];
-					}
-				}
-			}
-			
-			$xPostedTopicList = array_keys($xPostedTopics);
-			
-			if(!sizeof($xPostedTopicList)) {
-				$phpbbForum->restore_state($fStateChanged);
-				return false;
-			}
-			
-			$topicIDs = $db->sql_in_set('t.topic_id', $xPostedTopicList);
-
+		// user can't read any forums
+		if(!sizeof($allowedForums)) {
+			$phpbbForum->restore_state($fStateChanged);
+			return false;
 		}
 		
+		//Add global topics
+		$allowedForums[] = 0;
+		
+		
 		$addlJoinFields = '';
+		$where = array();
 				
 		if($this->count) {
 			$query = array(
@@ -266,8 +234,8 @@ class WPU_Comments {
 								p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
 								p.enable_sig, p.post_username, p.post_subject, 
 								p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
-								p.topic_id, p.forum_id,
-								t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
+								p.topic_id,
+								t.topic_wpu_xpost, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 								u.username, u.user_wpuint_id, u.user_email',
 				'FROM'		=>	array(
 									TOPICS_TABLE 	=> 	't',
@@ -276,21 +244,26 @@ class WPU_Comments {
 								),
 				'ORDER_BY'	=> 'p.post_time DESC'
 			);
-			$addlJoinFields = ' p.poster_id = u.user_id AND ';
+			$where[] = ' p.poster_id = u.user_id';
 		}
 		
-		$query['WHERE'] = '
-			p.topic_id = t.topic_id AND ' .
-			$addlJoinFields .
-			$topicIDs . ' AND 
+		if($this->postID) {
+			$where[] = ' t.topic_wpu_xpost = ' . $this->postID;
+		} else {
+			$where[] = ' t.topic_wpu_xpost > 0';
+		}
+		
+		$where[] = '
+			p.topic_id = t.topic_id AND 
 			p.post_approved = 1 AND
-			t.topic_replies_real > 0 AND 
-			p.post_wpu_xpost IS NULL ';
+			t.topic_replies_real > 0 AND ' .
+			$db->sql_in_set('t.forum_id', $allowedForums);
+			
+		$query['WHERE'] = implode(' AND ', $where);
 					
 					
 		$sql = $db->sql_build_query('SELECT', $query);
-					
-
+		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
 			$phpbbForum->restore_state($fStateChanged);
@@ -300,6 +273,7 @@ class WPU_Comments {
 		if($this->count) {
 			$countRow = $db->sql_fetchrow($result);
 			$this->comments = $countRow['count'];
+			$phpbbForum->restore_state($fStateChanged);
 			return true;
 		}
 		
@@ -313,7 +287,7 @@ class WPU_Comments {
 				(($comment['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
 			
 			
-			$parentPost = (empty($this->postID)) ? $xPostedTopics[$comment['topic_id']] : $this->postID;
+			$parentPost = (empty($this->postID)) ? $comment['topic_wpu_xpost'] : $this->postID;
 			$commentID = $randID + $comment['post_id'];
 			
 			$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
@@ -368,32 +342,7 @@ class WPU_Comments {
 		return $a->comment_date == $b->comment_date ? 0 : ($a->comment_date < $b->comment_date) ? 1 : -1;
 	}
 	
-	private function can_read_forum($forumID) {
-		
-		global $phpbbForum, $auth;
-		static $authList = -1;
-		
-		$fStateChanged = $phpbbForum->foreground();
-		if($authList === -1) {
-			$authList = $auth->acl_getf('f_read', true);
-		}
-		$phpbbForum->restore_state($fStateChanged);
-		
-		if(!is_array($authList) || !sizeof($authList)) {
-			return false;
-		}
 	
-		// global announcement
-		if($forumID == 0) {
-			return true;
-		}
-		
-		if(in_array($forumID, array_keys($authList))) {
-			return true;
-		}
-
-		return false;
-	}
 }
 
 /**
