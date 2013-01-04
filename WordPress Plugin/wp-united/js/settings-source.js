@@ -58,7 +58,7 @@ function createFileTree() {
 }
 
 function wpu_update_backuppath(changeColor) {
-	var pth = $wpu('#phpbbdocroot').text() + $wpu('#wpubackupentry').val();
+	var pth = $wpu('#phpbbdocroot').val() + $wpu('#wpubackupentry').val();
 	pth = pth.replace(/\\/g, '/').replace(/\/\//g,'/');
 	$wpu('#wpupathfield').val(pth);
 	var $p = $wpu('#phpbbpathshow').html(pth);
@@ -69,18 +69,39 @@ function wpu_update_backuppath(changeColor) {
 
 // Triggered on filetree load, so we can intercept if nothing useful is returned.
 var wpuUsingBackupEntry=false;
+var wpuForceBackupEntry=false;
 function wpu_filetree_trigger(data) {
 	
 	if(data.length < 50) {
 		// FileTree isn't showing any useful data, abandon it and fall back to textbox entry
-		wpuUsingBackupEntry = true;
-		$wpu('#phpbbpath').hide();
-		$wpu('#wpubackupgroup').show();
-		wpu_update_backuppath(false);
+		wpuForceBackupEntry = true;
+		wpuSwitchEntryType();
 	} else {
 		$wpu('#phpbbpath').show();
 		$wpu('#wpubackupgroup').hide();	
 	}
+}
+
+function wpuSwitchEntryType() {
+	
+	if(!wpuUsingBackupEntry) {
+		// switch to manual text entry
+		wpuUsingBackupEntry = true;
+		$wpu('#phpbbpath').hide();
+		$wpu('#wpubackupgroup').show();
+		$wpu('#wpuentrytype').text(autoText);
+		wpu_update_backuppath(!wpuForceBackupEntry);
+	} else {
+		if(!wpuForceBackupEntry) {
+			// switch to filechooser
+			wpuUsingBackupEntry = false;
+			$wpu('#phpbbpath').show();
+			$wpu('#wpubackupgroup').hide();
+			$wpu('#wpuentrytype').text(manualText);
+		}
+	}
+	
+	return false;
 }
 
 /**

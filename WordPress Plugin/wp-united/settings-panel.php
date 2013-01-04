@@ -412,13 +412,16 @@ function wpu_setup_menu() {
 			$phpbbPath = $wpUnited->get_setting('phpbb_path');
 			if($phpbbPath) {
 				$showBackupPath = str_replace($docRoot, '', $phpbbPath);
-			}
-			
-
+				$docRootParts = explode('/', $docRoot);
+				while($showBackupPath == $phpbbPath) {
+					array_pop($docRoot);
+					$showBackupPath = str_replace(add_trailing_slash(implode('/', $docRoot), '', $phpbbPath);
+				}
 		?>
 		<div id="phpbbpathgroup">
 			<div id="phpbbpath" style="display: none;">&nbsp;</div>
-			<p id="wpubackupgroup" style="display: none;"><strong><span id="phpbbdocroot"><?php echo $docRoot; ?><input type="text" id="wpubackupentry" name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></span></input>/config.php</strong></p>
+			<p id="wpubackupgroup" style="display: none;"><strong><input id="phpbbdocroot" name="phpbbdocroot" value="<?php echo $docRoot; ?>"></input><input type="text" id="wpubackupentry" name="wpubackupentry" value="<?php echo $showBackupPath; ?>"></span></input>/config.php</strong></p>
+			<small><a href="#" onclick="return wpuSwitchEntryType();" id="wpuentrytype"><?php _e('I want to type the path manually', 'wp-united'); ?></a></small>
 		</div>
 		<p><?php _e('Path selected: ', 'wp-united'); ?><strong id="phpbbpathshow" style="color: red;"><?php _e('Not selected', 'wp-united'); ?></strong> <a id="phpbbpathchooser" href="#" onclick="return wpuChangePath();" style="display: none;"><?php _e('Change Location &raquo;', 'wp-united'); ?></a><a id="wpucancelchange" style="display: none;" href="#" onclick="return wpuCancelChange();"><?php _e('Cancel Change', 'wp-united'); ?></a></p>
 		<input id="wpupathfield" type="hidden" name="wpu-path" value="notset"></input>
@@ -442,6 +445,8 @@ function wpu_setup_menu() {
 		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
 		var fileTreeLdgText = '<?php _e('Loading...', 'wp-united'); ?>';
 		var connectingText = '<?php _e('Connecting...', 'wp-united'); ?>';
+		var manualText = '<?php _e('I want to type the path manually', 'wp-united'); ?>';
+		var autoText = '<?php _e('Show me the file chooser', 'wp-united'); ?>';
 
 
 		function wpu_hardened_init_tail() {
