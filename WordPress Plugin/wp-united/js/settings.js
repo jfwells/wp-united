@@ -377,14 +377,14 @@ function wpu_setup_errhandler() {
 				
 				// extract any head, etc from the page.
 				var mResp = xhr.responseText.split(/<body/i);
-				if(mResp.length) { alert(mResp[1]);
+				if(mResp.length) { 
 					resp = '<div ' + mResp[1];
 					mResp = resp.split(/<\/body>/i);
 				}
-				resp = (resp.length) ? resp[0] + '</div>' : resp;
+				resp = (mResp.length) ? mResp[0] + '</div>' : resp;
 			
 			
-				resp = '<br />The page output was:<br /><div>' + xhr.responseText + '</div>';
+				resp = '<br />The page output was:<br /><div>' + resp + '</div>';
 			}
 			wpu_process_error(errMsg = settings.url + ' returned: ' + exception + resp);
 		}
