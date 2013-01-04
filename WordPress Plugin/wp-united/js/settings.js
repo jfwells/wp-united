@@ -66,7 +66,9 @@ function createFileTree() {
 function resize_text_field($field) {
 	var measure = $wpu('#wpu-measure');
 	measure.text($field.val());
-	$field.css('width', (measure.width() + 16) + "px");
+	var w = measure.width() + 16;
+	if(w < 25) w = 25;
+	$field.css('width', () + "px");
 }
 
 function wpu_update_backuppath(changeColor) {
