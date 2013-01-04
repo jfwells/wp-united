@@ -1682,7 +1682,6 @@ function wpu_process_settings() {
 		
 	}
 
-	
 	$wpUnited->update_settings($data);
 }
 

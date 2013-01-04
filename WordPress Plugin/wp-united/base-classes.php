@@ -196,7 +196,8 @@ class WP_United_Plugin_Base {
 
 	
 	public function is_wordpress_loaded() {
-		if(defined('ABSPATH')) {
+		// when doing AJAX, ABSPATH isn't always defined.
+		if(defined('ABSPATH') || defined('WP_ADMIN')) {
 			return true;
 		} else {
 			return false;
