@@ -179,6 +179,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 			$this->load_phpbb();
 			
+			//Run any upgrade actions once the phpBB environment has been loaded
+			$this->upgrade();
+			
 			$this->set_last_run('working');
 		
 			// Load and initialise any WP-United Extras (sub-plugins):
