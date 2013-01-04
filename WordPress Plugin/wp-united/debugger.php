@@ -46,7 +46,7 @@ class WPU_Debug {
 	}
 	
 	public function get_block($type = 'login') {
-		$result = '<!-- wpu-debug --><div style="border: 1px solid #8f1fff; background-color: #cc99ff; padding: 3px; margin: 6px; color: #ffff99;">';
+		$result = '<!-- wpu-debug --><div style="border: 1px solid #8f1fff; background-color: #cc99ff; padding: 3px; margin: 6px; color: #ffff99;clear: both;">';
 		$result .= '<strong>DEBUG</strong><br />WP Version = ' . $GLOBALS['wp_version'] . '<br />';
 		$result .= $this->get($type);
 		$result .= '</div><!-- /wpu-debug -->';
@@ -80,7 +80,7 @@ class WPU_Debug {
 		$pageLoad = round($endTime - $this->scriptTime, 4) . " seconds";
 	
 		$memUsage = (function_exists('memory_get_peak_usage')) ? round(memory_get_peak_usage()/1024, 0) . "kB" : (function_exists('memory_get_usage')) ? round(memory_get_usage() / 1024, 0) . "kB" : "[Not supported on your server]";
-		return "<p style='background-color: #999999;color: #ffffff !important;display: block;'><strong style='text-decoration: underline;'>WP-United Statistics </strong><br />Script Time: " . $pageLoad . "<br />Memory usage: " . $memUsage . "<br />" . $wpuCache->get_logged_actions() . "</p>";		
+		return "<p style='clear: both;background-color: #999999;color: #ffffff !important;display: block;'><strong style='text-decoration: underline;'>WP-United Statistics </strong><br />Script Time: " . $pageLoad . "<br />Memory usage: " . $memUsage . "<br />" . $wpuCache->get_logged_actions() . "</p>";		
 	}
 	
 	public function display_stats() {
