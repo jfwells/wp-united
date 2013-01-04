@@ -37,6 +37,7 @@ function wpu_settings_menu() {
 		if(check_ajax_referer( 'wp-united-transmit')) {		
 
 			$wpUnited->transmit_settings();
+			@do_action('shutdown');
 			die();
 		}
 	}	
@@ -45,12 +46,14 @@ function wpu_settings_menu() {
 		if($_GET['page'] == 'wpu_acp') {
 			global $phpbbForum;
 			wp_redirect($phpbbForum->append_sid($phpbbForum->get_board_url()  .  'adm/index.php'), 302);
+			@do_action('shutdown');
 			die();
 		}
 		if($_GET['page'] == 'wpu-user-mapper') {
 			if( isset($_POST['wpumapload']) && check_ajax_referer('wp-united-map') ) {
 				// Send user mapper html data
 				wpu_map_show_data();
+				@do_action('shutdown');
 				die();
 			}
 			if(isset($_GET['term']) && check_ajax_referer('wp-united-usersearch')) {
@@ -66,18 +69,21 @@ function wpu_settings_menu() {
 					&showOnlyUnInt=0&showOnlyPosts=0&showOnlyNoPosts=0", 0, $term);
 				
 				$userMapper->send_json();
+				@do_action('shutdown');
 				die();
 			}
 			if( isset($_POST['wpumapaction']) && check_ajax_referer('wp-united-mapaction') ) {
 				// Send user mapper html data
 				
 				wpu_process_mapaction();
+				@do_action('shutdown');
 				die();
 			}
 			if( isset($_POST['wpusetperms']) && check_ajax_referer('wp-united-mapaction') ) {
 				// Send user mapper html data
 				
 				wpu_process_perms();
+				@do_action('shutdown');
 				die();
 			}
 						
@@ -841,7 +847,7 @@ function wpu_process_perms() {
 			);
 		}
 	}
-
+	@do_action('shutdown');
 	die('OK');
 }	
 
@@ -1059,8 +1065,10 @@ function wpu_process_mapaction() {
 				$phpbbID = wpu_create_phpbb_user($userID);
 					
 				if($phpbbID == 0) {
+					@do_action('shutdown');
 					die('<status>FAIL</status><details>' . __('Could not add user to phpBB', 'wp-united') . '</details></wpumapaction>');
 				} else if($phpbbID == -1) {
+					@do_action('shutdown');
 					die('<status>FAIL</status><details>' . __('A suitable username could not be found in phpBB', 'wp-united') . '</details></wpumapaction>');
 				}
 				wpu_sync_profiles(get_userdata($userID), $phpbbForum->get_userdata('', $phpbbID), 'wp-update');
@@ -1073,6 +1081,7 @@ function wpu_process_mapaction() {
 				require_once( ABSPATH . WPINC . '/registration.php');
 				
 				if( !$userLevel = wpu_get_user_level($userID) ) {
+					@do_action('shutdown');
 					die('<status>FAIL</status><details>' . __('Cannot create integrated user, as they would have no integration permissions.', 'wp-united') . '</details></wpumapaction>');
 				}
 				
@@ -1089,6 +1098,7 @@ function wpu_process_mapaction() {
 						
 					}
 				} else {
+					@do_action('shutdown');
 					die('<status>FAIL</status><details>' . __('Could not add user to WordPress', 'wp-united') . '</details></wpumapaction>');
 				}
 			}
@@ -1100,6 +1110,7 @@ function wpu_process_mapaction() {
 	}
 	echo '<nonce>' . wp_create_nonce('wp-united-mapaction') . '</nonce>';
 	echo '</wpumapaction>';
+	@do_action('shutdown');
 	die();	
 	
 }
@@ -1136,6 +1147,7 @@ function wpu_map_action_error($errDesc) {
 		echo '<status>ERROR</status>';
 		echo '<details>' . $errDesc . '</details>';
 		echo '</wpumapaction>';
+		@do_action('shutdown');
 		die();
 	
 }
@@ -1494,16 +1506,19 @@ function wpu_process_settings() {
 	 * First process path to phpBB
 	 */
 	if(!isset($_POST['wpu-path'])) {
+		@do_action('shutdown');
 		die('[ERROR] ' . __("ERROR: You must specify a valid path for phpBB's config.php", 'wp-united'));
 	}
 	$wpuPhpbbPath = (string)$_POST['wpu-path'];
 	$wpuPhpbbPath = str_replace('http:', '', $wpuPhpbbPath);
 	$wpuPhpbbPath = add_trailing_slash($wpuPhpbbPath);
 	if(!@file_exists($wpUnited->get_plugin_path()))  {
+		@do_action('shutdown');
 		die('[ERROR] ' . __("ERROR:The path you selected for phpBB's config.php is not valid", 'wp-united'));
 		return;
 	}
 	if(!@file_exists($wpuPhpbbPath . 'config.php'))  {
+		@do_action('shutdown');
 		die('[ERROR] ' . __("ERROR: phpBB's config.php could not be found at the location you chose", 'wp-united'));
 		return;
 	}
@@ -1735,6 +1750,7 @@ function wpu_process_advanced_options() {
 
 function wpu_filetree() {
 	if(stristr($_POST['filetree'], '..')) {
+		@do_action('shutdown');
 		die();
 	}
 	
@@ -1768,7 +1784,7 @@ function wpu_filetree() {
 			echo "</ul>";	
 		}
 	}
-	@wp_ob_end_flush_all();
+	@do_action('shutdown');
 	die();
 	
 }
