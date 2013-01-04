@@ -57,6 +57,7 @@ function wpu_uninstall() {
 	$options = array(
 		'wpu_set_forum',
 		'wpu-settings',
+		'wpu-version',
 		'wpu-last-run',
 		'wpu-enabled',
 		'widget_wp-united-loginuser-info',
