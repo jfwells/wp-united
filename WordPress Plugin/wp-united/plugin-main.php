@@ -98,6 +98,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$this->integComments = new WPU_Comments_Access_Layer();
 		}
 
+		add_action('wp_ajax_wpu_filetree', 'wpu_filetree');
+		
+		
 		// we want to override some actions. These must match the priority of the built-ins 
 		//if($this->get_setting('showHdrFtr') == 'FWD') {
 			//remove_action('shutdown', 'wp_ob_end_flush_all', 1);
@@ -358,7 +361,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 			// file tree
 			if( isset($_POST['filetree']) && check_ajax_referer( 'wp-united-filetree') ) {
-				wpu_filetree();
+			//	wpu_filetree();
 			}
 			
 			if($this->is_working() && is_object($this->extras)) {
