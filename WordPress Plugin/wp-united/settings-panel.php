@@ -1768,6 +1768,7 @@ function wpu_filetree() {
 			echo "</ul>";	
 		}
 	}
+	@wp_ob_end_flush_all();
 	die();
 	
 }

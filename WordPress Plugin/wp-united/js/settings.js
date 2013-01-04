@@ -107,6 +107,7 @@ function wpuSwitchEntryType() {
 		$wpu('#wpubackupgroup').show();
 		$wpu('#wpuentrytype').text(autoText);
 		wpu_update_backuppath(!wpuForceBackupEntry);
+		$wpu('#wpusetup-submit').show();
 	} else {
 		if(!wpuForceBackupEntry) {
 			// switch to filechooser
@@ -114,6 +115,7 @@ function wpuSwitchEntryType() {
 			$wpu('#phpbbpath').show();
 			$wpu('#wpubackupgroup').hide();
 			$wpu('#wpuentrytype').text(manualText);
+			$wpu('#wpusetup-submit').hide();
 		}
 	}
 	
