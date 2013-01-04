@@ -376,12 +376,12 @@ function wpu_setup_errhandler() {
 			if(typeof xhr.responseText !== 'undefined') {
 				
 				// extract any head, etc from the page.
-				resp = xhr.responseText.split(/<body\s?/i);
-				if(resp.length > 0) {
+				resp = xhr.responseText.split(/<body/i);
+				if(resp.length) {
 					resp = '<div ' + resp[1];
-					resp = xhr.responseText.split(/<\/body>/i);
+					resp = resp.split(/<\/body>/i);
 				}
-				resp = (resp.length) ? resp[0] : resp;
+				resp = (resp.length) ? resp[0] + '</div>' : resp;
 			
 			
 				resp = '<br />The page output was:<br /><div>' + xhr.responseText + '</div>';
