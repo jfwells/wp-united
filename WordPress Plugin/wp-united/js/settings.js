@@ -68,7 +68,7 @@ function resize_text_field($field) {
 	measure.text($field.val());
 	var w = measure.width() + 16;
 	if(w < 25) w = 25;
-	$field.css('width', () + "px");
+	$field.css('width', w + 'px');
 }
 
 function wpu_update_backuppath(changeColor) {
