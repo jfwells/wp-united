@@ -350,6 +350,7 @@ function wpu_transmit(type, formID, urlToRefresh) {
 		response = $wpu.trim(response);
 		var responseMsg;
 		if(response.length > 2) responseMsg = response.substr(0, 2);
+		alert('*'+responseMsg+'*');
 		if(responseMsg == 'OK') {
 			// the settings were applied
 			window.location = 'admin.php?page=' + type + '&msg=success' + '&tab=' + window.location.hash.replace('#', '');
