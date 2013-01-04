@@ -399,6 +399,18 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			
 			require_once($this->get_plugin_path() . 'settings-panel.php');
 			
+			// the settings page has detected an error and asked to abort
+			if( isset($_POST['wpudisable']) && check_ajax_referer( 'wp-united-disable') ) {
+				$this->ajax_auto_disable();
+			}	
+
+			// the user wants to manually disable
+			if( isset($_POST['wpudisableman']) && check_ajax_referer( 'wp-united-disable') ) {
+				$this->ajax_manual_disable();
+			}
+			
+			
+			
 			if($this->is_working() && is_object($this->extras)) {
 				$this->extras->admin_load_actions();
 			}
