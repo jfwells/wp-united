@@ -345,8 +345,8 @@ function wpu_transmit(type, formID, urlToRefresh) {
 	
 	wpu_setup_errhandler();
 	
-	formData = $wpu('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=' + transmitNonce;
-	$wpu.post('admin.php?page='+type, formData, function(response) { 
+	formData = $wpu('#' + formID).serialize() +'&action=wpu_settings_transmit&type=' + type + '&_ajax_nonce=' + transmitNonce;
+	$wpu.post(ajaxurl, formData, function(response) { 
 		response = $wpu.trim(response);
 		if(response=='OK') {
 			// the settings were applied
@@ -382,7 +382,7 @@ function wpu_setup_errhandler() {
 function wpu_process_error(transmitMessage) { 
 	// there was an uncatchable error, send a disable request
 	if  (transmitMessage.indexOf('[ERROR]') == -1) { 
-		var disable = 'wpudisable=1&_ajax_nonce=' + disableNonce;
+		var disable = 'action=wpu_disable&_ajax_nonce=' + disableNonce;
 		if(transmitMessage == '') {
 			transmitMessage = blankPageMsg;
 		}
@@ -391,7 +391,7 @@ function wpu_process_error(transmitMessage) {
 			// TODO: if server 500 error or disable, try direct delete method
 			send_back_msg('admin.php?page=wp-united-setup&msg=fail', transmitMessage);
 		}); 
-		$wpu.post('index.php', disable, function(response) {
+		$wpu.post(ajaxurl, disable, function(response) {
 			// the connection has been disabled, redirect
 			send_back_msg('admin.php?page=wp-united-setup&msg=fail', transmitMessage);
 		});
@@ -434,8 +434,8 @@ function wpu_manual_disable(type) {
 		show: 'puff'
 	});
 	$wpu('.ui-dialog-titlebar').hide();
-	var disable = 'wpudisableman=1&_ajax_nonce=' + disableNonce;
-	$wpu.post('admin.php?page='+type, disable, function(response) {
+	var disable = 'action=wpu_disableman&_ajax_nonce=' + disableNonce;
+	$wpu.post('ajaxurl', disable, function(response) {
 		// the connection has been disabled, redirect
 		window.location = 'admin.php?page='+type;
 	});

@@ -1481,8 +1481,8 @@ function wpu_process_settings() {
 	global $wpUnited, $wpdb; 
 
 	$type = 'setup';
-	if(isset($_GET['page'])) {
-		if($_GET['page'] == 'wp-united-settings') {
+	if(isset($_POST['type'])) {
+		if($_POST['type'] == 'wp-united-settings') {
 			$type = 'settings';
 		}
 	}
@@ -1736,6 +1736,7 @@ function wpu_filetree() {
 	if(stristr($_POST['filetree'], '..')) {
 		die();
 	}
+	
 	
 	$docRoot = wpu_get_doc_root();
 

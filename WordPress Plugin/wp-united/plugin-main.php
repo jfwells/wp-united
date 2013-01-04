@@ -23,20 +23,35 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		// Actions and filters. These are loaded as needed depending on which WP-United portions are active.
 		// Format: array( event | function in this class(in an array if optional arguments are needed) | loading circumstances)
 		$actions = array(
+			// required actions on all pages
 			array('plugins_loaded', 					'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
 			array('shutdown', 							array('buffer_end_flush_all', 100),			'all'),
 			array('wp_head', 							'add_scripts',								'all'),
 			array('wp_footer', 							'add_footer_output',						'all'),
 			array('admin_footer', 						'add_footer_output',						'all'),
 			array('admin_bar_menu',						array('add_to_menu_bar', 100),				'all'),
+			
+			// required admin ajax actions
+			array('wp_ajax_wpu_filetree', 				'filetree',									'all'),
+			array('wp_ajax_wpu_disable', 				'ajax_auto_disable',						'all'),
+			array('wp_ajax_wpu_disableman', 			'ajax_manual_disable',						'all'),
+			array('wp_ajax_wpu_settings_transmit', 		'ajax_settings_transmit',					'all'),
+			
+			// behaviour actions
 			array('comment_form', 						'generate_smilies',							'phpbb-smilies'),
+			
+			// template integration actions
 			array('wp_head', 							'add_head_marker',							'template-int'),
 			array('switch_theme', 						'clear_header_cache',						'template-int'),
+			
+			// user integration actions
 			array('set_current_user', 					'integrate_users',							'user-int'),
 			array('wp_logout', 							'phpbb_logout',								'user-int'),
 			array('registration_errors', 				array('validate_new_user', 10, 3),			'user-int'),
 			array('user_register', 						array('process_new_wp_reg', 10, 1),			'user-int'),
 			array('profile_update', 					array('profile_update', 10, 2),				'user-int'),
+			
+			// cross-posting actions
 			array('admin_menu', 						'add_xposting_box',							'x-posting'),
 			array('edit_post', 							'just_editing_post',						'x-posting'),
 			array('wp_insert_post', 					array('capture_future_post', 10, 2),		'x-posting'),
@@ -48,18 +63,25 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		),
 
 		$filters = array(
+			// required filters
 			array('plugin_row_meta', 					array('add_plugin_menu_link', 10, 2), 		'all'),
 			array('page_link', 							array('fix_forum_link', 10, 2), 			'all'),
 			array('admin_footer_text', 					'admin_footer_text', 						'all'),
 			array('the_content', 						'check_content_for_forum', 					'all'),
+			
+			// behaviour filters
 			array('comment_text', 						'censor_content', 							'phpbb-censor'),
 			array('the_title', 							'censor_content', 							'phpbb-censor'),
 			array('the_excerpt', 						'censor_content', 							'phpbb-censor'),
 			array('comment_text', 						'smilies', 									'phpbb-smilies'),
+			
+			// user integration filters
 			array('get_avatar', 						array('get_avatar', 10, 5), 				'user-int'),
 			array('pre_user_login', 					'fix_blank_username', 						'user-int'),
 			array('validate_username', 					array('validate_username_conflict', 10, 2),	'user-int'),
 			array('authenticate', 						array('authenticate', 21, 3), 				'user-int'),
+			
+			// cross-posting filters
 			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
 			array('comments_array', 					array('load_phpbb_comments', 10, 2),		'x-posting'),
 			array('the_comments', 						array('integrated_comments', 10, 2),		'x-posting'),
@@ -98,9 +120,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$this->integComments = new WPU_Comments_Access_Layer();
 		}
 
-		add_action('wp_ajax_wpu_filetree', 'wpu_filetree');
-		
-		
+	
 		// we want to override some actions. These must match the priority of the built-ins 
 		//if($this->get_setting('showHdrFtr') == 'FWD') {
 			//remove_action('shutdown', 'wp_ob_end_flush_all', 1);
@@ -176,6 +196,36 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return true; 
 			
 	}
+	
+	/**
+	 * 
+	 * Admin AJAX actions
+	 *
+	*/
+	public function filetree() {
+		if(check_ajax_referer( 'wp-united-filetree')) {
+			wpu_filetree();
+		}
+		die();
+	}
+	public function ajax_auto_disable() {
+		if(check_ajax_referer( 'wp-united-disable')) {
+			$this->disable_connection('server-error'); 
+		}
+		die();
+	}
+	public function ajax_manual_disable() {
+		if(check_ajax_referer( 'wp-united-disable')) {
+			$this->disable_connection('manual');
+		}
+		die();
+	}
+	public function ajax_settings_transmit() {
+		if(check_ajax_referer( 'wp-united-transmit')) {
+			wpu_process_settings();
+		}
+		die();
+	}	
 	
 	// returns a WP-United sub-plugin object, if it exists
 	public function get_extra($extraName) {
@@ -344,25 +394,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if(is_admin()) {
 			
 			require_once($this->get_plugin_path() . 'settings-panel.php');
-			
-			// the settings page has detected an error and asked to abort
-			if( isset($_POST['wpudisable']) && check_ajax_referer( 'wp-united-disable') ) {
-				$this->disable_connection('server-error'); 
-			}	
-
-			// the user wants to manually disable
-			if( isset($_POST['wpudisableman']) && check_ajax_referer( 'wp-united-disable') ) {
-				$this->disable_connection('manual');
-			}		
-
-			if( isset($_POST['wpusettings-transmit']) && check_ajax_referer( 'wp-united-transmit') ) { 
-				wpu_process_settings();
-			}
-	
-			// file tree
-			if( isset($_POST['filetree']) && check_ajax_referer( 'wp-united-filetree') ) {
-			//	wpu_filetree();
-			}
 			
 			if($this->is_working() && is_object($this->extras)) {
 				$this->extras->admin_load_actions();
