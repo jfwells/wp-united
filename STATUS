@@ -2,23 +2,23 @@ current target: v0.9.2.0
 
 x-posting todo: 
 
-upgrade to topic column!
 check permissions post-option not pre-option
 x-posting superclass
 
 COMMITTED FOR v0.9.2.0:
 
-* NEW: Re-write of cross-posted comments. Cross-posted comments now appear in the WordPress comments widget and dashboard, interleaved with non-cross-posted comments.
+* NEW: Re-write of cross-posted comments. Cross-posted comments now appear in the WordPress comments widget and dashboard, interleaved with non-cross-posted comments
+* NEW: Cross-posting re-written to match on topics rather than posts; more efficient and flexible. Old cross-posts will be automatically upgraded.
 * NEW: The initial connection screen now falls back to manual path entry if your server has restrictions on scannng the document root
 * NEW: You can choose to enter the phpBB path and document root manually, in case your phpBB root is under a different document root.
 * BUGFIX: Users getting logged out of phpBB on full-page phpBB-in-WordPress
 * WORKAROUND: Incorrect user integration flow when Ultimate TinyMCE (or similar plugins that set current user too early) are active.
-* BUGFIX: Regression in avatars; default avatars getting syncd to phpBB ratehr than true Gravatars.
+* BUGFIX: Regression in avatars; default avatars getting syncd to phpBB rather than true Gravatars.
 * BUGFIX: Initial connect screen was complaining about lack of phpBB MOD before even trying to connect
 * NEW: More errors can now be passed through on the initial connect & settings screens: No more guessing what it is keeping you from installing.
 * NEW / BUGFIX: The forum page title keeps getting reset back to "Forum" and the page creation date keeps updating.
-* BUGFIX: top navbar not correctly showing post name
-* BUGFIX: userdata cache not cleared on first integrated login to phpBB
+* BUGFIX: Top navbar not correctly showing post name
+* BUGFIX: Userdata cache not cleared on first integrated login to phpBB
 * BUGFIX: $table_prefix was getting unset on phpBB-in-WordPress pages, upsetting some mods
 * BUGFIX: Improve handling of double-byte characters when escaping cross-posted topic titles and user names in user mapper.
 * ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
@@ -54,44 +54,6 @@ Regressions:
 * phpbb prosilver CSS line icon-home etc do not get template-voodoo-ized (perhaps line to long)?
 
 
-Blank file connect box with one or more of the following plugins [pending more data]:
-
-adsense-extreme/adsensextreme.php, 
-akismet/akismet.php, 
-all-in-one-seo-pack/all_in_one_seo_pack.php, [ok]
-auto-thickbox-plus/auto-thickbox.php, 
-avh-first-defense-against-spam/avh-fdas.php, 
-bolcom-partnerprogramma-wordpress-plugin/bolcom-partnerprogramma-wordpress-plugin.php, 
-cookie-law-info/cookie-law-info.php, 
-custom-sidebars/customsidebars.php, 
-download-manager/download-manager.php, 
-google-analytics-for-wordpress/googleanalytics.php, 
-keyword-statistics/keyword-statistics.php, 
-m-vslider/rslider.php, 
-mp3-jplayer/mp3jplayer.php, 
-proplayer/pro-player.php,
-quick-adsense/quick-adsense.php,
-relevanssi/relevanssi.php, 
-search-and-replace/search-and-replace.php, 
-si-captcha-for-wordpress/si-captcha.php, 
-si-contact-form/si-contact-form.php,
-simple-local-avatars/simple-local-avatars.php,
-tippy/tippy.php,
-top-10/top-10.php,
-uber-login-logo/uber-login-logo.php,
-ultimate-tinymce/main.php,
-wp-copyprotect/wp-copyprotect.php,
-wp-most-popular/wp-most-popular.php,
-wp-pagenavi/wp-pagenavi.php,
-wp-polls/wp-polls.php,
-wp-slimstat/wp-slimstat.php,
-wp-socializer/wp-socializer.php,
-wp-table-reloaded/wp-table-reloaded.php,
-wp-united/wp-united.php,
-yet-another-related-posts-plugin/yarpp.php
-
-
-
 ------ cross-posting and comments ---------
 -- guest-posting is no longer explicitly disabled, but correct forum permissions must be set. However:
 	-- Posts awaiting approval in phpBB don't show up in WP yet
@@ -101,9 +63,8 @@ yet-another-related-posts-plugin/yarpp.php
 	-- No checking for e-mail clashes in phpBB (we do check for username clash though)
 -- Move x-posting to its own tab, independent of user integration
 -- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
--- move cross-posting from per-topic to per-post (and topic!) to reduce query load
 -- rework html-to-bbcode translation for images with captions
--- make wpu_get_xposted_details() cacheable, and implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
+-- implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
 -- for each cross-posted comment insert a ghost comment into wordpress with a marker to the phpBB comment (? -- unless we can cleanly generate "comments list to load", see below)
 -- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
 
