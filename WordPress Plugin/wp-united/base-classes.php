@@ -196,8 +196,7 @@ class WP_United_Plugin_Base {
 
 	
 	public function is_wordpress_loaded() {
-		// when doing AJAX, ABSPATH isn't always defined.
-		if(defined('ABSPATH') || defined('WP_ADMIN')) {
+		if(defined('ABSPATH')) {
 			return true;
 		} else {
 			return false;
@@ -245,13 +244,13 @@ class WP_United_Plugin_Base {
 		return $this->settings->enabled;
 	}
 	
-	public function enable() {
+	public function enable() { echo "ENABLING";
 		$this->settings->enabled = true;
-		if($this->is_wordpress_loaded()) {
+		if($this->is_wordpress_loaded()) { echo "SAVING";
 			update_option('wpu-enabled', true);
 		}
 	}
-	public function disable() {
+	public function disable() { echo "DISABLING";
 		$this->settings->enabled = false;
 		if($this->is_wordpress_loaded()) {
 			update_option('wpu-enabled', false);
