@@ -417,7 +417,7 @@ function send_back_msg(uri, msg) {
 	// escape any html in error messages
 	$wpu('<div id="escapetext"> </div>').appendTo('body');
 
-	$wpu('<form action="' + uri + '" method="post"><input type="hidden" name="msgerr" value="' + $wpu('#escapetext').html('msg').text() + '"></input></form>').appendTo('body').submit();
+	$wpu('<form action="' + uri + '" method="post"><input type="hidden" name="msgerr" value="' + $wpu('#escapetext').html(msg).text() + '"></input></form>').appendTo('body').submit();
 }
 
 /**
