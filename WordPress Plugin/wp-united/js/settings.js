@@ -349,7 +349,7 @@ function wpu_transmit(type, formID, urlToRefresh) {
 	$wpu.post(ajaxurl, formData, function(response) { 
 		response = $wpu.trim(response);
 		var responseMsg;
-		if(response.length > 2) responseMsg = response.substring(0, 2);
+		if(response.length > 2) responseMsg = response.substr(0, 2);
 		if(responseMsg == 'OK') {
 			// the settings were applied
 			window.location = 'admin.php?page=' + type + '&msg=success' + '&tab=' + window.location.hash.replace('#', '');
@@ -638,7 +638,7 @@ function wpuApplyPerms() {
 	$wpu.post('admin.php?page=wpu-user-mapper', 'wpusetperms=' + makeMsgSafe(results.join(',')) + '&wpusetnevers=' + makeMsgSafe(resultsNever.join(',')) + '&_ajax_nonce=' + firstMapActionNonce, function(response) { 
 		response = $wpu.trim(response);
 		var responseMsg;
-		if(response.length > 2) responseMsg = response.substring(0, 2);
+		if(response.length > 2) responseMsg = response.substr(0, 2);
 		if(responseMsg =='OK') {
 			// the settings were applied
 		}
@@ -1393,7 +1393,7 @@ function wpuProcessNext(el, nonce) {
 		var nextNonce = $wpu(response).find('nonce').text();
 		actionStatus = $wpu.trim(actionStatus);
 		var actionStatusMsg
-		if(actionStatus.length > 2)actionStatusMsg = actionStatus.substring(0, 2);
+		if(actionStatus.length > 2)actionStatusMsg = actionStatus.substr(0, 2);
 		if(actionStatusMsg=='OK') {
 			wpuNextAction(nextNonce);
 			
