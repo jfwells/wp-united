@@ -373,7 +373,7 @@ function wpu_setup_errhandler() {
 				var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
 			}
 			var resp = '<br />There was no page output.<br />';
-			if(typeOf xhr.responseText != undefined) {
+			if(typeof xhr.responseText !== 'undefined') {
 				resp = '<br />The page output was:<br />' + xhr.responseText;
 			}
 			wpu_process_error(errMsg = settings.url + ' returned: ' + exception +  );
