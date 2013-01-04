@@ -374,6 +374,16 @@ function wpu_setup_errhandler() {
 			}
 			var resp = '<br />There was no page output.<br />';
 			if(typeof xhr.responseText !== 'undefined') {
+				
+				// extract any head, etc from the page.
+				resp = xhr.responseText.split(/<body\s?/i);
+				if(resp.length > 0) {
+					resp = '<div ' + resp[1];
+					resp = xhr.responseText.split(/<\/body>/i);
+				}
+				resp = (resp.length) ? resp[0] : resp;
+			
+			
 				resp = '<br />The page output was:<br /><div>' + xhr.responseText + '</div>';
 			}
 			wpu_process_error(errMsg = settings.url + ' returned: ' + exception + resp);
