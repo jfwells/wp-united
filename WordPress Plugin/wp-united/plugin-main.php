@@ -408,9 +408,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			if( isset($_POST['wpudisableman']) && check_ajax_referer( 'wp-united-disable') ) {
 				$this->ajax_manual_disable();
 			}
-			
-			
-			
+						
 			if($this->is_working() && is_object($this->extras)) {
 				$this->extras->admin_load_actions();
 			}
