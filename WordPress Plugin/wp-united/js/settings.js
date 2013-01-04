@@ -30,7 +30,7 @@ var $wpu = jQuery.noConflict();
 function createFileTree() {
 	$wpu('#phpbbpath').fileTree({ 
 		root: '/',
-		script: treeScript,
+		script: ajaxurl,
 		multiFolder: false,
 		loadMessage: fileTreeLdgText
 	}, function(file) { 

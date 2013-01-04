@@ -1109,3 +1109,14 @@ div.subsettings div.subsettings {
 #wpupermactions button {
 	margin: 8px;
 }
+
+#phpbbdocroot {
+	font-size: 11px;
+	color: #aaaaaa; 
+	border: 0 dotted #cccccc; 
+	border-bottom-width: 1px; 
+	width: auto;
+}
+
+
+

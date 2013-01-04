@@ -444,7 +444,6 @@ function wpu_setup_menu() {
 		var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
 		var blankPageMsg = '<?php _e('Blank page received: check your error log.', 'wp-united'); ?>';
 		var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
-		var treeScript =  '<?php echo 'admin.php?page=wp-united-setup'; ?>';
 		var fileTreeLdgText = '<?php _e('Loading...', 'wp-united'); ?>';
 		var connectingText = '<?php _e('Connecting...', 'wp-united'); ?>';
 		var manualText = '<?php _e('I want to type the path manually', 'wp-united'); ?>';
