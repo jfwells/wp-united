@@ -30,7 +30,7 @@ var $wpu = jQuery.noConflict();
 function createFileTree() {
 	$wpu('#phpbbpath').fileTree({ 
 		root: '/',
-		script: treeScript,
+		script: ajaxurl,
 		multiFolder: false,
 		loadMessage: fileTreeLdgText
 	}, function(file) { 
@@ -55,10 +55,28 @@ function createFileTree() {
 	$wpu('#wpubackupentry').bind('keyup', function() {
 		wpu_update_backuppath(true);
 	});
+	$wpu('#phpbbdocroot').bind('keyup', function() {
+		wpu_update_backuppath(true);
+	});	
+}
+
+
+
+// Resize text boxes dynamically
+function resize_text_field($field) {
+	var measure = $wpu('#wpu-measure');
+	measure.text($field.val());
+	var w = measure.width() + 16;
+	if(w < 25) w = 25;
+	$field.css('width', w + 'px');
 }
 
 function wpu_update_backuppath(changeColor) {
-	var pth = $wpu('#phpbbdocroot').val() + $wpu('#wpubackupentry').val();
+	var $docRoot = $wpu('#phpbbdocroot');
+	var $bckEntry = $wpu('#wpubackupentry');
+	var pth = $docRoot.val() + $bckEntry.val();
+	resize_text_field($docRoot);
+	resize_text_field($bckEntry);
 	pth = pth.replace(/\\/g, '/').replace(/\/\//g,'/');
 	$wpu('#wpupathfield').val(pth);
 	var $p = $wpu('#phpbbpathshow').html(pth);
@@ -91,6 +109,7 @@ function wpuSwitchEntryType() {
 		$wpu('#wpubackupgroup').show();
 		$wpu('#wpuentrytype').text(autoText);
 		wpu_update_backuppath(!wpuForceBackupEntry);
+		$wpu('#wpusetup-submit').show();
 	} else {
 		if(!wpuForceBackupEntry) {
 			// switch to filechooser
@@ -98,6 +117,7 @@ function wpuSwitchEntryType() {
 			$wpu('#phpbbpath').show();
 			$wpu('#wpubackupgroup').hide();
 			$wpu('#wpuentrytype').text(manualText);
+			$wpu('#wpusetup-submit').hide();
 		}
 	}
 	
@@ -325,10 +345,12 @@ function wpu_transmit(type, formID, urlToRefresh) {
 	
 	wpu_setup_errhandler();
 	
-	formData = $wpu('#' + formID).serialize() +'&wpusettings-transmit=1&_ajax_nonce=' + transmitNonce;
-	$wpu.post('admin.php?page='+type, formData, function(response) { 
+	formData = $wpu('#' + formID).serialize() +'&action=wpu_settings_transmit&type=' + type + '&_ajax_nonce=' + transmitNonce;
+	$wpu.post(ajaxurl, formData, function(response) { 
 		response = $wpu.trim(response);
-		if(response=='OK') {
+		var responseMsg;
+		if(response.length >= 2) responseMsg = response.substr(0, 2);
+		if(responseMsg == 'OK') {
 			// the settings were applied
 			window.location = 'admin.php?page=' + type + '&msg=success' + '&tab=' + window.location.hash.replace('#', '');
 			return;
@@ -341,14 +363,31 @@ function wpu_transmit(type, formID, urlToRefresh) {
 /**
  * Listen for ajax errors
  */
+ var wpu_handling_error = false;
 function wpu_setup_errhandler() {
 	$wpu(document).ajaxError(function(e, xhr, settings, exception) {
-
-		if(exception == undefined) {
-			var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+		
+		if(!wpu_handling_error) {
+			wpu_handling_error = true;
+			if(exception == undefined) {
+				var exception = 'Server ' + xhr.status + ' error. Please check your server logs for more information.';
+			}
+			var resp = '<br />There was no page output.<br />';
+			if(typeof xhr.responseText !== 'undefined') {
+				
+				// extract any head, etc from the page.
+				var mResp = xhr.responseText.split(/<body/i);
+				if(mResp.length) { 
+					resp = '<div ' + mResp[1];
+					mResp = resp.split(/<\/body>/i);
+				}
+				resp = (mResp.length) ? mResp[0] + '</div>' : resp;
+			
+			
+				resp = '<br />The page output was:<br /><div>' + resp + '</div>';
+			}
+			wpu_process_error(errMsg = 'WP-United caught an error: ' + settings.url + ' returned: ' + exception + resp);
 		}
-		wpu_process_error(errMsg = settings.url + ' returned: ' + exception);
-	
 	});
 	
 }
@@ -362,7 +401,7 @@ function wpu_setup_errhandler() {
 function wpu_process_error(transmitMessage) { 
 	// there was an uncatchable error, send a disable request
 	if  (transmitMessage.indexOf('[ERROR]') == -1) { 
-		var disable = 'wpudisable=1&_ajax_nonce=' + disableNonce;
+		var disable = '&wpudisable=1&action=wpu_disable&_ajax_nonce=' + disableNonce;
 		if(transmitMessage == '') {
 			transmitMessage = blankPageMsg;
 		}
@@ -371,7 +410,7 @@ function wpu_process_error(transmitMessage) {
 			// TODO: if server 500 error or disable, try direct delete method
 			send_back_msg('admin.php?page=wp-united-setup&msg=fail', transmitMessage);
 		}); 
-		$wpu.post('index.php', disable, function(response) {
+		$wpu.post(ajaxurl, disable, function(response) {
 			// the connection has been disabled, redirect
 			send_back_msg('admin.php?page=wp-united-setup&msg=fail', transmitMessage);
 		});
@@ -384,7 +423,11 @@ function wpu_process_error(transmitMessage) {
 
 // We have to send messages back by POST as URI vars are too long
 function send_back_msg(uri, msg) {
-	$wpu('<form action="' + uri + '" method="post"><input type="hidden" name="msgerr" value="' + makeMsgSafe(msg) + '"></input></form>').appendTo('body').submit();
+
+	// escape any html in error messages
+	$wpu('<div id="escapetext"> </div>').appendTo('body');
+
+	$wpu('<form action="' + uri + '" method="post"><input type="hidden" name="msgerr" value="' + Base64.encode($wpu('#escapetext').text(msg).html()) + '"></input></form>').appendTo('body').submit();
 }
 
 /**
@@ -414,8 +457,8 @@ function wpu_manual_disable(type) {
 		show: 'puff'
 	});
 	$wpu('.ui-dialog-titlebar').hide();
-	var disable = 'wpudisableman=1&_ajax_nonce=' + disableNonce;
-	$wpu.post('admin.php?page='+type, disable, function(response) {
+	var disable = 'wpudisableman=1&action=wpu_disableman&_ajax_nonce=' + disableNonce;
+	$wpu.post('ajaxurl', disable, function(response) {
 		// the connection has been disabled, redirect
 		window.location = 'admin.php?page='+type;
 	});
@@ -610,7 +653,9 @@ function wpuApplyPerms() {
 	
 	$wpu.post('admin.php?page=wpu-user-mapper', 'wpusetperms=' + makeMsgSafe(results.join(',')) + '&wpusetnevers=' + makeMsgSafe(resultsNever.join(',')) + '&_ajax_nonce=' + firstMapActionNonce, function(response) { 
 		response = $wpu.trim(response);
-		if(response=='OK') {
+		var responseMsg;
+		if(response.length >= 2) responseMsg = response.substr(0, 2);
+		if(responseMsg =='OK') {
 			// the settings were applied
 		}
 				
@@ -1363,7 +1408,9 @@ function wpuProcessNext(el, nonce) {
 		var actionDetails = $wpu(response).find('details').text();
 		var nextNonce = $wpu(response).find('nonce').text();
 		actionStatus = $wpu.trim(actionStatus);
-		if(actionStatus=='OK') {
+		var actionStatusMsg
+		if(actionStatus.length >= 2)actionStatusMsg = actionStatus.substr(0, 2);
+		if(actionStatusMsg=='OK') {
 			wpuNextAction(nextNonce);
 			
 		} else {
