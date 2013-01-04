@@ -1178,6 +1178,8 @@ class WPU_Phpbb {
 		/**
 		 * MySQL will not allow duplicate column names, so we can suppress errors (we still check anyway)
 		 */
+		 
+		$db->sql_return_on_error(true);
 		
 		if  ( !array_key_exists('user_wpuint_id', $user->data) ) {
 			$sql = 'ALTER TABLE ' . USERS_TABLE . ' 
@@ -1194,19 +1196,23 @@ class WPU_Phpbb {
 			$adminLog[] = __('Modified USERS Table (Blog ID)', 'wp-united');
 		}
 		
-		$sql = 'SELECT * FROM ' . POSTS_TABLE;
+		//Add an x-posting column to topics
+		$sql = 'SELECT * FROM ' . TOPICS_TABLE;
 		$result = $db->sql_query_limit($sql, 1);
 		$row = (array)$db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
-		
-		if (!array_key_exists('post_wpu_xpost', $row) ) {
-			$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
-				ADD post_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
+
+		if (!array_key_exists('topic_wpu_xpost', $row) ) {
+			$sql = 'ALTER TABLE ' . TIPICS_TABLE . ' 
+				ADD topic_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
 
 			@$db->sql_query($sql);
-			$adminLog[] = __('Modified POSTS Table (Cross-Posting Link)', 'wp-united');
+			
+			$adminLog[] = __('Modified TOPICS Table (Cross-Posting Link)', 'wp-united');
+			
 		}
 		
+		$db->sql_return_on_error(false);
 
 		$adminLog[] = __('Adding WP-United Permissions', 'wp-united');
 		
