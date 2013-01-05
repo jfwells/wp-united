@@ -138,17 +138,17 @@ class WPU_Comments {
 			'comment_approved'		=>	'p.post_approved',
 			'comment_author'		=>	'u.username',
 			'comment_author_email'	=>	'u.user_email',
-			'comment_author_IP',	=> 	'u.user_ip',
-			'comment_author_url',	=>	'u.user_website',
-			'comment_content',		=>	'p.post_text',
-			'comment_date',			=>	'p.post_time',
-			'comment_date_gmt',		=>	'p.post_time',
-			'comment_ID',			=>	'p.post_id',
-			//'comment_karma',		=>	'', // n/a
-			//'comment_parent',		=>	'', //n/a
-			'comment_post_ID',		=>	't.topic_id',
-			//'comment_type',			=> 	'',		// only interested in 'comments'
-			'user_id',				=>	'u.user_wpuint_id',
+			'comment_author_IP'		=> 	'u.user_ip',
+			'comment_author_url'	=>	'u.user_website',
+			'comment_content'		=>	'p.post_text',
+			'comment_date'			=>	'p.post_time',
+			'comment_date_gmt'		=>	'p.post_time',
+			'comment_ID'			=>	'p.post_id',
+			//'comment_karma'		=>	'', // n/a
+			//'comment_parent'		=>	'', //n/a
+			'comment_post_ID'		=>	't.topic_id',
+			//'comment_type'			=> 	'',		// only interested in 'comments'
+			'user_id'				=>	'u.user_wpuint_id',
 		);
 		
 	}
