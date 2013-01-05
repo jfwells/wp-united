@@ -328,6 +328,7 @@ class WPU_Comments {
 		$this->limit = 10000;
 		$this->offset = 0;
 		
+		$this->setup_sort_vars();
 		return $this->populate_phpbb_comments();
 		
 	}
