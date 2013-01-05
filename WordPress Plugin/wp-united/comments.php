@@ -253,7 +253,7 @@ class WPU_Comments {
 	private function setup_sort_vars($query) {
 		
 		if(!is_object($query)) {
-			$this->order = 'DESC';
+			$this->order = 'ASC';
 			$this->phpbbOrderBy = 'p.post_time';
 			$this->finalOrderBy = array('p.post_time');
 			return;
@@ -437,7 +437,8 @@ class WPU_Comments {
 		$where[] = '
 			p.poster_id = u.user_id AND 
 			p.topic_id = t.topic_id AND 
-			t.topic_replies > 0 AND ' .
+			t.topic_replies > 0 AND AND
+			t.topic_first_post_id <> p.post_id AND ' .
 			$db->sql_in_set('t.forum_id', $allowedForums);
 			
 		$query['WHERE'] = implode(' AND ', $where);
