@@ -374,7 +374,7 @@ class WPU_Comments {
 								t.topic_wpu_xpost, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 								u.user_id, u.username, u.user_wpuint_id, u.user_email',
 
-				'ORDER_BY'	=> $this->orderBy . ' ' . $this->order
+				'ORDER_BY'	=> $this->phpbbOrderBy . ' ' . $this->order
 			);
 		}
 		
