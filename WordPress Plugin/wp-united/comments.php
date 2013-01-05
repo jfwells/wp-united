@@ -223,6 +223,43 @@ class WPU_Comments {
 		$this->offset = $query->query_vars['offset'];
 		$this->count = $query->query_vars['count'];
 		
+		// set up vars for status clause
+		if(!empty($query->query_vars['status'])) {
+			if($query->query_vars['status'] == 'hold') {
+				$this->status = 'unapproved';
+			}
+			else if($query->query_vars['status'] != 'approve') {
+				$this->status = 'approved';
+			}
+		}
+		
+		// set up vars for user clause
+		if(!empty($query->query_vars['user_id'])) {
+			$this->userID = $query->query_vars['user_id'];
+		}
+		
+		// set up vars for e-mail clause
+		if(!empty($query->query_vars['author_email'])) {
+			$this->userEmail = $query->query_vars['author_email'];
+		}
+		
+		// set up vars for topic author ID clause
+		if(!empty($query->query_vars['post_author'])) {
+			$this->topicUser = $query->query_vars['post_author'];
+		}			
+	
+	}
+	
+	private function setup_sort_vars($query) {
+		
+		if(!is_object($query)) {
+			$this->order = 'DESC';
+			$this->phpbbOrderBy = 'p.post_time';
+			$this->finalOrderBy = array('p.post_time');
+			return;
+		} 
+			
+		
 		// set up vars for ordering clauses
 		if(empty($this->count)) {
 			if (!empty($query->query_vars['orderby'])) {
@@ -252,32 +289,6 @@ class WPU_Comments {
 		} else {
 			$this->order = '';
 		}
-
-		
-		// set up vars for status clause
-		if(!empty($query->query_vars['status'])) {
-			if($query->query_vars['status'] == 'hold') {
-				$this->status = 'unapproved';
-			}
-			else if($query->query_vars['status'] != 'approve') {
-				$this->status = 'approved';
-			}
-		}
-		
-		// set up vars for user clause
-		if(!empty($query->query_vars['user_id'])) {
-			$this->userID = $query->query_vars['user_id'];
-		}
-		
-		// set up vars for e-mail clause
-		if(!empty($query->query_vars['author_email'])) {
-			$this->userEmail = $query->query_vars['author_email'];
-		}
-		
-		// set up vars for topic author ID clause
-		if(!empty($query->query_vars['post_author'])) {
-			$this->topicUser = $query->query_vars['post_author'];
-		}			
 	
 	}
 	
@@ -289,6 +300,8 @@ class WPU_Comments {
 		}
 		
 		$this->setup_query_vars($query);
+		
+		$this->setup_sort_vars($query);
 			
 		$this->populate_phpbb_comments();
 		
