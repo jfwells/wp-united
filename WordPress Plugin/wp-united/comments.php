@@ -507,7 +507,7 @@ class WPU_Comments {
 		usort($this->comments, array($this, 'comment_sort_callback'));
 	}
 	
-	private function _comment_sort_callback($a, $b){
+	private function comment_sort_callback($a, $b){
 		
 		$criteriaCounter = 0;
 		$criterion = $this->finalSortBy[$criteriaCounter];
