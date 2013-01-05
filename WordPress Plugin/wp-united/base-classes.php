@@ -813,6 +813,7 @@ class WP_United_Plugin_Base {
 						$this->ajax_result(__('WP-United could not successfully run phpBB at the selected path. WP-United is halted.', 'wp-united'), 'error');
 					break;
 					default:
+						$this->set_last_run('connected');
 						$this->ajax_result(__('WP-United could not successfully run phpBB without errors. WP-United has been disconnected.', 'wp-united'), 'error');
 				}
 			break;

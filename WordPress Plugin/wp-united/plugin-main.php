@@ -25,7 +25,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		$actions = array(
 			// required actions on all pages
 			array('plugins_loaded', 					'init_plugin',								'all'),  // this should be 'init', but we want to play with current_user, which comes earlier
-			//array('shutdown', 							array('buffer_end_flush_all', 100),			'all'),
+			//array('shutdown', 						array('buffer_end_flush_all', 100),			'all'),
 			array('wp_head', 							'add_scripts',								'all'),
 			array('wp_footer', 							'add_footer_output',						'all'),
 			array('admin_footer', 						'add_footer_output',						'all'),
@@ -120,12 +120,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$this->integComments = new WPU_Comments_Access_Layer();
 		}
 
-	
-		// we want to override some actions. These must match the priority of the built-ins 
-		//if($this->get_setting('showHdrFtr') == 'FWD') {
-			//remove_action('shutdown', 'wp_ob_end_flush_all', 1);
-		//}
-		
+
 		// add new actions and filters
 		$this->add_actions();
 		$this->add_filters();
@@ -192,6 +187,15 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			// Load default widgets:
 			require_once($this->get_plugin_path() . 'widgets.php');
 			add_action('widgets_init', array($this, 'widgets_init'));
+			
+				
+			// The end flush action stops fwd template integration from working.
+			if($this->should_do_action('template-w-in-p') {
+				// must match priority etc of the built-in
+				remove_action('shutdown', 'wp_ob_end_flush_all', 1);
+			}
+			
+			
 		}
 		
 		$this->process_frontend_actions();
