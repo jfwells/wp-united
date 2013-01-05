@@ -190,7 +190,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			
 				
 			// The end flush action stops fwd template integration from working.
-			if($this->should_do_action('template-w-in-p') {
+			if($this->should_do_action('template-w-in-p')) {
 				// must match priority etc of the built-in
 				remove_action('shutdown', 'wp_ob_end_flush_all', 1);
 			}
