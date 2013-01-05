@@ -41,7 +41,7 @@ function wpu_integrate_login() {
 		// If this is a logout request, just do that!
 		if($wpUnited->should_do_action('logout')) {
 			wp_logout();
-			set_current_user(0);
+			wp_set_current_user(0);
 			$wpuDebug->add('Logged out of WordPress');
 			return;
 		}
