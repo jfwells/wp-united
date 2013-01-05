@@ -527,18 +527,21 @@ class WPU_Comments {
 	private function comment_sort_callback($a, $b){
 		
 		$criteriaCounter = 0;
-		$criterion = $this->finalSortBy[$criteriaCounter];
+		$criterion = $this->finalOrderBy[$criteriaCounter];
 		
-		while( !empty($criterion) && ($a->$criterion == $b->$criterion) && ($criteriaCounter < (sizeof($this->finalSortBy) - 1)) ) {
-			$criteriaCounter++;
-			$criterion = $this->finalSortBy[$criteriaCounter];
-		}
+		if(!empty($criterion)) {
+			while(($a->$criterion == $b->$criterion) && ($criteriaCounter < (sizeof($this->finalOrderBy) - 1)) ) {
+				$criteriaCounter++;
+				$criterion = $this->finalOrderBy[$criteriaCounter];
+			}
 
-		if($this->order == 'ASC') {
-			return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion > $b->$criterion) ? 1 : -1;
-		} else {
-			return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion < $b->$criterion) ? 1 : -1;
+			if($this->order == 'ASC') {
+				return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion > $b->$criterion) ? 1 : -1;
+			} else {
+				return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion < $b->$criterion) ? 1 : -1;
+			}
 		}
+		return 0;
 	}
 	
 	
