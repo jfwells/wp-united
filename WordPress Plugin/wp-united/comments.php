@@ -99,7 +99,15 @@ class WPU_Comments {
 		$status,
 		$offset,
 		$postID,
-		$count;
+		$userID,
+		$userEmail,
+		$topicUser,
+		$count,
+		$order,
+		$phpbbOrderBy,
+		$finalOrderBy,
+		$orderFieldsMap;
+		
 		
 	public $links;
 	
@@ -112,21 +120,141 @@ class WPU_Comments {
 		$this->links = array();
 		$this->usingPhpBBComments = false;
 		$this->postID = 0;
+		$this->userID = '';
+		$this->userEmail = '';
+		$this->topicUser = '';
 		$this->limit = 25;
 		$this->offset = 0;
 		$this->count = false;
 		$this->status = 'all';
+		$this->order = 'DESC';
+		$this->phpbbOrderBy = '';
+		$this->finalOrderBy = array();
+		
+		// variables we could sort our query by.
+		// Commented items are criteria WordPress could send which we will drop.
+		$this->orderFieldsMap = array(
+			//'comment_agent'			=> 	'', // same for all phpBB comments,
+			'comment_approved'		=>	'p.post_approved',
+			'comment_author'		=>	'u.username',
+			'comment_author_email'	=>	'u.user_email',
+			'comment_author_IP',	=> 	'u.user_ip',
+			'comment_author_url',	=>	'u.user_website',
+			'comment_content',		=>	'p.post_text',
+			'comment_date',			=>	'p.post_time',
+			'comment_date_gmt',		=>	'p.post_time',
+			'comment_ID',			=>	'p.post_id',
+			//'comment_karma',		=>	'', // n/a
+			//'comment_parent',		=>	'', //n/a
+			'comment_post_ID',		=>	't.topic_id',
+			//'comment_type',			=> 	'',		// only interested in 'comments'
+			'user_id',				=>	'u.user_wpuint_id',
+		);
 		
 	}
 	
+	/**
+	 * We can only handle certain types of comment queries right now.
+	 */
+	private function can_handle_query($query) {
+	
 
-	public function populate_comments($query, $comments) {
-				
+		if( 
+			preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
+			
+			// we have no karma
+			!empty($query->query_vars['karma'])							||
+			
+			// we cannot calculate offsets without re-pulling WP data
+			!empty($query->query_vars['offset'])						||
+			
+			// phpBB is not threaded
+			!empty($query->query_vars['parent'])						||
+			
+			// TODO: Allow comment filtering by topic title
+			!empty($query->query_vars['post_name'])						||
+			
+			// TODO: Allow comment filtering by WP post parent
+			!empty($query->query_vars['post_parent'])					||
+			
+			// we only understand published, cross-posted posts
+			!(	
+				empty($query->query_vars['post_status']) 	||
+				($query->query_vars['post_status'] == 'publish')
+			)															||
+			
+			// ignore attachments or anything other than posts
+			!(
+				empty($query->query_vars['post_type'])		||
+				($query->query_vars['post_type'] == 'post')
+			)															||
+			
+			// ignore trackbacks, pingbacks or anything other than comments
+			!(
+				empty($query->query_vars['type'])			||
+				($query->query_vars['type'] == 'comment')
+			)															||
+			
+			// cannot translate meta-queries to phpBB
+			!empty($query->query_vars['meta_key'])						||
+			!empty($query->query_vars['meta_value'])					||
+			!empty($query->query_vars['meta_query'])
+        ) {
+			return false;
+		}
+		
+		return true;
+	
+	
+	}
+	
+	/**
+	 * Translate query vars from WordPress format to our standardised / phpBB format
+	 * @return void
+	 */
+	private function setup_query_vars($query) {
+	
+		if(!is_object($query)) {
+			return;
+		}
+		
 		$this->postID = $query->query_vars['post_id'];
 		$this->limit = $query->query_vars['number'];
 		$this->offset = $query->query_vars['offset'];
 		$this->count = $query->query_vars['count'];
 		
+		// set up vars for ordering clauses
+		if(empty$this->count)) {
+			if (!empty($query->query_vars['orderby'])) {
+				$ordersBy = is_array($query->query_vars['orderby']) ? $query->query_vars['orderby'] : preg_split('/[,\s]/', $query->query_vars['orderby']);
+			
+				
+				$ordersBy = array_intersect($ordersBy, array_keys($this->orderFieldsMap));
+				
+				foreach($ordersBy as $orderBy) {
+					if(!empty($this->phpbbOrderBy)) {
+						$this->phpbbOrderBy .= ', ';
+					}
+					$this->phpbbOrderBy .= $this->orderFieldsMap[$orderBy];
+					$this->finalOrderBy[] = $orderBy
+				}
+				
+			}
+			
+			$this->phpbbOrderBy = empty($this->phpbbOrderBy) ? 'p.post_time' : $this->phpbbOrderBy;
+		}
+		if(!sizeof($this->finalOrderBy)) {
+			$this->finalOrderBy[] = 'comment_date_gmt';
+		}
+		
+		if(!empty($this->phpbbOrderBy)) {
+			$this->order = ( 'ASC' == strtoupper($query->query_vars['order']) ) ? 'ASC' : 'DESC';
+		} else {
+			$this->order = '';
+		}
+
+		
+		// set up vars for status clause
 		if(!empty($query->query_vars['status'])) {
 			if($query->query_vars['status'] == 'hold') {
 				$this->status = 'unapproved';
@@ -136,32 +264,32 @@ class WPU_Comments {
 			}
 		}
 		
-		/**
-		 * We can only handle VERY LIMITED types of comment queries right now.
-		 */
-		if( 
-			preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
-			!empty($query->query_vars['author_email'])					||
-			!empty($query->query_vars['karma'])							||
-			!empty($query->query_vars['offset'])						||
-			!empty($query->query_vars['parent'])						||
-			!empty($query->query_vars['post_author'])					||
-			!empty($query->query_vars['post_name'])						||
-			!empty($query->query_vars['post_parent'])					||
-			!(	
-				empty($query->query_vars['post_status']) 	||
-				($query->query_vars['post_status'] == 'publish')
-			)															||
-			!empty($query->query_vars['post_type'])						||
-			!empty($query->query_vars['type'])							||
-			!empty($query->query_vars['user_id'])						||
-			!empty($query->query_vars['meta_key'])						||
-			!empty($query->query_vars['meta_value'])					||
-			!empty($query->query_vars['meta_query'])
-        ) {
-			return false;
-		};
+		// set up vars for user clause
+		if(!empty($query->query_vars['user_id'])) {
+			$this->userID = $query->query_vars['user_id'];
+		}
 		
+		// set up vars for e-mail clause
+		if(!empty($query->query_vars['author_email'])) {
+			$this->userEmail = $query->query_vars['author_email'];
+		}
+		
+		// set up vars for topic author ID clause
+		if(!empty($query->query_vars['post_author'])) {
+			$this->topicUser = $query->query_vars['post_author'];
+		}			
+	
+	}
+	
+
+	public function populate_comments($query, $comments) {
+		
+		if(!this->can_handle_query($query)) {
+			return false;
+		}
+		
+		$this->setup_query_vars($query);
+			
 		$this->populate_phpbb_comments();
 		
 		if($this->count) {
@@ -172,7 +300,6 @@ class WPU_Comments {
 		if(sizeof($this->comments)) {
 			$result = true;
 		}
-		
 		$this->add_wp_comments($comments);
 		
 		if($result) {
@@ -206,11 +333,9 @@ class WPU_Comments {
 		global $phpbbForum, $auth, $db, $phpEx, $user, $phpbb_root_path;
 
 		$fStateChanged = $phpbbForum->foreground();
-		
-		
-		
+
+
 		//first get forum permissions
-		
 		$allowedForums = array_unique(array_keys($auth->acl_getf('f_read', true))); 
 		
 		// user can't read any forums
@@ -229,16 +354,14 @@ class WPU_Comments {
 		
 		$phpbbID = $phpbbForum->get_userdata('user_id');
 		
-				
 		$where = array();
+		
+		
+
 		
 		if($this->count) {
 			$query = array(
-				'SELECT' 	=> 'COUNT(p.*) AS count',
-				'FROM'		=> 	array(
-									TOPICS_TABLE 	=> 	't',
-									POSTS_TABLE		=>	'p'
-								)
+				'SELECT' 	=> 'COUNT(p.*) AS count'
 			);
 		} else {
 			
@@ -250,21 +373,36 @@ class WPU_Comments {
 								p.topic_id,
 								t.topic_wpu_xpost, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 								u.user_id, u.username, u.user_wpuint_id, u.user_email',
-				'FROM'		=>	array(
-									TOPICS_TABLE 	=> 	't',
-									POSTS_TABLE		=> 	'p',
-									USERS_TABLE		=>	'u'
-								),
-				'ORDER_BY'	=> 'p.post_time DESC'
+
+				'ORDER_BY'	=> $this->orderBy . ' ' . $this->order
 			);
-			$where[] = ' p.poster_id = u.user_id';
 		}
 		
+		$query['FROM'] = array(
+			TOPICS_TABLE 	=> 	't',
+			POSTS_TABLE		=> 	'p',
+			USERS_TABLE		=>	'u'
+		);
+		
+		
 		if($this->postID) {
-			$where[] = ' t.topic_wpu_xpost = ' . $this->postID;
+			$where[] = sprintf(' t.topic_wpu_xpost = %d', $this->postID);
 		} else {
 			$where[] = ' t.topic_wpu_xpost > 0';
 		}
+		
+		if($this->userID) {
+			$where[] = sprintf(' u.user_wpuint_id = %d', $this->userID);
+		}
+		
+		if($this->userEmail) {
+			$string = esc_sql(like_escape($this->userEmail));
+			$where[] = " u.user_email LIKE '%$string%'";
+		}
+		if($this->topicUser) {
+			$where[] = sprintf(" t.topic_poster = %s", wpu_get_integrated_phpbbuser($this->topicUser));
+		}		
+		
 		
 		if($this->status == 'unapproved') {
 			$where[] = ' p.post_approved = 0 AND (' .
@@ -283,8 +421,9 @@ class WPU_Comments {
 			
 		
 		$where[] = '
+			p.poster_id = u.user_id AND 
 			p.topic_id = t.topic_id AND 
-			t.topic_replies_real > 0 AND ' .
+			t.topic_replies > 0 AND ' .
 			$db->sql_in_set('t.forum_id', $allowedForums);
 			
 		$query['WHERE'] = implode(' AND ', $where);
@@ -356,19 +495,37 @@ class WPU_Comments {
 		$this->usingPhpBBComments = true;
 		
 		return true;
+	
 	}
+	
 	
 	public function using_phpbb() {
 		return $this->usingPhpBBComments;
 	}
 	
-	private function sort($criterion='comment_date', $dir='DESC') {
-		usort($this->comments, array($this, 'dateSort'));
+	private function sort() {
+		usort($this->comments, array($this, 'comment_sort_callback'));
 	}
 	
-	private function dateSort($a, $b){
-		return $a->comment_date == $b->comment_date ? 0 : ($a->comment_date < $b->comment_date) ? 1 : -1;
+	private function _comment_sort_callback($a, $b){
+		
+		$criteriaCounter = 0;
+		$criterion = $this->finalSortBy[$criteriaCounter];
+		
+		while( ($a->$criterion == $b->$criterion) && ($criteriaCounter < (sizeof($this->finalSortBy) - 1)) ) {
+			$criteriaCounter++;
+			$criterion = $this->finalSortBy[$criteriaCounter];
+		}
+
+		if($this->order == 'ASC') {
+			return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion > $b->$criterion) ? 1 : -1;
+		} else {
+			return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion < $b->$criterion) ? 1 : -1;
+		}
 	}
+	
+	
+
 	
 	
 }
