@@ -1203,7 +1203,7 @@ class WPU_Phpbb {
 		$db->sql_freeresult($result);
 
 		if (!array_key_exists('topic_wpu_xpost', $row) ) {
-			$sql = 'ALTER TABLE ' . TIPICS_TABLE . ' 
+			$sql = 'ALTER TABLE ' . TOPICS_TABLE . ' 
 				ADD topic_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
 
 			@$db->sql_query($sql);

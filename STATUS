@@ -50,6 +50,7 @@ TODO:
 * Check activation status
 * Check custom groups
 
+* Add generic page.php fallback for full-page option
 
 TODO (LARGER):
 * Entirely remove $compat from core-patcher, and re-obsolete plugin-fixer.php
