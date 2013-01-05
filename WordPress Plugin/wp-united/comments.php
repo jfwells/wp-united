@@ -236,7 +236,7 @@ class WPU_Comments {
 						$this->phpbbOrderBy .= ', ';
 					}
 					$this->phpbbOrderBy .= $this->orderFieldsMap[$orderBy];
-					$this->finalOrderBy[] = $orderBy
+					$this->finalOrderBy[] = $orderBy;
 				}
 				
 			}
