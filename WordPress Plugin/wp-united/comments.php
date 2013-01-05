@@ -350,7 +350,7 @@ class WPU_Comments {
 			return $this->comments + (int)$comments;
 		}
 		
-		
+		$result = false;
 		if(sizeof($this->comments)) {
 			$result = true;
 		}
