@@ -281,7 +281,7 @@ class WPU_Comments {
 			$this->phpbbOrderBy = empty($this->phpbbOrderBy) ? 'p.post_time' : $this->phpbbOrderBy;
 		}
 		if(!sizeof($this->finalOrderBy)) {
-			$this->finalOrderBy[] = 'comment_date_gmt';
+			$this->finalOrderBy = array('comment_date_gmt');
 		}
 		
 		if(!empty($this->phpbbOrderBy)) {
@@ -493,6 +493,7 @@ class WPU_Comments {
 				'phpbb_id' => $comment['poster_id'],
 			);
 
+
 			// Fix relative paths in comment text
 			$pathsToFix = array('src="' . $phpbb_root_path, 'href="' . $phpbb_root_path);
 			$pathsFixed = array('src="' . $phpbbForum->get_board_url(), 'href="' . $phpbbForum->get_board_url());
@@ -528,7 +529,7 @@ class WPU_Comments {
 		$criteriaCounter = 0;
 		$criterion = $this->finalSortBy[$criteriaCounter];
 		
-		while( ($a->$criterion == $b->$criterion) && ($criteriaCounter < (sizeof($this->finalSortBy) - 1)) ) {
+		while( !empty($criterion) && ($a->$criterion == $b->$criterion) && ($criteriaCounter < (sizeof($this->finalSortBy) - 1)) ) {
 			$criteriaCounter++;
 			$criterion = $this->finalSortBy[$criteriaCounter];
 		}
