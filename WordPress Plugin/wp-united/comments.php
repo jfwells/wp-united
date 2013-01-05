@@ -224,7 +224,7 @@ class WPU_Comments {
 		$this->count = $query->query_vars['count'];
 		
 		// set up vars for ordering clauses
-		if(empty$this->count)) {
+		if(empty($this->count)) {
 			if (!empty($query->query_vars['orderby'])) {
 				$ordersBy = is_array($query->query_vars['orderby']) ? $query->query_vars['orderby'] : preg_split('/[,\s]/', $query->query_vars['orderby']);
 			
