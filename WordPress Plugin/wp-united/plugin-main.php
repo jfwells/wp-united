@@ -111,9 +111,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 		require_once($this->get_plugin_path() . 'template-tags.php');
 		
-		if($this->get_setting('integrateLogins') != 'NONE') {		
-			require_once($this->get_plugin_path() . 'user-integrator.php'); 
-		}
+		// some login integration routines may be needed even when user integration is disabled.	
+		require_once($this->get_plugin_path() . 'user-integrator.php'); 
+		
 		if($this->get_setting('xposting')) {		
 			require_once($this->get_plugin_path() . 'functions-cross-posting.php');
 			require_once($this->get_plugin_path() . 'comments.php');
@@ -317,8 +317,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 */
 	private function set_last_run($status) {
 		if($this->get_last_run() != $status) { 
-			// transitions cannot go from 'working' to 'connected'.
-			if( ($this->lastRun == 'working') && ($status == 'connected') ) {
+			// transitions cannot go from 'working' to 'connected' if wp-united is enabled OK.
+			if( ($this->lastRun == 'working') && ($status == 'connected') && $this->is_enabled() ) {
 				return;
 			} 
 			$this->lastRun = $status;
