@@ -284,7 +284,7 @@ class WPU_Comments {
 
 	public function populate_comments($query, $comments) {
 		
-		if(!this->can_handle_query($query)) {
+		if(!$this->can_handle_query($query)) {
 			return false;
 		}
 		
