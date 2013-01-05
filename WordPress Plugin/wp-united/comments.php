@@ -22,11 +22,13 @@ class WPU_Comments_Access_Layer {
 	
 	private 
 		$queries,
-		$links;
+		$links,
+		$inQuery;
 	
 	public function __construct() {
 		$this->queries = array();
 		$this->links = array();
+		$this->inQuery = false;
 	}
 	
 	/**
@@ -37,37 +39,49 @@ class WPU_Comments_Access_Layer {
 	* @param optional array $comments an array of WordPress comment objects that have already been pulled for this query.
 	* @return bool true if there are any cross-posted comments here.
 	*/
-	public function process($query, $comments = false) {
+	public function process($query, $comments = false, $count = false) {
+	
+		if($this->inQuery) {
+			return false;
+		}
 		
 		if(is_object($query)) {
 			$queryArgs = $query->query_vars;
 		} else {
 			$queryArgs = $query;
+			if($count) {
+				$queryArgs .= 'count';
+			}
 		}
 		
 		foreach($this->queries as $queryObj) {
-			if($queryObj['queryargs'] === $queryArgs) {
-				return $queryObj['result'];
+			if($queryObj['input_args'] === $queryArgs) {
+				return $queryObj['query_success'];
 			}
 		}
 		
 		$newQuery = array(
-			'queryargs'		=>	$queryArgs,
-			'comments'		=> 	new WPU_Comments()
+			'input_args'		=>	$queryArgs,
+			'query_object'		=> 	new WPU_Comments(),
+			'query_success'		=>	false
 		);
 		
+		$this->inQuery = true;
+		
 		if(is_object($query)) {
-			$newQuery['result'] = $newQuery['comments']->populate_comments($query, $comments);
+			$newQuery['query_success'] = $newQuery['query_object']->populate_comments($query, $comments);
 		} else {
-			$newQuery['result'] = $newQuery['comments']->populate_for_post($query);
+			$newQuery['query_success'] = $newQuery['query_object']->populate_for_post_or_count($query, $count);
 		}
+		
+		$this->inQuery = false;
 
 		//array keys are strings so not renumbered
-		$this->links = array_merge($this->links, $newQuery['comments']->links);
+		$this->links = array_merge($this->links, $newQuery['query_object']->links);
 		
 		$this->queries[] = $newQuery;
 		
-		return $newQuery['result'];
+		return $newQuery['query_success'];
 	}
 	
 	/**
@@ -77,14 +91,19 @@ class WPU_Comments_Access_Layer {
 	 * @param mixed WP_Comment_Query|int the $query to fetch results for.
 	 * @return mixed array|int|bool an array of comment objects, or if the query was for a count then a simple integer. False on failure.
 	 */
-	public function get_comments($query) {
+	public function get_result($query, $count = false) {
 		if(is_object($query)) {
 			$query = $query->query_vars;
-		} 
+		} else {
+			if($count) {
+				$query .= 'count';
+			}
+		}
 		
+
 		foreach($this->queries as $queryObj) {
-			if($queryObj['queryargs'] === $query) {
-				return $queryObj['comments']->get_comments();
+			if($queryObj['input_args'] === $query) {
+				return $queryObj['query_object']->get_result();
 			}
 		}
 		
@@ -115,7 +134,7 @@ class WPU_Comments_Access_Layer {
 class WPU_Comments {
 	
 	private 
-		$comments,
+		$result,
 		$usingPhpBBComments,
 		$limit,
 		$status,
@@ -138,7 +157,7 @@ class WPU_Comments {
 	 * Class initialisation
 	 */
 	public function __construct() {
-		$this->comments = array();
+		$this->result = array();
 		$this->links = array();
 		$this->usingPhpBBComments = false;
 		$this->postID = 0;
@@ -148,6 +167,7 @@ class WPU_Comments {
 		$this->limit = 25;
 		$this->offset = 0;
 		$this->count = false;
+		$this->groupByStatus = false;
 		$this->status = 'all';
 		$this->order = 'DESC';
 		$this->phpbbOrderBy = '';
@@ -190,13 +210,13 @@ class WPU_Comments {
 			return false;
 		}
 
-		if( 
+		if( // temp; the comments page needs offsets to work
 			preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
 			
 			// we have no karma
 			!empty($query->query_vars['karma'])							||
 			
-			// we cannot calculate offsets without re-pulling WP data
+			// TODO: we cannot calculate offsets without re-pulling WP data
 			!empty($query->query_vars['offset'])						||
 			
 			// phpBB is not threaded
@@ -344,14 +364,14 @@ class WPU_Comments {
 		
 		$this->setup_sort_vars($query);
 			
-		$this->populate_phpbb_comments();
+		$this->perform_phpbb_comment_query();
 		
-		if($this->count) {
-			return $this->comments + (int)$comments;
+		if($this->count) { 
+			return $this->result + (int)$comments;
 		}
 		
 		$result = false;
-		if(sizeof($this->comments)) {
+		if(sizeof($this->result)) {
 			$result = true;
 		}
 		$this->add_wp_comments($comments);
@@ -367,14 +387,33 @@ class WPU_Comments {
 	* @param $postID the WordPress ID of the post for which to fetch cross-posted forum replies.
 	* @return bool true if comments could be fetched (even if there are none).
 	*/
-	public function populate_for_post($postID) {
+	public function populate_for_post_or_count($postID, $count = false) {
 		
-		$this->postID = $postID;
+		$this->postID = ($postID > 0) ? $postID : false;
 		$this->limit = 10000;
 		$this->offset = 0;
 		
+		if($count) { 
+			$this->count = true;
+			$this->groupByStatus = true;
+		}
+		
 		$this->setup_sort_vars($postID);
-		return $this->populate_phpbb_comments();
+		
+		$result = $this->perform_phpbb_comment_query();
+		
+		if($result && $count) {
+			// Now we fetch the native WP count
+			$totalCount = wp_count_comments($postID);
+			if(is_object($totalCount)) {
+				$totalCount->moderated 		= $this->result['moderated'] 		+ $totalCount->moderated;
+				$totalCount->approved 		= $this->result['approved'] 		+ $totalCount->approved;
+				$totalCount->total_comments = $this->result['total_comments'] 	+ $totalCount->total_comments;
+			}
+			$this->result = $totalCount;
+		}
+		
+		return $result;
 		
 	}
 	
@@ -383,11 +422,11 @@ class WPU_Comments {
 	* Slices to return the required number, as phpBB + WordPress comments mingled together could exceed the limit
 	* @return mixed the query result
 	*/
-	public function get_comments() {
-		if(is_array($this->comments)) {
-			return array_slice($this->comments, 0, $this->limit);
+	public function get_result() {
+		if(is_array($this->result)) {
+			return array_slice($this->result, 0, $this->limit);
 		} else {
-			return $this->comments;
+			return $this->result;
 		}
 	}
 	
@@ -397,7 +436,7 @@ class WPU_Comments {
 	* @return void
 	*/
 	private function add_wp_comments($comments) {
-		$this->comments = array_merge($comments, $this->comments);
+		$this->result = array_merge($comments, $this->result);
 	}
 	
 	/**
@@ -405,7 +444,7 @@ class WPU_Comments {
 	* the query must already have been processed.
 	* @return bool true if it is possible to read cross-posted comments here, even if there are none.
 	*/
-	private function populate_phpbb_comments() {
+	private function perform_phpbb_comment_query() {
 		
 		global $phpbbForum, $auth, $db, $phpEx, $user, $phpbb_root_path;
 
@@ -435,10 +474,17 @@ class WPU_Comments {
 		// Now, time to build the query.... It's a many-faceted one but can be done in one go....
 		$where = array();
 		
-		if($this->count) {
-			$query = array(
-				'SELECT' 	=> 'COUNT(p.*) AS count'
-			);
+		if($this->count) { 
+			if($this->groupByStatus) {
+				$query = array(
+					'SELECT' 	=> 'p.post_approved, COUNT(p.post_id) AS num_comments',
+					'GROUP_BY'	=> 'p.post_approved'
+				);
+			} else { 
+				$query = array(
+					'SELECT' 	=> 'COUNT (p.post_id) AS num_comments'
+				);
+			}
 		} else {
 			
 			$query = array(
@@ -462,34 +508,34 @@ class WPU_Comments {
 		
 		
 		if($this->postID) {
-			$where[] = sprintf(' t.topic_wpu_xpost = %d', $this->postID);
+			$where[] = sprintf('(t.topic_wpu_xpost = %d)', $this->postID);
 		} else {
-			$where[] = ' t.topic_wpu_xpost > 0';
+			$where[] = '(t.topic_wpu_xpost > 0)';
 		}
 		
 		if($this->userID) {
-			$where[] = sprintf(' u.user_wpuint_id = %d', $this->userID);
+			$where[] = sprintf('(u.user_wpuint_id = %d)', $this->userID);
 		}
 		
 		if($this->userEmail) {
 			$string = esc_sql(like_escape($this->userEmail));
-			$where[] = " u.user_email LIKE '%$string%'";
+			$where[] = "(u.user_email LIKE '%$string%')";
 		}
 		if($this->topicUser) {
-			$where[] = sprintf(" t.topic_poster = %s", wpu_get_integrated_phpbbuser($this->topicUser));
+			$where[] = sprintf("(t.topic_poster = %s)", wpu_get_integrated_phpbbuser($this->topicUser));
 		}		
 		
 		$canViewUnapproved = (sizeof($canViewUnapproved)) ? $db->sql_in_set('t.forum_id', $canViewUnapproved) . ' OR ' : '';
 		
 		if($this->status == 'unapproved') {
-			$where[] = ' p.post_approved = 0 AND (' .
+			$where[] = '(p.post_approved = 0 AND (' .
 				$canViewUnapproved . ' 
 				u.user_id = ' . $phpbbID . ' 
-				)';
+				))';
 		} else if($this->status == 'approved') {
-			$where[] = ' p.post_approved = 1';
+			$where[] = '(p.post_approved = 1)';
 		} else {
-			$where[] = ' (p.post_approved = 1 OR ( 
+			$where[] = '(p.post_approved = 1 OR ( 
 				p.post_approved = 0 AND (' .
 				$canViewUnapproved . ' 
 				u.user_id = ' . $phpbbID . '
@@ -517,8 +563,26 @@ class WPU_Comments {
 		}
 		
 		if($this->count) {
-			$countRow = $db->sql_fetchrow($result);
-			$this->comments = $countRow['count'];
+			if($this->groupByStatus) {
+				$stats = array(
+					'moderated'			=> 	0,
+					'approved'			=> 	0,
+					'total_comments'	=>	0
+				);
+				while ($stat = $db->sql_fetchrow($result)) {
+					if($stat['post_approved'] == 0) {
+						$stats['moderated'] = $stat['num_comments'];
+					} else {
+						$stats['approved'] = $stat['num_comments'];
+					}
+					$stats['total_comments'] = $stats['total_comments'] + $stat['num_comments'];
+				}
+				$this->result = $stats;	
+				
+			} else {
+				$countRow = $db->sql_fetchrow($result);
+				$this->result = $countRow['num_comments'];
+			}
 			$phpbbForum->restore_state($fStateChanged);
 			return true;
 		}
@@ -562,7 +626,7 @@ class WPU_Comments {
 			$pathsFixed = array('src="' . $phpbbForum->get_board_url(), 'href="' . $phpbbForum->get_board_url());
 			$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
 
-			$this->comments[] = new WPU_Comment($args);
+			$this->result[] = new WPU_Comment($args);
 			
 			//don't use numerical keys to avoid renumbering on array_merge
 			$this->links['comment' . $commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}");
@@ -591,7 +655,7 @@ class WPU_Comments {
 	* @return void
 	*/
 	private function sort() {
-		usort($this->comments, array($this, 'comment_sort_callback'));
+		usort($this->result, array($this, 'comment_sort_callback'));
 	}
 	
 	// internal callback for the sort function.

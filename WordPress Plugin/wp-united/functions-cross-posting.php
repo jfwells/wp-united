@@ -487,32 +487,6 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 	return $comments;
 }
 
-/**
- * Loads integrated, interleaved phpBB & WordPress comments for multiple topics.
- * @since v0.9.2.0
- * @param array $comments the wordpress comments for this query
- * @param StdObj query the comment query object
- * @return array $comments an updated comments array.
- */
-function wpu_integrated_comments($comments, $query) {
-	global $wpUnited;
-	
-	if ( 
-		!$wpUnited->is_working()					|| 
-		!$wpUnited->get_setting('xposting')			|| 
-		!$wpUnited->get_setting('xpostautolink')
-	) { 
-		return $comments;
-	}
-	
-	
-	if($wpUnited->integrate_comments($query, $comments)) {
-		return $wpUnited->get_integrated_comments($query);
-	}
-	
-	return $comments;
-
-}
  
 
 /**

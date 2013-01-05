@@ -84,9 +84,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			// cross-posting filters
 			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
 			array('comments_array', 					array('load_phpbb_comments', 10, 2),		'x-posting'),
-			array('the_comments', 						array('integrated_comments', 10, 2),		'x-posting'),
+			array('the_comments', 						array('fetch_comments_query', 10, 2),		'x-posting'),
 			array('comment_row_actions', 				array('integrated_comment_actions', 10, 2),	'x-posting'),
 			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
+			array('wp_count_comments', 					array('comments_count_and_group', 10, 2),	'x-posting'),
 			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
 			array('edit_comment_link', 					array('edit_comment_link', 10, 2),			'x-posting'),
 			array('get_comment_link', 					array('comment_link', 10, 3),				'x-posting')
@@ -654,9 +655,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function get_comment_author_link($link) {
 		return wpu_get_comment_author_link($link);
 	}
-	public function load_phpbb_comments($commentArray, $postID) {
-		return wpu_load_phpbb_comments($commentArray, $postID);
-	}
+
 	public function integrated_comments($comments, $query) { 
 		return wpu_integrated_comments($comments, $query);
 	}
@@ -680,15 +679,53 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * TODO: Move following to own super cross-posting class
 	 */
 	public function integrate_comments($query, $comments = false) {
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return $comments;
+		}
+		
 		return $this->integComments->process($query, $comments);
 	}
 	
 	public function get_integrated_comments($query) {
-		return $this->integComments->get_comments($query);
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return false;
+		}
+		
+		return $this->integComments->get_result($query);
+	}
+	
+	public function fetch_comments_query($comments, $query) {
+		
+		if(!$this->integrate_comments($query, $comments)) {
+			return $comments;
+		}
+		
+		return $this->integComments->get_result($query);
+		
 	}
 	
 	public function get_integrated_comment_link($commentID) {
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return false;
+		}
+		
 		return $this->integComments->get_link($commentID);
+	}
+	
+	public function comments_count_and_group($comments, $postID) {
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return false;
+		}
+		
+		
+		$result = $this->integComments->process($postID, false, true);
+		if($result) {
+			return $this->integComments->get_result($postID, true);
+		}
 	}
 	
 	

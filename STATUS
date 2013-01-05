@@ -2,7 +2,15 @@ current target: v0.9.2.0
 
 x-posting todo: 
 
--- check post moderation status is working ok (e.g why no pending shown in dash?)
+* too much repetition in pulling comments, need to fix in one place
+* pagination on comments table seems to use get_comments but for some reason our hook isn't getting called
+* standardise various queries into a special WPU type -- and cache results, purge cache on comment post
+* pull pre-get-comment-query in order to handle offsets
+
+
+Useful for comment panel in dashboard:
+- hook: admin_comment_types_dropdown to show forum posts OR normal, not both :-)
+- hook: restrict_manage_comments and do_action( 'manage_comments_nav', $comment_status );
 
 guest posting issues outstanding:
 	-- we just die on a username that is already in use, when we should really display a nice msg
