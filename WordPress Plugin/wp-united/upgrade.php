@@ -2,7 +2,7 @@
 
 /** 
 * @package WP-United
-* @version $Id: 0.9.3.0  2013/1/4 John Wells (Jhong) Exp $
+* @version $Id: 0.9.2.0  2013/1/4 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -75,5 +75,4 @@ function wpu_do_upgrade($action) {
 }
 
 
-
-?>
+// Done

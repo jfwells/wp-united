@@ -2,12 +2,13 @@
 /** 
 *
 * @package WP-United
-* @version $Id: 0.9.1.5  2012/12/28 John Wells (Jhong) Exp $
+* @version $Id: 0.9.2.0  2012/01/05 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
-* A comment object to store cross-posted comment results, and retrieve various other info
+* The main class for retrieving cross-posted comments.
+* Access is via an access layer that pulls and caches comments as necessary.
 * 
 */
 
@@ -28,6 +29,14 @@ class WPU_Comments_Access_Layer {
 		$this->links = array();
 	}
 	
+	/**
+	* Processes a query. The query could be a full WP_Comment_Query, or just a WordPress PostID.
+	* Returns true if any phpBB comments were processed, or false if there are no phpBB comments or if 
+	* we cannot act on the query.
+	* @param mixed WP_Comment|integer $query the query to process
+	* @param optional array $comments an array of WordPress comment objects that have already been pulled for this query.
+	* @return bool true if there are any cross-posted comments here.
+	*/
 	public function process($query, $comments = false) {
 		
 		if(is_object($query)) {
@@ -61,6 +70,13 @@ class WPU_Comments_Access_Layer {
 		return $newQuery['result'];
 	}
 	
+	/**
+	 * Returns the comments for this query; both wordpress and phpBB comments, mixed and sorted together.
+	 * If the query was for a comment count, then the result is a simple integer.
+	 * The query must already have been processed.
+	 * @param mixed WP_Comment_Query|int the $query to fetch results for.
+	 * @return mixed array|int|bool an array of comment objects, or if the query was for a count then a simple integer. False on failure.
+	 */
 	public function get_comments($query) {
 		if(is_object($query)) {
 			$query = $query->query_vars;
@@ -76,6 +92,11 @@ class WPU_Comments_Access_Layer {
 		
 	}
 	
+	/**
+	* Returns a link for this cross-posted comment.
+	* @param mixed $commentID an identifier for our cross-posted comment
+	* @return StdObject comment object, or false if no link exists.
+	*/
 	public function get_link($commentID) {
 					
 		if(isset($this->links['comment' . $commentID])) {
@@ -88,7 +109,8 @@ class WPU_Comments_Access_Layer {
 
 
 /**
- * A comment object to store cross-posted comment results, and retrieve various other info
+ * A comment object to store cross-posted comment results, and retrieve various other info.
+ * Each WPU_Comments object is a query result.
  */
 class WPU_Comments {
 	
@@ -155,9 +177,18 @@ class WPU_Comments {
 	
 	/**
 	 * We can only handle certain types of comment queries right now.
+	 * This is used to reject queries that we either can't understand or make no sense in a cross-posted
+	 * context.
+	 *
+	 * Not to be called for integer queries -- only for full query objects!.
+	 * @pram WP_Comment_Query $query query object
+	 * @return bool true if we can handle it!
 	 */
 	private function can_handle_query($query) {
-	
+		
+		if(!is_object($query)) {
+			return false;
+		}
 
 		if( 
 			preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
@@ -204,12 +235,13 @@ class WPU_Comments {
 		}
 		
 		return true;
-	
-	
+
 	}
 	
 	/**
 	 * Translate query vars from WordPress format to our standardised / phpBB format
+	 * Not to be called for integer queries.
+	 * @param WP_Comment_Query $query our query object
 	 * @return void
 	 */
 	private function setup_query_vars($query) {
@@ -250,6 +282,11 @@ class WPU_Comments {
 	
 	}
 	
+	/**
+	*	Sets up the class sorting parameters. Sorting happens at two levels:
+	*	- in the SQL when fetching results from the database (using $this->phpbbOrderBy)
+	* 	- when mixing together the WordPress and phpBB comments (using $this->finalOrderBy)
+	*/
 	private function setup_sort_vars($query) {
 		
 		if(!is_object($query)) {
@@ -292,7 +329,11 @@ class WPU_Comments {
 	
 	}
 	
-
+	/**
+	* Populates comments (or an integer count result) for a full WordPress query
+	* @param WP_Comment_Query $query
+	* @param $comments possible WordPress comments that have already been pulled
+	*/
 	public function populate_comments($query, $comments) {
 		
 		if(!$this->can_handle_query($query)) {
@@ -321,7 +362,11 @@ class WPU_Comments {
 		
 		return $result;
 	}
-	
+	/**
+	* fetches all comments for a specific phpBB post. Doesn't fetch WordPress comments to mix with them (yet)
+	* @param $postID the WordPress ID of the post for which to fetch cross-posted forum replies.
+	* @return bool true if comments could be fetched (even if there are none).
+	*/
 	public function populate_for_post($postID) {
 		
 		$this->postID = $postID;
@@ -333,15 +378,33 @@ class WPU_Comments {
 		
 	}
 	
-
+	/**
+	* Returns comments on results that have already been fetched and sorted.
+	* Slices to return the required number, as phpBB + WordPress comments mingled together could exceed the limit
+	* @return mixed the query result
+	*/
 	public function get_comments() {
-		return array_slice($this->comments, 0, $this->limit);
+		if(is_array($this->comments)) {
+			return array_slice($this->comments, 0, $this->limit);
+		} else {
+			return $this->comments;
+		}
 	}
 	
+	/**
+	* Adds the WordPress comments to the class
+	* @param array $comments the WordPress comments
+	* @return void
+	*/
 	private function add_wp_comments($comments) {
 		$this->comments = array_merge($comments, $this->comments);
 	}
-
+	
+	/**
+	* Populates the class with phpBB comments or a count result, according to the query requirements.
+	* the query must already have been processed.
+	* @return bool true if it is possible to read cross-posted comments here, even if there are none.
+	*/
 	private function populate_phpbb_comments() {
 		
 		global $phpbbForum, $auth, $db, $phpEx, $user, $phpbb_root_path;
@@ -367,11 +430,10 @@ class WPU_Comments {
 		}
 		
 		$phpbbID = $phpbbForum->get_userdata('user_id');
-		
-		$where = array();
-		
-		
 
+
+		// Now, time to build the query.... It's a many-faceted one but can be done in one go....
+		$where = array();
 		
 		if($this->count) {
 			$query = array(
@@ -444,7 +506,7 @@ class WPU_Comments {
 			
 		$query['WHERE'] = implode(' AND ', $where);
 					
-					
+		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
@@ -462,7 +524,7 @@ class WPU_Comments {
 		
 		$randID = rand(10000,99999);
 		
-		$phpbbCommentLinks = array();
+		// Now fill the comments and links arrays
 		while ($comment = $db->sql_fetchrow($result)) {
 			
 			$comment['bbcode_options'] = (($comment['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
@@ -515,15 +577,23 @@ class WPU_Comments {
 	
 	}
 	
-	
+	/**
+	* same as the parent calling the result of the query operation.
+	* @return bool
+	*/
 	public function using_phpbb() {
 		return $this->usingPhpBBComments;
 	}
 	
+	/**
+	* Sorts the comments, even when there are mixed WordPress and phpBB comments.
+	* @return void
+	*/
 	private function sort() {
 		usort($this->comments, array($this, 'comment_sort_callback'));
 	}
 	
+	// internal callback for the sort function.
 	private function comment_sort_callback($a, $b){
 		
 		$criteriaCounter = 0;
