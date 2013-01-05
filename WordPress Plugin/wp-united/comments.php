@@ -479,10 +479,11 @@ class WPU_Comments {
 			$where[] = sprintf(" t.topic_poster = %s", wpu_get_integrated_phpbbuser($this->topicUser));
 		}		
 		
+		$canViewUnapproved = (sizeof($canViewUnapproved)) ? $db->sql_in_set('t.forum_id', $canViewUnapproved) . ' OR ' : '';
 		
 		if($this->status == 'unapproved') {
 			$where[] = ' p.post_approved = 0 AND (' .
-				$db->sql_in_set('t.forum_id', $canViewUnapproved) . ' OR 
+				$canViewUnapproved . ' 
 				u.user_id = ' . $phpbbID . ' 
 				)';
 		} else if($this->status == 'approved') {
@@ -490,7 +491,7 @@ class WPU_Comments {
 		} else {
 			$where[] = ' (p.post_approved = 1 OR ( 
 				p.post_approved = 0 AND (' .
-				$db->sql_in_set('t.forum_id', $canViewUnapproved) . ' OR 
+				$canViewUnapproved . ' 
 				u.user_id = ' . $phpbbID . '
 				)))';
 		}
