@@ -264,7 +264,6 @@ abstract class WPU_Context_Switcher {
 		}
 	}
 	
-	}
 
 }
 
