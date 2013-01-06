@@ -309,9 +309,9 @@ class WPU_Comments {
 	*	- in the SQL when fetching results from the database (using $this->phpbbOrderBy)
 	* 	- when mixing together the WordPress and phpBB comments (using $this->finalOrderBy)
 	*/
-	private function setup_sort_vars($query) {
+	private function setup_sort_vars($query, $count) {
 		
-		if(!is_object($query)) {
+		if(!is_object($query) && !$count) {
 			$this->order = 'ASC';
 			$this->phpbbOrderBy = 'p.post_time';
 			$this->finalOrderBy = array('p.post_time');
@@ -362,9 +362,9 @@ class WPU_Comments {
 			return false;
 		}
 		
-		$this->setup_query_vars($query);
+		$this->setup_query_vars($query, $count);
 		
-		$this->setup_sort_vars($query);
+		$this->setup_sort_vars($query, $count);
 			
 		$result = $this->perform_phpbb_comment_query();
 		
