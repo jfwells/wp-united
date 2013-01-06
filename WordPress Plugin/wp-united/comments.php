@@ -667,7 +667,7 @@ class WPU_Comments {
 				$criterion = $this->finalOrderBy[$criteriaCounter];
 			}
 
-			if($this->order == 'ASC') {
+			if($this->order == 'DESC') {
 				return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion > $b->$criterion) ? 1 : -1;
 			} else {
 				return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion < $b->$criterion) ? 1 : -1;
