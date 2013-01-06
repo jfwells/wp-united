@@ -83,7 +83,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			
 			// cross-posting filters
 			array('get_comment_author_link',			'get_comment_author_link',					'x-posting'),
-			array('comments_array', 					array('load_phpbb_comments', 10, 2),		'x-posting'),
+			array('comments_array', 					array('fetch_comments_query', 10, 2),		'x-posting'),
 			array('the_comments', 						array('fetch_comments_query', 10, 2),		'x-posting'),
 			array('comment_row_actions', 				array('integrated_comment_actions', 10, 2),	'x-posting'),
 			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
