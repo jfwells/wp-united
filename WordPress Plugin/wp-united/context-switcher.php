@@ -139,7 +139,7 @@ abstract class WPU_Context_Switcher {
 	/**
 	 * @access private
 	 */	
-	private function make_wp_env() {
+	protected function make_wp_env() {
 		$this->state = 'wp';
 		restore_error_handler();
 	}
