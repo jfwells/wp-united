@@ -377,8 +377,8 @@ class WPU_Comments {
 			return false;
 		}
 		
-		if($this->count) { 
-			$this->result = $this->result + (int)$comments;
+		if(!$count && $this->count) { 
+			$this->result = (int)$this->result + (int)$comments;
 			return true;
 		}
 		
