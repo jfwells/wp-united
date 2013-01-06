@@ -259,10 +259,12 @@ class WPU_Comments {
 	 * @return void
 	 */
 	private function setup_query_vars($query, $count) {
-	
+		
+		$maxLimit = 10000;
+		
 		if(!is_object($query)) {
 			$this->postID = ((int)$query > 0) ? $query : false;
-			$this->limit = 10000;
+			$this->limit = $maxLimit;
 			$this->offset = 0;
 		
 			if($count) { 
@@ -273,7 +275,7 @@ class WPU_Comments {
 		}
 		
 		$this->postID = $query->query_vars['post_id'];
-		$this->limit = $query->query_vars['number'];
+		$this->limit = ((int)$query->query_vars['number'] > 0) ? ($query->query_vars['number'] : $maxLimit;
 		$this->offset = $query->query_vars['offset'];
 		$this->count = $query->query_vars['count'];
 		
@@ -392,6 +394,9 @@ class WPU_Comments {
 		if(is_array($comments) && sizeof($comments)) {
 			$this->add_wp_comments($comments);
 			$this->sort();
+			if(is_array($this->result)) {
+				$this->result = array_slice($this->result, 0, $this->limit);
+			}
 		}
 		
 		return true;
@@ -404,11 +409,7 @@ class WPU_Comments {
 	* @return mixed the query result
 	*/
 	public function get_result() {
-		if(is_array($this->result)) {
-			return array_slice($this->result, 0, $this->limit);
-		} else {
-			return $this->result;
-		}
+		return $this->result;
 	}
 	
 	/**
@@ -473,7 +474,6 @@ class WPU_Comments {
 								p.post_approved, p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
 								p.enable_sig, p.post_username, p.post_subject, 
 								p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
-								p.topic_id,
 								t.topic_wpu_xpost, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 								u.user_id, u.username, u.user_wpuint_id, u.user_email',
 
