@@ -274,7 +274,6 @@ class WPU_Comments {
 				$this->count = true;
 				$this->groupByStatus = true;
 			}
-			return;
 		} else {
 		
 			$this->postID = $query->query_vars['post_id'];
@@ -320,7 +319,8 @@ class WPU_Comments {
 	*/
 	private function setup_sort_vars($query) {
 		
-		if(!empty($this->count)) {
+		if($this->count) {
+			$this->order = '';
 			return;
 		}
 		
@@ -333,31 +333,30 @@ class WPU_Comments {
 			
 		
 		// set up vars for ordering clauses
-		if(empty($this->count)) {
-			if (!empty($query->query_vars['orderby'])) {
-				$ordersBy = is_array($query->query_vars['orderby']) ? $query->query_vars['orderby'] : preg_split('/[,\s]/', $query->query_vars['orderby']);
+		if (!empty($query->query_vars['orderby'])) {
+			$ordersBy = is_array($query->query_vars['orderby']) ? $query->query_vars['orderby'] : preg_split('/[,\s]/', $query->query_vars['orderby']);
+		
 			
-				
-				$ordersBy = array_intersect($ordersBy, array_keys($this->orderFieldsMap));
-				
-				foreach($ordersBy as $orderBy) {
-					if(!empty($this->phpbbOrderBy)) {
-						$this->phpbbOrderBy .= ', ';
-					}
-					$this->phpbbOrderBy .= $this->orderFieldsMap[$orderBy];
-					$this->finalOrderBy[] = $orderBy;
+			$ordersBy = array_intersect($ordersBy, array_keys($this->orderFieldsMap));
+			
+			foreach($ordersBy as $orderBy) {
+				if(!empty($this->phpbbOrderBy)) {
+					$this->phpbbOrderBy .= ', ';
 				}
-				
+				$this->phpbbOrderBy .= $this->orderFieldsMap[$orderBy];
+				$this->finalOrderBy[] = $orderBy;
 			}
 			
-			$this->phpbbOrderBy = empty($this->phpbbOrderBy) ? 'p.post_time' : $this->phpbbOrderBy;
 		}
+		
+		$this->phpbbOrderBy = empty($this->phpbbOrderBy) ? 'p.post_time' : $this->phpbbOrderBy;
+		
 		if(!sizeof($this->finalOrderBy)) {
 			$this->finalOrderBy = array('comment_date_gmt');
 		}
 		
 		if(!empty($this->phpbbOrderBy)) {
-			$this->order = ( 'ASC' == strtoupper($query->query_vars['order']) ) ? 'ASC' : 'DESC';
+			$this->order = ('ASC' == strtoupper($query->query_vars['order'])) ? 'ASC' : 'DESC';
 		} else {
 			$this->order = '';
 		}
