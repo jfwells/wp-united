@@ -275,7 +275,7 @@ class WPU_Comments {
 		}
 		
 		$this->postID = $query->query_vars['post_id'];
-		$this->limit = ((int)$query->query_vars['number'] > 0) ? ($query->query_vars['number'] : $maxLimit;
+		$this->limit = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $maxLimit;
 		$this->offset = $query->query_vars['offset'];
 		$this->count = $query->query_vars['count'];
 		
