@@ -67,13 +67,7 @@ class WPU_Comments_Access_Layer {
 		);
 		
 		$this->inQuery = true;
-		
-		if(is_object($query)) {
-			$newQuery['query_success'] = $newQuery['query_object']->populate_comments($query, $comments);
-		} else {
-			$newQuery['query_success'] = $newQuery['query_object']->populate_for_post_or_count($query, $count);
-		}
-		
+		$newQuery['query_success'] = $newQuery['query_object']->execute_query($query, $comments, $count);
 		$this->inQuery = false;
 
 		//array keys are strings so not renumbered
@@ -207,7 +201,7 @@ class WPU_Comments {
 	private function can_handle_query($query) {
 		
 		if(!is_object($query)) {
-			return false;
+			return true;
 		}
 
 		if( // temp; the comments page needs offsets to work
@@ -264,9 +258,17 @@ class WPU_Comments {
 	 * @param WP_Comment_Query $query our query object
 	 * @return void
 	 */
-	private function setup_query_vars($query) {
+	private function setup_query_vars($query, $count) {
 	
 		if(!is_object($query)) {
+			$this->postID = ((int)$query > 0) ? $query : false;
+			$this->limit = 10000;
+			$this->offset = 0;
+		
+			if($count) { 
+				$this->count = true;
+				$this->groupByStatus = true;
+			}
 			return;
 		}
 		
@@ -354,7 +356,7 @@ class WPU_Comments {
 	* @param WP_Comment_Query $query
 	* @param $comments possible WordPress comments that have already been pulled
 	*/
-	public function populate_comments($query, $comments) {
+	public function execute_query($query, $comments, $count) {
 		
 		if(!$this->can_handle_query($query)) {
 			return false;
@@ -364,45 +366,18 @@ class WPU_Comments {
 		
 		$this->setup_sort_vars($query);
 			
-		$this->perform_phpbb_comment_query();
-		
-		if($this->count) { 
-			return $this->result + (int)$comments;
-		}
-		
-		$result = false;
-		if(sizeof($this->result)) {
-			$result = true;
-		}
-		$this->add_wp_comments($comments);
-		
-		if($result) {
-			$this->sort();
-		}
-		
-		return $result;
-	}
-	/**
-	* fetches all comments for a specific phpBB post. Doesn't fetch WordPress comments to mix with them (yet)
-	* @param $postID the WordPress ID of the post for which to fetch cross-posted forum replies.
-	* @return bool true if comments could be fetched (even if there are none).
-	*/
-	public function populate_for_post_or_count($postID, $count = false) {
-		
-		$this->postID = ($postID > 0) ? $postID : false;
-		$this->limit = 10000;
-		$this->offset = 0;
-		
-		if($count) { 
-			$this->count = true;
-			$this->groupByStatus = true;
-		}
-		
-		$this->setup_sort_vars($postID);
-		
 		$result = $this->perform_phpbb_comment_query();
 		
-		if($result && $count) {
+		if($result == false) {
+			return false;
+		}
+		
+		if($this->count) { 
+			$this->result = $this->result + (int)$comments;
+			return true;
+		}
+		
+		if($count) {
 			// Now we fetch the native WP count
 			$totalCount = wp_count_comments($postID);
 			if(is_object($totalCount)) {
@@ -411,11 +386,17 @@ class WPU_Comments {
 				$totalCount->total_comments = $this->result['total_comments'] 	+ $totalCount->total_comments;
 			}
 			$this->result = $totalCount;
+			return true;
 		}
 		
-		return $result;
+		if(is_array($comments) && sizeof($comments)) {
+			$this->add_wp_comments($comments);
+			$this->sort();
+		}
 		
+		return true;
 	}
+	
 	
 	/**
 	* Returns comments on results that have already been fetched and sorted.
