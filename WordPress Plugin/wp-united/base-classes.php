@@ -148,7 +148,7 @@ class WP_United_Settings {
 }
 
 
-class WP_United_Plugin_Base {
+abstract class WP_United_Plugin_Base {
 
 	protected
 		
@@ -174,11 +174,11 @@ class WP_United_Plugin_Base {
 	*/
 	public function __construct() {
 		
-		
 		$currPath = dirname(__FILE__);
 		require_once($currPath . '/functions-general.php');
 		require_once($currPath . '/options.php');
 		require_once($currPath . '/debugger.php');
+		require_once($currPath . '/context-switcher.php');
 		require_once($currPath . '/phpbb.php');
 		require_once($currPath . '/cache.php');
 		
@@ -191,7 +191,6 @@ class WP_United_Plugin_Base {
 
 		$this->load_settings();
 		
-	
 	}
 
 	

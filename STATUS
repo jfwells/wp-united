@@ -39,6 +39,7 @@ COMMITTED FOR v0.9.2.0:
 * BUGFIX: Improve handling of double-byte characters when escaping cross-posted topic titles and user names in user mapper.
 * ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
 * NEW: Lots more login integration debugging, so you can see what is causing login integration problems. Now works on WP pages and in admin too.
+* NEW: Some more core rewriting and cleanup; the context switcher is now separated into its own parent class.
 
 *** not redirected to correct comment after posting x-posted comment ***
 
@@ -63,8 +64,6 @@ TODO (LARGER):
 
 Priority reported bugs:
 - dying with quickcache or wp super cache
-- error when uploading attachments on p-in-w full page (uldis.janpavlis) [not confirmed, assume fixed]
-- Occasional auto admin mapping issues (Facebook) [should be fixed]
 
 
 Regressions:
@@ -77,9 +76,6 @@ Regressions:
 -- Add cross-posting permissions to an additional column in the user mapper -> permissions tab (?)
 -- rework html-to-bbcode translation for images with captions
 -- implement a get_topic_url template tag. See http://www.wp-united.com/viewtopic.php?f=9&t=2861 .
--- for each cross-posted comment insert a ghost comment into wordpress with a marker to the phpBB comment (? -- unless we can cleanly generate "comments list to load", see below)
--- override all WP comment loaders (e.g. including in ACP) to merge latest WP posts and phpBB comments into single array
-
 
 ---- template tags -------
 user profile block http://www.wp-united.com/viewtopic.php?f=9&t=3279&p=12773
@@ -89,7 +85,6 @@ user profile block http://www.wp-united.com/viewtopic.php?f=9&t=3279&p=12773
 -- decide what to do with $phpEx global
 -- do check on plugin activation for php and wordpress version
 -- Profile db queries on page load and integration, and cache more commonly-pulled items 
--- modify version.php to contain compatibility information
 -- remove $compat from core-patcher
 -- check for caching plugin, esp. w3 total cache & super cache, and check that they are handling phpBB cookie and not causing errors
 

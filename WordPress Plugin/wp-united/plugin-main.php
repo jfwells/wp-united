@@ -98,6 +98,14 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$extras 		= false,
 			$integComments = false;
 	
+	
+	/**
+	* All base init is done by the parent class.
+	*/
+	public function __construct() {
+		parent::__construct();
+	}
+	
 	/**
 	 * Initialises the plugin from WordPress.
 	 * This is not in the constructor, as this class can be instantiated from either phpBB or WordPress.
