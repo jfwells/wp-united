@@ -325,7 +325,7 @@ class WPU_Comments {
 		}
 		
 		if(!is_object($query)) {
-			$this->order = ('asc' == get_option('comment_order')) ? 'ASC' : 'DESC';
+			$this->order = ('DESC' == strtoupper(get_option('comment_order'))) ? 'DESC' : 'ASC';
 			$this->phpbbOrderBy = 'p.post_time';
 			$this->finalOrderBy = array('p.post_time');
 			return;
@@ -355,15 +355,13 @@ class WPU_Comments {
 			$this->finalOrderBy = array('comment_date_gmt');
 		}
 		
-		if(!empty($this->phpbbOrderBy)) {
 		
-			if(empty($query->query_vars['order'])) {
-				$this->order = ('ASC' == strtoupper(get_option('comment_order'))) ? 'ASC' : 'DESC';
-			} else {
-				$this->order = ('ASC' == strtoupper($query->query_vars['order'])) ? 'ASC' : 'DESC';
-			}
-			
+		if(empty($query->query_vars['order'])) {
+			$this->order = ('DESC' == strtoupper(get_option('comment_order'))) ? 'DESC' : 'ASC';
+		} else {
+			$this->order = ('DESC' == strtoupper($query->query_vars['order'])) ? 'DESC' : 'ASC';
 		}
+			
 	
 	}
 	
