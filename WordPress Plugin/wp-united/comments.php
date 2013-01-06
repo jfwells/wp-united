@@ -664,11 +664,11 @@ class WPU_Comments {
 				$criteriaCounter++;
 				$criterion = $this->finalOrderBy[$criteriaCounter];
 			}
-
+			$result = strcmp($a->$criterion, $b->$criterion);
 			if($this->order == 'ASC') {
-				return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion > $b->$criterion) ? 1 : -1;
+				return  ($result == 0) ? 0 : ($result > 0) ? 1 : -1;
 			} else {
-				return $a->$criterion == $b->$criterion ? 0 : ($a->$criterion < $b->$criterion) ? 1 : -1;
+				return  ($result == 0) ? 0 : ($result < 0) ? 1 : -1;
 			}
 		}
 		return 0;
