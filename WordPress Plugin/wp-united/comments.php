@@ -261,7 +261,7 @@ class WPU_Comments {
 	 * @param WP_Comment_Query $query our query object
 	 * @return void
 	 */
-	private function setup_query_vars($query, $count) {
+	private function standardise_query($query, $count) {
 		
 		$maxLimit = 10000;
 		
@@ -275,38 +275,42 @@ class WPU_Comments {
 				$this->groupByStatus = true;
 			}
 			return;
-		}
+		} else {
 		
-		$this->postID = $query->query_vars['post_id'];
-		$this->limit = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $maxLimit;
-		$this->offset = $query->query_vars['offset'];
-		$this->count = $query->query_vars['count'];
-		
-		// set up vars for status clause
-		if(!empty($query->query_vars['status'])) {
-			if($query->query_vars['status'] == 'hold') {
-				$this->status = 'unapproved';
+			$this->postID = $query->query_vars['post_id'];
+			$this->limit = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $maxLimit;
+			$this->offset = $query->query_vars['offset'];
+			$this->count = $query->query_vars['count'];
+			
+			// set up vars for status clause
+			if(!empty($query->query_vars['status'])) {
+				if($query->query_vars['status'] == 'hold') {
+					$this->status = 'unapproved';
+				}
+				else if($query->query_vars['status'] != 'approve') {
+					$this->status = 'approved';
+				}
 			}
-			else if($query->query_vars['status'] != 'approve') {
-				$this->status = 'approved';
+			
+			// set up vars for user clause
+			if(!empty($query->query_vars['user_id'])) {
+				$this->userID = $query->query_vars['user_id'];
 			}
+			
+			// set up vars for e-mail clause
+			if(!empty($query->query_vars['author_email'])) {
+				$this->userEmail = $query->query_vars['author_email'];
+			}
+			
+			// set up vars for topic author ID clause
+			if(!empty($query->query_vars['post_author'])) {
+				$this->topicUser = $query->query_vars['post_author'];
+			}			
 		}
 		
-		// set up vars for user clause
-		if(!empty($query->query_vars['user_id'])) {
-			$this->userID = $query->query_vars['user_id'];
-		}
+		$this->setup_sort_vars($query, $count);
 		
-		// set up vars for e-mail clause
-		if(!empty($query->query_vars['author_email'])) {
-			$this->userEmail = $query->query_vars['author_email'];
-		}
-		
-		// set up vars for topic author ID clause
-		if(!empty($query->query_vars['post_author'])) {
-			$this->topicUser = $query->query_vars['post_author'];
-		}			
-	
+		return;
 	}
 	
 	/**
@@ -367,30 +371,30 @@ class WPU_Comments {
 			return false;
 		}
 		
-		$this->setup_query_vars($query, $count);
+		$this->standardise_query($query, $count);
 		
-		$this->setup_sort_vars($query, $count);
-			
 		$result = $this->perform_phpbb_comment_query();
 		
 		if($result == false) {
 			return false;
 		}
 		
-		if(!$count && $this->count) { 
-			$this->result = (int)$this->result + (int)$comments;
-			return true;
-		}
-		
-		if($count) {
-			// Now we fetch the native WP count
-			$totalCount = wp_count_comments($postID);
-			if(is_object($totalCount)) {
-				$totalCount->moderated 		= $this->result['moderated'] 		+ $totalCount->moderated;
-				$totalCount->approved 		= $this->result['approved'] 		+ $totalCount->approved;
-				$totalCount->total_comments = $this->result['total_comments'] 	+ $totalCount->total_comments;
+		if($this->count) {
+
+			if(!$this->groupByStatus) {
+				$this->result = (int)$this->result + (int)$comments;
+			} else {
+
+				// Now we fetch the native WP count
+				$totalCount = wp_count_comments($postID);
+				if(is_object($totalCount)) {
+					$totalCount->moderated 		= $this->result['moderated'] 		+ $totalCount->moderated;
+					$totalCount->approved 		= $this->result['approved'] 		+ $totalCount->approved;
+					$totalCount->total_comments = $this->result['total_comments'] 	+ $totalCount->total_comments;
+				}
+				$this->result = $totalCount;
 			}
-			$this->result = $totalCount;
+			
 			return true;
 		}
 		
