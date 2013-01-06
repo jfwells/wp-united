@@ -32,7 +32,7 @@ abstract class WPU_Context_Switcher {
 		$wpEnv,
 		$phpbbEnv,
 		$state,
-		$was_out,
+		$was_out;
 	
 	public
 		$lang;
