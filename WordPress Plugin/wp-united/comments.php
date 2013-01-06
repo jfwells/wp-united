@@ -326,7 +326,6 @@ class WPU_Comments {
 		
 		if(!is_object($query)) {
 			$this->order = ('asc' == get_option('comment_order')) ? 'ASC' : 'DESC';
-			$this->order = get_option
 			$this->phpbbOrderBy = 'p.post_time';
 			$this->finalOrderBy = array('p.post_time');
 			return;
