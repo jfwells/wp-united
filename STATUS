@@ -7,6 +7,12 @@ x-posting todo:
 * standardise various queries into a special WPU type -- and cache results, purge cache on comment post
 * pull pre-get-comment-query in order to handle offsets
 
+) re-enable xpc on edit-comments
+) post a bunch, test if updates, fix
+) add fix for pagination: use pre-fetch hook
+
+
+* for guest posts, need to REMOVE POST=USERID AND ALSO do_action('set_comment_cookies', $comment, $user); on comments taken by phpBB. Also store user/post meta
 
 Useful for comment panel in dashboard:
 - hook: admin_comment_types_dropdown to show forum posts OR normal, not both :-)
