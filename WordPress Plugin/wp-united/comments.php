@@ -18,6 +18,36 @@
 if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 
+
+/**
+ * 
+ * TODO: flow
+ *
+ * 
+ * Request comes in: 
+ * 
+ * $this->get_comment_query($query, $comments, $count)
+ * 
+ * result = new WPU_XPost_Query_Request($query, $comments, $count)->get_result
+ *  ------ constructor: standardise query vars, create signatute, find query sub-object
+ * ------- get_result: find query sub-object, execute.
+ * 
+ * ------- results are cached by storing sub-objects.
+ * sub-objects can contain a map of useable results.
+*/
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
 class WPU_Comments_Access_Layer {
 	
 	private 
@@ -124,13 +154,13 @@ class WPU_Comments_Access_Layer {
 }
 
 
-/**
- * A comment object to store cross-posted comment results, and retrieve various other info.
- * Each WPU_Comments object is a query result.
- */
-class WPU_Comments {
+
+class WPU_XPost_Query_Request {
 	
 	private 
+		$maxLimit,
+		$signature,
+		$providedLimit,
 		$result,
 		$usingPhpBBComments,
 		$limit,
@@ -145,15 +175,15 @@ class WPU_Comments {
 		$phpbbOrderBy,
 		$finalOrderBy,
 		$orderFieldsMap;
-		
-		
-	public $links;
 	
-
 	/**
 	 * Class initialisation
 	 */
 	public function __construct() {
+		
+		$this->maxLimit = 10000;
+		$this->signature = '';
+		
 		$this->result = array();
 		$this->links = array();
 		$this->usingPhpBBComments = false;
@@ -162,6 +192,7 @@ class WPU_Comments {
 		$this->userEmail = '';
 		$this->topicUser = '';
 		$this->limit = 25;
+		$this->providedLimit = 0;
 		$this->offset = 0;
 		$this->count = false;
 		$this->groupByStatus = false;
@@ -262,12 +293,10 @@ class WPU_Comments {
 	 * @return void
 	 */
 	private function standardise_query($query, $count) {
-		
-		$maxLimit = 10000;
-		
+			
 		if(!is_object($query)) {
 			$this->postID = ((int)$query > 0) ? $query : false;
-			$this->limit = $maxLimit;
+			$this->limit = $this->maxLimit;
 			$this->offset = 0;
 		
 			if($count) { 
@@ -275,9 +304,11 @@ class WPU_Comments {
 				$this->groupByStatus = true;
 			}
 		} else {
-		
+			
+			$this->providedLimit = $query->query_vars['number'];
+			
 			$this->postID = $query->query_vars['post_id'];
-			$this->limit = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $maxLimit;
+			$this->limit = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $this->maxLimit;
 			$this->offset = $query->query_vars['offset'];
 			$this->count = $query->query_vars['count'];
 			
@@ -312,6 +343,246 @@ class WPU_Comments {
 		return;
 	}
 	
+	/**
+	 * Get the signature of a request to determine if we can re-use the 
+	 * results, of if we need to run another query.
+	 * 
+	 * Even slightly varying requests could be served from the same 
+	 * query results.
+	 * 
+	 */
+	private function get_request_signature() {
+		
+		// order is of no significance if no limit or offset is set
+		$order = (empty($this->providedLimit)) ? 0 : $this->order;
+		$orderBy = (empty($this->providedLimit)) ? '' : $this->phpbbOrderBy;
+		
+		$this->signature = implode(',', array(
+			(int)$this->postID, 
+			$this->userID, 
+			$this->userEmail, 
+			$this->topicUser, 
+			$this->limit, 
+			$this->offset, 
+			(int)$this->count, 
+			(int)$this->groupByStatus, 
+			$this->status, 
+			$oder,
+			$orderBy
+		));
+		
+	}	
+	
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * A comment object to store cross-posted comment results, and retrieve various other info.
+ * Each WPU_Comments object is a query result.
+ */
+class WPU_Comments {
+	
+	private 
+		$maxLimit,
+		$providedLimit,
+		$result,
+		$usingPhpBBComments,
+		$limit,
+		$status,
+		$offset,
+		$postID,
+		$userID,
+		$userEmail,
+		$topicUser,
+		$count,
+		$order,
+		$phpbbOrderBy,
+		$finalOrderBy,
+		$orderFieldsMap;
+		
+		
+	public $links;
+	
+
+	/**
+	 * Class initialisation
+	 */
+	public function __construct() {
+		
+		$this->maxLimit = 10000;
+		
+		
+		$this->result = array();
+		$this->links = array();
+		$this->usingPhpBBComments = false;
+		$this->postID = 0;
+		$this->userID = '';
+		$this->userEmail = '';
+		$this->topicUser = '';
+		$this->limit = 25;
+		$this->providedLimit = 0;
+		$this->offset = 0;
+		$this->count = false;
+		$this->groupByStatus = false;
+		$this->status = 'all';
+		$this->order = 'DESC';
+		$this->phpbbOrderBy = '';
+		$this->finalOrderBy = array();
+		
+		// variables we could sort our query by.
+		// Commented items are criteria WordPress could send which we will drop.
+		$this->orderFieldsMap = array(
+			//'comment_agent'			=> 	'', // same for all phpBB comments,
+			'comment_approved'		=>	'p.post_approved',
+			'comment_author'		=>	'u.username',
+			'comment_author_email'	=>	'u.user_email',
+			'comment_author_IP'		=> 	'u.user_ip',
+			'comment_author_url'	=>	'u.user_website',
+			'comment_content'		=>	'p.post_text',
+			'comment_date'			=>	'p.post_time',
+			'comment_date_gmt'		=>	'p.post_time',
+			'comment_ID'			=>	'p.post_id',
+			//'comment_karma'		=>	'', // n/a
+			//'comment_parent'		=>	'', //n/a
+			'comment_post_ID'		=>	't.topic_id',
+			//'comment_type'			=> 	'',		// only interested in 'comments'
+			'user_id'				=>	'u.user_wpuint_id',
+		);
+		
+	}
+	
+	/**
+	 * We can only handle certain types of comment queries right now.
+	 * This is used to reject queries that we either can't understand or make no sense in a cross-posted
+	 * context.
+	 *
+	 * Not to be called for integer queries -- only for full query objects!.
+	 * @pram WP_Comment_Query $query query object
+	 * @return bool true if we can handle it!
+	 */
+	private function can_handle_query($query) {
+		
+		if(!is_object($query)) {
+			return true;
+		}
+
+		if( // temp; the comments page needs offsets to work
+			//preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
+			
+			// we have no karma
+			!empty($query->query_vars['karma'])							||
+			
+			// TODO: we cannot calculate offsets without re-pulling WP data
+			!empty($query->query_vars['offset'])						||
+			
+			// phpBB is not threaded
+			!empty($query->query_vars['parent'])						||
+			
+			// TODO: Allow comment filtering by topic title
+			!empty($query->query_vars['post_name'])						||
+			
+			// TODO: Allow comment filtering by WP post parent
+			!empty($query->query_vars['post_parent'])					||
+			
+			// we only understand published, cross-posted posts
+			!(	
+				empty($query->query_vars['post_status']) 	||
+				($query->query_vars['post_status'] == 'publish')
+			)															||
+			
+			// ignore attachments or anything other than posts
+			!(
+				empty($query->query_vars['post_type'])		||
+				($query->query_vars['post_type'] == 'post')
+			)															||
+			
+			// ignore trackbacks, pingbacks or anything other than comments
+			!(
+				empty($query->query_vars['type'])			||
+				($query->query_vars['type'] == 'comment')
+			)															||
+			
+			// cannot translate meta-queries to phpBB
+			!empty($query->query_vars['meta_key'])						||
+			!empty($query->query_vars['meta_value'])					||
+			!empty($query->query_vars['meta_query'])
+        ) {
+			return false;
+		}
+		
+		return true;
+
+	}
+	
+	/**
+	 * Translate query vars from WordPress format to our standardised / phpBB format
+	 * Not to be called for integer queries.
+	 * @param WP_Comment_Query $query our query object
+	 * @return void
+	 */
+	private function standardise_query($query, $count) {
+			
+		if(!is_object($query)) {
+			$this->postID = ((int)$query > 0) ? $query : false;
+			$this->limit = $this->maxLimit;
+			$this->offset = 0;
+		
+			if($count) { 
+				$this->count = true;
+				$this->groupByStatus = true;
+			}
+		} else {
+			
+			$this->providedLimit = $query->query_vars['number'];
+			
+			$this->postID = $query->query_vars['post_id'];
+			$this->limit = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $this->maxLimit;
+			$this->offset = $query->query_vars['offset'];
+			$this->count = $query->query_vars['count'];
+			
+			// set up vars for status clause
+			if(!empty($query->query_vars['status'])) {
+				if($query->query_vars['status'] == 'hold') {
+					$this->status = 'unapproved';
+				}
+				else if($query->query_vars['status'] != 'approve') {
+					$this->status = 'approved';
+				}
+			}
+			
+			// set up vars for user clause
+			if(!empty($query->query_vars['user_id'])) {
+				$this->userID = $query->query_vars['user_id'];
+			}
+			
+			// set up vars for e-mail clause
+			if(!empty($query->query_vars['author_email'])) {
+				$this->userEmail = $query->query_vars['author_email'];
+			}
+			
+			// set up vars for topic author ID clause
+			if(!empty($query->query_vars['post_author'])) {
+				$this->topicUser = $query->query_vars['post_author'];
+			}			
+		}
+		
+		$this->setup_sort_vars($query);
+		
+		return;
+	}
+	
+
 	/**
 	*	Sets up the class sorting parameters. Sorting happens at two levels:
 	*	- in the SQL when fetching results from the database (using $this->phpbbOrderBy)
@@ -626,7 +897,7 @@ class WPU_Comments {
 			$pathsFixed = array('src="' . $phpbbForum->get_board_url(), 'href="' . $phpbbForum->get_board_url());
 			$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
 
-			$this->result[] = new WPU_Comment($args);
+			$this->result[] = (object) $args;
 			
 			//don't use numerical keys to avoid renumbering on array_merge
 			$this->links['comment' . $commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}");
@@ -687,43 +958,6 @@ class WPU_Comments {
 	
 }
 
-/**
- * An individual comment placeholder
- */
-class WPU_Comment {
 
-	public
-		$comment_ID,
-		$comment_post_ID,
-		$comment_author,
-		$comment_author_email,
-		$comment_author_url,
-		$comment_author_IP,
-		$comment_date,
-		$comment_date_gmt,
-		$comment_content,
-		$comment_karma,
-		$comment_approved,
-		$comment_agent,
-		$comment_type,
-		$comment_parent,
-		$phpbb_id,
-		$user_id;
-	
-	/**
-	 * Class initialisation
-	 * All required args must be passed in
-	 * @param array $args: Array with all WordPress comment fields provided as 'variablename' => 'variablevalue'
-	 */
-	public function __construct($args) {
-		if(is_array($args)) {
-			foreach($args as $argName => $argVal) {
-				$this->$argName = $argVal;
-			}
-		}
-	}
-	
-	
-}
 
 // End the comments file with a comment: Done.

@@ -634,7 +634,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 				'user_id' 				=> $row['poster_id'],
 				'username' 			=> $row['username'],
 				'forum_id' 			=> $row['forum_id'],
-				'forum_name' 	=> $row['forum_name'],
+				'forum_name' 		=> $row['forum_name'],
 				'user_type'			=> $row['user_type'],
 				'user_colour'		=> $row['user_colour'],
 				'user_link'			=> $this->get_username_link($row['user_type'], $row['poster_id'], $row['username'], $row['user_colour'])
