@@ -356,9 +356,13 @@ class WPU_Comments {
 		}
 		
 		if(!empty($this->phpbbOrderBy)) {
-			$this->order = ('ASC' == strtoupper($query->query_vars['order'])) ? 'ASC' : 'DESC';
-		} else {
-			$this->order = '';
+		
+			if(empty($query->query_vars['order'])) {
+				$this->order = ('ASC' == strtoupper(get_option('comment_order'))) ? 'ASC' : 'DESC';
+			} else {
+				$this->order = ('ASC' == strtoupper($query->query_vars['order'])) ? 'ASC' : 'DESC';
+			}
+			
 		}
 	
 	}
