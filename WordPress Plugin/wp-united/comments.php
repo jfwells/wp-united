@@ -96,7 +96,7 @@ class WPU_Comments_Access_Layer {
 				$query .= 'count';
 			}
 		}
-		
+	
 
 		foreach($this->queries as $queryObj) {
 			if($queryObj['input_args'] === $query) {
@@ -371,7 +371,7 @@ class WPU_Comments {
 	* @param $comments possible WordPress comments that have already been pulled
 	*/
 	public function execute_query($query, $comments, $count) {
-		
+
 		if(!$this->can_handle_query($query)) {
 			return false;
 		}
@@ -379,7 +379,7 @@ class WPU_Comments {
 		$this->standardise_query($query, $count);
 		
 		$result = $this->perform_phpbb_comment_query();
-		
+
 		if($result == false) {
 			return false;
 		}
@@ -400,11 +400,12 @@ class WPU_Comments {
 				$this->result = $totalCount;
 			}
 			
+
 			return true;
 		}
 		
 		
-		$phpbbResult = sizeof($result);
+		$phpbbResult = sizeof($this->result);
 		if(is_array($comments) && sizeof($comments)) {
 			$this->add_wp_comments($comments);
 			if($phpbbResult) {
@@ -414,7 +415,7 @@ class WPU_Comments {
 				}
 			}
 		}
-		
+
 		return true;
 	}
 	
@@ -552,7 +553,7 @@ class WPU_Comments {
 					
 		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
-		
+
 		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql)));
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
@@ -560,7 +561,7 @@ class WPU_Comments {
 			$phpbbForum->restore_state($fStateChanged);
 			return false;
 		}
-		
+
 		if($this->count) {
 			if($this->groupByStatus) {
 				$stats = array(
@@ -662,19 +663,21 @@ class WPU_Comments {
 		
 		$criteriaCounter = 0;
 		$criterion = $this->finalOrderBy[$criteriaCounter];
-		
+
 		if(!empty($criterion)) {
 			while(($a->$criterion == $b->$criterion) && ($criteriaCounter < (sizeof($this->finalOrderBy) - 1)) ) {
 				$criteriaCounter++;
 				$criterion = $this->finalOrderBy[$criteriaCounter];
 			}
-			$result = strcmp($a->$criterion, $b->$criterion);
+			$result = strcmp((string)$a->$criterion, (string)$b->$criterion);
+
 			if($this->order == 'ASC') {
-				return  ($result == 0) ? 0 : ($result > 0) ? 1 : -1;
+				return ($result == 0) ? 0 : (($result > 0) ? 1 : -1);
 			} else {
-				return  ($result == 0) ? 0 : ($result < 0) ? 1 : -1;
+				return ($result == 0) ? 0 : (($result < 0) ? 1 : -1);
 			}
 		}
+
 		return 0;
 	}
 	

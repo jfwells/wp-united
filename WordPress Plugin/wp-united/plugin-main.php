@@ -687,7 +687,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	 * TODO: Move following to own super cross-posting class
 	 */
 	public function integrate_comments($query, $comments = false) {
-		
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
 			return $comments;
 		}
@@ -705,11 +704,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function fetch_comments_query($comments, $query) {
-		
 		if(!$this->integrate_comments($query, $comments)) {
 			return $comments;
 		}
-		
+
 		return $this->integComments->get_result($query);
 		
 	}
