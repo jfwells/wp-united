@@ -403,11 +403,15 @@ class WPU_Comments {
 			return true;
 		}
 		
+		
+		$phpbbResult = sizeof($result);
 		if(is_array($comments) && sizeof($comments)) {
 			$this->add_wp_comments($comments);
-			$this->sort();
-			if(is_array($this->result)) {
-				$this->result = array_slice($this->result, 0, $this->limit);
+			if($phpbbResult) {
+				$this->sort();
+				if(is_array($this->result)) {
+					$this->result = array_slice($this->result, 0, $this->limit);
+				}
 			}
 		}
 		
