@@ -211,7 +211,7 @@ class WPU_Comments {
 		}
 
 		if( // temp; the comments page needs offsets to work
-			preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
+			//preg_match("/\/edit-comments\.php/", $_SERVER['REQUEST_URI'])	||
 			
 			// we have no karma
 			!empty($query->query_vars['karma'])							||
