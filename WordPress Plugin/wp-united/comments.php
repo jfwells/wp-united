@@ -40,7 +40,8 @@ class WPU_Comments_Access_Layer {
 	* @return bool true if there are any cross-posted comments here.
 	*/
 	public function process($query, $comments = false, $count = false) {
-	
+		global $wpuDebug;
+		
 		if($this->inQuery) {
 			return false;
 		}
@@ -56,6 +57,7 @@ class WPU_Comments_Access_Layer {
 		
 		foreach($this->queries as $queryObj) {
 			if($queryObj['input_args'] === $queryArgs) {
+				$wpuDebug->add('cross-post query requested, already calculated. Served from store.');
 				return $queryObj['query_success'];
 			}
 		}
@@ -67,6 +69,7 @@ class WPU_Comments_Access_Layer {
 		);
 		
 		$this->inQuery = true;
+		$wpuDebug->add('Requesting new cross-posting query.');
 		$newQuery['query_success'] = $newQuery['query_object']->execute_query($query, $comments, $count);
 		$this->inQuery = false;
 
@@ -428,7 +431,7 @@ class WPU_Comments {
 	*/
 	private function perform_phpbb_comment_query() {
 		
-		global $phpbbForum, $auth, $db, $phpEx, $user, $phpbb_root_path;
+		global $wpuDebug, $phpbbForum, $auth, $db, $phpEx, $user, $phpbb_root_path;
 
 		$fStateChanged = $phpbbForum->foreground();
 
@@ -536,6 +539,8 @@ class WPU_Comments {
 					
 		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
+		
+		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql));
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
