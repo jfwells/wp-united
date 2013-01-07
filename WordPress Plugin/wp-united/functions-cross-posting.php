@@ -687,28 +687,6 @@ function wpu_comment_link($url, $comment, $args) {
  * Modifies comment action links in the dashboard
  */
  
-function wpu_comment_actions($actions, $comment) {
-	global $wpUnited;
-	
-	if ( 
-		!$wpUnited->is_working() 							|| 
-		!$wpUnited->get_setting('xposting')	 				|| 
-		!$wpUnited->get_setting('xpostautolink')
-	) { 
-		return $actions;
-	}
-		
-	$link = $wpUnited->get_integrated_comment_link($comment->comment_ID);
-	
-	if(!empty($link)) {
-		$actions = array(
-			'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>',
-		);
-	}
-	
-	return $actions;	
-	
-}
 
 /**
  * returns if the comments box should display or not

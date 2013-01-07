@@ -667,9 +667,25 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function integrated_comments($comments, $query) { 
 		return wpu_integrated_comments($comments, $query);
 	}
+	
 	public function integrated_comment_actions($actions, $comment) {
-		return  wpu_comment_actions($actions, $comment);
-	}	
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return false;
+		}
+		
+		$link = $this->integComments->get_link($comment->comment_ID);
+	
+		if(!empty($link)) {
+			$actions = array(
+				'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>',
+			);
+		}
+	
+		return $actions;
+	
+	}
+	
 	public function comments_count($count, $postID = false) {
 		return wpu_comments_count($count, $postID);
 	}

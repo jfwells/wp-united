@@ -2,7 +2,7 @@
 /** 
 *
 * @package WP-United
-* @version $Id: 0.9.2.0  2012/01/05 John Wells (Jhong) Exp $
+* @version $Id: 0.9.2.0  2012/01/07 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -24,21 +24,11 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 	Work in progress!!!
 	
 	TODO:
-	- remove counting from queries:
 	
-	- if previous query result was for a count, and this is for a full retrieval, then update the results with full comments.
-			-- then count requests following normal requests won't need to fetch :-)
-			
+	- move get_* hook to pre_ so that we can pull data in here too, and process offset :-)
+
 	- right now grouped count and full count queries have different fingerprints (as former has no WP data passed in)... make them identical!!
-
-	
 	- call in here for main xposting details too, and rename file to generic xposting layer.
-
-
-
-
-
-
 
 
 */
@@ -343,7 +333,6 @@ class WPU_XPost_Query_Store {
 		$order = (empty($this->currentProvidedLimit)) ? 0 : $this->currentQuery['order'];
 		$orderBy = (empty($this->currentProvidedLimit)) ? 'na' : $this->currentQuery['phpbbOrderBy'];
 		
-		
 		$count = 0;
 		$group = 0;
 		
@@ -448,8 +437,7 @@ class WPU_XPost_Query {
 		$this->links = array();
 		$this->currQueryArgs = false;
 		$this->lastQueryArgs = array();
-		
-		
+
 	}
 	
 	private function reset_results() {
@@ -836,10 +824,7 @@ class WPU_XPost_Query {
 		return 0;
 	}
 	
-	
 
-	
-	
 }
 
 
