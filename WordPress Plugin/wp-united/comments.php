@@ -337,8 +337,8 @@ class WPU_XPost_Query_Store {
 		$group = 0;
 		
 		// if we are pulling for a specific post, a count request can be fingerprinted almost the same as a normal request.
-		if($this->count) {
-			if(empty($this->postID)) {
+		if($this->currentQuery['count']) {
+			if(empty($this->currentQuery['postID'])) {
 				$count = (int)$this->currentQuery['count'];
 				$group = (int)$this->currentQuery['groupByStatus'];
 			} else {
@@ -450,7 +450,10 @@ class WPU_XPost_Query {
 			'count-grouped'			=> (object)array(
 				'moderated'			=> 0,
 				'approved'			=> 0,
-				'total-comments'	=> 0
+				'spam'				=> 0,
+				'trash'				=> 0,
+				'post-trashed'		=> 0,
+				'total_comments'	=> 0
 			)
 		);
 		
@@ -585,7 +588,8 @@ class WPU_XPost_Query {
 								p.post_approved, p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
 								p.enable_sig, p.post_username, p.post_subject, 
 								p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
-								t.topic_approved, t.topic_wpu_xpost, t.topic_first_post_id, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
+								t.topic_approved, t.topic_wpu_xpost, t.topic_first_post_id, t.topic_type, 
+								t.forum_id, t.topic_id, t.topic_status, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 								u.user_id, u.username, u.user_wpuint_id, u.user_email',
 
 				'ORDER_BY'	=> $this->phpbbOrderBy . ' ' . $this->order
@@ -657,18 +661,15 @@ class WPU_XPost_Query {
 
 		if($this->count) {
 			if($this->groupByStatus) {
-				$stats = array(
-					'moderated'			=> 	0,
-					'approved'			=> 	0,
-					'total_comments'	=>	0
-				);
+				// start with inited object
+				$stats = $this->result['count-grouped'];
 				while ($stat = $db->sql_fetchrow($result)) {
 					if($stat['post_approved'] == 0) {
-						$stats['moderated'] = $stat['num_total'] - $stat['num_topics'];
+						$stats->moderated = $stat['num_total'] - $stat['num_topics'];
 					} else {
-						$stats['approved'] = $stat['num_total'] - $stat['num_topics'];
+						$stats->approved = $stat['num_total'] - $stat['num_topics'];
 					}
-					$stats['total_comments'] = $stats['total_comments'] + ($stat['num_total'] - $stat['num_topics']);
+					$stats->total_comments = $stats->total_comments + ($stat['num_total'] - $stat['num_topics']);
 				}
 				
 				$db->sql_freeresult($result);
@@ -677,11 +678,11 @@ class WPU_XPost_Query {
 				$phpbbForum->background();
 				$wpCount = wp_count_comments($this->postID);
 				if(is_object($totalCount)) {
-					$stats['moderated'] 		= $stats['moderated']		+ $wpCount->moderated;
-					$stats['approved']	 		= $stats['approved'] 		+ $wpCount->approved;
-					$stats['total_comments']	= $stats['total_comments'] 	+ $wpCount->total_comments;
+					$stats->moderated 		= $stats->moderated			+ $wpCount->moderated;
+					$stats->approved	 	= $stats->approved 			+ $wpCount->approved;
+					$stats->total_comments	= $stats->total_comments 	+ $wpCount->total_comments;
 				}
-				$this->result['count-grouped'] = (object) $stats;
+				$this->result['count-grouped'] = $stats;
 				$this->result['count'] = $this->result['count-grouped']->total_comments;
 				
 			} else {
@@ -720,7 +721,7 @@ class WPU_XPost_Query {
 					'subject'		=> $row['post_subject'],
 					'forum_id'		=> $row['forum_id'],
 					'user_id'		=> $row['poster_id'],
-					'replies'		=> $row['topic_replies'],
+					'replies'		=> $row['replies'],
 					'time'			=> $user->format_date($row['post_time'], "Y-m-d H:i:s"), 
 					'approved'		=> $row['topic_approved'],
 					'type'			=> $row['topic_type'],
