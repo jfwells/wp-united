@@ -29,7 +29,7 @@ class WPU_XPost_Query_Store {
 		$maxLimit,
 		$currentProvidedLimit,
 		$links,
-		
+		$doingQuery,
 		$orderFieldsMap;
 		
 		/**
@@ -41,6 +41,8 @@ class WPU_XPost_Query_Store {
 		$this->queries = array();
 		$this->links = array();
 		$this->currentQuery = array();
+		
+		$this->doingQuery = false;
 
 		
 		// variables we could sort our query by.
@@ -91,9 +93,11 @@ class WPU_XPost_Query_Store {
 	
 	public function get($query, $comments, $count = false) {
 	
-		if(!$this->can_handle_request($query)) {
-			return false;
+		if(!$this->can_handle_request($query) || $this->doingQuery) {
+			return $comments;
 		}
+		
+		$this->doingQuery = true;
 	
 		$this->set_current_query($query, $comments, $count);
 	
@@ -106,7 +110,11 @@ class WPU_XPost_Query_Store {
 			$this->queries[$sig] = new WPU_XPost_Query();
 			$this->links = array_merge($this->links, $this->queries[$sig]->links);
 		}
-		return $this->queries[$sig]->get_result($this->currentQuery);
+		$result = $this->queries[$sig]->get_result($this->currentQuery);
+		
+		$this->doingQuery = false;
+		
+		return $result;
 	
 	}
 		
