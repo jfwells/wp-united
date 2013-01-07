@@ -126,7 +126,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if($this->get_setting('xposting')) {		
 			require_once($this->get_plugin_path() . 'functions-cross-posting.php');
 			require_once($this->get_plugin_path() . 'comments.php');
-			$this->integComments = new WPU_Comments_Access_Layer();
+			$this->integComments = new WPU_XPost_Query_Store();
 		}
 
 
