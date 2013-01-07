@@ -18,6 +18,31 @@
 if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 
+/**
+
+
+	Work in progress!!!
+	
+	TODO:
+	- remove counting from queries:
+	
+	- if previous query result was for a count, and this is for a full retrieval, then update the results with full comments.
+			-- then count requests following normal requests won't need to fetch :-)
+			
+	- right now grouped count and full count queries have different fingerprints (as former has no WP data passed in)... make them identical!!
+
+	
+	- call in here for main xposting details too, and rename file to generic xposting layer.
+
+
+
+
+
+
+
+
+*/
+
 
 
 class WPU_XPost_Query_Store {
@@ -398,7 +423,18 @@ class WPU_XPost_Query {
 		$this->success = false;
 		$this->queryExecuted = false;
 		
-		$this->result = array();
+		$this->result = array(
+			'has-xposts'			=> false,
+			'has-xposted-comments'	=> false,
+			'xposts'				=> array();
+			'comments'				=> array();
+			'count'					=> 0,
+			'count-grouped'			=> (object)array(
+				'moderated'			=> 0,
+				'approved'			=> 0,
+				'total-comments'	=> 0
+			);
+		);
 		$this->links = array();
 		$this->usingPhpBBComments = false;
 		
@@ -411,21 +447,35 @@ class WPU_XPost_Query {
 	
 		if(!$this->queryExecuted) {
 			$this->queryExecuted = true;
-			return $this->execute_query();
+			$this->success = $this->perform_phpbb_comment_query();
+			
+			if($this->success && !$this->count && is_array($this->passedResult) && sizeof($this->passedResult)) {
+				$this->add_wp_comments($this->passedResult);
+			}
 		}
 		
 		if(!$this->success) { 
 			return false;
 		}
 		
-		if(!$this->count && sizeof($this->result)) {
-			$this->sort();
-			if(is_array($this->result)) {
-				return array_slice($this->result, 0, $this->limit);
+		if(!$this->count) {
+			if($this->result['has-xposted-comments']) {
+				$this->sort();
+			}
+			if(is_array($this->result['comments'])) {
+				return array_slice($this->result['comments'], 0, $this->limit);
 			}
 		}
 		
-		return $this->result;
+		else if($this->count) {
+			if($this->groupByStatus) {
+				return $this->result['count-grouped'];
+			} else {
+				return $this->result['count'];
+			}
+		}
+		
+		return false;
 		
 	}
 
@@ -447,37 +497,26 @@ class WPU_XPost_Query {
 		}
 		
 		if($this->count) {
-
 			if(!$this->groupByStatus) {
-				$this->result = (int)$this->result + (int)$this->passedResult;
+				return $this->result['count'];
 			} else {
-
-				// Now we fetch the native WP count
-				$totalCount = wp_count_comments($this->postID);
-				if(is_object($totalCount)) {
-					$totalCount->moderated 		= $this->result['moderated'] 		+ $totalCount->moderated;
-					$totalCount->approved 		= $this->result['approved'] 		+ $totalCount->approved;
-					$totalCount->total_comments = $this->result['total_comments'] 	+ $totalCount->total_comments;
-				}
-				$this->result = $totalCount;
+				return $this->result['count-grouped'];
 			}
-			
-			return $this->result;
 		}
 		
 		
-		$phpbbResult = sizeof($this->result);
+		$phpbbResult = sizeof($this->result['comments']);
 		if(is_array($this->passedResult) && sizeof($this->passedResult)) {
 			$this->add_wp_comments($this->passedResult);
 			if($phpbbResult) {
 				$this->sort();
-				if(is_array($this->result)) {
-					return array_slice($this->result, 0, $this->limit);
+				if(is_array($this->result['comments'])) {
+					return array_slice($this->result['comments'], 0, $this->limit);
 				}
 			}
 		}
 
-		return $this->result;
+		return $this->result['comments'];
 	}
 	
 	
@@ -488,7 +527,18 @@ class WPU_XPost_Query {
 	* @return void
 	*/
 	private function add_wp_comments($comments) {
-		$this->result = array_merge($comments, $this->result);
+		$this->result['comments'] = array_merge($comments, $this->result['comments']);
+		
+		// add to totals
+		foreach($comments as $comment) {
+			if($comment->comment_approved == 0) {
+				$this->result['count-grouped']['moderated']++;
+			} else {
+					$this->result['count-grouped']['approved']++;
+			}
+			$this->result['count-grouped']['total_comments']++;
+		}	
+		$this->result['count'] = $this->result['count-grouped']['total_comments'];
 	}
 	
 	/**
@@ -529,14 +579,15 @@ class WPU_XPost_Query {
 		if($this->count) { 
 			if($this->groupByStatus) {
 				$query = array(
-					'SELECT' 	=> 'p.post_approved, COUNT(p.post_id) AS num_comments',
+					'SELECT' 	=> 'p.post_approved, COUNT(p.post_id) AS num_total, COUNT(distinct t.topic_id) AS num_topics',
 					'GROUP_BY'	=> 'p.post_approved'
 				);
 			} else { 
 				$query = array(
-					'SELECT' 	=> 'COUNT (p.post_id) AS num_comments'
+					'SELECT' 	=> 'COUNT (p.post_id) AS num_total, COUNT(distinct t.topic_id) as num_topics'
 				);
 			}
+			
 		} else {
 			
 			$query = array(
@@ -544,7 +595,7 @@ class WPU_XPost_Query {
 								p.post_approved, p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
 								p.enable_sig, p.post_username, p.post_subject, 
 								p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
-								t.topic_wpu_xpost, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
+								t.topic_approved, t.topic_wpu_xpost, t.topic_first_post_id, t.forum_id, t.topic_id, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 								u.user_id, u.username, u.user_wpuint_id, u.user_email',
 
 				'ORDER_BY'	=> $this->phpbbOrderBy . ' ' . $this->order
@@ -597,8 +648,7 @@ class WPU_XPost_Query {
 		$where[] = '
 			((p.poster_id = u.user_id) AND 
 			(p.topic_id = t.topic_id) AND 
-			(t.topic_replies > 0) AND
-			(t.topic_first_post_id <> p.post_id) AND (' .
+			(t.topic_replies > 0) AND (' .
 			$db->sql_in_set('t.forum_id', $allowedForums) . '
 			))';
 			
@@ -624,18 +674,35 @@ class WPU_XPost_Query {
 				);
 				while ($stat = $db->sql_fetchrow($result)) {
 					if($stat['post_approved'] == 0) {
-						$stats['moderated'] = $stat['num_comments'];
+						$stats['moderated'] = $stat['num_total'] - $stat['num_topics'];
 					} else {
-						$stats['approved'] = $stat['num_comments'];
+						$stats['approved'] = $stat['num_total'] - $stat['num_topics'];
 					}
-					$stats['total_comments'] = $stats['total_comments'] + $stat['num_comments'];
+					$stats['total_comments'] = $stats['total_comments'] + ($stat['num_total'] - $stat['num_topics']);
 				}
-				$this->result = $stats;	
+				
+				$db->sql_freeresult($result);
+
+				// Now we fetch the native WP count
+				$phpbbForum->background();
+				$wpCount = wp_count_comments($this->postID);
+				if(is_object($totalCount)) {
+					$stats['moderated'] 		= $stats['moderated']		+ $wpCount->moderated;
+					$stats['approved']	 		= $stats['approved'] 		+ $wpCount->approved;
+					$stats['total_comments']	= $stats['total_comments'] 	+ $wpCount->total_comments;
+				}
+				$this->result['count-grouped'] = (object) $stats;
+				$this->result['count'] = $this->result['count-grouped']->total_comments
 				
 			} else {
 				$countRow = $db->sql_fetchrow($result);
-				$this->result = $countRow['num_comments'];
+				$count = $countRow['num_total'] - $countRow['num_topics'];
+				$this->result['count'] = (int)$count + (int)$this->passedResult;
+				
+				$db->sql_freeresult($result);
 			}
+			
+			
 			$phpbbForum->restore_state($fStateChanged);
 			return true;
 		}
@@ -643,72 +710,105 @@ class WPU_XPost_Query {
 		$randID = rand(10000,99999);
 		
 		// Now fill the comments and links arrays
-		while ($comment = $db->sql_fetchrow($result)) {
+		while ($row = $db->sql_fetchrow($result)) {
+		
+			$row['bbcode_options'] = (($row['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
+				(($row['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
+				(($row['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
+		
+			if($row['topic_first_post_id'] == $row['post_id']) {
+				// this is a cross-post, not a comment.
+				
+				$forumName = $row['forum_id']
+				if($row['topic_type'] == POST_GLOBAL) {
+					$forumName = $phpbbForum->lang['VIEW_TOPIC_GLOBAL'];
+				}
+				
+				$args = array(
+					'topic_id'		=> $row['topic_id'],
+					'post_id'		=> $row['post_id'],
+					'subject'		=> $row['post_subject'],
+					'forum_id'		=> $row['forum_id'],
+					'user_id'		=> $row['poster_id'],
+					'replies'		=> $row['topic_replies'],
+					'time'			=> $user->format_date($row['post_time'], "Y-m-d H:i:s"), 
+					'approved'		=> $row['topic_approved'],
+					'type'			=> $row['topic_type'],
+					'status'		=> $row['topic_status'],
+					'forum_name'	=> $forumName,
+				);
 			
-			$comment['bbcode_options'] = (($comment['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
-				(($comment['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
-				(($comment['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
+				$this->result['xposts'][] = (object) $args;
+				
+				$this->result['has_xposts'] = true;
+				
+			} else {
 			
 			
-			$parentPost = (empty($this->postID)) ? $comment['topic_wpu_xpost'] : $this->postID;
-			$commentID = $randID + $comment['post_id'];
 			
-			$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $comment['poster_id'];
-			$args = array(
-				'comment_ID' => $commentID,
-				'comment_post_ID' => $parentPost,
-				'comment_author' => $comment['username'],
-				'comment_author_email' => $comment['user_email'],
-				'comment_author_url' => $link,
-				'comment_author_IP' => $comment['poster_ip'],
-				'comment_date' => $user->format_date($comment['post_time'], "Y-m-d H:i:s"), //Convert phpBB timestamp to mySQL datestamp
-				'comment_date_gmt' =>  $user->format_date($comment['post_time'] - ($user->timezone + $user->dst), "Y-m-d H:i:s"), 
-				'comment_content' => generate_text_for_display($comment['post_text'], $comment['bbcode_uid'], $comment['bbcode_bitfield'], $comment['bbcode_options']),
-				'comment_karma' => 0,
-				'comment_approved' => $comment['post_approved'],
-				'comment_agent' => 'phpBB forum',
-				'comment_type' => '',
-				'comment_parent' => 0,
-				'user_id' => $comment['user_wpuint_id'],
-				'phpbb_id' => $comment['poster_id'],
-			);
+				$parentPost = (empty($this->postID)) ? $row['topic_wpu_xpost'] : $this->postID;
+				$commentID = $randID + $row['post_id'];
+				
+				$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $row['poster_id'];
+				$args = array(
+					'comment_ID' => $commentID,
+					'comment_post_ID' => $parentPost,
+					'comment_author' => $row['username'],
+					'comment_author_email' => $row['user_email'],
+					'comment_author_url' => $link,
+					'comment_author_IP' => $row['poster_ip'],
+					'comment_date' => $user->format_date($row['post_time'], "Y-m-d H:i:s"), //Convert phpBB timestamp to mySQL datestamp
+					'comment_date_gmt' =>  $user->format_date($row['post_time'] - ($user->timezone + $user->dst), "Y-m-d H:i:s"), 
+					'comment_content' => generate_text_for_display($row['post_text'], $row['bbcode_uid'], $row['bbcode_bitfield'], $row['bbcode_options']),
+					'comment_karma' => 0,
+					'comment_approved' => $row['post_approved'],
+					'comment_agent' => 'phpBB forum',
+					'comment_type' => '',
+					'comment_parent' => 0,
+					'user_id' => $row['user_wpuint_id'],
+					'phpbb_id' => $row['poster_id'],
+				);
 
 
-			// Fix relative paths in comment text
-			$pathsToFix = array('src="' . $phpbb_root_path, 'href="' . $phpbb_root_path);
-			$pathsFixed = array('src="' . $phpbbForum->get_board_url(), 'href="' . $phpbbForum->get_board_url());
-			$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
+				// Fix relative paths in comment text
+				$pathsToFix = array('src="' . $phpbb_root_path, 'href="' . $phpbb_root_path);
+				$pathsFixed = array('src="' . $phpbbForum->get_board_url(), 'href="' . $phpbbForum->get_board_url());
+				$args['comment_content'] = str_replace($pathsToFix, $pathsFixed, $args['comment_content']);
 
-			$this->result[] = (object) $args;
+				$this->result['comments'][] = (object) $args;
+				$this->result['has-xposted-comments'] = true;
+				
+				// calculate counts anyway, even though this wasn't an explicit count request.
+				if($row['post_approved'] == 0) {
+					$this->result['count-grouped']['moderated']++;
+				} else {
+					$this->result['count-grouped']['approved']++;
+				}
+				$this->result['count-grouped']['total_comments']++;
+								
+				//don't use numerical keys to avoid renumbering on array_merge
+				$this->links['comment' . $commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}");
+
+			}
 			
-			//don't use numerical keys to avoid renumbering on array_merge
-			$this->links['comment' . $commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$comment['post_id']}.html#p{$comment['post_id']}" : "viewtopic.{$phpEx}?f={$comment['forum_id']}&t={$comment['topic_id']}&p={$comment['post_id']}#p{$comment['post_id']}");
-
+			$this->result['count'] = $this->result['count-grouped']['total_comments'];
 		}
+		
 		$db->sql_freeresult($result);
 		
 		$phpbbForum->restore_state($fStateChanged);
 
-		$this->usingPhpBBComments = true;
-		
 		return true;
 	
 	}
 	
-	/**
-	* same as the parent calling the result of the query operation.
-	* @return bool
-	*/
-	public function using_phpbb() {
-		return $this->usingPhpBBComments;
-	}
-	
+
 	/**
 	* Sorts the comments, even when there are mixed WordPress and phpBB comments.
 	* @return void
 	*/
 	private function sort() {
-		usort($this->result, array($this, 'comment_sort_callback'));
+		usort($this->result['comments'], array($this, 'comment_sort_callback'));
 	}
 	
 	// internal callback for the sort function.
