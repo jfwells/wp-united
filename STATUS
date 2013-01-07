@@ -2,14 +2,14 @@ current target: v0.9.2.0
 
 x-posting todo: 
 
+) add fix for pagination: use pre_get_comments
+
 * too much repetition in pulling comments, need to fix in one place
 * pagination on comments table seems to use get_comments but for some reason our hook isn't getting called
 * standardise various queries into a special WPU type -- and cache results, purge cache on comment post
 * pull pre-get-comment-query in order to handle offsets
 
-) re-enable xpc on edit-comments
-) post a bunch, test if updates, fix
-) add fix for pagination: use pre-fetch hook
+
 
 
 * for guest posts, need to REMOVE POST=USERID AND ALSO do_action('set_comment_cookies', $comment, $user); on comments taken by phpBB. Also store user/post meta

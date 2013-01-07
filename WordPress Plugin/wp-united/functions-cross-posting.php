@@ -463,11 +463,10 @@ function wpu_load_phpbb_comments($commentArray, $postID) {
 		return $commentArray;
 	}
 	
-	if (!$wpUnited->integrate_comments($postID)) {
+	$comments = $wpUnited->fetch_comments_query(false, $postID);
+	if ($comments === false) {
 		return $commentArray;
 	}
-
-	$comments = $wpUnited->get_integrated_comments($postID);
 		
 	$wp_query->comments = $comments;
 	$wp_query->comment_count = sizeof($comments);
@@ -643,7 +642,8 @@ function wpu_comment_redir_field() {
 	
 	$postID = $wp_query->post->ID;
 	
-	if ($wpUnited->get_integrated_comments($postID)) {
+
+	if ($wpUnited->fetch_comments_query(false, $postID) !== false) {
 		$commID =  sizeof($wp_query->comments) + 1;
 		$redir =  wpu_get_redirect_link(); // . '#comment-' $commID;
 		echo '<input type="hidden" name="wpu-comment-redirect" value="' . $redir . '" />';
@@ -791,7 +791,7 @@ function wpu_no_guest_comment_posting() {
 		$wpUnited->is_working() 							&&
 		$wpUnited->get_setting('xposting')	 				&&
 		!$wpUnited->get_setting('xpostautolink')			&&
-		$wpUnited->integrate_comments($wp_query->post->ID)
+		($wpUnited->fetch_comments_query(false, $wp_query->post->ID) !== false)
 	) { 
 		return $wpuPermsProblem;
 	}

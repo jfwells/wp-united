@@ -683,32 +683,36 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return wpu_comment_link($url, $comment, $args);
 	}
 	
-	/**
-	 * TODO: Move following to own super cross-posting class
-	 */
-	public function integrate_comments($query, $comments = false) {
+
+	public function fetch_comments_query($comments, $query) {
+
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return false;
+		}
+	
+		$result = $this->integComments->get($query, $comments);
+		
+		if($result === false) {
 			return $comments;
 		}
+
+		return $result;
 		
-		return $this->integComments->process($query, $comments);
 	}
 	
-	public function get_integrated_comments($query) {
+	public function comments_count_and_group($comments, $postID) {
 		
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
 			return false;
 		}
-		
-		return $this->integComments->get_result($query);
-	}
 	
-	public function fetch_comments_query($comments, $query) {
-		if(!$this->integrate_comments($query, $comments)) {
+		$result = $this->integComments->get($query, $comments, true);
+		
+		if($result === false) {
 			return $comments;
 		}
 
-		return $this->integComments->get_result($query);
+		return $result;
 		
 	}
 	
@@ -721,18 +725,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return $this->integComments->get_link($commentID);
 	}
 	
-	public function comments_count_and_group($comments, $postID) {
-		
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
-			return false;
-		}
-		
-		
-		$result = $this->integComments->process($postID, false, true);
-		if($result) {
-			return $this->integComments->get_result($postID, true);
-		}
-	}
+	
 	
 	
 	/**
