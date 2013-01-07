@@ -485,40 +485,6 @@ class WPU_XPost_Query {
 		}
 	}
 	
-	/**
-	* Populates comments (or an integer count result) for a full WordPress query
-	*/
-	public function execute_query() {
-
-		$this->success = $this->perform_phpbb_comment_query();
-
-		if($this->success === false) {
-			return false;
-		}
-		
-		if($this->count) {
-			if(!$this->groupByStatus) {
-				return $this->result['count'];
-			} else {
-				return $this->result['count-grouped'];
-			}
-		}
-		
-		
-		$phpbbResult = sizeof($this->result['comments']);
-		if(is_array($this->passedResult) && sizeof($this->passedResult)) {
-			$this->add_wp_comments($this->passedResult);
-			if($phpbbResult) {
-				$this->sort();
-				if(is_array($this->result['comments'])) {
-					return array_slice($this->result['comments'], 0, $this->limit);
-				}
-			}
-		}
-
-		return $this->result['comments'];
-	}
-	
 	
 	
 	/**
