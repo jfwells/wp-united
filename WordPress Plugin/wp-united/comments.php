@@ -498,13 +498,13 @@ class WPU_XPost_Query {
 		// add to totals
 		foreach($comments as $comment) {
 			if($comment->comment_approved == 0) {
-				$this->result['count-grouped']['moderated']++;
+				$this->result['count-grouped']->moderated++;
 			} else {
-					$this->result['count-grouped']['approved']++;
+					$this->result['count-grouped']->approved++;
 			}
-			$this->result['count-grouped']['total_comments']++;
+			$this->result['count-grouped']->total_comments++;
 		}	
-		$this->result['count'] = $this->result['count-grouped']['total_comments'];
+		$this->result['count'] = $this->result['count-grouped']->total_comments;
 	}
 	
 	/**
