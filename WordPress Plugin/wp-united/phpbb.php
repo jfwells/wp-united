@@ -262,18 +262,15 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 	
 	public function get_board_url() {
 		global $config;
+		
 		if(empty($this->url)) {
 			$fStateChanged = $this->foreground();
 			$config['force_server_vars'] = 1;
-			$fStateChanged = $this->foreground();
 			$this->url = add_trailing_slash(generate_board_url());
-			$this->restore_state($fStateChanged);
 			$this->restore_state($fStateChanged);
 		}
 		
 		return $this->url;
-		
-		
 	}
 	
 
