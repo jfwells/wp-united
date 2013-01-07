@@ -104,9 +104,8 @@ class WPU_XPost_Query_Store {
 		$this->set_current_query($query, $comments, $count);
 	
 		$this->create_request_signature();
-
 		
-		$sig = implode(',', $this->currentQuery['signature']);
+		$sig =  $this->currentQuery['signature']; 
 		
 		if(!isset($this->queries[$sig])) {
 			$wpuDebug->add('New XPost query created for query ' . $sig);
@@ -317,9 +316,9 @@ class WPU_XPost_Query_Store {
 		
 		// order is of no significance if no limit or offset is set
 		$order = (empty($this->currentProvidedLimit)) ? 0 : $this->currentQuery['order'];
-		$orderBy = (empty($this->currentProvidedLimit)) ? '' : $this->currentQuery['phpbbOrderBy'];
+		$orderBy = (empty($this->currentProvidedLimit)) ? 'na' : $this->currentQuery['phpbbOrderBy'];
 		
-		$this->currentQuery['signature'] = array(
+		$this->currentQuery['signature'] = '[' . implode(',', array(
 			(int)$this->currentQuery['postID'], 
 			$this->currentQuery['userID'], 
 			$this->currentQuery['userEmail'], 
@@ -331,7 +330,7 @@ class WPU_XPost_Query_Store {
 			(int)$this->currentQuery['status'], 
 			(int)$order,
 			$orderBy
-		);
+		)) . ']';
 		
 	}
 	
