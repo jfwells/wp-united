@@ -324,12 +324,12 @@ class WPU_XPost_Query_Store {
 			$this->currentQuery['userID'], 
 			$this->currentQuery['userEmail'], 
 			$this->currentQuery['topicUser'], 
-			$this->currentQuery['limit'], 
-			$this->currentQuery['offset'], 
+			(int)$this->currentQuery['limit'], 
+			(int)$this->currentQuery['offset'], 
 			(int)$this->currentQuery['count'], 
 			(int)$this->currentQuery['groupByStatus'], 
-			$this->currentQuery['status'], 
-			$oder,
+			(int)$this->currentQuery['status'], 
+			(int)$order,
 			$orderBy
 		);
 		
