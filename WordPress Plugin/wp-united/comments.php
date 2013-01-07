@@ -395,6 +395,8 @@ class WPU_XPost_Query {
 		$usingPhpBBComments,
 		$queryExecuted,
 		
+		$lastQueryArgs,
+		$currQueryArgs,
 		
 		$passedResult,
 		$signature,
@@ -421,8 +423,16 @@ class WPU_XPost_Query {
 	public function __construct() {
 		
 		$this->success = false;
-		$this->queryExecuted = false;
+		$this->reset_results();
 		
+		$this->links = array();
+		$this->currQueryArgs = false;
+		$this->lastQueryArgs = array();
+		
+		
+	}
+	
+	private function reset_results() {
 		$this->result = array(
 			'has-xposts'			=> false,
 			'has-xposted-comments'	=> false,
@@ -435,15 +445,19 @@ class WPU_XPost_Query {
 				'total-comments'	=> 0
 			)
 		);
-		$this->links = array();
-		$this->usingPhpBBComments = false;
 		
+		$this->queryExecuted = false;
 	}
 	
 
 	public function get_result($queryArgs) {
 	
 		$this->populate_vars($queryArgs);
+	
+		if(!$this->count && $this->lastQueryArgs['count']) {
+			// The last query was a count request, we need to re-run the query
+			$this->reset_results();
+		}
 	
 		if(!$this->queryExecuted) {
 			$this->queryExecuted = true;
@@ -483,6 +497,8 @@ class WPU_XPost_Query {
 		foreach($queryArgs as $arg => $value) {
 			$this->$arg = $value;
 		}
+		$this->lastQueryArgs = $this->currQueryArgs;
+		$this->currQueryArgs = $queryArgs;
 	}
 	
 	
