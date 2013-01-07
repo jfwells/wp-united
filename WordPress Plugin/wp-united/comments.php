@@ -89,7 +89,7 @@ class WPU_XPost_Query_Store {
 
 	}
 	
-	public function get($query, $comments, $count) {
+	public function get($query, $comments, $count = false) {
 	
 		if(!$this->can_handle_request) {
 			return false;
