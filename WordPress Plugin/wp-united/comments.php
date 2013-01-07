@@ -426,14 +426,14 @@ class WPU_XPost_Query {
 		$this->result = array(
 			'has-xposts'			=> false,
 			'has-xposted-comments'	=> false,
-			'xposts'				=> array();
-			'comments'				=> array();
+			'xposts'				=> array(),
+			'comments'				=> array(),
 			'count'					=> 0,
 			'count-grouped'			=> (object)array(
 				'moderated'			=> 0,
 				'approved'			=> 0,
 				'total-comments'	=> 0
-			);
+			)
 		);
 		$this->links = array();
 		$this->usingPhpBBComments = false;
