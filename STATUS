@@ -4,6 +4,8 @@ x-posting todo:
 
 ) add fix for pagination: use pre_get_comments
 
+) in functions_cross_posting, change fetch_comments_query to fetch_xpost_details and is_xposted, fetch_xpost_comments, etc, which filters thru to same sub-query...
+
 * too much repetition in pulling comments, need to fix in one place
 * pagination on comments table seems to use get_comments but for some reason our hook isn't getting called
 * standardise various queries into a special WPU type -- and cache results, purge cache on comment post
