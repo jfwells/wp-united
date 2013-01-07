@@ -59,7 +59,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('future_to_publish', 					array('future_to_published', 10),			'x-posting'),
 			array('comment_form', 						'comment_redir_field',						'x-posting'),
 			array('pre_comment_on_post', 				'comment_redirector',						'x-posting'),
-			array('comments_open', 						array('comments_open', 10, 2),				'x-posting')
+			array('comments_open', 						array('comments_open', 10, 2),				'x-posting'),
+			array('pre_get_comments', 					array('check_comments_query', 10, 2),		'x-posting')
 		),
 
 		$filters = array(
@@ -713,6 +714,16 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 
 		return $result;
+		
+	}
+	
+	// modify query offsets
+	public function check_comments_query($query) {
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return;
+		}
+		
+		$this->integComments->get($query, false);
 		
 	}
 	

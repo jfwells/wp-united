@@ -45,9 +45,10 @@ class WPU_XPost_Query_Store {
 		$currentProvidedLimit,
 		$links,
 		$doingQuery,
+		$primeCacheKey,
 		$orderFieldsMap;
 		
-		/**
+	/**
 	 * Class initialisation
 	 */
 	public function __construct() {
@@ -56,8 +57,9 @@ class WPU_XPost_Query_Store {
 		$this->queries = array();
 		$this->links = array();
 		$this->currentQuery = array();
-		
+		$this->primeCacheKey = '';
 		$this->doingQuery = false;
+		
 
 		
 		// variables we could sort our query by.
@@ -94,6 +96,8 @@ class WPU_XPost_Query_Store {
 			'topicUser' 	=> '',
 			'limit' 		=> 25,
 			'offset' 		=> 0,
+			'realLimit'		=> 0,
+			'realOffset'	=> 0,			
 			'count' 		=> false,
 			'groupByStatus' => false,
 			'status' 		=> 'all',
@@ -113,7 +117,8 @@ class WPU_XPost_Query_Store {
 		if(!$this->can_handle_request($query) || $this->doingQuery) {
 			return $comments;
 		}
-		
+		// this must be set before set_current_query as we sometimes 
+		// need to pull from WP
 		$this->doingQuery = true;
 	
 		$this->set_current_query($query, $comments, $count);
@@ -133,6 +138,12 @@ class WPU_XPost_Query_Store {
 		$this->links = array_merge($this->links, $this->queries[$sig]->links);
 		
 		$this->doingQuery = false;
+		
+		if(!empty($this->primeCacheKey)) {
+			$last_changed = wp_cache_get( 'last_changed', 'comment' );
+			$cache_key = "get_comments:{$this->primeCacheKey}:$last_changed";
+			wp_cache_add( $cache_key, $result, 'comment' );
+		}
 		
 		return $result;
 	
@@ -159,9 +170,6 @@ class WPU_XPost_Query_Store {
 			
 			// we have no karma
 			!empty($query->query_vars['karma'])							||
-			
-			// TODO: we cannot calculate offsets without re-pulling WP data
-			!empty($query->query_vars['offset'])						||
 			
 			// phpBB is not threaded
 			!empty($query->query_vars['parent'])						||
@@ -198,6 +206,30 @@ class WPU_XPost_Query_Store {
 			return false;
 		}
 		
+		
+		/**
+		 * if the query has an offset, modify the query. It gets passed back
+		 * by reference, so we can modify the offset and plant some markers for
+		 * us later.
+		 */
+		if(!empty($query->query_vars['offset'])) {
+			if(!isset($query->query_vars['wpu-real-offset'])) {
+				if(($query->query_vars['offset'] + $query->query_vars['number']) <= $this->maxLimit) {
+					$query->query_vars['wpu-real-offset'] = $query->query_vars['offset'];
+					$query->query_vars['wpu-real-limit'] = $query->query_vars['number'];
+					if(!empty($query->query_vars['number'])) {
+						$query->query_vars['limit'] = $query->query_vars['number'] + $query->query_vars['offset'];
+					}
+					$query->query_vars['offset'] = 0;
+				}
+			}
+			
+			// now send the query back and let wordpress send us the results later.
+			return false;
+		}
+		
+		
+
 		return true;
 
 	}
@@ -219,6 +251,8 @@ class WPU_XPost_Query_Store {
 			$this->currentQuery['postID'] = ((int)$query > 0) ? $query : false;
 			$this->currentQuery['limit'] = $this->maxLimit;
 			$this->currentQuery['offset'] = 0;
+			$this->currentQuery['realLimit'] = $this->maxLimit;
+			$this->currentQuery['realOffset'] = 0;
 		
 			if($count) { 
 				$this->currentQuery['count'] = true;
@@ -256,7 +290,30 @@ class WPU_XPost_Query_Store {
 			// set up vars for topic author ID clause
 			if(!empty($query->query_vars['post_author'])) {
 				$this->currentQuery['topicUser'] = $query->query_vars['post_author'];
-			}			
+			}
+			
+			/**
+			 * if this is a modified query that has had its offset 
+			 * and limit modified by us, then set up the params
+			 */
+			if(isset($query->query_vars['wpu-real-offset'])) {
+				$this->currentQuery['realOffset'] = (int)$query->query_vars['wpu-real-offset'];
+				$this->currentQuery['realLimit'] = ((int)$query->query_vars['wpu-real-limit'] > 0) ? (int)$query->query_vars['wpu-real-limit'] : $this->maxLimit;
+			} else {
+				$this->currentQuery['realOffset'] = (int)$this->currentQuery['offset'];
+				$this->currentQuery['realLimit'] = (int)$this->currentQuery['limit'];
+			}	
+			
+			// If this is a count request that comes from get_comments,
+			// it is never filtered and we never get to add the WP count.
+			// So we get that now. We then have to prime the cache with the
+			// result, as there is no useable filter.
+			
+			if(!empty($query->query_vars['count']) && ($this->currentQuery['passedResult'] === false)) {
+				$this->currentQuery['passedResult'] = get_comments($query->query_vars);
+				$query->query_vars['karma'] = 'WP-United Count Shortcut';
+				$this->primeCacheKey = md5(serialize((array)($query->query_vars)));
+			}		
 		}
 		
 		$this->setup_sort_vars($query);
@@ -420,7 +477,10 @@ class WPU_XPost_Query {
 		$status,
 		$order,
 		$phpbbOrderBy,
-		$finalOrderBy;
+		$finalOrderBy,
+		
+		$realLimit,
+		$realOffset;
 		
 
 	public $links;
@@ -488,18 +548,16 @@ class WPU_XPost_Query {
 				$this->sort();
 			}
 			if(is_array($this->result['comments'])) {
-				return array_slice($this->result['comments'], 0, $this->limit);
+				return array_slice($this->result['comments'], $this->realOffset, $this->realLimit);
 			}
 		}
 		
-		else if($this->count) {
-			if($this->groupByStatus) {
-				return $this->result['count-grouped'];
-			} else {
-				return $this->result['count'];
-			}
+		if($this->groupByStatus) {
+			return $this->result['count-grouped'];
+		} else {
+			return $this->result['count'];
 		}
-		
+	
 		return false;
 		
 	}
@@ -572,12 +630,12 @@ class WPU_XPost_Query {
 		if($this->count) { 
 			if($this->groupByStatus) {
 				$query = array(
-					'SELECT' 	=> 'p.post_approved, COUNT(p.post_id) AS num_total, COUNT(distinct t.topic_id) AS num_topics',
+					'SELECT' 	=> 'p.post_approved, COUNT(p.post_id) AS num_total',
 					'GROUP_BY'	=> 'p.post_approved'
 				);
 			} else { 
 				$query = array(
-					'SELECT' 	=> 'COUNT (p.post_id) AS num_total, COUNT(distinct t.topic_id) as num_topics'
+					'SELECT' 	=> 'COUNT(p.post_id) AS num_total'
 				);
 			}
 			
@@ -642,6 +700,7 @@ class WPU_XPost_Query {
 		$where[] = '
 			((p.poster_id = u.user_id) AND 
 			(p.topic_id = t.topic_id) AND 
+			(t.topic_first_post_id <> p.post_id) AND 
 			(t.topic_replies > 0) AND (' .
 			$db->sql_in_set('t.forum_id', $allowedForums) . '
 			))';
@@ -665,11 +724,11 @@ class WPU_XPost_Query {
 				$stats = $this->result['count-grouped'];
 				while ($stat = $db->sql_fetchrow($result)) {
 					if($stat['post_approved'] == 0) {
-						$stats->moderated = $stat['num_total'] - $stat['num_topics'];
+						$stats->moderated = $stat['num_total'];
 					} else {
-						$stats->approved = $stat['num_total'] - $stat['num_topics'];
+						$stats->approved = $stat['num_total'];
 					}
-					$stats->total_comments = $stats->total_comments + ($stat['num_total'] - $stat['num_topics']);
+					$stats->total_comments = $stats->total_comments + $stat['num_total'];
 				}
 				
 				$db->sql_freeresult($result);
@@ -687,7 +746,7 @@ class WPU_XPost_Query {
 				
 			} else {
 				$countRow = $db->sql_fetchrow($result);
-				$count = $countRow['num_total'] - $countRow['num_topics'];
+				$count = $countRow['num_total'];
 				$this->result['count'] = (int)$count + (int)$this->passedResult;
 				
 				$db->sql_freeresult($result);
@@ -706,7 +765,8 @@ class WPU_XPost_Query {
 			$row['bbcode_options'] = (($row['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
 				(($row['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
 				(($row['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
-		
+			
+			// TODO: THIS IS DISABLED, AS COUNTS/LIMITS WERE UNRELIABLE!!!
 			if($row['topic_first_post_id'] == $row['post_id']) {
 				// this is a cross-post, not a comment.
 				
@@ -827,7 +887,5 @@ class WPU_XPost_Query {
 	
 
 }
-
-
 
 // End the comments file with a comment: Done.
