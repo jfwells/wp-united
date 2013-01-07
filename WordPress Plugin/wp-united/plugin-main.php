@@ -691,7 +691,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 	
 		$result = $this->integComments->get($query, $comments);
-		
+	
 		if($result === false) {
 			return $comments;
 		}

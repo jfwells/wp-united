@@ -91,10 +91,9 @@ class WPU_XPost_Query_Store {
 	
 	public function get($query, $comments, $count = false) {
 	
-		if(!$this->can_handle_request) {
+		if(!$this->can_handle_request($query)) {
 			return false;
 		}
-	
 	
 		$this->set_current_query($query, $comments, $count);
 	
@@ -107,7 +106,6 @@ class WPU_XPost_Query_Store {
 			$this->queries[$sig] = new WPU_XPost_Query();
 			$this->links = array_merge($this->links, $this->queries[$sig]->links);
 		}
-
 		return $this->queries[$sig]->get_result($this->currentQuery);
 	
 	}
@@ -402,7 +400,7 @@ class WPU_XPost_Query {
 			return $this->execute_query();
 		}
 		
-		if(!$this->success) {
+		if(!$this->success) { 
 			return false;
 		}
 		
@@ -428,7 +426,7 @@ class WPU_XPost_Query {
 	*/
 	public function execute_query() {
 
-		$this->sucess = $this->perform_phpbb_comment_query();
+		$this->success = $this->perform_phpbb_comment_query();
 
 		if($this->success === false) {
 			return false;
