@@ -125,12 +125,12 @@ class WPU_XPost_Query_Store {
 		if(!isset($this->queries[$sig])) {
 			$wpuDebug->add('New XPost query created for query ' . $sig);
 			$this->queries[$sig] = new WPU_XPost_Query();
-			$this->links = array_merge($this->links, $this->queries[$sig]->links);
 		} else {
 			$wpuDebug->add('Re-using XPost query from store for query ' . $sig);
 		}
 		
 		$result = $this->queries[$sig]->get_result($this->currentQuery);
+		$this->links = array_merge($this->links, $this->queries[$sig]->links);
 		
 		$this->doingQuery = false;
 		
