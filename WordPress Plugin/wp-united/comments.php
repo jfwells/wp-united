@@ -685,7 +685,7 @@ class WPU_XPost_Query {
 			if($row['topic_first_post_id'] == $row['post_id']) {
 				// this is a cross-post, not a comment.
 				
-				$forumName = $row['forum_id']
+				$forumName = $row['forum_id'];
 				if($row['topic_type'] == POST_GLOBAL) {
 					$forumName = $phpbbForum->lang['VIEW_TOPIC_GLOBAL'];
 				}
@@ -701,7 +701,7 @@ class WPU_XPost_Query {
 					'approved'		=> $row['topic_approved'],
 					'type'			=> $row['topic_type'],
 					'status'		=> $row['topic_status'],
-					'forum_name'	=> $forumName,
+					'forum_name'	=> $forumName
 				);
 			
 				$this->result['xposts'][] = (object) $args;
