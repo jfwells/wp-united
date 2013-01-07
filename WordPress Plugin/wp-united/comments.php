@@ -92,7 +92,9 @@ class WPU_XPost_Query_Store {
 	}
 	
 	public function get($query, $comments, $count = false) {
-	
+		
+		global $wpuDebug;
+		
 		if(!$this->can_handle_request($query) || $this->doingQuery) {
 			return $comments;
 		}
