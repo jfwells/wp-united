@@ -397,6 +397,7 @@ class WPU_XPost_Query {
 		$this->populate_vars($queryArgs);
 	
 		if(!$this->queryExecuted) {
+			$this->queryExecuted = true;
 			return $this->execute_query();
 		}
 		
@@ -593,7 +594,7 @@ class WPU_XPost_Query {
 		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
 
-		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql)));
+		//$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql)));
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
