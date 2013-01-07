@@ -274,7 +274,7 @@ class WPU_XPost_Query_Store {
 		return;
 	}
 	
-		/**
+	/**
 	*	Sets up the class sorting parameters. Sorting happens at two levels:
 	*	- in the SQL when fetching results from the database (using $this->phpbbOrderBy)
 	* 	- when mixing together the WordPress and phpBB comments (using $this->finalOrderBy)
@@ -343,6 +343,26 @@ class WPU_XPost_Query_Store {
 		$order = (empty($this->currentProvidedLimit)) ? 0 : $this->currentQuery['order'];
 		$orderBy = (empty($this->currentProvidedLimit)) ? 'na' : $this->currentQuery['phpbbOrderBy'];
 		
+		
+		$count = 0;
+		$group = 0;
+		
+		// if we are pulling for a specific post, a count request can be fingerprinted almost the same as a normal request.
+		if($this->count) {
+			if(empty($this->postID)) {
+				$count = (int)$this->currentQuery['count'];
+				$group = (int)$this->currentQuery['groupByStatus'];
+			} else {
+				
+				// TODO: Right now the group-by for individual posts must be fingerprinted, as data is provided for counts
+				// but not for group-by requests... TODO: Make the data pulls more generic.
+				$group = (int)$this->currentQuery['groupByStatus'];
+				
+			}
+		}
+			
+				
+		
 		$this->currentQuery['signature'] = '[' . implode(',', array(
 			(int)$this->currentQuery['postID'], 
 			$this->currentQuery['userID'], 
@@ -350,8 +370,8 @@ class WPU_XPost_Query_Store {
 			$this->currentQuery['topicUser'], 
 			(int)$this->currentQuery['limit'], 
 			(int)$this->currentQuery['offset'], 
-			(int)$this->currentQuery['count'], 
-			(int)$this->currentQuery['groupByStatus'], 
+			$count,
+			$group,
 			(int)$this->currentQuery['status'], 
 			(int)$order,
 			$orderBy
