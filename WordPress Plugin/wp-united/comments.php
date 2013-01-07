@@ -658,7 +658,7 @@ class WPU_XPost_Query {
 					$stats['total_comments']	= $stats['total_comments'] 	+ $wpCount->total_comments;
 				}
 				$this->result['count-grouped'] = (object) $stats;
-				$this->result['count'] = $this->result['count-grouped']->total_comments
+				$this->result['count'] = $this->result['count-grouped']->total_comments;
 				
 			} else {
 				$countRow = $db->sql_fetchrow($result);
@@ -746,18 +746,18 @@ class WPU_XPost_Query {
 				
 				// calculate counts anyway, even though this wasn't an explicit count request.
 				if($row['post_approved'] == 0) {
-					$this->result['count-grouped']['moderated']++;
+					$this->result['count-grouped']->moderated++;
 				} else {
-					$this->result['count-grouped']['approved']++;
+					$this->result['count-grouped']->approved++;
 				}
-				$this->result['count-grouped']['total_comments']++;
+				$this->result['count-grouped']->total_comments++;
 								
 				//don't use numerical keys to avoid renumbering on array_merge
 				$this->links['comment' . $commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}");
 
 			}
 			
-			$this->result['count'] = $this->result['count-grouped']['total_comments'];
+			$this->result['count'] = $this->result['count-grouped']->total_comments;
 		}
 		
 		$db->sql_freeresult($result);
