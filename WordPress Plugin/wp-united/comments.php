@@ -107,9 +107,13 @@ class WPU_XPost_Query_Store {
 		$sig = implode(',', $this->currentQuery['signature']);
 		
 		if(!isset($this->queries[$sig])) {
+			$wpuDebug->add('New XPost query created for query ' . $sig);
 			$this->queries[$sig] = new WPU_XPost_Query();
 			$this->links = array_merge($this->links, $this->queries[$sig]->links);
+		} else {
+			$wpuDebug->add('Re-using XPost query from store for query ' . $sig);
 		}
+		
 		$result = $this->queries[$sig]->get_result($this->currentQuery);
 		
 		$this->doingQuery = false;
@@ -602,7 +606,7 @@ class WPU_XPost_Query {
 		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
 
-		//$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql)));
+		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql)));
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
