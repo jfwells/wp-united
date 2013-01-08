@@ -340,6 +340,7 @@ class WPU_XPost_Query_Store {
 		}
 		
 		if(!is_object($query)) {
+			// for loop queries, order is ASC by default
 			$this->currentQuery['order'] = ('DESC' == strtoupper(get_option('comment_order'))) ? 'DESC' : 'ASC';
 			$this->currentQuery['phpbbOrderBy'] = 'p.post_time';
 			$this->currentQuery['finalOrderBy'] = array('comment_date_gmt');
@@ -370,7 +371,7 @@ class WPU_XPost_Query_Store {
 			$this->currentQuery['finalOrderBy'] = array('comment_date_gmt');
 		}
 		
-		
+		// for non-loop queries, order is DESC by default
 		if(empty($query->query_vars['order'])) {
 			$this->currentQuery['order'] = 'DESC';
 		} else {
@@ -715,7 +716,7 @@ class WPU_XPost_Query {
 		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
 
-		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql . ' LIMIT (' . $this->limit . ', ' . $this->offset . ')')));
+		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql . ' LIMIT (' . $this->limit . ', ' . $this->offset . ') [real limit: (' . $this->realLimit , ', ' $this->realOffset . ')]')));
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
