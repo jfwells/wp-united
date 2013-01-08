@@ -716,7 +716,7 @@ class WPU_XPost_Query {
 		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
 
-		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql . ' LIMIT (' . $this->limit . ', ' . $this->offset . ') [real limit: (' . $this->realLimit . ', ' . $this->realOffset . ')]')));
+		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql . ' LIMIT ' . $this->limit . ' OFFSET ' . $this->offset . ' [real limit: (' . $this->realLimit . ', ' . $this->realOffset . ')]')));
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
@@ -742,7 +742,7 @@ class WPU_XPost_Query {
 				// Now we fetch the native WP count
 				$phpbbForum->background();
 				$wpCount = wp_count_comments($this->postID);
-				if(is_object($totalCount)) {
+				if(is_object($wpCount)) {
 					$stats->moderated 		= $stats->moderated			+ $wpCount->moderated;
 					$stats->approved	 	= $stats->approved 			+ $wpCount->approved;
 					$stats->total_comments	= $stats->total_comments 	+ $wpCount->total_comments;
