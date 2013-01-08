@@ -218,7 +218,7 @@ class WPU_XPost_Query_Store {
 						$query->query_vars['wpu-real-offset'] = $query->query_vars['offset'];
 						$query->query_vars['wpu-real-limit'] = $query->query_vars['number'];
 						if(!empty($query->query_vars['number'])) {
-							$query->query_vars['limit'] = $query->query_vars['number'] + $query->query_vars['offset'];
+							$query->query_vars['number'] = $query->query_vars['number'] + $query->query_vars['offset'];
 						}
 						$query->query_vars['offset'] = 0;
 					}
