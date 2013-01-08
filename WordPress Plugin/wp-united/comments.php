@@ -594,12 +594,26 @@ class WPU_XPost_Query {
 		
 		// add to totals
 		foreach($comments as $comment) {
-			if($comment->comment_approved == 0) {
-				$this->result['count-grouped']->moderated++;
-			} else {
+			switch($comment->comment_approved) {
+				case 0:
+					$this->result['count-grouped']->moderated++;
+					$this->result['count-grouped']->total_comments++;
+				case 1:
 					$this->result['count-grouped']->approved++;
+					$this->result['count-grouped']->total_comments++;
+				case 'spam':
+					$this->result['count-grouped']->spam++;
+					$this->result['count-grouped']->total_comments++;
+				case 'trash':
+					$this->result['count-grouped']->trash++;
+				break;
+				case 'post-trashed':
+					$this->result['count-grouped']->post-trashed++;
+				break;
+				default;
+					$this->result['count-grouped']->total_comments++;
+				break;
 			}
-			$this->result['count-grouped']->total_comments++;
 		}	
 		$this->result['count'] = $this->result['count-grouped']->total_comments;
 	}
@@ -749,6 +763,9 @@ class WPU_XPost_Query {
 				$phpbbForum->background();
 				$wpCount = wp_count_comments($this->postID);
 				if(is_object($wpCount)) {
+					$stats->post-trashed	= $wpCount->post-trashed;
+					$stats->trash 			= $wpCount->trash;
+					$stats->spam 			= $wpCount->spam;
 					$stats->moderated 		= $stats->moderated			+ $wpCount->moderated;
 					$stats->approved	 	= $stats->approved 			+ $wpCount->approved;
 					$stats->total_comments	= $stats->total_comments 	+ $wpCount->total_comments;
