@@ -610,7 +610,7 @@ class WPU_XPost_Query {
 				case 'post-trashed':
 					$this->result['count-grouped']->post-trashed++;
 				break;
-				default;
+				default:
 					$this->result['count-grouped']->total_comments++;
 				break;
 			}
