@@ -716,7 +716,7 @@ class WPU_XPost_Query {
 		// Phew. Done. Now run it.			
 		$sql = $db->sql_build_query('SELECT', $query);
 
-		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql . ' LIMIT (' . $this->limit . ', ' . $this->offset . ') [real limit: (' . $this->realLimit , ', ' $this->realOffset . ')]')));
+		$wpuDebug->add('Performing cross-post query: ' . htmlentities(str_replace(array("\n", "\t"), '', $sql . ' LIMIT (' . $this->limit . ', ' . $this->offset . ') [real limit: (' . $this->realLimit . ', ' . $this->realOffset . ')]')));
 		
 		if(!($result = $db->sql_query_limit($sql, $this->limit, $this->offset))) {
 			$db->sql_freeresult($result);
