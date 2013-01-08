@@ -372,12 +372,11 @@ class WPU_XPost_Query_Store {
 		
 		
 		if(empty($query->query_vars['order'])) {
-			$this->currentQuery['order'] = ('DESC' == strtoupper(get_option('comment_order'))) ? 'DESC' : 'ASC';
+			$this->currentQuery['order'] = ('ASC' == strtoupper(get_option('comment_order'))) ? 'ASC' : 'DESC';
 		} else {
-			$this->currentQuery['order'] = ('DESC' == strtoupper($query->query_vars['order'])) ? 'DESC' : 'ASC';
+			$this->currentQuery['order'] = ('ASC' == strtoupper($query->query_vars['order'])) ? 'ASC' : 'DESC';
 		}
 			
-	
 	}
 	
 	
