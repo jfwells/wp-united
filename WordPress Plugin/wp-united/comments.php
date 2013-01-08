@@ -608,7 +608,7 @@ class WPU_XPost_Query {
 					$this->result['count-grouped']->trash++;
 				break;
 				case 'post-trashed':
-					$this->result['count-grouped']->post-trashed++;
+					$this->result['count-grouped']->{'post-trashed'}++;
 				break;
 				default:
 					$this->result['count-grouped']->total_comments++;
@@ -763,7 +763,7 @@ class WPU_XPost_Query {
 				$phpbbForum->background();
 				$wpCount = wp_count_comments($this->postID);
 				if(is_object($wpCount)) {
-					$stats->post-trashed	= $wpCount->post-trashed;
+					$stats->{'post-trashed'}	= $wpCount->{'post-trashed'};
 					$stats->trash 			= $wpCount->trash;
 					$stats->spam 			= $wpCount->spam;
 					$stats->moderated 		= $stats->moderated			+ $wpCount->moderated;
