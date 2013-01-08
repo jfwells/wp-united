@@ -110,18 +110,18 @@ class WPU_XPost_Query_Store {
 
 	}
 	
-	public function get($query, $comments, $count = false) {
+	public function get($query, $comments, $count = false, $prefetch = false) {
 		
 		global $wpuDebug;
 		
-		if(!$this->can_handle_request($query) || $this->doingQuery) {
+		if(!$this->can_handle_request($query, $prefetch) || $this->doingQuery) {
 			return $comments;
 		}
 		// this must be set before set_current_query as we sometimes 
 		// need to pull from WP
 		$this->doingQuery = true;
 	
-		$this->set_current_query($query, $comments, $count);
+		$this->set_current_query($query, $comments, $count, $prefetch);
 	
 		$this->create_request_signature();
 		
@@ -159,7 +159,7 @@ class WPU_XPost_Query_Store {
 	 * @pram WP_Comment_Query $query query object
 	 * @return bool true if we can handle it!
 	 */
-	private function can_handle_request($query) {
+	private function can_handle_request($query, $prefetch) {
 		
 		if(!is_object($query)) {
 			return true;
@@ -206,27 +206,33 @@ class WPU_XPost_Query_Store {
 			return false;
 		}
 		
-		
-		/**
-		 * if the query has an offset, modify the query. It gets passed back
-		 * by reference, so we can modify the offset and plant some markers for
-		 * us later.
-		 */
-		if(!empty($query->query_vars['offset'])) {
-			if(!isset($query->query_vars['wpu-real-offset'])) {
-				if(($query->query_vars['offset'] + $query->query_vars['number']) <= $this->maxLimit) {
-					$query->query_vars['wpu-real-offset'] = $query->query_vars['offset'];
-					$query->query_vars['wpu-real-limit'] = $query->query_vars['number'];
-					if(!empty($query->query_vars['number'])) {
-						$query->query_vars['limit'] = $query->query_vars['number'] + $query->query_vars['offset'];
+		if($prefetch) {
+			/**
+			 * if the query has an offset, modify the query. It gets passed back
+			 * by reference, so we can modify the offset and plant some markers for
+			 * us later.
+			 */
+			if(!empty($query->query_vars['offset'])) {
+				if(!isset($query->query_vars['wpu-real-offset'])) {
+					if(($query->query_vars['offset'] + $query->query_vars['number']) <= $this->maxLimit) {
+						$query->query_vars['wpu-real-offset'] = $query->query_vars['offset'];
+						$query->query_vars['wpu-real-limit'] = $query->query_vars['number'];
+						if(!empty($query->query_vars['number'])) {
+							$query->query_vars['limit'] = $query->query_vars['number'] + $query->query_vars['offset'];
+						}
+						$query->query_vars['offset'] = 0;
 					}
-					$query->query_vars['offset'] = 0;
 				}
+				
+				// now send the query back and let wordpress send us the results later.
+				return false;
 			}
 			
-			// now send the query back and let wordpress send us the results later.
-			return false;
-		}
+			// for other prefetch requests, we only handle counts. Everything else gets sent back
+			if(empty($query->query_vars['count'])) {
+				return false;
+			}
+		}		
 		
 		
 
@@ -240,7 +246,7 @@ class WPU_XPost_Query_Store {
 	 * @param WP_Comment_Query $query our query object
 	 * @return void
 	 */
-	private function set_current_query($query, $comments, $count) {
+	private function set_current_query($query, $comments, $count, $prefetch) {
 	
 		$this->init_defaults();
 		
@@ -309,11 +315,11 @@ class WPU_XPost_Query_Store {
 			// So we get that now. We then have to prime the cache with the
 			// result, as there is no useable filter.
 			
-			if(!empty($query->query_vars['count']) && ($this->currentQuery['passedResult'] === false)) {
+			if(!empty($query->query_vars['count']) && ($this->currentQuery['passedResult'] === false) && $prefetch) {
 				$this->currentQuery['passedResult'] = get_comments($query->query_vars);
 				$query->query_vars['karma'] = 'WP-United Count Shortcut';
 				$this->primeCacheKey = md5(serialize((array)($query->query_vars)));
-			}		
+			}	
 		}
 		
 		$this->setup_sort_vars($query);

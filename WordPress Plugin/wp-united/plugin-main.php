@@ -723,7 +723,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			return;
 		}
 		
-		$this->integComments->get($query, false);
+		$this->integComments->get($query, false, false, true);
 		
 	}
 	
