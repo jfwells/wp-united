@@ -186,9 +186,14 @@ class WPU_XPost_Query_Store {
 				($query->query_vars['post_status'] == 'publish')
 			)															||
 			
+			// we only understand approved, pending and all comments.
+				($query->query_vars['status'] == 'spam') 	||
+				($query->query_vars['status'] == 'trash')
+			)															||
+			
 			// ignore attachments or anything other than posts
 			!(
-				empty($query->query_vars['post_type'])		||
+				empty($query->query_vars['post_type'])					||
 				($query->query_vars['post_type'] == 'post')
 			)															||
 			
