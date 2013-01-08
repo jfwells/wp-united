@@ -187,6 +187,7 @@ class WPU_XPost_Query_Store {
 			)															||
 			
 			// we only understand approved, pending and all comments.
+			(
 				($query->query_vars['status'] == 'spam') 	||
 				($query->query_vars['status'] == 'trash')
 			)															||
