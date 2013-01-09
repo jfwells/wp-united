@@ -919,18 +919,18 @@ class WPU_XPost_Query {
 								
 				$this->links['view'][$cid] = $r . (($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&amp;t={$row['topic_id']}&amp;p={$row['post_id']}#p{$row['post_id']}");
 				if( 
-					((in_array($permissions['edit_own'], $row['forum_id'])) && ($row['poster_id'] == $phpbbID)) ||
-					(in_array($permissions['edit_forum'], $row['forum_id']))
+					((in_array($row['forum_id'], $permissions['edit_own'])) && ($row['poster_id'] == $phpbbID)) ||
+					(in_array($row['forum_id'], $permissions['edit_forum']))
 				) {
 					$this->links['edit'][$cid] = $r. $phpbbForum->append_sid("posting.{$phpEx}?mode=edit&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
 				}
 				if( 
-					((in_array($permissions['delete_own'], $row['forum_id'])) && ($row['poster_id'] == $phpbbID)) ||
-					(in_array($permissions['delete_forum'], $row['forum_id']))
+					((in_array($row['forum_id'], $permissions['delete_own'])) && ($row['poster_id'] == $phpbbID)) ||
+					(in_array($row['forum_id'], $permissions['delete_forum']))
 				) {
 					$this->links['delete'][$cid] = $r . $phpbbForum->append_sid("posting.{$phpEx}?mode=delete&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
 				}
-				if(in_array($permissions['approve_forum'], $row['forum_id'])) {	
+				if(in_array($row['forum_id'], $permissions['approve_forum'])) {	
 					$this->links['approve'][$cid] = $r . $phpbbForum->append_sid("mcp.{$phpEx}?i=queue&amp;mode=approve_details&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
 				}
 			
