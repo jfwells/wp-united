@@ -674,17 +674,40 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	public function integrated_comment_actions($actions, $comment) {
 		
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
-			return false;
+		if (!$this->is_working() || !$this->get_setting('xpostautolink') || 
+			(!is_object($comment)) || empty($comment->comment_ID)) {
+			return $actions;
 		}
-		
+
 		// returns false if no permission, or 0 if doesn't exist
-		$link = $this->integComments->get_comment_action('view', 'comment' . $id);
+		$link = $this->integComments->get_comment_action('view', $comment->comment_ID);
 		
 		if(!empty($link)) {
 			$actions = array(
-				'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>',
+				'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>'
 			);
+			
+
+			
+			$editLink = $this->integComments->get_comment_action('edit', $comment->comment_ID);
+			$delLink = $this->integComments->get_comment_action('delete', $comment->comment_ID);
+			
+			if(!empty($editLink)) {
+				$actions['edit'] = '<a href="' . $editLink . '" class="vim-r hide-if-no-js">' . __('Edit forum post', 'wp-united') . '</a>';
+			}
+			
+			if(!$comment->comment_approved) {
+				$apprLink = $this->integComments->get_comment_action('approve', $comment->comment_ID);
+				if(!empty($apprLink)) {
+					$actions['approve']	= '<a href="' . $apprLink . '" class="vim-r hide-if-no-js">' . __('Approve', 'wp-united') . '</a>';
+				}
+			}
+			
+			
+			if(!empty($delLink)) {
+				$actions['delete'] = '<a href="' . $delLink . '" class="vim-r hide-if-no-js">' . __('Delete forum post', 'wp-united') . '</a>';
+			}
+			
 		}
 	
 		return $actions;
@@ -803,14 +826,25 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 	
 	public function comment_link($url, $comment, $args) {
-		return wpu_comment_link($url, $comment, $args);
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return url;
+		}
+			
+		$wpuLink = $this->integComments->get_comment_action('view', $comment->commentID);
+		
+		if (!empty($wpuLink)) {
+			return $wpuLink;
+		}
+
+		return $url;
 	}
 	
 
 	public function fetch_comments_query($comments, $query) {
 
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
-			return false;
+			return $comments;
 		}
 	
 		$result = $this->integComments->get($query, $comments);
@@ -836,7 +870,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function comments_count_and_group($comments, $postID) {
 		
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
-			return false;
+			return $comments;
 		}
 	
 		$result = $this->integComments->get($postID, $comments, true);
@@ -849,18 +883,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 	}
 	
-	public function get_integrated_comment_link($commentID) {
-		
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
-			return false;
-		}
-		
-		return $this->integComments->get_comment_action('view', $commentID);
-	}
-	
-	
-	
-	
+
 	/**
 	* Retrieve the phpBB avatar of a user
 	* @param string $avatar the inbound avatar

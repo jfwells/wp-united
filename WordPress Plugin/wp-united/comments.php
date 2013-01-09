@@ -24,9 +24,6 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 	Work in progress!!!
 	
 	TODO:
-	
-	- move get_* hook to pre_ so that we can pull data in here too, and process offset :-)
-
 	- right now grouped count and full count queries have different fingerprints (as former has no WP data passed in)... make them identical!!
 	- call in here for main xposting details too, and rename file to generic xposting layer.
 
@@ -456,7 +453,7 @@ class WPU_XPost_Query_Store {
 	public function get_comment_action($type, $commentID) {
 		
 		if(isset($this->links[$type])) {
-			if(isset($this->links[$type]['comment' . $commentID])) {
+			if(isset($this->links[$type]['comment' . $commentID])) { 
 				return $this->links[$type]['comment' . $commentID];
 			} else {
 				return 0;
@@ -914,24 +911,24 @@ class WPU_XPost_Query {
 				$r = $phpbbForum->get_board_url();
 				
 				foreach(array('view', 'edit', 'delete', 'approve') as $linkType) {
-					$this->links[$linkType][$cid] = false;
+					$this->links[$linkType][$cID] = false;
 				}
 								
-				$this->links['view'][$cid] = $r . (($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&amp;t={$row['topic_id']}&amp;p={$row['post_id']}#p{$row['post_id']}");
+				$this->links['view'][$cID] = $r . (($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&amp;t={$row['topic_id']}&amp;p={$row['post_id']}#p{$row['post_id']}");
 				if( 
 					((in_array($row['forum_id'], $permissions['edit_own'])) && ($row['poster_id'] == $phpbbID)) ||
 					(in_array($row['forum_id'], $permissions['edit_forum']))
 				) {
-					$this->links['edit'][$cid] = $r. $phpbbForum->append_sid("posting.{$phpEx}?mode=edit&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
+					$this->links['edit'][$cID] = $r. $phpbbForum->append_sid("posting.{$phpEx}?mode=edit&amp;f={$row['forum_id']}&amp;p={$row['post_id']}#start_here");
 				}
 				if( 
 					((in_array($row['forum_id'], $permissions['delete_own'])) && ($row['poster_id'] == $phpbbID)) ||
 					(in_array($row['forum_id'], $permissions['delete_forum']))
 				) {
-					$this->links['delete'][$cid] = $r . $phpbbForum->append_sid("posting.{$phpEx}?mode=delete&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
+					$this->links['delete'][$cID] = $r . $phpbbForum->append_sid("posting.{$phpEx}?mode=delete&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
 				}
 				if(in_array($row['forum_id'], $permissions['approve_forum'])) {	
-					$this->links['approve'][$cid] = $r . $phpbbForum->append_sid("mcp.{$phpEx}?i=queue&amp;mode=approve_details&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
+					$this->links['approve'][$cID] = $r . $phpbbForum->append_sid("mcp.{$phpEx}?i=queue&amp;mode=approve_details&amp;f={$row['forum_id']}&amp;p={$row['post_id']}#start_here");
 				}
 			
 			

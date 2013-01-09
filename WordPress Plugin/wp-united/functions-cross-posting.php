@@ -653,25 +653,6 @@ function wpu_comment_redir_field() {
 
 
 /**
- * Returns the general comment link -- points to the forum if the comment is cross-posted
- */
-function wpu_comment_link($url, $comment, $args) {
-	global $wpUnited;
-
-	$wpuLink = $wpUnited->get_integrated_comment_link($comment->comment_ID);
-	if (!empty($wpuLink)) {
-		return $wpuLink;
-	}
-
-	return $url;
-}
-
-/**
- * Modifies comment action links in the dashboard
- */
- 
-
-/**
  * returns if the comments box should display or not
  * 
  */
