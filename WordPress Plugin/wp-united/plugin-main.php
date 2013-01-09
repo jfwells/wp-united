@@ -91,7 +91,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('wp_count_comments', 					array('comments_count_and_group', 10, 2),	'x-posting'),
 			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
 			
-			array('get_edit_comment_link', 				'edit_comment_link',						'x-posting'),
+			array('get_edit_comment_link', 				'comment_edit_link',						'x-posting'),
 			
 			
 			array('get_comment_link', 					array('comment_link', 10, 3),				'x-posting')
