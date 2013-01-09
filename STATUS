@@ -1,5 +1,10 @@
 current target: v0.9.2.0
 
+// permissions:
+implemented but not working yet. Edit + view links broken
+
+Need to move view permission check to later if possible, so counts aren't broken.
+
 x-posting todo: 
 * clear comment cache when posting xposted comments
 * Add post table columns for wpu_xpost_parent and wpu_xpost_guestxxx
