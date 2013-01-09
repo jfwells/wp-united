@@ -703,7 +703,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	
 		// the comment ID isn't provided, so grep it
 		$id = 0;
-		$idParts = explode('&amp;c=comment', $link);
+		$idParts = explode('&amp;c=', $link);
 		if(isset($idParts[1])) {
 			$id = (int)$idParts[1];
 		}
@@ -712,7 +712,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 		
 		// returns 0 if no such comment, or false if no permission
-		$pLink = $this->integComments->get_comment_action('edit', 'comment' . $id);
+		$pLink = $this->integComments->get_comment_action('edit', $id);
 		if(!empty($pLink)) {
 			return $pLink;
 		}
