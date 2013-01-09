@@ -680,9 +680,7 @@ class WPU_XPost_Query {
 		
 		}
 		
- also m_approve m_delete and m_edit
-
-		
+	
 		// What are the user's edit permissions?
 		// edit own posts
 		$canEditIn = array_unique(array_keys($auth->acl_getf('f_edit', true))); 
