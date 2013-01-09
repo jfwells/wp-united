@@ -143,7 +143,7 @@ class WPU_XPost_Query_Store {
 		
 		$newLinks = array();
 		foreach($this->links as $linkGroup => $links) {
-			$newLinks = array_merge($links, $this->queries[$sig]->links[$linkGroup]);
+			$newLinks[$linkGroup] = array_merge($links, $this->queries[$sig]->links[$linkGroup]);
 		}
 		$this->links = $newLinks;
 		
