@@ -1,4 +1,4 @@
-=== WP-United ===
+=== WP-United : phpBB WordPress integration ===
 Contributors: Jhong
 Donate link: http://www.wp-united.com/
 Tags: phpbb, phpBB3, forum, social, integrate, bridge, integration, widgets, template, sign-on, theme, user integration, database, wp-united, cross-post, post to forum
@@ -36,7 +36,11 @@ WP-United also includes eight widgets for you to drop into your WordPress page. 
 
 Visit [wp-united.com](http://www.wp-united.com) for more information and to view example integrations in the gallery.
 
-The download includes English, with German and Simplified Chinese translations.
+The download iincludes the following languages:
+* English
+* Francais
+* Deutsch
+* 中文（简体）
 
 == Installation ==
 
@@ -244,4 +248,7 @@ This version fixes a few bugs associated with template integration and makes con
 
 = 0.9.1.6 =
 This version fixes a few minor bugs associated with profile updates and widgets, and improves compatibility with caching plugins. If updating from v0.9.1.x, you only need to update the WordPress plugin portion of WP-United.
+
+= 0.9.2.0 =
+This version fixes a lot of minor bugs and also improves cross-posting. Please update. You need to update both the phpBB and WordPress side of WP-United. For the phpBB side, you only need to copy over the updated files.
 
