@@ -55,7 +55,12 @@ class WPU_XPost_Query_Store {
 		
 		$this->maxLimit = 10000;
 		$this->queries = array();
-		$this->links = array();
+		$this->links = array(
+			'view'		=> array(),
+			'edit'		=> array(),
+			'delete'	=> array(),
+			'approve'	=> array()
+		);
 		$this->currentQuery = array();
 		$this->primeCacheKey = '';
 		$this->doingQuery = false;
@@ -135,7 +140,12 @@ class WPU_XPost_Query_Store {
 		}
 		
 		$result = $this->queries[$sig]->get_result($this->currentQuery);
-		$this->links = array_merge($this->links, $this->queries[$sig]->links);
+		
+		$newLinks = array();
+		foreach($this->links as $linkGroup => $links) {
+			$newLinks = array_merge($links, $this->queries[$sig]->links[$linkGroup]);
+		}
+		$this->links = $newLinks;
 		
 		$this->doingQuery = false;
 		
@@ -443,16 +453,18 @@ class WPU_XPost_Query_Store {
 	* @param mixed $commentID an identifier for our cross-posted comment
 	* @return StdObject comment object, or false if no link exists.
 	*/
-	public function get_link($commentID) {
-					
-		if(isset($this->links['comment' . $commentID])) {
-			return $this->links['comment' . $commentID];
-		}
-				
+	public function get_comment_action($type, $commentID) {
+		
+		if(isset($this->links[$type])) {
+			if(isset($this->links[$type]['comment' . $commentID])) {
+				return $this->links[$type]['comment' . $commentID];
+			} else {
+				return 0;
+			}
+		}	
 		return false;
 	}
-	
-	
+
 	
 	
 }
@@ -506,7 +518,13 @@ class WPU_XPost_Query {
 		$this->success = false;
 		$this->reset_results();
 		
-		$this->links = array();
+		$this->links = array(
+			'view'		=> array(),
+			'edit'		=> array(),
+			'delete'	=> array(),
+			'approve'	=> array()
+		);
+		
 		$this->currQueryArgs = false;
 		$this->lastQueryArgs = array();
 
@@ -629,23 +647,47 @@ class WPU_XPost_Query {
 
 		$fStateChanged = $phpbbForum->foreground();
 
+		
+		// pull some permissions
+		$permissions = array(
+			'read_forum'	=> array_unique(array_keys($auth->acl_getf('f_read', true))),
+			'edit_own'		=> array(),
+			'delete_own'	=> array(),
+			'edit_forum'	=> array(),
+			'delete_forum'	=> array(),
+			'approve_forum'	=> array()
+		);
+		
+		// user can't read any forums -- don't bother proceding unless this is a count request.
+		// TODO: WordPress sometimes prepares a count based on pulling all records. We may need to move check until later
+		if(!sizeof($permissions['read_forum'])) {
+			if(!$this->count) {
+				$phpbbForum->restore_state($fStateChanged);
+				return false;
+			}
+		} else {
+			
+			//Add global topics
+			$permissions['read_forum'][] = 0;
+		
+			$permissions['edit_own'] 		= array_unique(array_keys($auth->acl_getf('f_edit')));
+			$permissions['delete_own']		= array_unique(array_keys($auth->acl_getf('f_delete')));
+			$permissions['edit_forum']		= array_unique(array_keys($auth->acl_getf('m_edit')));
+			$permissions['delete_forum'] 	= array_unique(array_keys($auth->acl_getf('m_delete')));
+			if($this->status != 'approved') {
+				$permissions['approve_forum'] 	= array_unique(array_keys($auth->acl_getf('m_approve')));
+			}
+		
+		}
+		
+ also m_approve m_delete and m_edit
 
-		//first get forum permissions
-		$allowedForums = array_unique(array_keys($auth->acl_getf('f_read', true))); 
 		
-		// user can't read any forums
-		if(!sizeof($allowedForums)) {
-			$phpbbForum->restore_state($fStateChanged);
-			return false;
-		}
-		
-		//Add global topics
-		$allowedForums[] = 0;
-		
-		//Get permissions for unapproved comments
-		if($this->status != 'approved') {
-			$canViewUnapproved = array_unique(array_keys($auth->acl_getf('m_approve', true))); 
-		}
+		// What are the user's edit permissions?
+		// edit own posts
+		$canEditIn = array_unique(array_keys($auth->acl_getf('f_edit', true))); 
+		// edit others
+		$canEditOthersIn = array_unique(array_keys($auth->acl_getf('m_edit', true))); 
 		
 		$phpbbID = $phpbbForum->get_userdata('user_id');
 
@@ -678,6 +720,8 @@ class WPU_XPost_Query {
 
 				'ORDER_BY'	=> $this->phpbbOrderBy . ' ' . $this->order
 			);
+			
+			$where[] = '(' . $db->sql_in_set('t.forum_id', $permissions['read_forum']) . ')';
 		}
 		
 		$query['FROM'] = array(
@@ -705,7 +749,7 @@ class WPU_XPost_Query {
 			$where[] = sprintf("(t.topic_poster = %s)", wpu_get_integrated_phpbbuser($this->topicUser));
 		}		
 		
-		$canViewUnapproved = (sizeof($canViewUnapproved)) ? $db->sql_in_set('t.forum_id', $canViewUnapproved) . ' OR ' : '';
+		$canViewUnapproved = (sizeof($permissions['approve_forum'])) ? $db->sql_in_set('t.forum_id', $permissions['approve_forum']) . ' OR ' : '';
 		
 		if($this->status == 'unapproved') {
 			$where[] = '(p.post_approved = 0 AND (' .
@@ -727,9 +771,7 @@ class WPU_XPost_Query {
 			((p.poster_id = u.user_id) AND 
 			(p.topic_id = t.topic_id) AND 
 			(t.topic_first_post_id <> p.post_id) AND 
-			(t.topic_replies > 0) AND (' .
-			$db->sql_in_set('t.forum_id', $allowedForums) . '
-			))';
+			(t.topic_replies > 0)) ';
 			
 		$query['WHERE'] = implode(' AND ', $where);
 					
@@ -824,8 +866,7 @@ class WPU_XPost_Query {
 				
 			} else {
 			
-			
-			
+
 				$parentPost = (empty($this->postID)) ? $row['topic_wpu_xpost'] : $this->postID;
 				$commentID = $randID + $row['post_id'];
 				
@@ -865,10 +906,37 @@ class WPU_XPost_Query {
 					$this->result['count-grouped']->approved++;
 				}
 				$this->result['count-grouped']->total_comments++;
-								
+				
+				
+				
+				
+				// prepare links
 				//don't use numerical keys to avoid renumbering on array_merge
-				$this->links['comment' . $commentID] = $phpbbForum->get_board_url() . (($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&t={$row['topic_id']}&p={$row['post_id']}#p{$row['post_id']}");
-
+				$cID = 'comment' . $commentID;
+				$r = $phpbbForum->get_board_url();
+				
+				foreach($linkType in array('view', 'edit', 'delete', 'approve')) {
+					$this->links[$linkType][$cid] = false;
+				}
+								
+				$this->links['view'][$cid] = $r . (($phpbbForum->seo) ? "post{$row['post_id']}.html#p{$row['post_id']}" : "viewtopic.{$phpEx}?f={$row['forum_id']}&amp;t={$row['topic_id']}&amp;p={$row['post_id']}#p{$row['post_id']}");
+				if( 
+					((in_array($permissions['edit_own'], $row['forum_id'])) && ($row['poster_id'] == $phpbbID)) ||
+					(in_array($permissions['edit_forum'], $row['forum_id']))
+				) {
+					$this->links['edit'][$cid] = $r. $phpbbForum->append_sid("posting.{$phpEx}?mode=edit&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
+				}
+				if( 
+					((in_array($permissions['delete_own'], $row['forum_id'])) && ($row['poster_id'] == $phpbbID)) ||
+					(in_array($permissions['delete_forum'], $row['forum_id']))
+				) {
+					$this->links['delete'][$cid] = $r . $phpbbForum->append_sid("posting.{$phpEx}?mode=delete&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
+				}
+				if(in_array($permissions['approve_forum'], $row['forum_id'])) {	
+					$this->links['approve'][$cid] = $r . $phpbbForum->append_sid("mcp.{$phpEx}?i=queue&amp;mode=approve_details&amp;f={$row['forum_id']}&amp;p={$row['post_id']}");
+				}
+			
+			
 			}
 			
 			$this->result['count'] = $this->result['count-grouped']->total_comments;

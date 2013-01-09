@@ -90,7 +90,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('get_comments_number', 				array('comments_count', 10, 2),				'x-posting'),
 			array('wp_count_comments', 					array('comments_count_and_group', 10, 2),	'x-posting'),
 			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
-			array('edit_comment_link', 					array('edit_comment_link', 10, 2),			'x-posting'),
+			
+			array('get_edit_comment_link', 				'edit_comment_link',						'x-posting'),
+			
+			
 			array('get_comment_link', 					array('comment_link', 10, 3),				'x-posting')
 		);
 		
@@ -675,8 +678,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			return false;
 		}
 		
-		$link = $this->integComments->get_link($comment->comment_ID);
-	
+		// returns false if no permission, or 0 if doesn't exist
+		$link = $this->integComments->get_comment_action('view', 'comment' . $id);
+		
 		if(!empty($link)) {
 			$actions = array(
 				'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>',
@@ -693,9 +697,111 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	public function no_guest_comment_posting() {
 		return wpu_no_guest_comment_posting();
 	}
-	public function edit_comment_link($link, $comment_ID) {
-		return wpu_edit_comment_link($link, $comment_ID);
+	
+	
+	public function comment_edit_link($link) {
+	
+		// the comment ID isn't provided, so grep it
+		$id = 0;
+		$idParts = explode('&amp;c=comment', $link);
+		if(isset($idParts[1])) {
+			$id = (int)$idParts[1];
+		}
+		if(!$id) {
+			return $link;
+		}
+		
+		// returns 0 if no such comment, or false if no permission
+		$pLink = $this->integComments->get_comment_action('edit', 'comment' . $id);
+		if(!empty($pLink)) {
+			return $pLink;
+		}
+		
+		return $link;
 	}
+	
+	public function check_permission($allUserCaps, $requiredCaps, $args) {
+	
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return $allUserCaps;
+		}
+		
+		// there must be at least three arguments
+		if(!is_array($args) || (sizeof($args) < 3)) {
+			return $allUserCaps;
+		}
+		
+
+		
+		// The first argument is the capability requested
+		$perm = $args[0];
+		if(!in_array($perm, array('view_comment', 'edit_comment', 'delete_comment', 'approve_comment'))) {
+			return $allUserCaps;
+		}
+		
+		// The second argument is the user ID
+		$userID = (int)$args[1];
+		$c = wp_get_current_user();
+		
+		if(empty($c) && ($userID > 0)) {
+			return $allUserCaps;
+		} else if($c->ID != $userID) {
+			return $allUserCaps;
+		}
+		
+
+		// The third argument is the comment ID
+		if(empty($args[2])) {
+			return $allUserCaps;
+		}
+		$id = $args[2];
+		
+
+
+		$action = '';
+		switch($perm) {
+			case 'view_comment':
+				$action = 'view';
+			break;
+			case 'edit_comment':
+				$action = 'edit';
+			break;
+			case 'delete_comment':
+				$action = 'delete';
+			break;
+			case 'approve_comment':
+				$action = 'approve';
+			break;
+			default:
+				return $alluserCaps;
+			break;
+		}
+			
+		$canDo = $this->integComments->get_comment_action($action, 'comment' . $id);
+		
+		if($canDo === false) {
+			// the comment is cross-posted but the user has no permission
+			$allUserCaps[$requiredCaps[0]] = false;
+		} elseif($canDo === 0) {
+			// the comment is not cross-posted
+			return $allUserCaps;
+		} elseif(empty($canDo)) {
+			// the link is empty -- an error or not implemented. Return false so the link doesn't display
+			$allUserCaps[$requiredCaps[0]] = false;
+		} else {
+			// the comment is cross-posted and the user has permission
+			$allUserCaps = array();
+			foreach($requiredCaps as $req) {
+				$allUserCaps[$req] = true;
+			}
+		}
+		
+		return $allUserCaps;
+	}	
+	
+	
+	
+	
 	public function comment_link($url, $comment, $args) {
 		return wpu_comment_link($url, $comment, $args);
 	}

@@ -653,23 +653,6 @@ function wpu_comment_redir_field() {
 
 
 /**
- * Modifies the "(Edit)" comment links and text for cross-posted comments
- * Checking whether the user can edit individual posts is too onerous
- * So we change the link to a "View in forum" one
- */
-function wpu_edit_comment_link($link, $commentID) {
-	global $wpUnited;
-	
-	$wpuLink = $wpUnited->get_integrated_comment_link($commentID);
-	
-	if (!empty($wpuLink)) {
-		return '<a class="comment-edit-link" href="' . $wpuLink . '" title="' . __('(View in Forum)', 'wp-united') . '">' . __('(View in Forum)', 'wp-united'). '</a>';
-	}
-	
-	return $link;
-	
-}
-/**
  * Returns the general comment link -- points to the forum if the comment is cross-posted
  */
 function wpu_comment_link($url, $comment, $args) {
