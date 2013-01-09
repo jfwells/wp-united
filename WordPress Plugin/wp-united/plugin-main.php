@@ -855,7 +855,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			return false;
 		}
 		
-		return $this->integComments->get_link($commentID);
+		return $this->integComments->get_comment_action('view', $commentID);
 	}
 	
 	
