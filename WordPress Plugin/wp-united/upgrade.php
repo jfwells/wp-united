@@ -26,17 +26,17 @@ function wpu_do_upgrade($action) {
 		 *	-----------------------------
 		 * in this version, we move the cross-posting column from POSTS_TABLE to TOPICS_TABLE
 		 */
-		case 'from <0.9.2.0 to 0.9.2.x';
+		case 'from <0.9.2.0';
 			$wpuDebug->add("Upgrading WP-United $action");
 			
 			$fStateChanged = $phpbbForum->foreground();
-			
 			$db->sql_return_on_error(true);
 			
 			$sql = 'ALTER TABLE ' . TOPICS_TABLE . ' 
 				ADD topic_wpu_xpost VARCHAR(10) NULL DEFAULT NULL';
 
 			@$db->sql_query($sql);
+			
 			
 			//Now copy across data from posts column to topics column
 			$sql = 'SELECT post_wpu_xpost, topic_id FROM ' . POSTS_TABLE . ' 
@@ -57,10 +57,29 @@ function wpu_do_upgrade($action) {
 			@$db->sql_query($sql);
 			
 			$db->sql_return_on_error(false);
-			
 			$phpbbForum->restore_state($fStateChanged);
 			
-		break;
+		// no break!
+		case 'from 0.9.2.0-r0':
+		
+			$wpuDebug->add("Upgrading WP-United $action");
+		
+			$fStateChanged = $phpbbForum->foreground();
+			$db->sql_return_on_error(true);
+			
+			// Add new x-posting columns
+			$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
+				ADD post_wpu_xpost_parent VARCHAR(10) NULL DEFAULT NULL, 
+				ADD post_wpu_xpost_meta1 VARCHAR(255) NULL DEFAULT NULL, 
+				ADD post_wpu_xpost_meta2 VARCHAR(255) NULL DEFAULT NULL';
+
+			@$db->sql_query($sql);
+			
+			
+			$db->sql_return_on_error(false);
+			$phpbbForum->restore_state($fStateChanged);
+		
+		// no break!
 		
 		
 		

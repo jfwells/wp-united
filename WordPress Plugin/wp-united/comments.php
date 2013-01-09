@@ -709,6 +709,7 @@ class WPU_XPost_Query {
 								p.post_approved, p.enable_bbcode, p.enable_smilies, p.enable_magic_url, 
 								p.enable_sig, p.post_username, p.post_subject, 
 								p.post_text, p.bbcode_bitfield, p.bbcode_uid, p.post_edit_locked,
+								p.post_wpu_xpost_parent, p.post_wpu_xpost_meta1, p.post_wpu_xpost_meta2,
 								t.topic_approved, t.topic_wpu_xpost, t.topic_first_post_id, t.topic_type, 
 								t.forum_id, t.topic_id, t.topic_status, t.topic_replies AS all_replies, t.topic_replies_real AS replies, 
 								u.user_id, u.username, u.user_wpuint_id, u.user_email',
@@ -823,7 +824,8 @@ class WPU_XPost_Query {
 			return true;
 		}
 		
-		$randID = rand(10000,99999);
+		// use an unfeasibly large base ID to avoid collisions with native WP comments
+		$baseID = 100000000;
 		
 		// Now fill the comments and links arrays
 		while ($row = $db->sql_fetchrow($result)) {
@@ -863,7 +865,7 @@ class WPU_XPost_Query {
 			
 
 				$parentPost = (empty($this->postID)) ? $row['topic_wpu_xpost'] : $this->postID;
-				$commentID = $randID + $row['post_id'];
+				$commentID = $baseID + $row['post_id'];
 				
 				$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $row['poster_id'];
 				$args = array(
@@ -880,7 +882,7 @@ class WPU_XPost_Query {
 					'comment_approved' => $row['post_approved'],
 					'comment_agent' => 'phpBB forum',
 					'comment_type' => '',
-					'comment_parent' => 0,
+					'comment_parent' => (int)$row['post_wpu_xpost_parent'],
 					'user_id' => $row['user_wpuint_id'],
 					'phpbb_id' => $row['poster_id'],
 				);

@@ -153,6 +153,7 @@ abstract class WP_United_Plugin_Base {
 	protected
 		
 		$version = '',
+		$revision = '',
 		$styleKeys = array(),
 		$updatedStyleKeys = false,
 		$styleKeysLoaded = false,
@@ -275,13 +276,15 @@ abstract class WP_United_Plugin_Base {
 		}
 	}
 	
-	public function get_version() {
+	public function get_version($includeRevision = false) {
 		if(empty($this->version)) {
 			require_once ($this->get_plugin_path() . 'version.php');
-			global $wpuVersion; 
+			global $wpuVersion, $wpuRevision; 
 			$this->version = $wpuVersion;
+			$this->revision = $wpuRevision;
 		}
-		return $this->version;
+		$rev = ($includeRevision) ? $this->revision : '';
+		return $this->version . $this->revision;
 	}
 	
 	public function check_mod_version() {
@@ -367,15 +370,28 @@ abstract class WP_United_Plugin_Base {
 	}
 	
 	public function upgrade() {
-		global $wpuDebug, $phpbbForum;
+		global $wpuDebug, $phpbbForum, $wpuRevision;
 		
 		$installedVer = get_option('wpu-version');
-		$actualVer = $this->get_version();
+		$installedVer = (empty($installedVer)) ? '' : $installedVer;
+		
+		$v = explode('-r', $installedVer);
+		$baseInstalledVer = $v[0];
+		
+		$actualVer = $this->get_version(true);
 		$upgradeAction = false;
 		
-		if(empty($installedVer)) {
-			$upgradeAction = 'from <0.9.2.0 to 0.9.2.x';
+		switch($installedVer) {
+		
+			case '':
+				$upgradeAction = 'from <0.9.2.0';
+			break;
+			case '0.9.2.0':
+				$upgradeAction = 'from 0.9.2.0-r0';
+			break;
 		}
+		
+		
 		// Add additional version compare here for future versions
 
 

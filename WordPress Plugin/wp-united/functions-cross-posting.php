@@ -297,7 +297,7 @@ function wpu_do_crosspost($postID, $post, $future=false) {
 		$phpbbForum->transition_user();
 	}
 	
-	//Update the posts table with WP post ID so we can remain "in sync" with it, and set the post time/date
+	//Update the cross-posted columns so we can remain "in sync" with it, and set the post time/date
 	if(($data !== false) && ($mode == 'post') && (!empty($data['post_id'])) ) {
 			
 			// Get timestamp for WP's gmt date. the fallback options won't give correct timezones, but should
@@ -527,7 +527,7 @@ function wpu_comments_count($count, $postID = false) {
  * this catches posted comments and sends them to the forum
  */
 function wpu_comment_redirector($postID) {
-	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user;
+	global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $xPostDetails, $auth, $user, $db;
 	if ( 
 		(!$wpUnited->is_working()) || 
 		(!$wpUnited->get_setting('integrateLogin')) || 
@@ -613,6 +613,18 @@ function wpu_comment_redirector($postID) {
 	); 
 
 	$postUrl = submit_post('reply', $subject, $username, POST_NORMAL, $poll, $data);
+
+	
+
+	if($postUrl !== false) {
+		$commentParent = (int)request_var('comment_parent', 0);
+		$sql = 'UPDATE ' . POSTS_TABLE . " SET post_wpu_xpost_parent = {$commentParent} WHERE post_id = {$data['post_id']}";
+				$result = $db->sql_query($sql);	
+				
+		$db->sql_query($sql);	
+	}
+
+
 
 	$phpbbForum->restore_state($fStateChanged);
 	

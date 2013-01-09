@@ -1138,7 +1138,15 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 
 			@$db->sql_query($sql);
 			
-			$adminLog[] = __('Modified TOPICS Table (Cross-Posting Link)', 'wp-united');
+			// Add new columns
+			$sql = 'ALTER TABLE ' . POSTS_TABLE . ' 
+				ADD post_wpu_xpost_parent VARCHAR(10) NULL DEFAULT NULL, 
+				ADD post_wpu_xpost_meta1 VARCHAR(255) NULL DEFAULT NULL, 
+				ADD post_wpu_xpost_meta2 VARCHAR(255) NULL DEFAULT NULL';
+
+			@$db->sql_query($sql);
+			
+			$adminLog[] = __('Modified TOPICS and POSTS Tables (Cross-Posting ability)', 'wp-united');
 			
 		}
 		
