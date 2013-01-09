@@ -913,7 +913,7 @@ class WPU_XPost_Query {
 				$cID = 'comment' . $commentID;
 				$r = $phpbbForum->get_board_url();
 				
-				foreach($linkType in array('view', 'edit', 'delete', 'approve')) {
+				foreach(array('view', 'edit', 'delete', 'approve') as $linkType) {
 					$this->links[$linkType][$cid] = false;
 				}
 								
