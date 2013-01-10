@@ -87,7 +87,7 @@ define('WPU_SHOW_STATS', FALSE);
  * For some mods, such as shoutboxes, we don't want the WordPress header & footer to show
  * Add the names of their templates to the list here to force that page to be unintegrated
  */
-$GLOBALS['WPU_NOT_INTEGRATED_TPLS'] =  array('posting_smilies.html', 'tag_board.html', 'tag_board_edit.html', 'tag_board_bbcodes.html', 'tag_board_layout.html', 'tag_board_smilies.html', 'tag_board_palette.html', 'chat_body.html', 'mchat_body.html');
+$GLOBALS['WPU_NOT_INTEGRATED_TPLS'] =  array('posting_smilies.html', 'tag_board.html', 'tag_board_edit.html', 'tag_board_bbcodes.html', 'tag_board_layout.html', 'tag_board_smilies.html', 'tag_board_palette.html', 'chat_body.html', 'mchat_body.html', 'abbcode.html', 'posting_abbcode_buttons.html', 'posting_abbcode_wizards.html');
 
 
 /**
