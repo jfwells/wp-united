@@ -1,9 +1,10 @@
 current target: v0.9.2.0
 
+* should counts still be performed even when no permission? Test with limited subscriber user...
+* Add breakdown options to comments table
 
 
 x-posting todo: 
-*** Remove filter block for comment parent (but bear in mind base offset)
 * clear comment cache when posting xposted comments
 * Need to move view permission check to later if possible, so counts aren't broken.
 * for guest posts, need to REMOVE POST=USERID AND ALSO do_action('set_comment_cookies', $comment, $user); on comments taken by phpBB. Also store user/post meta
@@ -22,8 +23,7 @@ x-posting superclass
 
 COMMITTED FOR v0.9.2.0:
 
-* NEW: Re-write of cross-posted comments. Cross-posted comments now appear in the WordPress comments widget and dashboard, interleaved with non-cross-posted comments
-* NEW: Cross-posting re-written to match on topics rather than posts; more efficient and flexible. Old cross-posts will be automatically upgraded.
+* NEW: Re-write of cross-posting and cross-posted comments. Cross-posted comments now appear mixed with WordPress comments, and can be viewed and managed from WordPress as well as phpBB. Cross-posted topics now also fully support custom ordering, threading and guest posting, and are stored and recalled more efficiently.
 * NEW: Cross-posted comments (posted by guests) that are pending moderator approval in phpBB now show up in WordPress, with the appropriate "pending approval" message.
 * NEW: The initial connection screen now falls back to manual path entry if your server has restrictions on scannng the document root
 * NEW: You can choose to enter the phpBB path and document root manually, in case your phpBB root is under a different document root.
