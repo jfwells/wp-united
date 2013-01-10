@@ -713,10 +713,10 @@ abstract class WP_United_Plugin_Base {
 		return 'none';	
 	}
 	
-	// Add copyright comment to the bottom of the page. It is also useful as a quick check to see if users actually have
+	// Add copyright comment to the page source. It is also useful as a quick check to see if users actually have
 	// WP-United installed.	
 	public function add_boilerplate() {
-		$boilerplate = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2012 www.wp-united.com \n-->\n\n";
+		$boilerplate = "\n\n<!--\n phpBB <-> WordPress integration by John Wells, (c) 2006-2013 www.wp-united.com \n-->\n\n";
 		$this->innerContent = $this->innerContent . $boilerplate;
 	}
 	
