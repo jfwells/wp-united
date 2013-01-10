@@ -500,7 +500,7 @@ class WPU_XPost_Query {
 		$userID,
 		$userEmail,
 		$topicUser,
-		$parentID
+		$parentID,
 		$limit,
 		$offset,
 		$count,
