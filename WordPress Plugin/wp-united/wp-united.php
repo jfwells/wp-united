@@ -39,6 +39,30 @@ function wpu_deactivate() {
 }
 
 /**
+ * Activates WP-United. Nothing really special happens here. We just want to figure out if this is 
+ * a new install or a (potentially very) old one. 
+ *
+ * If it really is new, then we can skip upgrade actions.
+ */
+function wpu_activate() {
+
+	$checkForThese = array('wpu-version', 'wpu-settings', 'wputd_connection');
+	$isNewInstall = true;
+	
+	foreach($checkForThese as $option) :
+		if(!empty(get_option($option))) {
+			$isNewInstall = false;
+			break;
+		}
+	}
+	
+	if($isNewInstall) {
+		add_option('wpu-new-install', 'yes');
+	}
+	
+}
+
+/**
  * Removes all WP-United settings.
  * As the plugin is deactivated at this point, we can't reliably uninstall from phpBB (yet)
  * @return string ignored message
@@ -57,6 +81,8 @@ function wpu_uninstall() {
 	$options = array(
 		'wpu_set_forum',
 		'wpu-settings',
+		'wputd_connection',
+		'wpu-new-install',
 		'wpu-version',
 		'wpu-last-run',
 		'wpu-enabled',
@@ -73,6 +99,7 @@ function wpu_uninstall() {
 
 }
 
+register_activation_hook('wp-united/wp-united.php', 'wpu_activate');
 register_deactivation_hook('wp-united/wp-united.php', 'wpu_deactivate');
 register_uninstall_hook('wp-united/wp-united.php', 'wpu_uninstall');
 

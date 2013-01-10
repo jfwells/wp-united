@@ -373,7 +373,13 @@ abstract class WP_United_Plugin_Base {
 		global $wpuDebug, $phpbbForum, $wpuRevision;
 		
 		$installedVer = get_option('wpu-version');
-		$installedVer = (empty($installedVer)) ? '' : $installedVer;
+		$isNewInstall = false;
+		
+		if(empty($installedVer)) {
+			$installedVer = '';
+			$isNewInstall = (get_option('wpu-new-install') == 'yes');
+			
+		}
 		
 		$v = explode('-r', $installedVer);
 		$baseInstalledVer = $v[0];
@@ -381,14 +387,17 @@ abstract class WP_United_Plugin_Base {
 		$actualVer = $this->get_version(true);
 		$upgradeAction = false;
 		
-		switch($installedVer) {
-		
-			case '':
-				$upgradeAction = 'from <0.9.2.0';
-			break;
-			case '0.9.2.0':
-				$upgradeAction = 'from 0.9.2.0-r0';
-			break;
+		// if this is a new install, there will be no options set, but we won't need to upgrade.
+		if(!$isNewInstall) {
+			switch($installedVer) {
+			
+				case '':
+					$upgradeAction = 'from <0.9.2.0';
+				break;
+				case '0.9.2.0':
+					$upgradeAction = 'from 0.9.2.0-r0';
+				break;
+			}
 		}
 		
 		
@@ -404,6 +413,10 @@ abstract class WP_United_Plugin_Base {
 		
 		if($installedVer != $actualVer) {
 			update_option('wpu-version', $this->get_version());
+		}
+		
+		if($isNewInstall) {
+			delete_option('wpu-new-install');
 		}
 		
 		
