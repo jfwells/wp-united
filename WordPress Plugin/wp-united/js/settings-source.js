@@ -458,7 +458,7 @@ function wpu_manual_disable(type) {
 	});
 	$wpu('.ui-dialog-titlebar').hide();
 	var disable = 'wpudisableman=1&action=wpu_disableman&_ajax_nonce=' + disableNonce;
-	$wpu.post('ajaxurl', disable, function(response) {
+	$wpu.post(ajaxurl, disable, function(response) {
 		// the connection has been disabled, redirect
 		window.location = 'admin.php?page='+type;
 	});

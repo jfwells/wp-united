@@ -20,9 +20,6 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 /**
 
-
-	Work in progress!!!
-	
 	TODO:
 	- right now grouped count and full count queries have different fingerprints (as former has no WP data passed in)... make them identical!!
 	- call in here for main xposting details too, and rename file to generic xposting layer.
@@ -43,7 +40,8 @@ class WPU_XPost_Query_Store {
 		$links,
 		$doingQuery,
 		$primeCacheKey,
-		$orderFieldsMap;
+		$orderFieldsMap,
+		$idOffset;
 		
 	/**
 	 * Class initialisation
@@ -51,6 +49,7 @@ class WPU_XPost_Query_Store {
 	public function __construct() {
 		
 		$this->maxLimit = 10000;
+		$this->idOffset = 100000000;
 		$this->queries = array();
 		$this->links = array(
 			'view'		=> array(),
@@ -98,6 +97,7 @@ class WPU_XPost_Query_Store {
 			'topicUser' 	=> '',
 			'limit' 		=> 25,
 			'offset' 		=> 0,
+			'parentID'		=> 0,
 			'realLimit'		=> 0,
 			'realOffset'	=> 0,			
 			'count' 		=> false,
@@ -131,7 +131,7 @@ class WPU_XPost_Query_Store {
 		
 		if(!isset($this->queries[$sig])) {
 			$wpuDebug->add('New XPost query created for query ' . $sig);
-			$this->queries[$sig] = new WPU_XPost_Query();
+			$this->queries[$sig] = new WPU_XPost_Query($this->idOffset);
 		} else {
 			$wpuDebug->add('Re-using XPost query from store for query ' . $sig);
 		}
@@ -178,8 +178,11 @@ class WPU_XPost_Query_Store {
 			// we have no karma
 			!empty($query->query_vars['karma'])							||
 			
-			// phpBB is not threaded
-			!empty($query->query_vars['parent'])						||
+			// We can deal with threaded comments, but if they don't sit in phpBB then there's not much point
+			!(
+				empty($query->query_vars['parent'])			||
+				($query->query_vars['parent'] > $this->idOffset)
+			)															||
 			
 			// TODO: Allow comment filtering by topic title
 			!empty($query->query_vars['post_name'])						||
@@ -311,6 +314,11 @@ class WPU_XPost_Query_Store {
 				$this->currentQuery['topicUser'] = $query->query_vars['post_author'];
 			}
 			
+			// set up vars for comment parent clause
+			if(!empty($query->query_vars['parent'])) {
+				$this->currentQuery['parentID'] = $query->query_vars['parent'];
+			}			
+			
 			/**
 			 * if this is a modified query that has had its offset 
 			 * and limit modified by us, then set up the params
@@ -433,6 +441,7 @@ class WPU_XPost_Query_Store {
 			$this->currentQuery['userID'], 
 			$this->currentQuery['userEmail'], 
 			$this->currentQuery['topicUser'], 
+			(int)$this->currentQuery['parentID'], 
 			(int)$this->currentQuery['limit'], 
 			(int)$this->currentQuery['offset'], 
 			$count,
@@ -491,6 +500,7 @@ class WPU_XPost_Query {
 		$userID,
 		$userEmail,
 		$topicUser,
+		$parentID
 		$limit,
 		$offset,
 		$count,
@@ -501,7 +511,9 @@ class WPU_XPost_Query {
 		$finalOrderBy,
 		
 		$realLimit,
-		$realOffset;
+		$realOffset,
+		
+		$idOffset;
 		
 
 	public $links;
@@ -510,7 +522,7 @@ class WPU_XPost_Query {
 	/**
 	 * Class initialisation
 	 */
-	public function __construct() {
+	public function __construct($idOffset) {
 		
 		$this->success = false;
 		$this->reset_results();
@@ -524,6 +536,10 @@ class WPU_XPost_Query {
 		
 		$this->currQueryArgs = false;
 		$this->lastQueryArgs = array();
+		
+		// we set an unfeasibly large base offset for comment IDs, as otherwise we could merge phpBB and WordPress comments
+		// that have colliding IDs. phpBB IDs have the offset added.
+		$this->idOffset = $idOffset;
 
 	}
 	
@@ -741,9 +757,14 @@ class WPU_XPost_Query {
 			$string = esc_sql(like_escape($this->userEmail));
 			$where[] = "(u.user_email LIKE '%$string%')";
 		}
+		
 		if($this->topicUser) {
-			$where[] = sprintf("(t.topic_poster = %s)", wpu_get_integrated_phpbbuser($this->topicUser));
-		}		
+			$where[] = sprintf("(t.topic_poster = %d)", wpu_get_integrated_phpbbuser($this->topicUser));
+		}
+		
+		if($this->parentID) {
+			$where[] = sprintf("(p.post_wpu_xpost_parent = %d)");
+		}
 		
 		$canViewUnapproved = (sizeof($permissions['approve_forum'])) ? $db->sql_in_set('t.forum_id', $permissions['approve_forum']) . ' OR ' : '';
 		
@@ -824,8 +845,6 @@ class WPU_XPost_Query {
 			return true;
 		}
 		
-		// use an unfeasibly large base ID to avoid collisions with native WP comments
-		$baseID = 100000000;
 		
 		// Now fill the comments and links arrays
 		while ($row = $db->sql_fetchrow($result)) {
@@ -865,7 +884,7 @@ class WPU_XPost_Query {
 			
 
 				$parentPost = (empty($this->postID)) ? $row['topic_wpu_xpost'] : $this->postID;
-				$commentID = $baseID + $row['post_id'];
+				$commentID = $this->idOffset + $row['post_id'];
 				
 				$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $row['poster_id'];
 				$args = array(
