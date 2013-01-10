@@ -3,6 +3,15 @@ current target: v0.9.2.0
 * should counts still be performed even when no permission? Test with limited subscriber user...
 * Add breakdown options to comments table
 
+ISSUES:
+-------
+
+* user mapper not showing correct users when auto-create is off (unactivated user count?) -- it shows mixed intgrated/unintegrated and gets count wrong
+* user mapper date formatting for german way off
+* user creation creating unactivated users?? (404blackbeauty)
+* should repaginate after processing users if set to show integrated/unintegrated
+
+
 
 x-posting todo: 
 * clear comment cache when posting xposted comments

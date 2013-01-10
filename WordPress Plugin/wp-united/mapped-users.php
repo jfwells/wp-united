@@ -291,13 +291,12 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 				OR UCASE(user_email) = '" . $db->sql_escape(strtoupper($this->get_email())) . "'";
 
 		
-		if(!$results = $db->sql_query_limit($sql, 5)) {
-			echo $noMatch;
-			return;
-		}
+		$results = $db->sql_query_limit($sql, 5); {
 		
-		if(!sizeof($results)) {
+
+		if(!$results || !is_array($results) || !sizeof($results)) {
 			echo $noMatch;
+			$phpbbForum->background($fStateChanged);
 			return;
 		}
 		
@@ -323,10 +322,12 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			}
 		}
 		
-		$matches = implode('', $matches);
-		
 		$db->sql_freeresult();
 		$phpbbForum->background($fStateChanged);
+		
+		$matches = implode('', $matches);
+		
+		
 		
 		echo $matches;
 		

@@ -49,8 +49,9 @@ function wpu_activate() {
 	$checkForThese = array('wpu-version', 'wpu-settings', 'wputd_connection');
 	$isNewInstall = true;
 	
-	foreach($checkForThese as $option) :
-		if(!empty(get_option($option))) {
+	foreach($checkForThese as $option) {
+		$opt = $option;
+		if(!empty($opt)) {
 			$isNewInstall = false;
 			break;
 		}
