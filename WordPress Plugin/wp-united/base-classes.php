@@ -284,7 +284,7 @@ abstract class WP_United_Plugin_Base {
 			$this->revision = $wpuRevision;
 		}
 		$rev = ($includeRevision) ? $this->revision : '';
-		return $this->version . $this->revision;
+		return $this->version . $rev;
 	}
 	
 	public function check_mod_version() {
