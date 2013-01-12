@@ -104,7 +104,7 @@ class WPU_Debug {
 		$settings = $wpUnited->get_setting();
 		$memLimit = ini_get('memory_limit');
 		$mainEntries = array(
-			'WP-United Version' 			=> 	$wpUnited->get_version(),
+			'WP-United Version' 			=> 	$wpUnited->get_version(true),
 			'WordPress Version' 			=> 	$wp_version,
 			'PHP Version'						=>	PHP_VERSION,
 			'WP-United enabled?'			=>	($wpUnited->is_enabled())? 'Yes' : 'No',
