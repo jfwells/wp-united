@@ -115,7 +115,8 @@ foreach($ignores as $ignore) {
 	}
 }
 
-$css = '';
+
+$tvFailed = false;
 if(file_exists($cssFileToFix) && !$ignoreMe) {
 	/**
 	 * First check cache
@@ -143,6 +144,7 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 					if(!apply_template_voodoo($cssMagic, $useTV)) {
 						// set useTV to -1 so that cache name reflects that we weren't able to apply TemplateVoodoo
 						$useTV = -1;
+						$tvFailed = true;
 					}
 				}	
 				// Apply CSS Magic
@@ -163,7 +165,9 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 		}
 			
 		//cache fixed CSS
-		$wpuCache->save_css_magic($css, $cssFileToFix, $pos, $useTV);
+		if(!$tvFailed) {
+			$wpuCache->save_css_magic($css, $cssFileToFix, $pos, $useTV, $islandBlock);
+		}
 	}
 } else if($ignoreMe) {
 	$css = file_get_contents($cssFileToFix);

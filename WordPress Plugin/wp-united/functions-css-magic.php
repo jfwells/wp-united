@@ -265,11 +265,9 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 		
 		foreach($matches as $match) {
 			
-			// ignore wp-united widget islands
-			if(strstr($match, 'island=1') !== false) {
-				if(strstr($match, 'usecssm=1') !== false) {
-					continue;
-				}
+			// ignore wp-united css magic & widget islands
+			if((strstr($match, 'usecssm=1') !== false) || (strstr($match, 'island=1') !== false)) {
+				continue;
 			}
 			
 			// extract css location

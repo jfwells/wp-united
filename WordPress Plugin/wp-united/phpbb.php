@@ -1255,8 +1255,8 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 
 	}
 	
-	public function load_style_keys() {
-		global $config;
+public function load_style_keys() {
+		global $config, $wpuDebug;
 		$fStateChanged = $this->foreground();
 		
 		$key = 1;
@@ -1268,7 +1268,13 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		$this->restore_state($fStateChanged);
 
 		if(!empty($fullKey)) {
-			return unserialize(base64_decode($fullKey));
+			$results = unserialize(base64_decode($fullKey));
+			if(defined('WPU_DEBUG')) {
+				foreach($results as $result) {
+					$wpuDebug->add('Loaded style key: ' . $result);
+				}
+			}
+			return $results;
 		} else {
 			return array();
 		}

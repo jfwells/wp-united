@@ -116,6 +116,8 @@ class WPU_Actions {
 		
 		$cacheLocation = '';
 		
+		$tvFailed = false;
+		
 		$cssIdentifier = request_var('cloc', 0);
 		$cssIdentifier = $wpUnited->get_style_key($cssIdentifier);
 		
@@ -159,6 +161,7 @@ class WPU_Actions {
 				if(!apply_template_voodoo($cssMagic, $useTV)) {
 					// set useTV to -1 so that cache name reflects that we weren't able to apply TemplateVoodoo
 					$useTV = -1;
+					$tvFailed = true;
 				}
 			}	
 			// Apply CSS Magic
@@ -174,7 +177,9 @@ class WPU_Actions {
 		$cssMagic->clear();
 		
 		//cache fixed CSS
-		$wpuCache->save_css_magic($css, $cssIdentifier, $pos, $useTV, $islandBlock);
+		if(!$tvFailed) {
+			$wpuCache->save_css_magic($css, $cssIdentifier, $pos, $useTV, $islandBlock);
+		}
 		
 		return $css;
 	}
