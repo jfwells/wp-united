@@ -90,6 +90,7 @@ class WPU_XPost_Query_Store {
 	
 		$this->currentQuery = array(
 			'passedResult'	=> array(),
+			'phpbbOnly'	=> array(),
 			'signature' 	=> '',
 			'postID'		=> 0,
 			'userID' 		=> '',
@@ -166,7 +167,7 @@ class WPU_XPost_Query_Store {
 	 * @pram WP_Comment_Query $query query object
 	 * @return bool true if we can handle it!
 	 */
-	private function can_handle_request($query, $prefetch) {
+	private function can_handle_request(&$query, $prefetch) {
 		
 		if(!is_object($query)) {
 			return true;
@@ -211,8 +212,12 @@ class WPU_XPost_Query_Store {
 			// ignore trackbacks, pingbacks or anything other than comments
 			!(
 				empty($query->query_vars['type'])			||
-				($query->query_vars['type'] == 'comment')
+				($query->query_vars['type'] == 'wpuxpostonly') ||
+				($query->query_vars['type'] == 'wpunoxpost') 
 			)															||
+			
+			//no need to do anything for non-xpost comments only
+			(isset($query->query_vars['wpu_not_xposted']))				||
 			
 			// cannot translate meta-queries to phpBB
 			!empty($query->query_vars['meta_key'])						||
@@ -244,12 +249,22 @@ class WPU_XPost_Query_Store {
 				return false;
 			}
 			
+			//if this is for "anything but cross-posts", we just change the comment type 
+			// and send it back to WordPress for handling
+			if($query->query_vars['type'] == 'wpunoxpost') {
+				$query->query_vars['type'] = '';
+				$query->query_vars['wpu_not_xposted'] = true;
+				return false;
+			}			
+			
+			
 			// for other prefetch requests, we only handle counts. Everything else gets sent back
 			if(empty($query->query_vars['count'])) {
 				return false;
 			}
-		}		
+		}
 		
+
 		
 
 		return true;
@@ -340,7 +355,13 @@ class WPU_XPost_Query_Store {
 				$this->currentQuery['passedResult'] = get_comments($query->query_vars);
 				$query->query_vars['karma'] = 'WP-United Count Shortcut';
 				$this->primeCacheKey = md5(serialize((array)($query->query_vars)));
-			}	
+			}
+			
+			if($query->query_vars['type'] == 'wpuxpostonly') {
+				$this->currentQuery['phpbbOnly'] = true;
+			}
+			
+			
 		}
 		
 		$this->setup_sort_vars($query);
@@ -434,6 +455,7 @@ class WPU_XPost_Query_Store {
 			}
 		}
 			
+		$phpbbOnly = (empty($this->currentQuery['offset'])) ? '' : $phpbbOnly;
 				
 		
 		$this->currentQuery['signature'] = '[' . implode(',', array(
@@ -441,6 +463,7 @@ class WPU_XPost_Query_Store {
 			$this->currentQuery['userID'], 
 			$this->currentQuery['userEmail'], 
 			$this->currentQuery['topicUser'], 
+			(int)$phpbbOnly,
 			(int)$this->currentQuery['parentID'], 
 			(int)$this->currentQuery['limit'], 
 			(int)$this->currentQuery['offset'], 
@@ -495,6 +518,7 @@ class WPU_XPost_Query {
 		$currQueryArgs,
 		
 		$passedResult,
+		$phpbbOnly,
 		$signature,
 		$postID,
 		$userID,
@@ -557,7 +581,9 @@ class WPU_XPost_Query {
 				'trash'				=> 0,
 				'post-trashed'		=> 0,
 				'total_comments'	=> 0
-			)
+			),
+			'count-phpbb'			=> 0,
+			'count-wp'				=> 0
 		);
 		
 		$this->queryExecuted = false;
@@ -577,7 +603,7 @@ class WPU_XPost_Query {
 			$this->queryExecuted = true;
 			$this->success = $this->perform_phpbb_comment_query();
 			
-			if($this->success && !$this->count && is_array($this->passedResult) && sizeof($this->passedResult)) {
+			if($this->success && !$this->count && is_array($this->passedResult) && sizeof($this->passedResult) && !$this->phpbbOnly) {
 				$this->add_wp_comments($this->passedResult);
 			}
 		}
@@ -629,12 +655,15 @@ class WPU_XPost_Query {
 				case 0:
 					$this->result['count-grouped']->moderated++;
 					$this->result['count-grouped']->total_comments++;
+					$this->result['count_wp']++;
 				case 1:
 					$this->result['count-grouped']->approved++;
 					$this->result['count-grouped']->total_comments++;
+					$this->result['count_wp']++;
 				case 'spam':
 					$this->result['count-grouped']->spam++;
 					$this->result['count-grouped']->total_comments++;
+					$this->result['count_wp']++;
 				case 'trash':
 					$this->result['count-grouped']->trash++;
 				break;
@@ -643,6 +672,7 @@ class WPU_XPost_Query {
 				break;
 				default:
 					$this->result['count-grouped']->total_comments++;
+					$this->result['count_wp']++;
 				break;
 			}
 		}	
@@ -814,8 +844,9 @@ class WPU_XPost_Query {
 						$stats->approved = $stat['num_total'];
 					}
 					$stats->total_comments = $stats->total_comments + $stat['num_total'];
+					
 				}
-				
+				$this->result['count-phpbb'] = $stats->total_comments;
 				$db->sql_freeresult($result);
 
 				// Now we fetch the native WP count
@@ -831,12 +862,14 @@ class WPU_XPost_Query {
 				}
 				$this->result['count-grouped'] = $stats;
 				$this->result['count'] = $this->result['count-grouped']->total_comments;
+				$this->result['count-wp'] = $wpCount->total_comments;
 				
 			} else {
 				$countRow = $db->sql_fetchrow($result);
 				$count = $countRow['num_total'];
 				$this->result['count'] = (int)$count + (int)$this->passedResult;
-				
+				$this->result['count-phpbb'] = (int)$count;
+				$this->result['count-wp'] = (int)$count = (int)$this->passedResult;
 				$db->sql_freeresult($result);
 			}
 			

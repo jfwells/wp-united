@@ -92,6 +92,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'x-posting'),
 			
 			array('get_edit_comment_link', 				'comment_edit_link',						'x-posting'),
+			array('admin_comment_types_dropdown', 		'add_to_comment_dropdown',					'x-posting'),
 			
 			
 			array('get_comment_link', 					array('comment_link', 10, 3),				'x-posting')
@@ -743,6 +744,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return $link;
 	}
 	
+	
 	public function check_permission($allUserCaps, $requiredCaps, $args) {
 	
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
@@ -822,13 +824,24 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return $allUserCaps;
 	}	
 	
+	public function add_to_comment_dropdown($dropdown) {
+		
+		if ($this->is_working() && $this->get_setting('xpostautolink')) {
+	
+			$dropdown['wpuxpostonly']	=	__('Show only cross-posted', 'wp-united');
+			$dropdown['wpunoxpost']		=	__('Show only not cross-posted', 'wp-united');
+		}
+		return $dropdown;
+		
+	}
+	
 	
 	
 	
 	public function comment_link($url, $comment, $args) {
 		
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
-			return url;
+			return $url;
 		}
 			
 		$wpuLink = $this->integComments->get_comment_action('view', $comment->commentID);
