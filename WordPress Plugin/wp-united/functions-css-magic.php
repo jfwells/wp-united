@@ -320,7 +320,7 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 					$cssLnk = str_replace($wpUnited->get_wp_base_url(), $wpUnited->get_wp_path(), $el);
 				} else {
 					// else: relative path
-					$pathHere . $el;
+					$cssLnk = $pathHere . $el;
 				}
 				// remove query vars
 				$cssLnk = explode('?', $cssLnk);
