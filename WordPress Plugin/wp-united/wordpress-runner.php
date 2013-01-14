@@ -77,7 +77,7 @@ function wpu_wp_template_load() {
 	// items usually set by wordpress template loads:
 	define("WP_USE_THEMES", true);
 	global $wp_did_header; $wp_did_header = true;
-	$oldGet = $_GET; $_GET = array();
+	$oldGET = $_GET; $_GET = array();
 	wp();
 	$_GET = $oldGET;
 	if (!$wpUnited->should_do_action('template-p-in-w')) {

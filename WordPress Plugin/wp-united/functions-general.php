@@ -25,19 +25,6 @@ function add_trailing_slash($path) {
 }
 
 /**
- * Adds http:// to the URL if it is not already present
- * TODO: Kill off or check protocol
- */
-function add_http($path) {
-	if ( (strpos($path, "http://") === FALSE) && (strpos($path, "https://") === FALSE) ) {
-		return "http://" . $path;
-	}
-	return $path;
-}
-
-
-
-/**
  * Convert HTML to BBCode 
  * Cut down version of function from early version of the WYSIWIG MOD by DeViAnThans3, 2005 (GPL v2)
  * Several changes and fixes for WP-United
