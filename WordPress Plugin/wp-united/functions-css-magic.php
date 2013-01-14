@@ -255,6 +255,13 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 	$pkg = 'pkg=' . $package;
 	$pos = "pos=" . $position;
 	
+	$pathHere = dirname($_SERVER['SCRIPT_FILENAME']);
+	if(!empty($pathHere)) {
+		$pathHere = add_trailing_slash($pathHere);
+	}
+	
+	
+	
 	// grep all styles
 	preg_match_all('/<link[^>]*?href=[\'"][^>]*?(style\.php\?|\.css)[^>]*?\/>/i', $headerInfo, $matches);
 	preg_match_all('/@import url\([^\)]+?\)/i', $headerInfo, $matches2);
@@ -307,22 +314,22 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 				 */
 				// Absolute path to CSS, in phpBB
 				if(stristr($el, $phpbbForum->get_board_url()) !== false) {
-					$cssLnk = str_replace($phpbbForum->get_board_url(), "", $el); 
+					$cssLnk = str_replace($phpbbForum->get_board_url(), $wpUnited->get_setting('phpbb_path'), $el); 
 				// Absolute path to CSS, in WordPress
 				} elseif(stristr($el, $wpUnited->get_wp_base_url()) !== false) {
 					$cssLnk = str_replace($wpUnited->get_wp_base_url(), $wpUnited->get_wp_path(), $el);
 				} else {
 					// else: relative path
-					$cssLnk = $phpbb_root_path . $el;
+					$pathHere . $el;
 				}
 				// remove query vars
 				$cssLnk = explode('?', $cssLnk);
 				$cssLnk = $cssLnk[0];
 				$cssLnk = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $cssLnk) : $cssLnk;
+				$cssLnk = @realpath($cssLnk);
 				
 				if(  (stristr($cssLnk, 'http:') === false) && (stristr($cssLnk, 'https:') === false) && @file_exists($cssLnk) ) { 
 					$links[] = $el;
-					$cssLnk = realpath($cssLnk);
 					$key = $wpuCache->issue_style_key($cssLnk, $position);
 					$keys[] = $key;
 					$repl[] = "{$phpbbForum->get_board_url()}wp-united/style-fixer.php?usecssm=1{$and}style={$key}{$and}{$pos}{$and}{$pkg}{$tv}";
@@ -330,9 +337,18 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 			} elseif(stristr($el, "style.php?") !== false) {
 				/**
 				 * phpBB style.php css
-				 */ 
+				 */
+
+				// standardise the path to style.php, so that cache can be used properly
+				if(stristr($el, $phpbbForum->get_board_url()) !== false) {
+					$cssLnk = str_replace($phpbbForum->get_board_url(), $wpUnited->get_setting('phpbb_path'), $el); 
+				} else {
+					$cssLnk = $pathHere . $el;
+				}
+				$cssLnk = @realpath($cssLnk);
+				
 				$links[] = $el; 
-				$key = $wpuCache->issue_style_key($el, $position);
+				$key = $wpuCache->issue_style_key($cssLnk, $position);
 				$keys[] = $key;
 				$repl[] = "{$el}{$and}usecssm=1{$and}{$pos}{$and}cloc={$key}{$and}{$pkg}{$tv}";
 			} 
