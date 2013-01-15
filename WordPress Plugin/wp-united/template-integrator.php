@@ -65,10 +65,12 @@ function wpu_integrate_templates() {
 
 		//Get ltr, rtl & bgcolor, etc, from the body tag
 		preg_match('/<body[^>]+>/i', $wpUnited->get_inner_content(), $pfBodyMatches);
-		if($pfBodyMatches[0]) {
+		$bodyClass = '';
+		$bpdyDetails = '';
+		if(isset($pfBodyMatches[0])) {
 			$bodyDetails = trim(str_replace(array('<body', '>'), '', $pfBodyMatches[0]));
 			preg_match('/class\s*=\s*"[^"]+"/', $bodyDetails, $bodyClass);
-			if($bodyClass[0]) {
+			if(isset($bodyClass[0])) {
 				$bodyDetails = str_replace($bodyClass[0], "", $bodyDetails);
 				$bodyClass = trim(str_replace(array('class', '=', '"'), '', $bodyClass[0]));
 			}
