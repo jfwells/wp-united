@@ -12,7 +12,6 @@ x-posting todo:
 
 *** re-review all phpBB sql for proper escaping!
 
-* for guest posts, need to REMOVE POST=USERID and pull from cookie instead!
 * clear comment cache when posting xposted comments
 * should counts still be performed even when no permission? Test with limited subscriber user... / May need to move view permission check to later if possible, so counts aren't broken.
 

@@ -107,6 +107,7 @@ class WPU_XPost_Query_Store {
 			'realOffset'	=> 0,			
 			'count' 		=> false,
 			'groupByStatus' => false,
+			'hideOtherUnapproved'	=> false,
 			'status' 		=> 'all',
 			'order' 		=> 'DESC',
 			'phpbbOrderBy' 	=> '',
@@ -294,15 +295,18 @@ class WPU_XPost_Query_Store {
 			$this->currentQuery['offset'] = 0;
 			$this->currentQuery['realLimit'] = $this->maxLimit;
 			$this->currentQuery['realOffset'] = 0;
+			$this->currentQuery['hideOtherUnapproved'] = true;
 		
 			if($count) { 
 				$this->currentQuery['count'] = true;
 				$this->currentQuery['groupByStatus'] = true;
+				$this->currentQuery['hideOtherUnapproved'] = false;
 			}
 		} else {
 			
 			$this->currentProvidedLimit = $query->query_vars['number'];
 			
+			$this->currentQuery['hideOtherUnapproved'] = false;
 			$this->currentQuery['postID'] = $query->query_vars['post_id'];
 			$this->currentQuery['limit'] = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $this->maxLimit;
 			$this->currentQuery['offset'] = $query->query_vars['offset'];
@@ -471,6 +475,7 @@ class WPU_XPost_Query_Store {
 			(int)$this->currentQuery['parentID'], 
 			(int)$this->currentQuery['limit'], 
 			(int)$this->currentQuery['offset'], 
+			(int)$this->currentQuery['hideOtherUnapproved'], 
 			$count,
 			$group,
 			(int)$this->currentQuery['status'], 
@@ -535,6 +540,7 @@ class WPU_XPost_Query {
 		$groupByStatus,
 		$status,
 		$order,
+		$hideOtherUnapproved,
 		$phpbbOrderBy,
 		$finalOrderBy,
 		
@@ -882,6 +888,8 @@ class WPU_XPost_Query {
 			return true;
 		}
 		
+		$currentCommenter = wp_get_current_commenter();
+		$pUsername = $phpbbForum->get_username();
 		
 		// Now fill the comments and links arrays
 		while ($row = $db->sql_fetchrow($result)) {
@@ -918,6 +926,7 @@ class WPU_XPost_Query {
 				$this->result['has_xposts'] = true;
 				
 			} else {
+				
 				if(($row['user_id'] == ANONYMOUS) && (!empty($row['post_username']))) {
 					$username = $row['post_username'];
 				} else {
@@ -932,7 +941,15 @@ class WPU_XPost_Query {
 					$email = $row['post_wpu_xpost_meta2'];
 				} else {
 					$email = $row['user_email'];
-				}				
+				}	
+				
+				if(!$row['post_approved'] && $this->hideOtherUnapproved) {
+					if(($row['user_id'] == ANONYMOUS) && (empty($currentCommenter['comment_author']) || ($currentCommenter['comment_author'] != $username))) {
+						continue;
+					} else if(($row['user_id'] != ANONYMOUS) && (empty($pUsername) || ($pUsername != $username))) {
+						continue;
+					}
+				}			
 				
 				$parentPost = (empty($this->postID)) ? $row['topic_wpu_xpost'] : $this->postID;
 				$commentID = $this->idOffset + $row['post_id'];
