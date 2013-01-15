@@ -101,7 +101,8 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		private
 			$doneInit 		= false,
 			$extras 		= false,
-			$integComments = false;
+			$integComments 	= false,
+			$xPoster		= false;
 	
 	
 	/**
@@ -129,8 +130,9 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		require_once($this->get_plugin_path() . 'user-integrator.php'); 
 		
 		if($this->get_setting('xposting')) {		
-			require_once($this->get_plugin_path() . 'functions-cross-posting.php');
+			require_once($this->get_plugin_path() . 'cross-posting.php');
 			require_once($this->get_plugin_path() . 'comments.php');
+			$this->xPoster = new WPU_Plugin_XPosting();
 			$this->integComments = new WPU_XPost_Query_Store();
 		}
 
@@ -521,18 +523,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		define('suppress_newpost_action', TRUE);
 	}
 	
-	/**
-	 * Catches posts scheduled for future publishing
-	 * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
-	 * then we can process them as if they were just posted when the time arises.
-	 * Wrapper for wpu_capture_future_post - see functions-cross-posting.php.
-	 * @param int $postID provided by WordPress action hook
-	 * @param WP_Post $post provided by WordPress action hook
-	 * @return void
-	 */
-	public function capture_future_post($postID, $post) {
-		 wpu_capture_future_post($postID, $post);
-	}
+
 	
 	
 	/*
@@ -571,7 +562,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 				}
 				
 				if ( (($phpbbForum->user_logged_in()) || $future) && ($this->get_setting('xposting')) ) {
-					$did_xPost = wpu_do_crosspost($postID, $post, $future);
+					$did_xPost = $this->xPoster->do_crosspost($postID, $post, $future);
 				} 
 
 				define('suppress_newpost_action', TRUE);
@@ -633,6 +624,14 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return $postContent;
 	}
 	
+	/*
+	********************************************
+	WARNING: MESSY UNDER-CONSTRUCTION AREA BELOW
+	*********************************************
+	*/
+	
+	
+	
 	/**
 	 *  Adds a cross-posting box to the posting page if required.
 	 * @return void
@@ -644,7 +643,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 				//Add the cross-posting box if enabled and the user has forums they can post to
 				if ( $this->get_setting('xposting') && $this->get_setting('integrateLogin') ) { 
-					wpu_add_xposting_box();
+					$this->xPoster->add_xposting_box();
 				}
 			}
 		}
@@ -657,22 +656,18 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	* @return various
 	*/
 	public function comment_redir_field() {
-		return wpu_comment_redir_field();
+		return $this->xPoster->comment_redir_field();
 	}
 	public function comment_redirector($postID) {
-		return wpu_comment_redirector($postID);
+		return $this->xPoster->post_comment($postID);
 	}
 	public function comments_open($open, $postID) {
-		return wpu_comments_open($open, $postID);
+		return $this->xPoster->are_comments_open($open, $postID);
 	}
 	public function get_comment_author_link($link) {
 		return wpu_get_comment_author_link($link);
 	}
 
-	public function integrated_comments($comments, $query) { 
-		return wpu_integrated_comments($comments, $query);
-	}
-	
 	public function integrated_comment_actions($actions, $comment) {
 		
 		if (!$this->is_working() || !$this->get_setting('xpostautolink') || 
@@ -687,9 +682,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 			$actions = array(
 				'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>'
 			);
-			
 
-			
 			$editLink = $this->integComments->get_comment_action('edit', $comment->comment_ID);
 			$delLink = $this->integComments->get_comment_action('delete', $comment->comment_ID);
 			
@@ -716,10 +709,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	}
 	
 	public function comments_count($count, $postID = false) {
-		return wpu_comments_count($count, $postID);
+		return $this->xPoster->comment_count($count, $postID);
 	}
 	public function no_guest_comment_posting() {
-		return wpu_no_guest_comment_posting();
+		return $this->xPoster->no_guest_comment_posting();
 	}
 	
 	
@@ -835,9 +828,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 	}
 	
-	
-	
-	
 	public function comment_link($url, $comment, $args) {
 		
 		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
@@ -895,6 +885,27 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		return $result;
 		
 	}
+	
+		/**
+	 * Catches posts scheduled for future publishing
+	 * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
+	 * then we can process them as if they were just posted when the time arises.
+	 * Wrapper for wpu_capture_future_post - see functions-cross-posting.php.
+	 * @param int $postID provided by WordPress action hook
+	 * @param WP_Post $post provided by WordPress action hook
+	 * @return void
+	 */
+	public function capture_future_post($postID, $post) {
+		 $this->xPoster->capture_future_post($postID, $post);
+	}
+	
+	
+	
+	/**
+	*************************************
+	*************************************
+	*************************************
+	*/
 	
 
 	/**

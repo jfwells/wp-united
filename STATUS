@@ -10,10 +10,11 @@ ISSUES:
 
 x-posting todo: 
 
-* clear comment cache when posting xposted comments
-* Need to move view permission check to later if possible, so counts aren't broken.
 * for guest posts, need to REMOVE POST=USERID AND ALSO do_action('set_comment_cookies', $comment, $user); on comments taken by phpBB. Also store user/post meta
-* should counts still be performed even when no permission? Test with limited subscriber user...
+* clear comment cache when posting xposted comments
+* should counts still be performed even when no permission? Test with limited subscriber user... / May need to move view permission check to later if possible, so counts aren't broken.
+
+
 
 guest posting issues outstanding:
 	-- we just die on a username that is already in use, when we should really display a nice msg
