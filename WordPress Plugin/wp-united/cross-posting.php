@@ -798,6 +798,11 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		if (!$this->is_working()) {
 			return;
 		}
+		
+		$wpUserID = 0;
+		if($wpUser = wp_get_current_user()) {
+			$wpUserID = $u->ID;
+		}
 
 		$fStateChanged = $phpbbForum->foreground();
 
@@ -808,11 +813,16 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			return;
 		}
 		
-		
+		$guestPosting = false;
 		if ($phpbbForum->user_logged_in()) {
 			$username = $phpbbForum->get_username();
+			$website = $phpbbForum->get_userdata('user_website');
+			$email = $phpbbForum->get_userdata('user_email');
 		} else {
+			$guestPosting = true;
 			$username = strip_tags(stripslashes(request_var('author', 'Anonymous')));
+			$website = request_var('url', '');
+			$email = request_var('email', '');
 			$username = wpu_find_next_avail_name($username, 'phpbb');
 		}
 		
@@ -855,41 +865,69 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		$subject = $dets['post_subject'];
 		
 		$data = array(
-			'forum_id' => $dets['forum_id'],
-			'topic_id' => $dets['topic_id'],
-			'icon_id' => false,
-			'enable_bbcode' => true,
-			'enable_smilies' => true,
-			'enable_urls' => true,
-			'enable_sig' => true,
-			'message' => $content,
-			'message_md5' => md5($content),
-			'bbcode_bitfield' => $bitfield,
-			'bbcode_uid' => $uid,
-			'post_edit_locked'	=> 0,
-			'notify_set'		=> false,
-			'notify'			=> false,
-			'post_time' 		=> 0,
-			'forum_name'		=> '',
-			'enable_indexing'	=> true,
-			'topic_title' => $subject
+			'forum_id'				=> $dets['forum_id'],
+			'topic_id' 				=> $dets['topic_id'],
+			'icon_id' 				=> false,
+			'enable_bbcode' 		=> true,
+			'enable_smilies' 		=> true,
+			'enable_urls' 			=> true,
+			'enable_sig' 			=> true,
+			'message' 				=> $content,
+			'message_md5' 			=> md5($content),
+			'bbcode_bitfield' 		=> $bitfield,
+			'bbcode_uid' 			=> $uid,
+			'post_edit_locked'		=> 0,
+			'notify_set'			=> false,
+			'notify'				=> false,
+			'post_time' 			=> 0,
+			'forum_name'			=> '',
+			'enable_indexing'		=> true,
+			'topic_title' 			=> $subject,
+			'post_approved'			=> 1, // this doesn't force it to be approved (we  want approval to reflect permission status), but prevents phpBB from throwing notices.
+			'poster_ip'				=> '',
+			
 		); 
 
 		$postUrl = submit_post('reply', $subject, $username, POST_NORMAL, $poll, $data);
 
-		
-
+		// update threading and guest post user data
 		if($postUrl !== false) {
 			$commentParent = (int)request_var('comment_parent', 0);
-			$sql = 'UPDATE ' . POSTS_TABLE . " SET post_wpu_xpost_parent = {$commentParent} WHERE post_id = {$data['post_id']}";
-					$result = $db->sql_query($sql);	
-					
-			$db->sql_query($sql);	
+			
+			if($commentParent || $guestPosting) {
+				$sql = 'UPDATE ' . POSTS_TABLE . " SET 
+						post_wpu_xpost_parent = {$commentParent}, 
+						post_wpu_xpost_meta1 = '" . $db->sql_escape($website) . "', 
+						post_wpu_xpost_meta2 = '" . $db->sql_escape($email) . "' 
+						WHERE post_id = {$data['post_id']}";
+						
+				$db->sql_query($sql);
+			}
 		}
-
-
-
+		
+		$wpComment = (object) array(
+			'comment_ID' => $data['post_id'],
+			'comment_post_ID' => 'comment' . ($data['post_id'] + $this->integComments->get_id_offset()) ,
+			'comment_author' => $username,
+			'comment_author_email' => $email,
+			'comment_author_url' => $website,
+			'comment_author_IP' => $data['poster_ip'],
+			'comment_date' => $user->format_date($data['post_time'], "Y-m-d H:i:s"), //Convert phpBB timestamp to mySQL datestamp
+			'comment_date_gmt' =>  $user->format_date($data['post_time'] - ($user->timezone + $user->dst), "Y-m-d H:i:s"), 
+			'comment_content' => $content,
+			'comment_karma' => 0,
+			'comment_approved' => $data['post_approved'],
+			'comment_agent' => 'phpBB forum',
+			'comment_type' => '',
+			'comment_parent' => $commentParent,
+			'user_id' => $wpUserID,
+			'phpbb_id' => get_userdata('user_ID')
+		);
+		
 		$phpbbForum->restore_state($fStateChanged);
+		
+		//set comment cookie 
+		do_action('set_comment_cookies', $wpComment, $wpUser);
 		
 		
 		/**

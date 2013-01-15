@@ -77,7 +77,7 @@ class WPU_XPost_Query_Store {
 			'comment_date_gmt'		=>	'p.post_time',
 			'comment_ID'			=>	'p.post_id',
 			//'comment_karma'		=>	'', // n/a
-			//'comment_parent'		=>	'', //n/a
+			'comment_parent'		=>	'p.post_wpu_xpost_parent', 
 			'comment_post_ID'		=>	't.topic_id',
 			//'comment_type'			=> 	'',		// only interested in 'comments'
 			'user_id'				=>	'u.user_wpuint_id',
@@ -85,6 +85,10 @@ class WPU_XPost_Query_Store {
 		
 
 	}	
+	
+	public function get_id_offset() {
+		return $this->idOffset;
+	}
 	
 	private function init_defaults() {
 	
@@ -785,7 +789,7 @@ class WPU_XPost_Query {
 		
 		if($this->userEmail) {
 			$string = esc_sql(like_escape($this->userEmail));
-			$where[] = "(u.user_email LIKE '%$string%')";
+			$where[] = "(u.user_email LIKE '%" . $db->sql_escape($string) . "%')";
 		}
 		
 		if($this->topicUser) {
@@ -914,18 +918,31 @@ class WPU_XPost_Query {
 				$this->result['has_xposts'] = true;
 				
 			} else {
-			
-
+				if(($row['user_id'] == ANONYMOUS) && (!empty($row['post_username']))) {
+					$username = $row['post_username'];
+				} else {
+					$username = $row['username'];
+				}
+				if(($row['user_id'] == ANONYMOUS) && (!empty($row['post_wpu_xpost_meta1']))) {
+					$website = $row['post_wpu_xpost_meta1'];
+				} else {
+					$website = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $row['poster_id'];
+				}
+				if(($row['user_id'] == ANONYMOUS) && (!empty($row['post_wpu_xpost_meta2']))) {
+					$email = $row['post_wpu_xpost_meta2'];
+				} else {
+					$email = $row['user_email'];
+				}				
+				
 				$parentPost = (empty($this->postID)) ? $row['topic_wpu_xpost'] : $this->postID;
 				$commentID = $this->idOffset + $row['post_id'];
 				
-				$link = $phpbbForum->get_board_url() . "memberlist.$phpEx?mode=viewprofile&amp;u=" . $row['poster_id'];
 				$args = array(
 					'comment_ID' => $commentID,
 					'comment_post_ID' => $parentPost,
-					'comment_author' => $row['username'],
-					'comment_author_email' => $row['user_email'],
-					'comment_author_url' => $link,
+					'comment_author' => $username,
+					'comment_author_email' => $email,
+					'comment_author_url' => $website,
 					'comment_author_IP' => $row['poster_ip'],
 					'comment_date' => $user->format_date($row['post_time'], "Y-m-d H:i:s"), //Convert phpBB timestamp to mySQL datestamp
 					'comment_date_gmt' =>  $user->format_date($row['post_time'] - ($user->timezone + $user->dst), "Y-m-d H:i:s"), 
