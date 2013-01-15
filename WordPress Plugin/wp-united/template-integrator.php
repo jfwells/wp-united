@@ -19,6 +19,10 @@ function wpu_integrate_templates() {
 	$wpuCache = WPU_Cache::getInstance();
 
 	$wpuSetWPSignature = '';
+	
+	$bodyClass = '';
+	$bodyDetails = '';
+		
 
 	if ( $wpuCache->use_template_cache() || $wpUnited->ran_patched_wordpress() ) {
 		wpu_get_wordpress();
@@ -65,8 +69,7 @@ function wpu_integrate_templates() {
 
 		//Get ltr, rtl & bgcolor, etc, from the body tag
 		preg_match('/<body[^>]+>/i', $wpUnited->get_inner_content(), $pfBodyMatches);
-		$bodyClass = '';
-		$bpdyDetails = '';
+
 		if(isset($pfBodyMatches[0])) {
 			$bodyDetails = trim(str_replace(array('<body', '>'), '', $pfBodyMatches[0]));
 			preg_match('/class\s*=\s*"[^"]+"/', $bodyDetails, $bodyClass);
