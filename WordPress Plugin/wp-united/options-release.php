@@ -4,7 +4,7 @@
 * WP-United Extra Options
 *
 * @package WP-United
-* @version $Id: 0.9.1.5  2012/12/28 John Wells (Jhong) Exp $
+* @version $Id: 0.9.2.0  2012/12/28 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -87,7 +87,7 @@ define('WPU_SHOW_STATS', FALSE);
  * For some mods, such as shoutboxes, we don't want the WordPress header & footer to show
  * Add the names of their templates to the list here to force that page to be unintegrated
  */
-$GLOBALS['WPU_NOT_INTEGRATED_TPLS'] =  array('posting_smilies.html', 'tag_board.html', 'tag_board_edit.html', 'tag_board_bbcodes.html', 'tag_board_layout.html', 'tag_board_smilies.html', 'tag_board_palette.html', 'chat_body.html', 'mchat_body.html', 'abbcode.html', 'posting_abbcode_buttons.html', 'posting_abbcode_wizards.html');
+$GLOBALS['WPU_NOT_INTEGRATED_TPLS'] =  array('posting_smilies.html', 'tag_board.html', 'tag_board_edit.html', 'tag_board_bbcodes.html', 'tag_board_layout.html', 'tag_board_smilies.html', 'tag_board_palette.html', 'chat_body.html', 'mchat_body.html', 'abbcode.html', 'posting_abbcode_buttons.html', 'posting_abbcode_wizards.html', 'jquery_base/quickedit.html', 'jquery_base/quickreply.html', 'jquery_base/login.html');
 
 
 /**
@@ -120,11 +120,5 @@ define('WPU_SHOW_TAGCATS', TRUE);
  */
 define('WPU_INTEG_DEFAULT_STYLE', FALSE);
 
-/**
- * WordPress debug options
- * Set to FALSE for live sites!
- */
-//define('WP_DEBUG', TRUE);
-//define('WP_DEBUG_DISPLAY', TRUE);
 
 // end of file
