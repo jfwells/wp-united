@@ -315,16 +315,16 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * @return void
 	 */
 	public function add_xposting_box() {
-		global $phpbbForum, $wpUnited;
+		global $phpbbForum;
 		
 		
 		// this func is called early so we need to do some due diligence (TODO: CHECK THIS IS STILL NECESSARY!)
 		if (preg_match('/\/wp-admin\/(post.php|post-new.php|press-this.php)/', $_SERVER['REQUEST_URI'])) {
 			if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
 
-				if($wpUnited->get_setting('xpostforce') > -1) {
+				if($this->get_setting('xpostforce') > -1) {
 					// Add forced xposting info box
-					$this->forceXPosting = $this->get_forced_forum_name($wpUnited->get_setting('xpostforce'));
+					$this->forceXPosting = $this->get_forced_forum_name($this->get_setting('xpostforce'));
 					if($this->forceXPosting !== false) {
 						add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post', 'wp-united'), array($this,'add_forcebox'), 'post', 'side');
 					}
@@ -347,7 +347,6 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * Callback function to add box to the write/(edit) post page.
 	 */
 	public function add_postboxes() {
-		global $wpUnited;
 		
 		$dets = $this->get_xposted_details()
 	?>
@@ -371,7 +370,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 				} ?>
 				</select>
 		
-				 <?php if($wpUnited->get_setting('xposttype') == 'askme') {
+				 <?php if($this->get_setting('xposttype') == 'askme') {
 					$excerptState = 'checked="checked"';
 					$fullState = '';
 					if (isset($_GET['post'])) {
@@ -393,14 +392,14 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * Adds a "Force cross-posting" info box
 	 */
 	public function add_forcebox($forumName) {
-		global $phpbbForum, $wpUnited;
+		global $phpbbForum;
 
 		$showText =  ($this->get_xposted_details()) ? __("This post is already cross-posted. It will be edited in forum '%s'", 'wp-united') : __("This post will be cross-posted to the forum: '%s'", 'wp-united');
 
 	?>
 		<div id="wpuxpostdiv" class="inside">
 		<p> <?php echo sprintf($showText, $this->forceXPosting); ?></p>
-		<?php if($wpUnited->get_setting('xposttype') == 'askme') {
+		<?php if($this->get_setting('xposttype') == 'askme') {
 					$excerptState = 'checked="checked"';
 					$fullState = '';
 					if (isset($_GET['post'])) {
@@ -556,7 +555,6 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * @param int $postID the WordPress post ID
 	 */
 	public function comment_count($count, $postID = false) {
-		global $wpUnited;
 
 		// In WP < 2.9, $postID is not provided
 		if($postID === false) {
@@ -564,7 +562,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			$postID = (int) $id;
 		}
 
-		if (!$wpUnited->is_working() || !$wpUnited->get_setting('xpostautolink')) {
+		if (!$this->is_working()) {
 			return $count;
 		}
 		
@@ -584,7 +582,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * Cross-posts a blog-post that was just added, to the relevant forum
 	 */
 	public function do_crosspost($postID, $post, $future=false) {
-		global $wpUnited, $phpbbForum, $phpbb_root_path, $phpEx, $db, $auth;
+		global $phpbbForum, $phpbb_root_path, $phpEx, $db, $auth;
 		$forum_id = false;
 		$found_future_xpost = false;
 		
@@ -592,8 +590,8 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 		if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
 			$forum_id = (int)$_POST['sel_wpuxpost'];
-		} else if ( $wpUnited->get_setting('xpostforce') > -1 ) {
-			$forum_id = $wpUnited->get_setting('xpostforce');
+		} else if ( $this->get_setting('xpostforce') > -1 ) {
+			$forum_id = $this->get_setting('xpostforce');
 		} else if($future) {
 			$phpbbForum->background();
 			$forum_id = get_post_meta($postID, '_wpu_future_xpost', true);
@@ -616,7 +614,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		}
 		
 		$mode = 'post';
-		$prefix = $wpUnited->get_setting('xpostprefix');
+		$prefix = $this->get_setting('xpostprefix');
 		$subject = htmlspecialchars($prefix . $post->post_title, ENT_COMPAT, 'UTF-8');
 		$data = array();
 		$data['post_time'] = 0;
@@ -679,11 +677,11 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 		// should we post an excerpt, or a full post?
 		$postType = 'excerpt';
-		if($wpUnited->get_setting('xposttype') == 'askme') { 
+		if($this->get_setting('xposttype') == 'askme') { 
 			if (isset($_POST['rad_xpost_type'])) {
 				$postType = ($_POST['rad_xpost_type'] == 'fullpost') ? 'fullpost' : 'excerpt';
 			}
-		} else if($wpUnited->get_setting('xposttype') == 'fullpost') {
+		} else if($this->get_setting('xposttype') == 'fullpost') {
 			$postType = 'fullpost';
 		}
 		update_post_meta($postID, '_wpu_posttype', $postType);
@@ -795,9 +793,9 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * this catches posted comments and sends them to the forum
 	 */
 	function post_comment($postID) {
-		global $wpUnited, $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user, $db;
+		global $phpbb_root_path, $phpEx, $phpbbForum, $auth, $user, $db;
 		
-		if (!$wpUnited->is_working() || !$wpUnited->get_setting('xpostautolink')) {
+		if (!$this->is_working()) {
 			return;
 		}
 
@@ -916,12 +914,12 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * This is the only way we can know how to get back here when posting.
 	 */
 	function comment_redir_field() {
-		global $wpUnited, $wp_query;
+		global $wp_query;
 		
 		$postID = $wp_query->post->ID;
 		
 
-		if ($wpUnited->fetch_comments_query(false, $postID) !== false) {
+		if ($this->fetch_comments_query(false, $postID) !== false) {
 			$commID =  sizeof($wp_query->comments) + 1;
 			$redir =  wpu_get_redirect_link(); // . '#comment-' $commID;
 			echo '<input type="hidden" name="wpu-comment-redirect" value="' . $redir . '" />';
@@ -952,12 +950,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			$postID = $GLOBALS['post']->ID;
 		}
 		
-		if ( 
-			(!$wpUnited->is_working()) || 
-			(!$wpUnited->get_setting('integrateLogin')) || 
-			(!$wpUnited->get_setting('xposting')) || 
-			(!$wpUnited->get_setting('xpostautolink')) 
-		) {
+		if (!$this->is_working()) {
 			$status = $open;
 			return $status;
 		}
@@ -1003,14 +996,12 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * If we return false, get_option does its thing.
 	 */
 	public function no_guest_comment_posting() {
-		global $wpUnited, $wp_query;
+		global $wp_query;
 		
 		
 		if (
-			$wpUnited->is_working() 				&&
-			$wpUnited->get_setting('xposting')	 				&&
-			!$wpUnited->get_setting('xpostautolink')			&&
-			($wpUnited->fetch_comments_query(false, $wp_query->post->ID) !== false)
+			$this->is_working() 				&&
+			($this->fetch_comments_query(false, $wp_query->post->ID) !== false)
 		) { 
 			return $this->permsProblem;
 		}
@@ -1029,12 +1020,12 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	 * @return void
 	 */
 	public function capture_future_post($postID, $post) {
-		global $wpUnited, $phpbbForum;
+		global $phpbbForum;
 		
-		if ( ($post->post_status == 'future') && ($wpUnited->get_setting('integrateLogin')) ) {
-			if ( ($phpbbForum->user_logged_in()) && ($wpUnited->get_setting('xposting')) ) {
+		if ( ($post->post_status == 'future') && ($this->get_setting('integrateLogin')) ) {
+			if ( ($phpbbForum->user_logged_in()) && ($this->get_setting('xposting')) ) {
 				// If x-post forcing is turned on, we don't need to do anything
-				if( $wpUnited->get_setting('xpostforce') == -1) {
+				if( $this->get_setting('xpostforce') == -1) {
 					if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
 						
 						$forumID = (int)$_POST['sel_wpuxpost'];
