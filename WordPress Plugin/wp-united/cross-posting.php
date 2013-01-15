@@ -19,16 +19,328 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 
 	private $xPostForumList,
 			$forceXPosting,
-			$permsProblem;
+			$permsProblem,
+			$integComments;
 			
-	public function __construct() {
+		protected
+		// Actions and filters. These are loaded as needed depending on which WP-United portions are active.
+		// Format: array( event | function in this class(in an array if optional arguments are needed) | loading circumstances)
+		$actions = array(
+			// cross-posting actions
+			array('admin_menu', 						'add_xposting_box',							'enabled'),
+			array('edit_post', 							'just_editing_post',						'enabled'),
+			array('wp_insert_post', 					array('capture_future_post', 10, 2),		'enabled'),
+			array('publish_post', 						array('handle_new_post', 10, 2),			'enabled'),
+			array('future_to_publish', 					array('future_to_published', 10),			'enabled'),
+			array('comment_form', 						'comment_redir_field',						'xpostautolink'),
+			array('pre_comment_on_post', 				'post_comment',								'xpostautolink'),
+			array('comments_open', 						array('are_comments_open', 10, 2),			'xpostautolink'),
+			array('pre_get_comments', 					array('check_comments_query', 10, 2),		'xpostautolink')
+		),
+
+		$filters = array(
+			// cross-posting filters
+			array('get_comment_author_link',			'get_comment_author_link',					'xpostautolink'),
+			array('comments_array', 					array('fetch_comments_query', 10, 2),		'xpostautolink'),
+			array('the_comments', 						array('fetch_comments_query', 10, 2),		'xpostautolink'),
+			array('comment_row_actions', 				array('integrated_comment_actions', 10, 2),	'xpostautolink'),
+			array('get_comments_number', 				array('comment_count', 10, 2),				'xpostautolink'),
+			array('wp_count_comments', 					array('comments_count_and_group', 10, 2),	'xpostautolink'),
+			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'xpostautolink'),
+			
+			array('get_edit_comment_link', 				'comment_edit_link',						'xpostautolink'),
+			array('admin_comment_types_dropdown', 		'add_to_comment_dropdown',					'xpostautolink'),
+			
+			array('get_comment_link', 					array('comment_link', 10, 3),				'xpostautolink')
+		);		
+			
+
+			
+	public function __construct($initWithSettingsObj) {
 		
-		parent::__construct();
+		parent::__construct($initWithSettingsObj);
 		
 		$this->add_actions();
 		$this->add_filters();
+		
+		if($this->get_setting('xpostautolink')) {
+			require_once($this->get_plugin_path() . 'comments.php');
+			$this->integComments = new WPU_XPost_Query_Store();
+		}
+	}
+	
+	
+	
+	
+	
+	
+	/*
+	********************************************
+	WARNING: MESSY UNDER-CONSTRUCTION AREA BELOW
+	*********************************************
+	*/
+	
+	
+	
+	/**
+	 *  Adds a cross-posting box to the posting page if required.
+	 * @return void
+	 */
+	public function add_xposting_box() {
+		// this func is called early so we need to do some due diligence (TODO: CHECK THIS IS STILL NECESSARY!)
+		if (preg_match('/\/wp-admin\/(post.php|post-new.php|press-this.php)/', $_SERVER['REQUEST_URI'])) {
+			if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
+		
+				//Add the cross-posting box if enabled and the user has forums they can post to
+				if ( $this->get_setting('xposting') && $this->get_setting('integrateLogin') ) { 
+					$this->add_xposting_box();
+				}
+			}
+		}
+	}
+	
+
+	public function get_comment_author_link($link) {
+		return wpu_get_comment_author_link($link);
+	}
+
+	public function integrated_comment_actions($actions, $comment) {
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink') || 
+			(!is_object($comment)) || empty($comment->comment_ID)) {
+			return $actions;
+		}
+
+		// returns false if no permission, or 0 if doesn't exist
+		$link = $this->integComments->get_comment_action('view', $comment->comment_ID);
+		
+		if(!empty($link)) {
+			$actions = array(
+				'view'	=> '<a href="' . $link . '" class="vim-r hide-if-no-js">' . __('View in forum', 'wp-united') . '</a>'
+			);
+
+			$editLink = $this->integComments->get_comment_action('edit', $comment->comment_ID);
+			$delLink = $this->integComments->get_comment_action('delete', $comment->comment_ID);
+			
+			if(!empty($editLink)) {
+				$actions['edit'] = '<a href="' . $editLink . '" class="vim-r hide-if-no-js">' . __('Edit forum post', 'wp-united') . '</a>';
+			}
+			
+			if(!$comment->comment_approved) {
+				$apprLink = $this->integComments->get_comment_action('approve', $comment->comment_ID);
+				if(!empty($apprLink)) {
+					$actions['approve']	= '<a href="' . $apprLink . '" class="vim-r hide-if-no-js">' . __('Approve', 'wp-united') . '</a>';
+				}
+			}
+			
+			
+			if(!empty($delLink)) {
+				$actions['delete'] = '<a href="' . $delLink . '" class="vim-r hide-if-no-js">' . __('Delete forum post', 'wp-united') . '</a>';
+			}
+			
+		}
+	
+		return $actions;
 	
 	}
+	
+	
+	
+	public function comment_edit_link($link) {
+	
+		// the comment ID isn't provided, so grep it
+		$id = 0;
+		$idParts = explode('&amp;c=', $link);
+		if(isset($idParts[1])) {
+			$id = (int)$idParts[1];
+		}
+		if(!$id) {
+			return $link;
+		}
+		
+		// returns 0 if no such comment, or false if no permission
+		$pLink = $this->integComments->get_comment_action('edit', $id);
+		if(!empty($pLink)) {
+			return $pLink;
+		}
+		
+		return $link;
+	}
+	
+	
+	public function check_permission($allUserCaps, $requiredCaps, $args) {
+	
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return $allUserCaps;
+		}
+		
+		// there must be at least three arguments
+		if(!is_array($args) || (sizeof($args) < 3)) {
+			return $allUserCaps;
+		}
+		
+
+		
+		// The first argument is the capability requested
+		$perm = $args[0];
+		if(!in_array($perm, array('view_comment', 'edit_comment', 'delete_comment', 'approve_comment'))) {
+			return $allUserCaps;
+		}
+		
+		// The second argument is the user ID
+		$userID = (int)$args[1];
+		$c = wp_get_current_user();
+		
+		if(empty($c) && ($userID > 0)) {
+			return $allUserCaps;
+		} else if($c->ID != $userID) {
+			return $allUserCaps;
+		}
+		
+
+		// The third argument is the comment ID
+		if(empty($args[2])) {
+			return $allUserCaps;
+		}
+		$id = $args[2];
+		
+
+
+		$action = '';
+		switch($perm) {
+			case 'view_comment':
+				$action = 'view';
+			break;
+			case 'edit_comment':
+				$action = 'edit';
+			break;
+			case 'delete_comment':
+				$action = 'delete';
+			break;
+			case 'approve_comment':
+				$action = 'approve';
+			break;
+			default:
+				return $alluserCaps;
+			break;
+		}
+			
+		$canDo = $this->integComments->get_comment_action($action, 'comment' . $id);
+		
+		if($canDo === false) {
+			// the comment is cross-posted but the user has no permission
+			$allUserCaps[$requiredCaps[0]] = false;
+		} elseif($canDo === 0) {
+			// the comment is not cross-posted
+			return $allUserCaps;
+		} elseif(empty($canDo)) {
+			// the link is empty -- an error or not implemented. Return false so the link doesn't display
+			$allUserCaps[$requiredCaps[0]] = false;
+		} else {
+			// the comment is cross-posted and the user has permission
+			$allUserCaps = array();
+			foreach($requiredCaps as $req) {
+				$allUserCaps[$req] = true;
+			}
+		}
+		
+		return $allUserCaps;
+	}	
+	
+	public function add_to_comment_dropdown($dropdown) {
+		
+		if ($this->is_working() && $this->get_setting('xpostautolink')) {
+	
+			$dropdown['wpuxpostonly']	=	__('Show only cross-posted', 'wp-united');
+			$dropdown['wpunoxpost']		=	__('Show only not cross-posted', 'wp-united');
+		}
+		return $dropdown;
+		
+	}
+	
+	public function comment_link($url, $comment, $args) {
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return $url;
+		}
+			
+		$wpuLink = $this->integComments->get_comment_action('view', $comment->commentID);
+		
+		if (!empty($wpuLink)) {
+			return $wpuLink;
+		}
+
+		return $url;
+	}
+	
+
+	public function fetch_comments_query($comments, $query) {
+
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return $comments;
+		}
+	
+		$result = $this->integComments->get($query, $comments);
+	
+		if($result === false) {
+			return $comments;
+		}
+
+		return $result;
+		
+	}
+	
+	// modify query offsets
+	public function check_comments_query($query) {
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return;
+		}
+		
+		$this->integComments->get($query, false, false, true);
+		
+	}
+	
+	public function comments_count_and_group($comments, $postID) {
+		
+		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+			return $comments;
+		}
+	
+		$result = $this->integComments->get($postID, $comments, true);
+		
+		if($result === false) {
+			return $comments;
+		}
+
+		return $result;
+		
+	}
+	
+
+	
+	
+	/**
+	*************************************
+	*************************************
+	*************************************
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	/**
 	 *  Display the relevant cross-posting box, and store the permissions list in global vars for future use.
@@ -735,6 +1047,11 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	/**
 	 * Catches posts scheduled for future publishing
 	 * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
+	 * then we can process them as if they were just posted when the time arises.
+	 * Wrapper for wpu_capture_future_post - see functions-cross-posting.php.
+	 * @param int $postID provided by WordPress action hook
+	 * @param WP_Post $post provided by WordPress action hook
+	 * @return void
 	 */
 	public function capture_future_post($postID, $post) {
 		global $wpUnited, $phpbbForum;

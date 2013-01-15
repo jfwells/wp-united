@@ -310,24 +310,14 @@ abstract class WP_United_Plugin_Base {
 					return false;
 				}				
 			break;
-			case 'x-posting':
-				if(!$this->get_setting('xposting')) {
-					return false;
-				}						
-			break;
-			case 'phpbb-censor':
-				if(!$this->get_setting('phpbbCensor')) {
-					return false;
-				}					
-			break;
-			case 'phpbb-smilies':
-				if(!$this->get_setting('phpbbSmilies')) {
-					return false;
-				}					
-			break;
 			case 'all':
-			default:
+			case 'enabled':
 				return true;
+			break;
+			default:
+				if(!$this->get_setting($whenToLoad)) {
+					return false;
+				}
 			break;
 		}
 		
