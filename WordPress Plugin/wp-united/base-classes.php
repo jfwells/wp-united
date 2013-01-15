@@ -412,7 +412,7 @@ abstract class WP_United_Plugin_Base {
 		
 		
 		if($installedVer != $actualVer) {
-			update_option('wpu-version', $this->get_version());
+			update_option('wpu-version', $this->get_version(true));
 		}
 		
 		if($isNewInstall) {
