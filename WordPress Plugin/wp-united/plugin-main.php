@@ -17,7 +17,7 @@
 
 if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) exit;
 
-class WP_United_Plugin extends WP_United_Plugin_Base {
+class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 
 	protected
 		// Actions and filters. These are loaded as needed depending on which WP-United portions are active.
@@ -108,8 +108,10 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 	/**
 	* All base init is done by the parent class.
 	*/
-	public function __construct() {
+	public function __construct() 
+
 		parent::__construct();
+		
 	}
 	
 	/**
@@ -132,7 +134,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		if($this->get_setting('xposting')) {		
 			require_once($this->get_plugin_path() . 'cross-posting.php');
 			require_once($this->get_plugin_path() . 'comments.php');
-			$this->xPoster = new WPU_Plugin_XPosting();
+			$this->xPoster = new WPU_Plugin_XPosting($this->settings);
 			$this->integComments = new WPU_XPost_Query_Store();
 		}
 
@@ -342,18 +344,6 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		}
 	}
 	
-	/**
-	 * Returns how the last fun of phpBB went
-	 * @return string disconnected|connected|working
-	 */
-	public function get_last_run() {
-	
-		if(empty($this->lastRun)) {
-			$this->lastRun = get_option('wpu-last-run');
-		}
-
-		 return $this->lastRun;
-	}
 	
 	/**
 	 * Logs the current user out of phpBB
@@ -886,7 +876,7 @@ class WP_United_Plugin extends WP_United_Plugin_Base {
 		
 	}
 	
-		/**
+	/**
 	 * Catches posts scheduled for future publishing
 	 * Since these posts won't retain the cross-posting HTTP vars, we add a post meta to future posts
 	 * then we can process them as if they were just posted when the time arises.

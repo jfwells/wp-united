@@ -149,67 +149,28 @@ class WP_United_Settings {
 
 
 abstract class WP_United_Plugin_Base {
-
-	protected
-		
-		$version = '',
-		$revision = '',
-		$styleKeys = array(),
-		$updatedStyleKeys = false,
-		$styleKeysLoaded = false,
-		$settings = false,
-		$integActions = array(),
-		$integActionsFor = 0,
+	protected 		
 		$filters = array(),
 		$actions = array(),
 		$lastRun = false,
-		$connectedToWp = false,
-		$innerContent = '',
-		$outerContent = '',
-		$innerHeadInfo = '';
+		$settings = false;
 		
 		
-
-	/**
-	* Initialise the WP-United class
-	*/
-	public function __construct() {
 		
-		$currPath = dirname(__FILE__);
-		require_once($currPath . '/functions-general.php');
-		require_once($currPath . '/options.php');
-		require_once($currPath . '/debugger.php');
-		require_once($currPath . '/context-switcher.php');
-		require_once($currPath . '/phpbb.php');
-		require_once($currPath . '/cache.php');
+	public function __construct($initWithSettingsObj = false) {
 		
-		global $wpuDebug;
-		$wpuDebug = new WPU_Debug();
-		$wpuDebug->start_stats();
-
-		global $phpbbForum;
-		$phpbbForum = new WPU_Phpbb();
-
-		$this->load_settings();
-		
-	}
-
-	
-	public function is_wordpress_loaded() {
-		if(defined('ABSPATH')) {
-			return true;
+		if(!$initWithSettingsObj) {
+			$this->load_settings();
 		} else {
-			return false;
+			$this->settings = $initWithSettingsObj;
 		}
+	
 	}
-
 	
 	protected function load_settings() {
 		$this->settings = WP_United_Settings::Create();
 		$this->init_style_keys();
 	}
-	
-
 	
 	public function get_plugin_path() {
 		return $this->settings->pluginPath;
@@ -244,6 +205,182 @@ abstract class WP_United_Plugin_Base {
 		return $this->settings->enabled;
 	}
 	
+	public function is_working() {
+		// if ABSPATH is not defined, we must be loaded from phpBB
+		if(!defined('ABSPATH')) {
+			return true;
+		} else {
+			return (defined('IN_PHPBB') && ($this->get_last_run() == 'working') && ($this->is_enabled()));
+		}
+	}
+	public function get_setting($key = '') { 
+		
+		if(!$key) {
+			return (array) $this->settings->settings;
+		}
+		
+		if(isset($this->settings->settings[$key])) { 
+			return $this->settings->settings[$key];
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns how the last fun of phpBB went
+	 * @return string disconnected|connected|working
+	 */
+	public function get_last_run() {
+	
+		if(empty($this->lastRun) && $this->is_wordpress_loaded()) {
+			$this->lastRun = get_option('wpu-last-run');
+		}
+
+		 return $this->lastRun;
+	}	
+	
+	
+	public function is_wordpress_loaded() {
+		if(defined('ABSPATH')) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	
+		
+	protected function add_actions() { 
+		foreach($this->actions as $actionArray) {
+			list($action, $details, $whenToLoad) = $actionArray;
+
+			if(!$this->should_load_filteraction($whenToLoad)) {
+				continue;
+			}
+
+			switch(sizeof((array)$details)) {
+				case 3:
+					add_action($action, array($this, $details[0]), $details[1], $details[2]);
+				break;
+				case 2:
+					add_action($action, array($this, $details[0]), $details[1]);
+				break;
+				case 1:
+				default:
+					add_action($action, array($this, $details));
+			}
+		}	
+	}
+	
+	protected function add_filters() {
+		foreach($this->filters as $filterArray) {
+			list($filter, $details, $whenToLoad) = $filterArray;
+			
+			if(!$this->should_load_filteraction($whenToLoad)) {
+				continue;
+			}
+			
+			switch(sizeof((array)$details)) {
+				case 3:
+					add_filter($filter, array($this, $details[0]), $details[1], $details[2]);
+				break;
+				case 2:
+					add_filter($filter, array($this, $details[0]), $details[1]);
+				break;
+				case 1:
+				default:
+					add_filter($filter, array($this, $details));
+			}
+		}	
+	}	
+	// Should we load this filter or action? 
+	private function should_load_filteraction($whenToLoad) {
+	
+		if(!$this->is_enabled() && ($whenToLoad != 'all')) {
+			return false;
+		}
+		
+		switch($whenToLoad) {
+			case 'user-int':
+				if(!$this->get_setting('integrateLogin')) {
+					return false;
+				}
+			break;
+			case 'template-int':
+				if($this->get_setting('showHdrFtr') == 'NONE') {
+					return false;
+				}				
+			break;
+			case 'x-posting':
+				if(!$this->get_setting('xposting')) {
+					return false;
+				}						
+			break;
+			case 'phpbb-censor':
+				if(!$this->get_setting('phpbbCensor')) {
+					return false;
+				}					
+			break;
+			case 'phpbb-smilies':
+				if(!$this->get_setting('phpbbSmilies')) {
+					return false;
+				}					
+			break;
+			case 'all':
+			default:
+				return true;
+			break;
+		}
+		
+		return true;
+
+	}
+}
+
+
+
+abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
+
+	protected
+		
+		$version = '',
+		$revision = '',
+		$styleKeys = array(),
+		$updatedStyleKeys = false,
+		$styleKeysLoaded = false,
+		$integActions = array(),
+		$integActionsFor = 0,
+		$connectedToWp = false,
+		$innerContent = '',
+		$outerContent = '',
+		$innerHeadInfo = '';
+		
+		
+
+	/**
+	* Initialise the WP-United class
+	*/
+	public function __construct() {
+		
+		$currPath = dirname(__FILE__);
+		require_once($currPath . '/functions-general.php');
+		require_once($currPath . '/options.php');
+		require_once($currPath . '/debugger.php');
+		require_once($currPath . '/context-switcher.php');
+		require_once($currPath . '/phpbb.php');
+		require_once($currPath . '/cache.php');
+		
+		global $wpuDebug;
+		$wpuDebug = new WPU_Debug();
+		$wpuDebug->start_stats();
+
+		global $phpbbForum;
+		$phpbbForum = new WPU_Phpbb();
+
+		parent::__construct();
+		
+	}
+
 	public function enable() {
 		$this->settings->enabled = true;
 		if($this->is_wordpress_loaded()) {
@@ -257,17 +394,8 @@ abstract class WP_United_Plugin_Base {
 		}
 	}
 
+	
 
-
-	// overridden on WP side
-	public function is_working() {
-		// if ABSPATH is not defined, we must be loaded from phpBB
-		if(!defined('ABSPATH')) {
-			return true;
-		} else {
-			return (defined('IN_PHPBB') && ($this->get_last_run() == 'working') && ($this->is_enabled()));
-		}
-	}
 	
 	public function phpbb_logout() {
 		if($this->is_working()) {
@@ -422,18 +550,6 @@ abstract class WP_United_Plugin_Base {
 		
 	}
 	
-
-	public function get_setting($key = '') { 
-		
-		if(!$key) {
-			return (array) $this->settings->settings;
-		}
-		
-		if(isset($this->settings->settings[$key])) { 
-			return $this->settings->settings[$key];
-		}
-		return false;
-	}
 	
 	public function init_style_keys() {
 		global $phpbbForum;
@@ -730,94 +846,6 @@ abstract class WP_United_Plugin_Base {
 	protected function ajax_ok() {
 		$this->ajax_result('OK', 'message');
 	}
-	
-	protected function add_actions() { 
-		foreach($this->actions as $actionArray) {
-			list($action, $details, $whenToLoad) = $actionArray;
-
-			if(!$this->should_load_filteraction($whenToLoad)) {
-				continue;
-			}
-
-			switch(sizeof((array)$details)) {
-				case 3:
-					add_action($action, array($this, $details[0]), $details[1], $details[2]);
-				break;
-				case 2:
-					add_action($action, array($this, $details[0]), $details[1]);
-				break;
-				case 1:
-				default:
-					add_action($action, array($this, $details));
-			}
-		}	
-	}
-	
-	protected function add_filters() {
-		foreach($this->filters as $filterArray) {
-			list($filter, $details, $whenToLoad) = $filterArray;
-			
-			if(!$this->should_load_filteraction($whenToLoad)) {
-				continue;
-			}
-			
-			switch(sizeof((array)$details)) {
-				case 3:
-					add_filter($filter, array($this, $details[0]), $details[1], $details[2]);
-				break;
-				case 2:
-					add_filter($filter, array($this, $details[0]), $details[1]);
-				break;
-				case 1:
-				default:
-					add_filter($filter, array($this, $details));
-			}
-		}	
-	}	
-	// Should we load this filter or action? 
-	private function should_load_filteraction($whenToLoad) {
-	
-		if(!$this->is_enabled() && ($whenToLoad != 'all')) {
-			return false;
-		}
-		
-		switch($whenToLoad) {
-			case 'user-int':
-				if(!$this->get_setting('integrateLogin')) {
-					return false;
-				}
-			break;
-			case 'template-int':
-				if($this->get_setting('showHdrFtr') == 'NONE') {
-					return false;
-				}				
-			break;
-			case 'x-posting':
-				if(!$this->get_setting('xposting')) {
-					return false;
-				}						
-			break;
-			case 'phpbb-censor':
-				if(!$this->get_setting('phpbbCensor')) {
-					return false;
-				}					
-			break;
-			case 'phpbb-smilies':
-				if(!$this->get_setting('phpbbSmilies')) {
-					return false;
-				}					
-			break;
-			case 'all':
-			default:
-				return true;
-			break;
-		}
-		
-		return true;
-
-	}
-	
-	
 	
 	/**
 	 * Disable WPU and output result directly to the calling script

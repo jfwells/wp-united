@@ -15,11 +15,20 @@
  */
 if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
-Class WPU_Plugin_XPosting {
+Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 
 	private $xPostForumList,
 			$forceXPosting,
 			$permsProblem;
+			
+	public function __construct() {
+		
+		parent::__construct();
+		
+		$this->add_actions();
+		$this->add_filters();
+	
+	}
 
 	/**
 	 *  Display the relevant cross-posting box, and store the permissions list in global vars for future use.
