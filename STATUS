@@ -22,7 +22,6 @@ guest posting issues outstanding:
 	-- No checking for username or e-mail clashes in WP
 	-- No checking for e-mail clashes in phpBB (we do check for username clash though)
 
-x-posting superclass
 
 COMMITTED FOR v0.9.2.0:
 
@@ -45,7 +44,7 @@ COMMITTED FOR v0.9.2.0:
 * BUGFIX: Clash with the phpBB classifieds MOD
 * ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
 * NEW: Lots more login integration debugging, so you can see what is causing login integration problems. Now works on WP pages and in admin too.
-* NEW: Some more core rewriting and cleanup; the context switcher is now separated into its own parent class.
+* NEW: Some more core rewriting and cleanup; the context switcher is now separated into its own parent class; the main plugin is now divided into auto-loading modules.
 
 *** not redirected to correct comment after posting x-posted comment ***
 
