@@ -169,7 +169,6 @@ abstract class WP_United_Plugin_Base {
 	
 	protected function load_settings() {
 		$this->settings = WP_United_Settings::Create();
-		$this->init_style_keys();
 	}
 	
 	public function get_plugin_path() {
@@ -379,6 +378,12 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 
 		parent::__construct();
 		
+	}
+	
+	// override the load_settings function for the base class as we want to load style keys too:
+	protected function load_settings() {
+		$this->settings = WP_United_Settings::Create();
+		$this->init_style_keys();
 	}
 
 	public function enable() {

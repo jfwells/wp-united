@@ -80,7 +80,7 @@ define('WP_ROOT_COOKIE', FALSE);
  * This is a good way to gauge how various options affect server load.
  * It should be left OFF on production servers.
  */
-define('WPU_SHOW_STATS', FALSE);
+define('WPU_SHOW_STATS', TRUE);
 
 /**
  * Disable wordpress header & footer on the following pages
