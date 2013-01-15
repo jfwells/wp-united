@@ -111,7 +111,7 @@ abstract class WPU_Context_Switcher {
 	 * Returns to WordPress
 	 */
 	private function leave() { 
-		if(isset($GLOBALS['user'])) {
+		if(isset($GLOBALS['user']) && is_object($GLOBALS['user'])) {
 			$this->lang = (sizeof($GLOBALS['user']->lang)) ? $GLOBALS['user']->lang : $this->lang;
 		}
 		if($this->state == 'phpbb') {

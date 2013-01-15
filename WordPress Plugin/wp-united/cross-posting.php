@@ -154,7 +154,7 @@ Class WPU_Plugin_XPosting {
 				$db->sql_freeresult($result);
 				$phpbbForum->restore_state($fStateChanged);
 				$this->xPostForumList = $can_xpost_forumlist;
-				return $this->xPostForumList
+				return $this->xPostForumList;
 			}
 		}
 		$phpbbForum->restore_state($fStateChanged);
@@ -507,7 +507,7 @@ Class WPU_Plugin_XPosting {
 
 		$fStateChanged = $phpbbForum->foreground();
 
-		$dets = $this->get_xposted_details($postID)
+		$dets = $this->get_xposted_details($postID);
 		
 		if ( !$dets ) {
 			$phpbbForum->restore_state($fStateChanged);
@@ -710,7 +710,8 @@ Class WPU_Plugin_XPosting {
 		global $wpUnited, $wp_query;
 		
 		
-		if ($wpUnited->is_working() && 							&&
+		if (
+			$wpUnited->is_working() 				&&
 			$wpUnited->get_setting('xposting')	 				&&
 			!$wpUnited->get_setting('xpostautolink')			&&
 			($wpUnited->fetch_comments_query(false, $wp_query->post->ID) !== false)
