@@ -80,25 +80,6 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	*********************************************
 	*/
 	
-	
-	
-	/**
-	 *  Adds a cross-posting box to the posting page if required.
-	 * @return void
-	 */
-	public function add_xposting_box() {
-		// this func is called early so we need to do some due diligence (TODO: CHECK THIS IS STILL NECESSARY!)
-		if (preg_match('/\/wp-admin\/(post.php|post-new.php|press-this.php)/', $_SERVER['REQUEST_URI'])) {
-			if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
-		
-				//Add the cross-posting box if enabled and the user has forums they can post to
-				if ( $this->get_setting('xposting') && $this->get_setting('integrateLogin') ) { 
-					$this->add_xposting_box();
-				}
-			}
-		}
-	}
-	
 
 	public function get_comment_author_link($link) {
 		return wpu_get_comment_author_link($link);
@@ -326,43 +307,37 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	*/
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
+	
 	/**
-	 *  Display the relevant cross-posting box, and store the permissions list in global vars for future use.
+	 * Adds a cross-posting box to the posting page if required.
 	 * For WP >= 2.5, we set the approproate callback function. 
+	 * @return void
 	 */
 	public function add_xposting_box() {
 		global $phpbbForum, $wpUnited;
+		
+		
+		// this func is called early so we need to do some due diligence (TODO: CHECK THIS IS STILL NECESSARY!)
+		if (preg_match('/\/wp-admin\/(post.php|post-new.php|press-this.php)/', $_SERVER['REQUEST_URI'])) {
+			if ( (!isset($_POST['action'])) && (($_POST['action'] != "post") || ($_POST['action'] != "editpost")) ) {
 
-		if($wpUnited->get_setting('xpostforce') > -1) {
-			// Add forced xposting info box
-			$this->forceXPosting = $this->get_forced_forum_name($wpUnited->get_setting('xpostforce'));
-			if($this->forceXPosting !== false) {
-				add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post', 'wp-united'), array($this,'add_forcebox'), 'post', 'side');
-			}
-		} else {	
-			// Add xposting choice box
-			if ( !$this->get_xposted_details() ) { 
-				$this->init_forum_xpost_list(); 
-			}
+				if($wpUnited->get_setting('xpostforce') > -1) {
+					// Add forced xposting info box
+					$this->forceXPosting = $this->get_forced_forum_name($wpUnited->get_setting('xpostforce'));
+					if($this->forceXPosting !== false) {
+						add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post', 'wp-united'), array($this,'add_forcebox'), 'post', 'side');
+					}
+				} else {	
+					// Add xposting choice box
+					if ( !$this->get_xposted_details() ) { 
+						$this->init_forum_xpost_list(); 
+					}
 
-			if ( ((is_array($this->xPostForumList)) && (sizeof($this->xPostForumList))) || $this->get_xposted_details() ) {
-				add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post', 'wp-united'), array($this, 'add_postboxes'), 'post', 'side');
+					if ( ((is_array($this->xPostForumList)) && (sizeof($this->xPostForumList))) || $this->get_xposted_details() ) {
+						add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post', 'wp-united'), array($this, 'add_postboxes'), 'post', 'side');
+					}
+				}			
 			}
 		}
 	}
