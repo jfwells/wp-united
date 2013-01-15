@@ -1269,11 +1269,6 @@ public function load_style_keys() {
 
 		if(!empty($fullKey)) {
 			$results = unserialize(base64_decode($fullKey));
-			if(defined('WPU_DEBUG')) {
-				foreach($results as $result) {
-					$wpuDebug->add('Loaded style key: ' . $result);
-				}
-			}
 			return $results;
 		} else {
 			return array();
