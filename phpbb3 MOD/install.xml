@@ -30,6 +30,7 @@ Visit http://www.wp-united.com for more help or information.
 		<link type="language" href="languages/de/install.xml" lang="de">Deutsch</link>	
 		<link type="language" href="languages/fr/install.xml" lang="fr">Français</link>	
 		<link type="language" href="languages/zh_cmn_hans/install.xml" lang="zh_cmn_hans">中文（简体）</link>	
+		<link type="language" href="languages/nl/install.xml" lang="nl">Nederlands</link>	
 		<link type="contrib" href="contrib/upgrading_from_v0.9.1.x/upgrade.xml" lang="en">Upgrading from WP-United v0.9.1.x</link>
 		<link type="contrib" href="contrib/upgrading_from_v0.9.0.x/upgrade.xml" lang="en">Upgrading from WP-United v0.9.0.x</link>
 		<link type="contrib" href="contrib/upgrading_from_v0.8.x/upgrade.xml" lang="en">Upgrading from WP-United v0.8.x</link>
