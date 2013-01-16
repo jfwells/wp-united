@@ -698,7 +698,7 @@ function wpu_get_integration_id($userID = 0) {
 		$fStateChanged = $phpbbForum->foreground();
 		
 		$sql = 'SELECT user_wpuint_id FROM ' . USERS_TABLE . ' 
-					WHERE user_id = ' . $userID;
+					WHERE user_id = ' . (int)$userID;
 		
 		if(!$result = $db->sql_query($sql)) {
 			$wUserID = 0;
@@ -739,7 +739,7 @@ function wpu_get_integrated_phpbbuser($userID = 0) {
 	$fStateChanged = $phpbbForum->foreground();
 		
 	$sql = 'SELECT user_id FROM ' . USERS_TABLE . ' 
-				WHERE user_wpuint_id = ' . $userID;
+				WHERE user_wpuint_id = ' . (int)$userID;
 		
 	if(!$result = $db->sql_query_limit($sql, 1)) {
 		$pUserID = 0;
@@ -844,9 +844,9 @@ function wpu_update_int_id($pID, $intID) {
 	
 	$updated = FALSE;
 	if ( !empty($pID) ) { 
-		$sql = 'UPDATE ' . USERS_TABLE . " 
-			SET user_wpuint_id = $intID 
-			WHERE user_id = '$pID'";
+		$sql = 'UPDATE ' . USERS_TABLE . '
+			SET user_wpuint_id = ' . (int)$intID . '  
+			WHERE user_id = ' . (int)$pID;
 		if(!$result = $db->sql_query($sql)) {
 			trigger_error(__('WP-United could not update your integration ID in phpBB, due to a database access error. Please contact an administrator and inform them of this error.', 'wp-united'));
 		} else {

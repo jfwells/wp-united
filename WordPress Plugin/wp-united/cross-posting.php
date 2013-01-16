@@ -482,7 +482,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 
 		if(in_array($forumID, $can_xpost_to)) {
 			
-			$sql = 'SELECT forum_name FROM ' . FORUMS_TABLE . ' WHERE forum_id = ' . $forumID;
+			$sql = 'SELECT forum_name FROM ' . FORUMS_TABLE . ' WHERE forum_id = ' . (int)$forumID;
 				
 			if($result = $db->sql_query($sql)) {
 				$row = $db->sql_fetchrow($result);
@@ -524,11 +524,11 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 		$fStateChanged = $phpbbForum->foreground();
 		
-		$sql = 'SELECT t.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_type, t.topic_status, t.topic_first_poster_name, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE ' .
-			"t.topic_wpu_xpost = $postID AND " .
-			't.topic_id = p.topic_id AND (' .
-			'f.forum_id = p.forum_id OR ' .
-			'p.forum_id = 0)';
+		$sql = 'SELECT t.topic_id, p.post_id, p.post_subject, p.forum_id, p.poster_id, t.topic_replies, t.topic_time, t.topic_approved, t.topic_type, t.topic_status, t.topic_first_poster_name, f.forum_name FROM ' . POSTS_TABLE . ' AS p, ' . TOPICS_TABLE . ' AS t, ' . FORUMS_TABLE . ' AS f WHERE 
+			t.topic_wpu_xpost = ' . (int)$postID . ' AND 
+			t.topic_id = p.topic_id AND ( 
+			f.forum_id = p.forum_id OR 
+			p.forum_id = 0)';
 		if ($result = $db->sql_query_limit($sql, 1)) {
 			$row = $db->sql_fetchrow($result);
 			$db->sql_freeresult($result);
@@ -899,7 +899,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 						post_wpu_xpost_parent = {$commentParent}, 
 						post_wpu_xpost_meta1 = '" . $db->sql_escape($website) . "', 
 						post_wpu_xpost_meta2 = '" . $db->sql_escape($email) . "' 
-						WHERE post_id = {$data['post_id']}";
+						WHERE post_id = " . (int)$data['post_id'];
 						
 				$db->sql_query($sql);
 			}

@@ -1100,7 +1100,7 @@ function wpu_map_break($intID) {
 	$fStateChanged = $phpbbForum->foreground();
 	$sql = 'UPDATE ' . USERS_TABLE . ' 
 				 SET user_wpuint_id = NULL 
-				WHERE user_wpuint_id = ' . $intID;
+				WHERE user_wpuint_id = ' . (int)$intID;
 
 	if (!$pDel = $db->sql_query($sql)) {
 		wpu_map_action_error('Error when breaking integration');

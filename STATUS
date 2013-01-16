@@ -7,10 +7,9 @@ ISSUES:
 * user creation creating unactivated users?? (404blackbeauty)
 * should repaginate after processing users if set to show integrated/unintegrated
 
+* width fix for profiles on unimog, apply
 
 x-posting todo: 
-
-*** re-review all phpBB sql for proper escaping!
 
 * clear comment cache when posting xposted comments
 * should counts still be performed even when no permission? Test with limited subscriber user... / May need to move view permission check to later if possible, so counts aren't broken.

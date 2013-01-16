@@ -145,7 +145,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 				POSTS_TABLE .  ' AS p
 			WHERE t.topic_poster = u.user_id 
 				AND t.forum_id = f.forum_id
-				AND t.topic_id = ' . $topicID . ' 
+				AND t.topic_id = ' . (int)$topicID . ' 
 				AND p.post_id = t.topic_first_post_id';
 				
 		if(!($result = $db->sql_query($sql))) {
@@ -167,7 +167,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 		$sql = '
 			SELECT * 
 			FROM ' . POLL_OPTIONS_TABLE . ' 
-			WHERE topic_id = ' . $topicID;
+			WHERE topic_id = ' . (int)$topicID;
 			
 		$result = $db->sql_query($sql);
 		
@@ -184,7 +184,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 			$sql = '
 				SELECT poll_option_id
 				FROM ' . POLL_VOTES_TABLE . '
-				WHERE topic_id = ' . $topicID . '
+				WHERE topic_id = ' . (int)$topicID . '
 				AND vote_user_id = ' . $user->data['user_id'];
 		
 			$result = $db->sql_query($sql);
@@ -299,7 +299,7 @@ Class WP_United_Extra_quickpoll extends WP_United_Extra {
 				 $sql = '
 					SELECT * 
 					FROM ' . POLL_OPTIONS_TABLE . ' 
-					WHERE topic_id = ' . $topicID;
+					WHERE topic_id = ' . (int)$topicID;
 					
 				$result = $db->sql_query($sql);
 				while ($row = $db->sql_fetchrow($result)) {

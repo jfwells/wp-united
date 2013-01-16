@@ -550,11 +550,11 @@ function get_wpu_useronlinelist($args = '') {
 				LEFT JOIN ' . USER_GROUP_TABLE . ' ug
 					ON (
 						g.group_id = ug.group_id
-						AND ug.user_id = ' . $phpbbForum->get_userdata('user_id') . '
+						AND ug.user_id = ' . (int)$phpbbForum->get_userdata('user_id') . '
 						AND ug.user_pending = 0
 					)
 				WHERE g.group_legend = 1
-					AND (g.group_type <> ' . GROUP_HIDDEN . ' OR ug.user_id = ' . $phpbbForum->get_userdata('user_id') . ')
+					AND (g.group_type <> ' . GROUP_HIDDEN . ' OR ug.user_id = ' . (int)$phpbbForum->get_userdata('user_id') . ')
 				ORDER BY g.group_name ASC';
 		}
 		$result = $db->sql_query($sql);

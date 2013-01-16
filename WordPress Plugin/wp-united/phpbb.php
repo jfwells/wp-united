@@ -454,7 +454,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 				if (!$user->data['user_last_privmsg'] || $user->data['user_last_privmsg'] > $user->data['session_last_visit']) {
 					$sql = 'UPDATE ' . USERS_TABLE . '
 						SET user_last_privmsg = ' . $user->data['session_last_visit'] . '
-						WHERE user_id = ' . $user->data['user_id'];
+						WHERE user_id = ' . (int)$user->data['user_id'];
 					$db->sql_query($sql);
 					$result['new'] = true;
 				} 
@@ -520,7 +520,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		} else {
 			$sql = 'SELECT user_rank, user_posts 
 						FROM ' . USERS_TABLE .
-						' WHERE user_wpuint_id = ' . $userID;
+						' WHERE user_wpuint_id = ' . (int)$userID;
 				if(!($result = $db->sql_query($sql))) {
 					wp_die(__('Could not access the database.', 'wp-united'));
 				}
@@ -736,8 +736,8 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 				$this->_savedAuth = $auth;
 			}
 			$sql = 'SELECT *
-				FROM ' . USERS_TABLE . "
-				WHERE user_id = {$toID}";
+				FROM ' . USERS_TABLE . '
+				WHERE user_id = ' . (int)$toID;
 
 			$result = $db->sql_query($sql);
 			$row = $db->sql_fetchrow($result);
@@ -799,7 +799,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		//First We Get Role ID
 		$sql = "SELECT g.group_id
 			FROM " . GROUPS_TABLE . " g
-			WHERE group_name = '$group_name'";
+			WHERE group_name = '" . $db->sql_escape($group_name) . "'";
 		$result = $db->sql_query($sql);
 		$group_id = (int) $db->sql_fetchfield('group_id');
 		$db->sql_freeresult($result);
@@ -808,7 +808,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		$group_options = array();
 		$sql = "SELECT auth_option_id
 			FROM " . ACL_GROUPS_TABLE . "
-			WHERE group_id = " . (int) $group_id . "
+			WHERE group_id = " . (int)$group_id . "
 			GROUP BY auth_option_id";
 		$result = $db->sql_query($sql);
 		while ($row = $db->sql_fetchrow($result)) {
@@ -977,8 +977,9 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		
 		$sql = 'SELECT user_avatar, user_avatar_type, user_avatar_width, user_avatar_height 
 			FROM ' . USERS_TABLE . '
-			WHERE user_id = ' . (int) $phpbbId;
+			WHERE user_id = ' . (int)$phpbbId;
 		$result = $db->sql_query($sql);
+		
 		$avatarDetails = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
 		
@@ -1023,7 +1024,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		
 		$sql = 'UPDATE ' . USERS_TABLE . '
 			SET ' . $db->sql_build_array('UPDATE', $userItems) . '
-			WHERE user_id = ' . $id;
+			WHERE user_id = ' . (int)$id;
 		$status = $db->sql_query($sql);		
 		
 		$this->restore_state($fStateChanged);
@@ -1396,7 +1397,7 @@ public function load_style_keys() {
 		$fStateChanged = $this->foreground();
 		
 		if ( !empty($author) ) {
-			$sql = 'UPDATE ' . USERS_TABLE . ' SET user_wpublog_id = ' . $author . " WHERE user_wpuint_id = '{$author}'";
+			$sql = 'UPDATE ' . USERS_TABLE . ' SET user_wpublog_id = ' . $author . ' WHERE user_wpuint_id = ' . (int)$author;
 			if (!$result = $db->sql_query($sql)) {
 				return false;
 			}
@@ -1473,7 +1474,7 @@ public function load_style_keys() {
 
 		$sql = "SELECT *
 			FROM " . ACL_ROLES_TABLE . "
-			WHERE role_name = '$name'";
+			WHERE role_name = '" . $db->sql_escape($name) . "'";
 		$result = $db->sql_query($sql);
 		
 		$data = $db->sql_fetchrow($result);
@@ -1500,7 +1501,7 @@ public function load_style_keys() {
 		$role_options = array();
 		$sql = "SELECT auth_option_id
 			FROM " . ACL_ROLES_DATA_TABLE . "
-			WHERE role_id = " . (int) $role_id . "
+			WHERE role_id = " . (int)$role_id . "
 			GROUP BY auth_option_id";
 		$result = $db->sql_query($sql);
 		while ($row = $db->sql_fetchrow($result))	{
