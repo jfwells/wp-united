@@ -47,15 +47,13 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			array('get_comments_number', 				array('comment_count', 10, 2),				'xpostautolink'),
 			array('wp_count_comments', 					array('comments_count_and_group', 10, 2),	'xpostautolink'),
 			array('pre_option_comment_registration', 	'no_guest_comment_posting',					'xpostautolink'),
-			
+			array('user_has_cap',		 				array('check_permission', 10, 3),			'xpostautolink'),
 			array('get_edit_comment_link', 				'comment_edit_link',						'xpostautolink'),
 			array('admin_comment_types_dropdown', 		'add_to_comment_dropdown',					'xpostautolink'),
-			
 			array('get_comment_link', 					array('comment_link', 10, 3),				'xpostautolink')
 		);		
 			
 
-			
 	public function __construct($initWithSettingsObj) {
 		
 		parent::__construct($initWithSettingsObj);
@@ -69,17 +67,6 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		}
 	}
 	
-	
-	
-	
-	
-	
-	/*
-	********************************************
-	WARNING: MESSY UNDER-CONSTRUCTION AREA BELOW
-	*********************************************
-	*/
-	
 
 	public function get_comment_author_link($link) {
 		return wpu_get_comment_author_link($link);
@@ -87,8 +74,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 
 	public function integrated_comment_actions($actions, $comment) {
 		
-		if (!$this->is_working() || !$this->get_setting('xpostautolink') || 
-			(!is_object($comment)) || empty($comment->comment_ID)) {
+		if (!$this->is_working() || !is_object($comment) || empty($comment->comment_ID)) {
 			return $actions;
 		}
 
@@ -151,7 +137,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	
 	public function check_permission($allUserCaps, $requiredCaps, $args) {
 	
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+		if (!$this->is_working()) {
 			return $allUserCaps;
 		}
 		
@@ -161,7 +147,6 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		}
 		
 
-		
 		// The first argument is the capability requested
 		$perm = $args[0];
 		if(!in_array($perm, array('view_comment', 'edit_comment', 'delete_comment', 'approve_comment'))) {
@@ -230,7 +215,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	
 	public function add_to_comment_dropdown($dropdown) {
 		
-		if ($this->is_working() && $this->get_setting('xpostautolink')) {
+		if ($this->is_working()) {
 	
 			$dropdown['wpuxpostonly']	=	__('Show only cross-posted', 'wp-united');
 			$dropdown['wpunoxpost']		=	__('Show only not cross-posted', 'wp-united');
@@ -241,7 +226,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	
 	public function comment_link($url, $comment, $args) {
 		
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+		if (!$this->is_working()) {
 			return $url;
 		}
 			
@@ -257,7 +242,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 
 	public function fetch_comments_query($comments, $query) {
 
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+		if (!$this->is_working()) {
 			return $comments;
 		}
 	
@@ -273,7 +258,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	
 	// modify query offsets
 	public function check_comments_query($query) {
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+		if (!$this->is_working()) {
 			return;
 		}
 		
@@ -283,7 +268,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	
 	public function comments_count_and_group($comments, $postID) {
 		
-		if (!$this->is_working() || !$this->get_setting('xpostautolink')) {
+		if (!$this->is_working()) {
 			return $comments;
 		}
 	
@@ -297,17 +282,6 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 	}
 	
-
-	
-	
-	/**
-	*************************************
-	*************************************
-	*************************************
-	*/
-	
-	
-
 	
 	/**
 	 * Adds a cross-posting box to the posting page if required.
@@ -329,12 +303,14 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 						add_meta_box('postWPUstatusdiv', __('Forum Posting', 'wpu-cross-post', 'wp-united'), array($this,'add_forcebox'), 'post', 'side');
 					}
 				} else {	
+					$fList = false;
 					// Add xposting choice box
 					if ( !$this->get_xposted_details() ) { 
-						$this->init_forum_xpost_list(); 
+						$fList = $this->get_xpost_forum_list(); 
+						$fList = (is_array($fList) && sizeof($fList));
 					}
 
-					if ( ((is_array($this->xPostForumList)) && (sizeof($this->xPostForumList))) || $this->get_xposted_details() ) {
+					if ( $fList || $this->get_xposted_details() ) {
 						add_meta_box('postWPUstatusdiv', __('Cross-post to Forums?', 'wpu-cross-post', 'wp-united'), array($this, 'add_postboxes'), 'post', 'side');
 					}
 				}			
@@ -419,7 +395,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	/**
 	 * Get the list of forums we can cross-post to
 	 */
-	private function init_forum_xpost_list() {
+	private function get_xpost_forum_list() {
 		global $phpbbForum, $user, $auth, $db, $userdata, $template, $phpEx;
 		
 		if($this->xPostForumList !== false) {
@@ -457,13 +433,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 	}
 	
-	public function get_xpost_forum_list() {
-		if($this->xPostForumList !== false) {
-			return $this->init_forum_xpost_list();
-		}
-		return $this->xPostForumList;
-	}
-	
+
 	/**
 	 * Returns the forced xposting forum name from an ID, or false if it does not exist or cannot be posted to
 	 */
@@ -665,7 +635,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		}
 		
 		if($forum_id > 0) {
-			$can_crosspost_list = $this->get_forum_xpost_list(); 
+			$can_crosspost_list = $this->get_xpost_forum_list(); 
 			
 			if ( !in_array($forum_id, (array)$can_crosspost_list['forum_id']) ) { 
 				$phpbbForum->restore_state($fStateChanged);
@@ -1074,7 +1044,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 						}
 						
 						// Need to check authority here -- as we won't know for sure when the time comes to xpost
-						$can_crosspost_list = $this->get_forum_xpost_list(); 
+						$can_crosspost_list = $this->get_xpost_forum_list(); 
 						
 						if ( !in_array($forumID, (array)$can_crosspost_list['forum_id']) ) { 
 							return;
