@@ -773,6 +773,8 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		if($wpUser = wp_get_current_user()) {
 			$wpUserID = $u->ID;
 		}
+		
+		$requireNameEmail = get_option('require_name_email');
 
 		$fStateChanged = $phpbbForum->foreground();
 
@@ -783,6 +785,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			return;
 		}
 		
+		$isValidEmail = true;
 		$guestPosting = false;
 		if ($phpbbForum->user_logged_in()) {
 			$username = $phpbbForum->get_username();
@@ -793,6 +796,12 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			$username = strip_tags(stripslashes(request_var('author', 'Anonymous')));
 			$website = request_var('url', '');
 			$email = request_var('email', '');
+			if($email) {
+				// use wordpress to sanitize email
+				$phpbbForum->background();
+				$isValidEmail = is_email($email);
+				$phpbbForum->foreground();
+			}
 			$username = wpu_find_next_avail_name($username, 'phpbb');
 		}
 		
@@ -805,15 +814,20 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			$phpbbForum->restore_state($fStateChanged);
 			wp_die($phpbbForum->lang['TOPIC_LOCKED']);
 		}
+		
+		$permToCheck = 'f_reply';
+		if($guestPosting && $this->get_setting('xpostguestok')) {
+			$permToCheck = 'f_read';
+		}
 
 		if ($dets['forum_id'] == 0) {
 			// global announcement
-			if(!$auth->acl_getf_global('f_reply') ) {
+			if(!$auth->acl_getf_global($permToCheck) ) {
 				$phpbbForum->restore_state($fStateChanged);
 				wp_die( __('You do not have permission to respond to this announcement', 'wp-united'));			
 			}
 		} else {
-			if (!$auth->acl_get('f_reply', $dets['forum_id'])) { 
+			if (!$auth->acl_get($permToCheck, $dets['forum_id'])) { 
 				$phpbbForum->restore_state($fStateChanged);
 				wp_die( __('You do not have permission to comment in this forum', 'wp-united'));
 			}
@@ -824,6 +838,64 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			$phpbbForum->restore_state($fStateChanged);
 			wp_die(__('Error: Please type a comment!', 'wp-united'));
 		}
+		
+		// taken from wp-comment-post.php, native WP translation of strings
+		if ( $requireNameEmail && $guestPosting ) {
+			if ( 6 > strlen($email) || '' == $username ) {
+				wp_die( __('<strong>ERROR</strong>: please fill the required fields (name, email).') );
+			} elseif (!$isValidEmail) {
+				wp_die( __('<strong>ERROR</strong>: please enter a valid email address.') );
+			}
+		}
+		
+		$commentParent = (int)request_var('comment_parent', 0);
+		
+		// create a wordpress comment and run some checks on it
+		// send comment thru akismet, other spam filtering, if user is logged out
+		
+		$phpbbForum->background();
+		
+		$commentData = array(
+			'comment_post_ID' 		=> $postID,
+			'comment_author' 		=> $username,
+			'comment_author_email' 	=> $email,
+			'comment_author_url' 	=> $website,
+			'comment_parent' 		=> $commentParent,
+			'comment_type'			=> '',
+			'user_ID' 				=> $wpUserID
+		);
+		
+		$checkSpam = $this->get_setting('xpostspam');
+		$checkSpam = (!empty($checkSpam));
+		
+		if ($guestPosting && $checkSpam) {
+			$commentData = apply_filters('preprocess_comment', $commentData);
+		}
+		
+		$commentData = array_merge($commentData, array(
+			'comment_author_IP'		=> preg_replace( '/[^0-9a-fA-F:., ]/', '',$_SERVER['REMOTE_ADDR'] ),
+			'comment_agent'			=> substr($_SERVER['HTTP_USER_AGENT'], 0, 254),
+			'comment_date'			=> current_time('mysql'),
+			'comment_date_gmt'		=> current_time('mysql', 1),
+			'comment_karma'			=> 0
+			
+		));
+
+		$forceModeration = false;
+		$overrideApproval = false;
+		if($guestPosting && $checkSpam) {
+			$commentData['comment_approved'] = wp_allow_comment($commentData);
+			if(!$commentData['comment_approved'] || ($commentData['comment_approved'] == 'spam')) {
+				$forceModeration = true;
+			} else { // if the comment has passed checks, and we are overriding phpBB approval settings
+				if($this->get_setting('xpostspam') == 'all') {
+					$overrideApproval = true;
+				}
+			}
+		}
+		
+		
+		$phpbbForum->foreground();
 		
 		wpu_html_to_bbcode($content); 
 		$content = utf8_normalize_nfc($content);
@@ -854,15 +926,19 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			'enable_indexing'		=> true,
 			'topic_title' 			=> $subject,
 			'post_approved'			=> 1, // this doesn't force it to be approved (we  want approval to reflect permission status), but prevents phpBB from throwing notices.
-			'poster_ip'				=> '',
-			
+			'poster_ip'				=> ''
 		); 
+		if($forceModeration) {
+			$data['force_approved_state'] = false;
+		} else if($overrideApproval) {
+			$data['force_approved_state'] = true;
+		}
 
 		$postUrl = submit_post('reply', $subject, $username, POST_NORMAL, $poll, $data);
 
 		// update threading and guest post user data
 		if($postUrl !== false) {
-			$commentParent = (int)request_var('comment_parent', 0);
+			
 			
 			if($commentParent || $guestPosting) {
 				$sql = 'UPDATE ' . POSTS_TABLE . " SET 
@@ -875,24 +951,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			}
 		}
 		
-		$wpComment = (object) array(
-			'comment_ID' => $data['post_id'],
-			'comment_post_ID' => 'comment' . ($data['post_id'] + $this->integComments->get_id_offset()) ,
-			'comment_author' => $username,
-			'comment_author_email' => $email,
-			'comment_author_url' => $website,
-			'comment_author_IP' => $data['poster_ip'],
-			'comment_date' => $user->format_date($data['post_time'], "Y-m-d H:i:s"), //Convert phpBB timestamp to mySQL datestamp
-			'comment_date_gmt' =>  $user->format_date($data['post_time'] - ($user->timezone + $user->dst), "Y-m-d H:i:s"), 
-			'comment_content' => $content,
-			'comment_karma' => 0,
-			'comment_approved' => $data['post_approved'],
-			'comment_agent' => 'phpBB forum',
-			'comment_type' => '',
-			'comment_parent' => $commentParent,
-			'user_id' => $wpUserID,
-			'phpbb_id' => get_userdata('user_ID')
-		);
+		$wpComment = (object) $commentData;
 		
 		$phpbbForum->restore_state($fStateChanged);
 		
@@ -980,7 +1039,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			(!$auth->acl_get('f_reply', $dets['forum_id']) )
 		) { 
 				$permsProblem = true;		
-			}
+		}
 
 		$phpbbForum->restore_state($fStateChanged);
 		

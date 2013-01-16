@@ -182,7 +182,12 @@ function setupHelpButtons() {
  * Sets the settings form dynamic elements to their initial states
  */
 function settingsFormSetup() {
-	if($wpu('#wpuxpost').is(':checked')) $wpu('#wpusettingsxpostxtra').show();
+	if($wpu('#wpuxpost').is(':checked')) {
+		$wpu('#wpusettingsxpostxtra').show();
+		if($wpu('#wpuxpostcomments').is(':checked')) {
+			$wpu('#wpusettingsxpostcomments').show();
+		}
+	}
 	if($wpu('#wpuloginint').is(':checked')) $wpu('#wpusettingsxpost').show();
 	if($wpu('#wputplint').is(':checked')) {
 		$wpu('#wpusettingstpl').show();
@@ -199,10 +204,13 @@ function settingsFormSetup() {
 	});
 
 	$wpu('#wpuloginint').change(function() {
-			$wpu('#wpusettingsxpost').toggle("slide", "slow");
+		$wpu('#wpusettingsxpost').toggle("slide", "slow");
 	});
 	$wpu('#wpuxpost').change(function() {
-			$wpu('#wpusettingsxpostxtra').toggle("slide", "slow");
+		$wpu('#wpusettingsxpostxtra').toggle("slide", "slow");
+	});
+	$wpu('#wpuxpostcomments').change(function() {
+		$wpu('#wpusettingsxpostcomments').toggle("slide", "slow");
 	});
 	
 	setCSSMLevel(cssmVal);

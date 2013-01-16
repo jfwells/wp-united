@@ -137,6 +137,8 @@ class WP_United_Settings {
 			'integcreatewp'				=> 1,
 			'integcreatephpbb'			=> 1,
 			'xpostautolink' 			=> 0,
+			'xpostguestok' 				=> 0,
+			'xpostspam' 				=> 'all',
 			'xpostforce' 				=> -1,
 			'xposttype' 				=> 'excerpt',
 			'xpostprefix'				=> '[BLOG] ',

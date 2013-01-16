@@ -1245,6 +1245,20 @@ function wpu_settings_page() {
 									<p><?php _e('Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.', 'wp-united'); ?></p>
 									<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if($wpUnited->get_setting('xpostautolink')) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments"><?php _e('phpBB manages comments', 'wp-united'); ?></label>		
 									
+									<div id="wpusettingsxpostcomments" class="subsettings">
+										<h4><?php _e('Override phpBB guest permissions', 'wp-united'); ?></h4>
+										<p><?php _e("By default, guests will only be allowed to comment on cross-posts if they have normal phpBB posting permissions in that forum. This means that in order to allow guests to comment, you would need to open up the relevant forum to guest posting.<br /><br />If you don't want to do that, turn this option on and guests will be able to post if they have read permission to that forum.<br /><br />Be warned that you <strong>MUST</strong> pass comments through an effective spam-blocking solution (such as Akismet) in WordPress if you don't want your forum to become a spam black hole.", 'wp-united'); ?></p>
+										<input type="checkbox" name="wpuxpostguestok" id="wpuxpostguestok" <?php if($wpUnited->get_setting('xpostguestok')) { ?>checked="checked"<?php } ?> /><label for="wpuxpostguestok"><?php _e('Override phpBB guest post permissions.', 'wp-united'); ?></label>		
+										
+										<h4><?php _e('Use WordPress spam filters for guest comments?', 'wp-united'); ?></h4>
+										<p><?php _e('To prevent forum spam from comments posted by guests, turn this option on. Comments will then be passed through WordPress spam filters (e.g. Akismet) before being sent to the forum. This only applies to posts made by guests.', 'wp-united'); ?></p>
+																				
+										<input type="radio" name="rad_xpostcomappr" value="all" id="xpostcomapprall"  <?php if($wpUnited->get_setting('xpostspam') === 'all') { ?>checked="checked" <?php } ?> /><label for="xpostcomapprall"><?php _e('Yes, and override phpBB post approval requirements if the comment passes WordPress checks', 'wp-united'); ?></label><br />
+										<input type="radio" name="rad_xpostcomappr" value="yes" id="xpostcomappryes" <?php if($wpUnited->get_setting('xpostspam') === 1) { ?>checked="checked" <?php } ?>  /><label for="xpostcomappryes"><?php _e('Yes, but still honour phpBB post approval requirements even if the comment passes', 'wp-united'); ?></label><br />
+										<input type="radio" name="rad_xpostcomappr" value="no" id="xpostcomapprno" <?php if($wpUnited->get_setting('xpostspam') === 0) { ?>checked="checked" <?php } ?>  /><label for="xpostcomapprno"><?php _e('No, I will rely on phpBB settings.', 'wp-united'); ?></label>
+									</div>
+									
+									
 									<h4><?php _e('Force all blog posts to be cross-posted?', 'wp-united'); ?></h4>
 									<p><?php _e('Setting this option will force all blog posts to be cross-posted to a specific forum. You can select the forum here. Note that users must have the &quot;can cross-post&quot; WP-United permission under phpBB Forum Permissions, or the cross-posting will not take place.', 'wp-united'); ?></p>
 									<select id="wpuxpostforce" name="wpuxpostforce">
@@ -1579,6 +1593,23 @@ function wpu_process_settings() {
 				}
 				
 				$data['xpostautolink'] =(isset($_POST['wpuxpostcomments'])) ? 1 : 0;
+				
+				if($data['xpostautolink']) {
+					
+					$data['xpostguestok'] =(isset($_POST['wpuxpostguestok'])) ? 1 : 0;
+					
+					// xPostSpam could be '1', '0' or 'all'
+					$xPostSpam = (!isset($_POST['rad_xpostcomappr'])) ? 'all' : (string)$_POST['rad_xpostcomappr'];
+					if($xPostSpam == '0') {
+						$data['xpostspam'] = 0;
+					} else if($xPostSpam == '0') {
+						$data['xpostspam'] = 1;
+					} else {
+						$data['xpostspam'] = 'all';
+					}
+
+				}
+				
 				$data['xpostforce'] =(isset($_POST['wpuxpostforce'])) ? (int) $_POST['wpuxpostforce'] : -1;
 				$data['xpostprefix'] = (isset($_POST['wpuxpostprefix'])) ? (string) $_POST['wpuxpostprefix'] : __('[BLOG] ', 'wp-united');
 			} else {
@@ -1586,7 +1617,10 @@ function wpu_process_settings() {
 				$data = array_merge($data, array(
 					'xposttype' 		=> 'excerpt',
 					'wpuxpostcomments'	=> 0,
-					'xpostforce' 		=> -1
+					'xpostforce' 		=> -1,
+					'xpostautolink' 	=> 0,
+					'xpostguestok' 		=> 0,
+					'xpostspam' 		=> 'all'
 					// can leave xpostprefix
 				));
 			}
@@ -1600,6 +1634,9 @@ function wpu_process_settings() {
 				'xposttype' 			=> 'excerpt',
 				'wpuxpostcomments'		=> 0,
 				'xpostforce' 			=> -1,
+				'xpostautolink' 		=> 0,
+				'xpostguestok' 			=> 0,
+				'xpostspam' 			=> 'all',
 				'xpostprefix'			=> __('[BLOG] ', 'wp-united')
 			));
 		}

@@ -11,6 +11,8 @@ ISSUES:
 
 x-posting todo: 
 
+*** ADD GUEST POSTING OVERRIDE SETTING TO are_comments_open()
+**** widget showing unmoderated comments
 * clear comment cache when posting xposted comments
 * should counts still be performed even when no permission? Test with limited subscriber user... / May need to move view permission check to later if possible, so counts aren't broken.
 

@@ -663,6 +663,10 @@ div.subsettings div.subsettings {
 	background-color: #dddddd;
 }
 
+div.subsettings div.subsettings div.subsettings {
+	background-color: #eeeeee;
+}
+
 #cssmdesc {
 	background-color: #ffffff;
 	border: 1px solid #cccccc;
