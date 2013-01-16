@@ -1,0 +1,23 @@
+{
+	"name": "jfwells/wp-united",
+	"type": "phpbb3-extension",
+	"description": "An example/sample extension to be used for testing purposes in phpBB Development.",
+	"homepage": "http://www.wp-united.com",
+	"version": "0.9.2.0",
+	"time": "2013-01-16 13:00:00",
+	"licence": "GPL-2.0",
+	"authors": [{
+		"name": "John Wells",
+		"username": "Jhong",
+		"email": "admin@wp-united.com",
+		"homepage": "http://www.wp-united.com",
+		"role": "Founder, Lead Developer"
+	}],
+	"require": {
+		"php": ">=5.4",
+		"phpbb": "3.1.0"
+	},
+	"extra": {
+		"display-name": "WP-United: phpBB-WordPress Integration"
+	}
+}
