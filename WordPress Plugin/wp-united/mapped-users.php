@@ -291,7 +291,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 				OR UCASE(user_email) = '" . $db->sql_escape(strtoupper($this->get_email())) . "'";
 
 		
-		$results = $db->sql_query_limit($sql, 5); {
+		$results = $db->sql_query_limit($sql, 5); 
 		
 
 		if(!$results || !is_array($results) || !sizeof($results)) {
