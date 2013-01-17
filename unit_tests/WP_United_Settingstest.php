@@ -6,7 +6,7 @@ require_once(WPU_TEST_ROOT_PATH . '/WordPress Plugin/wp-united/wp-united.php');
 class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 
 	public function setup() {
-		
+		define('ABSPATH', true);
 		
 	}
 	
