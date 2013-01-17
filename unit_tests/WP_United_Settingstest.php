@@ -1,11 +1,13 @@
 <?
 define('WPU_TEST_ROOT_PATH', realpath(dirname(dirname(__FILE__))));
+require_once('mockpress/mockpress.php');
+require_once(WPU_TEST_ROOT_PATH . '/WordPress Plugin/wp-united/wp-united.php');
 
 class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 
 	public function setup() {
-		require_once('mockpress/mockpress.php');
-		require_once(WPU_TEST_ROOT_PATH . '/WordPress Plugin/wp-united/wp-united.php');
+		
+		
 	}
 	
 	
