@@ -1,5 +1,6 @@
 <?
 define('WPU_TEST_ROOT_PATH', realpath(dirname(dirname(__FILE__))));
+require_once('mockpress/mockpress.php');
 
 class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 
@@ -34,8 +35,6 @@ class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testCreateInWP() {
-	
-		require_once('mockpress/mockpress.php');
 		
 		$settings = WP_United_Settings::Create();
 		
@@ -44,15 +43,5 @@ class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 		return $settings;
 	}
 
-	/**
-	*	@depends testSettingsObjectCreateInWP
-	*/
-	public function testSettingsSaveEmptyInWP($settings) {
-	
-		require_once('mockpress/mockpress.php');
-		
-		$emptyData = array();
-		$settings->update_settings($emptyData);
-	}
 
 }
