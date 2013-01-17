@@ -1246,12 +1246,9 @@ function wpu_settings_page() {
 									<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if($wpUnited->get_setting('xpostautolink')) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments"><?php _e('phpBB manages comments', 'wp-united'); ?></label>		
 									
 									<div id="wpusettingsxpostcomments" class="subsettings">
-										<h4><?php _e('Override phpBB guest permissions', 'wp-united'); ?></h4>
-										<p><?php _e("By default, guests will only be allowed to comment on cross-posts if they have normal phpBB posting permissions in that forum. This means that in order to allow guests to comment, you would need to open up the relevant forum to guest posting.<br /><br />If you don't want to do that, turn this option on and guests will be able to post if they have read permission to that forum.<br /><br />Be warned that you <strong>MUST</strong> pass comments through an effective spam-blocking solution (such as Akismet) in WordPress if you don't want your forum to become a spam black hole.", 'wp-united'); ?></p>
-										<input type="checkbox" name="wpuxpostguestok" id="wpuxpostguestok" <?php if($wpUnited->get_setting('xpostguestok')) { ?>checked="checked"<?php } ?> /><label for="wpuxpostguestok"><?php _e('Override phpBB guest post permissions.', 'wp-united'); ?></label>		
-										
+
 										<h4><?php _e('Use WordPress spam filters for guest comments?', 'wp-united'); ?></h4>
-										<p><?php _e('To prevent forum spam from comments posted by guests, turn this option on. Comments will then be passed through WordPress spam filters (e.g. Akismet) before being sent to the forum. This only applies to posts made by guests.', 'wp-united'); ?></p>
+										<p><?php _e('To prevent forum spam from comments posted by guests, turn this option on. Comments will then be passed through WordPress spam filters (e.g. Akismet) before being sent to the forum. This only applies to posts made by guests. <br /><br />Note that to allow guests to comment at all, you need to assign them the &quot;Can reply to blog posts&quot; permission in phpBB.', 'wp-united'); ?></p>
 																				
 										<input type="radio" name="rad_xpostcomappr" value="all" id="xpostcomapprall"  <?php if($wpUnited->get_setting('xpostspam') === 'all') { ?>checked="checked" <?php } ?> /><label for="xpostcomapprall"><?php _e('Yes, and override phpBB post approval requirements if the comment passes WordPress checks', 'wp-united'); ?></label><br />
 										<input type="radio" name="rad_xpostcomappr" value="yes" id="xpostcomappryes" <?php if($wpUnited->get_setting('xpostspam') === 1) { ?>checked="checked" <?php } ?>  /><label for="xpostcomappryes"><?php _e('Yes, but still honour phpBB post approval requirements even if the comment passes', 'wp-united'); ?></label><br />
@@ -1596,8 +1593,6 @@ function wpu_process_settings() {
 				
 				if($data['xpostautolink']) {
 					
-					$data['xpostguestok'] =(isset($_POST['wpuxpostguestok'])) ? 1 : 0;
-					
 					// xPostSpam could be '1', '0' or 'all'
 					$xPostSpam = (!isset($_POST['rad_xpostcomappr'])) ? 'all' : (string)$_POST['rad_xpostcomappr'];
 					if($xPostSpam == '0') {
@@ -1619,7 +1614,6 @@ function wpu_process_settings() {
 					'wpuxpostcomments'	=> 0,
 					'xpostforce' 		=> -1,
 					'xpostautolink' 	=> 0,
-					'xpostguestok' 		=> 0,
 					'xpostspam' 		=> 'all'
 					// can leave xpostprefix
 				));
@@ -1635,7 +1629,6 @@ function wpu_process_settings() {
 				'wpuxpostcomments'		=> 0,
 				'xpostforce' 			=> -1,
 				'xpostautolink' 		=> 0,
-				'xpostguestok' 			=> 0,
 				'xpostspam' 			=> 'all',
 				'xpostprefix'			=> __('[BLOG] ', 'wp-united')
 			));

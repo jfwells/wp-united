@@ -815,19 +815,14 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			wp_die($phpbbForum->lang['TOPIC_LOCKED']);
 		}
 		
-		$permToCheck = 'f_reply';
-		if($guestPosting && $this->get_setting('xpostguestok')) {
-			$permToCheck = 'f_read';
-		}
-
 		if ($dets['forum_id'] == 0) {
 			// global announcement
-			if(!$auth->acl_getf_global($permToCheck) ) {
+			if(!$auth->acl_getf_global('f_wpu_xpost_comment') ) {
 				$phpbbForum->restore_state($fStateChanged);
 				wp_die( __('You do not have permission to respond to this announcement', 'wp-united'));			
 			}
 		} else {
-			if (!$auth->acl_get($permToCheck, $dets['forum_id'])) { 
+			if (!$auth->acl_get('f_wpu_xpost_comment', $dets['forum_id'])) { 
 				$phpbbForum->restore_state($fStateChanged);
 				wp_die( __('You do not have permission to comment in this forum', 'wp-united'));
 			}

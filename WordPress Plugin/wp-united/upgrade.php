@@ -81,9 +81,23 @@ function wpu_do_upgrade($action) {
 		
 		// no break!
 		
+		case 'from 0.9.2.0-r1':
 		
+			$wpuDebug->add("Upgrading WP-United $action");
+			
+			$fStateChanged = $phpbbForum->foreground();
+			
+			// Setup $auth_admin class so we can add permission options
+			include_once($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
+			$auth_admin = new auth_admin();
+			
+			// Add permissions
+			$auth_admin->acl_add_option(array(
+				'local'      => array('f_wpu_xpost', 'f_wpu_xpost_comment'),
+				'global'   => array('f_wpu_xpost_comment', 'u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
+			));
 		
-		
+			$phpbbForum->restore_state($fStateChanged);
 		
 		
 		default;

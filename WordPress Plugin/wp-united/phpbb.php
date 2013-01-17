@@ -1156,13 +1156,13 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		$adminLog[] = __('Adding WP-United Permissions', 'wp-united');
 		
 		// Setup $auth_admin class so we can add permission options
-		include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
+		include_once($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
 		$auth_admin = new auth_admin();
-
+		
 		// Add permissions
 		$auth_admin->acl_add_option(array(
-			'local'      => array('f_wpu_xpost'),
-			'global'   => array('u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
+			'local'      => array('f_wpu_xpost', 'f_wpu_xpost_comment'),
+			'global'   => array('f_wpu_xpost_comment', 'u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
 		));
 
 		$adminLog[] = __('Storing the new WP-United settings', 'wp-united');

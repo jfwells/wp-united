@@ -137,7 +137,6 @@ class WP_United_Settings {
 			'integcreatewp'				=> 1,
 			'integcreatephpbb'			=> 1,
 			'xpostautolink' 			=> 0,
-			'xpostguestok' 				=> 0,
 			'xpostspam' 				=> 'all',
 			'xpostforce' 				=> -1,
 			'xposttype' 				=> 'excerpt',
@@ -451,7 +450,7 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 			return $checked;
 		}
 		
-		$version = $this->get_version();
+		$version = str_replace('-r', '#', $this->get_version(true));
 		
 		// Installed, but version < 0.9.1.0
 		if(!@file_exists($pLoc . 'wp-united/version.php')) {
@@ -470,8 +469,8 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 		 */
 		if($wpuVersion_phpbb != $version) {
 			
-			// upgrade to v0.9.2.0; simple file copy
-			if(version_compare($wpuVersion_phpbb, '0.9.2.0', '<')) {
+			// upgrade to v0.9.2.0 (-r2); simple file copy
+			if(version_compare($wpuVersion_phpbb, '0.9.2.0#2', '<')) {
 				$checked = array(
 					'result'	=> 'ERROR',
 					'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . 
@@ -521,6 +520,9 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 				break;
 				case '0.9.2.0':
 					$upgradeAction = 'from 0.9.2.0-r0';
+				break;
+				case '0.9.2.0-r1':
+					$upgradeAction = "from $installedVer";
 				break;
 			}
 		}
