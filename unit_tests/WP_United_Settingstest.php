@@ -23,15 +23,33 @@ class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 		
 		return $settings;
 	}
-	
-	
-	
-	
-	
+
 	/**
 	*	@depends testSettingsObjectCreate
 	*/
 	public function testSettingsSaveEmpty($settings) {
+		
+		$emptyData = array();
+		$settings->update_settings($emptyData);
+	}
+	
+	public function testCreateInWP() {
+	
+		require_once('mockpress/mockpress.php');
+		
+		$settings = WP_United_Settings::Create();
+		
+		$this->assertTrue(is_object($settings));
+		
+		return $settings;
+	}
+
+	/**
+	*	@depends testSettingsObjectCreateInWP
+	*/
+	public function testSettingsSaveEmptyInWP($settings) {
+	
+		require_once('mockpress/mockpress.php');
 		
 		$emptyData = array();
 		$settings->update_settings($emptyData);
