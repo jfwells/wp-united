@@ -16,7 +16,7 @@ class WP_United_WPTest extends PHPUnit_Framework_TestCase {
 	
 	public function testBootWordPress() {
 		ob_start();
-		require_once(WPU_TEST_ROOT_PATH . '../../workspace/wordpress/index.php');
+		require_once(WPU_TEST_ROOT_PATH . '/../../workspace/wordpress/index.php');
 		ob_end_clean();
 	}
 	
