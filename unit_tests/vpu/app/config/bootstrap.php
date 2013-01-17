@@ -9,7 +9,7 @@ $config = array(
     'pear_path'      => '/usr/bin/pear',
 
     // The directory where the tests reside
-    'test_directory' => "{$root}/app/test",
+    'test_directory' => "{$root}../../sources/wp-united/unit_tests",
 
 
     /* Optional */
