@@ -98,7 +98,7 @@ class WP_United_Settings {
 		}
 		
 		// failed on all accounts. Initialise ourselves with defaults
-		$this->settings = $this->get_defaults;
+		$this->settings = $this->get_defaults();
 		return $this;
 
 	}
