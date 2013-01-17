@@ -37,6 +37,9 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			array('wp_ajax_wpu_disableman', 			'ajax_manual_disable',						'all'),
 			array('wp_ajax_wpu_settings_transmit', 		'ajax_settings_transmit',					'all'),
 			
+			// cross-posting, etc.
+			array('publish_post', 						array('handle_new_post', 10, 2),			'enabled'),
+			
 			// behaviour actions
 			array('comment_form', 						'generate_smilies',							'phpbbSmilies'),
 			

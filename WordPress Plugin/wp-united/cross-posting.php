@@ -30,7 +30,6 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			array('admin_menu', 						'add_xposting_box',							'enabled'),
 			array('edit_post', 							'just_editing_post',						'enabled'),
 			array('wp_insert_post', 					array('capture_future_post', 10, 2),		'enabled'),
-			array('publish_post', 						array('handle_new_post', 10, 2),			'enabled'),
 			array('future_to_publish', 					array('future_to_published', 10),			'enabled'),
 			array('comment_form', 						'comment_redir_field',						'xpostautolink'),
 			array('pre_comment_on_post', 				'post_comment',								'xpostautolink'),
