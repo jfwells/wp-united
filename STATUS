@@ -11,17 +11,15 @@ ISSUES:
 
 x-posting todo: 
 
-*** ADD GUEST POSTING OVERRIDE SETTING TO are_comments_open()
 **** widget showing unmoderated comments
+* No checking for username or e-mail clashes in WP
+* No checking for e-mail clashes in phpBB (we do check for username clash though)
+* we just die on a username that is already in use, when we should really display a nice msg
 * clear comment cache when posting xposted comments
 * should counts still be performed even when no permission? Test with limited subscriber user... / May need to move view permission check to later if possible, so counts aren't broken.
 
 
 
-guest posting issues outstanding:
-	-- we just die on a username that is already in use, when we should really display a nice msg
-	-- No checking for username or e-mail clashes in WP
-	-- No checking for e-mail clashes in phpBB (we do check for username clash though)
 
 
 COMMITTED FOR v0.9.2.0:
@@ -29,6 +27,8 @@ COMMITTED FOR v0.9.2.0:
 * NEW: Re-write of cross-posting and cross-posted comments. Cross-posted comments now appear mixed with WordPress comments, and can be viewed, filtered and managed from WordPress as well as phpBB. Cross-posted topics now also fully support custom ordering, threading and guest posting, and are stored and recalled more efficiently.
 * NEW: Cross-posted comments (posted by guests) that are pending moderator approval in phpBB now show up in WordPress, with the appropriate "pending approval" message.
 * NEW: Guest-cross-posted comments now store e-mail and website, just like native comments.
+* NEW: New cross-posting comment permission in phpBB allows guests to cross-post comments without having to open your forum up to guests.
+* NEW: Cross-posts by unauthenticated users can now be passed through WordPress filters (e.g. Akismet).
 * NEW: The initial connection screen now falls back to manual path entry if your server has restrictions on scannng the document root
 * NEW: You can choose to enter the phpBB path and document root manually, in case your phpBB root is under a different document root.
 * BUGFIX: Users getting logged out of phpBB on full-page phpBB-in-WordPress
