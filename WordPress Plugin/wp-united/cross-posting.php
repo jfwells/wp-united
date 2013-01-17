@@ -60,6 +60,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 		$this->add_actions();
 		$this->add_filters();
+		$this->xPostForumList = false;
 		
 		if($this->get_setting('xpostautolink')) {
 			require_once($this->get_plugin_path() . 'comments.php');
@@ -408,7 +409,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		$can_xpost_to = array();
 		
 		$can_xpost_to = $auth->acl_get_list($user->data['user_id'], 'f_wpu_xpost');
-		
+
 		if ( sizeof($can_xpost_to) ) { 
 			$can_xpost_to = array_keys($can_xpost_to); 
 		} 
