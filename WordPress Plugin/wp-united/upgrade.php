@@ -16,7 +16,7 @@
 if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 function wpu_do_upgrade($action) {
-	global $phpbbForum, $wpUnited, $debug, $db, $wpuDebug;
+	global $phpbbForum, $wpUnited, $debug, $db, $wpuDebug, $phpbb_root_path, $phpEx;
 
 
 	switch($action) {
