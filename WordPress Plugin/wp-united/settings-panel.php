@@ -1242,13 +1242,14 @@ function wpu_settings_page() {
 									<input type="radio" name="rad_xpost_type" value="askme" id="wpuxpask" <?php if($wpUnited->get_setting('xposttype') == 'askme') { ?>checked="checked"<?php } ?>  /><label for="wpuxpask"><?php _e('Ask Me', 'wp-united'); ?></label>
 									
 									<h4><?php _e('phpBB manages comments on crossed posts?', 'wp-united'); ?></h4>
-									<p><?php _e('Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.', 'wp-united'); ?></p>
+									<p><?php _e('Choose this option to have WordPress comments replaced by forum replies for cross-posted blog posts. In addition, comments posted by integrated users via the WordPress comment form will be cross-posted as replies to the forum topic.', 'wp-united'); ?><br /><br />
+									<?php _e('Note that for users to be able to comment from WordPress, you need to assign them the &quot;Can reply to blog posts&quot; permission in phpBB.', 'wp-united'); ?></p>
 									<input type="checkbox" name="wpuxpostcomments" id="wpuxpostcomments" <?php if($wpUnited->get_setting('xpostautolink')) { ?>checked="checked"<?php } ?> /><label for="wpuxpostcomments"><?php _e('phpBB manages comments', 'wp-united'); ?></label>		
 									
 									<div id="wpusettingsxpostcomments" class="subsettings">
 
 										<h4><?php _e('Use WordPress spam filters for guest comments?', 'wp-united'); ?></h4>
-										<p><?php _e('To prevent forum spam from comments posted by guests, turn this option on. Comments will then be passed through WordPress spam filters (e.g. Akismet) before being sent to the forum. This only applies to posts made by guests. <br /><br />Note that to allow guests to comment at all, you need to assign them the &quot;Can reply to blog posts&quot; permission in phpBB.', 'wp-united'); ?></p>
+										<p><?php _e('To prevent forum spam from comments posted by guests, turn this option on. Comments will then be passed through WordPress spam filters (e.g. Akismet) before being sent to the forum. This only applies to posts made by guests.', 'wp-united'); ?></p>
 																				
 										<input type="radio" name="rad_xpostcomappr" value="all" id="xpostcomapprall"  <?php if($wpUnited->get_setting('xpostspam') === 'all') { ?>checked="checked" <?php } ?> /><label for="xpostcomapprall"><?php _e('Yes, and override phpBB post approval requirements if the comment passes WordPress checks', 'wp-united'); ?></label><br />
 										<input type="radio" name="rad_xpostcomappr" value="yes" id="xpostcomappryes" <?php if($wpUnited->get_setting('xpostspam') === 1) { ?>checked="checked" <?php } ?>  /><label for="xpostcomappryes"><?php _e('Yes, but still honour phpBB post approval requirements even if the comment passes', 'wp-united'); ?></label><br />
