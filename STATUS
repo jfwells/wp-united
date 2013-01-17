@@ -1,11 +1,5 @@
 current target: v0.9.2.0
 
-ISSUES:
--------
-
-* user mapper not showing correct users when auto-create is off (unactivated user count?) -- it shows mixed intgrated/unintegrated and gets count wrong
-* user creation creating unactivated users?? (404blackbeauty)
-
 
 
 COMMITTED FOR v0.9.2.0:
@@ -30,12 +24,19 @@ COMMITTED FOR v0.9.2.0:
 * BUGFIX: $table_prefix was getting unset on phpBB-in-WordPress pages, upsetting some mods
 * BUGFIX: Improve handling of double-byte characters when escaping cross-posted topic titles and user names in user mapper.
 * BUGFIX: Clash with the phpBB classifieds MOD
+* BUGFIX: Synced avatars losing CSS styling
 * ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
 * NEW: Lots more login integration debugging, so you can see what is causing login integration problems. Now works on WP pages and in admin too.
 * NEW: Some more core rewriting and cleanup; the context switcher is now separated into its own parent class; the main plugin is now divided into auto-loading modules.
 
-**** width/height on embeds regression  http://www.wp-united.com/posting.php?mode=reply&f=15&t=1989 ******
 
+
+ISSUES:
+-------
+
+* user mapper not showing correct users when auto-create is off (unactivated user count?) -- it shows mixed intgrated/unintegrated and gets count wrong
+* user creation creating unactivated users?? (404blackbeauty)
+**** width/height on embeds regression  http://www.wp-united.com/posting.php?mode=reply&f=15&t=1989 ******
 
 
 TODO:

@@ -641,6 +641,7 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			$phpbbAvatar = $phpbbForum->get_avatar($wpuIntID, $size, $size, $safe_alt);	
 			
 			if(!empty($phpbbAvatar) && (stristr($phpbbAvatar, 'wpuput=1') === false)) {
+				$phpbbAvatar = str_replace('src=', 'class="avatar avatar-' . $size . ' photo" src=', $phpbbAvatar);
 				return $phpbbAvatar;
 			}
 			

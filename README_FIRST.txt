@@ -104,6 +104,34 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
+= v0.9.2.0 RELEASE CANDIDATE 3 =
+
+* NEW: Re-write of cross-posting and cross-posted comments. Cross-posted comments now appear mixed with WordPress comments, and can be viewed, filtered and managed from WordPress as well as phpBB. Cross-posted topics now also fully support custom ordering, threading and guest posting, and are stored and recalled more efficiently.
+* NEW: Cross-posted comments (posted by guests) that are pending moderator approval in phpBB now show up in WordPress, with the appropriate "pending approval" message.
+* NEW: Guest-cross-posted comments now store e-mail and website, just like native comments.
+* NEW: New cross-posting comment permission in phpBB allows guests to cross-post comments without having to open your forum up to guests.
+* NEW: Cross-posts by unauthenticated users can now be passed through WordPress filters (e.g. Akismet).
+* NEW: The initial connection screen now falls back to manual path entry if your server has restrictions on scannng the document root
+* NEW: You can choose to enter the phpBB path and document root manually, in case your phpBB root is under a different document root.
+* BUGFIX: Users getting logged out of phpBB on full-page phpBB-in-WordPress
+* WORKAROUND: Incorrect user integration flow when Ultimate TinyMCE (or similar plugins that set current user too early) are active.
+* BUGFIX: Regression in avatars; default avatars getting syncd to phpBB rather than true Gravatars.
+* BUGFIX: categories/tags & stats not showing up for some users if the same database user is used for phpBB & WordPress in some circumstances.
+* BUGFIX: Initial connect screen was complaining about lack of phpBB MOD before even trying to connect
+* NEW: More errors can now be passed through on the initial connect & settings screens: No more guessing what it is keeping you from installing.
+* NEW / BUGFIX: The forum page title keeps getting reset back to "Forum" and the page creation date keeps updating.
+* BUGFIX: Top navbar not correctly showing post name
+* BUGFIX: Numerous issues with caching of template-integrated stylesheets leading to very full caches and some styling errors.
+* BUGFIX: Userdata cache not cleared on first integrated login to phpBB
+* BUGFIX: $table_prefix was getting unset on phpBB-in-WordPress pages, upsetting some mods
+* BUGFIX: Improve handling of double-byte characters when escaping cross-posted topic titles and user names in user mapper.
+* BUGFIX: Clash with the phpBB classifieds MOD
+* BUGFIX: Synced avatars losing CSS styling
+* ENHANCEMENT: Try multiple ways to initialise admin javascript, so it works even when other plugins with script errors halt JavaScript loading
+* NEW: Lots more login integration debugging, so you can see what is causing login integration problems. Now works on WP pages and in admin too.
+* NEW: Some more core rewriting and cleanup; the context switcher is now separated into its own parent class; the main plugin is now divided into auto-loading modules.
+
+
 = v0.9.1.6 RELEASE CANDIDATE 3 =
 
 * BUGFIX: Regression, profile update in WordPress was not triggering profile update in phpBB
