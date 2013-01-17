@@ -43,6 +43,6 @@ $lang = array_merge($lang, array(
     'acl_m_wpu_editor'    		=> array('lang' => '可以集成为WordPress的编辑(可以编辑他人的发帖)', 'cat' => 'wputd'),
     'acl_a_wpu_administrator'   => array('lang' => '可以编辑为WordPress管理员', 'cat' => 'wputd'),
 	'acl_f_wpu_xpost'			=> array('lang' => '可以在此论坛发帖', 'cat' => 'wputd'),
-	'acl_f_wpu_xpost_comment'	=> array('lang' => "Can reply to blog posts cross-posted to this forum from WordPress (overrides phpBB's 'can post replies')", 'cat' => 'wputd'),
+	'acl_f_wpu_xpost_comment'	=> array('lang' => 'Can reply to blog posts cross-posted to this forum from WordPress', 'cat' => 'wputd'),
 ));
 ?>

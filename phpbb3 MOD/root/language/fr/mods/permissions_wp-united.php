@@ -43,6 +43,6 @@ $lang = array_merge($lang, array(
     'acl_m_wpu_editor'    		=> array('lang' => 'Peut intégrer un éditeur de WordPress (peut éditer les messages des autres)', 'cat' => 'wputd'),
     'acl_a_wpu_administrator'   => array('lang' => 'Peut intégrer en tant qu\'administrateur WordPress', 'cat' => 'wputd'),
 	'acl_f_wpu_xpost'			=> array('lang' => 'Peut écrire des articles à ce forum', 'cat' => 'wputd'),
-	'acl_f_wpu_xpost_comment'	=> array('lang' => "Can reply to blog posts cross-posted to this forum from WordPress (overrides phpBB's 'can post replies')", 'cat' => 'wputd'),
+	'acl_f_wpu_xpost_comment'	=> array('lang' => 'Can reply to blog posts cross-posted to this forum from WordPress', 'cat' => 'wputd'),
 ));
 ?>

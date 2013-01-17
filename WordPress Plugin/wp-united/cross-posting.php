@@ -837,9 +837,9 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		// taken from wp-comment-post.php, native WP translation of strings
 		if ( $requireNameEmail && $guestPosting ) {
 			if ( 6 > strlen($email) || '' == $username ) {
-				wp_die( __('<strong>ERROR</strong>: please fill the required fields (name, email).') );
+				wp_die( __('<strong>ERROR</strong>: please fill in the required fields (name, email).', 'wp-united') );
 			} elseif (!$isValidEmail) {
-				wp_die( __('<strong>ERROR</strong>: please enter a valid email address.') );
+				wp_die( __('<strong>ERROR</strong>: please enter a valid email address.', 'wp-united') );
 			}
 		}
 		

@@ -28,6 +28,6 @@
 	_e('Can integrate as a WordPress editor (can edit others\' posts)', 'wp-united');
 	_e('Can integrate as a WordPress administrator', 'wp-united');
 	_e('Can post blog posts to this forum', 'wp-united');
-	_e("Can reply to (comment on) blog posts in this forum (applies only when WP-United's 'Override phpBB guest permissions' is enabled)", 'wp-united');
+	_e('Can reply to blog posts cross-posted to this forum from WordPress', 'wp-united');
 
 // end of file
