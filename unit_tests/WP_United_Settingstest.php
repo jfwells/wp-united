@@ -17,6 +17,14 @@ class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertTrue(is_object($this->settings));
 	}
-
+	
+	/**
+	*	@depends testSettingsObjectCreate
+	*/
+	public function testSettingsSaveEmpty() {
+		
+		$emptyData = array();
+		$this->settings->update_settings($emptyData);
+	}
 
 }
