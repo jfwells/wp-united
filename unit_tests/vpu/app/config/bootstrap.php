@@ -69,7 +69,7 @@ $config = array(
         // '/path/to/bootstrap.php'
     )
 );
-echo realpath($config['test_directory']);
+die(realpath($config['test_directory']));
 set_include_path(
     get_include_path()
     . PATH_SEPARATOR . $root
