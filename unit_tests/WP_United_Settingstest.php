@@ -19,7 +19,7 @@ class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 		
 		$settings = WP_United_Settings::Create();
 		
-		$this->assertTrue(isObject($settings));
+		$this->assertTrue(is_object($settings));
 	}
 	
 	
