@@ -12,7 +12,7 @@ class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 	}
 	public function teardown() {}
 	
-	public function testSettingsObjectCreated() {
+	public function testSettingsObjectCreate() {
 		
 		$this->settings = WP_United_Settings::Create();
 		
