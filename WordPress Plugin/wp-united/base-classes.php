@@ -476,6 +476,7 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 					'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . 
 									'<br /><br />' . $phpbbUpgradeSimpleMsg
 				);
+				return $checked;
 			}
 			
 			// Add future upgrade checks here
