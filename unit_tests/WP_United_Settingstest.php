@@ -1,8 +1,6 @@
 <?
 define('WPU_TEST_ROOT_PATH', realpath(dirname(dirname(__FILE__))));
 
-echo(WPU_TEST_ROOT_PATH);
-
 class WP_United_SettingsTest extends PHPUnit_Framework_TestCase {
 
 	private $settings;
