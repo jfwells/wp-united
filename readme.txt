@@ -38,7 +38,7 @@ Visit [wp-united.com](http://www.wp-united.com) for more information and to view
 
 The download iincludes the following languages:
 * English
-* Francais
+* Français
 * Deutsch
 * 中文（简体）
 

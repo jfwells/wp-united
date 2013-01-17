@@ -22,6 +22,9 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) {
 global $wpuVersion, $wpuRevision;
 
 $wpuVersion = '0.9.2.0';
+
+//
+
 $wpuRevision = '-r2';
 
 // Done, but build system could add more:
