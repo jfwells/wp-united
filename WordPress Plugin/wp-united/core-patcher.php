@@ -49,89 +49,6 @@ Class WPU_Core_Patcher {
 		
 	private $oldEnv;
 	
-	/** 
-	 * A list of vars that we *know* WordPress will want in the global scope. 
-	 * These are ONLY needed on pages where WP is called from within a function -- which is only on message_die pages. On such pages, most of these won't be needed anyway
-	 */
-	public $globalVarNames = array(
-		// basic
-		'wpdb', 
-		'wp_db_version', 
-		'wp_did_header', 
-		'userdata', 
-		'user_ID', 
-		'current_user',
-		'error',
-		'errors',
-		'post',
-		'posts',
-		'post_cache', 
-		'IN_WORDPRESS',
-		'table_prefix',
-		'wp_version',
-		'wp_taxonomies',
-		'wp_object_cache',
-		'options',
-		'entry',
-		'id',
-		'withcomments',
-		'wp_embed',
-		
-		// widgets
-		'registered_sidebars', 
-		'registered_widgets', 
-		'registered_widget_controls', 
-		'registered_widget_styles', 
-		'register_widget_defaults', 
-		'wp_registered_sidebars', 
-		'wp_registered_widgets', 
-		'wp_registered_widget_controls', 
-		'wp_registered_widget_updates',
-		'_wp_deprecated_widgets_callbacks',
-		
-		// comments
-		'comment', 
-		'comments', 
-		'comment_type', 
-		// k2
-		'allowedtags', 
-		'allowedposttags', 
-		'k2sbm_k2_path', 
-		'k2sbm_theme_path',
-		'wp_version',
-  		'wp_taxonomies', 
-  		// inove
-  		'inove_nosidebar',
-  		// plugins
-  		// awpcp
-  		/*'awpcp_db_version',
-  		'isclassifiedpage',
-  		'hasregionsmodule',
-  		'hascaticonsmodule',
-  		'message',
-  		'user_identity',
-  		'imagesurl',
-  		'haspoweredbyremovalmodule',
-  		'clearform',
-  		'hascaticonsmodule',*/
-
-		// you could add your own here
-	);
-	
-	/**
-	 * these are set as references to objects in the global scope
-	 */
-	private $globalRefs = array( 
-		'wp', 
-		'wp_object_cache',
-		'wp_rewrite', 
-		'wp_the_query', 
-		'wp_query',
-		'wp_locale',
-		'wp_widget_factory'
-	);
-	
-
 	private 
 		$sleepingVars = array(),
 		$varsToSave,
@@ -175,9 +92,8 @@ Class WPU_Core_Patcher {
 		$this->wpVersion = 0;
 		$this->wpu_ver = $GLOBALS['wpuVersion'];
 		
-		// Load plugin fixer -- must be loaded regardless of settings, as core cache may contain plugin fixes
-		require($wpUnited->get_plugin_path() . 'plugin-fixer.php');
-
+		$this->wpu_compat = true;
+		
 	}
 	
 	/**
@@ -257,12 +173,6 @@ Class WPU_Core_Patcher {
 		} 
 		
 
-
-		//Determine if WordPress will be running in the global scope -- in rare ocasions, such as in message_die, it won't be. 
-		// This is fine - even preferable, but many third-party plugins are not prepared for this and we must hold their hands
-		$this->wpu_compat = true;
-		//$this->wpu_compat = ( isset($GLOBALS['amIGlobal']) ) ? TRUE : FALSE;
-		
 		//Override site cookie path if set in options.php
 		if ( (defined('WP_ROOT_COOKIE')) && (WP_ROOT_COOKIE) ) {
 			define  ('SITECOOKIEPATH', '/');
@@ -270,11 +180,6 @@ Class WPU_Core_Patcher {
 			define  ('ADMIN_COOKIE_PATH', '/');
 		}		
 
-
-		if (!$this->wpu_compat) {
-			$this->prepare('foreach ($wpUtdInt->globalVarNames as $globalVarName) global $$globalVarName;');
-			$this->prepare('$beforeVars = array_keys(get_defined_vars());');
-		}
 		
 		
 		// do nothing if WP is already loaded
@@ -337,23 +242,8 @@ Class WPU_Core_Patcher {
 				$cSet = str_replace('include(STYLESHEETPATH . \'/functions.php\');', ' include_once($wpuStyleFixer->fix(STYLESHEETPATH . \'/functions.php\', true));', $cSet);
 				$cSet = str_replace('include(TEMPLATEPATH . \'/functions.php\');', ' include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', $cSet);
 				
-				// Predeclare globals for all 
-				if (!$this->wpu_compat) {
-					$cSet = str_replace('do_action(\'muplugins_loaded\');', 'eval($wpuMuPluginFixer->get_globalString()); unset($wpuMuPluginFixer); do_action(\'muplugins_loaded\');', $cSet);
-					$cSet = str_replace('do_action(\'plugins_loaded\');', 'eval($wpuPluginFixer->get_globalString()); unset($wpuPluginFixer); do_action(\'plugins_loaded\');', $cSet);
-					$cSet = str_replace('include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', 'include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));' . "\n\n" . 'eval($wpuStyleFixer->get_globalString()); unset($wpuStyleFixer);' . "\n" . 'eval($wpuThemeFixer->get_globalString()); unset($wpuThemeFixer);', $cSet);
-				}
 			}
 			
-		
-			//here we handle references to objects that need to be available in the global scope when we're not.
-			if (!$this->wpu_compat) {
-				foreach ( $this->globalRefs as $gloRef ) {
-					$cSet = str_replace('$'. $gloRef . ' ', '$GLOBALS[\'' . $gloRef . '\'] ',$cSet);
-					$cSet = str_replace('$'. $gloRef . '->', '$GLOBALS[\'' . $gloRef . '\']->',$cSet);
-					$cSet = str_replace('=& $'. $gloRef . ';', '=& $GLOBALS[\'' . $gloRef . '\'];',$cSet);
-				}
-			}
 			
 			
 			/**
@@ -384,11 +274,6 @@ Class WPU_Core_Patcher {
 			$this->prepare('wp_die(\'' . WPU_BOARD_DISABLED . '\', \'' . $GLOBALS['user']->lang['BOARD_DISABLED'] . '\');');
 		}
 		
-
-		if ( !$this->wpu_compat ) {
-			$this->prepare('$newVars = array_diff(array_keys(get_defined_vars()), $beforeVars);');
-			$this->prepare('foreach($newVars as $newVar) { if ($newVar != \'beforeVars\') $GLOBALS[$newVar] =& $$newVar;}');
-		}
 		
 		return true;
 

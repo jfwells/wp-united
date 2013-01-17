@@ -306,7 +306,7 @@ class WPU_XPost_Query_Store {
 			
 			$this->currentProvidedLimit = $query->query_vars['number'];
 			
-			$this->currentQuery['hideOtherUnapproved'] = false;
+			$this->currentQuery['hideOtherUnapproved'] = (is_admin()) ? false : true;
 			$this->currentQuery['postID'] = $query->query_vars['post_id'];
 			$this->currentQuery['limit'] = ((int)$query->query_vars['number'] > 0) ? $query->query_vars['number'] : $this->maxLimit;
 			$this->currentQuery['offset'] = $query->query_vars['offset'];

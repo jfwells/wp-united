@@ -5,20 +5,6 @@ ISSUES:
 
 * user mapper not showing correct users when auto-create is off (unactivated user count?) -- it shows mixed intgrated/unintegrated and gets count wrong
 * user creation creating unactivated users?? (404blackbeauty)
-* should repaginate after processing users if set to show integrated/unintegrated
-
-* width fix for profiles on unimog, apply
-
-x-posting todo: 
-
-**** widget showing unmoderated comments
-* No checking for username or e-mail clashes in WP
-* No checking for e-mail clashes in phpBB (we do check for username clash though)
-* we just die on a username that is already in use, when we should really display a nice msg
-* clear comment cache when posting xposted comments
-* should counts still be performed even when no permission? Test with limited subscriber user... / May need to move view permission check to later if possible, so counts aren't broken.
-
-
 
 
 
@@ -48,30 +34,25 @@ COMMITTED FOR v0.9.2.0:
 * NEW: Lots more login integration debugging, so you can see what is causing login integration problems. Now works on WP pages and in admin too.
 * NEW: Some more core rewriting and cleanup; the context switcher is now separated into its own parent class; the main plugin is now divided into auto-loading modules.
 
-*** not redirected to correct comment after posting x-posted comment ***
-
 **** width/height on embeds regression  http://www.wp-united.com/posting.php?mode=reply&f=15&t=1989 ******
 
-**** Automod 1.0.0.1 is spraying files into root ****
-** add alert if enable both auto-creates when curr user unintegrated **
+
 
 TODO:
+* mapper should repaginate after processing users if set to show integrated/unintegrated
 * hot topics & unread posts widgets
 * group who is online by online location
 * restore_state should restore to foreground too
 * warnings about wp_query in responsive...
-* Add Forum, ACP & WPU items to the admin bar
-* mapper HTML entities
 * Check activation status
-* Check custom groups
 * Add generic page.php fallback for full-page option
+* add alert if enable both auto-creates when curr user unintegrated
 
 TODO (LARGER):
-* Entirely remove $compat from core-patcher, and re-obsolete plugin-fixer.php
 * user blogs in WPMU
 
-Priority reported bugs:
-- dying with quickcache or wp super cache
+Live reported bugs:
+- w3 total cache doing nothing, wp super cache not detecting logged in status
 
 
 Regressions:

@@ -946,12 +946,24 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			}
 		}
 		
+		$commentData = array_merge($commentData, array(
+			'comment_ID'	=> $data['post_id'] + $this->integComments->get_id_offset()
+		));
+		
 		$wpComment = (object) $commentData;
 		
 		$phpbbForum->restore_state($fStateChanged);
 		
 		//set comment cookie 
 		do_action('set_comment_cookies', $wpComment, $wpUser);
+		
+		//prime the comment cache
+		if (function_exists('wp_cache_incr')) {
+			wp_cache_incr('last_changed', 1, 'comment');
+		} else {
+			$last_changed = wp_cache_get('last_changed', 'comment');
+			wp_cache_set('last_changed', $last_changed + 1, 'comment');
+		}
 		
 		
 		/**
@@ -960,14 +972,17 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		 * one. 
 		 * @todo: increment page var if necessary, or remove it if comment order is reversed, by adding hidden field with # of comments
 		 */
-		if (!empty($_POST['wpu-comment-redirect'])) {
-			$location  = urldecode($_POST['wpu-comment-redirect']) . '#comment-' . $data['post_id'];
-		} else if(!empty($_POST['redirect_to'])) {
-			$location = $_POST['redirect_to'] . '#comment-' . $data['post_id'];
-		} else {
-			$location = str_replace(array('&amp;', $phpbb_root_path), array('&', $phpbbForum->get_board_url()), $postUrl);
+		 
+		if(!empty($_POST['redirect_to'])) {
+			$location = $_POST['redirect_to'] . '#comment-' . $wpComment->comment_ID;
+		} else if(!empty($_POST['wpu-comment-redirect'])) {
+			$location = urldecode($_POST['wpu-comment-redirect']);
 		}
-		wp_redirect($location); exit();
+		
+		$location = apply_filters('comment_post_redirect', $location, $wpComment);
+
+		wp_safe_redirect($location); 
+		exit();
 	}
 
 
@@ -1009,7 +1024,8 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		}
 		
 		if($postID == NULL) {
-			$postID = $GLOBALS['post']->ID;
+			global $post;
+			$postID = $post->ID;
 		}
 		
 		if (!$this->is_working()) {
@@ -1017,7 +1033,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			return $status;
 		}
 		
-		
+		// if not cross-posted, then status is default
 		$fStateChanged = $phpbbForum->foreground();
 		if(!($dets = $this->get_xposted_details($postID))) {
 			$phpbbForum->restore_state($fStateChanged);
@@ -1031,7 +1047,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 			(empty($dets['topic_approved'])) || 
 			($dets['topic_status'] == ITEM_LOCKED) ||
 			(($dets['forum_id'] == 0) && (!$auth->acl_getf_global('f_reply'))) || // global announcement
-			(!$auth->acl_get('f_reply', $dets['forum_id']) )
+			(!$auth->acl_get('f_wpu_xpost_comment', $dets['forum_id']) )
 		) { 
 				$permsProblem = true;		
 		}
@@ -1041,12 +1057,18 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		/** if user is logged out, we need to return default wordpress comment status
 		 * Then the template can display "you need to log in", as opposed to "comments are closed"
 		 */
-		if($permsProblem && !$phpbbForum->user_logged_in()) { 
-			$this->permsProblem = true;
-			$status = $open;
-			return $status;
+		if($permsProblem) {
+			
+			if(!$phpbbForum->user_logged_in()) { 
+				$this->permsProblem = true;
+				$status = $open;
+				return $status;
+			} else {
+				
+				$status = false;
+				return $status;
+			}
 		}
-
 		
 		$status = true;
 		return $status;
