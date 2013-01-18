@@ -5,12 +5,6 @@ define('ABSPATH', true);
 
 require_once('mockpress/mockpress.php');
 
-if(!function_exists('is_multisite')) {
-	function is_multisite() {
-		return false;
-	}
-}
-
 		
 class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 
@@ -58,7 +52,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		foreach($files as $file) { 
 			if(
 				(stristr($file, 'wp-united.php') === false) &&
-				//(stristr($file, 'settings-panel.php') === false) &&
+				(stristr($file, 'settings-panel.php') === false) &&
 				(stristr($file, 'wordpress-runner.php') === false) &&
 				(stristr($file, 'cache' . DIRECTORY_SEPARATOR) === false)
 			) { 
