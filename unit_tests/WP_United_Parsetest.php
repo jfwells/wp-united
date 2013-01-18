@@ -2,7 +2,10 @@
 define('WPU_TEST_ROOT_PATH', realpath(dirname(dirname(__FILE__))));
 define('IN_PHPBB', true);
 define('ABSPATH', true);
-		
+
+abstract class WP_Widget {
+	public function __construct() {}
+}	
 		
 class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 
