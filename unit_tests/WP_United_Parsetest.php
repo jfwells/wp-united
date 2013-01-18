@@ -29,7 +29,6 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 			require_once($file);
 			$successIs++;
 		}
-		ob_flush();
 		ob_end_clean();
 		$this->assertTrue($successIs === $successLooksLike);
 		
@@ -46,7 +45,6 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 			require_once($file);
 			$successIs++;
 		}
-		ob_flush();
 		ob_end_clean();
 		
 		$this->assertTrue($successIs === $successLooksLike);
