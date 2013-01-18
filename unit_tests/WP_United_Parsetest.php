@@ -17,7 +17,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 	
 	public function test_phpbb() {
 		
-		$files = @$this->deep_glob(WPU_TEST_ROOT_PATH . '/phpbb3 MOD/', '*.php', 0, -1);
+		$files = @$this->deep_glob(WPU_TEST_ROOT_PATH . '/phpbb3\ MOD/root/', '*.php', 0, -1);
 print_r($files);
 		foreach($files as $file) { 
 			require_once($file);
