@@ -724,6 +724,14 @@ div.subsettings div.subsettings div.subsettings {
 	margin-left: 0;
 }
 
+#wputabs label {
+	padding: 0 4px 3px 4px;
+	font-weight: normal;
+	font-style: italic;
+	cursor: pointer;
+	color: #222288;
+}
+
 .wpupermnever, .wpupermyes{
 	-moz-border-radius:3px 3px 3px 3px;
 	border-style:solid;
