@@ -19,7 +19,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		
 		$files = @glob(WPU_TEST_ROOT_PATH . '/phpbb3 MOD/*.php');
 
-		foreach($files as $file) {
+		foreach($files as $file) { echo $file;
 			require_once($file);
 		}
 		
@@ -29,7 +29,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		
 		$files = @glob(WPU_TEST_ROOT_PATH . '/WordPress Plugin/*.php');
 
-		foreach($files as $file) {
+		foreach($files as $file) { echo $file;
 			if(stristr($file, 'wp-united.php') === false) {
 				require_once($file);
 			}
