@@ -5,7 +5,10 @@ define('ABSPATH', true);
 
 abstract class WP_Widget {
 	public function __construct() {}
-}	
+}
+function _e() {
+	return;
+}
 		
 class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 
