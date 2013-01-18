@@ -13,7 +13,11 @@
 	 *
 	 *	This file is *not* run in WP-United and may not be included. It can be safely deleted.
 	 */
-	die();
+
+	
+	if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) {
+		exit;
+	}
 	
 	// Base translations
 	_e('WordPress Blog', 'wp-united');

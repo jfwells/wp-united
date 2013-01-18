@@ -11,6 +11,11 @@
 * Runs WordPress in phpBB
 */
 
+/**
+ */
+if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) {
+	exit;
+}
 
 //Initialise the cache
 require_once($wpUnited->get_plugin_path() . 'cache.php'); //@TODO: INIT THIS IN WP-UNITED CLASS
