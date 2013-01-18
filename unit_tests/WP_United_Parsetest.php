@@ -5,6 +5,12 @@ define('ABSPATH', true);
 
 require_once('mockpress/mockpress.php');
 
+if(!function_exists('is_multisite')) {
+	function is_multisite() {
+		return false;
+	}
+}
+
 		
 class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 
