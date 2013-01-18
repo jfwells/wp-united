@@ -4,10 +4,6 @@ define('IN_PHPBB', true);
 define('ABSPATH', true);
 
 require_once('mockpress/mockpress.php');
-abstract class WP_Widget {
-	public function __construct() {}
-}
-
 
 		
 class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
@@ -56,7 +52,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		foreach($files as $file) { 
 			if(
 				(stristr($file, 'wp-united.php') === false) &&
-				(stristr($file, 'settings-panel.php') === false) &&
+				//(stristr($file, 'settings-panel.php') === false) &&
 				(stristr($file, 'wordpress-runner.php') === false) &&
 				(stristr($file, 'cache' . DIRECTORY_SEPARATOR) === false)
 			) { 
