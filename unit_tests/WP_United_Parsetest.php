@@ -35,6 +35,8 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		ob_end_clean();
 		$this->assertTrue($successIs === $successLooksLike);
 		
+		return $successIs;
+		
 	}
 
 	public function test_wp() {
@@ -56,6 +58,8 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		ob_end_clean();
 		
 		$this->assertTrue($successIs === $successLooksLike);
+		
+		return $successIs;
 		
 	}
 	
