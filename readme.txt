@@ -33,10 +33,12 @@ WP-United also includes eight widgets for you to drop into your WordPress page. 
 * Birthday list
 * Quick poll (select from active phpBB polls in an ajax widget)
 * Forum top bar (with breadcrumbs that work in WordPress)
+* Forum bottom bar (to match the top bar!)
 
 Visit [wp-united.com](http://www.wp-united.com) for more information and to view example integrations in the gallery.
 
 The download iincludes the following languages:
+
 * English
 * Français
 * Deutsch

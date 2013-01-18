@@ -698,6 +698,12 @@ function get_wpu_login_user_info($args) {
 function _wpu_get_breadcrumbs($showSiteHome)  {
 	global $wpUnited, $phpbbForum;
 	
+	static $crumbStr = false;
+	
+	if(!empty($crumbStr)) {
+		return $crumbStr;
+	}
+	
 	$crumbs = array();
 	$accessKey = 'accesskey="h"';
 	$crumbStr = '';
