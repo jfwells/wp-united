@@ -18,8 +18,8 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 	public function test_phpbb() {
 		
 		$files = @$this->deep_glob(WPU_TEST_ROOT_PATH . '/phpbb3 MOD/', '*.php', 0, -1);
-
-		foreach($files as $file) { echo '*';
+print_r($files);
+		foreach($files as $file) { 
 			require_once($file);
 		}
 		
