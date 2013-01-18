@@ -45,8 +45,8 @@ $lang = array_merge($lang, array(
 
 	'BLOG' 							=>	'Blog WordPress',
 	'VISIT_BLOG'					=>	'Visiter le blog de l\'utilisateur',
-	'Function_Duplicate' 			=>	'ERREUR: nom de la fonction dupliqué détecté. S'il vous plaît visitez www.wp-united.com pour signaler l'erreur.',
-	'WPU_Credit' 					=>	'Intégration par %sWP-United%s ',
+	'Function_Duplicate' 			=>	"ERREUR: nom de la fonction dupliqué détecté. S'il vous plaît visitez www.wp-united.com pour signaler l'erreur.",
+	'WPU_Credit' 					=>	'Intégration par %sWP-United%s',
 
 ));
 
