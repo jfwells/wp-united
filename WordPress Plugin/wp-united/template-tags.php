@@ -695,20 +695,12 @@ function get_wpu_login_user_info($args) {
 }
 
 
-/**
- * Displays the phpBB nav block.
- */
-
-function wpu_phpbb_nav_block($args) {
-
-	global $phpbbForum, $phpEx, $wpUnited;
-	
-	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegLink' => 1, 'useNativeCSS' => 0);
-	extract(_wpu_process_args($args, $defaults));
-	$ret = '';
+function _wpu_get_breadcrumbs($showSiteHome)  {
+	global $wpUnited, $phpbbForum;
 	
 	$crumbs = array();
 	$accessKey = 'accesskey="h"';
+	$crumbStr = '';
 	
 	if($showSiteHome) {
 		$crumbs[] = '<a href="' . $phpbbForum->append_sid($phpbbForum->get_board_url()) . '" ' . $accessKey . '>' . $phpbbForum->lang['FORUM_INDEX'] . '</a>';
@@ -727,6 +719,30 @@ function wpu_phpbb_nav_block($args) {
 		} 
 	}
 	
+	foreach($crumbs as $crumbID => $crumb) { 
+		if($crumbID > 0) {
+			$crumbStr .= ' <strong>&#8249;</strong> ';
+		}
+		$crumbStr .= $crumb;
+	}
+	
+	return $crumbStr;
+	
+	
+}
+
+/**
+ * Displays the phpBB nav block.
+ */
+
+function wpu_phpbb_nav_block($args) {
+
+	global $phpbbForum, $phpEx, $wpUnited;
+	
+	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegLink' => 1, 'useNativeCSS' => 0);
+	extract(_wpu_process_args($args, $defaults));
+	$ret = '';
+	
 	$nativeClass = (!$useNativeCSS) ? 'wpuisle' : 'wpunative';
 	
 	$PMs = $phpbbForum->get_user_pm_details();
@@ -738,13 +754,8 @@ function wpu_phpbb_nav_block($args) {
 			<div class="navinner"><span class="corners-top"><span></span></span>
 			<ul class="linklist navlinks">
 				<li class="icon-home">
-					<?php foreach($crumbs as $crumbID => $crumb) { 
-						if($crumbID > 0) {
-							echo ' <strong>&#8249;</strong> ';
-						}
-						echo $crumb;
-					} ?> 
-
+					<?php echo _wpu_get_breadcrumbs($showSiteHome); ?> 
+				</li>
 				<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
 			</ul>
 			
@@ -780,7 +791,54 @@ function wpu_phpbb_nav_block($args) {
 
 			<span class="corners-bottom"><span></span></span></div>
 		</div>
-	<?php if(!$useNativeCSS) { ?></div></div><?php } ?>
+	</div></div>
+	
+	<?php
+}
+
+
+/**
+ * Nav block footer
+ * @conceived by *daniel
+ */
+ 
+function wpu_phpbb_nav_block_footer($args) {
+
+	global $phpbbForum, $phpEx, $wpUnited;
+	
+	$defaults = array('showSiteHome' => 1, 'useNativeCSS' => 0);
+	extract(_wpu_process_args($args, $defaults));
+	$ret = '';
+	$timeZoneString = '';
+	
+	$nativeClass = (!$useNativeCSS) ? 'wpuisle' : 'wpunative';
+	
+	// get timezone
+	$fStateChanged = $phpbbForum->foreground();
+	global $config;
+	$tz = ($phpbbForum->get_userdata('user_id') != ANONYMOUS) ? strval(doubleval($phpbbForum->get_userdata('user_timezone'))) : strval(doubleval($config['board_timezone']));
+	if($phpbbForum->get_userdata('user_dst') || ($phpbbForum->get_userdata('user_id') == ANONYMOUS && $config['board_dst'])) {
+		$timeZoneString = sprintf($phpbbForum->lang['ALL_TIMES'], $phpbbForum->lang['tz'][$tz], $phpbbForum->lang['tz']['dst']);
+	} else {
+		$timeZoneString = sprintf($phpbbForum->lang['ALL_TIMES'], $phpbbForum->lang['tz'][$tz], '');
+	}
+	$phpbbForum->restore_state($fStateChanged);
+	
+	
+	?>
+	
+	<div class="textwidget <?php echo $nativeClass; ?>"><div class="<?php echo $nativeClass; ?>2">
+		<div class="navbar ">
+			<div class="navinner"><span class="corners-top"><span></span></span>
+			<ul class="linklist">
+				<li class="icon-home">
+					<?php echo _wpu_get_breadcrumbs($showSiteHome); ?> 
+				</li>			
+			<li class="rightside"><a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'memberlist.' . $phpEx . '?mode=leaders' ); ?>"><?php echo $phpbbForum->lang['THE_TEAM']; ?></a> &bull; <a href="<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx .'?mode=delete_cookies'); ?>"><?php echo $phpbbForum->lang['DELETE_COOKIES']; ?></a> &bull; <?php echo $timeZoneString; ?></li>
+			</ul>
+			<span class="corners-bottom"><span></span></span></div>
+		</div>
+	</div></div>
 	
 	<?php
 

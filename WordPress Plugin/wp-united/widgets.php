@@ -475,6 +475,7 @@ class WPU_Useful_Forum_Links_Widget extends WP_Widget {
 
 
 class WPU_Forum_Nav_Block_Widget extends WP_Widget {
+	
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB prosilver forum navigation / breadcrumb bar. If you have template integration turned on, this will only appear on non-forum pages. Your forum must be using a prosilver-based theme for this to work.', 'wp-united') );
 		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
@@ -499,11 +500,9 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 			wpu_add_board_styles(true);
 		}
 		
-		
-		
+
 		echo $before_widget;
 		wpu_phpbb_nav_block("showSiteHome={$showSiteHome}&showMemberList={$showMemberList}&showRegisterLink={$showRegisterLink}&useNativeCSS={$nativeCSS}");	
-		
 		echo $after_widget;
 
 	}
@@ -543,8 +542,68 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		<p><input id="<?php echo $this->get_field_id('nativeCSS'); ?>" name="<?php echo $this->get_field_name('nativeCSS'); ?>" type="checkbox" value="ok"  <?php echo $nativeCSS ?> /> <label for="<?php echo $this->get_field_id('nativeCSS'); ?>"><?php _e("Don't add CSS, I will style this myself", 'wp-united'); ?></label></p>
 		<?php
 	}
-	
+}
 
+/**
+ * Displays the bottom forum bar, with WordPress breadcrub navigation
+ * @conceived by *daniel
+ * 
+ */
+class WPU_Forum_Nav_Block_Footer_Widget extends WP_Widget {
+	public function __construct() {
+		$widget_ops = array('classname' => 'wp-united-forum-navblock-ftr', 'description' => __('Shows the bottom phpBB prosilver forum footer bar. If you have template integration turned on, this will only appear on non-forum pages. Your forum must be using a prosilver-based theme for this to work.', 'wp-united') );
+		$this->WP_Widget('wp-united-forum-navblock-ftr', __('WP-United Forum Navigation Footer Bar', 'wp-united'), $widget_ops);
+	}
+	
+	public function widget($args, $instance) {
+		global $wpUnited;
+		
+		extract($args, EXTR_SKIP);
+		
+		$showSiteHome = $instance['showSiteHome'];
+		$nativeCSS = $instance['nativeCSS'];
+		
+		if(!defined('WPU_BLOG_PAGE') || is_admin()) {
+			return;
+		}
+		
+		if (is_active_widget(false, false, $this->id_base) && !$wpUnited->should_do_action('template-w-in-p') && !$nativeCSS) {
+			wpu_add_board_styles(true);
+		}
+	
+		
+		echo $before_widget;
+		wpu_phpbb_nav_block_footer("showSiteHome={$showSiteHome}&useNativeCSS={$nativeCSS}");	
+		echo $after_widget;
+
+	}
+	
+	public function update($new_instance, $old_instance) {
+		//save the widget
+		$instance = $old_instance;
+
+		$instance['showSiteHome'] 		= (strip_tags(stripslashes($new_instance['showSiteHome'])) 		== 	'ok')? 1 : 0;
+		$instance['nativeCSS'] 			= (strip_tags(stripslashes($new_instance['nativeCSS'])) 		== 	'ok')? 1 : 0;
+		
+		return $instance;
+	}
+	
+	public function form($instance) {
+		//widget form
+		
+		$instance = wp_parse_args( (array) $instance, array( 
+			'showSiteHome'			=> 0, 
+			'nativeCSS' 			=> 0
+		));
+		
+		$showSiteHome		= (!empty($instance['showSiteHome'])) 		? 'checked="checked"' : '';
+		$nativeCSS 			= (!empty($instance['nativeCSS'])) 			? 'checked="checked"' : '';
+
+		?>
+		<p><input id="<?php echo $this->get_field_id('showSiteHome'); ?>" name="<?php echo $this->get_field_name('showSiteHome'); ?>" type="checkbox" value="ok"  <?php echo $showSiteHome ?> /> <label for="<?php echo $this->get_field_id('showSiteHome'); ?>"><?php _e('Show forum index as home breadcrumb?', 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('nativeCSS'); ?>" name="<?php echo $this->get_field_name('nativeCSS'); ?>" type="checkbox" value="ok"  <?php echo $nativeCSS ?> /> <label for="<?php echo $this->get_field_id('nativeCSS'); ?>"><?php _e("Don't add CSS, I will style this myself", 'wp-united'); ?></label></p>
+		<?php
+	}	
 }
 
 class WPU_Forum_Birthdays_Widget extends WP_Widget {
@@ -625,6 +684,7 @@ function wpu_widgets_init() {
 	register_widget('WPU_Forum_Users_Online_Widget');
 	register_widget('WPU_Useful_Forum_Links_Widget');
 	register_widget('WPU_Forum_Nav_Block_Widget');
+	register_widget('WPU_Forum_Nav_Block_Footer_Widget');
 	register_widget('WPU_Forum_Birthdays_Widget');
 
 }
