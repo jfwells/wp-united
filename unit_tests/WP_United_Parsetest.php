@@ -22,7 +22,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		$files = @$this->deep_glob(WPU_TEST_ROOT_PATH . '/phpbb3\ MOD/root/', '*.php', 0, -1);
 		$successLooksLike = sizeof($files);
 		$successIs = 0;
-		foreach($files as $file) { 
+		foreach($files as $file) { echo $file;
 			require_once($file);
 			$successIs++;
 		}
