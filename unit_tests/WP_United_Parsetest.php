@@ -34,6 +34,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		ob_start();
 		foreach($files as $file) {
 			if(stristr($file, 'style-fixer.php') === false) {
+				echo " Got to $file \n";
 				require_once($file);
 			}
 			$successIs++;
@@ -58,7 +59,8 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 				(stristr($file, 'settings-panel.php') === false) &&
 				(stristr($file, 'wordpress-runner.php') === false) &&
 				(stristr($file, 'cache' . DIRECTORY_SEPARATOR) === false)
-			) { echo $file . "\n";
+			) { 
+				echo " Got to $file \n";
 				require_once($file);
 			}
 			$successIs++;
