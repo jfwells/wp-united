@@ -20,22 +20,26 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 	public function test_phpbb() {
 		
 		$files = @$this->deep_glob(WPU_TEST_ROOT_PATH . '/phpbb3\ MOD/root/', '*.php', 0, -1);
-
+		$successLooksLike = sizeof($files);
+		$successIs = 0;
 		foreach($files as $file) { 
 			require_once($file);
+			$successIs++;
 		}
+		$this->assertTrue($successIs === $successLooksLike);
 		
 	}
 
 	public function test_wp() {
 		
 		$files = @$this->deep_glob(WPU_TEST_ROOT_PATH . '/WordPress\ Plugin/', '*.php', 0, -1);
-
-		foreach($files as $file) { echo '*';
-			if(stristr($file, 'wp-united.php') === false) {
-				require_once($file);
-			}
+		$successLooksLike = sizeof($files);
+		$successIs = 0;
+		foreach($files as $file) { 
+			require_once($file);
+			$successIs++;
 		}
+		$this->assertTrue($successIs === $successLooksLike);
 		
 	}
 	
