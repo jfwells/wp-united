@@ -1,11 +1,13 @@
 <?
 define('WPU_TEST_ROOT_PATH', realpath(dirname(dirname(__FILE__))));
-
+define('IN_PHPBB', true);
+define('ABSPATH', true);
+		
+		
 class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 
 	public function setup() {
-		define('IN_PHPBB', true);
-		define('ABSPATH', true);
+		
 	}
 	
 	
