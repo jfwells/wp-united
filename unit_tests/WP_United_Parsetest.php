@@ -53,7 +53,8 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 			if(
 				(stristr($file, 'wp-united.php') === false) &&
 				(stristr($file, 'settings-panel.php') === false) &&
-				(stristr($file, 'wordpress-runner.php') === false)
+				(stristr($file, 'wordpress-runner.php') === false) &&
+				(stristr($file, 'cache' . DIRECTORY_SEPARATOR) === false)
 			) {
 				require_once($file);
 			}
