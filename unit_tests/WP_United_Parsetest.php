@@ -26,7 +26,7 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 
 
 		ob_start();
-		foreach($files as $file) { echo $file;
+		foreach($files as $file) {
 			if(stristr($file, 'style-fixer.php') === false) {
 				require_once($file);
 			}
@@ -45,7 +45,10 @@ class WP_United_ParseTest extends PHPUnit_Framework_TestCase {
 		
 		ob_start();
 		foreach($files as $file) { 
-			if(stristr($file, 'wp-united.php') === false) {
+			if(
+				(stristr($file, 'wp-united.php') === false) &&
+				(stristr($file, 'settings-panel.php') === false)
+			) {
 				require_once($file);
 			}
 			$successIs++;
