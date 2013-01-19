@@ -1,4 +1,4 @@
-=== WP-United : phpBB WordPress integration ===
+=== WP-United : phpBB WordPress Integration ===
 Contributors: Jhong
 Donate link: http://www.wp-united.com/
 Tags: phpbb, phpBB3, forum, social, integrate, bridge, integration, widgets, template, sign-on, theme, user integration, database, wp-united, cross-post, post to forum
@@ -23,7 +23,7 @@ WP-United is fully modular and individual features can be turned on and off. The
 * **Behaviour integration**: Use phpBB smilies and word censor features in WordPress 
 * **Cross-posting**: Post something in WordPress and have it cross-posted to your forum -- Automatically or manually, you choose! Once an item is cross-posted, comments in phpBB and WordPress can be set to sync up under the blog item too!
 
-WP-United also includes eight widgets for you to drop into your WordPress page. Each widget is configurable and displays a wealth of forum information to increase engagement on your site:
+WP-United also includes TEN widgets for you to drop into your WordPress page. Each widget is configurable and displays a wealth of forum information to increase engagement on your site. All of these widgets work even with the above modules turned off. They are:
 
 * Latest forum posts
 * Latest forum topics
@@ -32,6 +32,7 @@ WP-United also includes eight widgets for you to drop into your WordPress page. 
 * An integrated login/meta/avatar/profile block
 * Birthday list
 * Quick poll (select from active phpBB polls in an ajax widget)
+* Useful forum links list
 * Forum top bar (with breadcrumbs that work in WordPress)
 * Forum bottom bar (to match the top bar!)
 
