@@ -83,6 +83,15 @@ Please visit [This thread](http://www.wp-united.com/viewtopic.php?f=14&t=3314) t
 
 == Changelog ==
 
+= v0.9.2.1 RELEASE CANDIDATE 3 =
+
+* NEW: Forum bottom nav bar widget (to match the top bar widget; thanks *daniel!)
+* BUGFIX: Error with French phpBB language file
+* BUGFIX: Javascript errors with some translations
+* BUGFIX: Error in user mapper with russian localisation
+* IMPROVEMENT: Minor cosmetic improvements to setings panels
+
+
 = v0.9.2.0 RELEASE CANDIDATE 3 =
 
 * NEW: Re-write of cross-posting and cross-posted comments. Cross-posted comments now appear mixed with WordPress comments, and can be viewed, filtered and managed from WordPress as well as phpBB. Cross-posted topics now also fully support custom ordering, threading and guest posting, and are stored and recalled more efficiently.
@@ -283,3 +292,5 @@ This version fixes a few minor bugs associated with profile updates and widgets,
 = 0.9.2.0 =
 This version fixes a lot of minor bugs and also makes many improvements to cross-posting. Please update. You need to update both the phpBB and WordPress side of WP-United. For the phpBB side, you only need to copy over the updated files.
 
+= 0.9.2.1 =
+This version fixes Some bugs with the non-english, localised versions of WP-United, and adds a new widget.

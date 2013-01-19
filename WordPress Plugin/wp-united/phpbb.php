@@ -1161,7 +1161,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		
 		// Add permissions
 		$auth_admin->acl_add_option(array(
-			'local'      => array('f_wpu_xpost', 'f_wpu_xpost_comment'),
+			'local'      => array('f_wpu_xpost'),
 			'global'   => array('f_wpu_xpost_comment', 'u_wpu_subscriber','u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
 		));
 

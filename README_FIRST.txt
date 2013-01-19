@@ -104,6 +104,14 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
+= v0.9.2.1 RELEASE CANDIDATE 3 =
+
+* NEW: Forum bottom nav bar widget (to match the top bar widget; thanks *daniel!)
+* BUGFIX: Error with French phpBB language file
+* BUGFIX: Javascript errors with some translations
+* BUGFIX: Error in user mapper with russian localisation
+* IMPROVEMENT: Minor cosmetic improvements to setings panels
+
 = v0.9.2.0 RELEASE CANDIDATE 3 =
 
 * NEW: Re-write of cross-posting and cross-posted comments. Cross-posted comments now appear mixed with WordPress comments, and can be viewed, filtered and managed from WordPress as well as phpBB. Cross-posted topics now also fully support custom ordering, threading and guest posting, and are stored and recalled more efficiently.
