@@ -1,7 +1,7 @@
 <?php
 
 /*
-Plugin Name: WP-United: phpBB Integration
+Plugin Name: WP-United: phpBB WordPress Integration
 Plugin URI: http://www.wp-united.com
 Description: WP-United connects to your phpBB forum and integrates user sign-on, behaviour and theming. Once your forum is up and running, you should not disable this plugin.
 Author: John Wells
