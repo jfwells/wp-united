@@ -433,12 +433,12 @@ function wpu_setup_menu() {
 		var filetreeNonce = '<?php echo wp_create_nonce ('wp-united-filetree'); ?>';
 		var transmitNonce = '<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
 		var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
-		var blankPageMsg = '<?php _e('Blank page received: check your error log.', 'wp-united'); ?>';
+		var blankPageMsg = '<?php wpu_js_translate(__('Blank page received: check your error log.', 'wp-united')); ?>';
 		var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
-		var fileTreeLdgText = '<?php _e('Loading...', 'wp-united'); ?>';
-		var connectingText = '<?php _e('Connecting...', 'wp-united'); ?>';
-		var manualText = '<?php _e('I want to type the path manually', 'wp-united'); ?>';
-		var autoText = '<?php _e('Show me the file chooser', 'wp-united'); ?>';
+		var fileTreeLdgText = '<?php wpu_js_translate(__('Loading...', 'wp-united')); ?>';
+		var connectingText = '<?php wpu_js_translate(__('Connecting...', 'wp-united')); ?>';
+		var manualText = '<?php wpu_js_translate(__('I want to type the path manually', 'wp-united')); ?>';
+		var autoText = '<?php wpu_js_translate(__('Show me the file chooser', 'wp-united')); ?>';
 
 
 		function wpu_hardened_init_tail() {
@@ -754,29 +754,29 @@ function wpu_user_mapper() {
 		var currWpUser				= '<?php echo $GLOBALS['current_user']->ID; ?>';
 		var currPhpbbUser			= '<?php echo $phpbbForum->get_userdata('user_id'); ?>';
 
-		var wpText 					=	'<?php _e('WordPress', 'wp-united'); ?>';
-		var phpbbText 				= '<?php _e('phpBB', 'wp-united'); ?>';
-		var mapEditTitle 			= '<?php _e('Editing user. When you are finished, close this screen.', 'wp-united'); ?>';
-		var mapProfileTitle 		= '<?php _e('Viewing user profile. When you are finished, close this screen.', 'wp-united'); ?>';
-		var actionBreak 			=	'<?php _e('Break integration', 'wp-united'); ?>';
-		var actionBreakDets 		=	'<?php _e('between %1$s and %2$s', 'wp-united'); ?>';
-		var actionSync 			=	'<?php _e('Synchronize profiles', 'wp-united'); ?>';
-		var actionSyncDets 		=	'<?php _e('between %1$s and %2$s', 'wp-united'); ?>';
-		var actionDelBoth 			=	'<?php _e('Delete ', 'wp-united'); ?>';
-		var actionDelBothDets 	=	'<?php _e('%1$s from %2$s and %3$s from %4$s', 'wp-united'); ?>';
-		var actionDel 				=	'<?php _e('Delete ', 'wp-united'); ?>';
-		var actionDelDets 			=	'<?php _e('%1$s from %2$s', 'wp-united'); ?>';
-		var actionCreate			=	'<?php _e('Create ', 'wp-united'); ?>';
-		var actionCreateDets 	=	'<?php _e('integrated counterpart for %1$s in %2$s', 'wp-united'); ?>';
-		var actionIntegrate		=	'<?php _e('Integrate ', 'wp-united'); ?>';
-		var actionIntegrateDets =	'<?php _e('%1$s user %2$s to %3$s user %4$s', 'wp-united'); ?>';
+		var wpText 					=	'<?php wpu_js_translate(__('WordPress', 'wp-united')); ?>';
+		var phpbbText 				= '<?php wpu_js_translate(__('phpBB', 'wp-united')); ?>';
+		var mapEditTitle 			= '<?php wpu_js_translate(__('Editing user. When you are finished, close this screen.', 'wp-united')); ?>';
+		var mapProfileTitle 		= '<?php wpu_js_translate(__('Viewing user profile. When you are finished, close this screen.', 'wp-united')); ?>';
+		var actionBreak 			=	'<?php wpu_js_translate(__('Break integration', 'wp-united')); ?>';
+		var actionBreakDets 		=	'<?php wpu_js_translate(__('between %1$s and %2$s', 'wp-united')); ?>';
+		var actionSync 			=	'<?php wpu_js_translate(__('Synchronize profiles', 'wp-united')); ?>';
+		var actionSyncDets 		=	'<?php wpu_js_translate(__('between %1$s and %2$s', 'wp-united')); ?>';
+		var actionDelBoth 			=	'<?php wpu_js_translate(__('Delete ', 'wp-united')); ?>';
+		var actionDelBothDets 	=	'<?php wpu_js_translate(__('%1$s from %2$s and %3$s from %4$s', 'wp-united')); ?>';
+		var actionDel 				=	'<?php wpu_js_translate(__('Delete ', 'wp-united')); ?>';
+		var actionDelDets 			=	'<?php wpu_js_translate(__('%1$s from %2$s', 'wp-united')); ?>';
+		var actionCreate			=	'<?php wpu_js_translate(__('Create ', 'wp-united')); ?>';
+		var actionCreateDets 	=	'<?php wpu_js_translate(__('integrated counterpart for %1$s in %2$s', 'wp-united')); ?>';
+		var actionIntegrate		=	'<?php wpu_js_translate(__('Integrate ', 'wp-united')); ?>';
+		var actionIntegrateDets =	'<?php wpu_js_translate(__('%1$s user %2$s to %3$s user %4$s', 'wp-united')); ?>';
 		
-		var wpuProcessingText = 	'<?php _e('Processing permission mappings...', 'wp-united'); ?>';
-		var wpuWaitText = 			'<?php _e('Please wait...', 'wp-united'); ?>';
-		var wpuConnectingText = 	'<?php _e('Connecting...', 'wp-united'); ?>';
-		var wpuClearingText = 		'<?php _e('Clearing changes', 'wp-united'); ?>';
+		var wpuProcessingText = 	'<?php wpu_js_translate(__('Processing permission mappings...', 'wp-united')); ?>';
+		var wpuWaitText = 			'<?php wpu_js_translate(__('Please wait...', 'wp-united')); ?>';
+		var wpuConnectingText = 	'<?php wpu_js_translate(__('Connecting...', 'wp-united')); ?>';
+		var wpuClearingText = 		'<?php wpu_js_translate(__('Clearing changes', 'wp-united')); ?>';
 		
-		var acpPopupTitle = '<?php _e('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.', 'wp-united'); ?>';
+		var acpPopupTitle = '<?php wpu_js_translate(__('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.', 'wp-united')); ?>';
 		
 		
 		function wpu_hardened_init_tail() {
@@ -1435,16 +1435,16 @@ function wpu_settings_page() {
 			var transmitMessage;
 			var transmitNonce = '<?php echo wp_create_nonce ('wp-united-transmit'); ?>';
 			var disableNonce = '<?php echo wp_create_nonce ('wp-united-disable'); ?>';
-			var blankPageMsg = '<?php _e('Blank page received: check your error log.', 'wp-united'); ?>';
+			var blankPageMsg = '<?php wpu_js_translate(__('Blank page received: check your error log.', 'wp-united')); ?>';
 			var phpbbPath = '<?php echo ($wpUnited->get_setting('phpbb_path')) ? $wpUnited->get_setting('phpbb_path') : ''; ?>';		
 			var treeScript =  '<?php echo $wpUnited->get_plugin_url() . 'js/filetree.php'; ?>';
 			
-			var statusCSSMDisabled = '<?php _e('Off', 'wp-united'); ?>';
-			var descCSSMDisabled = '<?php _e('All automatic CSS integration is disabled', 'wp-united'); ?>';
-			var statusCSSMMed = '<?php _e('Medium', 'wp-united'); ?>';
-			var descCSSMMed = '<?php echo sprintf(__('%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sSome HTML IDs and class names may be duplicated.%3$s', 'wp-united'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
-			var statusCSSMFull = '<?php _e('Full', 'wp-united'); ?>';
-			var descCSSMFull = '<?php echo sprintf(__('%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sHTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.%3$s', 'wp-united'), '<ul><li>', '</li><li>', '</li></ul>'); ?>';
+			var statusCSSMDisabled = '<?php wpu_js_translate(__('Off', 'wp-united')); ?>';
+			var descCSSMDisabled = '<?php wpu_js_translate(__('All automatic CSS integration is disabled', 'wp-united')); ?>';
+			var statusCSSMMed = '<?php wpu_js_translate(__('Medium', 'wp-united')); ?>';
+			var descCSSMMed = '<?php wpu_js_translate(sprintf(__('%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sSome HTML IDs and class names may be duplicated.%3$s', 'wp-united'), '<ul><li>', '</li><li>', '</li></ul>')); ?>';
+			var statusCSSMFull = '<?php wpu_js_translate(__('Full', 'wp-united')); ?>';
+			var descCSSMFull = '<?php wpu_js_translate(sprintf(__('%1$sStyles are reset to stop outer styles applying to the inner part of the page.%2$sInner CSS is made more specific so it does not affect the outer portion of the page.%2$sHTML IDs and class names that are duplicated in the inner and outer parts of the page are fixed.%3$s', 'wp-united'), '<ul><li>', '</li><li>', '</li></ul>')); ?>';
 			
 			
 			

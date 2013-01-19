@@ -719,7 +719,9 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 				if($key != 'wpu_more_smilies') {
 					echo ',';
 				}
-				echo "'{$key}': '" . str_replace("\\\\'", "\\'", str_replace("'", "\\'",  $lang)) . "'";
+				echo "'{$key}': '";
+				wpu_js_translate($lang);
+				echo "'";
 			}
 			echo "} // ]]>\n</script>";
 		}

@@ -184,4 +184,9 @@ function wpu_get_doc_root() {
 	return $docRoot;
 }
 
+function wpu_js_translate($content) {
+	$content = str_replace(array("\n", "\r", "'"), array('', '', "\'"), $content);
+	echo $content;
+}
+
 // Done. End of file.
