@@ -940,6 +940,7 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 	 */
 	
 	public function record_login($auth_cookie, $expire, $expiration, $userID, $scheme) {
+		global $wpUnited;
 		
 		if(!$wpUnited->is_working()) {
 			return;
