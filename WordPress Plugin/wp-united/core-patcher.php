@@ -250,16 +250,19 @@ Class WPU_Core_Patcher {
 			 * We want to defer initialisation of WP to later, so we wrap the last portion into a callable function
 			 */
 			$cSet = str_replace('$wp->init()', 'function wpu_deferred_wp_load() { $GLOBALS[\'wp\']->init()', $cSet);
-			$cSet = str_replace("do_action('wp_loaded');", "do_action('wp_loaded'); }", $cSet);
+			
 		
 			$cSet = '?'.'>'.trim($cSet).'[EOF]';
-			$cConf = str_replace('require_once',$cSet . ' // ',$cConf);
-
+			$cConf = trim($cConf).'[EOF]';
+			
+			//The callable function is closed here, in case any trailing content has been added to wp-config after the call to wp-settings.
+			$cConf = str_replace('require_once',$cSet . ' // ',$cConf) . "\n" . '}' . '?' . '>';
+			
 			// replace EOFs  -- some versions of WP have closing ? >, others don't
 			// We do it here to prevent expensive preg_replaces
 			$cConf = str_replace(array('?'.'>[EOF]', '[EOF]'), array('?'.'><'.'?php ', ''), $cConf);
 
-			$this->prepare($content = '?'.'>'.trim($cConf).'<' . '?');
+			$this->prepare($content = '?'.'>'. trim($cConf). '<' . '?php');
 			unset ($cConf, $cSet);
 
 

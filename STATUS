@@ -3,7 +3,7 @@ current target: v0.9.2.2
 COMMITTED FOR v0.9.2.2:
 
 * NEW: Autologin / "Remember me" now mapped across between phpBB & WP when logging in.
-
+* BUGFIX: Better handling of modified wp-config file by core-patcher, and fix for short PHP tag in processed code (should fix some errors on logout, etc.)
 
 ISSUES:
 -------
