@@ -27,7 +27,7 @@ function wpu_integrate_login() {
 	// cache and prevent recursion
 	static $result = -1;
 	static $doingLogin = false;
-	
+
 	if(!$doingLogin) {
 	
 		// sometimes this gets called early, e.g. for admin ajax calls.
@@ -69,11 +69,16 @@ function wpu_int_phpbb_logged_out() {
 	global $wpuDebug, $phpbbForum, $wpUnited, $current_user;
 
 	// Check if user is logged into WP
-	get_currentuserinfo();  $wpUser = $current_user;
+	get_currentuserinfo();  
+	$wpUser = $current_user;
 	if(!$wpUser->ID) {
 		$wpuDebug->add('phpBB &amp; WP both logged out.');
 		return false;
 	}
+	
+	// no native way to tell if login is persistent
+	$persist = (bool)get_user_meta($wpUser->ID, 'wpu-remember-login', true);
+	
 	$wpuDebug->add('WP already logged in, phpBB logged out.');
 	$createdUser = false;
 
@@ -104,7 +109,8 @@ function wpu_int_phpbb_logged_out() {
 	if(headers_sent()) {
 		$wpuDebug->add("WARNING: headers have already been sent, won't be able to set phpBB cookie!");
 	}
-	$phpbbForum->create_phpbb_session($phpbbId);
+	
+	$phpbbForum->create_phpbb_session($phpbbId, $persist);
 	$wpuDebug->add("Established Session for user {$phpbbId}.");
 	
 	if($createdUser) {
@@ -122,6 +128,8 @@ function wpu_int_phpbb_logged_in() {
 	
 	$wpuDebug->add('phpBB already logged in.');
 	
+	$persist = (bool)$phpbbForum->get_userdata('session_autologin');
+	
 	// This user is logged in to phpBB and needs to be integrated. Do they already have an integrated WP account?
 	if($integratedID = wpu_get_integration_id() ) {
 		
@@ -134,7 +142,7 @@ function wpu_int_phpbb_logged_in() {
 		}
 		
 		wp_set_current_user($wpUser->ID);		
-		wp_set_auth_cookie($wpUser->ID);
+		wp_set_auth_cookie($wpUser->ID, $persist);
 		
 		$wpuDebug->add('WordPress user set to integrated user.');
 		
@@ -183,7 +191,7 @@ function wpu_int_phpbb_logged_in() {
 				wpu_set_role($wpUser->ID, $userLevel);		
 				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
 				wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync');
-				wp_set_auth_cookie($wpUser->ID);
+				wp_set_auth_cookie($wpUser->ID, $persist);
 				
 				$createdUser = $wpUser->ID;
 				

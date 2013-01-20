@@ -384,12 +384,14 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 			$this->get_userdata('', $userID, true);
 	}
 	
-	public function create_phpbb_session($userID) {
+	public function create_phpbb_session($userID, $persist = false) {
 		global $config, $user;
 		
 		$fStateChanged = $this->foreground();
 		
-		$user->session_create($userID);
+		$persist = false;
+		
+		$user->session_create($userID, false, $persist);
 		$_COOKIE[$config['cookie_name'] . '_sid'] = $user->session_id;
 		unset($_COOKIE[$config['cookie_name'] . '_k']);
 		$_COOKIE[$config['cookie_name'] . '_u'] = $user->data['user_id'];

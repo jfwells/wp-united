@@ -73,7 +73,8 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			array('get_avatar', 						array('get_avatar', 10, 5), 				'integrateLogin'),
 			array('pre_user_login', 					'fix_blank_username', 						'integrateLogin'),
 			array('validate_username', 					array('validate_username_conflict', 10, 2),	'integrateLogin'),
-			array('authenticate', 						array('authenticate', 21, 3), 				'integrateLogin')
+			array('authenticate', 						array('authenticate', 21, 3), 				'integrateLogin'),
+			array('set_auth_cookie', 					array('record_login', 10, 5), 				'integrateLogin')
 		);
 		
 		private
@@ -931,6 +932,23 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 		//just return whatever error was passed in
 		return $user;
 
+	}
+	
+	/**
+	 * Remember if this user selected "remember me" when logging in to WP,
+	 * as WordPress doesn't seem to record this anywhere
+	 */
+	
+	public function record_login($auth_cookie, $expire, $expiration, $userID, $scheme) {
+		
+		if(!$wpUnited->is_working()) {
+			return;
+		}
+		
+		$remember = (empty($expire));
+		
+		update_user_meta($userID, 'wpu-remember-login', $remember);
+		
 	}
 	
 	/**
