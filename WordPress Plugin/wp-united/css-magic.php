@@ -145,7 +145,7 @@ class CSS_Magic {
 				$this->totalItems = $this->totalItems + 1;
 				$this->importedItems[$importIndex] = $imported[0][$importNum];
 				
-				$str = str_replace($imported[0][$importNum], '[WPU_NESTED_IMPORT] {' $importIndex . '}', $str);
+				$str = str_replace($imported[0][$importNum], '[WPU_NESTED_IMPORT] {' . $importIndex . '}', $str);
 				$importIndex++;
 			}
 		}
