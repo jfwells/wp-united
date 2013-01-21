@@ -146,9 +146,14 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 						$useTV = -1;
 						$tvFailed = true;
 					}
-				}	
+				} 
 				// Apply CSS Magic
 				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
+			}
+			
+			// substitute in @imported sub-stylesheets if we can
+			if($useTV == -1) {
+				$cssMagic->process_imports();
 			}
 			
 			if($islandBlock) {

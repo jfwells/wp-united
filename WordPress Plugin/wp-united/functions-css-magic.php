@@ -18,6 +18,7 @@
 if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
 
 
+
 /**
  * CSS MAGIC
  * 
@@ -57,10 +58,11 @@ function wpu_css_magic() {
 	/**
 	 * Template Voodoo
 	 */
-	if ($wpUnited->get_setting('templateVoodoo')) {
+	if ($wpUnited->get_setting('templateVoodoo')) { 
 		
 		//For template voodoo, we also need the outer styles
 		$outerSSLinks = wpu_get_stylesheet_links($wpUnited->get_outer_content(), 'outer');
+		global $wpuDebug;ob_start();print_r($outerSSLinks);$wpuDebug->add(ob_get_contents());ob_end_clean();
 		$inCSSOuter = wpu_extract_css($wpUnited->get_outer_content());
 		
 		// First check if the cached CSS Magic files exist, and insert placeholders for TV cache location if they do
@@ -414,7 +416,7 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 			if((stristr($url, "http:") === false)  && (stristr($url, "https:") === false)) {
 			
 				$out = str_replace(array('url', '(', ')', "'", '"', ' '), '', $url);
-				if ($out != "/") {
+				if ($out != '/') {
 					$replace = true;
 				}
 			}
@@ -447,7 +449,7 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 					if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
 						$out = $relPath.$out;
 					}
-					$out = str_replace('//', '/', $out);		
+					$out = str_replace(array('//', ':/'), array('/', '://'), $out);		
 					$css = str_replace($url, "url('{$out}')", $css);
 				}
 			}

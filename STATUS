@@ -7,15 +7,24 @@ COMMITTED FOR v0.9.2.2:
 * NEW: Allow selection of fall-back templates for older WordPress themes with no page templates.
 * NEW: template integrator can now handle absolute CSS URLs starting with /
 
-ISSUES:
--------
 
 
-* Allow user mapper to re-integrate users with integrated counterparts, dont show as integrated.
-**** width/height on embeds regression  http://www.wp-united.com/posting.php?mode=reply&f=15&t=1989 ******
+
+
 
 
 TODO:
+* template integrator: @import not finished yet -- can't handle correct no. of ../s ?, check w/ live stylesheet
+* outer styles totally blank on cache purge until re-submit settings. Styl keys?
+
+
+
+* banned users
+* no need to run any xpost query on p-in-w full page
+* Allow user mapper to re-integrate users with integrated counterparts, dont show as integrated.
+**** width/height on embeds regression  http://www.wp-united.com/posting.php?mode=reply&f=15&t=1989 ******
+* Add override to cross-posted text
+
 * mapper should repaginate after processing users if set to show integrated/unintegrated
 * hot topics & unread posts widgets
 * group who is online by online location

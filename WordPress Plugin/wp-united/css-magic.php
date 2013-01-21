@@ -143,7 +143,12 @@ class CSS_Magic {
 				// TODO: Filename is $imported[2]
 			
 				$this->totalItems = $this->totalItems + 1;
-				$this->importedItems[$importIndex] = $imported[0][$importNum];
+				$subSheet = new CSS_Magic();
+				$this->importedItems[$importIndex] = array(
+					'obj'		=>	$subSheet,
+					'orig'	=>	$imported[0][$importNum],
+					'url'		=>	$imported[2][$importNum]
+				);
 				
 				$str = str_replace($imported[0][$importNum], '[WPU_NESTED_IMPORT] {' . $importIndex . '}', $str);
 				$importIndex++;
@@ -197,7 +202,32 @@ class CSS_Magic {
 	 * @return void
 	 */
 	public function process_imports($subURL = false, $subPath = false) {
-	
+		
+		$basePath = add_trailing_slash(dirname(realpath($this->filename)));
+		$path = '';
+		
+		foreach($this->importedItems as $importIndex => $importItem) {
+			if(
+				(stristr($importItem['url'], 'http://') !== false) ||
+				(stristr($importItem['url'], 'https://') !== false)
+			) {
+				// full URL:
+				$path = '';
+				
+			} elseif(substr($importItem['url'], 0, 1) === '/') {
+				// absolute URL:
+				$path = '';
+			} else {
+				// relative URL:
+				
+				$path = $basePath . $importItem['url'];
+				
+			}
+
+			$path = @realpath($path);
+			$importItem['obj']->parseFile($path);
+				
+		}
 	}
 	
 	/**
@@ -309,11 +339,11 @@ class CSS_Magic {
 			$fixedKeys = array();
 			if($keyString ==  '[WPU_NESTED]') {
 				$fixedKeys = array('[WPU_NESTED]');
-				$nestedCodeKey = (int)$cssCode;
-				$this->nestedItems[$nestedCodeKey]['content']->_makeSpecific($prefix, $removeBody);
+				$this->nestedItems[(int)$cssCode]['content']->_makeSpecific($prefix, $removeBody);
 			} else if($keyString == '[WPU_NESTED_IMPORT]') {
 				// TODO: process nested import
-			
+				$fixedKeys = array('[WPU_NESTED_IMPORT]');
+				$this->nestedImports[(int)$cssCode]['obj']->_makeSpecific($prefix, $removeBody);
 			} else {
 				$keys = explode(',', $keyString);
 				foreach($keys as $key) {
@@ -398,6 +428,9 @@ class CSS_Magic {
 		foreach($this->nestedItems as $index => $nestedItem) {
 			$nestedItem['content']->removeCommonKeyEl($txt);
 		}
+		foreach($this->importedItems as $index => $importedItem) {
+			$importedItem['obj']->removeCommonKeyEl($txt);
+		}
 	}
 	
 	/**
@@ -430,6 +463,16 @@ class CSS_Magic {
 				$ids = array_merge($ids, $nestedEls['ids']);
 			}
 		}
+		
+		foreach($this->importedItems as $index => $importedItem) {
+			$importedEls = $importedItem['obj']->getKeyClassesAndIDs();
+			if(sizeof($importedEls['classes'])) {
+				$classes = array_merge($classes, $importedEls['classes']);
+			}
+			if(sizeof($importedEls['ids'])) {
+				$ids = array_merge($ids, $importedEls['ids']);
+			}
+		}		
 		
 		if(sizeof($classes)) {
 			$classes = array_unique($classes);
@@ -464,6 +507,13 @@ class CSS_Magic {
 		$keys = preg_replace($theFinds, $theRepl, $keys);
 		$this->css = array_combine($keys, $values);
 		
+		foreach($this->nestedItems as $index => $nestedItem) {
+			$nestedItem['content']->modifyKeys($finds, $replacements);
+		}
+		foreach($this->importedItems as $index => $importedItem) {
+			$importedItem['obj']->modifyKeys($finds, $replacements);
+		}
+		
 	}
 	
 
@@ -480,7 +530,9 @@ class CSS_Magic {
 				$response .= $this->nestedItems[(int)$cssCode]['selector'];
 				$response .= $this->nestedItems[(int)$cssCode]['content']->getCSS() . "}\n\n";;
 			} elseif($keyString == '[WPU_NESTED_IMPORT]') {
-				$response .= $this->importedItems[(int)$cssCode] . "\n\n";
+				$r = $this->importedItems[(int)$cssCode]['obj']->getCSS();
+				$response .= (empty($r)) ? $this->importedItems[(int)$cssCode]['orig'] : $r;
+				$response .= "\n\n";
 			} else {
 				$response .= $keyString . '{' . $cssCode . "}\n\n";
 			}
