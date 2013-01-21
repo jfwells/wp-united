@@ -468,7 +468,7 @@ class CSS_Magic {
 				$response .= $this->nestedItems[(int)$cssCode]['content']->getCSS() . "}\n\n";;
 			} elseif($keyString == '[WPU_NESTED_IMPORT]') {
 				$response .= $this->importedItems[(int)$cssCode];
-			}
+			} else {
 				$response .= $keyString . '{' . $cssCode . "}\n\n";
 			}
 		}
