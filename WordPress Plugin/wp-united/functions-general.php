@@ -139,7 +139,7 @@ function wpu_compute_path_difference($filePath, $currLoc = false) {
 		$pathsBack[] = "..";
 	}
 	$relPath = add_trailing_slash(implode("/", $pathsBack)) . add_trailing_slash(implode("/", $absFileLoc));
-	
+	$relPath = str_replace('//', '/', $relPath);
 	return $relPath;
 }
 
