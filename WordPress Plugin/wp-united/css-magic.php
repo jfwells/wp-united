@@ -107,6 +107,7 @@ class CSS_Magic {
 		$str = str_replace("}\\", '[TANTEK]', $str);
 		// find nested stylesheets
 		preg_match_all('/(\@[^\{]*\{)([^\{^\}]*(\{[^\@^\{^\}]*\}[^\{^\}]*)*?)\}/', $str, $nested);
+		
 		$nestIndex = sizeof($this->nestedItems);
 		if(sizeof($nested[0]) && isset($nested[1]) && is_array($nested[1]) && sizeof($nested[1])) {
 			foreach($nested[1] as $nestNum => $nestSel) {
@@ -125,6 +126,13 @@ class CSS_Magic {
 				}
 			}
 		}
+		
+		// Other nested stylesheets:
+		preg_match_all('/\@import \(?url\[\'"]?([^\'^"^\)]*)[\'"]?\)?;/', $str, $imported);
+		echo '/' . '*';
+		print_r($imported);
+		echo '*' . '/';
+		
 		$parts = explode("}",$str);
 
 		if(count($parts) > 0) {
