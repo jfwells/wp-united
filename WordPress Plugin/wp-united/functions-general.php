@@ -190,6 +190,7 @@ function wpu_js_translate($content) {
 
 function wpu_fix_translation($content) {
 	$content = str_replace(array("\n", "\r", "'"), array('', '', "\'"), $content);
+	return $content;
 }
 
 // Done. End of file.
