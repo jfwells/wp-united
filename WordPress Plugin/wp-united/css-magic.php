@@ -61,6 +61,7 @@ class CSS_Magic {
 	private 	$css,
 				$filename,
 				$nestedItems,
+				$importedItems,
 				$totalItems;
 	
 	/**
@@ -81,6 +82,7 @@ class CSS_Magic {
 		$this->clear();
 		$this->filename = '';
 		$this->nestedItems = array();
+		$this->importedItems = array();
 		$this->totalItems = 0;
 	}
 	/**
@@ -90,6 +92,7 @@ class CSS_Magic {
 	public function clear() {
 		$this->css = array();
 		$this->nestedItems = array();
+		$this->importedItems = array();
 	}
 
 	/**
@@ -112,7 +115,7 @@ class CSS_Magic {
 		if(sizeof($nested[0]) && isset($nested[1]) && is_array($nested[1]) && sizeof($nested[1])) {
 			foreach($nested[1] as $nestNum => $nestSel) {
 				if(!empty($nestSel) && isset($nested[2]) && is_array($nested[2]) && isset($nested[2][$nestNum])) {
-
+					// handle imported stylesheets separately
 					if(stristr($nestSel, '@import') !== false) {
 						continue;
 					}
@@ -133,7 +136,20 @@ class CSS_Magic {
 		
 		// Other nested stylesheets:
 		preg_match_all('/\@import\s(url\()?[\'"]?([^\'^"^\)]*)[\'"]?\)?;/', $str, $imported);
-		//$imported[2]
+		$importIndex = sizeof($this->importedItems);
+		if(sizeof($imported[0]) && isset($imported[2]) && is_array($imported[2]) && sizeof($imported[2])) {
+			foreach($imported[2] as $importNum => $importUrl) {
+			
+				// TODO: Filename is $imported[2]
+			
+				$this->totalItems = $this->totalItems + 1;
+				$this->importedItems[$importIndex] = $imported[0][$importNum];
+				
+				$str = str_replace($imported[0][$importNum], '[WPU_NESTED_IMPORT] {' $importIndex . '}', $str);
+				$importIndex++;
+			}
+		}
+
 		
 		$parts = explode("}",$str);
 
@@ -278,7 +294,14 @@ class CSS_Magic {
 			$keyString = str_replace('__ ', '', $keyString);
 			$index++;
 			$fixedKeys = array();
-			if($keyString != '[WPU_NESTED]') {
+			if($keyString ==  '[WPU_NESTED]') {
+				$fixedKeys = array('[WPU_NESTED]');
+				$nestedCodeKey = (int)$cssCode;
+				$this->nestedItems[$nestedCodeKey]['content']->_makeSpecific($prefix, $removeBody);
+			} else if($keyString == '[WPU_NESTED_IMPORT]') {
+				// TODO: process nested import
+			
+			} else {
 				$keys = explode(',', $keyString);
 				foreach($keys as $key) {
 					$fixedKey = trim($key);
@@ -322,11 +345,7 @@ class CSS_Magic {
 					}
 				}
 				
-			} else { // nested
-				$fixedKeys = array('[WPU_NESTED]');
-				$nestedCodeKey = (int)$cssCode;
-				$this->nestedItems[$nestedCodeKey]['content']->_makeSpecific($prefix, $removeBody);
-			}
+			} 
 			
 			// recreate the fixed key
 			if(sizeof($fixedKeys)) {
@@ -447,7 +466,9 @@ class CSS_Magic {
 			if($keyString == '[WPU_NESTED]') {
 				$response .= $this->nestedItems[(int)$cssCode]['selector'];
 				$response .= $this->nestedItems[(int)$cssCode]['content']->getCSS() . "}\n\n";;
-			} else {
+			} elseif($keyString == '[WPU_NESTED_IMPORT]') {
+				$response .= $this->importedItems[(int)$cssCode];
+			}
 				$response .= $keyString . '{' . $cssCode . "}\n\n";
 			}
 		}
