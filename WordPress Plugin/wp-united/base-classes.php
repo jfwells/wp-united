@@ -28,6 +28,7 @@ class WP_United_Settings {
 		$wpHomeUrl = '',
 		$wpBaseUrl = '',
 		$pluginUrl = '',
+		$wpDocRoot = '',
 		$enabled = false,
 		$settings = array();
 	
@@ -68,6 +69,7 @@ class WP_United_Settings {
 			$this->pluginUrl = plugins_url('wp-united') . '/';
 			$this->wpHomeUrl = home_url('/');
 			$this->wpBaseUrl = site_url('/');
+			$this->wpDocRoot = wpu_get_doc_root();
 			return true;
 		}
 		return false;
@@ -180,6 +182,10 @@ abstract class WP_United_Plugin_Base {
 		return $this->settings->wpPath;
 	}
 	
+	public function get_wp_doc_root() {
+		return $this->settings->wpDocRoot;
+	}
+	
 	public function get_wp_home_url() {
 		return $this->settings->wpHomeUrl;
 	}
@@ -191,6 +197,7 @@ abstract class WP_United_Plugin_Base {
 	public function get_plugin_url() {
 		return $this->settings->pluginUrl;
 	}
+		
 	
 	
 	public function is_enabled() { 

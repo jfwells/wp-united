@@ -318,13 +318,24 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 				// Absolute path to CSS, in WordPress
 				} elseif(stristr($el, $wpUnited->get_wp_base_url()) !== false) {
 					$cssLnk = str_replace($wpUnited->get_wp_base_url(), $wpUnited->get_wp_path(), $el);
+				} elseif(substr($el, 0, 1) === '/') {
+				
+				// An absolute path to doc root. Doc root could be different for phpBB & WP.
+					if($package == 'wp') {
+						$cssLnk = $wpUnited->get_wp_doc_root() . $el;
+					} else {
+						global $config;
+						$path = str_replace($config['script_path'], '', $wpUnited->get_setting('phpbb_path'));
+						$cssLnk = $path . $el;
+					}
 				} else {
-					// else: relative path
+					// else: relative path to here
 					$cssLnk = $pathHere . $el;
 				}
 				// remove query vars
 				$cssLnk = explode('?', $cssLnk);
 				$cssLnk = $cssLnk[0];
+				$cssLnk = str_replace('//', '/', $cssLnk);
 				$cssLnk = (stristr( PHP_OS, "WIN")) ? str_replace("/", "\\", $cssLnk) : $cssLnk;
 				$cssLnk = @realpath($cssLnk);
 				
