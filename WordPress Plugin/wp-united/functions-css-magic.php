@@ -268,6 +268,7 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 	preg_match_all('/@import "[^"]+?"/i', $headerInfo, $matches3);
 	$matches = array_merge($matches[0], $matches2[0], $matches3[0]);
 	$links = array(); $repl = array(); $keys = array();
+
 	if(is_array($matches)) {
 		
 		foreach($matches as $match) {
@@ -292,7 +293,6 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 				$els = explode('=', $els[1]); 			// could also split = in stylesheet URL ..
 				array_shift($els); 						// so ditch start and rejoin
 				$els = implode('=', $els); 
-				
 				
 				// elements of a stylesheet tag could be delimited by ",' or ' ', in that order of likelihood:
 				$delimChars = array('"', "'", ' ');

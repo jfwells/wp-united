@@ -112,7 +112,11 @@ class CSS_Magic {
 		if(sizeof($nested[0]) && isset($nested[1]) && is_array($nested[1]) && sizeof($nested[1])) {
 			foreach($nested[1] as $nestNum => $nestSel) {
 				if(!empty($nestSel) && isset($nested[2]) && is_array($nested[2]) && isset($nested[2][$nestNum])) {
-					
+
+					if(stristr($nestSel, '@import') !== false) {
+						continue;
+					}
+
 					$subSheet = new CSS_Magic();
 					$this->totalItems = $this->totalItems + $subSheet->parseString($nested[2][$nestNum]);
 				
@@ -128,10 +132,8 @@ class CSS_Magic {
 		}
 		
 		// Other nested stylesheets:
-		preg_match_all('/\@import \(?url\[\'"]?([^\'^"^\)]*)[\'"]?\)?;/', $str, $imported);
-		echo '/' . '*';
-		print_r($imported);
-		echo '*' . '/';
+		preg_match_all('/\@import\s(url\()?[\'"]?([^\'^"^\)]*)[\'"]?\)?;/', $str, $imported);
+		//$imported[2]
 		
 		$parts = explode("}",$str);
 
