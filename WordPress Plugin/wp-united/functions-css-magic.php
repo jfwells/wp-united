@@ -447,7 +447,7 @@ function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
 					if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
 						$out = $relPath.$out;
 					}
-										
+					$out = str_replace('//', '/', $out);		
 					$css = str_replace($url, "url('{$out}')", $css);
 				}
 			}
