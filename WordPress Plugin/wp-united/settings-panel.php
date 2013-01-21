@@ -1336,7 +1336,13 @@ function wpu_settings_page() {
 										<option value="0"<?php if($wpUnited->get_setting('wpSimpleHdr') == 1) { echo ' selected="selected" '; } ?>>-- <?php _e('Statically Cached Simple Header &amp; Footer', 'wp-united'); ?> --</option>
 										<?php
 											$files = get_page_templates();
-											
+											$fileNames = array_values($files);
+											if(!in_array('page.php', $fileNames)) {
+												$files[wpu_js_translate(__('Full page fall-back template: page.php', 'wp-united'))] = 'page.php';
+											}
+											if(!in_array('index.php', $fileNames)) {
+												$files[wpu_js_translate(__('Full page fall-back template: index.php', 'wp-united'))] = 'index.php';
+											}											
 											if(sizeof($files)) {
 												foreach($files as $fileDesc => $file) {
 													if(strpos(strtolower($file), '.php') == (strlen($file) - 4)) {
