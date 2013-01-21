@@ -1337,10 +1337,10 @@ function wpu_settings_page() {
 										<?php
 											$files = get_page_templates();
 											$fileNames = array_values($files);
-											if(!in_array('page.php', $fileNames) && !empty(locate_template('page.php')) {
+											if(!in_array('page.php', $fileNames) && locate_template(array('page.php')) {
 												$files[wpu_fix_translation(__('Fall back to page.php', 'wp-united'))] = 'page.php';
 											}
-											if(!in_array('index.php', $fileNames) && !empty(locate_template('index.php')) {
+											if(!in_array('index.php', $fileNames) && locate_template(array('index.php')) {
 												$files[wpu_fix_translation(__('Fall back to index.php', 'wp-united'))] = 'index.php';
 											}											
 											if(sizeof($files)) {
