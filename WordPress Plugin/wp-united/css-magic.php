@@ -178,7 +178,7 @@ class CSS_Magic {
 	 * @param bool $clear Set to true to clear out the internal representation and start again. Leave false to add to what we already have.
 	 * @return void
 	 */
-	public function parseFile($filename, $clear = false) {
+	public function parseFile($filename,  $clear = false) {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
 		if(@file_exists($filename)) {
@@ -187,6 +187,19 @@ class CSS_Magic {
 			return false;
 		}
 	}
+	
+	/**
+	 * Attempt to process @imported stylesheets
+	 * If an absolute URL is provided, attempt to substitute in $subPath for $subURL.
+	 * Modifies the internal representation. 
+	 * @param string $subURL a URL to substitute out. Optional.
+	 * @param string $subPath a path to substitute in. Optional.
+	 * @return void
+	 */
+	public function process_imports($subURL = false, $subPath = false) {
+	
+	}
+	
 	/**
 	 * Add selector (private) -- adds a selector to the internal representation
 	 * @return void
