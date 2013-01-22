@@ -202,7 +202,7 @@ class CSS_Magic {
 	 * @return void
 	 */
 	public function process_imports($subURL = false, $subPath = false) {
-		
+
 		$basePath = add_trailing_slash(dirname(realpath($this->filename)));
 		$path = '';
 		
@@ -223,9 +223,11 @@ class CSS_Magic {
 				$path = $basePath . $importItem['url'];
 				
 			}
-
 			$path = @realpath($path);
-			$importItem['obj']->parseFile($path);
+
+			if($importItem['obj']->parseFile($path)) {
+				$importItem['obj']->process_imports($subURL, $subPath);
+			}
 				
 		}
 	}
