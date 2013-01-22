@@ -144,9 +144,9 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 			$packagePath = $wpUnited->get_wp_path();
 			$packageUrl = $wpUnited->get_wp_base_url();
 		}
-		$processImports = !($useTV > -1);
-				
-		$cssMagic = new WPU_CSS_Magic($processImports, $packageUrl, $packagePath);
+		$processImports = ($useTV == -1);
+		
+		$cssMagic = new CSS_Magic($processImports, $packageUrl, $packagePath);
 		if($cssMagic->parseFile($cssFileToFix)) {
 			if($pos=='inner') {
 				// Apply Template Voodoo

@@ -716,7 +716,7 @@ function wpuShowMapper(repaginate) {
 		$wpu('#wpufirstitem').val(0);
 	}
 	
-	$wpu('#wpumapscreen').html('<div class="wpuloading"><p>Loading</p><img src="' + imgLdg + '" /></div>');
+	$wpu('#wpumapscreen').html('<div class="wpuloading"><p>' + wpuLoading + '</p><img src="' + imgLdg + '" /></div>');
 	var formData = $wpu('#wpumapdisp').serialize() + '&wpumapload=1&_ajax_nonce=' + mapNonce;
 	
 	// set up ajax error handler
@@ -991,10 +991,10 @@ function setupAcpPopups() {
 		iframe: true,
 		onClosed: function() {
 			window.scrollTo(0,0);
-			$wpu('#wpu-desc').html('<strong>Reloading setings from phpBB</strong><br />Please wait...');
+			$wpu('#wpu-desc').html('<strong>' + wpuReloading + '</strong><br />Please wait...');
 			$wpu("#wpu-reload").dialog({
 				modal: true,
-				title: 'Reloading settings from phpBB...',
+				title: wpuReloading,
 				width: 360,
 				height: 160,
 				draggable: false,

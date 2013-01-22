@@ -158,7 +158,7 @@ class WPU_Actions {
 		}
 		$processImports = !($useTV > -1);
 				
-		$cssMagic = new WPU_CSS_Magic($processImports, $packageUrl, $packagePath);
+		$cssMagic = new CSS_Magic($processImports, $packageUrl, $packagePath);
 		
 		if(!$cssMagic->parseString($cssIn)) {
 			return $cssIn;

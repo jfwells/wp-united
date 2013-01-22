@@ -457,7 +457,7 @@ function wpu_panel_warnings() {
 	global $wpUnited, $phpbbForum, $wpuAdminIsOrphaned;
 	
 	if(!is_writable($wpUnited->get_plugin_path() . 'cache/')) {
-		echo '<div id="cacheerr" class="error highlight"><p>ERROR: Your cache folder (' . $wpUnited->get_plugin_path() . 'cache/) is not writable by the web server. You must make this folder writable for WP-United to work properly!</p></div>';
+		echo '<div id="cacheerr" class="error highlight"><p>' . sprintf(__('ERROR: Your cache folder, (%s) is not writable by the web server. You must make this folder writable for WP-United to work properly!'), $wpUnited->get_plugin_path() . 'cache/') .  '</p></div>';
 	}
 
 	if( defined('WPU_CANNOT_OVERRIDE') ) {
@@ -775,6 +775,8 @@ function wpu_user_mapper() {
 		var wpuWaitText = 			'<?php wpu_js_translate(__('Please wait...', 'wp-united')); ?>';
 		var wpuConnectingText = 	'<?php wpu_js_translate(__('Connecting...', 'wp-united')); ?>';
 		var wpuClearingText = 		'<?php wpu_js_translate(__('Clearing changes', 'wp-united')); ?>';
+		var wpuLoading	 = 			'<?php wpu_js_translate(__('Loading...', 'wp-united')); ?>';
+		var wpuReloading	 = 			'<?php wpu_js_translate(__('Reloading settings from phpBB...', 'wp-united')); ?>';
 		
 		var acpPopupTitle = '<?php wpu_js_translate(__('phpBB Administration Panel. After saving your settings, close this window to return to WP-United.', 'wp-united')); ?>';
 		

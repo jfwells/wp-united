@@ -46,7 +46,7 @@ abstract class WPU_Context_Switcher {
 			$this->phpbbTablePrefix = $GLOBALS['table_prefix'];
 			$this->phpbbUser = $GLOBALS['user'];
 			$this->phpbbCache = $GLOBALS['cache'];		
-			$this->phpbbConfig = $GLOBALS['config'];		
+			$this->phpbbConfig = $GLOBALS['config'];	
 		}
 		
 		$this->was_out = false;
@@ -141,7 +141,7 @@ abstract class WPU_Context_Switcher {
 	 */	
 	protected function make_wp_env() {
 		$this->state = 'wp';
-		restore_error_handler();
+		$this->disable_phpbb_err_handler();
 	}
 
 	/**
@@ -218,10 +218,8 @@ abstract class WPU_Context_Switcher {
 		$cache = $this->phpbbCache;
 		$config = $this->phpbbConfig;
 		
-		// restore phpBB error handler
-		if(function_exists('msg_handler') || defined('PHPBB_MSG_HANDLER')) {
-			set_error_handler(defined('PHPBB_MSG_HANDLER') ? PHPBB_MSG_HANDLER : 'msg_handler');
-		}
+		$this->restore_phpbb_err_handler();
+		
 		if(sizeof($this->phpbbEnv)) {
 			 $_GET 			= $this->phpbbEnv['GET'];
 			 $_POST 			= $this->phpbbEnv['POST'];
@@ -263,6 +261,17 @@ abstract class WPU_Context_Switcher {
 			return $GLOBALS['user'];
 		}
 	}
+	
+	protected function disable_phpbb_err_handler() {
+		restore_error_handler();
+	}
+
+	protected function restore_phpbb_err_handler() {
+		// restore phpBB error handler
+		if(function_exists('msg_handler') || defined('PHPBB_MSG_HANDLER')) {
+			set_error_handler(defined('PHPBB_MSG_HANDLER') ? PHPBB_MSG_HANDLER : 'msg_handler');
+		}
+	}	
 	
 
 }

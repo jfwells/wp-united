@@ -216,7 +216,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		}
 
 		$wpuCache = WPU_Cache::getInstance();
-		$cacheName = $wpuCache->issue_style_key($styleSheet);
+		$cacheName = $wpuCache->issue_style_key($styleSheet, 'inner');
 		$wpUnited->commit_style_keys();
 		
 		$modStyleSheet = $modStyleSheet . $cacheName;
@@ -384,6 +384,11 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 			$this->get_userdata('', $userID, true);
 	}
 	
+	public function handle_session_msgbox($errNo, $errMsg) {
+		wp_logout();
+		wp_die($errMsg);
+	}
+	
 	public function create_phpbb_session($userID, $persist = false) {
 		global $config, $user;
 		
@@ -391,7 +396,12 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		
 		$persist = false;
 		
+		set_error_handler(array($this, 'handle_session_msgbox'));
+		
 		$user->session_create($userID, false, $persist);
+		$this->restore_phpbb_err_handler();
+		
+		
 		$_COOKIE[$config['cookie_name'] . '_sid'] = $user->session_id;
 		unset($_COOKIE[$config['cookie_name'] . '_k']);
 		$_COOKIE[$config['cookie_name'] . '_u'] = $user->data['user_id'];

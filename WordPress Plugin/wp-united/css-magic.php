@@ -87,6 +87,7 @@ class CSS_Magic {
 		$this->totalItems = 0;
 		$this->baseUrl = $baseUrl;
 		$this->basePath = $basePath;
+		$this->processImports = $processImports;
 	}
 	/**
 	 * initialise or clear out internal representation
@@ -236,7 +237,7 @@ class CSS_Magic {
 				
 			} elseif(substr($importItem['url'], 0, 1) === '/') {
 				// absolute URL:
-				$path = $this->get_doc_root() . $importItem['url']
+				$path = $this->get_doc_root() . $importItem['url'];
 			} else {
 				// relative URL:
 				
@@ -365,7 +366,7 @@ class CSS_Magic {
 			} else if($keyString == '[WPU_NESTED_IMPORT]') {
 				// TODO: process nested import
 				$fixedKeys = array('[WPU_NESTED_IMPORT]');
-				$this->nestedImports[(int)$cssCode]['obj']->_makeSpecific($prefix, $removeBody);
+				$this->importedItems[(int)$cssCode]['obj']->_makeSpecific($prefix, $removeBody);
 			} else {
 				$keys = explode(',', $keyString);
 				foreach($keys as $key) {
@@ -553,7 +554,7 @@ class CSS_Magic {
 				$response .= $this->nestedItems[(int)$cssCode]['content']->getCSS() . "}\n\n";;
 			} elseif($keyString == '[WPU_NESTED_IMPORT]') {
 				$r = $this->importedItems[(int)$cssCode]['obj']->getCSS();
-				$response .= (empty($r)) ? $this->importedItems[(int)$cssCode]['orig'] : $r;
+				$response .= (empty($r)) ? $this->importedItems[(int)$cssCode]['orig'] : $r ;
 				$response .= "\n\n";
 			} else {
 				$response .= $keyString . '{' . $cssCode . "}\n\n";
