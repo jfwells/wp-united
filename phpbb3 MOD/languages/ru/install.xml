@@ -5,13 +5,13 @@
 <mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.5.xsd">
   <header>
     <license>WP-United is licensed under the http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v2. However, the text of this translation is licensed under the BSD license.</license>
-    <title lang="en-gb">WP-UNITED [Dutch User-Facing Translation]</title>
+    <title lang="en-gb">WP-UNITED [Russian User-Facing Translation]</title>
     <description lang="en-gb">Tightly integrates phpBB3 and WordPress.</description>
-    <author-notes lang="en-gb">THIS TRANSLATION HAS BEEN KINDLY PROVIDED BY Branzel, FredW, Idanielvanrij, Lars Fakkeldij, Rob Migchels
+    <author-notes lang="en-gb">THIS TRANSLATION HAS BEEN KINDLY PROVIDED BY Kot-Someone
     
     Make sure you follow the instructions in the main install.xml file!
 	
-	The WordPress portion of WP-United will display in Dutch automatically.
+	The WordPress portion of WP-United will display in Russian automatically.
 </author-notes>
     <author-group>
       <author>
@@ -36,8 +36,8 @@
   
   <action-group>
     <copy>
-        <file from="/root/language/nl/mods/wp-united.php" to="/language/nl/mods/wp-united.php" />
-		<file from="/root/language/nl/mods/permissions_wp-united.php" to="/language/nl/mods/permissions_wp-united.php" />
+      <file from="/root/language/ru/mods/wp-united.php" to="/language/ru/mods/wp-united.php" />
+      <file from="/root/language/ru/mods/permissions_wp-united.php" to="/language/ru/mods/permissions_wp-united.php" />
     </copy>
   </action-group>
 </mod>

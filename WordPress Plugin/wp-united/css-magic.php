@@ -26,8 +26,6 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
  *
  * USAGE NOTES:
  * 
- * instantiate CSS Magic:
- * $cssMagic = CSS_Magic::getInstance();
  * 
  * To read a css file:
  * $success = $cssMagic->parseFile('path_to_file');
@@ -62,15 +60,18 @@ class CSS_Magic {
 				$filename,
 				$nestedItems,
 				$importedItems,
-				$totalItems;
+				$totalItems,
+				$baseUrl,
+				$basePath,
+				$processImports;
 	
 	/**
 	 * If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
 	 */
-	public static function getInstance () {
+	public static function getInstance ($processImports = false, $baseURL = false, $basePath = false) {
 		static $instance;
 		if (!isset($instance)) {
-			$instance = new CSS_Magic();
+			$instance = new CSS_Magic($processImports, $baseURL, $basePath);
         } 
         return $instance;
     }
@@ -78,12 +79,14 @@ class CSS_Magic {
 	/**
 	 * Class constructor
 	 */
-	public function __construct() {
+	public function __construct($processImports = false, $baseUrl = false, $basePath = false) {
 		$this->clear();
 		$this->filename = '';
 		$this->nestedItems = array();
 		$this->importedItems = array();
 		$this->totalItems = 0;
+		$this->baseUrl = $baseUrl;
+		$this->basePath = $basePath;
 	}
 	/**
 	 * initialise or clear out internal representation
@@ -100,7 +103,10 @@ class CSS_Magic {
 	 * @param string $str A valid CSS string
 	 * @return int the number of CSS keys stored
 	 */
-	public function parseString($str) {
+	public function parseString($str, $clear = false) {
+	
+		if ($clear) $this->clear();
+	
 		$keys = '';
 		
 		$Instr = $str;
@@ -120,7 +126,7 @@ class CSS_Magic {
 						continue;
 					}
 
-					$subSheet = new CSS_Magic();
+					$subSheet = new CSS_Magic($this->processImports, $this->baseUrl, $this->basePath);
 					$this->totalItems = $this->totalItems + $subSheet->parseString($nested[2][$nestNum]);
 				
 					$this->nestedItems[$nestIndex] = array(
@@ -135,26 +141,29 @@ class CSS_Magic {
 		}
 		
 		// Other nested stylesheets:
-		preg_match_all('/\@import\s(url\()?[\'"]?([^\'^"^\)]*)[\'"]?\)?;/', $str, $imported);
-		$importIndex = sizeof($this->importedItems);
-		if(sizeof($imported[0]) && isset($imported[2]) && is_array($imported[2]) && sizeof($imported[2])) {
-			foreach($imported[2] as $importNum => $importUrl) {
-			
-				// TODO: Filename is $imported[2]
-			
-				$this->totalItems = $this->totalItems + 1;
-				$subSheet = new CSS_Magic();
-				$this->importedItems[$importIndex] = array(
-					'obj'		=>	$subSheet,
-					'orig'	=>	$imported[0][$importNum],
-					'url'		=>	$imported[2][$importNum]
-				);
+		if($this->processImports) {
+			preg_match_all('/\@import\s(url\()?[\'"]?([^\'^"^\)]*)[\'"]?\)?;/', $str, $imported);
+			$importIndex = sizeof($this->importedItems);
+			if(sizeof($imported[0]) && isset($imported[2]) && is_array($imported[2]) && sizeof($imported[2])) {
+				foreach($imported[2] as $importNum => $importUrl) {
 				
-				$str = str_replace($imported[0][$importNum], '[WPU_NESTED_IMPORT] {' . $importIndex . '}', $str);
-				$importIndex++;
+					// TODO: Filename is $imported[2]
+				
+					$this->totalItems = $this->totalItems + 1;
+					$subSheet = new CSS_Magic($this->processImports, $this->baseUrl, $this->basePath);
+					$this->importedItems[$importIndex] = array(
+						'obj'		=>	$subSheet,
+						'orig'	=>	$imported[0][$importNum],
+						'url'		=>	$imported[2][$importNum]
+					);
+					
+					$str = str_replace($imported[0][$importNum], '[WPU_NESTED_IMPORT] {' . $importIndex . '}', $str);
+					$importIndex++;
+				}
 			}
+			// Now process the nested imports:
+			$this->process_imports($subUrl, $subPath);
 		}
-
 		
 		$parts = explode("}",$str);
 
@@ -187,7 +196,7 @@ class CSS_Magic {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
 		if(@file_exists($filename)) {
-			return $this->parseString(file_get_contents($filename), $clear);
+			return $this->parseString(file_get_contents($filename));
 		} else {
 			return false;
 		}
@@ -201,8 +210,8 @@ class CSS_Magic {
 	 * @param string $subPath a path to substitute in. Optional.
 	 * @return void
 	 */
-	public function process_imports($subURL = false, $subPath = false) {
-
+	private function process_imports() {
+	
 		$basePath = add_trailing_slash(dirname(realpath($this->filename)));
 		$path = '';
 		
@@ -212,11 +221,22 @@ class CSS_Magic {
 				(stristr($importItem['url'], 'https://') !== false)
 			) {
 				// full URL:
-				$path = '';
+				if(empty($this->baseUrl)) {
+					continue;
+				}
+				
+				$path = str_replace($this->baseUrl, $this->basePath, $importItem['url']);
+				
+				if(
+					(stristr($importItem['url'], 'http://') !== false) ||
+					(stristr($importItem['url'], 'https://') !== false)
+				) {
+					continue;
+				}
 				
 			} elseif(substr($importItem['url'], 0, 1) === '/') {
 				// absolute URL:
-				$path = '';
+				$path = $this->get_doc_root() . $importItem['url']
 			} else {
 				// relative URL:
 				
@@ -225,8 +245,8 @@ class CSS_Magic {
 			}
 			$path = @realpath($path);
 
-			if($importItem['obj']->parseFile($path)) {
-				$importItem['obj']->process_imports($subURL, $subPath);
+			if(!empty($path) && $importItem['obj']->parseFile($path)) {
+				$importItem['obj']->process_imports($subUrl, $subPath);
 			}
 				
 		}
@@ -558,6 +578,17 @@ class CSS_Magic {
 	public function __toString() {
 		header("Content-type: text/css");
 		$this->getCSS();
+	}
+	
+	/**
+	 * Get the document root
+	 */
+	private function get_doc_root() {
+		$docRoot =  (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : substr($_SERVER['SCRIPT_FILENAME'], 0, 0 - strlen($_SERVER['PHP_SELF']) );
+		$docRoot = @realpath($docRoot); 
+		$docRoot = str_replace( '\\', '/', $docRoot);
+		$docRoot = ($docRoot[strlen($docRoot)-1] == '/') ? $docRoot : $docRoot . '/';
+		return $docRoot;
 	}
 }
 

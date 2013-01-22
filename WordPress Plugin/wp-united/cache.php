@@ -4,7 +4,7 @@
 * WP-United Cache -- various forms of caching to speed up WP-United and/or reduce resource consumption
 *
 * @package WP-United
-* @version $Id: 0.9.1.5  2012/12/28 John Wells (Jhong) Exp $
+* @version $Id: 0.9.2.2  2013/01/22 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells

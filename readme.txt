@@ -44,6 +44,7 @@ The download iincludes the following languages:
 * Français
 * Deutsch
 * 中文（简体）
+* русский
 
 == Installation ==
 

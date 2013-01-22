@@ -136,7 +136,17 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 	// Load and CSS-Magic-ify the CSS file. If an outer file, just cache it
 	if(empty($css)) {
 		require($wpUnited->get_plugin_path() . 'css-magic.php');
-		$cssMagic = CSS_Magic::getInstance();
+		
+		if($pkg == 'phpbb') {
+			$packagePath = $wpUnited->get_setting('phpbb_path');
+			$packageUrl = $phpbbForum->get_board_url();
+		} else {
+			$packagePath = $wpUnited->get_wp_path();
+			$packageUrl = $wpUnited->get_wp_base_url();
+		}
+		$processImports = !($useTV > -1);
+				
+		$cssMagic = new WPU_CSS_Magic($processImports, $packageUrl, $packagePath);
 		if($cssMagic->parseFile($cssFileToFix)) {
 			if($pos=='inner') {
 				// Apply Template Voodoo
@@ -149,11 +159,6 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 				} 
 				// Apply CSS Magic
 				$cssMagic->makeSpecificByIdThenClass('wpucssmagic', false);
-			}
-			
-			// substitute in @imported sub-stylesheets if we can
-			if($useTV == -1) {
-				$cssMagic->process_imports();
 			}
 			
 			if($islandBlock) {

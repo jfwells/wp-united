@@ -148,7 +148,18 @@ class WPU_Actions {
 		
 		// Apply or load css magic
 		include($wpUnited->get_plugin_path() . 'css-magic.php');
-		$cssMagic = CSS_Magic::getInstance();
+		
+		if($pkg == 'phpbb') {
+			$packagePath = $wpUnited->get_setting('phpbb_path');
+			$packageUrl = $phpbbForum->get_board_url();
+		} else {
+			$packagePath = $wpUnited->get_wp_path();
+			$packageUrl = $wpUnited->get_wp_base_url();
+		}
+		$processImports = !($useTV > -1);
+				
+		$cssMagic = new WPU_CSS_Magic($processImports, $packageUrl, $packagePath);
+		
 		if(!$cssMagic->parseString($cssIn)) {
 			return $cssIn;
 		}

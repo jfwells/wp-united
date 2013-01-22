@@ -43,6 +43,6 @@ $lang = array_merge($lang, array(
     'acl_m_wpu_editor'    		=> array('lang' => 'Peut intégrer un éditeur de WordPress (peut éditer les messages des autres)', 'cat' => 'wputd'),
     'acl_a_wpu_administrator'   => array('lang' => 'Peut intégrer en tant qu\'administrateur WordPress', 'cat' => 'wputd'),
 	'acl_f_wpu_xpost'			=> array('lang' => 'Peut écrire des articles à ce forum', 'cat' => 'wputd'),
-	'acl_f_wpu_xpost_comment'	=> array('lang' => 'Can reply to blog posts cross-posted to this forum from WordPress', 'cat' => 'wputd'),
+	'acl_f_wpu_xpost_comment'	=> array('lang' => 'Peut répondre aux articles du blog cross-poster à ce forum à partir de wordpress', 'cat' => 'wputd'),
 ));
 ?>
