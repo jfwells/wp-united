@@ -480,7 +480,17 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 			if(version_compare($wpuVersion_phpbb, '0.9.2.0#2', '<')) {
 				$checked = array(
 					'result'	=> 'ERROR',
-					'message'	=> sprintf($verMismatchMsg, $version, '0.9.0.x') . 
+					'message'	=> sprintf($verMismatchMsg, $version, '0.9.1.x') . 
+									'<br /><br />' . $phpbbUpgradeSimpleMsg
+				);
+				return $checked;
+			}
+			
+			// upgrade to v0.9.2.2 (-r0); simple file copy
+			if(version_compare($wpuVersion_phpbb, '0.9.2.2', '<')) {
+				$checked = array(
+					'result'	=> 'ERROR',
+					'message'	=> sprintf($verMismatchMsg, $version, '0.9.2.0 or 0.9.2.1') . 
 									'<br /><br />' . $phpbbUpgradeSimpleMsg
 				);
 				return $checked;
