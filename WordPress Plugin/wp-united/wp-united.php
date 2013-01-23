@@ -6,10 +6,10 @@ Plugin URI: http://www.wp-united.com
 Description: WP-United connects to your phpBB forum and integrates user sign-on, behaviour and theming. Once your forum is up and running, you should not disable this plugin.
 Author: John Wells
 Author URI: http://www.wp-united.com
-Version: 0.9.2.3
+Version: 0.9.2.4
 Text Domain: wp-united
 Domain Path: /languages
-Last Updated: 23 January 2013
+Last Updated: 25 January 2013
 * 
 */
 

@@ -1602,11 +1602,11 @@ function wpu_process_settings() {
 				
 				if($data['xpostautolink']) {
 					
-					// xPostSpam could be '1', '0' or 'all'
+					// xPostSpam could be 'yes', 'no' or 'all'
 					$xPostSpam = (!isset($_POST['rad_xpostcomappr'])) ? 'all' : (string)$_POST['rad_xpostcomappr'];
-					if($xPostSpam == '0') {
+					if($xPostSpam == 'no') {
 						$data['xpostspam'] = 0;
-					} else if($xPostSpam == '0') {
+					} else if($xPostSpam == 'yes') {
 						$data['xpostspam'] = 1;
 					} else {
 						$data['xpostspam'] = 'all';

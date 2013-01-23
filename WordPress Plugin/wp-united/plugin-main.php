@@ -31,6 +31,10 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			array('admin_footer', 						'add_footer_output',						'enabled'),
 			array('admin_bar_menu',						array('add_to_menu_bar', 100),				'enabled'),
 			
+			// used primarily for multi-user forum blogging, deprecated:
+			array('edit_post', 							'just_editing_post',						'enabled'),
+			array('future_to_publish', 					array('future_to_published', 10),			'enabled'),
+			
 			// required admin ajax actions
 			array('wp_ajax_wpu_filetree', 				'filetree',									'all'),
 			array('wp_ajax_wpu_disable', 				'ajax_auto_disable',						'all'),

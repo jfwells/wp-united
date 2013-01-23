@@ -28,9 +28,8 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		$actions = array(
 			// cross-posting actions
 			array('admin_menu', 						'add_xposting_box',							'enabled'),
-			array('edit_post', 							'just_editing_post',						'enabled'),
 			array('wp_insert_post', 					array('capture_future_post', 10, 2),		'enabled'),
-			array('future_to_publish', 					array('future_to_published', 10),			'enabled'),
+			
 			array('comment_form', 						'comment_redir_field',						'xpostautolink'),
 			array('pre_comment_on_post', 				'post_comment',								'xpostautolink'),
 			array('comments_open', 						array('are_comments_open', 10, 2),			'xpostautolink'),
@@ -984,7 +983,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		wp_safe_redirect($location); 
 		exit();
 	}
-
+	
 
 	/**
 	 * Creates a redirect field for the comments box if the post is cross-posted and comments are to be.
@@ -1106,11 +1105,11 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	public function capture_future_post($postID, $post) {
 		global $phpbbForum;
 		
-		if ( ($post->post_status == 'future') && ($this->get_setting('integrateLogin')) ) {
-			if ( ($phpbbForum->user_logged_in()) && ($this->get_setting('xposting')) ) {
+		if ($post->post_status == 'future') {
+			if ($phpbbForum->user_logged_in()) {
 				// If x-post forcing is turned on, we don't need to do anything
 				if( $this->get_setting('xpostforce') == -1) {
-					if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
+					if (isset($_POST['sel_wpuxpost']) && isset($_POST['chk_wpuxpost'])) {
 						
 						$forumID = (int)$_POST['sel_wpuxpost'];
 						
@@ -1122,7 +1121,7 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 						// Need to check authority here -- as we won't know for sure when the time comes to xpost
 						$can_crosspost_list = $this->get_xpost_forum_list(); 
 						
-						if ( !in_array($forumID, (array)$can_crosspost_list['forum_id']) ) { 
+						if (!in_array($forumID, (array)$can_crosspost_list['forum_id'])) { 
 							return;
 						}
 						update_post_meta($postID, '_wpu_future_xpost', $forumID);

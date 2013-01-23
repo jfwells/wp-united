@@ -4,7 +4,7 @@
 * WP-United [German]
 *
 * @package WP-United
-* @version $Id: wp-united.php,v0.9.0 2009/05/18 way2vet (way2vet.eu) Exp $
+* @version $Id: wp-united.php,v0.9.2.4 2009/05/18 way2vet (way2vet.eu) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 * @license translation strings licensed under the BSD license

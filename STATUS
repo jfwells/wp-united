@@ -1,13 +1,14 @@
-current target: v0.9.2.3
+current target: v0.9.2.4
 
-
-
-
+* BUGFIX: Fixed warnings on cross-posting due to deprecated WP-United "Users have own blogs" functions
+* BUGFIX: Cross-posting spam filter settings couldn't be changed
 
 
 
 
 TODO:
+
+xpostspam setting can't be set
 * yoothemes: image URL redirection incorrect :/
 * no need to run any xpost query on p-in-w full page
 * Allow user mapper to re-integrate users with integrated counterparts, dont show as integrated.
