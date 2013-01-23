@@ -384,7 +384,10 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 			$this->get_userdata('', $userID, true);
 	}
 	
-	public function handle_session_msgbox($errNo, $errMsg) {
+	public function handle_session_msgbox($errNo, $errMsg, $errfile, $errLine) {
+		if($errNo !== E_USER_NOTICE) {
+			return msg_handler($errNo, $errMsg, $errFile, $errLine);
+		}
 		wp_logout();
 		wp_die($errMsg);
 	}
