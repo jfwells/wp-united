@@ -104,6 +104,22 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
+= v0.9.2.3 RELEASE CANDIDATE 3 =
+
+* Urgent bug-fix for improper error handling causing WP-United to catch all PHP errors, including those from other plugins.
+
+= v0.9.2.2 RELEASE CANDIDATE 3 =
+
+* NEW: Full French (Thank you Valbuena72) and Russian (Thank you Kot-Someone) translations
+* NEW: Autologin / "Remember me" now mapped across between phpBB & WP when logging in.
+* NEW: Template integrator can now recurse into most @imported child stylesheets -- and at least will not choke on those it can't
+* BUGFIX: Better handling of modified wp-config file by core-patcher, and fix for short PHP tag in processed code (should fix some errors on logout, profile update, etc.)
+* NEW: User banning and board shutdown now displays a WordPress message when user integration is active
+* NEW: Allow selection of fall-back templates for older WordPress themes with no page templates
+* NEW: template integrator can now handle absolute CSS URLs starting with /
+* BUGFIX: Regression, missing cross-posted comments permission
+
+
 = v0.9.2.1 RELEASE CANDIDATE 3 =
 
 * NEW: Forum bottom nav bar widget (to match the top bar widget; thanks *daniel!)

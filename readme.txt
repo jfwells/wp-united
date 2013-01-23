@@ -85,6 +85,10 @@ Please visit [This thread](http://www.wp-united.com/viewtopic.php?f=14&t=3314) t
 
 == Changelog ==
 
+= v0.9.2.3 RELEASE CANDIDATE 3 =
+
+* Urgent bug-fix for improper error handling causing WP-United to catch all PHP errors, including those from other plugins.
+
 = v0.9.2.2 RELEASE CANDIDATE 3 =
 
 * NEW: Full French (Thank you Valbuena72) and Russian (Thank you Kot-Someone) translations
@@ -311,3 +315,6 @@ This version fixes Some bugs with the non-english, localised versions of WP-Unit
 
 = 0.9.2.2 =
 This version fixes a missing phpBB permission if you updated to v0.9.2.1 directly. It also improves the template integrator. 
+
+= 0.9.2.3 =
+This version fixes a problem with handling errors from other plugins in v0.9.2.2. Please update.

@@ -397,10 +397,8 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		$persist = false;
 		
 		set_error_handler(array($this, 'handle_session_msgbox'));
-		
 		$user->session_create($userID, false, $persist);
-		$this->restore_phpbb_err_handler();
-		
+		restore_error_handler();		
 		
 		$_COOKIE[$config['cookie_name'] . '_sid'] = $user->session_id;
 		unset($_COOKIE[$config['cookie_name'] . '_k']);
