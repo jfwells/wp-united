@@ -745,7 +745,7 @@ function wpu_phpbb_nav_block($args) {
 
 	global $phpbbForum, $phpEx, $wpUnited;
 	
-	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegLink' => 1, 'useNativeCSS' => 0);
+	$defaults = array('showSiteHome' => 1, 'showMemberList' => 1, 'showRegLink' => 1, 'useNativeCSS' => 0, 'showStyleSwitcher' => 1);
 	extract(_wpu_process_args($args, $defaults));
 	$ret = '';
 	
@@ -762,7 +762,9 @@ function wpu_phpbb_nav_block($args) {
 				<li class="icon-home">
 					<?php echo _wpu_get_breadcrumbs($showSiteHome); ?> 
 				</li>
-				<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
+				<?php if($showStyleSwitcher) { ?>
+					<li class="rightside"><a href="#" onclick="fontsizeup(); return false;" onkeypress="return fontsizeup(event);" class="fontsize" title="<?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?>"><?php echo $phpbbForum->lang['CHANGE_FONT_SIZE']; ?></a></li>
+				<?php } ?>
 			</ul>
 			
 			<?php if($phpbbForum->user_logged_in() && !$phpbbForum->get_userdata('is_bot')) { ?>

@@ -489,6 +489,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$showSiteHome = $instance['showSiteHome'];
 		$showMemberList = $instance['showMemberList'];
 		$showRegisterLink = $instance['showRegisterLink'];
+		$showStyleSwitcher = $instance['showStyleSwitcher'];
 		$nativeCSS = $instance['nativeCSS'];
 		
 		if(!defined('WPU_BLOG_PAGE') || is_admin()) {
@@ -497,12 +498,12 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		
 		
 		if (is_active_widget(false, false, $this->id_base) && !$wpUnited->should_do_action('template-w-in-p') && !$nativeCSS) {
-			wpu_add_board_styles(true);
+			wpu_add_board_styles($showStyleSwitcher);
 		}
 		
 
 		echo $before_widget;
-		wpu_phpbb_nav_block("showSiteHome={$showSiteHome}&showMemberList={$showMemberList}&showRegisterLink={$showRegisterLink}&useNativeCSS={$nativeCSS}");	
+		wpu_phpbb_nav_block("showSiteHome={$showSiteHome}&showMemberList={$showMemberList}&showRegisterLink={$showRegisterLink}&useNativeCSS={$nativeCSS}&showStyleSwitcher={$showStyleSwitcher}");	
 		echo $after_widget;
 
 	}
@@ -515,6 +516,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		$instance['showMemberList'] 	= (strip_tags(stripslashes($new_instance['showMemberList'])) 	== 	'ok')? 1 : 0;
 		$instance['showRegisterLink'] 	= (strip_tags(stripslashes($new_instance['showRegisterLink'])) 	== 	'ok')? 1 : 0;
 		$instance['nativeCSS'] 			= (strip_tags(stripslashes($new_instance['nativeCSS'])) 		== 	'ok')? 1 : 0;
+		$instance['showStyleSwitcher'] 	= (strip_tags(stripslashes($new_instance['showStyleSwitcher']))	== 	'ok')? 1 : 0;
 		
 		return $instance;
 	}
@@ -526,13 +528,15 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 			'showSiteHome'			=> 0, 
 			'showMemberList'		=> 1, 
 			'showRegisterLink' 		=> 1,
-			'nativeCSS' 			=> 0
+			'nativeCSS' 			=> 0,
+			'showStyleSwitcher' 	=> 1
 		));
 		
 		$showSiteHome		= (!empty($instance['showSiteHome'])) 		? 'checked="checked"' : '';
 		$showMemberList 	= (!empty($instance['showMemberList'])) 	? 'checked="checked"' : '';
 		$showRegisterLink 	= (!empty($instance['showRegisterLink'])) 	? 'checked="checked"' : '';
 		$nativeCSS 			= (!empty($instance['nativeCSS'])) 			? 'checked="checked"' : '';
+		$showStyleSwitcher 	= (!empty($instance['showStyleSwitcher'])) 	? 'checked="checked"' : '';
 
 		?>
 		
@@ -540,6 +544,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 		<p><input id="<?php echo $this->get_field_id('showMemberList'); ?>" name="<?php echo $this->get_field_name('showMemberList'); ?>" type="checkbox" value="ok" <?php echo $showMemberList ?> /> <label for="<?php echo $this->get_field_id('showMemberList'); ?>"><?php _e('Show member list?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('showRegisterLink'); ?>" name="<?php echo $this->get_field_name('showRegisterLink'); ?>" type="checkbox" value="ok" <?php echo $showRegisterLink ?> /> <label for="<?php echo $this->get_field_id('showRegisterLink'); ?>"><?php _e('Show register link?', 'wp-united'); ?></label></p>
 		<p><input id="<?php echo $this->get_field_id('nativeCSS'); ?>" name="<?php echo $this->get_field_name('nativeCSS'); ?>" type="checkbox" value="ok"  <?php echo $nativeCSS ?> /> <label for="<?php echo $this->get_field_id('nativeCSS'); ?>"><?php _e("Don't add CSS, I will style this myself", 'wp-united'); ?></label></p>
+		<p><input id="<?php echo $this->get_field_id('showStyleSwitcher'); ?>" name="<?php echo $this->get_field_name('showStyleSwitcher'); ?>" type="checkbox" value="ok"  <?php echo $showStyleSwitcher ?> /> <label for="<?php echo $this->get_field_id('showStyleSwitcher'); ?>"><?php _e("Include phpBB's style switcher?", 'wp-united'); ?></label></p>
 		<?php
 	}
 }

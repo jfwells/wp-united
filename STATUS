@@ -10,8 +10,8 @@ TODO:
 >> Long post text cut off with Chinese http://www.wp-united.com/viewtopic.php?f=15&t=3432
 >> island widgets altering page font size
 >> xpost is posting as publisher rather than author http://www.wp-united.com/viewtopic.php?f=15&p=13882#p13882
-
->> 
+>> phpBB avatars not showing in some tags http://www.wp-united.com/viewtopic.php?f=15&t=3448&p=13903#p13903
+>> Redirect in AJAX comment loading plugin http://www.wp-united.com/viewtopic.php?f=15&t=3427&start=15
 * yoothemes: image URL redirection incorrect :/
 * no need to run any xpost query on p-in-w full page
 * Allow user mapper to re-integrate users with integrated counterparts, dont show as integrated.
