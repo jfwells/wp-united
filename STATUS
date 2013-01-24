@@ -6,7 +6,12 @@ current target: v0.9.2.4
 
 TODO:
 
-xpostspam setting can't be set
+>> Cannot redeclare wp_unregister_GLOBALS with some plugins http://www.wp-united.com/viewtopic.php?f=14&t=3323
+>> Long post text cut off with Chinese http://www.wp-united.com/viewtopic.php?f=15&t=3432
+>> island widgets altering page font size
+>> xpost is posting as publisher rather than author http://www.wp-united.com/viewtopic.php?f=15&p=13882#p13882
+
+>> 
 * yoothemes: image URL redirection incorrect :/
 * no need to run any xpost query on p-in-w full page
 * Allow user mapper to re-integrate users with integrated counterparts, dont show as integrated.
