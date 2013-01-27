@@ -562,7 +562,7 @@ class CSS_Magic {
 		foreach($this->css as $keyString => $cssCode) {
 			
 			$urls = 0;
-			$out = $cssCode;
+			$result = $cssCode;
 			
 			preg_match_all('/url\(.*?\)/', $cssCode, $urls);
 			if(is_array($urls[0])) {
@@ -607,13 +607,13 @@ class CSS_Magic {
 								$out = $relPath.$out;
 							}
 							$out = str_replace(array('//', ':/'), array('/', '://'), $out);		
-							$out = str_replace($url, "url('{$out}')", $cssCode);
+							$result = str_replace($url, "url('{$out}')", $cssCode);
 						}
 					}
 				}
 			}
 			
-			$newCSS[$keyString] = $out;
+			$newCSS[$keyString] = $result;
 			
 		}
 		
