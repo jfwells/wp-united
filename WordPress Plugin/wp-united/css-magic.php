@@ -607,7 +607,7 @@ class CSS_Magic {
 								$out = $relPath.$out;
 							}
 							$out = str_replace(array('//', ':/'), array('/', '://'), $out);		
-							$css = str_replace($url, "url('{$out}')", $css);
+							$out = str_replace($url, "url('{$out}')", $cssCode);
 						}
 					}
 				}
