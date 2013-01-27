@@ -389,73 +389,7 @@ function wpu_extract_css($content) {
 	return $css;
 }
 
-/**
- * Cleans up relative URLs in stylesheets so that they still work even through style-fixer
- * @param string $filePath the path to the current file
- * @param string $css a string containing valid CSS to be modified
- */
-function wpu_fix_css_urls($filePath, &$css, $pkg='wp') {
-	global $phpbb_root_path, $wpUnited, $phpbbForum;
-	require_once($wpUnited->get_plugin_path() . 'functions-general.php');
-	$relPath = wpu_compute_path_difference($filePath, realpath(add_trailing_slash(getcwd()) . 'style-fixer.php'));
-	
-	$urlToCssfile = false;
-	if($pkg == 'phpbb') {
-		$urlToCssFile = str_replace(realPath($phpbb_root_path), $phpbbForum->get_board_url(), dirname(filePath));
-	} else if($pkg == 'wp') {
-		$urlToCssFile = str_replace(realPath($wpUnited->get_wp_path()), $wpUnited->get_wp_base_url(), dirname($filePath));
-	}
-	if($urlToCssFile) {
-		$urlToCssFile = explode('/', str_replace('\\', '/', $urlToCssFile));
-	}
-	preg_match_all('/url\(.*?\)/', $css, $urls);
-	if(is_array($urls[0])) {
-		foreach($urls[0] as $url) {
-			$replaceUrl = false;
-			
-			if((stristr($url, "http:") === false)  && (stristr($url, "https:") === false)) {
-			
-				$out = str_replace(array('url', '(', ')', "'", '"', ' '), '', $url);
-				if ($out != '/') {
-					$replace = true;
-				}
-			}
-			if ($replace) {
-			
-				// We try to sub in the absolute URL for the file path. If that fails then we use the computed relative path difference.
-				if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
-					if($urlToCssFile) {
-						$urlParts = explode('/', $out);
-						$canModify = true;
-						$result = $urlToCssFile;
-						foreach($urlParts as $part) {
-							if (($part == '.') || ($part == '')) {
-								continue;
-							} else if ($part == '..') {
-								if(!sizeof($result)) {
-									$canModify = false;
-									break;
-								}
-								array_pop($result);
-							} else {
-								$result[] = $part;
-							}
-						}
-						if($canModify) {
-							$out = implode('/', $result);
-						}	
-					}
-					
-					if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
-						$out = $relPath.$out;
-					}
-					$out = str_replace(array('//', ':/'), array('/', '://'), $out);		
-					$css = str_replace($url, "url('{$out}')", $css);
-				}
-			}
-		}
-	}
-}
+
 
 function apply_template_voodoo(&$cssMagic, $tplVoodooKey) {
 	

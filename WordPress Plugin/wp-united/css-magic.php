@@ -213,7 +213,7 @@ class CSS_Magic {
 	 */
 	private function process_imports() {
 	
-		$basePath = add_trailing_slash(dirname(realpath($this->filename)));
+		$basePath = $this->add_trailing_slash(dirname(realpath($this->filename)));
 		$path = '';
 		
 		foreach($this->importedItems as $importIndex => $importItem) {
@@ -539,6 +539,130 @@ class CSS_Magic {
 		
 	}
 	
+	/**
+	 * Cleans up relative URLs in stylesheets so that they still work even through style-fixer
+	 * @param string $filePath the path to the current file
+	 * @param string $css a string containing valid CSS to be modified
+	 */
+	public function fix_urls() {
+		global $phpbb_root_path, $wpUnited, $phpbbForum;
+		
+		$filePath = (empty($this->filename)) ? $this->basePath : dirname($this->filename);
+		
+		$relPath = $this->compute_path_difference($filePath);
+		
+		$urlToCssFile = str_replace($this->basePath, $this->baseUrl, $filePath);
+	
+		if($urlToCssFile) {
+			$urlToCssFile = explode('/', str_replace('\\', '/', $urlToCssFile));
+		}
+		
+		$newCSS = array();
+		
+		foreach($this->css as $keyString => $cssCode) {
+			
+			$urls = 0;
+			$out = $cssCode;
+			
+			preg_match_all('/url\(.*?\)/', $cssCode, $urls);
+			if(is_array($urls[0])) {
+				foreach($urls[0] as $url) {
+					$replaceUrl = false;
+					
+					if((stristr($url, "http:") === false)  && (stristr($url, "https:") === false)) {
+					
+						$out = str_replace(array('url', '(', ')', "'", '"', ' '), '', $url);
+						if ($out != '/') {
+							$replace = true;
+						}
+					}
+					if ($replace) {
+					
+						// We try to sub in the absolute URL for the file path. If that fails then we use the computed relative path difference.
+						if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
+							if($urlToCssFile) {
+								$urlParts = explode('/', $out);
+								$canModify = true;
+								
+								$result = $urlToCssFile;
+								foreach($urlParts as $part) {
+									if (($part == '.') || ($part == '')) {
+										continue;
+									} else if ($part == '..') {
+										if(!sizeof($result)) {
+											$canModify = false;
+											break;
+										}
+										array_pop($result);
+									} else {
+										$result[] = $part;
+									}
+								}
+								if($canModify) {
+									$out = implode('/', $result);
+								}	
+							}
+							
+							if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
+								$out = $relPath.$out;
+							}
+							$out = str_replace(array('//', ':/'), array('/', '://'), $out);		
+							$css = str_replace($url, "url('{$out}')", $css);
+						}
+					}
+				}
+			}
+			
+			$newCSS[$keyString] = $out;
+			
+		}
+		
+		$this->css = $newCSS;
+		
+		foreach($this->nestedItems as $index => $nestedItem) {
+			$nestedItem['content']->fix_urls();
+		}
+		foreach($this->importedItems as $index => $importedItem) {
+			$importedItem['obj']->fix_urls();
+		}
+		
+	}
+	
+	private function compute_path_difference($filePath) {
+		
+		$absFileLoc = clean_path(realpath($filePath));
+
+		if(is_dir($absFileLoc)) {
+			$absFileLoc = $this->add_trailing_slash($absFileLoc);
+		}
+
+		$currLoc = @realpath($this->add_trailing_slash(getcwd()));
+		
+		if(is_dir($absCurrLoc)) {
+			$absCurrLoc = $this->add_trailing_slash($absCurrLoc);
+		}
+		
+		// A fix for the WP-United build environment symlinks
+		$absCurrLoc = str_replace('wpu-buildenv/sources/wp-united/root/wp-united/', 'wpu-buildenv/sources/phpbb/wp-united/', $absCurrLoc);
+		
+		$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
+
+		$absFileLoc = explode($pathSep, $absFileLoc);
+		$absCurrLoc = explode($pathSep, $absCurrLoc);
+		array_pop($absFileLoc);
+
+		while($absCurrLoc[0]==$absFileLoc[0]) { 
+			array_shift($absCurrLoc);
+			array_shift($absFileLoc);
+		}
+		$pathsBack = array(".");
+		for($i=0;$i<(sizeof($absCurrLoc)-1);$i++) {
+			$pathsBack[] = "..";
+		}
+		$relPath = $this->add_trailing_slash(implode("/", $pathsBack)) . $this->add_trailing_slash(implode("/", $absFileLoc));
+		$relPath = str_replace('//', '/', $relPath);
+		return $relPath;
+	}
 
 	/*
 	 * returns all our stored, fixed (hopefully!) CSS
@@ -590,6 +714,15 @@ class CSS_Magic {
 		$docRoot = str_replace( '\\', '/', $docRoot);
 		$docRoot = ($docRoot[strlen($docRoot)-1] == '/') ? $docRoot : $docRoot . '/';
 		return $docRoot;
+	}
+	
+	/**
+	 * Adds a traling slash to a string if one is not already present.
+	 * @param string $path
+	 * @return string modified path
+	 */
+	private function add_trailing_slash($path) {
+		return ( $path[strlen($path)-1] == "/" ) ? $path : $path . "/";
 	}
 }
 

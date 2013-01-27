@@ -454,8 +454,7 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 		if ( $this->is_working() && $this->get_setting('useForumPage') ) { 
 			$forumPage = get_option('wpu_set_forum');
 			if(!empty($forumPage) && ($forumPage == $post)) {
-				// If the forum and blog are both in root, add index.php to the end
-				$forumPage = ($phpbbForum->get_board_url() == get_option('siteurl')) ? $phpbbForum->get_board_url() . 'index.' . $phpEx : $phpbbForum->get_board_url();
+				$forumPage = $phpbbForum->append_sid($phpbbForum->get_board_url() . 'index.' . $phpEx);
 				return $forumPage; 
 			}
 		}

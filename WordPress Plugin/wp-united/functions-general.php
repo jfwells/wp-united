@@ -100,48 +100,7 @@ function clean_path($value) {
 	return $value;
 }
 
-/**
- * Calculates a relative path from the current location to a given absolute file path
- */
-function wpu_compute_path_difference($filePath, $currLoc = false) {
-	
-	$absFileLoc = clean_path(realpath($filePath));
 
-	if(is_dir($absFileLoc)) {
-		$absFileLoc = add_trailing_slash($absFileLoc);
-	}
-
-	if($currLoc === false) {
-		$currLoc = getcwd();
-	}
-	
-	$absCurrLoc = clean_path(realpath($currLoc));
-	
-	if(is_dir($absCurrLoc)) {
-		$absCurrLoc = add_trailing_slash($absCurrLoc);
-	}
-	
-	// A fix for the WP-United build environment symlinks
-	$absCurrLoc = str_replace('wpu-buildenv/sources/wp-united/root/wp-united/', 'wpu-buildenv/sources/phpbb/wp-united/', $absCurrLoc);
-	
-	$pathSep = (stristr( PHP_OS, "WIN")) ? "\\": "/";
-
-	$absFileLoc = explode($pathSep, $absFileLoc);
-	$absCurrLoc = explode($pathSep, $absCurrLoc);
-	array_pop($absFileLoc);
-
-	while($absCurrLoc[0]==$absFileLoc[0]) { 
-		array_shift($absCurrLoc);
-		array_shift($absFileLoc);
-	}
-	$pathsBack = array(".");
-	for($i=0;$i<(sizeof($absCurrLoc)-1);$i++) {
-		$pathsBack[] = "..";
-	}
-	$relPath = add_trailing_slash(implode("/", $pathsBack)) . add_trailing_slash(implode("/", $absFileLoc));
-	$relPath = str_replace('//', '/', $relPath);
-	return $relPath;
-}
 
 /**
  * General error handler for arbitrating phpBB & WordPress errors.

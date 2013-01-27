@@ -166,12 +166,12 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 				$cssMagic->makeSpecificByClass('wpuisle', false);
 			}
 			
+			$cssMagic->fix_urls();
 			
 			$css = $cssMagic->getCSS();
 			$cssMagic->clear();
-	
-			//fix relative URLs in the CSS
-			wpu_fix_css_urls($cssFileToFix, $css, $pkg);
+
+			
 		}
 			
 		//cache fixed CSS

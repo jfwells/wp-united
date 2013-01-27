@@ -38,7 +38,7 @@ Class WP_United_Extras_Loader {
 
 		$dirs = @glob($this->baseDir . "*", GLOB_ONLYDIR);
 
-		foreach($dirs as $dir) {
+		foreach((array)$dirs as $dir) {
 			$extraFile = $dir . '/main.php';
 
 			if(@file_exists($extraFile)) {
