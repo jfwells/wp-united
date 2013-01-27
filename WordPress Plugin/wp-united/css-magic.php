@@ -98,7 +98,13 @@ class CSS_Magic {
 		$this->nestedItems = array();
 		$this->importedItems = array();
 	}
-
+	
+	/**
+	 * For parsed strings, it can be useful to set the filename, for substitutions
+	 */
+	public function set_filename($fileName) {
+		$this->filename = $fileName;
+	}
 	/**
 	 * Parses inbound CSS, storing it as an internal representation of keys and code
 	 * @param string $str A valid CSS string
@@ -128,6 +134,7 @@ class CSS_Magic {
 					}
 
 					$subSheet = new CSS_Magic($this->processImports, $this->baseUrl, $this->basePath);
+					$subSheet->set_filename($this->filename);
 					$this->totalItems = $this->totalItems + $subSheet->parseString($nested[2][$nestNum]);
 				
 					$this->nestedItems[$nestIndex] = array(
@@ -147,8 +154,6 @@ class CSS_Magic {
 			$importIndex = sizeof($this->importedItems);
 			if(sizeof($imported[0]) && isset($imported[2]) && is_array($imported[2]) && sizeof($imported[2])) {
 				foreach($imported[2] as $importNum => $importUrl) {
-				
-					// TODO: Filename is $imported[2]
 				
 					$this->totalItems = $this->totalItems + 1;
 					$subSheet = new CSS_Magic($this->processImports, $this->baseUrl, $this->basePath);
