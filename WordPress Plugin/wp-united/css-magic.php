@@ -197,7 +197,7 @@ class CSS_Magic {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
 		if(@file_exists($filename)) {
-			return $this->parseString(file_get_contents($filename));
+			return $this->parseString(@file_get_contents($filename));
 		} else {
 			return false;
 		}
@@ -547,6 +547,8 @@ class CSS_Magic {
 	public function fix_urls() {
 		global $phpbb_root_path, $wpUnited, $phpbbForum;
 		
+		$alreadyProcessed = array();
+		
 		$filePath = (empty($this->filename)) ? $this->basePath : dirname($this->filename);
 		
 		$relPath = $this->compute_path_difference($filePath);
@@ -562,24 +564,30 @@ class CSS_Magic {
 		foreach($this->css as $keyString => $cssCode) {
 			
 			$urls = 0;
-			$result = $cssCode;
+			$cssResult = $cssCode;
 			
 			preg_match_all('/url\(.*?\)/', $cssCode, $urls);
 			if(is_array($urls[0])) {
-				foreach($urls[0] as $url) {
-					$replaceUrl = false;
+				foreach($urls[0] as $url) {	
 					
-					if((stristr($url, "http:") === false)  && (stristr($url, "https:") === false)) {
+					$replace = false;
 					
+					if((stristr($url, "http:") === false)  && (stristr($url, "https:") === false) && (substr($url, 0, 1) != '/')) {
 						$out = str_replace(array('url', '(', ')', "'", '"', ' '), '', $url);
 						if ($out != '/') {
 							$replace = true;
 						}
 					}
+				
 					if ($replace) {
-					
-						// We try to sub in the absolute URL for the file path. If that fails then we use the computed relative path difference.
-						if((stristr($out, "http:") === false)  && (stristr($url, "https:") === false)) {
+						
+						// only process URLs we haven't processed before in this session
+						if(isset($alreadyProcessed[$url])) {
+							$out = $alreadyProcessed[$url];
+						} else {
+						
+						
+							// We try to sub in the absolute URL for the file path. If that fails then we use the computed relative path difference.
 							if($urlToCssFile) {
 								$urlParts = explode('/', $out);
 								$canModify = true;
@@ -607,13 +615,17 @@ class CSS_Magic {
 								$out = $relPath.$out;
 							}
 							$out = str_replace(array('//', ':/'), array('/', '://'), $out);		
-							$result = str_replace($url, "url('{$out}')", $cssCode);
+							
+							
+							$alreadyProcessed[$url] = $out;
 						}
+						
+						$cssResult = str_replace($url, "url('{$out}')", $cssResult);
 					}
 				}
 			}
 			
-			$newCSS[$keyString] = $result;
+			$newCSS[$keyString] = $cssResult;
 			
 		}
 		
