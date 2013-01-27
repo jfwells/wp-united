@@ -1,7 +1,7 @@
-#wpucssmagic, #wpucssmagic * { font-family: inherit; letter-spacing: normal; height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static; line-height: inherit; text-shadow: none; background: none repeat scroll 0 0 transparent;box-shadow: none; max-width: none; max-height: none;}
+#wpucssmagic, #wpucssmagic * { font-family: inherit; letter-spacing: normal; height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static; line-height: inherit; text-shadow: none; box-shadow: none; max-width: none; max-height: none;}
 #wpucssmagic {font-size: large;  height: auto; color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
 .wpucssmagic {text-align: inherit;}
-.wpucssmagic * {color: inherit; font-size: inherit; font-weight: inherit;}
+.wpucssmagic * {background: none repeat scroll 0 0 transparent; color: inherit; font-size: inherit; font-weight: inherit;}
 .wpucssmagic * {height: auto; }
 .wpucssmagic p, .wpucssmagic dl, .wpucssmagic dt, #wpucssmagic a  { font-weight: inherit;}
 .wpucssmagic b, .wpucssmagic h1, .wpucssmagic h2, .wpucssmagic h3, .wpucssmagic strong, #wpucssmagic strong a, #wpucssmagic strong p {font-weight: bold;}
