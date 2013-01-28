@@ -116,6 +116,8 @@ function wpu_css_magic() {
 					$innerCSS->parseFile($cacheFile);
 				}
 				foreach ($foundOuter as $index => $cacheFile) {
+				
+					if(!stristr($cacheFile))
 					$outerCSS->parseFile($cacheFile);
 				}				
 				foreach($inCSSInner['css'] as $index => $css) {
@@ -300,10 +302,19 @@ function wpu_get_stylesheet_links($headerInfo, $position='outer') {
 		
 		foreach($matches as $match) {
 			
-			// ignore wp-united css magic & widget islands
-			if((strstr($match, 'usecssm=1') !== false) || (strstr($match, 'island=1') !== false)) {
-				continue;
+			// ignore wp-united resets, css magic & widget islands
+			$ignores = array(
+				'usecssm=1',
+				'island=1',
+				'wp-united/theme/',
+			);
+				
+			foreach($ignores as $ignore) {
+				if(strstr($match, $ignore) !== false) {
+					continue 2;
+				}
 			}
+
 			
 			// extract css location
 			$and = '&';
