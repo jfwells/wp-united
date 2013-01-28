@@ -204,7 +204,7 @@ Class WPU_Core_Patcher {
 		$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
 		define('ABSPATH',$realAbsPath);
 
-		require_once($this->phpbb_root . 'wp-united/plugin-fixer.php');
+		require_once($wpUnited->get_plugin_path() . 'plugin-fixer.php');
 		
 		if (!$this->core_cache_ready()) {
 			
