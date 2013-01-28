@@ -73,7 +73,7 @@ class WPU_WP_Plugins {
 		
 		$this->mainEntry = $mainEntry;
 		
-		if (stripos($plugin, 'wpu-plugin') === false) {
+		if (stripos($plugin, 'wp-united') === false) {
 			if( !@file_exists($plugin) ) {
 				// plugin file not found -- not an absolute path. Look in plugin folder
 				$plugin = $workingDir . $plugin; 
