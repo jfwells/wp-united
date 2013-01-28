@@ -116,8 +116,6 @@ function wpu_css_magic() {
 					$innerCSS->parseFile($cacheFile);
 				}
 				foreach ($foundOuter as $index => $cacheFile) {
-				
-					if(!stristr($cacheFile))
 					$outerCSS->parseFile($cacheFile);
 				}				
 				foreach($inCSSInner['css'] as $index => $css) {
