@@ -246,7 +246,7 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		$this->userDetails = array(
 			'displayname'			=>	htmlspecialchars($wpUser->display_name, ENT_COMPAT, 'UTF-8'),
 			'email'					=>	htmlspecialchars($wpUser->user_email, ENT_COMPAT, 'UTF-8'),
-			'website'				=>	!empty($wpUser->user_url) ? htmlspecialchars($wpUser->user_url, ENT_COMPAT, 'UTF-8'), : __('n/a', 'wp-united'),
+			'website'				=>	(!empty($wpUser->user_url)) ? htmlspecialchars($wpUser->user_url, ENT_COMPAT, 'UTF-8') : __('n/a', 'wp-united'),
 			'rolelist'				=>	htmlspecialchars(implode(', ', (array)$wpUser->roles), ENT_COMPAT, 'UTF-8'),
 			'roletext'				=>	(sizeof($wpUser->roles) > 1) ? __('Roles:', 'wp-united') : __('Role:', 'wp-united'),
 			'posts'					=>	count_user_posts($this->userID),
