@@ -1,5 +1,5 @@
 #wpucssmagic, #wpucssmagic * { font-family: inherit; letter-spacing: normal; height: auto; text-decoration: none; padding: 0; margin: 0;  float: none; clear: none; position: static; line-height: inherit; text-shadow: none; box-shadow: none; max-width: none; max-height: none;}
-#wpucssmagic, #wpucssmagic * :not(#wpucssmagic, #wpucssmagic #colour_palette table tr) { background: none repeat scroll 0 0 transparent;}
+#wpucssmagic, #wpucssmagic * :not(#wpucssmagic #colour_palette table tr) { background: none repeat scroll 0 0 transparent;}
 #wpucssmagic {font-size: large;  height: auto; color: #000; text-align: left; font-size-adjust: none;letter-spacing: normal; padding: 0; margin: 0; vertical-align: baseline;background: inherit; font-style: normal;text-align: left;}
 .wpucssmagic {text-align: inherit;}
 .wpucssmagic * {color: inherit; font-size: inherit; font-weight: inherit;}
