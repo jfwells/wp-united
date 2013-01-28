@@ -232,12 +232,12 @@ Class WPU_Core_Patcher {
 			if(!$wpUnited->get_setting('pluginFixes')) {
 				$strCompat = ($this->wpu_compat) ? "true" : "false";
 				// MU Plugins
-				$cSet = str_replace('foreach( wp_get_active_network_plugins() as $network_plugin )', '$GLBOALS[\'wpuPluginFixer\'] = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . 'foreach( wp_get_active_network_plugins() as $network_plugin )', $cSet);
-				$cSet = str_replace('include_once( $network_plugin );', ' include_once( $wpuMuPluginFixer->fix(WPMU_PLUGIN_DIR  . \'/\' . $network_plugin, true));', $cSet);
+				$cSet = str_replace('foreach( wp_get_active_network_plugins() as $network_plugin )', '$GLOBALS[\'wpuMuPluginFixer\'] = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . 'foreach( wp_get_active_network_plugins() as $network_plugin )', $cSet);
+				$cSet = str_replace('include_once( $network_plugin );', ' include_once( $GLOBALS[\'wpuMuPluginFixer\']->fix(WPMU_PLUGIN_DIR  . \'/\' . $network_plugin, true));', $cSet);
 				
 				//WP Plugins
-				$cSet = str_replace('foreach ( wp_get_active_and_valid_plugins() as $plugin )', '$GLBOALS[\'wpuPluginFixer\'] = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . 'foreach ( wp_get_active_and_valid_plugins() as $plugin )', $cSet);
-				$cSet = str_replace('include_once( $plugin );', ' include_once($wpuPluginFixer->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
+				$cSet = str_replace('foreach ( wp_get_active_and_valid_plugins() as $plugin )', '$GLOBALS[\'wpuPluginFixer\'] = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . 'foreach ( wp_get_active_and_valid_plugins() as $plugin )', $cSet);
+				$cSet = str_replace('include_once( $plugin );', ' include_once($GLOBALS[\'wpuPluginFixer\']->fix(WP_PLUGIN_DIR  . \'/\' . $plugin, true));', $cSet);
 				
 				// Theme functions
 				$cSet = str_replace('// Load functions for active theme.', 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'styles\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');', $cSet);
