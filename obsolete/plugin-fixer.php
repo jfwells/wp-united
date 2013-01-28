@@ -169,6 +169,8 @@ class WPU_WP_Plugins {
 		$fStateChanged = $phpbbForum->foreground();
 		$code = $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpVer, $this->strCompat, $prefixContent);
 		$phpbbForum->restore_state($fStateChanged);
+		
+		return $code;
 	}
 	
 	/**
