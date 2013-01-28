@@ -230,14 +230,22 @@ Class WPU_Core_Patcher {
 			
 			// Fix plugins
 			if(!$wpUnited->get_setting('pluginFixes')) {
-				$strCompat = false; //($this->wpu_compat) ? "true" : "false";
+				$strCompat = 'false'; //($this->wpu_compat) ? "true" : "false";
 				
 				
-				// MU Plugins
-				$token = 'foreach( wp_get_active_network_plugins() as $network_plugin )';
+				// Must-use Plugins
+				$token = 'foreach ( wp_get_mu_plugins() as $mu_plugin ) {';
 				if(strstr($cSet, $token)) {
 					$cSet = str_replace($token, '$GLOBALS[\'wpuMuPluginFixer\'] = new WPU_WP_Plugins(WPMU_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
-					$cSet = str_replace('include_once( $network_plugin );', ' include_once( $GLOBALS[\'wpuMuPluginFixer\']->fix($network_plugin, true));', $cSet);
+					$cSet = str_replace('include_once( $mu_plugin );', ' include_once( $GLOBALS[\'wpuMuPluginFixer\']->fix($mu_plugin, true));', $cSet);
+				}
+				
+				
+				// Multisite Plugins
+				$token = 'foreach( wp_get_active_network_plugins() as $network_plugin )';
+				if(strstr($cSet, $token)) {
+					$cSet = str_replace($token, '$GLOBALS[\'wpuMsPluginFixer\'] = new WPU_WP_Plugins(WPMU_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
+					$cSet = str_replace('include_once( $network_plugin );', ' include_once( $GLOBALS[\'wpuMsPluginFixer\']->fix($network_plugin, true));', $cSet);
 				}
 				
 				//WP Plugins
