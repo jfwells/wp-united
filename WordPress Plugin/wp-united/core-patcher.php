@@ -203,8 +203,9 @@ Class WPU_Core_Patcher {
 		$realAbsPath = realpath($wpUnited->get_wp_path());
 		$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
 		define('ABSPATH',$realAbsPath);
-
-		require_once($wpUnited->get_plugin_path() . 'plugin-fixer.php');
+		
+		
+		//require_once($wpUnited->get_plugin_path() . 'plugin-fixer.php');
 		
 		if (!$this->core_cache_ready()) {
 			
@@ -213,7 +214,8 @@ Class WPU_Core_Patcher {
 
 			$cConf = file_get_contents($wpConfigLoc);
 			$cSet = file_get_contents($wpUnited->get_wp_path() . 'wp-settings.php');
-			 //Handle the make clickable conflict
+			
+			//Handle the make clickable conflict
 			if (@file_exists($wpUnited->get_wp_path() . 'wp-includes/formatting.php')) {
 				$fName='formatting.php'; 
 			} else {
@@ -229,7 +231,7 @@ Class WPU_Core_Patcher {
 			unset ($cFor); 
 			
 			// Fix plugins
-			if(!$wpUnited->get_setting('pluginFixes')) {
+			if($wpUnited->get_setting('pluginFixes')) {
 				$strCompat = 'true'; //($this->wpu_compat) ? "true" : "false";
 				
 				
