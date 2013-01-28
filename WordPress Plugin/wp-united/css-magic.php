@@ -477,7 +477,7 @@ class CSS_Magic {
 			
 			foreach($ignores as $ignore) {
 				if(strstr($keyString, $ignore) !== false) {
-					continue;
+					continue 2;
 				}
 			}
 			$keyString = str_replace('__ ', '', $keyString);

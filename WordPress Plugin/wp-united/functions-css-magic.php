@@ -129,7 +129,7 @@ function wpu_css_magic() {
 				
 				$ignores = array('wpucssmagic', 'wpuisle');
 				
-				$innerKeys = $innerCSS->getKeyClassesAndIDs($ignores);
+				$innerKeys = $innerCSS->getKeyClassesAndIDs();
 				$outerKeys = $outerCSS->getKeyClassesAndIDs($ignores);
 
 				$innerCSS->clear();
