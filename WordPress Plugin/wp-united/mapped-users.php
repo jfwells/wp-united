@@ -244,14 +244,14 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		$this->avatar = get_avatar($wpUser->ID, 50);
 		
 		$this->userDetails = array(
-			'displayname'			=>	$wpUser->display_name,
-			'email'					=>	$wpUser->user_email,
-			'website'				=>	!empty($wpUser->user_url) ? $wpUser->user_url : __('n/a', 'wp-united'),
-			'rolelist'				=>	implode(', ', (array)$wpUser->roles),
+			'displayname'			=>	htmlspecialchars($wpUser->display_name, ENT_COMPAT, 'UTF-8'),
+			'email'					=>	htmlspecialchars($wpUser->user_email, ENT_COMPAT, 'UTF-8'),
+			'website'				=>	!empty($wpUser->user_url) ? htmlspecialchars($wpUser->user_url, ENT_COMPAT, 'UTF-8'), : __('n/a', 'wp-united'),
+			'rolelist'				=>	htmlspecialchars(implode(', ', (array)$wpUser->roles), ENT_COMPAT, 'UTF-8'),
 			'roletext'				=>	(sizeof($wpUser->roles) > 1) ? __('Roles:', 'wp-united') : __('Role:', 'wp-united'),
 			'posts'					=>	count_user_posts($this->userID),
 			'comments'				=>	$wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d ", $this->userID)),
-			'regdate'				=>	$wpRegDate
+			'regdate'				=>	htmlspecialchars($wpRegDate, ENT_COMPAT, 'UTF-8')
 		);
 	
 	}
@@ -299,20 +299,22 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 			$phpbbForum->background($fStateChanged);
 			return;
 		}
-		
+	
 		$matches = array();;
 		while($result = $db->sql_fetchrow($results)) {
+			$dispUsername = str_replace("'", "\'", htmlspecialchars($user['username'], ENT_COMPAT, 'UTF-8'));	
+			$dispEmail = str_replace("'", "\'", htmlspecialchars($user['user_email'], ENT_COMPAT, 'UTF-8'));	
 			$integText = (empty($result['user_wpuint_id'])) ? __('Available', 'wp-united') : __('Cannot integrate (already integrated)', 'wp-united');
 			$integLink =  (!empty($result['user_wpuint_id'])) ? '' : sprintf(
 				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate', 'wp-united') . '</a>',
 				$this->userID,
 				$result['user_id'],
-				$this->loginName,
-				$result['username'],
-				$this->get_email(),
-				$result['user_email']
+				str_replace("'", "\'", htmlspecialchars($this->loginName)),
+				$dispUsername,
+				str_replace("'", "\'", htmlspecialchars($this->get_email())),
+				$dispEmail
 			);
-			$match = '<p><strong>' . $result['username'] . '</strong> <em>' . $result['user_email'] . '</em><br />' . $integText . ' ' . $integLink . '</p>';
+			$match = '<p><strong>' . $dispUsername . '</strong> <em>' . $dispEmail . '</em><br />' . $integText . ' ' . $integLink . '</p>';
 			
 			// e-mail matches go first in the returned list
 			if(strtolower($result['user_email']) == strtolower($this->get_email())) {
@@ -394,11 +396,11 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		$this->load_avatar($data['user_avatar'], $data['user_avatar_type'], $data['user_avatar_width'], $data['user_avatar_height']);
 		
 		$this->userDetails = array(
-			'email'			=> $data['email'],
-			'group'			=> $data['group'],
-			'rank'			=> $data['rank'],
+			'email'			=> htmlspecialchars($data['email'], ENT_COMPAT, 'UTF-8'),
+			'group'			=> htmlspecialchars($data['group'], ENT_COMPAT, 'UTF-8'),
+			'rank'			=> htmlspecialchars($data['rank'], ENT_COMPAT, 'UTF-8'),
 			'posts'			=> $data['numposts'],
-			'regdate'		=> $data['regdate'],
+			'regdate'		=> htmlspecialchars($data['regdate'], ENT_COMPAT, 'UTF-8'),
 			'lastvisit'		=> $data['lastvisit'],
 		);
 		
@@ -495,7 +497,7 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		$users = array();
 		foreach ((array) $results as $item => $result) {
 			$users[$result->ID] = array(
-				'username'	=>	$result->user_login,
+				'username'		=>	$result->user_login,
 				'email'			=>	$result->user_email,
 				'integrated'	=>	false
 			);
@@ -518,21 +520,22 @@ class WPU_Mapped_Phpbb_User extends WPU_Mapped_User {
 		
 		$matches = '';
 		foreach($users as $userID => $user) {
+			$dispUsername = str_replace("'", "\'", htmlspecialchars($user['username'], ENT_COMPAT, 'UTF-8'));
+			$dispEmail = str_replace("'", "\'", htmlspecialchars($user['email'], ENT_COMPAT, 'UTF-8'));
 			$integText = (!$user['integrated']) ? __('Available', 'wp-united') : __('Cannot integrate (already integrated)', 'wp-united');
 			$integLink = ($user['integrated']) ? '' : sprintf(
 				'<a href="#" class="wpumapactionlnk" onclick="return wpuMapIntegrate(this, %d, %d, \'%s\', \'%s\', \'%s\', \'%s\');">' . __('Integrate', 'wp-united') . '</a>',
 				$this->userID,
 				$userID,
-				$this->loginName,
-				$user['username'],
-				$this->get_email(),
-				$user['email']
-			);
-			$matches .= '<p><strong>' . $user['username'] . '</strong> <em>' . $user['email'] . '</em><br />' . $integText . ' ' . $integLink . '</p>';
+				str_replace("'", "\'", htmlspecialchars($this->loginName, ENT_COMPAT, 'UTF-8')),
+				$dispUsername,
+				str_replace("'", "\'", htmlspecialchars($this->get_email(), ENT_COMPAT, 'UTF-8')),
+				$dispEmail
+			);  
+			$matches .= '<p><strong>' . $dispUsername . '</strong> <em>' . $dispEmail . '</em><br />' . $integText . ' ' . $integLink . '</p>';
 		}
 		
-		
-		
+
 		echo $matches;
 	}
 	

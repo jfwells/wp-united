@@ -5,6 +5,7 @@ current target: v0.9.2.4
 * BUGFIX: colour chooser and and embedded width/height (old HTML4 html attributes) not working on integrated pages.
 * BUGFIX: Fixed warnings on cross-posting due to deprecated WP-United "Users have own blogs" functions
 * BUGFIX: Cross-posting spam filter settings couldn't be changed
+* BUGFIX: User mapper view and suggestion autocomplete was dying on some non-ascii characters
 * NEW: Added the option to remove the phpBB style switcher from the nav header bar widget
 
 
