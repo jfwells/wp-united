@@ -232,9 +232,31 @@ function wpu_css_magic() {
 		$wpUnited->get_inner_content()
 	);
 	
-	$wpUnited->set_inner_content($withInline);
+	//same with width
+	$withInline = preg_replace_callback(
+		'/((<[^>]+\b)(?=width\s?=\s?[\'"]?\s?([0-9]+)\s?[\'"]?)([^>]*?))(\/?\s*>)/',
+		create_function(
+			'$m',
+			'if(preg_match(\'/(style\s?=\s?[\\\'"]([^\\\'"]+))([\\\'"])/\', $m[1], $r)) 
+				return  str_replace($r[0], "{$r[1]};width:{$m[3]}px;{$r[3]}", $m[1]) . $m[5];
+			return $m[1] . \' style="width:\' . $m[3] . \'px;" \' . $m[5];'
+		),
+		$withInline
+	);	
 	
-
+	//and bgcolor
+	$withInline = preg_replace_callback(
+		'/((<[^>]+\b)(?=bgcolor\s?=\s?[\'"]?\s?([0-9]+)\s?[\'"]?)([^>]*?))(\/?\s*>)/',
+		create_function(
+			'$m',
+			'if(preg_match(\'/(style\s?=\s?[\\\'"]([^\\\'"]+))([\\\'"])/\', $m[1], $r)) 
+				return  str_replace($r[0], "{$r[1]};background-color:{$m[3]}px;{$r[3]}", $m[1]) . $m[5];
+			return $m[1] . \' style="background-color:\' . $m[3] . \'px;" \' . $m[5];'
+		),
+		$withInline
+	);	
+	
+	$wpUnited->set_inner_content($withInline);
 	
 }
 
