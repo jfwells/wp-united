@@ -126,8 +126,11 @@ function wpu_css_magic() {
 				}
 
 				$innerCSS->removeCommonKeyEl('#wpucssmagic .wpucssmagic');
-				$innerKeys = $innerCSS->getKeyClassesAndIDs();
-				$outerKeys = $outerCSS->getKeyClassesAndIDs();
+				
+				$ignores = array('wpucssmagic', 'wpuisle');
+				
+				$innerKeys = $innerCSS->getKeyClassesAndIDs($ignores);
+				$outerKeys = $outerCSS->getKeyClassesAndIDs($ignores);
 
 				$innerCSS->clear();
 				$outerCSS->clear();

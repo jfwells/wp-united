@@ -463,13 +463,22 @@ class CSS_Magic {
 	
 	/**
 	 * Returns all key classes and IDs
+	 * @param array $ignores: An array of items which, if any are found in the CSS key, will cause this key to be ignored
 	 * @return array an array with all classes and IDs
 	 */
-	public function getKeyClassesAndIDs() {
+	public function getKeyClassesAndIDs($ignores = '') {
 		$classes = array();
 		$ids = array();
+		$ignores = (array)$ignores;
 		foreach($this->css as $keyString => $cssCode) {
+			
+			foreach($ignores as $ignore) {
+				if(strstr($keyString, $ignore)) {
+					continue;
+				}
+			}
 			$keyString = str_replace('__ ', '', $keyString);
+			
 			preg_match_all('/\..[^\s^#^>^<^\.^,^:]*/', $keyString, $cls);
 			preg_match_all('/#.[^\s^#^>^<^\.^,^:]*/', $keyString, $id);
 			
