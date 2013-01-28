@@ -469,11 +469,14 @@ class CSS_Magic {
 	public function getKeyClassesAndIDs($ignores = '') {
 		$classes = array();
 		$ids = array();
-		$ignores = (array)$ignores;
+		if(!is_array($ignores)) {
+			$ignores = array();
+		}
+		
 		foreach($this->css as $keyString => $cssCode) {
 			
 			foreach($ignores as $ignore) {
-				if(strstr($keyString, $ignore)) {
+				if(strstr($keyString, $ignore) !== false) {
 					continue;
 				}
 			}
