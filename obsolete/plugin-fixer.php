@@ -4,11 +4,14 @@
 * WP-United Plugin Fixer
 *
 * @package WP-United
-* @version $Id: v0.8.5 2010/02/06 John Wells (Jhong) Exp $
+* @version $Id: v0.9.2.4 2013/01/28 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2012 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
 *
+*	This is very old -- used to be used in pre-v0.8.x to stretch plugins into shape when called via a patched core
+* 	There is less and less need for this now, but it is left for compatibility purposes.
+* 	It may fix some plugins, but will possibly break more than it fixes.
 * 
 */
 
@@ -96,7 +99,7 @@ class WPU_WP_Plugins {
 	 * @access private
 	 */
 	function process_file($pluginLoc) {
-		global $phpEx;
+		global $phpEx, $phpbbForum;
 		
 		$wpuCache = WPU_Cache::getInstance();
 		
@@ -152,7 +155,7 @@ class WPU_WP_Plugins {
 		foreach($includes[4] as $key => $value) {	
 			if(!empty($includes[4][$key])) {
 				$finalChar = ($includes[6][$key] == ';') ? ';' : '';
-				$pluginContent = str_replace($includes[0][$key], "\n" . $includes[2][$key] . $includes[3][$key] . '($GLOBALS[\'wpuPluginFixer\']->fix(' . "{$value}, false, '" . dirname($pluginLoc) . "')){$finalChar}", $pluginContent);
+				$pluginContent = str_replace($includes[0][$key], "\n" . $includes[2][$key] . $includes[3][$key] . '($GLOBALS[\'' . $type . '\']->fix(' . "{$value}, false, '" . dirname($pluginLoc) . "')){$finalChar}", $pluginContent);
 			}
 		}
 	
@@ -162,9 +165,10 @@ class WPU_WP_Plugins {
 		$endToken = (preg_match('/\?' . '>[\s]*$/', $pluginContent)) ? '<'.'?php ' : ''; 
 	
 		$pluginContent = $startToken. trim($pluginContent) . $endToken;
-	
-		return $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpVer, $this->strCompat, $prefixContent);
-
+		
+		$fStateChanged = $phpbbForum->foreground();
+		$code = $wpuCache->save_plugin($pluginContent, $pluginLoc, $this->wpVer, $this->strCompat, $prefixContent);
+		$phpbbForum->restore_state($fStateChanged);
 	}
 	
 	/**
