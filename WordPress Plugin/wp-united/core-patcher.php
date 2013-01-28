@@ -236,7 +236,7 @@ Class WPU_Core_Patcher {
 				// Must-use Plugins
 				$token = 'foreach ( wp_get_mu_plugins() as $mu_plugin ) {';
 				if(strstr($cSet, $token)) {
-					$cSet = str_replace($token, '$GLOBALS[\'wpuMuPluginFixer\'] = new WPU_WP_Plugins(WPMU_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
+					$cSet = str_replace($token, '$GLOBALS[\'wpuMuPluginFixer\'] = new WPU_WP_Plugins(WPMU_PLUGIN_DIR, \'wpuMuPluginFixer\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
 					$cSet = str_replace('include_once( $mu_plugin );', ' include_once( $GLOBALS[\'wpuMuPluginFixer\']->fix($mu_plugin, true));', $cSet);
 				}
 				
@@ -244,21 +244,21 @@ Class WPU_Core_Patcher {
 				// Multisite Plugins
 				$token = 'foreach( wp_get_active_network_plugins() as $network_plugin )';
 				if(strstr($cSet, $token)) {
-					$cSet = str_replace($token, '$GLOBALS[\'wpuMsPluginFixer\'] = new WPU_WP_Plugins(WPMU_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
+					$cSet = str_replace($token, '$GLOBALS[\'wpuMsPluginFixer\'] = new WPU_WP_Plugins(WPMU_PLUGIN_DIR, \'wpuMsPluginFixer\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
 					$cSet = str_replace('include_once( $network_plugin );', ' include_once( $GLOBALS[\'wpuMsPluginFixer\']->fix($network_plugin, true));', $cSet);
 				}
 				
 				//WP Plugins
 				$token = 'foreach ( wp_get_active_and_valid_plugins() as $plugin )';
 				if(strstr($cSet, $token)) {
-					$cSet = str_replace($token, '$GLOBALS[\'wpuPluginFixer\'] = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'plugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
+					$cSet = str_replace($token, '$GLOBALS[\'wpuPluginFixer\'] = new WPU_WP_Plugins(WP_PLUGIN_DIR, \'wpuPluginFixer\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
 					$cSet = str_replace('include_once( $plugin );', ' include_once($GLOBALS[\'wpuPluginFixer\']->fix($plugin, true));', $cSet);
 				}
 				
 				// Theme functions
 				$token = 'if ( ! defined( \'WP_INSTALLING\' ) || \'wp-activate.php\' === $pagenow ) {';
 				if(strstr($cSet, $token)) {
-					$cSet = str_replace($token, 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'styles\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
+					$cSet = str_replace($token, 'global $wpuStyleFixer; $wpuStyleFixer = new WPU_WP_Plugins(STYLESHEETPATH, \'wpuThemeFixer\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n" .  'global $wpuThemeFixer; $wpuThemeFixer = new WPU_WP_Plugins(TEMPLATEPATH, \'themes\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');' . "\n\n" . $token, $cSet);
 					$cSet = str_replace('include( STYLESHEETPATH . \'/functions.php\' );', ' include_once($wpuStyleFixer->fix(STYLESHEETPATH . \'/functions.php\', true));', $cSet);
 					$cSet = str_replace('include( TEMPLATEPATH . \'/functions.php\' );', ' include_once($wpuThemeFixer->fix(TEMPLATEPATH . \'/functions.php\', true));', $cSet);
 				}
