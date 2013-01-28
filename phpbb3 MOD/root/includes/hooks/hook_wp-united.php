@@ -279,7 +279,6 @@ function wpu_bootstrap() {
 	return true;
 }
 
-
 /**
  * Clear integration settings
  * Completely removes all traces of WP-united settings

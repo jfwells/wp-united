@@ -62,7 +62,7 @@ function wpu_css_magic() {
 		
 		//For template voodoo, we also need the outer styles
 		$outerSSLinks = wpu_get_stylesheet_links($wpUnited->get_outer_content(), 'outer');
-		global $wpuDebug;ob_start();print_r($outerSSLinks);$wpuDebug->add(ob_get_contents());ob_end_clean();
+		
 		$inCSSOuter = wpu_extract_css($wpUnited->get_outer_content());
 		
 		// First check if the cached CSS Magic files exist, and insert placeholders for TV cache location if they do

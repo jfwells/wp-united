@@ -29,6 +29,7 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			array('wp_head', 							'add_scripts',								'enabled'),
 			array('wp_footer', 							'add_footer_output',						'enabled'),
 			array('admin_footer', 						'add_footer_output',						'enabled'),
+			array('login_footer', 						'add_footer_output',						'enabled'),
 			array('admin_bar_menu',						array('add_to_menu_bar', 100),				'enabled'),
 			
 			// used primarily for multi-user forum blogging, deprecated:
@@ -57,7 +58,8 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			array('registration_errors', 				array('validate_new_user', 10, 3),			'integrateLogin'),
 			array('user_register', 						array('process_new_wp_reg', 10, 1),			'integrateLogin'),
 			array('profile_update', 					array('profile_update', 10, 2),				'integrateLogin'),
-			
+			array('set_logged_in_cookie',				array('add_wider_cookie', 10, 5),			'integrateLogin'),
+			array('clear_auth_cookie',					'clear_wider_cookie',						'integrateLogin'),
 		),
 
 		$filters = array(
@@ -880,6 +882,49 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 	}
 	
 	/**
+	 * Sets a WordPress cookie that can cover the phpBB forum
+	 */
+	public function add_wider_cookie($logged_in_cookie, $expire, $expiration, $user_id, $data) {
+		global $phpbbForum, $config;
+		
+		if($this->is_working()) {
+	
+			//We don't check if is integrated, as there won't necessarily be a phpBB ID
+			$fStateChanged = $phpbbForum->foreground();
+			$domain = $config['cookie_domain'];
+			$path = $config['cookie_path'];
+			$phpbbForum->restore_state($fStateChanged);
+			
+			if(($path != COOKIEPATH) || ($domain != COOKIE_DOMAIN)) {
+				
+				$secure_logged_in_cookie = apply_filters('secure_logged_in_cookie', false, $user_id, $secure);
+				setcookie(LOGGED_IN_COOKIE, $logged_in_cookie, $expire, $path, $domain, $secure_logged_in_cookie, true);
+			
+			}
+		}
+	
+	}
+	
+	/**
+	 * Clears the wider cookie
+	 */
+	public function clear_wider_cookie() {
+		global $phpbbForum, $config;
+		
+		if($this->is_working()) {
+			
+			// Do this even for unintegrated users -- it must be cleared if set
+			$fStateChanged = $phpbbForum->foreground();
+			$domain = $config['cookie_domain'];
+			$path = $config['cookie_path'];
+			$phpbbForum->restore_state($fStateChanged);
+		
+			setcookie( LOGGED_IN_COOKIE, ' ', time() - YEAR_IN_SECONDS, $path, $domain);
+		}
+		
+	}
+	
+	/**
 	 * checks a login with username and password. If it failed, but the user they tried to log in as
 	 * has an integrated phpBB user with a correct username and password, allow the login to proceed
 	 * @param mixed $user WP_User|WP_Error|null a user object if the user has already successfully authenticated
@@ -1093,7 +1138,7 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 	
 			// Add login debugging if requested
 			if (defined('WPU_DEBUG') && WPU_DEBUG) {
-				$wpuDebug->display('login');
+				$wpuDebug->display();
 			}
 
 			// Add stats if requested

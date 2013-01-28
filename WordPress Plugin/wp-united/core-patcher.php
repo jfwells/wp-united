@@ -177,7 +177,6 @@ Class WPU_Core_Patcher {
 		if ( (defined('WP_ROOT_COOKIE')) && (WP_ROOT_COOKIE) ) {
 			define  ('SITECOOKIEPATH', '/');
 			define  ('COOKIEPATH', '/');
-			define  ('ADMIN_COOKIE_PATH', '/');
 		}		
 
 		

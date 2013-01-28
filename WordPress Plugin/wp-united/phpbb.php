@@ -397,8 +397,6 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		
 		$fStateChanged = $this->foreground();
 		
-		$persist = false;
-		
 		set_error_handler(array($this, 'handle_session_msgbox'));
 		$user->session_create($userID, false, $persist);
 		restore_error_handler();		

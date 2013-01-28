@@ -21,7 +21,7 @@ if ( !defined('ABSPATH') ) {
 /**
  * The main login integration routine
  */
-function wpu_integrate_login() { 
+function wpu_integrate_login() {
 	global $wpUnited, $phpbbForum, $wpuDebug;
 
 	// cache and prevent recursion
@@ -128,6 +128,15 @@ function wpu_int_phpbb_logged_in() {
 	
 	$wpuDebug->add('phpBB already logged in.');
 	
+	// Check if user is logged into WP
+	get_currentuserinfo();  
+	$currWPUser = $current_user;
+	if($currWPUser->ID) {
+		$wpuDebug->add('WP already logged in, user =' . $currWPUser->ID);
+	}
+	
+	
+	
 	$persist = (bool)$phpbbForum->get_userdata('session_autologin');
 	
 	// This user is logged in to phpBB and needs to be integrated. Do they already have an integrated WP account?
@@ -135,33 +144,39 @@ function wpu_int_phpbb_logged_in() {
 		
 		$wpuDebug->add("phpBB account is integrated to WP account ID = {$integratedID}.");
 		
+		if($currWPUser->ID === (int)$integratedID) {
+			$wpuDebug->add('User is already logged in and integrated to correct account, nothing to do.');
+			return $currWPUser->ID;
+		} else {
+			$wpuDebug->add(sprintf('Integrated user ID is %d but WordPress ID is %s', $integratedID, $currWPUser->ID));
+		}
+		
 		// they already have a WP account, log them in to it and ensure they have the correct details
-		if(!$wpUser = get_userdata($integratedID)) {
+		if(!$currWPUser = get_userdata($integratedID)) {
 			$wpuDebug->add("Failed to fetch WordPress user details for user ID = {$integratedID}. Giving up.");
 			return false;
 		}
 		
-		wp_set_current_user($wpUser->ID);		
-		wp_set_auth_cookie($wpUser->ID, $persist);
+		wp_set_current_user($currWPUser->ID);		
+		wp_set_auth_cookie($currWPUser->ID, $persist);
 		
 		$wpuDebug->add('WordPress user set to integrated user.');
 		
-		return $wpUser->ID;
+		return $currWPUser->ID;
 		
 	} else { 
 	
 		$wpuDebug->add('User is not integrated yet.');
 	
 		//Is this user already logged into WP? If so then just link the two logged in accounts
-		get_currentuserinfo();  $wpUser = $current_user;
-		if($wpUser->ID) {
+		if($currWPUser->ID) {
 			
 			$wpuDebug->add('User is already logged into WP, linking two logged-in accounts.');
 			
-			wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
+			wpu_update_int_id($phpbbForum->get_userdata('user_id'), $currWPUser->ID);
 			// sync but don't modify passwords:
-			wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync', true);
-			return $wpUser->ID; 
+			wpu_sync_profiles($currWPUser, $phpbbForum->get_userdata(), 'sync', true);
+			return $currWPUser->ID; 
 		}
 		
 		$wpuDebug->add('Not yet logged into WP.');
@@ -182,21 +197,21 @@ function wpu_int_phpbb_logged_in() {
 		if($newUserID) { 
 			
 		   if(!is_a($newUserID, 'WP_Error')) {
-				$wpUser = get_userdata($newUserID);
+				$currWPUser = get_userdata($newUserID);
 				
-				$wpuDebug->add("Created new WordPress user, ID = {$wpUser->ID}.");
+				$wpuDebug->add("Created new WordPress user, ID = {$currWPUser->ID}.");
 				
 				// must set this here to prevent recursion
-				wp_set_current_user($wpUser->ID);
-				wpu_set_role($wpUser->ID, $userLevel);		
-				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $wpUser->ID);
-				wpu_sync_profiles($wpUser, $phpbbForum->get_userdata(), 'sync');
-				wp_set_auth_cookie($wpUser->ID, $persist);
+				wp_set_current_user($currWPUser->ID);
+				wpu_set_role($currWPUser->ID, $userLevel);		
+				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $currWPUser->ID);
+				wpu_sync_profiles($currWPUser, $phpbbForum->get_userdata(), 'sync');
+				wp_set_auth_cookie($currWPUser->ID, $persist);
 				
-				$createdUser = $wpUser->ID;
+				$createdUser = $currWPUser->ID;
 				
-				//do_action('auth_cookie_valid', $cookie_elements, $wpUser->ID);
-				return $wpUser->ID; 
+				//do_action('auth_cookie_valid', $cookie_elements, $currWPUser->ID);
+				return $currWPUser->ID; 
 			}
 			$wpuDebug->add('Error when creating integrated account. Giving up.');
 		}
@@ -693,34 +708,11 @@ function wpu_get_wp_role_for_group($groupList = '') {
  * @param in $userID phpBB user ID (optional)
  * @return int WordPress User ID, or zero
  */
-function wpu_get_integration_id($userID = 0) {
+function wpu_get_integration_id($userID = false) {
 	global $phpbbForum, $db;
 	
-	$userID = (int)$userID;
+	return $phpbbForum->get_userdata('user_wpuint_id', $userID);
 	
-	if($userID == 0) {
-		if( array_key_exists('user_wpuint_id', $phpbbForum->get_userdata()) ) {
-			return $phpbbForum->get_userdata('user_wpuint_id');
-		} 
-	} else {
-		$fStateChanged = $phpbbForum->foreground();
-		
-		$sql = 'SELECT user_wpuint_id FROM ' . USERS_TABLE . ' 
-					WHERE user_id = ' . (int)$userID;
-		
-		if(!$result = $db->sql_query($sql)) {
-			$wUserID = 0;
-		} else {
-			$wUserID = $db->sql_fetchfield('user_wpuint_id');
-		}
-		$db->sql_freeresult();
-				
-		$phpbbForum->restore_state($fStateChanged);
-		
-		return $wUserID;
-		
-	}
-	return 0;
 }
 
 /**
