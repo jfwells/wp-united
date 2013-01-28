@@ -204,6 +204,8 @@ Class WPU_Core_Patcher {
 		$realAbsPath = ($realAbsPath[strlen($realAbsPath)-1] == "/" ) ? $realAbsPath : $realAbsPath . "/";
 		define('ABSPATH',$realAbsPath);
 
+		require_once($this->phpbb_root . 'wp-united/plugin-fixer.php');
+		
 		if (!$this->core_cache_ready()) {
 			
 			// Now wp-config can be moved one level up, so we try that as well:
@@ -227,7 +229,7 @@ Class WPU_Core_Patcher {
 			unset ($cFor); 
 			
 			// Fix plugins
-			if($wpUnited->get_setting('pluginFixes')) {
+			if(!$wpUnited->get_setting('pluginFixes')) {
 				$strCompat = ($this->wpu_compat) ? "true" : "false";
 				// MU Plugins
 				$cSet = str_replace('if ( is_dir( WPMU_PLUGIN_DIR', 'global $wpuMuPluginFixer; $wpuMuPluginFixer = new WPU_WP_Plugins(WPMU_PLUGIN_DIR,  \'muplugins\', \'' . $this->wpu_ver . '\', \'' .  $this->wpVersion . '\', ' . $strCompat . ');if ( is_dir( WPMU_PLUGIN_DIR', $cSet);
