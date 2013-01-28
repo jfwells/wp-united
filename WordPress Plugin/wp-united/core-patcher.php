@@ -230,7 +230,7 @@ Class WPU_Core_Patcher {
 			
 			// Fix plugins
 			if(!$wpUnited->get_setting('pluginFixes')) {
-				$strCompat = ($this->wpu_compat) ? "true" : "false";
+				$strCompat = false; //($this->wpu_compat) ? "true" : "false";
 				
 				
 				// MU Plugins
