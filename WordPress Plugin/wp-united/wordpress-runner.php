@@ -126,7 +126,19 @@ function wpu_get_wordpress() {
 
 		//prevent WP 404 error
 		if ( !$wpuCache->use_template_cache() ) {
-			query_posts('showposts=1');
+			$forum_page_ID = 0;
+			if($wpUnited->get_setting('useForumPage')) {
+				// set the page query so that the forum page is selected if in header
+				$forum_page_ID = get_option('wpu_set_forum');
+			}
+			
+			$oldGET = $_GET; $_GET = array();
+			if(!empty($forum_page_ID)) {
+				query_posts("showposts=1&page_id={$forum_page_ID}");
+			} else {
+				query_posts('showposts=1');
+			}
+			$_GET = $oldGET			
 		}
 		
 		
@@ -148,13 +160,7 @@ function wpu_get_wordpress() {
 				add_filter('show_admin_bar', '__return_false');
 		
 				ob_start();
-				if($wpUnited->get_setting('useForumPage')) {
-					// set the page query so that the forum page is selected if in header
-					$forum_page_ID = get_option('wpu_set_forum');
-					if(!empty($forum_page_ID)) {
-						query_posts("showposts=1&page_id={$forum_page_ID}");
-					}
-				}
+			
 				get_header();
 				$wpUnited->set_outer_content(ob_get_contents());
 				ob_end_clean();
@@ -188,16 +194,6 @@ function wpu_get_wordpress() {
 			
 
 			ob_start();
-			
-		
-			if($wpUnited->get_setting('useForumPage')) {
-				// set the page query so that the forum page is selected if in header
-				$forum_page_ID = get_option('wpu_set_forum');
-				if(!empty($forum_page_ID)) {
-					query_posts("showposts=1&page_id={$forum_page_ID}"); 
-
-				}
-			}
 			
 			// Fall back to page.php, then index.php (for the old Classic template)
 			// Locate_template prefers child themes.
