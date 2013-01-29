@@ -18,6 +18,7 @@ if ( !defined('ABSPATH') && !defined('IN_PHPBB') ) exit;
 
 abstract class WPU_Context_Switcher {
 	private
+		
 		$wpTablePrefix,
 		$wpUser,
 		$wpCache,
@@ -29,6 +30,8 @@ abstract class WPU_Context_Switcher {
 		$wpTemplate,
 		$wpConfig,
 		$phpbbConfig,
+		$wpAuth,
+		$phpbbAuth,
 		$wpEnv,
 		$phpbbEnv,
 		$state,
@@ -47,6 +50,7 @@ abstract class WPU_Context_Switcher {
 			$this->phpbbUser = $GLOBALS['user'];
 			$this->phpbbCache = $GLOBALS['cache'];		
 			$this->phpbbConfig = $GLOBALS['config'];	
+			$this->phpbbAuth = $GLOBALS['auth'];	
 		}
 		
 		$this->was_out = false;
@@ -148,7 +152,7 @@ abstract class WPU_Context_Switcher {
 	 * @access private
 	 */	
 	protected function backup_wp_conflicts() {
-		global $table_prefix, $user, $cache, $template, $config;
+		global $table_prefix, $user, $cache, $template, $config, $auth;
 		
 		$this->wpTemplate = $template;
 		$this->wpTablePrefix = $table_prefix;
@@ -156,6 +160,7 @@ abstract class WPU_Context_Switcher {
 		$this->wpCache = (isset($cache)) ? $cache : '';
 		// $config isn't generally used by WP, but W3 total cache apparently uses it.
 		$this->wpConfig = (isset($config)) ? $config : '';
+		$this->wpAuth = (isset($auth)) ? $auth : '';
 		$this->wpEnv = array(
 			'GET' 		=> $_GET,
 			'POST' 		=> $_POST,
@@ -169,14 +174,16 @@ abstract class WPU_Context_Switcher {
 	 * @access private
 	 */	
 	protected function backup_phpbb_state() {
-		global $table_prefix, $user, $cache, $dbname, $template, $config;
+		global $table_prefix, $user, $cache, $dbname, $template, $config, $auth;
 
+		$this->phpbbTemplate = $template;
 		$this->phpbbTemplate = $template;
 		$this->phpbbTablePrefix = $table_prefix;
 		$this->phpbbUser = (isset($user)) ? $user: '';
 		$this->phpbbCache = (isset($cache)) ? $cache : '';
 		$this->phpbbDbName = $dbname;
 		$this->phpbbConfig = $config;
+		$this->phpbbAuth = $auth;
 		$this->phpbbEnv = array(
 			'GET' 			=> $_GET,
 			'POST' 		=> $_POST,
@@ -190,12 +197,13 @@ abstract class WPU_Context_Switcher {
 	 * @access private
 	 */	
 	protected function restore_wp_conflicts() {
-		global $table_prefix, $user, $cache, $template, $config;
+		global $table_prefix, $user, $cache, $template, $config, $auth;
 		
 		$template = $this->wpTemplate;
 		$user = $this->wpUser;
 		$cache = $this->wpCache;
 		$config = $this->wpConfig;
+		$auth = $this->wpAuth;
 		$table_prefix = $this->wpTablePrefix;
 		if(sizeof($this->wpEnv)) {
 			 $_GET 			= $this->wpEnv['GET'];
@@ -210,13 +218,14 @@ abstract class WPU_Context_Switcher {
 	 * @access private
 	 */	
 	protected function restore_phpbb_state() {
-		global $table_prefix, $user, $cache, $template, $config;
+		global $table_prefix, $user, $cache, $template, $config, $auth;
 		
 		$template = $this->phpbbTemplate;
 		$table_prefix = $this->phpbbTablePrefix;
 		$user = $this->phpbbUser;
 		$cache = $this->phpbbCache;
 		$config = $this->phpbbConfig;
+		$auth = $this->phpbbAuth;
 		
 		$this->restore_phpbb_err_handler();
 		
