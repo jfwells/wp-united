@@ -118,6 +118,9 @@ foreach($ignores as $ignore) {
 
 $tvFailed = false;
 if(file_exists($cssFileToFix) && !$ignoreMe) {
+	
+	$baseName = basename($cssFileToFix);
+
 	/**
 	 * First check cache
 	 */
@@ -168,7 +171,23 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 			
 			$cssMagic->fix_urls();
 			
-			$css = $cssMagic->getCSS();
+
+			$desc= ($pos == 'inner') ? 'modified to make it more specific.' : 'parsed and cached so the style fixer can read it';
+			$now = date("F j, Y, g:i a");
+			$preHeader = COUT<<<
+/**
+	This CSS Stylesheet has been parsed with WP-United from file $baseName.
+	----------------------------------------------------------------------------
+	The CSS in this file has been $desc.
+	You should refer to the original CSS files for the underlying style rules.
+	Purge the phpBB cache to re-generate this CSS.	
+	Date/Time generated: $now
+**/	
+COUT;
+
+			
+			
+			$css = $preHeader . $cssMagic->getCSS();
 			$cssMagic->clear();
 
 			

@@ -12,6 +12,7 @@ current target: v0.9.2.4
 
 
 TODO:
+>> outer stylesheets aren't being cached.
 >> Getting 404 error, check headers!
 >> Core-patcher isn't generating correct string for some people (can't reproduce)
 >> Long post text cut off with Chinese http://www.wp-united.com/viewtopic.php?f=15&t=3432
