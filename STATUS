@@ -10,6 +10,8 @@ current target: v0.9.2.4
 * BUGFIX: User mapper view and suggestion autocomplete was dying on some non-ascii characters
 * NEW: Added the option to remove the phpBB style switcher from the nav header bar widget
 
+t
+
 
 TODO:
 >> outer stylesheets aren't being cached.
