@@ -704,13 +704,13 @@ class CSS_Magic {
 			$cssCode = str_replace('[TANTEK]', "}\\", $cssCode);
 			if($keyString == '[WPU_NESTED]') {
 				$response .= $this->nestedItems[(int)$cssCode]['selector'];
-				$response .= $this->nestedItems[(int)$cssCode]['content']->getCSS() . "}\n\n";;
+				$response .= $this->nestedItems[(int)$cssCode]['content']->getCSS() . "}\n\n";
 			} elseif($keyString == '[WPU_NESTED_IMPORT]') {
 				$r = $this->importedItems[(int)$cssCode]['obj']->getCSS();
 				$response .= (empty($r)) ? $this->importedItems[(int)$cssCode]['orig'] : $r ;
 				$response .= "\n\n";
 			} else {
-				$response .= $keyString . '{' . $cssCode . "}\n\n";
+				$response .= $keyString . '{' . $cssCode . "}\n";
 			}
 		}
 		return $response;

@@ -191,6 +191,8 @@ class WPU_Actions {
 	Purge the phpBB cache to re-generate this CSS.
 	Date/Time generated: $now
 **/	
+
+
 COUT;
 
 		$css = $preHeader . $cssMagic->getCSS();

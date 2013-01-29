@@ -183,6 +183,8 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 	Purge the phpBB cache to re-generate this CSS.	
 	Date/Time generated: $now
 **/	
+
+
 COUT;
 
 			
