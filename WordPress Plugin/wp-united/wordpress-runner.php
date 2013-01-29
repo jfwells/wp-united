@@ -125,7 +125,7 @@ function wpu_get_wordpress() {
 	
 
 		//prevent WP 404 error
-		if ( !$wpuCache->use_template_cache() ) {
+		if (!$wpuCache->use_template_cache()) {
 			$forum_page_ID = 0;
 			if($wpUnited->get_setting('useForumPage')) {
 				// set the page query so that the forum page is selected if in header
@@ -138,7 +138,7 @@ function wpu_get_wordpress() {
 			} else {
 				query_posts('showposts=1');
 			}
-			$_GET = $oldGET			
+			$_GET = $oldGET;		
 		}
 		
 		
