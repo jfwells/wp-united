@@ -172,16 +172,18 @@ if(file_exists($cssFileToFix) && !$ignoreMe) {
 			$cssMagic->fix_urls();
 			
 
-			$desc= ($pos == 'inner') ? 'modified to make it more specific.' : 'parsed and cached so the style fixer can read it';
+			$desc= ($pos == 'inner') ? 'modified to make it more specific' : 'parsed and cached so the style fixer can read it';
 			$now = date("F j, Y, g:i a");
 			$preHeader = <<<COUT
 /**
-	This CSS Stylesheet has been parsed with WP-United from file $baseName.
+	This CSS Stylesheet has been parsed with WP-United. The source is $baseName.
 	----------------------------------------------------------------------------
 	The CSS in this file has been $desc.
 	You should refer to the original CSS files for the underlying style rules.
 	Purge the phpBB cache to re-generate this CSS.	
 	Date/Time generated: $now
+	
+	WP-United (c) John Wells, licensed under the GNU GPL v2. Underlying CSS copyright not affected.
 **/	
 
 
