@@ -195,6 +195,20 @@ function wpu_get_wordpress() {
 
 			ob_start();
 			
+<<<<<<< .mine
+		
+			if($wpUnited->get_setting('useForumPage')) {
+				// set the page query so that the forum page is selected if in header
+				$forum_page_ID = get_option('wpu_set_forum');
+				if(!empty($forum_page_ID)) {
+					$oldGET = $_GET; $_GET = array();
+					query_posts("showposts=1&page_id={$forum_page_ID}");
+					$_GET = $oldGET;
+				}
+			}
+			
+=======
+>>>>>>> .r1636
 			// Fall back to page.php, then index.php (for the old Classic template)
 			// Locate_template prefers child themes.
 			// The second parameter includes the found file.
