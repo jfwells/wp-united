@@ -125,12 +125,13 @@ class WPU_Latest_Phpbb_Topics_Widget extends WP_Widget {
 		
 		$title = empty($instance['title']) ? '&nbsp;' : apply_filters('widget_title', $instance['title']);
 		$maxEntries = empty($instance['max']) ? 25 : $instance['max'];
+		$showReplyCount = empty($instance['replies']) ? 0 : 1;
 
 		if ( !function_exists('wpu_latest_phpbb_topics') ) return false;
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 		echo '<ul class="wpulatesttopics">';
-		wpu_latest_phpbb_topics('limit='.$maxEntries);
+		wpu_latest_phpbb_topics('limit='.$maxEntries . '&showReplyCount=' . $showReplyCount);
 		echo '</ul>' . $after_widget;
 
 	}
@@ -140,7 +141,8 @@ class WPU_Latest_Phpbb_Topics_Widget extends WP_Widget {
 		$instance = $old_instance;
 
 		$instance['title'] = strip_tags(stripslashes($new_instance['title']));
-		$instance['max'] = (int) strip_tags(stripslashes($new_instance['max']));
+		$instance['max'] = (int) $new_instance['max'];
+		$instance['replies'] = ($new_instance['replies'] == 'replies') ? 1 : 0;
 
 		return $instance;
 	}
@@ -150,15 +152,18 @@ class WPU_Latest_Phpbb_Topics_Widget extends WP_Widget {
 		
 		$instance = wp_parse_args((array) $instance, array( 
 			'title' => __('Recent Forum Topics', 'wp-united'),
-			'max' => 25
+			'max' => 25,
+			'replies' => 0
 		));
 		
 		$title = strip_tags($instance['title']);
 		$max = strip_tags($instance['max']);
+		$showReplyCount = (!empty($instance['replies'])) ? 'checked="checked"' : '';
 
 		?>
 		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title: ', 'wp-united'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id('max'); ?>"><?php _e('Maximum Entries:', 'wp-united') ?> <input class="widefat" id="<?php echo $this->get_field_id('max'); ?>" maxlength="3" name="<?php echo $this->get_field_name('max'); ?>" type="text" value="<?php echo esc_attr($max); ?>" /></label></p>
+		<p><input id="<?php echo $this->get_field_id('replies'); ?>" name="<?php echo $this->get_field_name('replies'); ?>" type="checkbox" value="replies" <?php echo $showReplyCount ?> /> <label for="<?php echo $this->get_field_id('replies'); ?>"><?php _e('Show reply count?', 'wp-united'); ?></label></p>
 		<?php
 	}	
 }

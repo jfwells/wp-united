@@ -401,11 +401,11 @@ function wpu_latest_phpbb_topics($args = '') {
 /**
  * Returns a nice list of latest phpBB forum topics without displaying it
  * @author John Wells
- * @example: get_wpu_latest_phpbb_topics('limit=10&forum=1,2,3&before=<li>&after=</li>')
+ * @example: get_wpu_latest_phpbb_topics('limit=10&forum=1,2,3&before=<li>&after=</li>&showReplyCount=0')
  */
 function get_wpu_latest_phpbb_topics($args = '') {
 	global $phpEx, $phpbbForum;
-	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '');
+	$defaults = array('limit' => 10, 'before' => '<li>', 'after' => '</li>', 'forum' => '', 'showReplyCount' => 0);
 	extract(_wpu_process_args($args, $defaults));
 	
 	$limit = ($limit > 50 ) ? 50 : $limit;
@@ -422,7 +422,9 @@ function get_wpu_latest_phpbb_topics($args = '') {
 
 
 			$forum_link = '<a href="' . $phpbbForum->get_board_url() . "viewforum.$phpEx?f=" . $post['forum_id'] . '">' . $post['forum_name'] . '</a>';
-			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s', 'wp-united'),$topic_link, $post['user_link'], $forum_link)  ."$after\n";
+			$repliesText = ($post['topic_replies'] == 1) ? __(' (1 reply)') : __(' (%d replies)');
+			$replyCount = ($showReplyCount) ? '<em>' . sprintf(__($repliesText, 'wp-united'), $post['topic_replies']) . '</em>' : '';
+			$output .= _wpu_add_class($before, $first . 'wpuforum' . $post['forum_id']) . sprintf(__('%1$s, posted by %2$s in %3$s', 'wp-united'),$topic_link, $post['user_link'], $forum_link) . $replyCount  ."$after\n";
 			$i++;
 		}
 	} else {
