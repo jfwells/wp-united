@@ -129,7 +129,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		// so we just set it global here
 		$GLOBALS['template'] = &$template;
 
-		$user->session_begin();
+		$user->session_begin(false);
 		$auth->acl($user->data);
 
 		if(!is_admin()) {
