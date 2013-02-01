@@ -13,7 +13,7 @@ current target: v0.9.2.4
 * NEW: Nicer headers on modified stylesheets
 * NEW: reply counts on latest topics widget
 * BUGFIX: Some integrated forums return 404 headers on some pages
-
+* BUGFIX: Don't update session page when establishing phpBB session from WordPress, fixes broken topic view count
 
 TODO:
 >> outer stylesheets aren't being cached.
@@ -23,8 +23,6 @@ TODO:
 >> xpost is posting as publisher rather than author http://www.wp-united.com/viewtopic.php?f=15&p=13882#p13882
 >> phpBB avatars not showing in some tags http://www.wp-united.com/viewtopic.php?f=15&t=3448&p=13903#p13903
 >> Redirect in AJAX comment loading plugin http://www.wp-united.com/viewtopic.php?f=15&t=3427&start=15
-
->> add option to topics widget to show # replies: http://www.wp-united.com/viewtopic.php?f=5&t=3475
 
 
 * yoothemes: image URL redirection incorrect :/
