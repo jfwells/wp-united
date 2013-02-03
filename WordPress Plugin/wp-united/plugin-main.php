@@ -623,7 +623,7 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 		if ( !is_numeric($size) )
 			$size = '96';
 
-		// Figure out if this is an ID or e-mail --sourced from WP's pluggables.php
+		// Figure out if this is an ID or e-mail --sourced from WP's pluggable.php
 		if ( is_numeric($id_or_email) ) {
 			$id = (int) $id_or_email;
 			$user = get_userdata($id);
@@ -631,6 +631,12 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			if (!empty($id_or_email->user_id)) {
 				$id = (int)$id_or_email->user_id;
 				$user = get_userdata($id);
+			}
+		} else {
+			$email = $id_or_email;
+			$user = get_user_by('email', $id_or_email);
+			if(is_object($user)) {
+				$id = $user->user_id;
 			}
 		}
 		
