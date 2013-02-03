@@ -553,16 +553,13 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 	public function do_crosspost($postID, $post, $future=false) {
 		global $phpbbForum, $phpbb_root_path, $phpEx, $db, $auth;
 		$forum_id = false;
-		$found_future_xpost = false;
 		
-		$fStateChanged = $phpbbForum->foreground();
-		
+			
 		if ( (isset($_POST['sel_wpuxpost'])) && (isset($_POST['chk_wpuxpost'])) ) {
 			$forum_id = (int)$_POST['sel_wpuxpost'];
 		} else if ( $this->get_setting('xpostforce') > -1 ) {
 			$forum_id = $this->get_setting('xpostforce');
 		} else if($future) {
-			$phpbbForum->background();
 			$forum_id = get_post_meta($postID, '_wpu_future_xpost', true);
 			if ($forum_id === '')  {
 				$forum_id = false;
@@ -570,24 +567,35 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 				$forum_id = (int)$forum_id;
 				delete_post_meta($postID, '_wpu_future_xpost');
 			}
-			$phpbbForum->foreground();
 		}
-		
-
 		
 		// If this is already cross-posted, then edit the post
 		$details = $this->get_xposted_details($postID);
 		if(($forum_id === false) && ($details === false)) {
-			$phpbbForum->restore_state($fStateChanged);
 			return false;
 		}
+		
+		$fStateChanged = $phpbbForum->foreground();
+		
+		
+		// if the author was a different user, use them as the topic author,
+		// but still authenticate as the user who is publishing
+
+		$phpbbID = get_wpu_user_id($post->post_author);
+		if($phpbbID > 1) {
+			$topicUsername = $phpbbForum->get_userdata('username', $phpbbID);
+		} else {
+			$topicUsername = $phpbbForum->get_username();
+		}
+		
 		
 		$mode = 'post';
 		$prefix = $this->get_setting('xpostprefix');
 		$subject = htmlspecialchars($prefix . $post->post_title, ENT_COMPAT, 'UTF-8');
 		$data = array();
 		$data['post_time'] = 0;
-		$topicUsername = $phpbbForum->get_username();
+		
+		
 		if($details !== false) {
 			if(isset($details['post_id'])) {
 				$mode = 'edit';
@@ -604,14 +612,14 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 		// If this is a future xpost, authenticate as the user who made the post
 		if($future) {
-			// get phpBB user ID (from WP meta, so need to exit phpBB env)
+			// get phpBB user IP (from WP meta, so need to exit phpBB env)
 			$phpbbForum->background();
-			$phpbbID = get_wpu_user_id($post->post_author);
 			$phpbbIP =  get_post_meta($postID, '_wpu_future_ip', true);
 			delete_post_meta($postID, '_wpu_future_ip');
 			$phpbbForum->foreground();
 			$phpbbForum->transition_user($phpbbID, $phpbbIP);
 		}
+		
 
 		//Check that user has the authority to cross-post there
 		// If we are editing a post, check other permissions if it has been made global/sticky etc.
