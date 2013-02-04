@@ -487,7 +487,7 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 			}
 			
 			// upgrade to v0.9.2.2 - 4 (-r0); simple file copy
-			if(version_compare($wpuVersion_phpbb, '0.9.2.2', '<')) {
+			if(version_compare($wpuVersion_phpbb, '0.9.2.4', '<')) {
 				$checked = array(
 					'result'	=> 'ERROR',
 					'message'	=> sprintf($verMismatchMsg, $version, '0.9.2.0-3') . 
