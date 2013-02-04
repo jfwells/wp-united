@@ -486,16 +486,16 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 				return $checked;
 			}
 			
-			// upgrade to v0.9.2.2 (-r0); simple file copy
+			// upgrade to v0.9.2.2 - 4 (-r0); simple file copy
 			if(version_compare($wpuVersion_phpbb, '0.9.2.2', '<')) {
 				$checked = array(
 					'result'	=> 'ERROR',
-					'message'	=> sprintf($verMismatchMsg, $version, '0.9.2.0 or 0.9.2.1') . 
+					'message'	=> sprintf($verMismatchMsg, $version, '0.9.2.0-3') . 
 									'<br /><br />' . $phpbbUpgradeSimpleMsg
 				);
 				return $checked;
 			}
-			
+						
 			// Add future upgrade checks here
 			
 			

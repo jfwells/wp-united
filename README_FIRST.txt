@@ -104,6 +104,26 @@ WP-United :: Public Releases
 
 **** phpBB3 releases: ****
 
+= v0.9.2.4 RELEASE CANDIDAT 3 =
+
+* BUGFIX: style-fixer breaking images in imported stylesheets
+* BUGFIX: style fixer dupe checker was comparing reset stylesheets
+* BUGFIX: Errors on loading some stylesheets
+* IMPROVEMENT: More robust setting and clearing of logged in cookies
+* BUGFIX: colour chooser and and embedded width/height (old HTML4 html attributes) not working on integrated pages.
+* BUGFIX: Fixed warnings on cross-posting due to deprecated WP-United "Users have own blogs" functions
+* BUGFIX: Cross-posting spam filter settings couldn't be changed
+* BUGFIX: User mapper view and suggestion autocomplete was dying on some non-ascii characters
+* BUGFIX: Cross-posted topics published by a different user than the author were posting with the username of the publisher rather than the author
+* BUGFIX/NEW: phpBB avatars can also be fetched for WordPress themes that call by e-mail.
+* NEW: Added the option to remove the phpBB style switcher from the nav header bar widget
+* NEW: Nicer headers on modified stylesheets
+* NEW: reply counts on latest topics widget
+* BUGFIX: Some integrated forums return 404 headers on some pages
+* BUGFIX: Don't update session page when establishing phpBB session from WordPress, fixes broken topic view count
+* BUGFIX: When cross-posting a scheduled blog post, get the excerpt/full-post choice right if set to "ask me".
+
+
 = v0.9.2.3 RELEASE CANDIDATE 3 =
 
 * Urgent bug-fix for improper error handling causing WP-United to catch all PHP errors, including those from other plugins.
