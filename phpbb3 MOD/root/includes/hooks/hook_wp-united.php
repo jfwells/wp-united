@@ -44,7 +44,7 @@ wpu_set_buffering_init_level();
 */
 
 if($wpUnited->should_run_wordpress()) {
-	$user->session_begin();
+	$user->session_begin(false);
 	require_once($wpUnited->get_plugin_path() . 'wordpress-runner.php'); 
 }
 

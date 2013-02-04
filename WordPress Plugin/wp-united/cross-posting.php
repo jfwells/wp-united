@@ -654,14 +654,18 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 		
 		// should we post an excerpt, or a full post?
 		$postType = 'excerpt';
-		if($this->get_setting('xposttype') == 'askme') { 
-			if (isset($_POST['rad_xpost_type'])) {
-				$postType = ($_POST['rad_xpost_type'] == 'fullpost') ? 'fullpost' : 'excerpt';
+		if(!$future) {
+			if($this->get_setting('xposttype') == 'askme') { 
+				if (isset($_POST['rad_xpost_type'])) {
+					$postType = ($_POST['rad_xpost_type'] == 'fullpost') ? 'fullpost' : 'excerpt';
+				}
+			} else if($this->get_setting('xposttype') == 'fullpost') {
+				$postType = 'fullpost';
 			}
-		} else if($this->get_setting('xposttype') == 'fullpost') {
-			$postType = 'fullpost';
+			update_post_meta($postID, '_wpu_posttype', $postType);
+		} else {
+			$postType = get_post_meta($postID, '_wpu_posttype', true);
 		}
-		update_post_meta($postID, '_wpu_posttype', $postType);
 		
 		// Get the post excerpt
 		if($postType == 'excerpt') {
@@ -1134,6 +1138,18 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 						}
 						update_post_meta($postID, '_wpu_future_xpost', $forumID);
 						update_post_meta($postID, '_wpu_future_ip', $phpbbForum->get_userip());
+						
+						// check what kind of post it should be
+						if($this->get_setting('xposttype') == 'askme') { 
+							if (isset($_POST['rad_xpost_type'])) {
+								$postType = ($_POST['rad_xpost_type'] == 'fullpost') ? 'fullpost' : 'excerpt';
+							}
+						} else if($this->get_setting('xposttype') == 'fullpost') {
+							$postType = 'fullpost';
+						}						
+						update_post_meta($postID, '_wpu_posttype', $postType);
+						
+						
 					}
 				} else {
 					update_post_meta($postID, '_wpu_future_ip', $phpbbForum->get_userip());
