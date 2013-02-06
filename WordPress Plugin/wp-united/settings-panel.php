@@ -228,6 +228,8 @@ function wpu_support() {
 		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('Please Help Support WP-United', 'wp-united'); ?> </h2>
+		<p><?php _e('Thank you very much for doanloading and using WP-United. I hope you enjoy it.', 'wp-united');  ?></p>
+		<p><?php _e('WP-United represents thousands of hours of coding, support and significant ongoing server costs.', 'wp-united');  ?></p>
 		<p><?php _e('WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!', 'wp-united');  ?></p>
 		
 		<div id="supportmethods">
