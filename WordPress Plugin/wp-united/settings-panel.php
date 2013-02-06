@@ -241,7 +241,7 @@ function wpu_support() {
 				</form>
 			</fieldset>
 			
-			<fieldset><legend><?php _e('Google Checkout' .'wp-united'); ?></legend>
+			<fieldset><legend><?php _e('Google Checkout', 'wp-united'); ?></legend>
 				<p><?php _e('This button will take you to our Google Checkout support page.', 'wp-united'); ?></p>
 				<form class="gcheckout" method="POST" action="https://checkout.google.com/cws/v2/Merchant/360787695278690/checkoutForm" accept-charset="utf-8">
 					<input type="hidden" name="item_name_1" value="WP-United Support"/>
