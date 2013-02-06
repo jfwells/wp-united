@@ -229,13 +229,29 @@ function wpu_support() {
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('Please Help Support WP-United', 'wp-united'); ?> </h2>
 		<p><?php _e('WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!', 'wp-united');  ?></p>
-		<p><?php _e('The PayPal link will take you to a donation page for our PayPal business account, \'Pet Pirates\'', 'wp-united');  ?></p>
 		
-		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-			<input type="hidden" name="cmd" value="_s-xclick">
-			<input type="hidden" name="hosted_button_id" value="GSBRNNH7REY8Y">
-			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-		</form>
+		<div id="supportmethods">
+		<fieldset><legend><?php _e('PayPal', 'wp-united'); ?></legend>
+			<p><?php _e('The PayPal link will take you to a donation page for our PayPal business account, \'Pet Pirates\'', 'wp-united');  ?></p>
+			
+			<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+				<input type="hidden" name="cmd" value="_s-xclick">
+				<input type="hidden" name="hosted_button_id" value="GSBRNNH7REY8Y">
+				<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			</form>
+		</fieldset>
+		
+		<fieldset><legend><?php _e('Google Checkout' .'wp-united'); ?></legend>
+			<p><?php _e('This button will take you to our Google Checkout support page.', 'wp-united'); ?></p>
+			<form class="gcheckout" method="POST" action="https://checkout.google.com/cws/v2/Merchant/360787695278690/checkoutForm" accept-charset="utf-8">
+				<input type="hidden" name="item_name_1" value="WP-United Support"/>
+				<input type="hidden" name="item_description_1" value="Thank you very much for your contribution. It is very much appreciated, and every little helps! We hope you will enjoy using WP-United."/>
+				<input type="hidden" name="item_quantity_1" value="1" id="qty"/>
+				<label><?php sprintf(_e('Donation Amount %s: ', 'wp-united'), '(GBP£)'); ?></label><input type="text" name="item_price_1" value="" id="amt"/>
+				<input type="hidden" name="charset"/> 
+				<input type="image" id="submit" name="Google Checkout" alt="Fast checkout through Google" src="https://checkout.google.com/buttons/support.gif?merchant_id=360787695278690&w=130&h=50&style=white&variant=text" />
+			</form>
+		</fieldset>
 
 			
 			
