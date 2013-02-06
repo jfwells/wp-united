@@ -1140,5 +1140,7 @@ div.subsettings div.subsettings div.subsettings {
 	max-width: 300px;
 	margin-right: 10px;
 	border: 1px solid #cccccc;
+	padding: 6px;
+	min-height: 300px;
 }
 
