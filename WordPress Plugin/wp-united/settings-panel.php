@@ -249,6 +249,7 @@ function wpu_support() {
 					<input type="hidden" name="item_name_1" value="WP-United Support"/>
 					<input type="hidden" name="item_description_1" value="Thank you very much for your contribution. It is very much appreciated, and every little helps! We hope you will enjoy using WP-United."/>
 					<input type="hidden" name="item_quantity_1" value="1" id="qty"/>
+					<input type="hidden" name="item_currency_1" value="GBP" />
 					<label for="amt"><?php echo sprintf(__('Donation Amount %s: ', 'wp-united'), '(GBP£)'); ?></label><input type="text" name="item_price_1" value="" id="amt"/>
 					<input type="hidden" name="charset"/> 
 					<input type="image" id="submit" name="Google Checkout" alt="Fast checkout through Google" src="https://checkout.google.com/buttons/support.gif?merchant_id=360787695278690&w=130&h=50&style=white&variant=text" />
