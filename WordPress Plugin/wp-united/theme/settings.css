@@ -1129,11 +1129,15 @@ div.subsettings div.subsettings div.subsettings {
 	border-bottom-width: 1px; 
 	width: auto;
 }
+#supportmethod {
+	width: 100%;
+}
 
 #supportmethod fieldset {
 	width: 45%;
 	float: left;
 	max-width: 300px;
 	margin-right: 10px;
+	border: 1px solid #cccccc;
 }
 
