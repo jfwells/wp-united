@@ -2,8 +2,15 @@
 current target: v0.9.2.5
 
 
+* BUGFIX: PM popup spawned from nav header widget showing 404 error
+* NEW: More panhandling options on the support page (sorry, but I really need it...)
+
+
+
 TODO:
->> check outer stylesheets are being cached. (?)
+>> user "disappears" (apparently!) if username is changed from phpBB
+>> style-fixer could become recursive now                                              
+
 >> Core-patcher isn't generating correct string for some people (can't reproduce)
 >> xpost with changed slug getting reposted as comment
 >> Redirect in AJAX comment loading plugin http://www.wp-united.com/viewtopic.php?f=15&t=3427&start=15

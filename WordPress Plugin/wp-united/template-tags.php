@@ -860,7 +860,7 @@ function wpu_phpbb_nav_block_footer($args) {
  *
  */
  function wpu_add_board_styles($includeStyleSwitcher = false) {
-	global $phpbbForum, $wpUnited;
+	global $phpbbForum, $wpUnited, $phpEx;
 	static $addedStyles = false;
 	static $addedStyleSwitcher = false;
 	static $themePath = '';
