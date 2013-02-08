@@ -82,6 +82,17 @@ function wpu_original_phpbb_check_hash($password, $hash)
 {]]></action></edit>
       
     </open>
+	
+      <open src="includes/functions_content.php">
+      <edit>
+		<find><![CDATA[return phpbb_make_clickable($text, $server_url, $class);]]></find>
+		<action type="replace-with"><![CDATA[
+		global $wpu_actions, $phpbb_root_path, $phpEx;
+		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+		$wpu_actions->do_make_clickable($text, $server_url, $class);
+		]]></action></edit>
+      
+    </open>	
     
 
       </action-group>

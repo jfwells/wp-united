@@ -95,7 +95,9 @@ function make_clickable($text, $server_url = false, $class = 'postlink')
 {
 	function make_clickable($text, $server_url = false, $class = 'postlink') 
 	{
-		return phpbb_make_clickable($text, $server_url, $class);
+		global $wpu_actions, $phpbb_root_path, $phpEx;
+		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+		$wpu_actions->do_make_clickable($text, $server_url, $class);
 	}
 }
 function phpbb_make_clickable($text, $server_url = false, $class = 'postlink')

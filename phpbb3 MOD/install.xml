@@ -19,7 +19,7 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.9.2.2</mod-version>
+    <mod-version>0.9.2.5</mod-version>
     <installation>
       <level>intermediate</level>
       <time>900</time>
@@ -56,9 +56,12 @@ Visit http://www.wp-united.com for more help or information.
         <find><![CDATA[function make_clickable($text, $server_url = false, $class = 'postlink')]]></find>
         <action type="replace-with"><![CDATA[if (!function_exists('make_clickable'))
 {
+	
 	function make_clickable($text, $server_url = false, $class = 'postlink') 
-	{
-		return phpbb_make_clickable($text, $server_url, $class);
+	{	
+		global $wpu_actions, $phpbb_root_path, $phpEx;
+		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
+		$wpu_actions->do_make_clickable($text, $server_url, $class);
 	}
 }
 function phpbb_make_clickable($text, $server_url = false, $class = 'postlink')]]></action>

@@ -2,6 +2,7 @@
 current target: v0.9.2.5
 
 * NEW: Page is reloaded if WP-United manages to log in phpBB on a full-page phpBB-in-wordpress page after phpBB has already run.
+* NEW/BUGFIX: Arbitrate between phpBB & WordPress' make clickable functions properly. To use this new bugfix, you will need to upgrade the phpBB side.
 * BUGFIX: PM popup spawned from nav header widget showing 404 error
 * NEW: More panhandling options on the support page (sorry, but I really need it...)
 

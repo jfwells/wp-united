@@ -90,6 +90,44 @@ class WPU_Actions {
 		}		
 	
 	}
+	
+	
+	/**
+	 * Arbitrate between phpBB & WordPress' make clickable functions
+	 */
+	public function do_make_clickable($text, $serverUrl = 'init', $class = 'init') {
+	
+		global $wpUnited, $phpbbForum;
+		
+		$realServerUrl = ($serverUrl == 'init') ? false : $serverUrl;
+		$realClass = ($class == 'init') ? 'postlink' : $class;
+
+		if(!isset($wpUnited) || !is_object($wpUnited) || !$wpUnited->is_working()) {
+			return phpbb_make_clickable($text, $realServerUrl, $realClass);
+		}
+	
+		if(!isset($phpbbForum) || !is_object($phpbbForum) || ($phpbbForum->get_state == 'phpbb')) {
+			return phpbb_make_clickable($text, $realServerUrl, $realClass);
+		}
+	
+		if($phpbbForum->get_state != 'phpbb')) {
+			// if additional args are supplied, or the WP function wasn't redefined, they want the phpBB func
+			if(($serverUrl != 'init') || ($class != 'init') || !function_exists('wp_make_clickable')) {
+				$phpbbForum->foreground();
+				return phpbb_make_clickable($text, $realServerUrl, $realClass);
+				$phpbbForum->background();
+			}
+			
+			return wp_make_clickable($text);
+		}
+	}
+	
+		
+	
+	
+	
+	
+	
 	 /**
 	 * CSS Magic actions in style.php.
 	 */	
