@@ -476,25 +476,19 @@ abstract class WP_United_Plugin_Main_Base extends WP_United_Plugin_Base {
 		 */
 		if($wpuVersion_phpbb != $version) {
 			
-			// upgrade to v0.9.2.0 (-r2); simple file copy
-			if(version_compare($wpuVersion_phpbb, '0.9.2.0#2', '<')) {
+			// upgrade to v0.9.2.5; full xml upgrade
+			if(version_compare($wpuVersion_phpbb, '0.9.2.5', '<')) {
 				$checked = array(
 					'result'	=> 'ERROR',
-					'message'	=> sprintf($verMismatchMsg, $version, '0.9.1.x') . 
-									'<br /><br />' . $phpbbUpgradeSimpleMsg
+					'message'	=> sprintf($verMismatchMsg, $version, 'v0.9.2.4 or earlier') . 
+									'<br /><br />' . $phpbbUpgradeMsg
 				);
 				return $checked;
 			}
 			
-			// upgrade to v0.9.2.2 - 4 (-r0); simple file copy
-			if(version_compare($wpuVersion_phpbb, '0.9.2.4', '<')) {
-				$checked = array(
-					'result'	=> 'ERROR',
-					'message'	=> sprintf($verMismatchMsg, $version, '0.9.2.0-3') . 
-									'<br /><br />' . $phpbbUpgradeSimpleMsg
-				);
-				return $checked;
-			}
+
+			
+			
 						
 			// Add future upgrade checks here
 			
