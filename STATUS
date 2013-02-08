@@ -11,12 +11,9 @@ current target: v0.9.2.5
 TODO:
 >> user "disappears" (apparently!) if username is changed from phpBB
 >> style-fixer could become recursive now                                              
-
 >> Core-patcher isn't generating correct string for some people (can't reproduce)
 >> xpost with changed slug getting reposted as comment
 >> Redirect in AJAX comment loading plugin http://www.wp-united.com/viewtopic.php?f=15&t=3427&start=15
-
-
 * yoothemes: image URL redirection incorrect :/
 * no need to run any xpost query on p-in-w full page
 * Allow user mapper to re-integrate users with integrated counterparts, dont show as integrated.
@@ -26,9 +23,6 @@ TODO:
 * hot topics & unread posts widgets
 * group who is online by online location
 * restore_state should restore to foreground too
-* warnings about wp_query in responsive...
-* Check activation status
-* Add generic page.php fallback for full-page option
 * add alert if enable both auto-creates when curr user unintegrated
 
 TODO (LARGER):

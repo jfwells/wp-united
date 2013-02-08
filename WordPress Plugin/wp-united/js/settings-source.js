@@ -1392,7 +1392,7 @@ function wpuProcessNext(el, nonce) {
 	$wpu(el).remove();
 		
 	currDesc = wpuMapActions[mapAction]['desc'];
-	$wpu('#wpu-desc').html('<strong>Processing action ' + currAction + ' of ' + numActions + '</strong><br />' + currDesc);
+	$wpu('#wpu-desc').html('<strong>Processing action ' + (currAction + 1) + ' of ' + (numActions + 1) + '</strong><br />' + currDesc);
 	
 	$wpu(document).ajaxError(function(e, xhr, settings, exception) {
 		if(exception == undefined) {
