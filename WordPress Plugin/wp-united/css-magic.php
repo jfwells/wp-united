@@ -257,7 +257,7 @@ class CSS_Magic {
 			$path = @realpath($path);
 
 			// only process imported stylesheets if we haven't done so already, to avoid infinite recursion
-			if(!file_already_processed($path)) {
+			if(!$this->file_already_processed($path)) {
 				if(!empty($path) && $importItem['obj']->parseFile($path)) {
 					$importItem['obj']->process_imports($subUrl, $subPath);
 				}
