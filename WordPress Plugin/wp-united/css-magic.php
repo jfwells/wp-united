@@ -274,7 +274,7 @@ class CSS_Magic {
 	public function file_already_processed($path) {
 	
 		foreach($this->importedItems as $importIndex => $importItem) {
-			if($importItem->file_already_processed($path)) {
+			if($importItem['obj']->file_already_processed($path)) {
 				return true;
 			}
 		}

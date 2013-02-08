@@ -1,17 +1,19 @@
 
 current target: v0.9.2.5
 
+committed for v0.9.2.5:
+
 * NEW: Page is reloaded if WP-United manages to log in phpBB on a full-page phpBB-in-wordpress page after phpBB has already run.
 * NEW/BUGFIX: Arbitrate between phpBB & WordPress' make clickable functions properly. To use this new bugfix, you will need to upgrade the phpBB side.
 * BUGFIX: Integrated phpBB users with WordPress counterparts that had been deleted were showing as "integrated" in the user mapper. Don't automatically re-integrate them, but show them as unintegrated so they can be attended to manually if needed.
 * BUGFIX: Don't blindly follow and interpret stylesheet loops -- e.g. stylesheet A imports stylesheet B which imports stylesheet A and a black hole opens up.
-* BUGFIX: PM popup spawned from nav header widget showing 404 error
+* BUGFIX: PM popup spawned from nav header widget was showing 404 error
 * NEW: More panhandling options on the support page (sorry, but I really need it...)
 
 
 
 TODO:
-                            
+* review & include propress option                           
 >> Core-patcher isn't generating correct string for some people (can't reproduce)
 >> xpost with changed slug getting reposted as comment
 >> Redirect in AJAX comment loading plugin http://www.wp-united.com/viewtopic.php?f=15&t=3427&start=15
