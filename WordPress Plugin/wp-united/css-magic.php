@@ -56,14 +56,16 @@ if ( !defined('IN_PHPBB') && !defined('ABSPATH') ) exit;
  * (c) John Wells, 2009-2013
  */
 class CSS_Magic {
-	private 	$css,
-				$filename,
-				$nestedItems,
-				$importedItems,
-				$totalItems,
-				$baseUrl,
-				$basePath,
-				$processImports;
+	private 	
+		$css,
+		$filename,
+		$parsedFromFile,
+		$nestedItems,
+		$importedItems,
+		$totalItems,
+		$baseUrl,
+		$basePath,
+		$processImports;
 	
 	/**
 	 * If you want to use this class as a sngleton, invoke via CSS_Magic::getInstance();
@@ -82,6 +84,7 @@ class CSS_Magic {
 	public function __construct($processImports = false, $baseUrl = false, $basePath = false) {
 		$this->clear();
 		$this->filename = '';
+		$this->parsedFromFile = false;
 		$this->nestedItems = array();
 		$this->importedItems = array();
 		$this->totalItems = 0;
@@ -201,7 +204,9 @@ class CSS_Magic {
 	public function parseFile($filename,  $clear = false) {
 		if ($clear) $this->clear();
 		$this->filename = $filename;
+		
 		if(@file_exists($filename)) {
+			$this->parsedFromFile = true;
 			return $this->parseString(@file_get_contents($filename));
 		} else {
 			return false;
@@ -251,11 +256,34 @@ class CSS_Magic {
 			}
 			$path = @realpath($path);
 
-			if(!empty($path) && $importItem['obj']->parseFile($path)) {
-				$importItem['obj']->process_imports($subUrl, $subPath);
+			// only process imported stylesheets if we haven't done so already, to avoid infinite recursion
+			if(!file_already_processed($path)) {
+				if(!empty($path) && $importItem['obj']->parseFile($path)) {
+					$importItem['obj']->process_imports($subUrl, $subPath);
+				}
 			}
-				
 		}
+	}
+	
+	
+	/**
+	 * Determine if this file has already been processed, to avoid infinite recursion into stylesheets that import
+	 * each other. For example, if stylesheet A imports stylesheet B, which imports stylesheet A, a black hole opens
+	 * and the entire earth gets sucked in. Or something.
+	 */
+	public function file_already_processed($path) {
+	
+		foreach($this->importedItems as $importIndex => $importItem) {
+			if($importItem->file_already_processed($path)) {
+				return true;
+			}
+		}
+		
+		if($this->parsedFromFile && ($this->filename == $path)) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
