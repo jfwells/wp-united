@@ -57,7 +57,7 @@ The control panel can now be found within WordPress, under WP-United.
 		<action type="replace-with"><![CDATA[
 		global $wpu_actions, $phpbb_root_path, $phpEx;
 		require_once($phpbb_root_path . 'wp-united/wpu-actions.' . $phpEx);
-		$wpu_actions->do_make_clickable($text, $server_url, $class);
+		return $wpu_actions->do_make_clickable($text, $server_url, $class);
 		]]></action></edit>
       
     </open>
