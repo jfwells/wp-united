@@ -110,7 +110,7 @@ class WPU_Actions {
 			return phpbb_make_clickable($text, $realServerUrl, $realClass);
 		}
 	
-		if($phpbbForum->get_state != 'phpbb')) {
+		if($phpbbForum->get_state != 'phpbb') {
 			// if additional args are supplied, or the WP function wasn't redefined, they want the phpBB func
 			if(($serverUrl != 'init') || ($class != 'init') || !function_exists('wp_make_clickable')) {
 				$phpbbForum->foreground();
