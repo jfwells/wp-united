@@ -26,6 +26,7 @@ abstract class WPU_Mapped_User {
 		$loginHtmlID,
 		$loginClassName,
 		$side,
+		$exists,
 		$type;
 	
 	
@@ -40,6 +41,11 @@ abstract class WPU_Mapped_User {
 		$this->side = 'left';
 		$this->htmlID = '';
 		$this->loginHtmlID = '';
+		$this->exists = false;
+	}
+	
+	public function exists() {
+		return $this->exists;
 	}
 	
 	/**
@@ -237,7 +243,8 @@ class WPU_Mapped_WP_User extends WPU_Mapped_User {
 		global $phpbbForum, $wpdb, $user;
 		
 		$wpUser = new WP_User($this->userID);	
-			
+		$this->exists = $wpUser->exists();
+		
 		$wpRegDate = date_i18n(get_option('date_format'), strtotime($wpUser->user_registered));
 		
 		$this->loginName = $wpUser->user_login;

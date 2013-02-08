@@ -398,7 +398,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		$fStateChanged = $this->foreground();
 		
 		set_error_handler(array($this, 'handle_session_msgbox'));
-		$GLOBALS['wpuDebug']->add('HAHAHA');
+
 		$user->session_create($userID, false, $persist);
 		restore_error_handler();		
 		
@@ -409,7 +409,11 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		// refresh the userdata cache
 		$this->reset_userdata_cache();
 		
+		$success = ($user->data['user_id'] == $userID);
+		
 		$this->restore_state($fStateChanged);
+		
+		return $success;
 	}	
 	
 	/**

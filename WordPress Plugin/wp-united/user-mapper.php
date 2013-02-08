@@ -265,7 +265,9 @@ class WPU_User_Mapper {
 				if(!empty($r['user_wpuint_id'])) {
 					
 					$integWpUser = new WPU_Mapped_WP_User($r['user_wpuint_id']);
-					$this->users[$r['user_id']]->set_integration_partner($integWpUser);
+					if($integWpUser->exists()) {
+						$this->users[$r['user_id']]->set_integration_partner($integWpUser);
+					}
 				}
 			}
 		}

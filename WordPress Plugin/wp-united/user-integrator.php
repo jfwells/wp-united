@@ -110,8 +110,13 @@ function wpu_int_phpbb_logged_out() {
 		$wpuDebug->add("WARNING: headers have already been sent, won't be able to set phpBB cookie!");
 	}
 	
-	$phpbbForum->create_phpbb_session($phpbbId, $persist);
-	$wpuDebug->add("Established Session for user {$phpbbId}.");
+	
+	if ($phpbbForum->create_phpbb_session($phpbbId, $persist)) {
+		$wpuDebug->add("Established Session for user {$phpbbId}.");
+	} else {
+		$wpuDebug->add("Could not establish session for user {$phpbbId}. Maybe they were deleted? Giving up.");
+		return $wpUser->ID;
+	}
 	
 	if($createdUser) {
 		wpu_sync_profiles($wpUsr, $phpbbForum->get_userdata(), 'sync');
@@ -159,7 +164,7 @@ function wpu_int_phpbb_logged_in() {
 		
 		// they already have a WP account, log them in to it and ensure they have the correct details
 		if(!$currWPUser = get_userdata($integratedID)) {
-			$wpuDebug->add("Failed to fetch WordPress user details for user ID = {$integratedID}. Giving up.");
+			$wpuDebug->add("Failed to fetch WordPress user details for user ID = {$integratedID}. Maybe they were deleted? Giving up.");
 			return false;
 		}
 		
