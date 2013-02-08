@@ -5,7 +5,7 @@
 * WP-United User Integrator
 *
 * @package WP-United
-* @version $Id: 0.9.1.5  2012/12/28 John Wells (Jhong) Exp $
+* @version $Id: 0.9.2.5  2013/02/08 John Wells (Jhong) Exp $
 * @copyright (c) 2006-2013 wp-united.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License  
 * @author John Wells
@@ -116,9 +116,15 @@ function wpu_int_phpbb_logged_out() {
 	if($createdUser) {
 		wpu_sync_profiles($wpUsr, $phpbbForum->get_userdata(), 'sync');
 	}
-
+	
+	// if this is a phpBB-in-WordPress page, this has probably just been called after phpBB has already been generated.
+	if($wpUnited->should_do_action('template-p-in-w')) {
+		wpu_reload_page_if_no_post();
+	}
+	
 	return $wpUser->ID;
-
+	
+		
 }
 
 

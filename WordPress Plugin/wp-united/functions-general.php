@@ -151,4 +151,39 @@ function wpu_fix_translation($content) {
 	return str_replace(array("\n", "\r", "'"), array('', '', "\'"), $content);
 }
 
+function wpu_reload_page_if_no_post() {
+	global $phpbbForum;
+	
+	// don't reloads if something has been POSTed to phpBB or WordPress.
+	$fStateChanged = $phpbbForum->foreground();
+	$hasPostVars = sizeof($_POST);
+	$phpbbForum->restore_state($fStateChanged);
+	if($hasPostVars || sizeof($_POST)) {
+		return false;
+	}
+	
+	$currPage = wpu_get_curr_page_link();
+	
+	// prevent infinite reloads
+	if(stristr($currPage, 'wpureload=1') !== false) {
+		return false;
+	}
+	$currPage .= (stristr($currPage, '?') !== false) ? '&wpureload=1' : '?wpureload=1';
+	
+	// OK, let's do it... Reload one way or another.
+	if(!headers_sent()) {
+		header('Location:', $currPage, true, 302);
+		exit();
+	} else {
+				   
+		echo '<script type="text/javascript">';
+		echo 'window.location.href="'.$currPage.'";';
+		echo '</script>';
+		echo '<noscript>';
+		echo '<meta http-equiv="refresh" content="0;url='.$currPage.'" />';
+		echo '</noscript>';
+		exit();
+	}
+}
+
 // Done. End of file.
