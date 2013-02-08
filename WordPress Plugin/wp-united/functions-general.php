@@ -172,7 +172,7 @@ function wpu_reload_page_if_no_post() {
 	
 	// OK, let's do it... Reload one way or another.
 	if(!headers_sent()) {
-		header('Location:', $currPage, true, 302);
+		header('Location: ' . $currPage, true, 302);
 		exit();
 	} else {
 				   
