@@ -848,9 +848,10 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		if ($mode == 'grant') {
 			//Make Sure We Have Option IDs
 			if (empty($acl_options_ids)) {
+				$this->restore_state($fStateChanged);
 				return false;
 			}
-			
+
 			//Build SQL Array For Query
 			$sql_ary = array();
 			for ($i = 0, $count = sizeof($acl_options_ids);$i < $count; $i++) {
@@ -875,6 +876,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		if ($mode == 'remove') {
 			//Make Sure We Have Option IDs
 			if (empty($acl_options_ids)) {
+				$this->restore_state($fStateChanged);
 				return false;
 			}
 			
@@ -1178,7 +1180,7 @@ class WPU_Phpbb extends WPU_Context_Switcher {
 		// Add permissions
 		$auth_admin->acl_add_option(array(
 			'local'      => array('f_wpu_xpost', 'f_wpu_xpost_comment'),
-			'global'   => array('u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
+			'global'   => array('u_wpu_subscriber', 'u_wpu_contributor','u_wpu_author','m_wpu_editor','a_wpu_administrator')
 		));
 
 		$adminLog[] = __('Storing the new WP-United settings', 'wp-united');

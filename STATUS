@@ -3,6 +3,7 @@ current target: v0.9.2.5
 
 committed for v0.9.2.5:
 
+* BUGFIX: Subscriber permission was missing in new installs, preventing permissions mapping from working, and causing various other bugs.
 * NEW: Page is reloaded if WP-United manages to log in phpBB on a full-page phpBB-in-wordpress page after phpBB has already run.
 * NEW/BUGFIX: Arbitrate between phpBB & WordPress' make clickable functions properly. To use this new bugfix, you will need to upgrade the phpBB side.
 * BUGFIX: Integrated phpBB users with WordPress counterparts that had been deleted were showing as "integrated" in the user mapper. Don't automatically re-integrate them, but show them as unintegrated so they can be attended to manually if needed.
@@ -15,7 +16,6 @@ committed for v0.9.2.5:
 TODO:
 * Cross-posting not working with spam plugins other than Akismet (e.g. Anti Spam bee)
 * -1- appears on registration page sometimes (may be related to MOD edits not being made...)
-* Permissions can't be drawn/saved on German forum
 * Beitrage
 * Need to add mod-edit for colour palette to change bgcolor to style=
 * review & include propress option                           
