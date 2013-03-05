@@ -978,6 +978,9 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 
 		if($newUserID) { 
 			if(!is_a($newUserID, 'WP_Error')) {
+				wpu_set_role($newUserID, $userLevel);		
+				wpu_update_int_id($phpbbForum->get_userdata('user_id'), $newUserID);
+				wpu_sync_profiles(get_userdata($newUserID), $phpbbForum->get_userdata(), 'sync');
 				return(get_userdata($newUserID));
 			}
 		}
