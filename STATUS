@@ -9,15 +9,23 @@ committed for v0.9.2.5:
 * BUGFIX: Integrated phpBB users with WordPress counterparts that had been deleted were showing as "integrated" in the user mapper. Don't automatically re-integrate them, but show them as unintegrated so they can be attended to manually if needed.
 * BUGFIX: Don't blindly follow and interpret stylesheet loops -- e.g. stylesheet A imports stylesheet B which imports stylesheet A and a black hole opens up.
 * BUGFIX: PM popup spawned from nav header widget was showing 404 error
-* NEW: More panhandling options on the support page (sorry, but I really need it...)
+* NEW: More donation options on the support page, including BitCoin and Google Checkout (Sorry, but every little bit is appreciated...!)
 
 
 
 TODO:
+* Cross-posting excerpt/full-post doesn't work when force xpost is enabled (?) http://www.wp-united.com/viewtopic.php?f=15&t=3594&p=14750#p14750
+* Password reset in WP: Can't log in via phpBB after reset. Need to spawn sync event http://www.wp-united.com/viewtopic.php?f=15&t=3606&p=14753#p14753
 * Cross-posting not working with spam plugins other than Akismet (e.g. Anti Spam bee)
+* Graphene template, x-posted comments not showing. http://www.wp-united.com/viewtopic.php?f=14&t=3583&p=14744#p14744
 * -1- appears on registration page sometimes (may be related to MOD edits not being made...)
 * Beitrage
+* Still getting 404 on viewtopic/viewforum
 * Need to add mod-edit for colour palette to change bgcolor to style=
+>>> lots of requests for forum selection in widgets
+* BAW post views count error on widgets page http://wordpress.org/support/topic/plugin-conflict-causes-blankwhite-widgets-page
+* avatars not synced on auto user creation in phpBB. (?) http://wordpress.org/support/topic/pull-the-avatar-from-another-wordpress-plugin-instead-of-using-gravatar?replies=10#post-3913218
+>> slow-loading query? http://www.wp-united.com/viewtopic.php?f=15&t=3555&p=14598#p14598
 * review & include propress option                           
 >> Core-patcher isn't generating correct string for some people (can't reproduce)
 >> xpost with changed slug getting reposted as comment

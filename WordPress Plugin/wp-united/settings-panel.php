@@ -228,9 +228,10 @@ function wpu_support() {
 		<img id="panellogo" src="<?php echo wpu_get_settings_logo(); ?>" />
 		<?php screen_icon('options-general'); ?>
 		<h2> <?php _e('Please Help Support WP-United', 'wp-united'); ?> </h2>
-		<p><?php _e('Thank you very much for doanloading and using WP-United. I hope you enjoy it.', 'wp-united');  ?></p>
+		<p><?php _e('Thank you very much for downloading and using WP-United. I hope you enjoy it.', 'wp-united');  ?></p>
 		<p><?php _e('WP-United represents thousands of hours of coding, support and significant ongoing server costs.', 'wp-united');  ?></p>
-		<p><?php _e('WP-United is free software, and we hope you find it useful. If you do, please support us by making a donation here! Any amount, however small, is much appreciated. Thank you!', 'wp-united');  ?></p>
+		<p><?php _e('It is free software, and I hope you find it useful. If you do, please support me by making a donation here.', 'wp-united'); ?></p>
+		<p><?php _e('Any amount, however small, is very much appreciated. Thank you!', 'wp-united');  ?></p>
 		
 		<div id="supportmethods">
 			<fieldset><legend><?php _e('PayPal', 'wp-united'); ?></legend>
@@ -254,6 +255,15 @@ function wpu_support() {
 					<input type="hidden" name="charset"/> 
 					<input type="image" id="submit" name="Google Checkout" alt="Fast checkout through Google" src="https://checkout.google.com/buttons/support.gif?merchant_id=360787695278690&w=130&h=50&style=white&variant=text" />
 				</form>
+			</fieldset>
+
+			<fieldset><legend><?php _e('Send WP-United some BitCoins!', 'wp-united'); ?></legend>
+			<div>
+				<p><?php _e('Alternatively, please donate some Satoshi to a good cause.', 'wp-united');  ?></p>
+				<a href="bitcoin:1N4swuit91Goe3QcA79RF5UyVFEijWX6UL?amount=0.5&label=WP-United">
+				<img src="<?php echo $wpUnited->get_plugin_url(); ?>images/settings/images/btc-wpu.png"></a>
+				<p><em>1N4swuit91Goe3QcA79RF5UyVFEijWX6UL</em></p>
+			</div>
 			</fieldset>
 		</div>
 		
