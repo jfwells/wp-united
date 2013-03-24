@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: wp-united\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-01-17 14:46+0800\n"
-"PO-Revision-Date: 2013-01-18 01:39+0800\n"
+"PO-Revision-Date: 2013-03-10 19:34+0800\n"
 "Last-Translator: John Wells <solutions@wp-united.com>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -243,7 +243,7 @@ msgstr "Internetauftritt:"
 #: mapped-users.php:217
 #: mapped-users.php:359
 msgid "Posts:"
-msgstr "Beiträge"
+msgstr "Beitrage"
 
 #: mapped-users.php:218
 msgid "Comments:"
@@ -1414,7 +1414,7 @@ msgstr " Neuester Benutzer: %s"
 
 #: template-tags.php:326
 msgid "posts since last visit"
-msgstr "BeitrÃ¤ge seit dem letzten Besuch"
+msgstr "Beiträge seit dem letzten Besuch"
 
 #: template-tags.php:381
 #, php-format

@@ -261,7 +261,7 @@ function wpu_support() {
 			<div>
 				<p><?php _e('Alternatively, please donate some Satoshi to a good cause.', 'wp-united');  ?></p>
 				<a href="bitcoin:1N4swuit91Goe3QcA79RF5UyVFEijWX6UL?amount=0.5&label=WP-United">
-				<img src="<?php echo $wpUnited->get_plugin_url(); ?>images/settings/images/btc-wpu.png"></a>
+				<img src="<?php echo $wpUnited->get_plugin_url(); ?>images/settings/btc-wpu.png"></a>
 				<p><em>1N4swuit91Goe3QcA79RF5UyVFEijWX6UL</em></p>
 			</div>
 			</fieldset>

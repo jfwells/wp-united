@@ -674,7 +674,9 @@ Class WPU_Plugin_XPosting extends WP_United_Plugin_Base {
 					$excerpt = explode($matches[0], $content, 2);
 					$content = $excerpt[0];
 				}
-			}	
+			} else {
+				$content = $excerpt;
+			}
 		}
 		
 		if(defined('WPU_SHOW_TAGCATS') && WPU_SHOW_TAGCATS) {
