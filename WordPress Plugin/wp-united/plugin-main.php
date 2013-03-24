@@ -58,6 +58,7 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 			array('registration_errors', 				array('validate_new_user', 10, 3),			'integrateLogin'),
 			array('user_register', 						array('process_new_wp_reg', 10, 1),			'integrateLogin'),
 			array('profile_update', 					array('profile_update', 10, 2),				'integrateLogin'),
+			array('password_reset', 					array('password_reset', 10, 2),				'integrateLogin'),
 			array('set_logged_in_cookie',				array('add_wider_cookie', 10, 5),			'integrateLogin'),
 			array('clear_auth_cookie',					'clear_wider_cookie',						'integrateLogin'),
 		),
@@ -887,6 +888,10 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 		}
 	}
 	
+	public function password_reset($user, $new_pass) {
+		// IN PROGRESS -- see wp-login && pluggable.php
+	}
+	
 	/**
 	 * Sets a WordPress cookie that can cover the phpBB forum
 	 */
@@ -1157,6 +1162,33 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 		}
 		
 	}
+	
+	
+	/*
+	 * Alters the inbound request to prevent a 404 error on a template integrated page.
+	 * Filter is set in wordpress-runner.php, as it is only needed on a template
+	 * integration action
+	 */
+	public function alter_query_for_template_int($request) {
+		
+		if(!$this->is_enabled() || !$this->should_do_action('template-p-in-w')) {
+			return $request;
+		}
+		
+		$request = array(
+			'showposts'	=> 1
+		);
+		
+		if($this->get_setting('useForumPage')) { 
+			// set the page query so that the forum page is selected if in header
+			$request['page_id']	= get_option('wpu_set_forum');
+		}
+
+		return $request;
+		
+	}
+	
+	
 	
 }
 

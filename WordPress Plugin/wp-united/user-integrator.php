@@ -412,7 +412,7 @@ function wpu_validate_new_user($username, $email, $errors) {
  * @return int < 1 on failure; >=1 phpbb User ID on success
  */
 function wpu_create_phpbb_user($userID) {
-	global $phpbbForum;
+	global $phpbbForum, $config, $db;
 
 	if(!$userID) {
 		return -1;
@@ -430,18 +430,34 @@ function wpu_create_phpbb_user($userID) {
 		return -1;
 	}
 
-	$pUserID = 0;
-				
+	
+	
 	$userToAdd = array(
 		'username' => $signUpName,
 		'user_password' => $password,
 		'user_email' => $wpUsr->user_email,
-		'user_type' => USER_NORMAL,
-		'group_id' => 2  //add to registered users group		
+		'user_type' => USER_NORMAL,	
 	);
 	
-
+	// add to newly registered group if needed
+	if ($config['new_member_post_limit']) {
+		$userToAdd['user_new'] = 1;
+	}
 				
+	// Which group by default?
+	$sql = 'SELECT group_id
+		FROM ' . GROUPS_TABLE . "
+		WHERE group_name = '" . $db->sql_escape('REGISTERED') . "'
+			AND group_type = " . GROUP_SPECIAL;
+	$result = $db->sql_query($sql);
+	$row = $db->sql_fetchrow($result);
+	$db->sql_freeresult($result);
+
+	$groupID = (int)$row['group_id'];
+	$userToAdd['group_id'] = (empty($groupID)) ? 2 : $groupID;
+	
+
+	$pUserID = 0;		
 	if ($pUserID = user_add($userToAdd)) {
 
 		wpu_update_int_id($pUserID, $wpUsr->ID);

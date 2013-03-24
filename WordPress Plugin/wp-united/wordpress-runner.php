@@ -61,13 +61,20 @@ if ( !$wpuCache->use_template_cache()) {
 
 //Run deferred load from patched core;
 function wpu_initialise_wp() {
+	global $wpUnited;
+	
 	static $initialised = false;
 	
 	if(!$initialised && function_exists('wpu_deferred_wp_load')) {
 		$initialised = true;
+		
+		add_filter('request', array($wpUnited, 'alter_query_for_template_int'));
 		wpu_deferred_wp_load();
+			
 	}
 }
+
+
 
 function wpu_wp_template_load() {
 	global $phpbbForum, $wpUtdInt, $wpUnited;
@@ -77,18 +84,20 @@ function wpu_wp_template_load() {
 	// get the page
 	ob_start();
 	
+	$oldGET = $_GET; $_GET = array();
+	
 	wpu_initialise_wp();
 	
 	// items usually set by wordpress template loads:
 	define("WP_USE_THEMES", true);
 	global $wp_did_header; $wp_did_header = true;
-	$oldGET = $_GET; $_GET = array();
+	
 	wp();
-	$_GET = $oldGET;
+	
 	if (!$wpUnited->should_do_action('template-p-in-w')) {
 		$wpUtdInt->load_template();
 	}
-	
+	$_GET = $oldGET;
 	$content = ob_get_contents();
 	ob_end_clean();
 	
@@ -122,25 +131,6 @@ function wpu_get_wordpress() {
 	if ($wpUnited->should_do_action('template-p-in-w')) {
 	
 		define('PHPBB_CONTENT_ONLY', TRUE);
-	
-
-		//prevent WP 404 error
-		if (!$wpuCache->use_template_cache()) {
-			$forum_page_ID = 0;
-			if($wpUnited->get_setting('useForumPage')) {
-				// set the page query so that the forum page is selected if in header
-				$forum_page_ID = get_option('wpu_set_forum');
-			}
-			
-			$oldGET = $_GET; $_GET = array();
-			if(!empty($forum_page_ID)) {
-				query_posts("showposts=1&page_id={$forum_page_ID}");
-			} else {
-				query_posts('showposts=1');
-			}
-			$_GET = $oldGET;		
-		}
-		
 		
 
 		if ($wpUnited->get_setting('wpSimpleHdr')) {
@@ -220,8 +210,6 @@ function wpu_get_wordpress() {
 		}
 
 	}
-	
-	
 	
 }
 
