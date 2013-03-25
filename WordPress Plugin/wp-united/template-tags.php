@@ -899,7 +899,7 @@ function wpu_phpbb_nav_block_footer($args) {
 			var onload_functions = new Array();
 			var onunload_functions = new Array();
 			<?php if($PMs['new'] && $PMs['popup']) { ?>
-				var url = '<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . 'i=pm&amp;mode=popup'); ?>';
+				var url = '<?php echo $phpbbForum->append_sid($phpbbForum->get_board_url() . 'ucp.' . $phpEx . '?i=pm&amp;mode=popup'); ?>';
 				window.open(url.replace(/&amp;/g, '&'), '_phpbbprivmsg', 'height=225,resizable=yes,scrollbars=yes, width=400');
 			<?php } ?>
 			window.onload = function(){for (var i = 0; i < onload_functions.length; i++)eval(onload_functions[i]);};
