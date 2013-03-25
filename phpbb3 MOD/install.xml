@@ -207,6 +207,12 @@ function phpbb_validate_username($username, $allowed_username = false)]]></actio
 		<!-- ENDIF -->]]></action>
       </edit>
     </open>
+    <open src="styles/prosilver/template/editor.js">
+      <edit>
+        <find><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px;">');]]></find>
+        <action type="replace-with"><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px; background-color: #' + color + ;">');]]></action>
+      </edit>
+    </open>    
     <open src="styles/prosilver/theme/common.css">
       <edit>
         <find>

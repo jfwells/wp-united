@@ -12,20 +12,20 @@ committed for v0.9.2.5:
 * BUGFIX: Cross-posting with explicit excerpts set were posting as full posts regardless of options
 * BUGFIX: PM popup spawned from nav header widget was showing 404 error
 * BUGFIX: Add users to default group correctly when crreated via WordPress, and add them to the "newly registered" group if needed.
+* BUGFIX: Integrated user couldn't log in to phpBB after doing a password reset in WordPress
 * NEW: More donation options on the support page, including BitCoin and Google Checkout (Sorry, but every little bit is appreciated...!)
 * BUGFIX: Fixed corrupt characters in German translation
-
+* NEW: Added new template edit to phpBB to fix issues with colour picker on posting page. You will need to apply the changes to each installed template
 
 
 TODO:
-* *** IN PROGRESS *** Password reset in WP: Can't log in via phpBB after reset. Need to spawn sync event http://www.wp-united.com/viewtopic.php?f=15&t=3606&p=14753#p14753
-* Need to add mod-edit for colour palette to change bgcolor to style=
+* avatars not synced on auto user creation in phpBB. (?) http://wordpress.org/support/topic/pull-the-avatar-from-another-wordpress-plugin-instead-of-using-gravatar?replies=10#post-3913218
+------ release ---------
 * cache -- DONOTCACHEPAGE, wpsupercacherewriteconditions, 
 * Graphene template, x-posted comments not showing. http://www.wp-united.com/viewtopic.php?f=14&t=3583&p=14744#p14744
 * Cross-posting not working with spam plugins other than Akismet (e.g. Anti Spam bee)
 * -1- appears on registration page sometimes (may be related to MOD edits not being made...) [[ ONLY IF USER INT DISABLED?? ]]
 * BAW post views count error on widgets page http://wordpress.org/support/topic/plugin-conflict-causes-blankwhite-widgets-page
-* avatars not synced on auto user creation in phpBB. (?) http://wordpress.org/support/topic/pull-the-avatar-from-another-wordpress-plugin-instead-of-using-gravatar?replies=10#post-3913218
 >> slow-loading query? http://www.wp-united.com/viewtopic.php?f=15&t=3555&p=14598#p14598
 * review & include propress option                           
 >> Core-patcher isn't generating correct string for some people (can't reproduce)

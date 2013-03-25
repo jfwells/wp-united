@@ -888,8 +888,27 @@ class WP_United_Plugin extends WP_United_Plugin_Main_Base {
 		}
 	}
 	
+	/**
+	 * Sync details when a user's password is reset
+	 * Note that this happens before the new pw is in the DB.
+	 * @param object $user user row from DB
+	 * @param string $new_pass new, unhashed password
+	 */
 	public function password_reset($user, $new_pass) {
-		// IN PROGRESS -- see wp-login && pluggable.php
+		global $phpbbForum;
+		
+		if($this->get_setting('integrateLogin')) {
+			$wpData = get_userdata($user->ID);
+			
+			//user phpBB password format for syncing
+			set_var($phpbbPass, stripslashes($new_pass), 'string', true);
+			$wpData->data->user_pass = wp_hash_password($phpbbPass);
+			
+			$phpbbID = wpu_get_integrated_phpbbuser($userID);
+			if($phpbbID) {
+				wpu_sync_profiles($wpData, $phpbbForum->get_userdata('', $phpbbID), 'wp-update', false); 
+			}
+		}
 	}
 	
 	/**

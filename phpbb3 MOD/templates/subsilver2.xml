@@ -87,6 +87,12 @@ Visit http://www.wp-united.com for more help or information.
 ]]></action>
 	  </edit>
 	</open>
+	    <open src="styles/prosilver/template/editor.js">
+      <edit>
+        <find><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px;">');]]></find>
+        <action type="replace-with"><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px; background-color: #' + color + ;">');]]></action>
+      </edit>
+    </open>   
 
 	 <diy-instructions lang="en-gb">Remember to purge the phpBB template cache, and refresh your themes after making these changes.
 	
