@@ -45,8 +45,12 @@ The download iincludes the following languages:
 * Deutsch
 * 中文（简体）
 * русский
+* Srpski (Latinica)
+* Português Brasileiro
 
 == Installation ==
+
+For full instructions, please visit the [HowTo forum at wp-united.com](http://www.wp-united.com/viewforum.php?f=7)
 
 1. Back up the current state of your site, just to be on the safe side.
 1. Upload the `wp-united` directory and all its contents to the `/wp-content/plugins/` directory. (This will be done for you if you install through the WordPress Plugins menu).
@@ -66,11 +70,23 @@ Follow the instructions to connect to your phpBB forum in the WP-United section 
 
 = I can't connect, I am getting errors. =
 
-Ensure you have installed the phpBB modification package. You can download it from (WP-United.com)[http://www.wp-united.com/releases/wp-united-latest-phpbb]
+Ensure you have installed the phpBB modification package. You can download it from (WP-United.com)[http://www.wp-united.com/releases/wp-united-latest-phpbb] . You need to ensure that you install the package properly, for all installed phpBB templates and languages. The WP-United.com forum has more information.
 
 = I am getting blank pages, I have no idea what is wrong! =
 
 Please visit [This thread](http://www.wp-united.com/viewtopic.php?f=14&t=3314) to find out how to debug the problem.
+
+= User integration is turned on, but I keep getting new WordPress accounts (e.g. `admin1`) instead of having existing accounts linked =
+
+This is because you have "automatic user creation" turned on. It is just doing what you ask. To link together existing accounts, please disable "automatically create users in WordPress" option, and visit the WP-United User Mapper. There, you can clean up an unneeded accounts and link together the ones you want. When done, you can re-enable automatic user creation.
+
+= User creation is turned on, but users keep getting logged out =
+
+Please check your phpBB cookie settings. The "Cookie Domain" must be applicable for your whole site, including WordPress. Same for the "cookie path" (usuall '/' will be OK for this). More information is on the WP-United forum.
+
+= Links to my forum are wrong! =
+
+Check your phpBB server settings (phpBB ACP -> Server Settings). The domain and script path must be set correctly.
 
 == Screenshots ==
 
@@ -85,7 +101,25 @@ Please visit [This thread](http://www.wp-united.com/viewtopic.php?f=14&t=3314) t
 
 == Changelog ==
 
-= v0.9.2.4 RELEASE CANDIDAT 3 =
+= v0.9.2.5 RELEASE CANDIDATE 3 =
+
+* BUGFIX: Subscriber permission was missing in new installs, preventing permissions mapping from working and causing various other bugs
+* NEW: Page is reloaded if WP-United manages to log in phpBB on a full-page phpBB-in-wordpress page after phpBB has already run
+* NEW/BUGFIX: Arbitrate between phpBB & WordPress' make clickable functions properly. To use this new bugfix, you will need to upgrade the phpBB side
+* BUGFIX: 404 headers sent on full page template integrations now properly fixed
+* BUGFIX: Integrated phpBB users with WordPress counterparts that had been deleted were showing as "integrated" in the user mapper. Don't automatically re-integrate them, but show them as unintegrated so they can be attended to manually if needed.
+* BUGFIX: Don't blindly follow and interpret stylesheet loops -- e.g. stylesheet A imports stylesheet B which imports stylesheet A and a black hole opens up
+* BUGFIX: Cross-posting with explicit excerpts set were posting as full posts regardless of options
+* BUGFIX: PM popup spawned from nav header widget was showing 404 error
+* BUGFIX: Add users to default group correctly when crreated via WordPress, and add them to the "newly registered" group if needed
+* BUGFIX: Integrated users couldn't log in to phpBB after doing a password reset in WordPress
+* NEW: More donation options on the support page, including BitCoin and Google Checkout (Sorry, but every little bit is appreciated...!)
+* NEW: Added new template edit to phpBB to fix issues with colour picker on posting page. You will need to apply the changes to each installed template
+* NEW: Full translation into Serbian (Latin Script) (Thank you Uros Gavric!) and a partial translation into Brazillian Portuguese (Thank you Leonardo Silva!) 
+* BUGFIX: Fixed corrupt characters in German translation
+
+
+= v0.9.2.4 RELEASE CANDIDATE 3 =
 
 * BUGFIX: style-fixer breaking images in imported stylesheets
 * BUGFIX: style fixer dupe checker was comparing reset stylesheets
