@@ -980,31 +980,41 @@ function wpu_sync_profiles($wpData, $pData, $action = 'sync', $ignorePassword = 
 	 */
 				
 	// sync avatar WP -> phpBB
-	if(($action != 'phpbb-update') &&  ($wpUnited->get_setting('avatarsync'))){
-		// is the phpBB avatar empty already, or was it already put by WP-United?
-		if(empty($pData['user_avatar']) || (stripos($pData['user_avatar'], 'wpuput=1') !== false)) { 
-			
-			$avatarSize = 90;
-			
-			// we send an avatar. First we need to get the WP one -- remove our filter hook
-			if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) {
-				
-				// Gravatars are predicated on user e-mail. If we send ID instead, get_avatar could just return a default as the user might not
-				// have cached data yet. E-mail is also faster as it doesn't need to be converted.
-				$avatar = get_avatar($wpData['user_email'], $avatarSize);
-				if(!empty($avatar)) {
-					if(stripos($avatar, includes_url('images/blank.gif')) === false) {
-						$avatarDetails = $phpbbForum->convert_avatar_to_phpbb($avatar, $pData['user_id'], $avatarSize, $avatarSize);
-						$updates['phpbb'] = array_merge($updates['phpbb'], $avatarDetails);
-					}
-				}
-				// reinstate our action hook:
-				add_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5);
+	
+	// should we update the avatar?
+	$updateAvatar = false;
+	if($wpUnited->get_setting('avatarsync')) {
+		if($action != 'phpbb-update') {
+			// is the phpBB avatar empty already, or was it already put by WP-United?
+			if(empty($pData['user_avatar']) || (stripos($pData['user_avatar'], 'wpuput=1') !== false)) { 
+				$updateAvatar = true;
 			}
+			// or did the user delete it in phpBB? If so, then replace the vacuum with a default one
+		} else if(empty($pData['user_avatar'])) {
+			$updateAvatar = true;
 		}
-	}	
+	}
+	if($updateAvatar) {
+		$avatarSize = 90;
 		
-	 /**
+		// we send an avatar. First we need to get the WP one -- remove our filter hook
+		if(remove_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5)) {
+			
+			// Gravatars are predicated on user e-mail. If we send ID instead, get_avatar could just return a default as the user might not
+			// have cached data yet. E-mail is also faster as it doesn't need to be converted.
+			$avatar = get_avatar($wpData['user_email'], $avatarSize);
+			if(!empty($avatar)) {
+				if(stripos($avatar, includes_url('images/blank.gif')) === false) {
+					$avatarDetails = $phpbbForum->convert_avatar_to_phpbb($avatar, $pData['user_id'], $avatarSize, $avatarSize);
+					$updates['phpbb'] = array_merge($updates['phpbb'], $avatarDetails);
+				}
+			}
+			// reinstate our action hook:
+			add_action('get_avatar', array($wpUnited, 'get_avatar'), 10, 5);
+		}
+	}
+
+	/**
 	 * 
 	 *	Compare and update passwords
 	 *
