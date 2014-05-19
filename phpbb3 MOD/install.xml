@@ -19,11 +19,11 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.9.2.5</mod-version>
+    <mod-version>0.9.2.6</mod-version>
     <installation>
       <level>intermediate</level>
       <time>900</time>
-      <target-version>3.0.11</target-version>
+      <target-version>3.0.12</target-version>
     </installation>
     <link-group>
 		<link type="template" href="templates/subsilver2.xml" lang="en">subsilver2</link>
@@ -32,6 +32,7 @@ Visit http://www.wp-united.com for more help or information.
 		<link type="language" href="languages/zh_cmn_hans/install.xml" lang="zh_cmn_hans">中文（简体）</link>	
 		<link type="language" href="languages/ru/install.xml" lang="nl">русский</link>	
 		<link type="language" href="languages/nl/install.xml" lang="nl">Nederlands</link>	
+		<link type="contrib" href="upgrading_from_v0.9.2.5_or_v0.9.2.6_fresh_install" lang="en">Upgrading from WP-United v0.9.2.5 or v0.9.2.6 fresh installs</link>
 		<link type="contrib" href="contrib/upgrading_from_v0.9.1.x/upgrade.xml" lang="en">Upgrading from WP-United v0.9.1.x</link>
 		<link type="contrib" href="contrib/upgrading_from_v0.9.0.x/upgrade.xml" lang="en">Upgrading from WP-United v0.9.0.x</link>
 		<link type="contrib" href="contrib/upgrading_from_v0.8.x/upgrade.xml" lang="en">Upgrading from WP-United v0.8.x</link>
@@ -210,7 +211,7 @@ function phpbb_validate_username($username, $allowed_username = false)]]></actio
     <open src="styles/prosilver/template/editor.js">
       <edit>
         <find><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px;">');]]></find>
-        <action type="replace-with"><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px; background-color: #' + color + ;">');]]></action>
+        <action type="replace-with"><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px; background-color: #' + color + ';">');]]></action>
       </edit>
     </open>    
     <open src="styles/prosilver/theme/common.css">
