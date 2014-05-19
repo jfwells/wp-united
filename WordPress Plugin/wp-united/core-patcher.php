@@ -270,7 +270,11 @@ Class WPU_Core_Patcher {
 			/**
 			 * We want to defer initialisation of WP to later, so we wrap the last portion into a callable function
 			 */
-			$cSet = str_replace('$wp->init()', 'function wpu_deferred_wp_load() { $GLOBALS[\'wp\']->init()', $cSet);
+			$cSet = str_replace(
+				array('$wp->init()', '$GLOBALS[\'wp\']->init()'), 
+				'function wpu_deferred_wp_load() { $GLOBALS[\'wp\']->init()', 
+				$cSet
+			);
 			
 		
 			$cSet = '?'.'>'.trim($cSet).'[EOF]';
