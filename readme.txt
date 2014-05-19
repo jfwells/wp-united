@@ -101,9 +101,10 @@ Check your phpBB server settings (phpBB ACP -> Server Settings). The domain and 
 
 == Changelog ==
 
-= v0.9.2.6 RELEASE CANDIDATE 3 =
+= v0.9.2.7 RELEASE CANDIDATE 3 =
 * BUGFIX: Quick change to fix brokwn template integration in WP v3.9.1. Development has been paused for over a year, and there are more bugs to fix -- please watch this space.
-
+* BUGFIX: Broken autocomplete in user mapper (thanks nata-lee)
+* NEW: Replace phpBB avatars with a WordPress default when the user deletes it.
 
 = v0.9.2.5 RELEASE CANDIDATE 3 =
 
@@ -381,5 +382,5 @@ This version fixes a problem with handling errors from other plugins in v0.9.2.2
 = 0.9.2.4 =
 This version significantly improves the style fixer's handling of nested stylesheets, and fixes a number of minor bugs. Please update. You need to update both the phpBB and WordPress side of WP-United. For the phpBB side, you only need to copy over the updated files from the phpbb-forum/root folder in the download package to your forum root.
 
-= 0.9.2.6 =
+= 0.9.2.7 =
 This version fixes a template integration bug with WordPress > 3.9. Development has been paused for a long time and there are other bugs to fix -- please watch this space. There is no need to upgrade the phpBB side if you are updating from v0.9.2.4.

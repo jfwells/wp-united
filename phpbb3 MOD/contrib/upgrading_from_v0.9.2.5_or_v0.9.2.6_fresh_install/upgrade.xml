@@ -64,7 +64,7 @@ The control panel can now be found within WordPress, under WP-United.
         <open src="styles/prosilver/template/editor.js">
       <edit>
 
-        <find><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px; background-color: #' + color + ';">');]]></find>
+        <find><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px; background-color: #' + color + ;">');]]></find>
         <action type="replace-with"><![CDATA[				document.write('<td bgcolor="#' + color + '" style="width: ' + width + 'px; height: ' + height + 'px; background-color: #' + color + ';">');]]></action>
       </edit>
     </open>   

@@ -19,11 +19,11 @@ Visit http://www.wp-united.com for more help or information.
         <contributions />
       </author>
     </author-group>
-    <mod-version>0.9.2.5</mod-version>
+    <mod-version>0.9.2.7</mod-version>
     <installation>
       <level>intermediate</level>
       <time>240</time>
-      <target-version>3.0.11</target-version>
+      <target-version>3.0.12</target-version>
     </installation>
   <link-group>
      <link type="parent" href="../../install.xml" lang="en">Main install file</link>
