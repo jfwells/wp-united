@@ -1,5 +1,5 @@
 
-current target: v0.9.2.6
+current target: v0.9.2.8
 
 * NEW: Replace phpBB avatars with a WordPress default when the user deletes it.
 * FIXED: Blank forum page on phpBB-in-WordPress v3.9x

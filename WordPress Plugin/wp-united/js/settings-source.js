@@ -810,10 +810,10 @@ function wpuShowMapper(repaginate) {
 					return false;
 				}
 			})
-			.data('autocomplete')._renderItem = function(ul, item) {
+			.data('ui-autocomplete')._renderItem = function(ul, item) {
 				var statusColor = (item.statuscode == 0) ? 'red' : 'green';
 				return $wpu('<li></li>')
-					.data('item.autocomplete', item )
+					.data('ui-autocomplete-item', item )
 					.append( '<a><small><strong>' + item.label + '</strong><br />' + item.desc + '<br /><em style="color: ' + statusColor + '">' + item.status + '</em></small></a>')
 					.appendTo( ul );
 			};
