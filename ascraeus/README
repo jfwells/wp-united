@@ -1,8 +1,0 @@
-WP-United for phpBB 3.1
------------------------
-
-This is still just a shell -- there is no real code here. As phpBB 3.1 becomes more imminent this will be fleshed out.
-The aim is to share as much code as possible between 3.0 and 3.1, at least at first.
-
-Useful links for me:
-https://github.com/imkingdavid/phpbb-prefixed (good example of extension)
