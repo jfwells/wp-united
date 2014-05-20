@@ -1,8 +1,0 @@
-*.bak
-*~
-package.xml
-.buildpath
-.project
-.settings/
-.DS_Store
-
