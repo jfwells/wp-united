@@ -28,7 +28,7 @@ class WPU_Forum_Polls_Widget extends WP_Widget {
 		}
 		
 		$widget_ops = array('classname' => 'wp-united-forum-polls', 'description' => __('Displays a selected poll from your forum. Users must have the relevant permissions to view and/or vote on the poll.', 'wp-united') );
-		$this->WP_Widget('wp-united-forum-polls', __('WP-United Forum Quick Poll', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-forum-polls', __('WP-United Forum Quick Poll', 'wp-united'), $widget_ops);//$this->WP_Widget
 	
 	}
 	
