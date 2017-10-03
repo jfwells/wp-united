@@ -26,7 +26,7 @@ class WPU_Login_User_info_Widget extends WP_Widget {
 	
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-loginuser-info', 'description' => __('Displays the logged-in user\'s details, such as username, avatar, and number of posts since last visit, together with varius meta links. If the user is logged out, displays a phpBB login form.', 'wp-united') );
-		$this->WP_Widget('wp-united-loginuser-info', __('WP-United Login / User Info Box', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-loginuser-info', __('WP-United Login / User Info Box', 'wp-united'), $widget_ops); //$this->WP_Widget("wp-united....
 	}
 	
 	public function widget($args, $instance) {
@@ -115,7 +115,7 @@ class WPU_Latest_Phpbb_Topics_Widget extends WP_Widget {
 	
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-latest-topics', 'description' => __('Shows the latest topics posted in the phpBB forum.', 'wp-united') );
-		$this->WP_Widget('wp-united-latest-topics', __('WP-United Latest phpBB Topics', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-latest-topics', __('WP-United Latest phpBB Topics', 'wp-united'), $widget_ops);//$this->WP_Widget
 	}
 	
 	public function widget($args, $instance) {
@@ -177,7 +177,7 @@ class WPU_Latest_Phpbb_Posts_Widget extends WP_Widget {
 	public function __construct() {
 		global $phpbbForum;
 		$widget_ops = array('classname' => 'wp-united-latest-posts', 'description' => __('Shows the latest posts posted in the phpBB forum.', 'wp-united') );
-		$this->WP_Widget('wp-united-latest-posts', __('WP-United Latest Forum Posts', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-latest-posts', __('WP-United Latest Forum Posts', 'wp-united'), $widget_ops);//$this->WP_Widget
 	}
 	
 	function widget($args, $instance) {
@@ -229,7 +229,7 @@ class WPU_Latest_Phpbb_Posts_Widget extends WP_Widget {
 class WPU_Forum_Stats_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-forum-stats', 'description' => __('Show key forum statistics and information.', 'wp-united') );
-		$this->WP_Widget('wp-united-forum-stats', __('WP-United Forum Statistics', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-forum-stats', __('WP-United Forum Statistics', 'wp-united'), $widget_ops);//$this->WP_Widget
 	}
 	
 	public function widget($args, $instance) {
@@ -279,7 +279,7 @@ class WPU_Forum_Stats_Widget extends WP_Widget {
 class WPU_Forum_Users_Online_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-users-online', 'description' => __('Show information about users that are currently online, in the usual phpBB format.', 'wp-united') );
-		$this->WP_Widget('wp-united-users-online', __('WP-United Users Online', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-users-online', __('WP-United Users Online', 'wp-united'), $widget_ops);//$this->WP_Widget
 	}
 	
 	public function widget($args, $instance) {
@@ -366,7 +366,7 @@ class WPU_Useful_Forum_Links_Widget extends WP_Widget {
 	
 	
 		$widget_ops = array('classname' => 'wp-united-useful-links', 'description' => __('Useful customizable links to forum features', 'wp-united') );
-		$this->WP_Widget('wp-united-useful-links', __('WP-United Useful Forum Links', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-useful-links', __('WP-United Useful Forum Links', 'wp-united'), $widget_ops);//$this->WP_Widget
 	}
 	
 	public function widget($args, $instance) {
@@ -483,7 +483,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 	
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-forum-navblock', 'description' => __('Shows the top phpBB prosilver forum navigation / breadcrumb bar. If you have template integration turned on, this will only appear on non-forum pages. Your forum must be using a prosilver-based theme for this to work.', 'wp-united') );
-		$this->WP_Widget('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-forum-navblock', __('WP-United Forum Navigation Bar', 'wp-united'), $widget_ops);//$this->WP_Widget
 	}
 	
 	public function widget($args, $instance) {
@@ -562,7 +562,7 @@ class WPU_Forum_Nav_Block_Widget extends WP_Widget {
 class WPU_Forum_Nav_Block_Footer_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array('classname' => 'wp-united-forum-navblock-ftr', 'description' => __('Shows the bottom phpBB prosilver forum footer bar. If you have template integration turned on, this will only appear on non-forum pages. Your forum must be using a prosilver-based theme for this to work.', 'wp-united') );
-		$this->WP_Widget('wp-united-forum-navblock-ftr', __('WP-United Forum Navigation Footer Bar', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-forum-navblock-ftr', __('WP-United Forum Navigation Footer Bar', 'wp-united'), $widget_ops);//$this->WP_Widget
 	}
 	
 	public function widget($args, $instance) {
@@ -622,7 +622,7 @@ class WPU_Forum_Birthdays_Widget extends WP_Widget {
 	public function __construct() {
 	
 		$widget_ops = array('classname' => 'wp-united-forum-birthdays', 'description' => __('Shows a list of users whose birthday it is today. Note that users must be logged in to phpBB and birthday entry must be activated on your forum for this to work.', 'wp-united') );
-		$this->WP_Widget('wp-united-forum-birthdays', __('WP-United User Birthdays', 'wp-united'), $widget_ops);
+		parent::__construct('wp-united-forum-birthdays', __('WP-United User Birthdays', 'wp-united'), $widget_ops);//$this->WP_Widget
 	
 	}
 	
